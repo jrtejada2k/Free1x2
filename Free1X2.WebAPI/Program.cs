@@ -82,11 +82,11 @@ namespace Free1X2.WebAPI
                 builder.AddSerilog();
             });
             
-            // TODO: Register service implementations
-            // services.AddScoped<IAnalysisService, AnalysisService>();
-            // services.AddScoped<ITeamService, TeamService>();
-            // services.AddScoped<IFilterService, FilterService>();
-            // services.AddSingleton<IAppConfiguration, AppConfiguration>();
+            // Register service implementations
+            services.AddScoped<IAnalysisService, AnalysisService>();
+            services.AddScoped<ITeamService, TeamService>();
+            services.AddScoped<IFilterService, FilterService>();
+            services.AddSingleton<IAppConfiguration, AppConfiguration>();
         }
         
         private static void ConfigureMiddleware(WebApplication app)
