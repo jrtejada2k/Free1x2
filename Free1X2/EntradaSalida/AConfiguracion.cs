@@ -20,7 +20,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Xml;
-using Free1X2.Comunicacion;
 using System.IO;
 
 namespace Free1X2.EntradaSalida
@@ -328,15 +327,8 @@ namespace Free1X2.EntradaSalida
             }
             catch { }
         }
-        public void GuardarEstadoComunicaciones(List<Notificacion> notificaciones)
-        {
-            StreamWriter sw = new StreamWriter(Application.StartupPath + "/Comunicaciones/comunicaciones.free1x2");
-            for (int i = 0; i < notificaciones.Count; i++)
-            {
-                sw.WriteLine(notificaciones[i].IdNotificacion.ToString() + "#" + notificaciones[i].Leida.ToString() + "#" + notificaciones[i].Borrada.ToString());
-            }
-            sw.Close();
-        }
+        // Notification system removed for performance
+
         public void GuardarValoresSeparadorJB(string[] valores)
 		{
 			string texto="";

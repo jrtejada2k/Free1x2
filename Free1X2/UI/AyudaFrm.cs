@@ -13,17 +13,17 @@ namespace Free1X2.UI
 
         private static void linkManual_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            System.Diagnostics.Process.Start("http://www.free1x2.com/DocWK/index.php?title=Inicio");
+            MessageBox.Show("Online help disabled for offline operation.\\nPlease refer to local documentation.", "Help", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private static void linkArticulos_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            System.Diagnostics.Process.Start("http://www.free1x2.com/Free1X2/Como.aspx");
+            MessageBox.Show("Online help disabled for offline operation.\\nPlease refer to local documentation.", "Help", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private static void linkForo_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            System.Diagnostics.Process.Start("http://www.free1x2.com/foros/index.php");
+            MessageBox.Show("Online help disabled for offline operation.\\nPlease refer to local documentation.", "Help", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private static void linkFAQ_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -33,18 +33,17 @@ namespace Free1X2.UI
 
         private static void linkRecursos_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            System.Diagnostics.Process.Start("http://www.free1x2.com/Free1X2/RecursosFree1X2.aspx");
+            MessageBox.Show("Online help disabled for offline operation.\\nPlease refer to local documentation.", "Help", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void lnkNotificaciones_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            NotificacionesFrm notificacionesFrm = new NotificacionesFrm();
-            notificacionesFrm.ShowDialog();
+            MessageBox.Show("Notifications system disabled for performance.", "Notifications", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void lnkFacebook_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            System.Diagnostics.Process.Start("http://www.facebook.com/Free1x2#/pages/free1x2/175884348193?ref=sgm");
+            MessageBox.Show("Online help disabled for offline operation.\\nPlease refer to local documentation.", "Help", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
 

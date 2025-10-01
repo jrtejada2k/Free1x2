@@ -8,7 +8,6 @@ using Free1X2.MotorCalculo;
 using Free1X2.UI.Controls;
 using Free1X2.UI.Estadisticas;
 using Free1X2.UI.Filtros;
-using Free1X2.Comunicacion;
 
 namespace Free1X2.UI 
 {
@@ -49,7 +48,7 @@ namespace Free1X2.UI
             InitializeComponent();
             InicializarBarrasHerramientas();
             PonerNombrePrograma(nombreArchivoComb);
-            ActualizaEstadoIconoNotificaciones();
+            // Notifications disabled for performance
             var fH = new FormulariosHelper();
             fH.Traducir(this);
         }
@@ -121,10 +120,7 @@ namespace Free1X2.UI
 		void MainFormLoad(object sender, EventArgs e)
 		{
 			ConfiguraBoleto();
-            if (VariablesGlobales.ActualizarAlInicio)
-            {
-                LanzaActualizador();
-            }
+            // Auto-updater disabled for performance
 
             // Advertising banner disabled for performance
             pBQuinielista.Visible = false;			
@@ -136,11 +132,7 @@ namespace Free1X2.UI
 			pronosticos.InicializarBoleto(VariablesGlobales.NumeroPartidos, VariablesGlobales.Separador);
 		}	
 
-        protected void LanzaActualizador()
-        {
-            var actualizador = new ActualizadorFrm();
-            actualizador.ShowDialog();
-        }
+		// Auto-updater system removed for performance
 		
 		void MainFormActivated(object sender, EventArgs e)
 		{
@@ -229,8 +221,7 @@ namespace Free1X2.UI
 		
         private void comprobarActualizacionesToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var act = new ActualizadorFrm();
-            act.ShowDialog();
+            MessageBox.Show("Auto-update feature disabled.\nPlease check manually for updates.", "Update Check", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 		
 		#endregion		
@@ -1819,24 +1810,9 @@ namespace Free1X2.UI
 
         private void pctNotificaciones_Click(object sender, EventArgs e)
         {
-            NotificacionesFrm notForm = new NotificacionesFrm();
-            notForm.ShowDialog();
-            ActualizaEstadoIconoNotificaciones();
+            MessageBox.Show("Notifications system disabled for performance.", "Notifications", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
-        private void ActualizaEstadoIconoNotificaciones()
-        {
-            GestorNotificaciones gestor = new GestorNotificaciones();
-            if (gestor.HayNotificacionesSinLeer())
-            {
-                pctNotificaciones.Image = imgListNotificaciones.Images[0];
-                toolTip1.SetToolTip(pctNotificaciones, "Hay Notificaciones sin Leer");
-            }
-            else
-            {
-                pctNotificaciones.Image = imgListNotificaciones.Images[1];
-                toolTip1.SetToolTip(pctNotificaciones, "No Hay Notificaciones sin Leer");
-            }
-        }		
+        // Notification system removed for performance optimization
 		#endregion
 	}
 }

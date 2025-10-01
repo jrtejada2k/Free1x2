@@ -4,7 +4,6 @@ using System.Windows.Forms;
 using Free1X2.UI.Modern;
 using Free1X2.UI.Modern.Controls;
 using Free1X2.MotorCalculo;
-using Free1X2.Comunicacion;
 
 namespace Free1X2.UI.Modern
 {
