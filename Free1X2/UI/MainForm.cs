@@ -22,7 +22,7 @@ namespace Free1X2.UI
         private int grupoPantalla;			
         private string boletoOnline = "";
         public Analizador analizador = new Analizador();			
-	    readonly string version = "Free1X2 - Versión " + Application.ProductVersion + " Kamikaze";	
+	    readonly string version = "Free1X2 - Versión " + Application.ProductVersion + " Rarotonga";	
 		
         public string BoletoOnline
         {
@@ -126,11 +126,8 @@ namespace Free1X2.UI
                 LanzaActualizador();
             }
 
-            var gestorPublicidad = new GestorPublicidad();
-            if (!gestorPublicidad.PublicidadActivadaEnMainForm())
-			{
-				pBQuinielista.Visible = false;
-			}			
+            // Advertising banner disabled for performance
+            pBQuinielista.Visible = false;			
 		}
 		void ConfiguraBoleto()
 		{

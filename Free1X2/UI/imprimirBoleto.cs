@@ -54,21 +54,14 @@ namespace Free1X2.UI {
 		public ImprimirBoletoFrm() {
 			InitializeComponent();
 
-		    ComprobrarSiPublicidadActivada();
+		    // Advertising disabled for performance
 
 			if (!GetConfig()) SetConfig();
             FormulariosHelper fH = new FormulariosHelper();
             fH.Traducir(this);
 		}
 
-	    private void ComprobrarSiPublicidadActivada()
-	    {
-	        var gestorPublicidad = new GestorPublicidad();
-            if (!gestorPublicidad.PublicidadActivadaEnImprimirBoletos())
-            {
-                pictureBox2.Visible = false;
-            }
-	    }
+	    // Advertising system removed for performance optimization
 
 	    private List<string> cols = new List<string>();
 		private string columna; char ch;

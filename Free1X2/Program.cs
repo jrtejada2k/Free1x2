@@ -121,7 +121,7 @@ namespace Free1X2
 
         private static void HandleStartupException(Exception exception)
         {
-            string message = $"Error crítico durante el inicio de Free1X2:\n\n" +
+            string message = $"Error crítico durante el inicio de Programa:\n\n" +
                            $"{exception.Message}\n\n" +
                            $"La aplicación no puede continuar.";
 

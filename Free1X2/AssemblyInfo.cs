@@ -7,10 +7,10 @@ using System.Resources;
 // change them to the information which is associated with the assembly
 // you compile.
 
-[assembly: AssemblyTitle("Free1X2")]
-[assembly: AssemblyDescription("Programa Libre de Quinielas")]
+[assembly: AssemblyTitle("Programa quinielas")]
+[assembly: AssemblyDescription("Programa para  Quinielas")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Free1X2.com")]
+[assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("")]
 [assembly: AssemblyCopyright("")]
 [assembly: AssemblyTrademark("")]
@@ -23,7 +23,7 @@ using System.Resources;
 // You can specify all values by your own or you can build default build and revision
 // numbers with the '*' character (the default):
 
-[assembly: AssemblyVersion("0.77.1")]
+[assembly: AssemblyVersion("0.1")]
 
 // The following attributes specify the key for the sign of your assembly. See the
 // .NET Framework documentation for more information about signing.

@@ -49,7 +49,7 @@ namespace Free1X2.UI
                     string[] versiones = versionDisponible.Split('*');
                     if (versiones.Length == 2)
                     {
-                        //Ha recogido una versión kamikaze y una Standard
+                        //Ha recogido una versión Rarotonga y una Standard
                         string[] versionA = versiones[0].Split('-');
                         string[] versionB = versiones[1].Split('-');
 

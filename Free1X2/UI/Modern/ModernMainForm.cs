@@ -21,7 +21,7 @@ namespace Free1X2.UI.Modern
         private int _grupoPantalla;
         private string _boletoOnline = "";
         private readonly Analizador _analizador = new Analizador();
-        private readonly string _version = "Free1X2 - Versión " + Application.ProductVersion + " Kamikaze";
+        private readonly string _version = "Free1X2 - Versión " + Application.ProductVersion + " Rarotonga";
 
         // Modern UI Components
         private ModernStatusBar _statusBar;
@@ -794,7 +794,7 @@ namespace Free1X2.UI.Modern
             
             var label = new Label
             {
-                Text = "Free1X2\nVersión " + Application.ProductVersion + " Kamikaze\n\n" +
+                Text = "Free1X2\nVersión " + Application.ProductVersion + " Rarotonga\n\n" +
                        "Sistema de análisis de quinielas\n\n" +
                        "Modernizado para .NET 8",
                 TextAlign = ContentAlignment.MiddleCenter,

@@ -232,7 +232,7 @@ namespace Free1X2.UI
 
 		private void AcercaDeFrm_Load(object sender, System.EventArgs e)
 		{
-			lblVersion.Text="Versión "+Application.ProductVersion + " Kamikaze";
+			lblVersion.Text="Versión "+Application.ProductVersion + " Rarotonga";
 		}
 
 		private void linkLicencia_LinkClicked(object sender, System.Windows.Forms.LinkLabelLinkClickedEventArgs e)
