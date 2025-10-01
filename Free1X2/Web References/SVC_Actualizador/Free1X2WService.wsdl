@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://tempuri.org/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://tempuri.org/">
+      <s:element name="UltimaVersionFree1X2">
+        <s:complexType />
+      </s:element>
+      <s:element name="UltimaVersionFree1X2Response">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="UltimaVersionFree1X2Result" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ObtenerBoleto">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="jornada" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="temporada" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ObtenerBoletoResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ObtenerBoletoResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="AlmacenarInformeError">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="texto" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="objeto" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="infoAdicional" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="version" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="user" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="email" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="AlmacenarInformeErrorResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="ObtenerJornadaActual">
+        <s:complexType />
+      </s:element>
+      <s:element name="ObtenerJornadaActualResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ObtenerJornadaActualResult" type="tns:JornadaActual" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="JornadaActual">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="JornadaActiva" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="P1" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="P2" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="P3" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="P4" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="P5" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="P6" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="P7" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="P8" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="P9" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="P10" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="P11" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="P12" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="P13" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="P14" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="P15" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="EquiposPartido1" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="EquiposPartido2" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="EquiposPartido3" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="EquiposPartido4" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="EquiposPartido5" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="EquiposPartido6" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="EquiposPartido7" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="EquiposPartido8" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="EquiposPartido9" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="EquiposPartido10" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="EquiposPartido11" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="EquiposPartido12" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="EquiposPartido13" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="EquiposPartido14" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="EquiposPartido15" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="ObtenerNotificaciones">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="fechaUltimaComprobacion" type="s:dateTime" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ObtenerNotificacionesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ObtenerNotificacionesResult" type="tns:ArrayOfNotificacionFree1x2" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfNotificacionFree1x2">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="NotificacionFree1x2" nillable="true" type="tns:NotificacionFree1x2" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="NotificacionFree1x2">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Contenido" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Titulo" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Remitente" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="FechaCaducidad" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="FechaCreacion" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="IdNotificacion" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="Leida" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="Borrada" type="s:boolean" />
+        </s:sequence>
+      </s:complexType>
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="UltimaVersionFree1X2SoapIn">
+    <wsdl:part name="parameters" element="tns:UltimaVersionFree1X2" />
+  </wsdl:message>
+  <wsdl:message name="UltimaVersionFree1X2SoapOut">
+    <wsdl:part name="parameters" element="tns:UltimaVersionFree1X2Response" />
+  </wsdl:message>
+  <wsdl:message name="ObtenerBoletoSoapIn">
+    <wsdl:part name="parameters" element="tns:ObtenerBoleto" />
+  </wsdl:message>
+  <wsdl:message name="ObtenerBoletoSoapOut">
+    <wsdl:part name="parameters" element="tns:ObtenerBoletoResponse" />
+  </wsdl:message>
+  <wsdl:message name="AlmacenarInformeErrorSoapIn">
+    <wsdl:part name="parameters" element="tns:AlmacenarInformeError" />
+  </wsdl:message>
+  <wsdl:message name="AlmacenarInformeErrorSoapOut">
+    <wsdl:part name="parameters" element="tns:AlmacenarInformeErrorResponse" />
+  </wsdl:message>
+  <wsdl:message name="ObtenerJornadaActualSoapIn">
+    <wsdl:part name="parameters" element="tns:ObtenerJornadaActual" />
+  </wsdl:message>
+  <wsdl:message name="ObtenerJornadaActualSoapOut">
+    <wsdl:part name="parameters" element="tns:ObtenerJornadaActualResponse" />
+  </wsdl:message>
+  <wsdl:message name="ObtenerNotificacionesSoapIn">
+    <wsdl:part name="parameters" element="tns:ObtenerNotificaciones" />
+  </wsdl:message>
+  <wsdl:message name="ObtenerNotificacionesSoapOut">
+    <wsdl:part name="parameters" element="tns:ObtenerNotificacionesResponse" />
+  </wsdl:message>
+  <wsdl:portType name="Free1X2WServiceSoap">
+    <wsdl:operation name="UltimaVersionFree1X2">
+      <wsdl:input message="tns:UltimaVersionFree1X2SoapIn" />
+      <wsdl:output message="tns:UltimaVersionFree1X2SoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ObtenerBoleto">
+      <wsdl:input message="tns:ObtenerBoletoSoapIn" />
+      <wsdl:output message="tns:ObtenerBoletoSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="AlmacenarInformeError">
+      <wsdl:input message="tns:AlmacenarInformeErrorSoapIn" />
+      <wsdl:output message="tns:AlmacenarInformeErrorSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ObtenerJornadaActual">
+      <wsdl:input message="tns:ObtenerJornadaActualSoapIn" />
+      <wsdl:output message="tns:ObtenerJornadaActualSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ObtenerNotificaciones">
+      <wsdl:input message="tns:ObtenerNotificacionesSoapIn" />
+      <wsdl:output message="tns:ObtenerNotificacionesSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="Free1X2WServiceSoap" type="tns:Free1X2WServiceSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="UltimaVersionFree1X2">
+      <soap:operation soapAction="http://tempuri.org/UltimaVersionFree1X2" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ObtenerBoleto">
+      <soap:operation soapAction="http://tempuri.org/ObtenerBoleto" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AlmacenarInformeError">
+      <soap:operation soapAction="http://tempuri.org/AlmacenarInformeError" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ObtenerJornadaActual">
+      <soap:operation soapAction="http://tempuri.org/ObtenerJornadaActual" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ObtenerNotificaciones">
+      <soap:operation soapAction="http://tempuri.org/ObtenerNotificaciones" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="Free1X2WServiceSoap12" type="tns:Free1X2WServiceSoap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="UltimaVersionFree1X2">
+      <soap12:operation soapAction="http://tempuri.org/UltimaVersionFree1X2" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ObtenerBoleto">
+      <soap12:operation soapAction="http://tempuri.org/ObtenerBoleto" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AlmacenarInformeError">
+      <soap12:operation soapAction="http://tempuri.org/AlmacenarInformeError" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ObtenerJornadaActual">
+      <soap12:operation soapAction="http://tempuri.org/ObtenerJornadaActual" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ObtenerNotificaciones">
+      <soap12:operation soapAction="http://tempuri.org/ObtenerNotificaciones" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="Free1X2WService">
+    <wsdl:port name="Free1X2WServiceSoap" binding="tns:Free1X2WServiceSoap">
+      <soap:address location="http://www.free1x2.com/Services/Free1X2WService.asmx" />
+    </wsdl:port>
+    <wsdl:port name="Free1X2WServiceSoap12" binding="tns:Free1X2WServiceSoap12">
+      <soap12:address location="http://www.free1x2.com/Services/Free1X2WService.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

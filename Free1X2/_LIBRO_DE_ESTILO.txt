@@ -1,0 +1,42 @@
+De cara a mantener la máxima uniformidad en el programa, es importante
+mantener una misma composición gráfica en los controles y formularios.
+Por supuesto, siempre que se pueda.
+Estas son las propiedades usadas:
+
+FORMULARIOS
+BackColor: Bisque
+Text: Establecer el correcto para no tener que inspeccionar si el código lo
+cambia o pone el nombre del Form.
+
+BOTONES CON TEXTO (Todos, a ser posible, llevarán imagen)
+BackColor: DarkSalmon
+Size: 128; 32 (100; 32 para botones medianos)
+Font: Microsoft Sans Serif; 8,25pt
+ForeColor: Black (o ControlText, es el mismo)
+FlatStyle: Standard
+ImageAlign: MiddleLeft
+TextAlign: MiddleRight
+
+BOTONES SIN TEXTO (Todos, a ser posible, llevarán imagen)
+BackColor: LightSalmon
+Size: 24; 20
+FlatStyle: Standard
+ImageAlign: MiddleCenter
+
+IMAGENES (botones grandes y medianos):
+Formato: GIF
+Fondo: Blanco (en algunos casos puede variar)
+Color de transparencia: Blanco (o el color de fondo usado)
+Tamaño: 32; 32
+Carpetas:
+	imagenes\botones
+	imagenes\botonesCondiciones (sólo para las condiciones del MainForm)
+	imagenes\toolbar (solo para el toolbar del mainform)
+
+IMAGENES (botones pequeños):
+Formato: GIF/BMP
+Fondo: LightSalmon (igual que el botón)
+Color de transparencia: Ninguno
+Tamaño: Cuadrado, desde 16;16 hasta 24;24
+Carpetas:
+	imagenes\toolbarPq

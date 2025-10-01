@@ -1,0 +1,15 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Free1X2.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="Free1X2_SVC_Actualizador_Free1X2WService" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">http://www.free1x2.com/Services/Free1X2WService.asmx</Value>
+    </Setting>
+    <Setting Name="a" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">Bisque</Value>
+    </Setting>
+    <Setting Name="b" Type="System.Drawing.Color" Scope="Application">
+      <Value Profile="(Default)">Bisque</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

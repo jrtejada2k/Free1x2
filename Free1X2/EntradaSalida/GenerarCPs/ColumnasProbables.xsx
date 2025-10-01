@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--Este archivo lo genera de forma automática el diseñador de esquemas XML. Contiene información de diseño para componentes de la superficie de diseño.-->
+<XSDDesignerLayout layoutVersion="1" viewPortLeft="0" viewPortTop="0">
+    <Tipos_x0020_de_x0020_CPs_XmlElement left="1714" top="6557" width="5292" height="2963" selected="0" zOrder="3" index="0" />
+    <Configuracion_x0020_de_x0020_CPs_XmlElement left="16505" top="6875" width="5292" height="2963" selected="0" zOrder="4" index="1" />
+    <Configuración_XmlKeyref left="11464" top="10300" width="503" height="503" selected="0" zOrder="5" />
+</XSDDesignerLayout>

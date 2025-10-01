@@ -1,0 +1,717 @@
+0.77.1
+
+- Corregido un error en la utilidad Rotación de Signos que provocaba una excepción al abrir archivos con columnas de más de 14 partidos (descubierto por Juan Bellas)
+- Corregido un error que provocaba una excepción al crear un grupo de partidos y, sin especificar ningún partido, volvemos atrás con el control de desplazamiento.
+- Añadido un icono en la parte inferior izquierda del programa que avisará cuando haya Notificaciones nuevas.
+- Utilidad de Tramificador ahora acepta hasta 70 jornadas (solo permitia hasta 44) (Gracias Joan!)
+- Arreglado bug en utilidad de estadisticas que no obtenia la ruta al fichero especificado correctamente en Windows Vista (Gracias Ardoc!)
+- Arreglado celdas que aparecian en negro y no permitian ver el texto al ser del mismo color (error notificado por Ardoc)
+- corregido error en la ventana de Valoraciones: se generaba un error generando las columnas base cuando el valor de los signos eran los mismos porque no se sabia como ordenar los signos de mayor a menor valor. 
+Ahora en caso de empate se da preferencia al signo mas local.
+- corregido error en utilidad "Ordenar por Probabilidad" donde no cargaba correctamente los valores del LAE por defecto por lo que el porcentaje destinado a premios de 14 era del 15% en vez del 12%
+- Corregido error en utilidad "Ordenar por Probabilidad" en donde al hacer el calculo de ordenacion guardaba los valores del LAE para futuras ejecuciones pero esto causaba que se cambiasen los valores tambien para otras utilidades.
+
+0.77
+
+- Corregido un error en el Filtro Columnas Probables, que provocaba una excepción al analizar las escaleras cuando la condición se inicializa desde un archivo de combinación (descubierto por tete100).
+- Corregido un error en la utilidad Diferencias entre filtros, que provocaba una excepción cuando se hacía click en alguna fila en blanco de la lista de filtros (descubierto por jvallespin)
+- Corregido un error en el Análisis de fallos que no contemplaba los fallos en tolerancias de letras en el Control de Fallos de Columnas Probables (descubierto por paquechu)
+
+- Mejorada considerablemente la velocidad de cálculo del Filtro Dibujos.
+- Mejorada ligeramente la velocidad de cálculo del Filtro Distancias.
+- Mejorada ligeramente la velocidad de cálculo del Filtro Grupos de Equipos.
+- Mejorada ligeramente la velocidad de cálculo del Filtro Columnas Probables.
+- Mejorada la ventana de confirmación al cerrar el programa, que ahora permite especificar si no deseamos que se nos vuelva a preguntar en el futuro. Esta característica está desactivada bajo Mono.
+
+- Aumentamos a 60 los boletos que se pueden descargar online.
+
+- Añadidos al Listado de Condiciones los filtros parciales de grupos.
+- Añadido al Listado de Condiciones el Filtro de Diferencias.
+- Añadido un Importador / Exportador de Columnas Probables dentro de la condición Columnas Probables, que permite importar y exportar Columnas Probables simples o con sus aciertos, aciertos seguidos y fallos seguidos.
+- Añadido un visor de boletos en modo texto con la opción de imprimir (no en boletos oficiales).
+- Añadido un Gestor de Notificaciones, accesible desde la ventana "Ayuda". Este gestor permitirá recibir comunicados desde Free1X2.com.
+
+###Linux###
+- Corregido un error que provocaba excepciones en Linux con Mono al calcular la combinación cuando se había inicializado una combinación, al no encontrar la ruta correcta al directorio "Temp".
+- Corregido un error que provocaba que el programa no se cerrara al contestar "Sí" después de la pregunta de confirmación.
+
+
+0.76.7.2
+
+- Corregido un error en Posibles Premios / Mis Mejores Opciones que no contemplaba correctamente el partido del pleno (descubierto por vilanova)
+- Corregido un error en el Análisis de Valoraciones cuando se usaba la condición en varios grupos en la combinación (descubierto por vilanova).
+- Corregido un error en el Control de Porcentajes, que provocaba errores al especificar la valoración en el Filtro de Valoraciones (descubierto por pepequinilas)
+
+- Unificadas las extensiones para los archivos de valoraciones de *.val a *.txt (sugerido por jvallespin)
+
+- Mejorado el Análisis Gráfico de columnas.
+
+
+0.76.7.1
+
+- Corregido un error que provocaba una excepción al intentar obtener la columna ganadora online desde el Escrutinio.
+- Corregido un error al Guardar Combinación. Cuando se guardaba una combinación y posteriormente se hacía click en Nueva Combinación, al guardar esta nueva combinación sobreescribía la guardada anteriormente (descubierto por jvallespin)
+- Corregido un error en el Selector JuanM, que no mostraba correctamente los porcentajes (descubierto por Pedrín)
+- Corregido el control de valoraciones, que provocaba errores en las utilidades que lo usaban (descubierto por jvallespin)
+
+0.76.7
+
+- Añadido un Gestor de Equipos para editar los archivos de Equipos de 1ª, 2ª, 2ªB e Internacionales.
+
+- Corregido un error que se producía al abrir archivos en Windows Vista en la utilidad Multiplicador.
+- Corregido un error que se producía al abrir archivos en Windows Vista en la utilidad Fraccionador.
+- Corregido un error en el Motor de Cálculo que ignoraba el pronóstico base cuando se especificaba un filtro (descubierto por gmarben)
+- Corregido un error en la utilidad Diferencias entre Filtros que no realizaba bien los cálculos. Este error no afecta a la versión 0.70.2 Standard de Free1X2 (descubierto por vilanova)
+- Corregido un error en la utilidad Análisis de fallos, que no analizaba bien los Formatos de Signos (descubierto por pemares), además, ahora cuando finaliza el análisis no se cierra la ventana, sugerido por tete100.
+- Corregido un error en la utilidad Transposición, que no modificaba correctamente los signos (descubierto por tete100)
+- Corregido un error en el Filtro de Diferencias, que no desactivaba el filtro al pulsar el botón para activar / desactivar el filtro.
+- Corregido un error en la utilidad Combinación / Análisis de Columnas, que no analizaba correctamente el archivo de entrada, descubierto por tete100.
+- Corregido un error en la utilidad Selector MarioSan que se producía al abrir archivos en Windows Vista (descubierto por gmarben).
+- Corregido un error que provacaba una excepción cuando se intentaba borrar un grupo pulsando en el botón Borrar y cuando se hacía click en el botón Grupo Anterior habiendo dejado previamente todos los partidos inactivos.
+- Corregido un error en la utilidad Análisis de columnas, que producía una excepción cuando se pulsaba el botón para abrir un archivo y finalmente no se abría (descubierto por Misterff).
+
+- Incluido en el Análisis de fallos el análisis de Relaciones II y III en CPs (incompleto)
+
+- Mejorado el Escrutador que ahora permite actualizar la columna ganadora online.
+- Mejorado el Actualizador de Boletos, que ahora representa correctamente la temporada actual.
+- Mejorado el rendimiento de la utilidad Combinar Filtros, que ahora carga los filtros más eficientemente.
+- Mejorada la vista de la ventana principal en Windows Vista, que aparecía con barras de desplazamiento para algunas resoluciones.
+- Mejorado el Análisis:
+	+ El Análisis de Signos Seguidos ahora especifica el tipo de Figura que se muestra en la pantalla.
+	+ El Análisis de Dibujos ahora permite marcar la condición directamente desde el Análisis.
+	+ El Análisis de Interrupciones ahora permite marcar la condición directamente desde el Análisis.
+	+ El Análisis de Pesos Numéricos ahora permite marcar la condición desde el Análisis.
+
+
+0.76.6.1
+
+- Corregido un error en la interfaz del filtro Dibujos, que provocaba una excepción al abrir la ventana del filtro (descubierto por tete100).
+- Corregido un error en la utilidad Diferencias entre Filtros, que no cargaba correctamente una lista salvada previamente (descubierto por vilanova)
+
+
+
+0.76.6
+
+- Corregido un error en el Filtro Grupos Equipos, que inactivaba incorrectamente el filtro en la pantalla principal.
+- Corregido un error en la utilidad Diferencias entre Filtros, que no cargaba correctamente las listas de Filtros guardadas (descubierto por vilanova)
+- Corregido un error en el Reductor, que no admitía ningún archivo, a pesar de ser archivos válidos (descubierto por vilanova).
+- Corregido un error en la utilidad Análisis de Fallos, que no controlaba correctamente los fallos del Filtro Formatos de Signos. El cálculo principal del Filtro es correcto (descubierto por Misterff)
+- Corregido un error en la interfaz, que provocaba que no se activasen las condiciones cuando se activaba un partido en un grupo haciendo clic en un punto distinto al número del partido (descubierto por pemares)
+
+- Mejorado ligeramente el rendimiento de la mayoría de los filtros.
+- Mejorado el Escrutador, que ahora permite especificar además de los valores habituales (1,X,2,*) el valor "S", para partidos que se hayan suspendido (según la nueva norma del LAE)
+
+0.76.5
+
+- Añadida al menú Archivo la posibilidad de borrar los archivos de Informe de error generados.
+
+- Mejorada la utilidad de Impresión de boletos, con las sugerencias de Pedrín:
+	
+	* Modificada la interfaz con una mejor organización de los elementos.
+	* Modificados los valores en la configuración de una de las impresoras conocidas.
+	* Ya no hay límite de columnas para imprimir.	
+	* Modificada la alineación del nombre de archivo y número de boleto para que se ajusten mejor al ancho del boleto y no quede cortado.
+	
+- Corregido un error en la utilidad "Combinar Filtros" que no calculaba correctamente después del primer cálculo, y obligaba a reiniciar la utilidad. Además se adapta para que trabaje con un número variable de partidos, determinado por los archivos de entrada y se añade un bóton para Reiniciar Todo sin necesidad de reiniciar la utilidad.
+- Corregido un error en la utilidad "Diferencias entre filtros" que producía una excepción cuando se editaban las diferencias (descubierto por Pedrín)
+- Corregido un error en el Escrutador que provocaba una excepción al acceder a archivos en Windows Vista (descubierto por Pedrín)
+- Corregido un error en el Control de Conjuntos, que provocaba fallos cuando el número de fallos de conjuntos era superior a lo especificado por el usuario (por ejemplo, el usuario especifica 1-3 y se dan 4 fallos). Descubierto por pemares.
+- Corregido un error en el "Actualizador" que generaba una excepción cuando no se podía conectar al hacer clic en el link de descarga.
+
+- Optimizado el "Visor de Boletos" que ahora carga los boletos más eficientemente.
+
+0.76.4
+
+- Corregido un error al inicializar el Control de Grupos, que no "entendía" entradas del tipo: "0-1,2"
+- Corregido un error en el desplazamiento entre grupos que permitía que se especificaran nuevos grupos sin haber activado ningún partido.
+- Corregido un error en el filtro Formatos de Signos, que no controlaba correctamente las entradas erróneas, por ejemplo, introducir texto en campos numéricos (Líneas, Global).
+- Corregido un error en el filtro Grupos de Equipos, que no controlaba correctamente las entradas erróneas, por ejemplo texto donde hay que introducir un valor numérico.
+- Corregido un error al cargar el boleto desde un archivo, que se producía cuando el archivo de boleto era erróneo o estaba corrupto, por ejemplo, partidos con un sólo equipo.
+- Corregido un error que se producía al pasar de un grupo a otro al guardar los partidos activos.
+- Corregido un error al marcar los partidos activos en los grupos cuando se usaban 15 o 16 partidos, el programa confundía los partidos 15 y 16.
+- Corregido un error en el Visor de Boletos que no ordenaba bien los boletos de forma descendente.
+- Corregido un error en el Visor de Boletos, que no mostraba correctamente las columnas al desplazarse hasta el último boleto y volver al anterior.
+- Corregido un error en la utilidad Añadir Pleno al 15, que lanzaba una excepción cuando el archivo de entrada y salida eran el mismo archivo. Además se avisa al usuario cuando no se especifica qué hacer con el Pleno al 15.
+- Corregido un error en el Reductor que no controlaba bien la entrada de archivos incompletos o con líneas en blanco al final.
+- Corregidos varios errores en Windows Vista, relativos a la apertura de archivos cuando el archivo se encuentra en un directorio distinto al del ejecutable.
+- Corregido un error en la utilidad Diferencias entre Filtros, que obligaba a que todos los filtros estuviesen en la misma carpeta.
+- Corregido un error en el acceso a archivos desde la utilidad "Imprimir Boletos", que no encontraba el archivo si no estaba en el mismo directorio que el ejecutable en Windows Vista.
+- Corregido un error en el acceso a archivos desde la utilidad "Modificador %", que no encontraba el archivo si no estaba en el mismo directorio que el ejecutable en Windows Vista.
+- Corregido un error en el acceso a archivos desde la utilidad "Posibles Premios", que no encontraba el archivo si no estaba en el mismo directorio que el ejecutable en Windows Vista.
+- Corregido un error en el acceso a archivos desde la utilidad "Escrutinios", que no encontraba el archivo si no estaba en el mismo directorio que el ejecutable en Windows Vista.
+- Corregido un error en el acceso a archivos desde la utilidad "Importar / Exportar", que originaba conflictos entre archivos en Windows Vista.
+- Corregido un error al Calcular y Grabar Columnas, cuando el archivo de salida especificado es el mismo que el archivo de columnas usado como filtro o alguno de los archivos de filtros parciales.
+
+- Mejorado el Actualizador, que ahora detecta si hay alguna conexión activa antes de intentar conectar con el servidor.
+- Mejorado el Manejador de Excepciones, que introduce información sobre el sistema operativo en el que se produce la excepción y el número de partidos indicados en la configuración.
+- Adaptada la utilidad "Generador de Columnas Probables" para que trabaje con un número variable de partidos. Además se mejora la interfaz que ahora es dinámica y se corrige un error que aparecía cuando se usaban más de 14 partidos.
+- Adaptada la utilidad "Rotación de Signos" para que trabaje con más de 14 partidos (detectado y sugerido por pemares).
+
+0.76.3
+
+- Corregido error en Windows Vista. Archivo no se encontraba por creer que estaba en otro directorio. Pasando la ruta completa al archivo se soluciona y es compatible con todas las versiones de Windows
+- Corregido error al cargar combinación con un filtro que se ha borrado.
+- Corregido Analisis de signos que daba error si se cambiaba la opción de visualización (%, columnas) antes de cargar un archivo de apuestas
+- Corregidos algunos errores en la interfaz del Visor de Análisis
+
+0.76.2
+
+- Modificada la utilidad Diferencias entre Filtros, que ahora no tiene límite de número de filtros a cargar (sugerido por vilanova)
+
+- Corregido un error en la utilidad Análisis de signos, que no guardaba correctamente algunos archivos de valoración y que no diferenciaba el pleno al 15 en combinaciones de 15 partidos (descubierto por vilanova)
+- Corregido un error en la utilidad Escrutinios / Posibles Premios, que no sabía interpretar correctamente el partido usado como pleno al 15.
+- Corregido un error en la utilidad Subir Categoría, que obligaba a marcar el "0" en Niveles para que hiciera el Cálculo (descubierto por vilanova)
+
+- Mejorada la utilidad Escrutinios / Posibles Premios, que ahora permite especificar si se debe contemplar el último partido como Pleno. Además se ha añadido un atajo, de forma que al pulsar en el número de partido se va alternando el signo en las casillas de la columna ganadora.
+- Mejorada la condición Columnas Probables: hemos añadido dos botones para borrar todos los pronósticos introducidos o para ponerlos todos a triple (sugerencia de blindy)
+- Mejorado el Manejador de errores que ahora permite enviar la información del error online.
+
+- Añadida la opción de descargar boletos online en Archivo / Obtener Boletos Online
+
+
+0.76.1
+
+- Modificamos el nombre de la Condición Repeticiones a "Diferencias" por las sugerencias de varios usuarios. El funcionamiento es el mismo.
+- Modificado el Análisis de signos, que ahora permite marcar los signos haciendo clic en los porcentajes (sugerido por vilanova).
+- Modificado el control que muestra el boleto, de forma que se puede volver a escribir anotaciones en los grupos (sugerido por vilanova).
+- Modificada la Condición Simetrías, que ahora acepta más formatos de entrada de valores para las simetrías. Ahora permite la entrada de valores separados por comas (a,b), por guiones (a-b) o una mezcla de ambos (a,b-c). La entrada 1,2-5 será interpretada como 1,2,3,4,5 (sugerido por vilanova).
+- Modificada la utilidad Subir Categoría, que ahora acepta la entrada de ficheros de más de 14 partidos y devuelve la salida con el número de partidos del archivo entrante, independientemente de la configuración.
+- Modificada la utilidad Modificador % que ahora acepta archivos con un número de partidos independiente de la configuración. Además se ha corregido un error que provocaba que a veces se mostraran valores negativos en los porcentajes.
+- Modificada la utilidad Columnas GEPT, que ahora trabaja con el número de partidos especificados en la configuración.
+
+- Corregido un error en la utilidad Análisis de Signos, que a veces fallaba al abrir un fichero si éste no se encontraba en el árbol de directorios del programa (descubierto por blindy).
+- Corregido un error en la utilidad Importar / Exportar Columnas, que producía una excepción cuando se abría el cuadro de selección de archivos y se cancelaba antes de elegir ningún archivo. Además se unifica la utilidad para que la salida sea un archivo de columnas con el mismo número de partidos especificado en la Configuración.
+- Corregido un error en el Analizador de Formatos123 (incluido dentro de la ventana de la condición) que no admitía columnas ganadoras de un número de partidos distinto de 14-15.
+
+- Mejorada la utilidad Importar/Exportar, que ahora también importa archivos de columnas separados por comas (',').
+- Mejorada la condición Diferencias, a la que hemos añadido atajos para introducir por ejemplo todos los dúos, tríos, etc... haciendo clic en un botón.
+- Mejoradas las condiciones Simetrías y Diferencias: ahora al hacer clic en el número de cada fila se añade a esa casilla el intervalo de partidos 1-2, cada vez que se haga clic se aumenta el segundo valor en una unidad: 1-2,1-3... hasta que se establezca en "1 - número total de partidos". En este momento vuelve a mostrar 1-2 si de nuevo se hace clic en el número de fila.
+
+- Se añade la ventana de Créditos.
+
+- Actualizados los archivos de equipos de 1ª, 2ª y 2ªB con los equipos actuales.
+
+0.76
+
+- Se añade la condición Repeticiones.
+- Corregido un error en el que se producía al cargar una combinación con la condición Valoraciones, que no cargaba correctamente la condición cuando el número de partidos es distinto de 14.
+- Corregido un error en el Análisis de Fallos, concretamente en el análisis de pesos numéricos, descubierto por Luiz Carlos.
+- Corregido un error en el Análisis de Signos, que no funcionaba bien al mostrar valores decimales y columnas, descubierto por vilanova
+- Optimizada parte de la interfaz, que ahora es más ligera al cambiar de grupos.
+- Corregido un error en la interfaz que permitía desactivar partidos en el boleto base.
+
+0.75.1.1
+
+- Corregido un error en el control de porcentajes que no mostraba correctamente las imágenes en los botones.
+
+
+0.75.1
+
+- Mejorada drásticamente la velocidad de cálculo cuando se usan filtros parciales.
+- Modificado el Visor de Boletos para una mejor lectura. Se han espaciado las columnas y la 'x' para marcar los partidos ahora es más pequeña para una visión más clara (sugerido por caribe)
+- Modificada la interfaz, que ahora carga las imágenes más eficazmente.
+- Modificada la barra de herramientas de grupos, que ahora aparece debajo de los grupos cuando se están manejando grupos.
+
+- Corregido un error en el filtro 'Valoraciones' que se producía al cargar el control de porcentajes cuando había menos de 8 partidos (descubierto por Girondin).
+- Corregido un error en el Analizador que no analizaba correctamente las columnas cuando se quería analizar un archivo externo.
+- Corregido un error en el Análisis de Fallos, que no distinguía bien entre el boleto base y el resto de grupos al analizar una combinación, cuando ésta se abría desde uin archivo (descubierto por Luiz Carlos)
+
+- Comenzamos a adaptar Free1X2 para que se ejecute con Mono 2.0 (http://www.mono-project.com):
+
+	* Modificado el acceso a archivos. Ahora usamos la barra '/' para que sea compatible con Linux.
+	* Modificada la interfaz con una configuración soportada en Linux.
+	
+Mono 2.0 es una preview de la versión 2.0 que se prevee que se publique en Septiembre 2008
+
+0.75
+
+- Añadida la posibilidad de usar filtros de columnas de forma parcial en los grupos de partidos. Para que el grupo se de por válido, se debe cumplir el filtro especificado en ese grupo.
+- Adaptada la utilidad Combinación / Análisis de Signos para un número variable de partidos. El número de partidos se determina según el número de partidos de las columnas del archivo a analizar.
+- Modificadas las utilidades Filtro PIM y Filtro Aidomnou, que no mostraban correctamente los controles de la valoración (descubierto por jvallespin)
+0.74.1
+
+- Corregido un error en la interfaz del filtro Columnas probables, que impedía desplazarse por la navegación de columnas para crear una nueva columna probable, aún habiendo introducido datos.
+- Corregido un error en el cálculo de las Figuras de V1X2 que se producía al cargar un archivo de figuras y calcular la combinación (descubierto por vilanova).
+- Adaptado el Reductor en sus tres modalidades a un número variable de partidos. La reducción se basará en el número de partidos de las columnas del archivo de entrada.
+- Adaptada la utilidad Combinación / Probabilidades al cálculo de un número variable de partidos.
+- Añadidas a la herramienta Ver / Listado de Condiciones las novedades del filtro Columnas probables.
+
+
+
+0.74
+
+- Corregido un error en la ventana de Figuras de los filtros que usan figuras, que no leía correctamente las figuras guardadas a un archivo cuando alguna de ellas era "0" (descubierto por vilanova).
+
+- Programado el cálculo para un número variable de partidos, de 1 a 16 en:
+
+	* VX2
+	* Signos Seguidos
+	* Dibujos
+	* Interrupciones
+	* Valoraciones
+		+ Columnas Base
+		+ Busca Límites
+	* Pesos Numéricos
+	* Columnas Probables
+	* Distancias
+	* Contactos
+	* Grupos de Equipos
+	* Formatos 123
+	* Simetrías
+	* Formatos de Signos
+	
+- Modificado el Escrutador, que acepta un número variable de partidos.
+- Modificada la utilidad Escrutinios / Posibles Premios para un número variable de partidos.
+- Modificado el campo Filtro, que ahora acepta filtros de un número de columnas variable. Cuando las columnas del filtro tienen menos partidos que el número de partidos especificado en la configuración, se da la posibilidad de completar los signos de forma personalizada.
+- Modificadas las utilidades:
+
+	* Algebra: 
+		- Elimina columnas repetidas de combinación 1
+		- Suma Combinaciones: Elimina columnas repetidas
+		- Suma Combinaciones: Elimina columnas comunes
+		- Resta Combinaciones (1) - (2)
+
+	* Combinación: Ver Boletos, que acepta un número dinámico de partidos.
+	
+- Modificado el Análisis para que sea compatible con un número dinámico de partidos		
+		
+	
+	
+
+
+0.73.1
+
+- Corregido un error en el Análisis de Figuras V1X2, que no guardaba correctamente las Figuras a archivo cuando la figura era "0" (decubierto por vilanova)
+- Corregido un error en el filtro Columnas Probables, que fallaba al calcular las Relaciones III en determinados casos en los que el número de elementos de las agrupaciones excedían cierto tamaño (descubierto por vilanova).
+- Corregido un error en el Escrutador, que producía una excepción cuando se escrutaban dos columnas entre si de distinta longitud, por ejemplo, un archivo de columnas de 14 partidos contra un archivo de columnas ganadoras de 6 signos (descubierto por Juan Bellas)
+- Corregido un error en la Configuración del Análisis que no guardaba correctamente el análisis de figuras de pesos numéricos.
+- Mejorado el boleto base, ahora cuando se hace click en el rótulo "Boleto Base" y siempre que no se trate de un Grupo, se inicializan los pronósticos a "1X2"
+
+0.73
+
+- Corregido un error en el Visor de Informe de la utilidad EstuCol, que no mostraba correctamente las Escaleras en el modo individual, cuando el número de Escaleras es 0.
+- Corregido un error en el filtro "Formatos123" que no analizaba correctamente las columnas cuando se introducía un rango de aciertos.
+- Añadida la opción de consultar las estadísticas de los datos introducidos en los filtros, pulsando el botón "Estadísticas" en la ventana de los filtros.
+
+
+0.72.2
+
+- Corregido un error en la utilidad Estucol, que generaba mal los rangos de agrupaciones en algunos casos (descubierto por blindy)
+- Corregido un error en la utilidad Estucol, que generaba una excepción al calcular las columnas (descubierto por blindy)
+- Corregido un error en Columnas Probables / Relaciones III que no mostraba correctamente las relaciones Actual / Guardadas al abrir la ventana de la condición.
+- Añadido un botón en Columnas Probables / Relaciones III que permite eliminar la Relación III en pantalla del mismo modo que ocurre con el resto de Relaciones.
+
+0.72.1
+
+- Corregido un error en Columnas Probables / Relaciones II que no comprobaba bien las diferencias de aciertos entre grupos de columnas probables (descubierto por frost)
+- Corregido un error en Escrutinios, que no convertía correctamente la 'x' minúscula a mayúscula en las casillas de la columna ganadora (descubierto por POTEN)
+- Mejorado el rendimiento de la utilidad Estucol.
+
+
+0.72
+- Añadido al filtro "Columnas Probables", dentro de "Relaciones II" la funcionalidad "Relaciones II - AC/ACS/FS Individuales", quedando la pestaña "Relaciones II" de la siguiente forma:
+	
+	a)  Relaciones II - Sumas de AC/ACS/FS: permitirá especificar dos conjuntos de columnas probables y pedir que el primer grupo tenga x AC, ACS o FS más / menos que el segundo grupo. Estos aciertos se refieren a la suma total de AC, ACS o FS de las columnas involucradas.
+	b)  Relaciones II - AC/ACS/FS Individuales: permitirá especificar dos conjuntos de columnas probables y pedir que los AC/ACS/FS individuales de las columnas probables del primer conjunto tengan x apariciones Más/Menos que el segundo grupo.
+	
+	Un ejemplo del caso a):
+		
+		* Especificamos 10 columnas probables marcadas de 0 a 14 aciertos. Pedimos que la suma de AC de las columnas 1-5 sea 20 AC Menos que las columnas 6-10.
+		Esta condición estará acertada si la suma de AC de las columnas 1-5 (p. ej: 5+4+1+10+10 = 29) es menor en 20 AC que la suma de AC de las columnas 6-10 (p. ej: 10+10+10+10+9 = 49)
+		
+	Un ejemplo del caso b):
+		
+		* Especificamos 10 columnas probables marcadas de 0 a 14 aciertos. Pedimos que los AC de las columnas 1-5 sean 5 AC Menos que las columnas 6-10.
+		Esta condición estará acertada si los AC de las columnas 1-5 (p. ej: 5,5,5,5,5) es menor en 5 AC que los AC de las columnas 6-10 (p. ej: 10,10,10,10,10). En este ejemplo se ve que TODAS las columnas del grupo 1 tienen 5 aciertos menos que TODAS las columnas del grupo 2.
+		Podemos aplicar también un rango, por ejemplo 2-7 AC Menos, y en este caso la condición estaría acertada si los aciertos del grupo 1 son (p. ej) 1,3,3,5,5 y los del grupo 2 (p. ej) 7,8,7,7,8. Cómo se aprecia no sería válido el que una columna del grupo 2 tenga 9 aciertos, pues tiene 8 aciertos menos que la primera columna del grupo 1.
+		
+	No es necesario completar ambos conceptos (a y b) en todas las relaciones, podemos dejar uno en blanco, o completar los dos, aunque en el caso de completar los dos la Relación estará acertada si se aciertan ambos conceptos.
+
+- Añadido al filtro "Columnas Probables" las "Relaciones III", que ofrecerá funcionalidad para relacionar:
+
+	a) Sandwichs: apariciones de la figura de AC/ACS/FS "a-b-b-a" donde "a" y "b" pueden ser cualquier valor. Esto es útil para condicionar, por ejemplo, 4 columnas probables. Si pedimos que aparezca un Sandwich, los AC/ACS/FS de las columnas deben ser, por ejemplo, 2-4-4-2, 1-4-4-1, 4-1-1-4, etc... si los AC/ACS/FS son, por ejemplo, 2-3-3-1, la columna no es válida, pues no forma la figura a-b-b-a.
+	
+	b) Escaleras: apariciones de al menos 3 AC/ACS/FS consecutivos, de forma ascendente o descendente. En el ejemplo anterior, si las columnas tienen 4-3-2-4 AC/ACS/FS, la columna es válida, pues se da la escalera "4-3-2" en las tres primeras columnas probables. Por el contrario, si se dan 4-3-1-2 AC/ACS/FS la columna no es válida. Podemos especificar el número de escaleras totales, ascendentes y descendentes.
+	
+	c) Agrupaciones Paso Fijo: son las agrupaciones de 2 elementos (parejas), 3 elementos (tríos).... n elementos que se dan en la serie de AC/ACS/FS de las columnas probables especificadas. Si la serie es 3-4-4-4-6-6-5, se han dado 1 trío y 1 pareja, o lo que es lo mismo 1 trío de 4 aciertos y 1 pareja de 6 aciertos.
+	
+	d) Agrupaciones Solapadas: igual que las Agrupaciones Paso Fijo, salvo que se tienen en cuenta las agrupaciones que se encuentran solapadas. En la serie anterior hay 1 trío de 4 aciertos, 2 parejas de 4 aciertos y 1 pareja de 6 aciertos.
+	
+	Tanto las Agrupaciones Paso Fijo como las Solapadas, admiten un intervalo de apariciones y aciertos, por lo que perfectamente se puede indicar: | 0-2 | 2 | 3-4 | con lo que estamos pidiendo que se den de 0 a 2 agrupaciones de 2 elementos (parejas) con 3 o 4 aciertos. La serie 3-3-4-5-4-1-3 es válida, pues aparece 1 pareja de 3 aciertos, que está en rangos tanto en apariciones (0-2) como en aciertos (3-4).
+	
+	Esta es una idea original de Jose carlos de Nova (ABDON)
+	
+- Añadida la utilidad "EstuCol", que es un Generador / Analizador de columnas probables. La utilidad recibirá un archivo de columnas determinado, y emparejará las columnas para formar columnas probables con fijos / dobles (ofrece varios métodos de ordenación). Una vez ordenadas, las escruta con un archivo de columnas ganadoras facilitado por el usuario, analizará los aciertos de cada columna probable previamente generada y mostrará un análisis de aciertos, sumas de aciertos, sandwichs, escaleras, agrupaciones... Finalmente, ofrece la posibilidad de generar un archivo de condición para importarlo al filtro Columnas Probables (*.cps). Esta es una idea original de Jose carlos de Nova (ABDON).	
+	
+	
+- Añadido al filtro "Pesos Numéricos" las Figuras de "Pesos Numéricos". Una Figura de Pesos Numéricos se obtiene agrupando los pesos que tienen el mismo valor. Si una hipotética columna tiene PG=6, PV=4, P1=2, PX=2 y P2=2, la figura que le corresponde es la 3-1-1, porque el "2" se repite tres veces, el "4" una y el "6" una. No se incluyen las figuras 5 y 4-1, que darían 0 columnas y es imposible que se den.
+- Añadido el "Manejador de Errores de Free1X2" que recabará información sobre excepciones y generará informes de trazado para facilitar las correcciones.
+- Añadido el Análisis de Figuras de V1X2
+- Añadido el Análisis de Figuras de Pesos Numéricos.
+- Añadido al Análisis de Fallos el control de las Figuras de V1X2.
+- Añadido al Análisis de Fallos el control de las Figuras de Pesos Numéricos.
+- Añadido al Análisis de Fallos el control de las Figuras de Contactos.
+- Mejorada la interfaz de la pestaña Relaciones II. Se ha añadido un botón que permite eliminar la relación en pantalla, del mismo modo que en Relaciones I.
+- Mejorada la velocidad de cálculo de las Figuras de Variantes, 1, X y 2.
+- Mejorada la velocidad de cálculo del filtro "Simetrías".
+- Mejorada la velocidad de cálculo del filtro "VX2".
+- Modificado el escrutador. Ahora se muestran los aciertos totales de cada columna en cada jornada en los tres tipos de escrutinios (solicitado por frost)
+- Modificado el Compresor *.z3q que ahora usa la librería ICSharpCode para realizar la compresiŽn. Además se ha añadido la posibilidad de seleccionar el nivel de compresión.
+- Corregido un error en el filtro "Columnas Probables", que no restablecía correctamente los valores en Relaciones II cuando se borraban los datos del filtro.
+- Corregido un error en el Análisis de Fallos, que no indicaba correctamente el fallo en las Tolerancias Globales, descubierto por Pedrín.
+- Actualizada la lista de impresoras.
+
+0.71.1
+- Corregido un error en el filtro "Columnas Probables" descubierto por frost.
+
+0.71
+- Mejorado el Compresor *.z3q
+- Añadido al filtro "Columnas Probables" la funcionalidad Relaciones II:
+
+	* Relaciones II permitirá especificar dos conjuntos de columnas probables y pedir que el primer grupo tenga x AC, ACS o FS más / menos que el segundo grupo. Estos aciertos se refieren a la suma total de AC, ACS o FS de las columnas involucradas. Esta nueva funcionalidad todavía no se contempla en el análisis
+	
+- Añadidas las Figuras de V, 1, X y 2 al filtro "Signos Seguidos":
+
+	* Que permitirá especificar cómo deben distribuirse las V, 1, X y 2 en la columna resultante. Por ejemplo, pidiendo la Figura de variantes: 2-2-1-1, deben aparecer dos pares de variantes y dos variantes aisladas (111X21XX121211 p.ej.). Esta nueva funcionalidad todavía no se contempla en el análisis
+
+0.70.2
+- Modificada la utilidad de impresión de boletos. Ahora en los boletos se muestra el nombre del archivo además, del número de boleto.
+- Modificado el proceso de cálculo que acepta la modificación del precio de la apuesta y del símbolo de la moneda.
+- Actualizada la lista de impresoras conocidas.
+- Añadida una utilidad de compresión / descompresión al formato z3q sugerida por Charlie.
+- Corregido un error al iniciar una nueva combinación. Ahora reinicia el pronóstico base a 14 triples.
+
+0.70.1
+- Corregido un error en el actualizador.
+- Corregido un error en la condición Contactos, que no permitía pegar correctamente una condición copiada, descubierto por Vilanova.
+- Corregido un error en la condición Dibujos, que no permitía pegar correctamente una condición copiada, descubierto por Vilanova.
+- Corregidos dos errores en la interfaz de Análisis de Signos, descubiertos por Ardoc:
+
+	* se obligaba a que se seleccionase forzosamente un archivo una vez pulsado el botón 	de abrir archivo.
+	* cuando se marcaba un signo distinto de 1, X, 2, - o espacio, saltaba un aviso y una 	excepción
+- Corregido un error en la condición Grupos de Equipos, descubierto por Ardoc, que no guardaba correctamente los grupos de equipos cuando se entraba en la condición ya expresada anteriormente y se pulsaba el botón OK.
+- Corregido un error en el Analizador, que colgaba el programa cuando se analizaban Interrupciones.
+- Modificado el ancho de la ventana principal del programa, cuando se creaba un grupo aparecía una barra de desplazamiento en la parte inferior.
+
+0.70
+- Añadido el Análisis de Formatos de signos
+- Corregido un error en el Listado de Condiciones descubierto por Ardoc, que no permitía exportar a *.txt creando un archivo nuevo
+- Se da la acreditación Standard a esta versión
+
+0.69.2
+- Corregido un error al guardar la condición Simetrías en un archivo *.sim o en un archivo de combinación, descubierto por Ardoc
+- Corregido un error al guardar la condición Dibujos, descubierto por Ardoc. Había dos extensiones posibles, ahora se han unificado con la extensión *.dbj
+- Corregido un error al cargar una combinación que contiene la condición Grupos de Equipos activada, descubierto por Ardoc
+- Corregido un error al realizar un análisis con la condición Columnas Probables desactivada, descubierto por Vilanova
+
+0.69.1
+- Corregido un error descubierto por vilanova en el visor del análisis de V, X y 2
+
+0.69
+- Añadido el análisis de Columnas Probables
+- Corregido el motor del análisis, daba 0 columnas cuando se desmarcaba del análisis un filtro activado
+- Modificado el visor de columnas premiadas en el escrutinio, de forma que se pueden guardar las columnas
+- Habilitada la opción de Marcar la condición VX2 desde el Análisis (valores de V, X y 2)
+- Habilitada la opción de Marcar la condición Contactos desde el Análisis (valores de Contactos)
+
+0.68
+- Añadida a la condición Contactos la opción Figuras
+- Añadido al Análisis el análisis de Figuras de Contactos
+- Modificado el Visor de Análisis, que ahora muestra sólo las condiciones analizadas
+- Añadida una utilidad de configuración del Análisis, que permite elegir qué condiciones se deben analizar
+- Corregido un fallo en la utilidad Diferencia de Signos, descubierto por Helike, en el almacenamiento de columnas. Este fallo afecta a la versión 0.66 y posteriores, el resto de versiones no están afectadas.
+
+0.67.3
+- Corregido un error en el Motor del Análisis descubierto por Vilanova, que analizaba mal la combinación cuando se usaban grupos. Este error afecta a las versiones posteriores a la 0.67, incluida
+- Corregido un error en el Escrutinio, al mostrar las columnas premiadas, que omitía los premios del límite inferior, comentado por POTEN. Este error afecta a todas las versiones de Free1X2 que incluyen la opción Ver Premiadas en el Escrutinio.
+
+0.67.2
+- Se ha corregido un fallo en el visor del análisis que no mostraba correctamente las columnas en el análisis por VX2, descubierto por Ardoc.
+- Integrado el nuevo motor de análisis para que se use en la utilidad Combinación/Analisis de Columnas
+
+0.67.1
+- Corregido un error en el motor de análisis cuando se usa un filtro de columnas, descubierto por vilanova
+
+0.67
+- Modificada la interfaz de la condición Columnas probables, para que el boleto sea igual al de la condición.
+- Añadida la posibilidad de configurar la comprobación de actualizaciones del programa al inicio.
+- Modificado el actualizador.
+- Añadida una opción para acceder a un archivo con información de configuración de determinadas impresoras testeadas por los usuarios.
+- Corregido un error en la utilidad de impresión que se producía cuando se intentaba imprimir sin haber seleccionado antes el archivo de columnas.
+- Corregido un error al cargar una combinación con la condición Simetrías activada.
+- Nuevo diseño del motor de Análisis.
+- Nuevo Visor de Análisis.
+- Condiciones contempladas en el análisis:
+* VX2
+* Signos Seguidos
+* Dibujos
+* Contactos
+* Interrupciones
+* Distancias
+* Pesos Numéricos
+* Simetrías
+* Valoración por sumas y por productos
+* Control de Grupos
+* Control de Conjuntos
+
+0.66.6
+- Corregido un error en la condición Formatos123
+- Corregido un error en la utilidad Análisis de Fallos
+- Añadido el Análisis de Fallos de la condición Formatos123
+- Añadido el Análisis de Fallos en la condición Simetrías
+
+0.66.5
+- Añadido un actualizador que comprueba si hay nuevas versiones disponibles.
+- Corregido un error al cargar combinaciones con la condición Formatos123 activada.
+- Corregido un error en la utilidad Análisis de Fallos, descubierto por Pedrín
+
+0.66.4
+- Corregido un error en la utilidad Calcular Múltiples Combinaciones descubierto por vilanova
+
+0.66.3
+- Solucionado un error en el Cálculo de Múltiples Combinaciones, detectado por vilanova
+- Añadida dentro de la utilidad Lista de Condiciones la posibilidad de exportar el listado a txt y a html
+- Añadido dentro de la ventana Acerca De un enlace al nuevo Manual de Free1X2
+
+0.66.2
+- Corregido un fallo en la condición Interrupciones cuando se usan grupos, descubierto por vilanova. Este fallo afecta sólo a las versiones 0.66 y 0.66.1
+
+0.66.1
+- Corregido un error en el cálculo de la condición Formatos de Signos
+- Corregido un error en el cálculo de la condición Formatos123
+- Corregida una excepción al borrar los datos de la condición Formatos123.
+
+0.66
+- Mejorada la interfaz de la pantalla principal y del resto de ventanas
+- Mejorada la velocidad de cálculo en algunas condiciones
+- Mejorada la colocación de las barras de herramientas en la pantalla principal
+- Mejorada la condición "Formatos 123" que ahora admite cualquier número de formatos
+- Integrado el cálculo binario de columnas en el motor de cálculo
+- Añadido en menú Ver en la barra de tareas
+- Añadida, dentro del menú Ver, la opción de mostrar/ocultar barras de herramientas
+- Añadida, dentro del menú Ver, la opción "Listado de Condiciones"
+- Añadida la utlidad "Dependencia Lineal"
+- Añadida la condición "Simetrías"
+- Añadida una ayuda específica en las condiciones
+- Corregido un error cuando se seleccionaba un filtro con columnas de 15 partidos
+- Corregido un error al marcar tolerancias en la condición Columnas Probables (había que hacer clic dos veces para seleccionar la tolerancia)
+- Corregido un error en el Simulador de Escrutinios en la corrección de cálculos
+- Corregido un error en el Análisis de Columnas, analizaba mal los signos seguidos
+- Corregido un error en la condición Pesos Numéricos, cuando una fila de tolerancias no se marcaba, al guardar la condición se guardaba completa
+- Controlada una excepción al intentar calcular columnas cuando un partido estaba sin signo
+
+0.65.8
+- Sin novedades, se publica para dar la acreditación de Standard
+
+0.65.7
+- Corregido un error en la grabación del archivo de condiciones de la condición Formatos123, descubierto por lolo1x2 (Morrison)
+
+0.65.6
+- Corregido un error en la condición Formatos123, que se producía al poner en juego todos los formatos posibles (Morrison)
+- Ampliado el Analizador de Formatos123 que ahora permite mostrar todos los formatos que componen una columna y sus apariciones según una valoración (Morrison)
+
+0.65.5
+- Corregido un error en el Análisis de Columnas (Signos Seguidos) detectado por POTEN (Morrison)
+- Corregido un error detectado por POTEN en la condición Formatos123/Traducción de columnas de 1X2 a 123, que distinguía entre X y x (Morrison)
+- Solucionado un error en el Simulador de Escrutinios, detectado por lee_bran, que no limitaba el premio de 13 aciertos (Joan)
+
+0.65.4
+- Solventado el problema que detectó Luiz Carlos y que hacía que cuando se abría un fichero que contenía condiciones relacionadas (if-then) no se procesara correctamente las condiciones "NO" (Toni Moreno)
+- Corregido un error en la conversión de columnas 1X2 a columna 123 dentro de la utilidad Formatos123 (Morrison)
+- Modificada la forma de condicionar los Formatos123, de forma que cuando se permiten repeticiones de un formato, el concepto que hay que acertar es la cantidad de Líneas Acertadas (Morrison)
+
+0.65.3
+- Añadido dentro de la condición Formatos123 un analizador de formatos sugerido por Helike (Morrison)
+- Corregido un error en la pantalla Calcular Múltiples Combinaciones (Toni Moreno)
+- Actualizados los ficheros de equipos de Primera, Segunda y Segunda B (Toni Moreno)
+- Actualizado el fichero Resultados.txt (Toni Moreno)
+
+0.65.2
+- Realizadas unas correcciones en la condición Formatos 123, relativas al copiado/pegado de condiciones... etc... (Toni Moreno)
+
+- Modificada la rutina de cálculo de la condición Formatos 123 (Morrison)
+
+0.65.1
+- Resuelto un error de cálculo en la condición Formatos 123
+
+0.65
+- Nueva condición: Formatos 123 (Morrison)
+- Corregido un error en la impresión de boletos (Joan)
+
+0.64.1
+- Solucionados varios problemas en algunas utilidades como Diferencia de Filtros, Combinar Filtros... ocasionados por el paso de las columnas de string a int y viceversa.
+
+0.64
+- Añadida dentro de la utilidad "Posibles Premios" (Escrutinio) la posibilidad de obtener las mejores opciones de signos en x partidos (Morrison).
+- Retocada la interfaz de la utilidad Posibles Premios (Escrutinio) de forma que aparecen numerados los partidos (Morrison).
+
+0.63.4.1
+-Resueltos algunos problemas ocasionados por la implantación del nuevo formato binario
+
+0.63.3
+-Añadidos los nuevos tipos de ficheros a las utilidades Combinar filtros, Diferencia de Filtros y Selector MarioSan.
+-Solucionado un problema en álgebra de columnas.
+-Añadidas algunas mejoras a la opción de Añadir pleno al 15.
+-Solucionado un problema de lectura de ficheros en algunas utilidades.
+
+0.63.2
+-Mejorada la utilidad de Posibles premios. Ahora calcula todas las posibles columnas ganadoras de forma opcional. Las columnas se puede guardar en un archivo o ver a través de un nuevo visor.
+-Solucionado un error en el álgebra de columnas.
+
+0.63.1
+-Solucionado el problema al calcular que mostraba el último análisis cuando sólo se pedía cálculo de columnas.
+-En la ventana que muestra el resultado del análisis de los contactos aparecía repetido en tercer lugar el 1X cuando era X2.
+-Solventado el fallo producido cuando intentamos exportar un txt a cols si la extensión del archivo está en mayúsculas.
+-Al finalizar una importación de columnas, muestra un mensaje al acabar.
+-Eliminado el error producido si un fichero alternaba columnas de 14 y 15 partidos.
+-Al analizar un archivo de columnas ya existente no mostraba correctamente los porcentajes (sí las columnas).
+-Modificadas algunas utilidades que aceptaban como columna de entrada la x minúscula para evitar posibles errores.
+-Añadida dentro de la pantalla de escrutinio la utilidad "Posibles premios".
+-Corregido un error en el análisis de combinaciones. No analizaba correctamente los formatos.
+
+0.63
+-En la ventana escrutar se pasa de un campo de resultado a otro (de partido a partido) aunque no se haya puesto ningún resultado.
+-Se ha creado un nuevo formato binario para las columnas que permite ocupar del orden de 4 veces menos espacio.
+-Las utilidades que usan ficheros de columnas tienen como alternativa la posibilidad de hacerlo desde/a ficheros binarios (con extensión ".cols").
+-Algunas utilidades ven incrementada su velocidad si se usan ficheros binarios de columnas.
+-Se incluye una opción para importar/exportar columnas de formato ASCII a binario y a la inversa.
+-Se ha creado en el menú Combinación una nueva utilidad para analizar columnas por las diferentes condiciones (la mitad o más del trabajo es cosa de Morrison). De momento, sólo se puede analizar por nº de signos (V, X, 2), signos seguidos, interrupciones, pesos numéricos, distancias y contactos. Se calculan todas las condiciones a la vez por lo que no es necesario analizar una vez por cada condición. Pulsando el botón correspondiente a la condición se muestran los resultados. Se puede marcar en cada valor para seleccionarlo y ver la suma de columnas que supone. Se pueden ver los resultados tanto en nº de columnas como en porcentaje.
+-Se ha remodelado la opción calcular columnas. Aparecen unos botones de radio para seleccionar la operación que queremos hacer: cálculo (opción por defecto), análisis de columnas o grabar columnas.
+
+0.62
+-Nueva utilidad "Analisis de grupos en combinacion".
+-Mejorado la interfaz del Selector de MarioSan.
+-Corregido un error de grabacion de valoraciones a archivo en la utilidad de "analisis de signos".
+-Se ha añadido una opcion de Autoescrutinio al banco de pruebas.
+
+0.61
+-Mejora drastica en velocidad del calculo de grupos/conjuntos
+-Mejoras utilidades de Joan: Tramificar
+-Arreglo de las utilidades VSignos y Coincidencias
+
+
+0.60
+-El botón "R" en análisis de signos borra correctamente los signos introducidos.
+-Al calcular una combinación (salvo que esté vacía) guarda una copia de la combinación en la carpeta "temp" usando como nombre de archivo la fecha y la hora de grabación.
+-En el menú Archivo se ha incluído una opción para borrar las combinaciones temporales guardadas.
+-Cambio de look de la pantalla de escrutinios para incluir una nueva utilidad.
+-Se incluye en la opción de escrutinios para escrutar archivos contra jornadas. Con esta opción se pueden escrutar diferentes archivos que tengan el mismo nombre salvo la temporada y la jornada.
+Se selecciona la pestaña "Escrutinio contra jornadas". En plantilla de nombre se pone el nombre que tendrán los archivos sustituyendo la temporada por "/t" y la jornada por "/j" (por ejemplo "columnas/t-/j.txt"). Pulsando el botón "?" podemos seleccionar un archivo para usarlo como guía y los botones /t y /j nos inserta dicho texto en el archivo. Tenemos que seleccionar también si la temporada está en formato de 2 ó 4 dígitos y si la jornada se completa con 0 si es menor de 10 (1 ó 2 dígitos). Es imprescindible que tanto el indicador de temporada y de jornada estén presentes. Por último, se selecciona la carpeta en que están los archivos y la/s temporada/s a comprobar y se le da a escrutar.
+El programa escrutará cada combinación con su correspondiente quiniela ganadora. Si tenemos, por ejemplo los ficheros "columnas2004-01.txt" y "columnas2004-02.txt" los escrutará contra las jornadas 1 y 2 respectivamente de la temporada 2004.
+
+0.59
+ESCRUTINIO:
+-Arreglados algunos problemas que impedían que se mostraran correctamente los aciertos distintos del rango de premios (10-14).
+-Modificado el sistema de introducción de datos. Además de los cuadritos para cada signo (ahora correctamente tabulados) se puede introducir de forma alternativa la columna completa en un cuadro de texto. Así, se pueden poner los signos uno a uno o todos de golpe, según prefiera el usuario. Además, clicando sobre el nº de partido (encima de los cuadritos) se cambia el pronóstico de forma sucesiva en el orden 1,X,2,* y haciendo el click con el botón derecho, en orden inverso.
+-Se muestra el total de premios obtenidos en todas las combinaciones escrutadas.
+ANALISIS DE SIGNOS:
+-Retocada la altura de los porcentajes para igualarla a la de la pantalla principal para poder ver mejor los partidos.
+-Mejorado el método de entrada de signos. Además de poder poner a mano los pronósticos (que ahora sólo admiten 1,X, 2, - y espacio), haciendo doble click sobre el signo y partido, nos pondrá ese signo en su casilla correspondiente (y cambia el fondo). Igualmente, haciendo doble click sobre el número de partido se cambia el pronóstico a -.
+
+0.58
+-Correccion del fallo de grabacion de columnas del filtro Aidomnou que descubrio pemares. 
+-Activado la deteccion de errores en las relaciones de columnas probables al analizar los fallos de una combinacion. 
+-Escrutinios:  la columna ganadora ahora se mete partido a partido en casillas individuales 
+
+0.57
+-Utilidad Pleno al 15 por Indeciso: Ahora con eliminacion de p15 y eliminacion de repetidas (entre los otros 14 signos) a la vez. 
+-Tramificar: grabar x columnas de Y (mejora pedida por Felix) ademas de otros problemas identificados por felix, de la mano de Joan. 
+-Correccion de problemas con unas cuantas utilidades, de las que he perdido la cuenta, de la mano de xfsf... algunas de las utilidades corregidas son el filtro Aidomnou y el del JuanM. 
+-Se han corregido tambien algunas utilidades que daban problemas al usar un archivo de 15 signos, si persiste este problema con alguna parte del programa por favor avisen. 
+Basicamente, a menos que la utilidad especifiqe lo contrario, el programa solo usara los primeros 14 signos de cada columna. 
+
+0.56
+- Actualizacion de la utilidad de tramificar: corregido un pequeño bug 
+que se producia cuando se hacia análisis múltiple de ficheros sobre 14 
+triples. 
+- Adaptacion calculo de premios: correcciones de las utilidades que realizan el cálculo de premios adaptadas a la nueva repartición para la temporada 2005/06 
+- Actualizacion correcion de los diversos archivos de jornadas y valoraciones segun se han comunicado en el foro. 
+- Utilidad para añadir el pleno al 15 (en el menu Combinacion) 
+- Impresion de boletos: impresion del pleno al 15 
+- Opcion para grabar los partidos del boleto como archivo de boleto. 
+
+0.55
+-Solucionado un pequeño error en el Selector JM (mostraba datos erroneos).
+-Modificado el banco de pruebas para que el botón de abrir combinación esté disponible incluso en pantallas pequeñas. El botón está ahora a la izquierda del nombre de archivo.
+-En todas las pantallas que ocupan más de 600 puntos de ancgo se ha habilitado el autoscroll (aparición de barra de desplazamiento si el tamaño del monitor es menor).
+-Actualizados los ficheros de equipos para la nueva temporada.
+
+0.54
+-Solucionado el problema en el generador de CPs que no importaba correctamente los ficheros de valoraciones. Rogaría que hicérais pruebas porque hay quien me ha dicho que poniendo los % a mano no funcionaba y a mi (en la versión nueva) me iba perfectamente.
+-Solucionado el problema con la impresión de boletos
+-Nueva versión del Selector JM.
+-Nueva versión de la utilidad de Sumas de Pares Naturales (accesible desde la condición de formatos).
+-El escrutinio de columnas incluye (esta vez sí) la utilidad para visualizar las columnas con premios. Pulsando el botón "Ver premiadas" aparecerá una tabla indicando el fichero de columnas, la jornada u orden (en el caso de escrutar contra fichero), la columna premiada, el premio que obtiene, el nº de columna en la combinación y el nº de boleto en que se encuentra (entre paréntesis aparece el nº de columna en el boleto).
+-Se ha añadido la nueva opción de condiciones relacionadas (If-Then). Se ha puesto en un post el manual y se ha actualizado el link en la chincheta del Manual.
+-Incorporada al menú "Combinación" la opción de "Ver boletos" que estaba desaparecida.
+-El modificador de % permite cambiar el nombre al fichero modificado.
+-Se ha modificado la carga de imágenes en la mayoría de los botones para "adelgazar" un poco el ejecutable pero sobretodo para solventar otros problemas internos) por lo que ahora, junto al ejecutable, se incluirá la librería Imagenes.dll que debe permanecer en la misma carpeta que el fichero Free1X2.exe.
+
+0.53
+-Se incluye el escrutinio de múltiples ficheros de columnas. Además, pulsando sobre la cabecera de la tabla podemos ordenar el resultado por el concepto que queramos (jornada, fichero, nº de premios).
+-El escrutinio de columnas incluye una utilidad para visualizar las columnas con premios. Pulsando el botón "Ver premiadas" aparecerá una tabla indicando el fichero de columnas, la jornada u orden (en el caso de escrutar contra fichero), la columna premiada, el premio que obtiene, el nº de columna en la combinación y el nº de boleto en que se encuentra (entre paréntesis aparece el nº de columna en el boleto).
+-Se añade al menú combinación (y su correspondiente barra de botones) la opción de generación múltiple de ficheros. Con esta opción podemos generar las columnas de varios ficheros de combinación a la vez. Las limitaciones son que todas las combinaciones deben estar en la misma carpeta, los archivos de columnas de generarán en la carpeta Columnas y con el mismo nombre que la combinación (cambiando la extensión) y que, obviamente, se grabarán los archivos (si no queremos grabar, hay que calcular manualmente). En el caso de que el fichero de columnas ya exista pedirá confirmación antes de sobreescribir y si el filtro que indica la combinación no existe en nuestro ordenador, genera la combinación sin filtro. Las pulsaciones del botón Cancelar, sólo cancelan el fichero en curso, no toda la operación de cálculo.
+-Tercera versión de la impresión de boletos.
+
+0.52.1
+-Corregido el error en las relacionesl de CPs.
+-Corregido error en selector JuanM
+
+0.52
+-Corregido un error en contactos por el que no se guardaban los cambios cuando se desactivaban los aciertos.
+-Los botones de desplazamiento en columnas probables se muestran correctamente.
+-Al usar un filtro, obtendremos información del nº de columnas manteniendo el ratón sobre el nombre del fichero.
+-Al calcular columnas tenemos información del máximo de columnas a calcular, de la estimación de columnas aceptadas y una barra que muestra el progreso de cálculo.
+-Al calcular columnas partiendo de un filtro, ya tiene en cuenta los pronósticos del boleto base.
+-Corregido un error en el selector de JuanM.
+-Nueva versión mejorada de la impresión de boletos.
+-Se ha completado el análisis de fallos de la combinación. Ahora incluye el desglose de fallos en el pronóstico base, desglosa tanto los fallos como las tolerancias (acertadas o falladas), tiene en cuenta el control de grupos y el de conjuntos así como si un grupo no tiene todos los signos del boleto (por ejemplo, condicionamos sólo 5 partidos).
+-El análisis de fallos de condiciones también acepta combinaciones leídas de disco (hasta ahora sólo analizaba la combinación en pantalla).
+
+0.51
+-Gentileza de xfsf se incluye la impresión de boletos. Agradezco a los usuarios que hagan las pruebas oportunas especialmente para poder comprobar las configuraciones de márgenes adecuadas para diferentes impresoras.
+-Se añade alguna utilidad al separador de porcentajes de Juan Bellas (dentro de Utilidades/Generador CPs). Xfsf podrá explicarlas mejor.
+-Las imágenes en el analizar fallos se muestran correctamente.
+-Se ha modificado la entrada de datos (valores) en Separador de porcentajes, Filtro Aidomnou, Filtro Pim, Buscador de Límites y Selector JM.
+
+0.50
+-Se incorpora una pantalla de configuración con los parámetros del programa.
+-Se habilita el desplazamiento múltiple en los grupos.
+-Arreglado un error detectado en el subir categoría.
+-Arreglado un error en diferencia de filtros.
+-Arreglado un error en el selector de JM.
+
+0.49
+-Solucionado un bug en Ordenar por probabilidad.
+-Mejorada la utilidad de diferencia de filtros (ahora más rápida).
+-Corregidos un par de errores en Tramificar.
+-En la opción de Subir Categoría, se permite usar columnas de una combinación externa.
+-Mejoras en el filtro aidomnou (así como solución de algún error):
+ *Modificación de los parámetros en la interface de usuario.
+ *Se han añadido dos parámetros más que permiten ajustar los rangos por sumas y recorridos.
+ *Se han añadido sendos botones para permitir guardar y recuperar los actuales 8 parámetros de juego.
+ *Se ha añadido otro botón para exportar las 6 columnas a un fichero de texto, que se puede importar directamente al Free, como columnas probables, para el que quiera establecer relaciones.
+ *En el análisis de resultados se puede sustituir manualmente la columna ganadora, por cualquiera otra que se desee analizar.
+-Al abrir ficheros de boletos, ya acepta acentos y Ñ.
+
+0.48
+-Solucionados unos problemas y/o errores en el filtro aidomnou, en tramificar y en el banco de pruebas.
+-Además de los comandos Insertar y Borrar grupos, se ha añadido la opción de abrir y guardar.
+-Se incorpora una nueva barra de botones con los comandos del menú Grupo (se abre en el lateral de la ventana).
+-Se han habilitado también las opciones de abrir y guardar condiciones así como el copiar y pegar.
+-En todas las pantallas de condiciones han desaparecido los típicos botones de Windows para minimizar y maximizar (eran innecesarios) y el de cerrar con el objetivo de cerrar las pantallas únicamente desde los botones al efecto, Aceptar para guardar los cambios y Cancelar para desecharlos. De esta manera evitamos importar "vicios" de otros programas ya que en el Free si pulsábamos la X de cerrar NO se guardaban los cambios.
+-Se ha creado una nueva carpeta "Condiciones" donde, por defecto, se guardarán los ficheros de grupos y condiciones.
+-Se han puesto nuevas extensiones para los ficheros. Los ficheros de columnas seguirán estando en formato txt. En cambio los de combinaciones ahora serán .comb. El formato de archivo seguirá siendo xml y en el desplegable de tipos de archivos seguirá habiendo la opción de grabar como xml. Tan sólo se trata de adoptar una extensión propia y al estilo de los archivos de condiciones que tendrán las suyas:
+	cps=columnas probables
+	cont=contactos
+	dbj=dibujos
+	dist=distancias
+	fmt=formatos
+	geq=grupos de equipos
+	int=interrupciones
+	vx2=Variantes, equis y doses
+	pes=pesos
+	seg=signos seguidos
+	valor=valoraciones
+-Se incluye en la opción de Generar CPs la opción de generar columnas por diferencias (y ahora sí está disponible). Como también es aplicable, se ha puesto además en "Diferencias entre columnas". Partiendo de la base de 2 columnas iniciales (por ejemplo una columna más probable y su contraquiniela) crea las columnas que incorporen X diferencias (1 ó 2) con respecto a la columna inicial usando la 2ª columna como referencia. Se pueden obtener tanto columnas de fijos como de dobles (en ese caso toma una columna intermedia).
+-Los grupos de equipos incluyen los nombres de los equipos cuando están definidos en el boleto base. También adoptan la clásica disposición del boleto 4+4+3+3 en lo que a colores se refiere.

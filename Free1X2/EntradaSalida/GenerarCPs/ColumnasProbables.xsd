@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<xs:schema id="ColumnasProbables" targetNamespace="http://tempuri.org/ColumnasProbables.xsd" elementFormDefault="qualified" attributeFormDefault="qualified" xmlns="http://tempuri.org/ColumnasProbables.xsd" xmlns:mstns="http://tempuri.org/ColumnasProbables.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+	<xs:element name="ColumnasProbables" msdata:IsDataSet="true">
+		<xs:complexType>
+			<xs:choice maxOccurs="unbounded">
+				<xs:element name="Tipos_x0020_de_x0020_CPs">
+					<xs:complexType>
+						<xs:sequence />
+						<xs:attribute name="Tipo" type="xs:int" />
+						<xs:attribute name="Nombre" type="xs:string" />
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="Configuracion_x0020_de_x0020_CPs">
+					<xs:complexType>
+						<xs:sequence></xs:sequence>
+						<xs:attribute name="Tipo" type="xs:int" />
+						<xs:attribute name="Desde" type="xs:int" />
+						<xs:attribute name="Hasta" type="xs:int" />
+						<xs:attribute name="Forzar_x0020_Fijos" type="xs:boolean" />
+						<xs:attribute name="Num_x0020_Fijos" type="xs:int" />
+						<xs:attribute name="Forzar_x0020_Dobles" type="xs:boolean" />
+						<xs:attribute name="Num_x0020_Dobles" type="xs:int" />
+						<xs:attribute name="Forzar_x0020_Triples" type="xs:boolean" />
+					</xs:complexType>
+				</xs:element>
+			</xs:choice>
+		</xs:complexType>
+		<xs:keyref name="Configuración" refer="ColumnasProbablesKey3">
+			<xs:selector xpath=".//mstns:Configuracion_x0020_de_x0020_CPs" />
+			<xs:field xpath="@mstns:Tipo" />
+		</xs:keyref>
+		<xs:key name="ColumnasProbablesKey3" msdata:PrimaryKey="true">
+			<xs:selector xpath=".//mstns:Tipos_x0020_de_x0020_CPs" />
+			<xs:field xpath="@mstns:Tipo" />
+		</xs:key>
+	</xs:element>
+</xs:schema>

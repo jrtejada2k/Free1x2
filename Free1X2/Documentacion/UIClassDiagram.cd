@@ -1,0 +1,860 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" GroupingSetting="Alphabetical">
+  <Comment CommentText="COMBINACION: NUEVA           ABRIR      GUARDAR GUARDAR COMO BORRAR TEMP">
+    <Position X="4.673" Y="2.764" Height="1.208" Width="1.269" />
+  </Comment>
+  <Comment CommentText="BARRAS:   FILTROS      FREE1X2 OPERACIONES UTILIDADES  COMBINACION  ARCHIVO">
+    <Position X="6.896" Y="1.262" Height="1.333" Width="1.228" />
+  </Comment>
+  <Comment CommentText="GRUPOS: ABRIR   GUARDAR COPIAR PEGAR INSERTAR ELIMINAR">
+    <Position X="14.61" Y="1.206" Height="1.275" Width="0.95" />
+  </Comment>
+  <Comment CommentText="PARTIDOS:      ABRIR       GUARDAR">
+    <Position X="4.659" Y="1.237" Height="0.707" Width="1.28" />
+  </Comment>
+  <Comment CommentText="MENU    FREE1X2">
+    <Position X="2.235" Y="0.706" Height="0.314" Width="1.408" />
+  </Comment>
+  <Comment CommentText=" MENU COMBINACION">
+    <Position X="11.735" Y="0.706" Height="0.314" Width="1.653" />
+  </Comment>
+  <Comment CommentText="     MENU ARCHIVO">
+    <Position X="4.579" Y="0.706" Height="0.314" Width="1.489" />
+  </Comment>
+  <Comment CommentText="         MENU   VER">
+    <Position X="6.697" Y="0.706" Height="0.314" Width="1.489" />
+  </Comment>
+  <Comment CommentText="  MENU   GRUPOS">
+    <Position X="14.395" Y="0.715" Height="0.291" Width="1.298" />
+  </Comment>
+  <Comment CommentText="                         C O N D I C I O N E S">
+    <Position X="2.735" Y="15.156" Height="0.314" Width="3.297" />
+  </Comment>
+  <Comment CommentText="   MENU   FILTROS">
+    <Position X="15.985" Y="0.713" Height="0.291" Width="1.437" />
+  </Comment>
+  <Comment CommentText="    MENU   OPERACIONES">
+    <Position X="18.036" Y="0.711" Height="0.291" Width="1.728" />
+  </Comment>
+  <Comment CommentText="      MENU   UTILIDADES">
+    <Position X="22.681" Y="0.713" Height="0.291" Width="1.728" />
+  </Comment>
+  <Comment CommentText="       P R O N O S T I C O">
+    <Position X="10.318" Y="15.159" Height="0.314" Width="1.734" />
+  </Comment>
+  <Comment CommentText="                         C O N D I C I O N E S">
+    <Position X="2.725" Y="6.788" Height="0.314" Width="3.297" />
+  </Comment>
+  <Comment CommentText="       P R O N O S T I C O">
+    <Position X="10.265" Y="12.731" Height="0.314" Width="1.734" />
+  </Comment>
+  <Comment CommentText="BORRAR INFORMES ERROR">
+    <Position X="4.24" Y="4.074" Height="0.337" Width="1.75" />
+  </Comment>
+  <Class Name="Free1X2.UI.AcercaDeFrm" Collapsed="true">
+    <Position X="2" Y="4.75" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAEDAAAAGAAAhQAEAWgAAICEAAgAAAAgACAIAAAgAA=</HashCode>
+      <FileName>UI\AcercaDeFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.VSignosFrm" Collapsed="true">
+    <Position X="12" Y="9.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>SBCCAyBgEhL8H7EyDQALAIACWBgDQJgwQCQgoYYgIDA=</HashCode>
+      <FileName>UI\VSignosFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.ActualizadorFrm" Collapsed="true">
+    <Position X="2.25" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQQACACAACEIAAQCAAGAAAICIMAgAABAAAAAAQAAAAE=</HashCode>
+      <FileName>UI\ActualizadorFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.aidomnou" Collapsed="true">
+    <Position X="16" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIBgEjgkRkiojPKIBQIPCiEC5IB+6wWhF6wHvYkBoGY=</HashCode>
+      <FileName>UI\Aidomnou.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.AlgebraColumnasFrm" Collapsed="true">
+    <Position X="18" Y="1.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>gAAAAAAAAAKEAJACBgICgAAGABAIABSAICBgAIAWAAA=</HashCode>
+      <FileName>UI\AlgebraColumnasFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.AnaCombi" Collapsed="true">
+    <Position X="23" Y="11.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>8wAAIyAgUwD4HxBCEQAIAKACQIASUIAgAAQAoYgAAGE=</HashCode>
+      <FileName>UI\AnaCombi.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.AnalisisFormatos123Frm" Collapsed="true">
+    <Position X="6.25" Y="12.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>ABCAQgAgECgAAFAQAADAEABCgAAMgBgUAUEAAYGJCQA=</HashCode>
+      <FileName>UI\AnalisisFormatos123Frm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.AnalizadorJPM" Collapsed="true">
+    <Position X="0.75" Y="13.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>/weiCiAABsL6F1r6TwMGAIkWEIAwUoUhQiSmCIEFgHg=</HashCode>
+      <FileName>UI\AnalizadorJPMFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.AnalizarCombinacionFrm" Collapsed="true">
+    <Position X="14" Y="8" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AgAAAAAAACAAABAAAACAAAACAA4AAAAAAAAAAQAAAAA=</HashCode>
+      <FileName>UI\AnalizarCombinacionFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.AnalizarFicheroFrm" Collapsed="true">
+    <Position X="12" Y="7.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAIAAIDAEDAEAAACAAEACAAAEBAAAAAAAAEIAIAA=</HashCode>
+      <FileName>UI\AnalizarFicheroFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.AgregaP15Frm" Collapsed="true">
+    <Position X="12" Y="11.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>cCAAJIAAAQAABBCAAhAAAABCISgIAAAIEAAAAAEAAAA=</HashCode>
+      <FileName>UI\AgregaP15Frm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.AyudaFrm" Collapsed="true">
+    <Position X="2.25" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EDACAAAAQCAAAhAAEACACAACAAAAAAAAAAAAJQAAkBA=</HashCode>
+      <FileName>UI\AyudaFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.BancoPruebasFrm" Collapsed="true">
+    <Position X="22.5" Y="10.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>/zyGIxrXA/FQoz/oJgqptfICopSXSmjXTHEbtFbpR/Y=</HashCode>
+      <FileName>UI\BancoPruebasFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.BoletoFrm" Collapsed="true">
+    <Position X="13.5" Y="2.75" Width="1.25" />
+    <TypeIdentifier>
+      <HashCode>EEAAAAgAAGCAABBwCACIQAACAEECQAAAEAAAAwAIAAA=</HashCode>
+      <FileName>UI\BoletoFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.BuscaLimsFrm" Collapsed="true">
+    <Position X="6" Y="8.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ASGAUDAgAJjYAB34BwgBAAFCUABAIAARwCAAAAAAAAA=</HashCode>
+      <FileName>UI\BuscaLimsFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.CalculaColumnasFrm" Collapsed="true">
+    <Position X="11.75" Y="1.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>9QEQAAgQQADUCJAABoISAoQGA0gQAAACSGAAIgJEAAk=</HashCode>
+      <FileName>UI\CalculaColumnas.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.CalculaColumnasMultipleFrm" Collapsed="true">
+    <Position X="11.25" Y="2" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>8QEQIAgwAACWAJQAAoICAIQGAkAQBAAACEAQAgIEAAg=</HashCode>
+      <FileName>UI\CalculaColumnasMultipleFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.CalculoFormatosFrm" Collapsed="true">
+    <Position X="0.5" Y="11.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>IIAAAAQAACAABBAAABAAAEADACAYIwAIUgAgAAAQACA=</HashCode>
+      <FileName>UI\CalculoFormatosFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.Coincidencias" Collapsed="true">
+    <Position X="16" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>G5QgfjTgl2uUBNIQBRPrQBCC7O5UdiBlBOUkBohfimE=</HashCode>
+      <FileName>UI\Coincidencias.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.ColGanadoraFrm" Collapsed="true">
+    <Position X="12" Y="8" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAUCIAAACAAAAAAADDAIAACAAAAAAAAAAAAACAAgAA=</HashCode>
+      <FileName>UI\ColGanadoraFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.ColumnasPremiadasFrm" Collapsed="true">
+    <Position X="9" Y="5.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACAAAAAAAACAAADyA4AAAAAAAGAAGAAAAAA=</HashCode>
+      <FileName>UI\ColumnasPremiadasFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.CombinarFiltros" Collapsed="true">
+    <Position X="16" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BAKgaIAgQAAAYlAoQAAmAGgigoEEcAAQADAABMkACCM=</HashCode>
+      <FileName>UI\CombinarFiltros.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.Compresor" Collapsed="true">
+    <Position X="23" Y="14" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AACJAAEAAKABgBAAAgCAAQACAAIEAAAACCCAAIAAgQA=</HashCode>
+      <FileName>UI\Compresor.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.ConfiguracionAnalisisFrm" Collapsed="true">
+    <Position X="1.75" Y="2.75" Width="2" />
+    <TypeIdentifier>
+      <HashCode>gISBGQAgAGCijBFAKACCBIFKQIEEQAAyBiBGEAMAAFg=</HashCode>
+      <FileName>UI\ConfiguracionAnalisisFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.ConfiguracionFrm" Collapsed="true">
+    <Position X="2.25" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>/wEAAEAAACAFDBwACgCCBIECAACIACABAWAAIAAAAAA=</HashCode>
+      <FileName>UI\ConfiguracionFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.CreditosFrm" Collapsed="true">
+    <Position X="0.5" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAYBCAAEACQMAAAAAACAwAQiBgAgIBCBEIAEA0QBgKg=</HashCode>
+      <FileName>UI\CreditosFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.DescargaBoletoFrm" Collapsed="true">
+    <Position X="4.25" Y="2" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAASAAADECAACAAAADAIAAAAAQAAAAAAAAAAA=</HashCode>
+      <FileName>UI\DescargaBoletoFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.DialogoAnalisisMultipleDeTramosFrm" Collapsed="true">
+    <Position X="19.75" Y="8.25" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>/4DBp4WLACnQApWDBJOAADAaQAAAQBMBBUBAPAACJYA=</HashCode>
+      <FileName>UI\DialogoAnalisisMultipleDeTramosFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.DialogoFiltrarPorLimitesFrm" Collapsed="true">
+    <Position X="20.25" Y="9" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>/xAAAAAAAKCAgX8CAECAAAACAAAIAAIAAEAQCPkHADA=</HashCode>
+      <FileName>UI\DialogoFiltrarPorLimitesFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.DialogoGrabarBancoPruebasFrm" Collapsed="true">
+    <Position X="20" Y="10.75" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>CAAAAAAAACAAABkQCICACAACCAAAAAAABYQAEAAAAAA=</HashCode>
+      <FileName>UI\DialogoGrabarBancoPruebasFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.DialogoGrabarTramosFrm" Collapsed="true">
+    <Position X="20.5" Y="7.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAEAKAAQBgAAACAAAACCABAAAAAFAQAAAAEAAA=</HashCode>
+      <FileName>UI\DialogoGrabarTramosFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.DialogoSeleccionBancoPruebasFrm" Collapsed="true">
+    <Position X="19.75" Y="10" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAgAACCAAABEACICAAAACAAAIEAAEAEAAAAAAAAA=</HashCode>
+      <FileName>UI\DialogoSeleccionBancoPruebasFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.DifCols" Collapsed="true">
+    <Position X="22.75" Y="3.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>QIoAgUDwAACAoBAABCAmEEQCGIAQQAQCACggAIAAhAA=</HashCode>
+      <FileName>UI\DifCols.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.DiFiltros" Collapsed="true">
+    <Position X="16" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BCKgIqAgVkIARlIlRQIOIOAigIAAdoABAKQHBMkBgEM=</HashCode>
+      <FileName>UI\DiFiltros.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.EscrutarCombinacionesFrm" Collapsed="true">
+    <Position X="12" Y="6.5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>EK0BR4ALAU/4KJR5FpDCEAQCgCCEcFCkgjEAAbpBJDE=</HashCode>
+      <FileName>UI\EscrutarCombinacionesFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.EscrutiniosFrm" Collapsed="true">
+    <Position X="11" Y="5.75" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>EKkAh4ALART4qJQAFpDCEAQCgCSEcHCkgjEAAbpBJDE=</HashCode>
+      <FileName>UI\EscrutiniosFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.EstimadorPremiosFrm" Collapsed="true">
+    <Position X="22.75" Y="9.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>/6F8ISKNCTCWADUHNgaJhqBCiAAeQ2ACFHqzBnouZjI=</HashCode>
+      <FileName>UI\EstimadorPremiosFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.EstucolFrm" Collapsed="true">
+    <Position X="22.5" Y="14.75" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AgAQAABIACAAAQAAIiCABQQCAACUAEAKCmgIFGABAAE=</HashCode>
+      <FileName>UI\EstucolFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.GeneraPim" Collapsed="true">
+    <Position X="16" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>APAnAjkkBkyIBNaEBQKLCgECxID+7wfhN6QGBJkBoGM=</HashCode>
+      <FileName>UI\FiltroPim.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.FiltroPorcenJB" Collapsed="true">
+    <Position X="20.75" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gPBnAjkkBk6IBNKEBQILCgECzID+7wfhN6QGBJkBoGM=</HashCode>
+      <FileName>UI\FiltroPorcenJB.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.FraccionadorFrm" Collapsed="true">
+    <Position X="18.25" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>/wQCCQgAAgAIBBCAgQQI/A8CCAQAAgGAAiAE4ABAAjI=</HashCode>
+      <FileName>UI\FraccionadorFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.FrmDependenciaLineal" Collapsed="true">
+    <Position X="22.5" Y="13.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>GiAAAARHASUYADELEACMDJGCJBAcUkKCAGARCQQqJAY=</HashCode>
+      <FileName>UI\FrmDependenciaLineal.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.FrmReducidasPerfectas" Collapsed="true">
+    <Position X="22.5" Y="12.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>SiABAARGgChUADEAACSsVAACABAmM8AgVAKBBAAKDFI=</HashCode>
+      <FileName>UI\FrmReducidasPerfectas.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.GeneradorCPSDiferencias" Collapsed="true">
+    <Position X="20.25" Y="1.75" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACIAgBACAAiQAAACEAA4AAAAgnQSAAABAQI=</HashCode>
+      <FileName>UI\GeneradorCPSDiferencias.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.GenerarCPs" Collapsed="true">
+    <Position X="22.25" Y="2.75" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAEEAAAOAAEBMAABCAAMASEEAAAUAAAAIgAAAAACA=</HashCode>
+      <FileName>UI\GenerarCPs.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.GEPTFrm" Collapsed="true">
+    <Position X="23" Y="7.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAACAgAAIAABAABACAAAACQAAAEBAgCAAQEAAAAAA=</HashCode>
+      <FileName>UI\GEPTFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.GraficoColumnasFrm" Collapsed="true">
+    <Position X="12" Y="8.75" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAABAACAABBAEAGGAAAECIAAAABACgEABAAFAAAA=</HashCode>
+      <FileName>UI\GraficoColumnasFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.GuardarValoracionFrm" Collapsed="true">
+    <Position X="20.25" Y="4.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>FIAAAAIAACEAAIECAICAQABGACAQAQIgEAAAAEAAAAA=</HashCode>
+      <FileName>UI\GuardarValoracionFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.HistoriaValoracionesFrm" Collapsed="true">
+    <Position X="20.25" Y="5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AABAgACDACgAABQBAAKAABAKAAAYABAAAWBQCAQgIYA=</HashCode>
+      <FileName>UI\HistoriaValoracionesFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.ImportExportFrm" Collapsed="true">
+    <Position X="23" Y="11" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ABCAAIAAICAADBEAAACAAEAKAABERAAACiAAAEYAIAA=</HashCode>
+      <FileName>UI\ImportExportFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.ImprimirBoletoFrm" Collapsed="true">
+    <Position X="11.75" Y="4.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAIAgAQEAAghSKAEKAAMTCCYCWBAAAAKIkBwBAgBU=</HashCode>
+      <FileName>UI\imprimirBoleto.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.ListadoCondicionesFrm" Collapsed="true">
+    <Position X="6.5" Y="2.75" Width="2" />
+    <TypeIdentifier>
+      <HashCode>BkAAEAAgADAABAEAAACBEAUCYJABAEAAQAAgAAFAoAA=</HashCode>
+      <FileName>UI\ListadoCondicionesFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.ListaEquiposFrm" Collapsed="true">
+    <Position X="8.75" Y="13.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BIQABAEAACgAAAAAAACAAAACAAAAAiAIAAAAAAAAAAA=</HashCode>
+      <FileName>UI\ListaEquiposFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.ListaImpresoras" Collapsed="true">
+    <Position X="10.25" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAACEAACAAQAAAAACAAgACAIAQAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>UI\ListaImpresoras.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.MainForm" Collapsed="true">
+    <Position X="0.5" Y="0.5" Width="24" />
+    <TypeIdentifier>
+      <HashCode>2c/+n/T9+r/F1vX7z/Gy/v7v/P0+fuy//n7tv9v1xeY=</HashCode>
+      <FileName>UI\MainForm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.MejoresOpcionesFrm" Collapsed="true">
+    <Position X="7" Y="6.75" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>6EcEAABABDAgABQAAAiAUAICEAAAIAIFAGAAAIgAABk=</HashCode>
+      <FileName>UI\MejoresOpcionesFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.ModificadorFrm" Collapsed="true">
+    <Position X="23" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAgAAAQBgABCUIAASAEAACAAECBCwAADAUHAAAgAE=</HashCode>
+      <FileName>UI\ModificadorFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.MultiplicadorFrm" Collapsed="true">
+    <Position X="18.25" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AABBSAAwEAAACBAcMAAB/E8iACgAQgGAAACEgAAAgkA=</HashCode>
+      <FileName>UI\MultiplicadorFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.OrdenarPorProbabilidadFrm" Collapsed="true">
+    <Position X="22.25" Y="4.25" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>vzLMAkBVEzwAgnXQeEGVuJBSKzg/VGCiEHAxJJSgZCA=</HashCode>
+      <FileName>UI\OrdenarPorProbabilidadFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.ParejasFrm" Collapsed="true">
+    <Position X="0.75" Y="12" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>/wAAA6AgElSIJjCBAQIKAAGD792rAACA5CJ2hYgAUiE=</HashCode>
+      <FileName>UI\ParejasFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.PosiblesPremiosFrm" Collapsed="true">
+    <Position X="8.75" Y="6.25" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>gYBBvx9omHQ/v/yvUkqa/zUqwDLB6nf9KpRpgdV//08=</HashCode>
+      <FileName>UI\PosiblesPremiosFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.PremiadasFrm" Collapsed="true">
+    <Position X="23" Y="8.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAcgACAgEgAABhAAAQIIAIIiUIAAwIChYCYDggAAAio=</HashCode>
+      <FileName>UI\PremiadasFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.ProbabilidadPremios" Collapsed="true">
+    <Position X="12" Y="10.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAJAAIAAiFAAAEAIQAACAACAAAAgAAggAAAAAAI=</HashCode>
+      <FileName>UI\ProbabilidadPremios.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.ReductorFrm" Collapsed="true">
+    <Position X="12" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIEGgAhIBkBEGAECAgAHDgZCAANAIAiYACAAAARAIEA=</HashCode>
+      <FileName>UI\ReductorFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.RentabilidadFrm" Collapsed="true">
+    <Position X="23" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>7fEBABgHATBAMjuEQAGBgNBSEFIEFWACGHEJhEIgEDA=</HashCode>
+      <FileName>UI\RentabilidadFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.ResultadosCalculoMultipleFrm" Collapsed="true">
+    <Position X="9" Y="2" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACAAAAAAAACAAADiAwAAAAAAAAAAEAAAAAA=</HashCode>
+      <FileName>UI\ResultadosCalculoMultipleFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.RotacionDeSignosFrm" Collapsed="true">
+    <Position X="18" Y="4.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>mwAAgAzFESUYADGSAISODJCCBBA+UwIyAPKTLwwqDDY=</HashCode>
+      <FileName>UI\RotacionDeSignosFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.SelecJM" Collapsed="true">
+    <Position X="23" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>/4kgEyglX0oEBFKBBQIfAiAKxIAkAhIGRCQGJZoBgnA=</HashCode>
+      <FileName>UI\SelectorJM.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.SelectorMS" Collapsed="true">
+    <Position X="23" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CBGgQnEARGCKDtISDAOiAIECiJkFUoQhQzSkAKEFgHA=</HashCode>
+      <FileName>UI\SelectorMS.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.SubirCategoriaFrm" Collapsed="true">
+    <Position X="22.75" Y="1.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>wzABAIAFSDJABBjoJwIAgABStigIAABIAHDCDBXYByA=</HashCode>
+      <FileName>UI\SubirCategoriaFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.TramificarForm" Collapsed="true">
+    <Position X="22.5" Y="8" Width="2" />
+    <TypeIdentifier>
+      <HashCode>/5zUF6JFn/Wk2vd4LpDYpLWiDL7eXfnDgnvlDxxQfrM=</HashCode>
+      <FileName>UI\TramificarForm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.TramificarGraficasFrm" Collapsed="true">
+    <Position X="20.75" Y="6.75" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAACAQAAD4AFIQACAKAAgECBAAAiYAgIAAAAQJRCCA=</HashCode>
+      <FileName>UI\TramificarGraficasFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.TransposicionFrm" Collapsed="true">
+    <Position X="18.25" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>9wAAABARAADsHxAAAAKAAACCAAAAIgGAAAAwsABIAAA=</HashCode>
+      <FileName>UI\TransponedorFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.TriosFrm" Collapsed="true">
+    <Position X="0.75" Y="12.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>/+8AA6DiP1eIJnDf//8fALln592gAACA9+7/jYgAUrA=</HashCode>
+      <FileName>UI\TriosFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.VerBoletos" Collapsed="true">
+    <Position X="12.25" Y="2.75" Width="1.25" />
+    <TypeIdentifier>
+      <HashCode>AoAAAIAAQCADABESBACACkCDCBUIBEAAACgEAAAAAAE=</HashCode>
+      <FileName>UI\VerBoletos.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.VisorAnalisisColumnasAbdonFrm" Collapsed="true">
+    <Position X="20" Y="14.75" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>/xFUgAkkkOQSwBxGIACIJhADUAGpAvAIQAgSgAiSBDQ=</HashCode>
+      <FileName>UI\VisorAnalisisColumnasAbdonFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.VisorAnalisisColumnasFrm" Collapsed="true">
+    <Position X="10" Y="7.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>MBCRQAAAESEA0LAQgICgLJBDALAEEBICBIBhAAwhRAA=</HashCode>
+      <FileName>UI\VisorAnalisisColumnasFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.VisorPosiblesPremios" Collapsed="true">
+    <Position X="7" Y="6" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAEP8ABAgAAACAABEKCAAAYCAEACQACAAAAAE=</HashCode>
+      <FileName>UI\VisorPosiblesPremios.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.EntradaSalida.GenerarCPs.ConfigCPsFrm" Collapsed="true">
+    <Position X="20.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AkAAAAAAACAACAAAAACAAAIKUIBpAAICAFAEAQAAIAI=</HashCode>
+      <FileName>UI\ConfigurarCPs.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.Estadisticas.DibRepFrm" Collapsed="true">
+    <Position X="14.25" Y="10.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>/0AiACAAAAAAABAA6AGAAAACAAAIAQAIACAAIAUAIOA=</HashCode>
+      <FileName>UI\Estadisticas\DibRepFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.Estadisticas.StaInterFrm" Collapsed="true">
+    <Position X="14.25" Y="11.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>90AiACAAAAAAABAA6AGAAAACAAAIAQAIACAAIAUAIOA=</HashCode>
+      <FileName>UI\Estadisticas\StaInterFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.Estadisticas.StaSSForm" Collapsed="true">
+    <Position X="14.25" Y="12" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>90AiACAAAAAAABAA4AGAAAACAAAIAQAIACAAIAUAIOA=</HashCode>
+      <FileName>UI\Estadisticas\StaSSForm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.Estadisticas.Anastatics" Collapsed="true">
+    <Position X="12" Y="11" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AEADACAIIARDJAAAAABEAAACQAgYAIAIAAACAABAARQ=</HashCode>
+      <FileName>UI\Estadisticas\statistics.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.Estadisticas.VisorEstadisticas" Collapsed="true">
+    <Position X="1" Y="8.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAQACAAAAAIAACAAAACAAAAAAAAAAAAAAAAABA=</HashCode>
+      <FileName>UI\Estadisticas\VisorEstadisticas.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.Estadisticas.DibForm" Collapsed="true">
+    <Position X="14.25" Y="9.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>//6jACAAAAAAABAA6AGAYACCAgAIJQgJACAAIP0DY/A=</HashCode>
+      <FileName>UI\Estadisticas\DibForm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.Filtros.CopiarDatosCPFrm" Collapsed="true">
+    <Position X="8.25" Y="9.75" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAABAAACBAAJAAAACAQAACBABAAEAAAQAAAAABBAA=</HashCode>
+      <FileName>UI\Filtros\CopiarDatosCPFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.Filtros.CrearGruposFrm" Collapsed="true">
+    <Position X="10" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAQCAAgJAEAACIAAACAABAAAAAQAAAAAAAAAA=</HashCode>
+      <FileName>UI\Filtros\CrearGruposFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.Filtros.FigurasFiltrosFrm" Collapsed="true">
+    <Position X="6" Y="11.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAoAAAjAAAIAAACCAAQICAABABFAIABAEAAAEAEA=</HashCode>
+      <FileName>UI\Filtros\FigurasFiltrosFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.IfThenFrm" Collapsed="true">
+    <Position X="4.5" Y="14.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>cAChkIAEQjSAApAIOACAAEDGA5MIgEgJOGGEI0QjBIY=</HashCode>
+      <FileName>UI\IfThenFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.Filtros.CambioPuntosFrm" Collapsed="true">
+    <Position X="8.25" Y="8.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAABEAAAiAAABEAAACAAMACAAAAAEAAAQAAIAAAAAA=</HashCode>
+      <FileName>UI\Filtros\CambioPuntosFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.Filtros.ValoracionFrm" Collapsed="true">
+    <Position X="4.5" Y="8.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>fBgAoBwTRSAARGgIKBCgQAYCACAIAEABIiMFTWKogLY=</HashCode>
+      <FileName>UI\Filtros\ValoracionFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.Filtros.ColProbablesFrm" Collapsed="true">
+    <Position X="4.5" Y="9.25" Width="3.75" />
+    <TypeIdentifier>
+      <HashCode>/7XphDOvUTrg9FcbvNQ8D5Ka3jMvo02V+mDP3N76nbY=</HashCode>
+      <FileName>UI\Filtros\ColProbablesFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.Filtros.ContactosFrm" Collapsed="true">
+    <Position X="4.5" Y="11.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>MAAAgOECQCAIwFAoACTACgCCAAIIAEABIEABAUDwAYY=</HashCode>
+      <FileName>UI\Filtros\ContactosFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.Filtros.ControlGruposFrm" Collapsed="true">
+    <Position X="10.25" Y="14.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>QkAAxEAMyBGAItBAAgQQCMAKIYgAwEECASoCMAAEISU=</HashCode>
+      <FileName>UI\Filtros\ControlGruposFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.Filtros.ControlTolFrm" Collapsed="true">
+    <Position X="2.75" Y="14.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gEAAgAAAiABACBEAEAAAAAACAAAAEEAAAAAABAAAAAA=</HashCode>
+      <FileName>UI\Filtros\ControlTolFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.Filtros.CopiarCPFrm" Collapsed="true">
+    <Position X="8.25" Y="9" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAEgBAAAECAAAJAEgACAQAA6AARAAMAAAAAAAAQBAAA=</HashCode>
+      <FileName>UI\Filtros\CopiarCPFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.Filtros.DibujosFrm" Collapsed="true">
+    <Position X="2.75" Y="9.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAgAACQAAAQEAIBAAAAAACAAAMAEABIGABAUDmgIY=</HashCode>
+      <FileName>UI\Filtros\DibujosFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.Filtros.DiferenciasFrm" Collapsed="true">
+    <Position X="4.5" Y="13.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ABFAkAACwSAAUFAIgACAwIB6ABAIBGBFImwBDcDkAIY=</HashCode>
+      <FileName>UI\Filtros\DiferenciasFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.Filtros.DistanciasFrm" Collapsed="true">
+    <Position X="4.5" Y="10.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAgAECQCAAQFAIAgCAAAACAQAIAEAhIGABAdDigIY=</HashCode>
+      <FileName>UI\Filtros\DistanciasFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.Filtros.Formatos123Frm" Collapsed="true">
+    <Position X="4.5" Y="12.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>YBBAjQgAyCCgQFEIIACAEEASoBIIAEiFIfQBK0jggJY=</HashCode>
+      <FileName>UI\Filtros\Formatos123Frm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.Filtros.FormatosFrm" Collapsed="true">
+    <Position X="2.25" Y="12.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>UBgAgAADSiAyYNIaEACAAEACKMRIhEABIHBDhVNowIY=</HashCode>
+      <FileName>UI\Filtros\FormatosFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.Filtros.GruposEquiposFrm" Collapsed="true">
+    <Position X="2.5" Y="11.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>3wGFgaEiySAA5OJZABjIQBCCWIYNwEEFY2JhY1BhhLY=</HashCode>
+      <FileName>UI\Filtros\GruposEquiposFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.Filtros.InterrupcionesFrm" Collapsed="true">
+    <Position X="2.5" Y="10.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>MBAEgANCQCAAwFAIAACAAAACAQAIAGAhIGABAdDggIY=</HashCode>
+      <FileName>UI\Filtros\InterrupcionesFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.Filtros.NoVariantesFrm" Collapsed="true">
+    <Position X="2.75" Y="7.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ABAAgAECQAAAQFAIAAAAAAACAQAIAEAhICABAcCggIY=</HashCode>
+      <FileName>UI\Filtros\NoVariantesFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.Filtros.PesosNumFrm" Collapsed="true">
+    <Position X="4.5" Y="7.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>sRCAgiMCSQaeQVCIgAFAoCECAAAIAAAVICGFCUCroJY=</HashCode>
+      <FileName>UI\Filtros\PesosNumFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.Filtros.SignosSeguidosFrm" Collapsed="true">
+    <Position X="2.5" Y="8.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>ABABgAFCRAAAQFgIAAAAQAIiAQAIIEAhICABAdqggYY=</HashCode>
+      <FileName>UI\Filtros\SignosSeguidosFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.Filtros.SimetriasFrm" Collapsed="true">
+    <Position X="2.75" Y="13.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ABAAkAAAQCAAQFAoAICAAEASIBAIAEAFIGRBK0jggIY=</HashCode>
+      <FileName>UI\Filtros\SimetriasFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.Controls.EquipoBoleto" Collapsed="true">
+    <Position X="10.25" Y="13.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>BAAAAAAAACAAAAAAAACAAAACAAAAAAAgQAIAAAAEAAA=</HashCode>
+      <FileName>UI\Controls\EquipoBoleto.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.GestorEquiposFrm" Collapsed="true">
+    <Position X="4.25" Y="4.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AQQAFAAMCOCAiBgAAACAAEkCAwAAGAAIAABADgEEEgA=</HashCode>
+      <FileName>UI\GestorEquiposFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.VerBoletosEnEditorFrm" Collapsed="true">
+    <Position X="11.5" Y="3.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACAMAAAAAACAEAACAAAABAAAABAABAAAAAA=</HashCode>
+      <FileName>UI\VerBoletosEnEditorFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.AgregarEquipoFrm" Collapsed="true">
+    <Position X="6" Y="4.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAQAACCBABlAAAKAAAACAAAAAAAAAAIAAQAAEAA=</HashCode>
+      <FileName>UI\AgregarEquipoFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.NotificacionesFrm" Collapsed="true">
+    <Position X="0.5" Y="3.75" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>ggQgCAQAAiQgAGQCAACAiAACABAAUQAAAEgAAEAAAAA=</HashCode>
+      <FileName>UI\NotificacionesFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.ImportadorCPsFrm" Collapsed="true">
+    <Position X="8.25" Y="10.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAABAAKBAAIAAAACAAAACgABAAEAAAAAAAAAAAAA=</HashCode>
+      <FileName>UI\ImportadorCPsFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.SalirFrm" Collapsed="true">
+    <Position X="2.25" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AABACAAAACAAABEAAACAAMACAAAAAEAAAAAAACBAAAA=</HashCode>
+      <FileName>UI\SalirFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Free1X2.UI.ExportadorCPsFrm" Collapsed="true">
+    <Position X="8.25" Y="11.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>ABAAAAAAACAAAIBAAACCAAACAABAAAAAEAAEAAAAAAA=</HashCode>
+      <FileName>UI\ExportadorCPsFrm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
