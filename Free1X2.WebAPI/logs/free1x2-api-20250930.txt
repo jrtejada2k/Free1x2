@@ -1,0 +1,6 @@
+2025-09-30 20:56:34.821 -06:00 [INF] Starting Free1X2 Web API
+2025-09-30 20:56:34.964 -06:00 [INF] Now listening on: http://localhost:5261
+2025-09-30 20:56:34.967 -06:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-09-30 20:56:34.967 -06:00 [INF] Hosting environment: Development
+2025-09-30 20:56:34.967 -06:00 [INF] Content root path: C:\Users\jr_te\Free1x2\Free1X2.WebAPI
+2025-09-30 20:57:07.912 -06:00 [INF] Application is shutting down...
