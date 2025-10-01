@@ -6,10 +6,10 @@
     <UseWindowsForms>true</UseWindowsForms>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <AssemblyTitle>Free1X2</AssemblyTitle>
-    <AssemblyDescription>Programa Libre de Quinielas</AssemblyDescription>
+    <AssemblyDescription>Programa Libre de Quinielas - Optimized Version</AssemblyDescription>
     <AssemblyCompany>Free1X2.com</AssemblyCompany>
-    <AssemblyVersion>0.77.1</AssemblyVersion>
-    <FileVersion>0.77.1</FileVersion>
+    <AssemblyVersion>0.77.2</AssemblyVersion>
+    <FileVersion>0.77.2</FileVersion>
     <ApplicationIcon>app.ico</ApplicationIcon>
     <StartupObject>Free1X2.Program</StartupObject>
     <Nullable>disable</Nullable>
@@ -22,6 +22,10 @@
     <GenerateResourceWarnOnBinaryFormatterUse>false</GenerateResourceWarnOnBinaryFormatterUse>
     <!-- This is a Windows-only application -->
     <SupportedOSPlatform>windows</SupportedOSPlatform>
+    <!-- Code quality -->
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -38,6 +42,15 @@
     <DebugType>none</DebugType>
     <WarningLevel>4</WarningLevel>
     <Optimize>true</Optimize>
+    <!-- Performance optimizations -->
+    <PublishTrimmed>false</PublishTrimmed>
+    <PublishSingleFile>false</PublishSingleFile>
+    <TieredCompilation>true</TieredCompilation>
+    <TieredPGO>true</TieredPGO>
+    <ReadyToRun>true</ReadyToRun>
+    <!-- Memory optimizations -->
+    <ServerGarbageCollection>false</ServerGarbageCollection>
+    <ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
   </PropertyGroup>
 
   <ItemGroup>

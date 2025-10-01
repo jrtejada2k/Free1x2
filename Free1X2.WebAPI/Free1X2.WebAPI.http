@@ -1,6 +1,0 @@
-@Free1X2.WebAPI_HostAddress = http://localhost:5261
-
-GET {{Free1X2.WebAPI_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
