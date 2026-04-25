@@ -72,9 +72,14 @@ namespace Free1X2.UI.Controls
 		public CtrSemaforo()
 		{
 			InitializeComponent();
+			// Exclude dot-buttons from theme engine — they carry semantic color state
+			btnRojo.Tag    = "no-theme";
+			btnAmarillo.Tag = "no-theme";
+			btnVerde.Tag   = "no-theme";
 			if(NumLuces.Equals(null)) NumLuces=Luces.Tres;
 			if(Alineacion.Equals(null)) Alineacion=alignment.Vertical;
 		}
+
         protected override void OnLoad(System.EventArgs e)
         {
             base.OnLoad(e);
@@ -244,57 +249,56 @@ namespace Free1X2.UI.Controls
 			}
 		}
 
-		// Funciones
+		// Colores modernos para dots de semáforo
+		private static readonly Color DimRed    = Color.FromArgb(240, 210, 210);
+		private static readonly Color DimYellow = Color.FromArgb(240, 235, 210);
+		private static readonly Color DimGreen  = Color.FromArgb(210, 235, 210);
+		private static readonly Color ActiveRed    = Color.FromArgb(196,  43,  28); // ModernTheme.Colors.Error
+		private static readonly Color ActiveYellow = Color.FromArgb(193, 100,   0); // ModernTheme.Colors.Warning
+		private static readonly Color ActiveGreen  = Color.FromArgb( 16, 124,  16); // ModernTheme.Colors.Success
+
+		private void SetDot(Button btn, Color activeColor, Color dimColor, bool active)
+		{
+			btn.BackColor  = active ? activeColor : dimColor;
+			btn.FlatStyle  = FlatStyle.Flat;
+			btn.FlatAppearance.BorderColor = Color.FromArgb(180, 180, 180);
+			btn.FlatAppearance.BorderSize  = 1;
+		}
+
 		private void CambiaColor()
 		{
 			switch (Estado)
 			{
 				case NombreEstado.Neutro:
-					btnRojo.BackColor=Color.FromArgb(255,220,220);
-					btnRojo.Enabled=true;
-                    btnRojo.FlatStyle = FlatStyle.Flat;
-					btnAmarillo.BackColor=Color.FromArgb(255,255,220);
-					btnAmarillo.Enabled=true;
-                    btnAmarillo.FlatStyle = FlatStyle.Flat;
-					btnVerde.BackColor=Color.FromArgb(220,255,220);
-					btnVerde.Enabled=false;
-                    btnVerde.FlatStyle = FlatStyle.Flat;
+					SetDot(btnRojo,    ActiveRed,    DimRed,    false);
+					SetDot(btnAmarillo, ActiveYellow, DimYellow, false);
+					SetDot(btnVerde,   ActiveGreen,  DimGreen,  false);
+					btnRojo.Enabled = btnAmarillo.Enabled = true;
+					btnVerde.Enabled = false;
 					break;
-				case NombreEstado.Rojo :
-					btnRojo.BackColor=Color.Red;
-					btnRojo.Enabled=false;
-                    btnRojo.FlatStyle = FlatStyle.Flat;
-					btnAmarillo.BackColor=Color.FromArgb(255,255,220);
-					btnAmarillo.Enabled=true;
-                    btnAmarillo.FlatStyle = FlatStyle.Flat;
-					btnVerde.BackColor=Color.FromArgb(220,255,220);
-					btnVerde.Enabled=true;
-                    btnVerde.FlatStyle = FlatStyle.Flat;
+				case NombreEstado.Rojo:
+					SetDot(btnRojo,    ActiveRed,    DimRed,    true);
+					SetDot(btnAmarillo, ActiveYellow, DimYellow, false);
+					SetDot(btnVerde,   ActiveGreen,  DimGreen,  false);
+					btnRojo.Enabled = false;
+					btnAmarillo.Enabled = btnVerde.Enabled = true;
 					break;
-				case NombreEstado.Amarillo :
-					if(NumLuces==Luces.Tres )
+				case NombreEstado.Amarillo:
+					if (NumLuces == Luces.Tres)
 					{
-						btnRojo.BackColor=Color.FromArgb(255,220,220);
-						btnRojo.Enabled=true;
-                        btnRojo.FlatStyle = FlatStyle.Flat;
-						btnAmarillo.BackColor=Color.Yellow;
-						btnAmarillo.Enabled=false;
-                        btnAmarillo.FlatStyle = FlatStyle.Flat;
-						btnVerde.BackColor=Color.FromArgb(220,255,220);
-						btnVerde.Enabled=true;
-                        btnVerde.FlatStyle = FlatStyle.Flat;
+						SetDot(btnRojo,    ActiveRed,    DimRed,    false);
+						SetDot(btnAmarillo, ActiveYellow, DimYellow, true);
+						SetDot(btnVerde,   ActiveGreen,  DimGreen,  false);
+						btnAmarillo.Enabled = false;
+						btnRojo.Enabled = btnVerde.Enabled = true;
 					}
 					break;
-				case NombreEstado.Verde :
-					btnRojo.BackColor=Color.FromArgb(255,220,220);
-					btnRojo.Enabled=true;
-                    btnRojo.FlatStyle = FlatStyle.Flat;
-					btnAmarillo.BackColor=Color.FromArgb(255,255,220);
-					btnAmarillo.Enabled=true;
-                    btnAmarillo.FlatStyle = FlatStyle.Flat;
-					btnVerde.BackColor=Color.Lime;
-					btnVerde.Enabled=false;
-                    btnVerde.FlatStyle = FlatStyle.Flat;
+				case NombreEstado.Verde:
+					SetDot(btnRojo,    ActiveRed,    DimRed,    false);
+					SetDot(btnAmarillo, ActiveYellow, DimYellow, false);
+					SetDot(btnVerde,   ActiveGreen,  DimGreen,  true);
+					btnVerde.Enabled = false;
+					btnRojo.Enabled = btnAmarillo.Enabled = true;
 					break;
 			}
 		}
