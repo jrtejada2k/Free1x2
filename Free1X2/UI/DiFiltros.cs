@@ -24,6 +24,7 @@ using System.Data;
 using Free1X2.EntradaSalida;
 using Free1X2.Utils;
 
+using Free1X2.UI.Modern.Theming;
 namespace Free1X2.UI {
 	public class DiFiltros : Form {
 		private Button bSalvaLista;
@@ -54,6 +55,12 @@ namespace Free1X2.UI {
             fH.Traducir(this);
             AdaptaGrid();
 		}
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToForm(this);
+        }
+
         private void AdaptaGrid()
         {
             if (dsDatos.Tables.Count > 0)

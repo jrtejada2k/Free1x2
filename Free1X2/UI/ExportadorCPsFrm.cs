@@ -9,6 +9,7 @@ using Free1X2.MotorCalculo;
 using Free1X2.EntradaSalida;
 using System.IO;
 
+using Free1X2.UI.Modern.Theming;
 namespace Free1X2.UI
 {
     public partial class ExportadorCPsFrm : Form
@@ -19,6 +20,12 @@ namespace Free1X2.UI
             InitializeComponent();
             this.lista = lista;
         }
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToForm(this);
+        }
+
 
         private void btnCancelar_Click(object sender, EventArgs e)
         {

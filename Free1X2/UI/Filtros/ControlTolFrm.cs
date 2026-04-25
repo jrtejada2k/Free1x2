@@ -23,6 +23,7 @@ using System.Data;
 
 using Free1X2.MotorCalculo;
 
+using Free1X2.UI.Modern.Theming;
 namespace Free1X2.UI.Filtros
 {
     public class ControlTolFrm : Form
@@ -47,6 +48,12 @@ namespace Free1X2.UI.Filtros
             FormulariosHelper fh = new FormulariosHelper();
             fh.Traducir(this);
         }
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToForm(this);
+        }
+
 		
         protected void InicializaDatosDG()
         {

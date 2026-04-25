@@ -7,6 +7,7 @@ using Free1X2.MotorCalculo;
 using Free1X2.UI.Controls.Analisis;
 using Free1X2.EntradaSalida;
 
+using Free1X2.UI.Modern.Theming;
 namespace Free1X2.UI
 {
     public partial class VisorAnalisisColumnasAbdonFrm : Form
@@ -40,6 +41,12 @@ namespace Free1X2.UI
             FormulariosHelper fH = new FormulariosHelper();
             fH.Traducir(this);
         }
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToForm(this);
+        }
+
       
         protected void MostrarInformePorCols()
         {

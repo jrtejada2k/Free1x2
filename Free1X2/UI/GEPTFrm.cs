@@ -19,6 +19,7 @@
 using System;
 using System.Windows.Forms;
 
+using Free1X2.UI.Modern.Theming;
 namespace Free1X2.UI
 {
     public class GEPTFrm : Form
@@ -41,6 +42,12 @@ namespace Free1X2.UI
             AñadirControles(175, 40, "r_");
 
 		}
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToForm(this);
+        }
+
         private void AñadirControles(int x, int y, string plantilla)
         {
             int p;

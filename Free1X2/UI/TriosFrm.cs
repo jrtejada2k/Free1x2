@@ -10,6 +10,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.Collections;
 
+using Free1X2.UI.Modern.Theming;
 namespace Free1X2.UI 
 {
 	public class TriosFrm : Form
@@ -453,6 +454,12 @@ namespace Free1X2.UI
             FormulariosHelper fH = new FormulariosHelper();
             fH.Traducir(this);
 		}
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToForm(this);
+        }
+
 		
  		private bool val, salida = false;
 		private DateTime time0, time9;

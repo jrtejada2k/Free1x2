@@ -26,6 +26,7 @@ using Free1X2.MotorCalculo;
 using Free1X2.MotorCalculo.Estadisticas;
 using Free1X2.EntradaSalida;
 
+using Free1X2.UI.Modern.Theming;
 namespace Free1X2.UI.Filtros
 {
     /// <summary>
@@ -74,6 +75,12 @@ namespace Free1X2.UI.Filtros
             compruebaPegar();
             ctrlAyuda1.TextoAyuda = "Se da una Simetría entre Dos o más\npartidos cuando su signo es el mismo\nDebe especificar los partidos separados por \ncomas(a,b), guiones (a-b) o una mezcla de ambos (a,b-c)";
         }
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToForm(this);
+        }
+
         public MainForm FormPadre
         {
             get{ return parentFrm; }

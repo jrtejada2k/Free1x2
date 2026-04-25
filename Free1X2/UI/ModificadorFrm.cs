@@ -6,6 +6,7 @@ using System.Collections;
 using Free1X2.UI.Controls;
 using Free1X2.EntradaSalida;
 
+using Free1X2.UI.Modern.Theming;
 namespace Free1X2.UI 
 {
 	public class ModificadorFrm : System.Windows.Forms.Form
@@ -34,6 +35,12 @@ namespace Free1X2.UI
             fH.Traducir(this);
             PonerControles();
 		}
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToForm(this);
+        }
+
         private void ReinicializarVariables()
         {
             frecuencia = new int[noPartidos, 3];

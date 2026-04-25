@@ -21,6 +21,7 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 
+using Free1X2.UI.Modern.Theming;
 namespace Free1X2.UI {
 	public class AnaCombi : Form {
 		private Button bGrabar;
@@ -71,6 +72,12 @@ namespace Free1X2.UI {
             FormulariosHelper fH = new FormulariosHelper();
             fH.Traducir(this);
 		}
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToForm(this);
+        }
+
 		
 		private int ctproc, ctgrup, ctfal, admfal;
 		private int[] grup = new int[14];

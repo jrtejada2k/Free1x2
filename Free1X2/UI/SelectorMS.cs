@@ -5,6 +5,7 @@ using System.Collections;
 using System.Data;
 using Free1X2.EntradaSalida;
 
+using Free1X2.UI.Modern.Theming;
 namespace Free1X2.UI {
 	public class SelectorMS : Form {
 		private Button bMenos;
@@ -39,6 +40,12 @@ namespace Free1X2.UI {
             FormulariosHelper fH = new FormulariosHelper();
             fH.Traducir(this);
 		}
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToForm(this);
+        }
+
 		
 		private BitArray existe = new BitArray(4782969);
 		private BitArray repes = new BitArray(4782969);

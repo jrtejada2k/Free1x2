@@ -205,6 +205,21 @@ namespace Free1X2.UI.Modern.Theming
             dg.AlternatingRowsDefaultCellStyle.SelectionForeColor = Colors.Text;
         }
 
+        private static void StyleDataGridLegacy(DataGrid dg)
+        {
+            dg.BackgroundColor    = Colors.Background;
+            dg.BackColor          = Colors.Surface;
+            dg.ForeColor          = Colors.Text;
+            dg.AlternatingBackColor = Colors.GridAlternate;
+            dg.SelectionBackColor = Colors.Primary;
+            dg.SelectionForeColor = Color.White;
+            dg.HeaderBackColor    = Colors.GridHeader;
+            dg.HeaderForeColor    = Colors.Text;
+            dg.GridLineColor      = Colors.Border;
+            dg.BorderStyle        = BorderStyle.FixedSingle;
+            dg.Font               = Fonts.Default;
+        }
+
         private static void StyleGroupBox(GroupBox gb)
         {
             gb.ForeColor = Colors.TextSecondary;

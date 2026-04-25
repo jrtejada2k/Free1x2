@@ -25,6 +25,7 @@ using Free1X2.MotorCalculo.Estadisticas;
 using Free1X2.EntradaSalida;
 using Free1X2.UI.Controls;
 
+using Free1X2.UI.Modern.Theming;
 namespace Free1X2.UI.Filtros
 {
     /// <summary>
@@ -77,6 +78,12 @@ namespace Free1X2.UI.Filtros
             this.ctrlAyuda1.TextoAyuda = "Un Formato 123 es la representación de una\nsecuencia de signos en función de la valoración,\nde forma que el 1 corresponde al signo más valorado,\nel 2 al segundo signo más valorado\ny el 3 al signo menos valorado";
 
         }
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToForm(this);
+        }
+
         public MainForm FormPadre
         {
             get{ return parentFrm; }

@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using System.Collections;
 using Free1X2.EntradaSalida;
 
+using Free1X2.UI.Modern.Theming;
 namespace Free1X2.UI {
     public class VSignosFrm : Form
     {
@@ -58,6 +59,12 @@ namespace Free1X2.UI {
             FormulariosHelper fH = new FormulariosHelper();
             fH.Traducir(this);
 		}
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToForm(this);
+        }
+
 
         private void AñadirControles()
         {

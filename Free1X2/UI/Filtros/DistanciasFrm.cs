@@ -24,6 +24,7 @@ using Free1X2.MotorCalculo;
 using Free1X2.MotorCalculo.Estadisticas;
 using Free1X2.EntradaSalida;
 
+using Free1X2.UI.Modern.Theming;
 namespace Free1X2.UI.Filtros
 {
     /// <summary>
@@ -65,6 +66,12 @@ namespace Free1X2.UI.Filtros
             ctrlAyuda1.TextoAyuda = "Distancia: número máximo de partidos\n que separan dos signos iguales";
             ctrlAyuda1.Location = new Point(Size.Width - (ctrlAyuda1.Width + 15), ctrlAyuda1.Location.Y);
         }
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToForm(this);
+        }
+
 
         public MainForm FormPadre
         {

@@ -23,6 +23,7 @@ using System.Windows.Forms;
 using Free1X2.MotorCalculo;
 using Free1X2.Analisis;
 
+using Free1X2.UI.Modern.Theming;
 namespace Free1X2.UI
 {
     public partial class VisorAnalisisColumnasFrm : Form
@@ -55,6 +56,12 @@ namespace Free1X2.UI
             fH.Traducir(this);
 
         }
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToForm(this);
+        }
+
         protected void MostrarDatos(int grupo)
         {
             if (VariablesGlobales.AnalizarVX2)

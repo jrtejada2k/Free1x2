@@ -1,6 +1,7 @@
 using System;
 using System.Windows.Forms;
 
+using Free1X2.UI.Modern.Theming;
 namespace Free1X2.UI
 {
     public partial class DescargaBoletoFrm : Form
@@ -13,6 +14,12 @@ namespace Free1X2.UI
             InicializarComboBoxes();
             f = form;
         }
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToForm(this);
+        }
+
         private void InicializarComboBoxes()
         {
             for (int i = 1; i <= 60; i++)

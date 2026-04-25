@@ -27,6 +27,7 @@ using Free1X2.UI.Controls;
 using Free1X2.EntradaSalida;
 using System.IO;
 
+using Free1X2.UI.Modern.Theming;
 namespace Free1X2.UI.Filtros
 {
     public class ColProbablesFrm : Form
@@ -198,6 +199,12 @@ namespace Free1X2.UI.Filtros
             AdaptarControlesDesplazamientoRelaciones2();
             AdaptarControlesDesplazamientoRelaciones3();
         }
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToForm(this);
+        }
+
        
         protected void AñadirPartidos()
         {

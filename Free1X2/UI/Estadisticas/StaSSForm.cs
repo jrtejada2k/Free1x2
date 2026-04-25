@@ -18,6 +18,7 @@
 using System;
 using System.Windows.Forms;
 
+using Free1X2.UI.Modern.Theming;
 namespace Free1X2.UI.Estadisticas {
 	public class StaSSForm : System.Windows.Forms.Form
 	{
@@ -112,6 +113,12 @@ namespace Free1X2.UI.Estadisticas {
 			rsl = ofparent; numcol = ncol;
 			PintaPantalla();
 		}
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToForm(this);
+        }
+
 
 		
 		

@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using Free1X2.EntradaSalida;
 using Free1X2.MotorCalculo;
 
+using Free1X2.UI.Modern.Theming;
 namespace Free1X2.UI {
 	public class ImprimirBoletoFrm : Form {
 		private TextBox tbmgizq;
@@ -60,6 +61,12 @@ namespace Free1X2.UI {
             FormulariosHelper fH = new FormulariosHelper();
             fH.Traducir(this);
 		}
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToForm(this);
+        }
+
 
 	    // Advertising system removed for performance optimization
 
