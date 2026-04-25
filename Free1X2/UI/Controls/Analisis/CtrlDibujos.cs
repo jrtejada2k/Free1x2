@@ -21,6 +21,7 @@ using System.Windows.Forms;
 
 using Free1X2.MotorCalculo;
 
+using Free1X2.UI.Modern.Theming;
 namespace Free1X2.UI.Controls.Analisis
 {
     public partial class CtrlDibujos : UserControl
@@ -43,6 +44,12 @@ namespace Free1X2.UI.Controls.Analisis
                 //Marcar Condición Invisible
             }
         }
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToControl(this);
+        }
+
         protected void AñadirCasillaPpal()
         {
             CtrlCasilla casilla = new CtrlCasilla("X/2");

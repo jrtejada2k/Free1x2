@@ -3,6 +3,7 @@ using System.Drawing;
 using Free1X2.MotorCalculo;
 using Free1X2.UI.Controls.Boleto;
 
+using Free1X2.UI.Modern.Theming;
 namespace Free1X2.UI.Controls
 {
     /// <summary>
@@ -24,6 +25,12 @@ namespace Free1X2.UI.Controls
             InitializeComponent();
             PrepararBoleto();
         }
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToControl(this);
+        }
+
 
         /// <summary> 
         /// Limpiar los recursos que se estén utilizando.

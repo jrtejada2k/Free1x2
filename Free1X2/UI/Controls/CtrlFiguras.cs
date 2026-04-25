@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
+using Free1X2.UI.Modern.Theming;
 namespace Free1X2.UI.Controls
 {
     public partial class CtrlFiguras : UserControl
@@ -29,6 +30,12 @@ namespace Free1X2.UI.Controls
             InitializeComponent();
             LlenarCasillas();
         }
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToControl(this);
+        }
+
         public CtrlFiguras(List<long> figuras)
         {
             InitializeComponent();

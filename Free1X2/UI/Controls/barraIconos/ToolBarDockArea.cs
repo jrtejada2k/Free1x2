@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Data;
 using System.Windows.Forms;
 
+using Free1X2.UI.Modern.Theming;
 namespace Free1X2.UI.Controls.barraIconos
 {
 	public class ToolBarDockArea : System.Windows.Forms.UserControl
@@ -37,6 +38,12 @@ namespace Free1X2.UI.Controls.barraIconos
 
 			this.Layout += new LayoutEventHandler(LayoutHandler);
 		}
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToControl(this);
+        }
+
 
 		public bool Horizontal { get { return this.Dock != DockStyle.Left && this.Dock != DockStyle.Right; } }
 

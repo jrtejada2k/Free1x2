@@ -128,6 +128,7 @@ namespace Free1X2.UI.Modern.Theming
                 case TextBox         tb:  StyleTextBox(tb);  break;
                 case ComboBox        cb:  StyleComboBox(cb); break;
                 case DataGridView    dg:  StyleDataGrid(dg); break;
+                case UserControl     uc:  StyleUserControl(uc); break;
                 case GroupBox        gb:  StyleGroupBox(gb); break;
                 case TabControl      tc:  StyleTabControl(tc); break;
                 case ListView        lv:  StyleListView(lv); break;
@@ -203,6 +204,16 @@ namespace Free1X2.UI.Modern.Theming
             dg.AlternatingRowsDefaultCellStyle.ForeColor          = Colors.Text;
             dg.AlternatingRowsDefaultCellStyle.SelectionBackColor = Colors.GridSelection;
             dg.AlternatingRowsDefaultCellStyle.SelectionForeColor = Colors.Text;
+        }
+
+        private static void StyleUserControl(UserControl uc)
+        {
+            // Replace legacy background colors; preserve intentional Surface/white controls
+            Color bg = uc.BackColor;
+            if (bg == Color.Bisque || bg == Color.NavajoWhite || bg == Color.Khaki ||
+                bg == SystemColors.Control || bg == Color.DarkSalmon || bg == Color.LightSalmon)
+                uc.BackColor = Colors.Background;
+            uc.ForeColor = Colors.Text;
         }
 
         private static void StyleDataGridLegacy(DataGrid dg)

@@ -17,6 +17,7 @@
 using System;
 using System.Windows.Forms;
 
+using Free1X2.UI.Modern.Theming;
 namespace Free1X2.UI.Controls
 {
     public partial class ctrlAyuda : UserControl
@@ -26,6 +27,12 @@ namespace Free1X2.UI.Controls
         {
             InitializeComponent();
         }
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToControl(this);
+        }
+
         public string TextoAyuda
         {
             get { return texto; }

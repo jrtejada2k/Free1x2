@@ -6,6 +6,7 @@ using System.Data;
 using System.Windows.Forms;
 
 
+using Free1X2.UI.Modern.Theming;
 namespace Free1X2.UI.Controls.barraIconos
 {
 	public class ToolBarDockHolder : System.Windows.Forms.UserControl
@@ -138,6 +139,12 @@ namespace Free1X2.UI.Controls.barraIconos
 			ToolbarTitle = c.Text;
 //			_control.TextChanged += new EventHandler(control_TextChanged);
 		}
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToControl(this);
+        }
+
 
 		// Added by mav
 //		private void control_TextChanged(object sender, EventArgs e)

@@ -16,6 +16,7 @@
 
 using Free1X2.MotorCalculo;
 
+using Free1X2.UI.Modern.Theming;
 namespace Free1X2.UI.Controls
 {
 	/// <summary>
@@ -37,6 +38,12 @@ namespace Free1X2.UI.Controls
 			InitializeComponent();
 
 		}
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToControl(this);
+        }
+
 		public Formato123 Formato
 		{
 			get {return formato;}

@@ -25,6 +25,7 @@ using System.IO;
 
 using Free1X2.MotorCalculo;
 
+using Free1X2.UI.Modern.Theming;
 namespace Free1X2.UI.Controls.Analisis
 {
     public partial class CtrlDataGridViewFiguras : UserControl
@@ -41,6 +42,12 @@ namespace Free1X2.UI.Controls.Analisis
             LlenarFiguras();
             
         }
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToControl(this);
+        }
+
         public CtrlDataGridViewFiguras(List<FiguraCondicion> lstFiguras, IFiltro filtro, string tipo)
         {
             InitializeComponent();

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Drawing;
 using System.Windows.Forms;
 
+using Free1X2.UI.Modern.Theming;
 namespace Free1X2.UI.Controls
 {
 	public class GridDibujosCentral : UserControl
@@ -24,6 +25,12 @@ namespace Free1X2.UI.Controls
             GenerarCasillas(noPartidos);
 			InicializaVariables();
 		}
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToControl(this);
+        }
+
 		
 		protected void InicializaVariables()
 		{

@@ -15,13 +15,21 @@ import os
 import re
 import sys
 
-USING_LINE  = "using Free1X2.UI.Modern.Theming;"
-ONLOAD_BODY = (
+USING_LINE       = "using Free1X2.UI.Modern.Theming;"
+ONLOAD_FORM      = (
     "\n"
     "        protected override void OnLoad(System.EventArgs e)\n"
     "        {\n"
     "            base.OnLoad(e);\n"
     "            ModernTheme.ApplyToForm(this);\n"
+    "        }\n"
+)
+ONLOAD_USERCTRL  = (
+    "\n"
+    "        protected override void OnLoad(System.EventArgs e)\n"
+    "        {\n"
+    "            base.OnLoad(e);\n"
+    "            ModernTheme.ApplyToControl(this);\n"
     "        }\n"
 )
 
@@ -47,11 +55,16 @@ def process(path):
     if "ModernTheme" in content:
         return "skip:already_themed"
 
-    # Must have Form inheritance
-    if not re.search(r':\s*(System\.Windows\.Forms\.)?Form\b', content):
+    # Detect inheritance type
+    is_form       = bool(re.search(r':\s*(System\.Windows\.Forms\.)?Form\b', content))
+    is_userctrl   = bool(re.search(r':\s*(System\.Windows\.Forms\.)?UserControl\b', content))
+
+    if not is_form and not is_userctrl:
         return "skip:not_a_form"
 
-    # Must have InitializeComponent (proper WinForms form)
+    onload_body = ONLOAD_FORM if is_form else ONLOAD_USERCTRL
+
+    # Must have InitializeComponent (proper WinForms control)
     if "InitializeComponent" not in content:
         return "skip:no_init_component"
 
@@ -107,7 +120,7 @@ def process(path):
     if insert_at < 0:
         return "skip:brace_mismatch"
 
-    modified = modified[:insert_at] + ONLOAD_BODY + modified[insert_at:]
+    modified = modified[:insert_at] + onload_body + modified[insert_at:]
 
     with open(path, "w", encoding="utf-8") as f:
         f.write(modified)
@@ -119,6 +132,9 @@ def main():
     search_dirs = [
         "Free1X2/UI",
         "Free1X2/UI/Estadisticas",
+        "Free1X2/UI/Controls",
+        "Free1X2/UI/Controls/Analisis",
+        "Free1X2/UI/Controls/barraIconos",
     ]
 
     results = {"ok": [], "skip": {}}

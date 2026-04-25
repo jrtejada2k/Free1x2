@@ -1,6 +1,7 @@
 using System;
 using System.Windows.Forms;
 
+using Free1X2.UI.Modern.Theming;
 namespace Free1X2.UI.Controls
 {
 	public class OptionNumTol0_14 : UserControl
@@ -45,6 +46,12 @@ namespace Free1X2.UI.Controls
             InitializeComponent();
             InicializaArraysControles();
         }
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToControl(this);
+        }
+
 
         public OptionNumTol0_14()
         {

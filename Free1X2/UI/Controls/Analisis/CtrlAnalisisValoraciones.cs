@@ -19,6 +19,7 @@ using System.Windows.Forms;
 
 using Free1X2.Analisis;
 
+using Free1X2.UI.Modern.Theming;
 namespace Free1X2.UI.Controls.Analisis
 {
     public partial class CtrlAnalisisValoraciones : UserControl
@@ -41,6 +42,12 @@ namespace Free1X2.UI.Controls.Analisis
                 //inhabilitar marcar
             }
          }
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToControl(this);
+        }
+
         protected void LlenarValoracionesGlobales()
         {
             int x = 26;

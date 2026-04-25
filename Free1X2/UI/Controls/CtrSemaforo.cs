@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 
+using Free1X2.UI.Modern.Theming;
 namespace Free1X2.UI.Controls
 {
 	public class CtrSemaforo : UserControl
@@ -74,6 +75,12 @@ namespace Free1X2.UI.Controls
 			if(NumLuces.Equals(null)) NumLuces=Luces.Tres;
 			if(Alineacion.Equals(null)) Alineacion=alignment.Vertical;
 		}
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToControl(this);
+        }
+
 
 		
 

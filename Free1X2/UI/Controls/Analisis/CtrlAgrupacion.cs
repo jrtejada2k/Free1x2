@@ -8,6 +8,7 @@ using System.Windows.Forms;
 
 using Free1X2.MotorCalculo;
 
+using Free1X2.UI.Modern.Theming;
 namespace Free1X2.UI.Controls.Analisis
 {
     public partial class CtrlAgrupacion : UserControl
@@ -19,6 +20,12 @@ namespace Free1X2.UI.Controls.Analisis
             this.agrupaciones = lista;
             LlenarAgrupaciones();
         }
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToControl(this);
+        }
+
         protected void LlenarAgrupaciones()
         {
             //Montar un Dataset

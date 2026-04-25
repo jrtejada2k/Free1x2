@@ -1,3 +1,5 @@
+using Free1X2.UI.Modern.Theming;
+
 namespace Free1X2.UI.Controls.Boleto
 {
 	/// <summary>
@@ -9,7 +11,7 @@ namespace Free1X2.UI.Controls.Boleto
 		private System.Windows.Forms.Label l_1;
 		private System.Windows.Forms.Label l_2;
 		private System.Windows.Forms.Label l_X;
-		/// <summary> 
+		/// <summary>
 		/// Variable del diseñador requerida.
 		/// </summary>
 		private System.ComponentModel.Container components = null;
@@ -18,6 +20,12 @@ namespace Free1X2.UI.Controls.Boleto
 		{
 			InitializeComponent();
 		}
+
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToControl(this);
+        }
 
 		public bool Uno
 		{
