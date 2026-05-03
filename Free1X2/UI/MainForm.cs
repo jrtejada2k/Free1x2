@@ -8,6 +8,7 @@ using Free1X2.MotorCalculo;
 using Free1X2.UI.Controls;
 using Free1X2.UI.Estadisticas;
 using Free1X2.UI.Filtros;
+using Free1X2.UI.Modern.Theming;
 
 namespace Free1X2.UI 
 {
@@ -51,6 +52,12 @@ namespace Free1X2.UI
             // Notifications disabled for performance
             var fH = new FormulariosHelper();
             fH.Traducir(this);
+        }
+
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToForm(this);
         }
 		
         private void InicializarBarrasHerramientas()
@@ -633,9 +640,9 @@ namespace Free1X2.UI
             PonerColorBotonCondicion(btnDiferencias, chkDiferencias, filtro);
 
 			if(analizador.CtrlGrupos.ControlesGrupos.Count>1)
-				btnControlGrupos.BackColor=Color.LightGreen;
+				SetBotonEstado(btnControlGrupos, BotonEstado.Activo);
 			else
-				btnControlGrupos.BackColor=Color.DarkSalmon;
+				SetBotonEstado(btnControlGrupos, BotonEstado.Inactivo);
 			PonerColorBotonIfThen();
 
             //Indicar Filtro
@@ -701,22 +708,51 @@ namespace Free1X2.UI
 		{
 			if( filtro.IsActive )
 			{
-				boton.BackColor = Color.LightGreen;
+				SetBotonEstado(boton, BotonEstado.Activo);
 				filtroActivo.Enabled = true;
 				filtroActivo.Estado=CtrSemaforo.NombreEstado.Verde;
 			}
 			else if( filtro.ContieneDatos )
 			{
-				boton.BackColor = Color.Tomato;
+				SetBotonEstado(boton, BotonEstado.Error);
 				filtroActivo.Enabled = true;
 				filtroActivo.Estado=CtrSemaforo.NombreEstado.Rojo;
 			}
 			else
 			{
-                boton.BackColor = Color.DarkSalmon;
-				filtroActivo.Enabled = false;				
+				SetBotonEstado(boton, BotonEstado.Inactivo);
+				filtroActivo.Enabled = false;
 				filtroActivo.Estado=CtrSemaforo.NombreEstado.Neutro;
-			}		
+			}
+		}
+
+		private enum BotonEstado { Activo, Error, Neutro, Inactivo }
+
+		private static void SetBotonEstado(Button btn, BotonEstado estado)
+		{
+			switch (estado)
+			{
+				case BotonEstado.Activo:
+					btn.BackColor = ModernTheme.Colors.Success;
+					btn.ForeColor = Color.White;
+					btn.FlatAppearance.BorderColor = ModernTheme.Colors.Success;
+					break;
+				case BotonEstado.Error:
+					btn.BackColor = ModernTheme.Colors.Error;
+					btn.ForeColor = Color.White;
+					btn.FlatAppearance.BorderColor = ModernTheme.Colors.Error;
+					break;
+				case BotonEstado.Neutro:
+					btn.BackColor = Color.FromArgb(255, 244, 206);
+					btn.ForeColor = ModernTheme.Colors.Text;
+					btn.FlatAppearance.BorderColor = Color.FromArgb(200, 160, 0);
+					break;
+				case BotonEstado.Inactivo:
+					btn.BackColor = ModernTheme.Colors.Surface;
+					btn.ForeColor = ModernTheme.Colors.Text;
+					btn.FlatAppearance.BorderColor = ModernTheme.Colors.Border;
+					break;
+			}
 		}
 		
 		private void MCalcularMult(object sender, EventArgs e)
@@ -1337,21 +1373,21 @@ namespace Free1X2.UI
 			{
 				if( analizador.IfThen.EsVacio)
 				{
-					btnIfThen.BackColor = Color.LightGoldenrodYellow;
-					checkIfThen.Enabled = false;				
+					SetBotonEstado(btnIfThen, BotonEstado.Neutro);
+					checkIfThen.Enabled = false;
 					checkIfThen.Estado=CtrSemaforo.NombreEstado.Neutro;
 				}
 				else
 				{
 					if(analizador.IfThen.EsActivo)
 					{
-						btnIfThen.BackColor = Color.LightGreen;
+						SetBotonEstado(btnIfThen, BotonEstado.Activo);
 						checkIfThen.Enabled = true;
 						checkIfThen.Estado=CtrSemaforo.NombreEstado.Verde;
 					}
 					else
 					{
-						btnIfThen.BackColor = Color.Tomato;
+						SetBotonEstado(btnIfThen, BotonEstado.Error);
 						checkIfThen.Enabled = true;
 						checkIfThen.Estado=CtrSemaforo.NombreEstado.Rojo;
 					}
@@ -1359,8 +1395,8 @@ namespace Free1X2.UI
 			}
 			else
 			{
-				btnIfThen.BackColor = Color.LightGoldenrodYellow;
-				checkIfThen.Enabled = false;				
+				SetBotonEstado(btnIfThen, BotonEstado.Neutro);
+				checkIfThen.Enabled = false;
 				checkIfThen.Estado=CtrSemaforo.NombreEstado.Neutro;
 			}
 		}			
@@ -1457,16 +1493,16 @@ namespace Free1X2.UI
 		{
 			if( checkIfThen.Estado==CtrSemaforo.NombreEstado.Verde )
 			{
-				btnIfThen.BackColor=Color.LightGreen;
+				SetBotonEstado(btnIfThen, BotonEstado.Activo);
 				analizador.IfThen.EsActivo=true;
 			}
 			else if( checkIfThen.Estado==CtrSemaforo.NombreEstado.Rojo )
 			{
-				btnIfThen.BackColor=Color.Tomato;
+				SetBotonEstado(btnIfThen, BotonEstado.Error);
 				analizador.IfThen.EsActivo=false;
 			}
 			else
-				btnIfThen.BackColor=Color.LightGoldenrodYellow;
+				SetBotonEstado(btnIfThen, BotonEstado.Neutro);
 			ActualizaGrupoPantalla();
 		}		
 		

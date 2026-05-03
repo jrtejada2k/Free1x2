@@ -1,13 +1,11 @@
 using System;
 using System.ComponentModel;
-using System.Windows.Forms;
 using System.Drawing;
+using System.Windows.Forms;
+using Free1X2.UI.Modern.Theming;
 
 namespace Free1X2.UI.Modern
 {
-    /// <summary>
-    /// Modern command interface for MVVM-like patterns in WinForms
-    /// </summary>
     public interface ICommand
     {
         bool CanExecute(object parameter);
@@ -15,9 +13,6 @@ namespace Free1X2.UI.Modern
         event EventHandler CanExecuteChanged;
     }
 
-    /// <summary>
-    /// Relay command implementation for delegating command logic
-    /// </summary>
     public class RelayCommand : ICommand
     {
         private readonly Action<object> _execute;
@@ -25,96 +20,76 @@ namespace Free1X2.UI.Modern
 
         public RelayCommand(Action<object> execute, Func<object, bool> canExecute = null)
         {
-            _execute = execute ?? throw new ArgumentNullException(nameof(execute));
+            _execute    = execute ?? throw new ArgumentNullException(nameof(execute));
             _canExecute = canExecute;
         }
 
         public event EventHandler CanExecuteChanged;
 
-        public bool CanExecute(object parameter)
-        {
-            return _canExecute?.Invoke(parameter) ?? true;
-        }
+        public bool CanExecute(object parameter) => _canExecute?.Invoke(parameter) ?? true;
+        public void Execute(object parameter)     => _execute(parameter);
 
-        public void Execute(object parameter)
-        {
-            _execute(parameter);
-        }
-
-        public void RaiseCanExecuteChanged()
-        {
-            CanExecuteChanged?.Invoke(this, EventArgs.Empty);
-        }
+        public void RaiseCanExecuteChanged() => CanExecuteChanged?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>
-    /// Base class for modern forms with command and data binding support
+    /// Base for all modernized forms. Inherit instead of Form.
+    /// Designer-safe: do NOT set UserPaint on a Form.
     /// </summary>
     public abstract class ModernFormBase : Form
     {
         private readonly Container _components = new Container();
-        
+
         protected ModernFormBase()
         {
-            InitializeModernForm();
-            ConfigureServices();
-            ConfigureDataBinding();
-            ConfigureCommands();
-            ApplyModernStyling();
-        }
-
-        private void InitializeModernForm()
-        {
-            // Modern form defaults
+            // DPI-aware scaling
             AutoScaleMode = AutoScaleMode.Dpi;
-            Font = SystemFonts.DefaultFont;
-            StartPosition = FormStartPosition.CenterParent;
-            MinimumSize = new Size(400, 300);
-            
-            // Enable visual styles
-            SetStyle(ControlStyles.OptimizedDoubleBuffer |
-                    ControlStyles.AllPaintingInWmPaint |
-                    ControlStyles.UserPaint, true);
+
+            // Set modern font before InitializeComponent runs in derived class
+            Font = ModernTheme.Fonts.Default;
+
+            // Smooth rendering without UserPaint (UserPaint on Form breaks background)
+            SetStyle(
+                ControlStyles.OptimizedDoubleBuffer |
+                ControlStyles.AllPaintingInWmPaint,
+                true);
+
+            StartPosition   = FormStartPosition.CenterParent;
+            MinimumSize     = ModernTheme.Sizes.MinimumFormSize;
+            BackColor       = ModernTheme.Colors.Background;
+            ForeColor       = ModernTheme.Colors.Text;
         }
 
-        /// <summary>
-        /// Configure dependency injection or service provider
-        /// </summary>
-        protected virtual void ConfigureServices() { }
-
-        /// <summary>
-        /// Configure modern data binding patterns
-        /// </summary>
-        protected virtual void ConfigureDataBinding() { }
-
-        /// <summary>
-        /// Configure command bindings
-        /// </summary>
-        protected virtual void ConfigureCommands() { }
-
-        /// <summary>
-        /// Apply modern visual styling
-        /// </summary>
-        protected virtual void ApplyModernStyling()
+        protected override void OnLoad(EventArgs e)
         {
-            BackColor = SystemColors.Control;
-            ForeColor = SystemColors.ControlText;
+            base.OnLoad(e);
+            ApplyTheme();
         }
+
+        /// <summary>
+        /// Override to customize theming after base applies ModernTheme to all controls.
+        /// Always call base.ApplyTheme() first.
+        /// </summary>
+        protected virtual void ApplyTheme()
+        {
+            ModernTheme.ApplyToForm(this);
+        }
+
+        // Hooks for derived classes
+        protected virtual void ConfigureServices()    { }
+        protected virtual void ConfigureDataBinding() { }
+        protected virtual void ConfigureCommands()    { }
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing)
-            {
-                _components?.Dispose();
-            }
+            if (disposing) _components?.Dispose();
             base.Dispose(disposing);
         }
     }
 
     /// <summary>
-    /// Base class for modern dialogs with proper result handling
+    /// Base for fixed-size dialogs (no maximize/minimize).
     /// </summary>
-    /// <typeparam name="TResult">Type of the dialog result</typeparam>
     public abstract class ModernDialogBase<TResult> : ModernFormBase
     {
         public TResult Result { get; protected set; }
@@ -122,16 +97,13 @@ namespace Free1X2.UI.Modern
         protected ModernDialogBase()
         {
             FormBorderStyle = FormBorderStyle.FixedDialog;
-            MaximizeBox = false;
-            MinimizeBox = false;
-            ShowInTaskbar = false;
-            StartPosition = FormStartPosition.CenterParent;
+            MaximizeBox     = false;
+            MinimizeBox     = false;
+            ShowInTaskbar   = false;
+            StartPosition   = FormStartPosition.CenterParent;
         }
 
-        protected virtual bool ValidateInput()
-        {
-            return true;
-        }
+        protected virtual bool ValidateInput() => true;
 
         protected virtual void OnOk()
         {
@@ -150,7 +122,7 @@ namespace Free1X2.UI.Modern
     }
 
     /// <summary>
-    /// Modern data-bound form base with binding source management
+    /// Form base with BindingSource management.
     /// </summary>
     public abstract class DataBoundFormBase : ModernFormBase
     {
@@ -169,26 +141,20 @@ namespace Free1X2.UI.Modern
             }
         }
 
-        protected virtual void OnCurrentItemChanged(object sender, EventArgs e)
+        protected virtual void OnCurrentItemChanged(object sender, EventArgs e) { }
+
+        protected override void Dispose(bool disposing)
         {
-            // Override in derived classes for current item change handling
+            if (disposing) _mainBindingSource?.Dispose();
+            base.Dispose(disposing);
         }
+
+        protected abstract void ConfigureBindings();
 
         protected override void ConfigureDataBinding()
         {
             base.ConfigureDataBinding();
             ConfigureBindings();
-        }
-
-        protected abstract void ConfigureBindings();
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                _mainBindingSource?.Dispose();
-            }
-            base.Dispose(disposing);
         }
     }
 }

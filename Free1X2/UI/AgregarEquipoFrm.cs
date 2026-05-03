@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
+using Free1X2.UI.Modern.Theming;
 namespace Free1X2.UI
 {
     public partial class AgregarEquipoFrm : Form
@@ -14,6 +15,12 @@ namespace Free1X2.UI
             lista2B = lb2B;
             listaInt = lbInt;
         }
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToForm(this);
+        }
+
 
         private void btnNuevoEquipo_Click(object sender, EventArgs e)
         {

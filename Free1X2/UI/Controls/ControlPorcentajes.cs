@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using Free1X2.Utils;
 
+using Free1X2.UI.Modern.Theming;
 namespace Free1X2.UI.Controls
 {
 	/// <summary>
@@ -90,6 +91,12 @@ namespace Free1X2.UI.Controls
 				InicializaGridPorcentajes();
 				GridDataBind();
 			}
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToControl(this);
+        }
+
         public ControlPorcentajes(int partidos)
         {
             //Este método debería usarse en las utilidades en las que el número de partidos 

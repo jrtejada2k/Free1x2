@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using System.IO;
 using System.Text;
 
+using Free1X2.UI.Modern.Theming;
 namespace Free1X2.UI
 {
 	/// <summary>
@@ -32,6 +33,12 @@ namespace Free1X2.UI
             FormulariosHelper fH = new FormulariosHelper();
             fH.Traducir(this);
 		}
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToForm(this);
+        }
+
 
 		/// <summary>
 		/// Limpiar los recursos que se estén utilizando.

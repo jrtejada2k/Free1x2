@@ -27,6 +27,7 @@ using Free1X2.MotorCalculo.Estadisticas;
 using Free1X2.EntradaSalida;
 using Free1X2.UI.Controls;
 
+using Free1X2.UI.Modern.Theming;
 namespace Free1X2.UI.Filtros
 {
     /// <summary>
@@ -95,6 +96,12 @@ namespace Free1X2.UI.Filtros
             compruebaPegar();
             ctrlAyuda1.TextoAyuda = "Marcar los equipos elegidos y\nespecificar las victorias/empates/derrotas\ny/o la suma de puntos que conseguirán";
         }
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToForm(this);
+        }
+
         protected void AñadirCasillas()
         {
             int x = 20;

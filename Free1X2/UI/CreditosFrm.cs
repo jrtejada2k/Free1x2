@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 
+using Free1X2.UI.Modern.Theming;
 namespace Free1X2.UI
 {
     public partial class CreditosFrm : Form
@@ -17,6 +18,12 @@ namespace Free1X2.UI
             timer1.Start();
             lblFantasma.Focus();
         }
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToForm(this);
+        }
+
 
         private void Mover()
         {

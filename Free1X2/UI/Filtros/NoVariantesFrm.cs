@@ -25,6 +25,7 @@ using Free1X2.MotorCalculo;
 using Free1X2.EntradaSalida;
 using Free1X2.MotorCalculo.Estadisticas;
 
+using Free1X2.UI.Modern.Theming;
 namespace Free1X2.UI.Filtros
 {
     public class NoVariantesFrm : Form
@@ -53,7 +54,13 @@ namespace Free1X2.UI.Filtros
             formHelper.Redimensionar(this);
             ctrlAyuda1.TextoAyuda = "Especificar la cantidad de Variantes, X y 2";
             ctrlAyuda1.Location = new Point(Size.Width - (ctrlAyuda1.Width + 15), ctrlAyuda1.Location.Y);
-        }		
+        }
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToForm(this);
+        }
+		
 		
         protected void MarcarValores()
         {

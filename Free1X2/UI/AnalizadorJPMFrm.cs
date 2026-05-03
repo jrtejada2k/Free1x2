@@ -21,6 +21,7 @@ using System.Windows.Forms;
 using System.Collections;
 using Free1X2;
 
+using Free1X2.UI.Modern.Theming;
 namespace Free1X2.UI {
 	public class AnalizadorJPM : System.Windows.Forms.Form {
 		private System.Windows.Forms.CheckBox ck01;
@@ -190,6 +191,12 @@ namespace Free1X2.UI {
             FormulariosHelper fH = new FormulariosHelper();
             fH.Traducir(this);
 		}
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToForm(this);
+        }
+
 		
 		private int[] pot = new int[] {1,3,9,27,81,243,729,2187,6561,19683,59049,177147,531441,1594323};
 		private int[] validas = new int[4782969];

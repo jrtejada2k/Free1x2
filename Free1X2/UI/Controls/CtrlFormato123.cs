@@ -19,6 +19,7 @@ using System.Windows.Forms;
 
 using Free1X2.MotorCalculo;
 
+using Free1X2.UI.Modern.Theming;
 namespace Free1X2.UI.Controls
 {
     public partial class CtrlFormato123 : UserControl
@@ -32,6 +33,12 @@ namespace Free1X2.UI.Controls
         {
             InitializeComponent();
         }
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToControl(this);
+        }
+
         public CtrlFormato123(Formato123 formato123, int noFormato123)
         {
             InitializeComponent();

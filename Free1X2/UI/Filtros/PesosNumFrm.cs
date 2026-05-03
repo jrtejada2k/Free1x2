@@ -24,6 +24,7 @@ using Free1X2.MotorCalculo;
 using Free1X2.MotorCalculo.Estadisticas;
 using Free1X2.EntradaSalida;
 
+using Free1X2.UI.Modern.Theming;
 namespace Free1X2.UI.Filtros
 {
     public class PesosNumFrm : System.Windows.Forms.Form
@@ -82,6 +83,12 @@ namespace Free1X2.UI.Filtros
             this.ctrlAyuda1.TextoAyuda = "El Peso Numérico de una columna\nes una representación numérica de la columna.\nTambién se puede expresar el Peso Numérico\nde Variantes, 1, X y 2";
             fHelper.Traducir(this);
         }
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToForm(this);
+        }
+
 		
         protected void MarcarValores()
         {

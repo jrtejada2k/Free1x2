@@ -8,6 +8,7 @@ using Free1X2.MotorCalculo;
 using Free1X2.EntradaSalida;
 using Free1X2.MotorCalculo.Estadisticas;
 
+using Free1X2.UI.Modern.Theming;
 namespace Free1X2.UI.Filtros
 {
     public partial class DiferenciasFrm : Form
@@ -33,6 +34,12 @@ namespace Free1X2.UI.Filtros
             ctrlAyuda1.TextoAyuda = "Debe especificar en cada línea un grupo de partidos\nseparados por \",\" o por \"-\". \nMarcar en las casillas de la derecha para \ncada concepto la cantidad o el intervalo de valores DISTINTOS \nentre los grupos especificados";
 
         }
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToForm(this);
+        }
+
 
         public MainForm FormPadre
         {

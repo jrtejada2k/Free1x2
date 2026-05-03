@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.IO;
 
+using Free1X2.UI.Modern.Theming;
 namespace Free1X2.UI.Controls
 {
 	/// <summary>
@@ -62,6 +63,12 @@ namespace Free1X2.UI.Controls
 			cargaControl();
             cargarEventosBoleto();
 		}
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToControl(this);
+        }
+
         private void cargarEventosBoleto()
         {
             for (int i = 0; i < partidosBoleto.Length; i++ )

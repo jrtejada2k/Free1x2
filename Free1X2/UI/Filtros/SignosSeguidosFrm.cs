@@ -25,6 +25,7 @@ using Free1X2.MotorCalculo;
 using Free1X2.MotorCalculo.Estadisticas;
 using Free1X2.EntradaSalida;
 
+using Free1X2.UI.Modern.Theming;
 namespace Free1X2.UI.Filtros
 {
     public class SignosSeguidosFrm : Form
@@ -64,6 +65,12 @@ namespace Free1X2.UI.Filtros
             ctrlAyuda1.TextoAyuda = "Especificar la cantidad de Variantes\nseguidas, 1 seguidos, X seguidas\ny 2 seguidos";
             ctrlAyuda1.Location = new Point(Size.Width - (ctrlAyuda1.Width + 15), ctrlAyuda1.Location.Y);
         }
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToForm(this);
+        }
+
 		
         protected void MarcarValores()
         {

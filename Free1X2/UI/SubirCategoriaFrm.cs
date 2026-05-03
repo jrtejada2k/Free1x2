@@ -6,6 +6,7 @@ using Free1X2.Utils ;
 using Free1X2.SubirCategoria;
 using Free1X2.EntradaSalida;
 
+using Free1X2.UI.Modern.Theming;
 namespace Free1X2.UI 
 {
 	class SubirCategoriaFrm : System.Windows.Forms.Form
@@ -97,6 +98,12 @@ namespace Free1X2.UI
             checksNiveles = new CheckBox[] { chkNiv_0, chkNiv_1, chkNiv_2, chkNiv_3, chkNiv_4, chkNiv_5, chkNiv_6, chkNiv_7, chkNiv_8, chkNiv_9, chkNiv_10, chkNiv_11, chkNiv_12, chkNiv_13, chkNiv_14, chkNiv_15, chkNiv_16 };
             DeshabilitarTodo();
 		}
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToForm(this);
+        }
+
         private void AdaptarInterfaz(int noPartidos)
         {
             DeshabilitarTodo();

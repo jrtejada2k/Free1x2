@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
+using Free1X2.UI.Modern.Theming;
 namespace Free1X2.UI.Controls.Analisis
 {
     public partial class CtrlAnalisisFormatosSignos : UserControl
@@ -36,6 +37,12 @@ namespace Free1X2.UI.Controls.Analisis
                 //Inhabilitar marcar
             }
         }
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToControl(this);
+        }
+
         protected void LlenarNumerosLineas()
         {
             int x = lblNoLineas.Location.X;

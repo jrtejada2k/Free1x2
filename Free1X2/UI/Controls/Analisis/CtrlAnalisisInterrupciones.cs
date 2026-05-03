@@ -20,6 +20,7 @@ using System.Windows.Forms;
 
 using Free1X2.MotorCalculo;
 
+using Free1X2.UI.Modern.Theming;
 namespace Free1X2.UI.Controls.Analisis
 {
     public partial class CtrlAnalisisInterrupciones : UserControl
@@ -60,6 +61,12 @@ namespace Free1X2.UI.Controls.Analisis
                 btnMarcarCondicion.Enabled = false;
             }
         }
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToControl(this);
+        }
+
         protected void LlenarValores(int[,] valores)
         {
             //Por cada valor a mostrar hay que insertar una CrtlCasilla inicializada

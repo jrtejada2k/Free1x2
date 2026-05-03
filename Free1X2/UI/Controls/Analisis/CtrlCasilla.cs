@@ -17,6 +17,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 
+using Free1X2.UI.Modern.Theming;
 namespace Free1X2.UI.Controls.Analisis
 {
     public partial class CtrlCasilla : UserControl
@@ -29,6 +30,12 @@ namespace Free1X2.UI.Controls.Analisis
             InitializeComponent();
             lblCasilla.Text = text;
         }
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToControl(this);
+        }
+
         public void SetColor(Color color)
         {
             lblCasilla.BackColor = color;

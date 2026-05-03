@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 
+using Free1X2.UI.Modern.Theming;
 namespace Free1X2.UI.Controls.Boleto
 {
 	/// <summary>
@@ -39,6 +40,12 @@ namespace Free1X2.UI.Controls.Boleto
                 }
             }
 		}
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            ModernTheme.ApplyToControl(this);
+        }
+
 
         /// <summary> 
         /// Limpiar los recursos que se estén utilizando.
