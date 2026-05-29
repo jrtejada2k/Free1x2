@@ -19,6 +19,7 @@ namespace Free1X2.UI.Modern.Theming
             public static readonly Color BackgroundAlt = Color.FromArgb(232, 237, 244); // #E8EDF4 slate-100
             public static readonly Color Surface       = Color.White;
             public static readonly Color SurfaceAlt    = Color.FromArgb(248, 250, 252);
+            public static readonly Color SurfaceFocus  = Color.FromArgb(238, 242, 255); // #EEF2FF indigo-50, input enfocado
 
             // Accent - Indigo 600
             public static readonly Color Primary       = Color.FromArgb( 79,  70, 229); // #4F46E5
@@ -194,6 +195,7 @@ namespace Free1X2.UI.Modern.Theming
             tb.BorderStyle = BorderStyle.FixedSingle;
             tb.BackColor   = Colors.Surface;
             tb.ForeColor   = Colors.Text;
+            AttachFocusTint(tb);
         }
 
         private static void StyleComboBox(ComboBox cb)
@@ -201,6 +203,20 @@ namespace Free1X2.UI.Modern.Theming
             cb.FlatStyle = FlatStyle.Flat;
             cb.BackColor = Colors.Surface;
             cb.ForeColor = Colors.Text;
+        }
+
+        // Subtle focus affordance: tint the field background while it has focus.
+        // WinForms doesn't allow recoloring a TextBox border cheaply, so a faint
+        // indigo wash is the safe, layout-neutral way to signal the active input.
+        private static readonly ConditionalWeakTable<Control, object> FocusWired =
+            new ConditionalWeakTable<Control, object>();
+
+        private static void AttachFocusTint(Control c)
+        {
+            if (FocusWired.TryGetValue(c, out _)) return;
+            FocusWired.Add(c, new object());
+            c.GotFocus  += (s, e) => { var ct = (Control)s; if (ct.BackColor == Colors.Surface) ct.BackColor = Colors.SurfaceFocus; };
+            c.LostFocus += (s, e) => { var ct = (Control)s; if (ct.BackColor == Colors.SurfaceFocus) ct.BackColor = Colors.Surface; };
         }
 
         private static void StyleDataGrid(DataGridView dg)
@@ -214,12 +230,20 @@ namespace Free1X2.UI.Modern.Theming
             dg.RowHeadersVisible         = false;
             dg.SelectionMode             = DataGridViewSelectionMode.FullRowSelect;
 
+            // Density / breathing room — grids are everywhere in this stats app.
+            dg.AllowUserToResizeRows     = false;
+            dg.RowTemplate.Height        = 28;
+            dg.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+            dg.ColumnHeadersHeight       = 34;
+
             dg.DefaultCellStyle.BackColor          = Colors.Surface;
             dg.DefaultCellStyle.ForeColor          = Colors.Text;
             dg.DefaultCellStyle.SelectionBackColor = Colors.GridSelection;
             dg.DefaultCellStyle.SelectionForeColor = Colors.Text;
             dg.DefaultCellStyle.Font               = Fonts.Default;
+            dg.DefaultCellStyle.Padding            = new Padding(8, 4, 8, 4);
 
+            dg.ColumnHeadersDefaultCellStyle.Padding   = new Padding(8, 4, 8, 4);
             dg.ColumnHeadersDefaultCellStyle.BackColor = Colors.GridHeader;
             dg.ColumnHeadersDefaultCellStyle.ForeColor = Colors.Text;
             dg.ColumnHeadersDefaultCellStyle.Font      = Fonts.Bold;
