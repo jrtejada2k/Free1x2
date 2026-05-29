@@ -1,5 +1,7 @@
 using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Runtime.CompilerServices;
 using System.Windows.Forms;
 
 namespace Free1X2.UI.Modern.Theming
@@ -100,6 +102,24 @@ namespace Free1X2.UI.Modern.Theming
             form.ForeColor = Colors.Text;
             form.Font      = Fonts.Default;
             ApplyRecursive(form.Controls);
+
+            // The form's default action button becomes the accent/primary button —
+            // gives every dialog a clear visual hierarchy without per-form work.
+            if (form.AcceptButton is Button accept && !(accept.Tag is string at && at == "no-theme"))
+                MakePrimary(accept);
+        }
+
+        /// <summary>
+        /// Promote a button to the accent (primary) style: filled indigo, white text.
+        /// Safe to call from forms that want an explicit primary action.
+        /// </summary>
+        public static void MakePrimary(Button b)
+        {
+            b.BackColor = Colors.Primary;
+            b.ForeColor = Colors.TextOnPrimary;
+            b.FlatAppearance.BorderColor       = Colors.Primary;
+            b.FlatAppearance.MouseOverBackColor = Colors.PrimaryHover;
+            b.FlatAppearance.MouseDownBackColor = Colors.PrimaryPress;
         }
 
         public static void ApplyToControl(Control control)
@@ -145,6 +165,8 @@ namespace Free1X2.UI.Modern.Theming
                 case Panel           p:   StylePanel(p);     break;
                 case SplitContainer  sc:  StyleSplitContainer(sc); break;
                 case RichTextBox     rtb: StyleRichTextBox(rtb);   break;
+                case TreeView        tv:  StyleTreeView(tv);   break;
+                case PictureBox      pb:  StylePictureBox(pb); break;
             }
         }
 
@@ -158,10 +180,13 @@ namespace Free1X2.UI.Modern.Theming
             b.UseVisualStyleBackColor = false;
             b.BackColor = Colors.Surface;
             b.ForeColor = Colors.Text;
-            b.FlatAppearance.BorderColor        = Colors.Border;
+            // We paint our own rounded border, so disable the built-in square one.
+            b.FlatAppearance.BorderSize          = 0;
+            b.FlatAppearance.BorderColor         = Colors.Border;
             b.FlatAppearance.MouseOverBackColor  = Colors.BackgroundAlt;
             b.FlatAppearance.MouseDownBackColor  = Colors.PrimaryLight;
             b.Cursor = Cursors.Hand;
+            RoundButton.Attach(b);
         }
 
         private static void StyleTextBox(TextBox tb)
@@ -208,17 +233,25 @@ namespace Free1X2.UI.Modern.Theming
             dg.AlternatingRowsDefaultCellStyle.SelectionForeColor = Colors.Text;
         }
 
+        /// <summary>
+        /// True if the color is one of the legacy decorative backgrounds the modern
+        /// theme replaces (Bisque/Khaki/Wheat/... and SystemColors.Control).
+        /// </summary>
+        private static bool IsLegacyBackground(Color bg)
+        {
+            return bg == Color.Bisque       || bg == Color.NavajoWhite ||
+                   bg == Color.Khaki        || bg == SystemColors.Control ||
+                   bg == Color.DarkSalmon   || bg == Color.LightSalmon  ||
+                   bg == Color.LemonChiffon || bg == Color.AntiqueWhite ||
+                   bg == Color.Ivory        || bg == Color.Wheat        ||
+                   bg == Color.OldLace      || bg == Color.PapayaWhip   ||
+                   bg == Color.Moccasin     || bg == Color.PeachPuff;
+        }
+
         private static void StyleUserControl(UserControl uc)
         {
             // Replace legacy background colors; preserve intentional Surface/white controls
-            Color bg = uc.BackColor;
-            if (bg == Color.Bisque       || bg == Color.NavajoWhite ||
-                bg == Color.Khaki        || bg == SystemColors.Control ||
-                bg == Color.DarkSalmon   || bg == Color.LightSalmon  ||
-                bg == Color.LemonChiffon || bg == Color.AntiqueWhite ||
-                bg == Color.Ivory        || bg == Color.Wheat        ||
-                bg == Color.OldLace      || bg == Color.PapayaWhip   ||
-                bg == Color.Moccasin     || bg == Color.PeachPuff)
+            if (IsLegacyBackground(uc.BackColor))
                 uc.BackColor = Colors.Surface;
             uc.ForeColor = Colors.Text;
         }
@@ -322,9 +355,27 @@ namespace Free1X2.UI.Modern.Theming
 
         private static void StylePanel(Panel p)
         {
-            if (p.BackColor == SystemColors.Control)
+            // Remap any legacy decorative background (was: only SystemColors.Control,
+            // which left Bisque/Khaki/etc. panels as stale islands of old color).
+            if (IsLegacyBackground(p.BackColor))
                 p.BackColor = Colors.Background;
             p.ForeColor = Colors.Text;
+        }
+
+        private static void StyleTreeView(TreeView tv)
+        {
+            tv.BackColor   = Colors.Surface;
+            tv.ForeColor   = Colors.Text;
+            tv.BorderStyle = BorderStyle.FixedSingle;
+            tv.LineColor   = Colors.Border;
+        }
+
+        private static void StylePictureBox(PictureBox pb)
+        {
+            // Only neutralize legacy filler backgrounds; never touch boxes that
+            // intentionally carry an image or a deliberate color.
+            if (IsLegacyBackground(pb.BackColor))
+                pb.BackColor = Colors.Surface;
         }
 
         private static void StyleSplitContainer(SplitContainer sc)
@@ -393,6 +444,74 @@ namespace Free1X2.UI.Modern.Theming
         }
 
         #endregion
+    }
+
+    // ---------------------------------------------------------------------------
+    // Rounded-corner rendering for flat Buttons.
+    // Clips the button to a rounded region and paints a smooth 1px border using
+    // the button's own FlatAppearance.BorderColor — so SetBotonEstado (which only
+    // swaps BackColor/BorderColor) keeps working and just renders rounded now.
+    // ---------------------------------------------------------------------------
+    internal static class RoundButton
+    {
+        private const int Radius = 6;
+
+        // Tracks buttons already wired up so re-theming never double-subscribes.
+        private static readonly ConditionalWeakTable<Button, object> Wired =
+            new ConditionalWeakTable<Button, object>();
+
+        public static void Attach(Button b)
+        {
+            if (Wired.TryGetValue(b, out _)) { UpdateRegion(b); return; }
+            Wired.Add(b, new object());
+
+            UpdateRegion(b);
+            b.SizeChanged += (s, e) => UpdateRegion((Button)s);
+            b.Paint       += OnPaint;
+        }
+
+        private static int EffectiveRadius(Button b)
+        {
+            int r = Radius;
+            r = Math.Min(r, b.Height / 2);
+            r = Math.Min(r, b.Width  / 2);
+            return Math.Max(0, r);
+        }
+
+        private static void UpdateRegion(Button b)
+        {
+            if (b.Width <= 0 || b.Height <= 0) return;
+            int r = EffectiveRadius(b);
+            if (r <= 0) { b.Region = null; return; }
+            using (var path = RoundedRect(new Rectangle(0, 0, b.Width, b.Height), r))
+                b.Region = new Region(path);
+        }
+
+        private static void OnPaint(object sender, PaintEventArgs e)
+        {
+            var b = (Button)sender;
+            int r = EffectiveRadius(b);
+            if (r <= 0) return;
+            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            // Inset by 1px so the full stroke stays inside the clipped region.
+            var rect = new Rectangle(0, 0, b.Width - 1, b.Height - 1);
+            using (var path = RoundedRect(rect, r))
+            using (var pen  = new Pen(b.FlatAppearance.BorderColor))
+                e.Graphics.DrawPath(pen, path);
+        }
+
+        internal static GraphicsPath RoundedRect(Rectangle rect, int radius)
+        {
+            int d = radius * 2;
+            var path = new GraphicsPath();
+            if (d <= 0) { path.AddRectangle(rect); return path; }
+            path.AddArc(rect.X,             rect.Y,              d, d, 180, 90);
+            path.AddArc(rect.Right - d,     rect.Y,              d, d, 270, 90);
+            path.AddArc(rect.Right - d,     rect.Bottom - d,     d, d,   0, 90);
+            path.AddArc(rect.X,             rect.Bottom - d,     d, d,  90, 90);
+            path.CloseFigure();
+            return path;
+        }
     }
 
     // ---------------------------------------------------------------------------

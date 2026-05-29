@@ -49,3 +49,5 @@ Free1X2.dll
 # OS generated files
 Thumbs.db
 .DS_Store
+# Claude Code local files
+.claude/
