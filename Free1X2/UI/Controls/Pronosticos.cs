@@ -74,7 +74,28 @@ namespace Free1X2.UI.Controls
             for (int i = 0; i < partidosBoleto.Length; i++ )
             {
                 partidosBoleto[i].lblNumPartido.Click += PartidoBoleto_Click;
+                partidosBoleto[i].PronosticoChanged += (s, e) => ActualizarContador();
             }
+            ActualizarContador();
+        }
+
+        private void ActualizarContador()
+        {
+            int fijos = 0, dobles = 0, triples = 0, vacios = 0;
+            int total = Math.Min(partidosBoleto.Length, NumPartidos);
+            for (int i = 0; i < total; i++)
+            {
+                string p = partidosBoleto[i].Pronostico ?? "";
+                switch (p.Length)
+                {
+                    case 1: fijos++;   break;
+                    case 2: dobles++;  break;
+                    case 3: triples++; break;
+                    default: vacios++; break;
+                }
+            }
+            string baseTxt = grupoPantalla == 0 ? "Boleto Base" : ObtenTitulo();
+            lblTitulo.Text = $"{baseTxt}    Fijos: {fijos} - Dobles: {dobles} - Triples: {triples}";
         }
 		/// <summary> 
 		/// Limpiar los recursos que se estén utilizando.
@@ -734,6 +755,7 @@ namespace Free1X2.UI.Controls
 				txtNombre.Enabled=true;
 				txtNombre.Tag="";
 			}
+			ActualizarContador();
 		}
 
 		public void ActivaPartidos( bool[] partidos )

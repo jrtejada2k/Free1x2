@@ -605,10 +605,10 @@ namespace Free1X2.UI
             this.btnIfThen.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnIfThen.Location = new System.Drawing.Point(182, 264);
             this.btnIfThen.Name = "btnIfThen";
-            this.btnIfThen.Size = new System.Drawing.Size(145, 34);
+            this.btnIfThen.Size = new System.Drawing.Size(200, 34);
             this.btnIfThen.TabIndex = 33;
             this.btnIfThen.Text = "Condiciones Relacionadas";
-            this.btnIfThen.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.btnIfThen.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.btnIfThen.UseVisualStyleBackColor = false;
             this.btnIfThen.Click += new System.EventHandler(this.btnIfThen_Click);
             // 

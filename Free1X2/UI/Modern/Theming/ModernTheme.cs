@@ -10,38 +10,40 @@ namespace Free1X2.UI.Modern.Theming
 
         public static class Colors
         {
+            // Slate / Indigo palette — modern, higher contrast than Windows-11 grey.
+            // Backgrounds use cool slate (Tailwind slate-50/100), accent is indigo-600.
             // Backgrounds
-            public static readonly Color Background    = Color.FromArgb(243, 243, 243); // #F3F3F3 Windows 11
-            public static readonly Color BackgroundAlt = Color.FromArgb(238, 238, 238);
+            public static readonly Color Background    = Color.FromArgb(245, 247, 250); // #F5F7FA slate-50
+            public static readonly Color BackgroundAlt = Color.FromArgb(232, 237, 244); // #E8EDF4 slate-100
             public static readonly Color Surface       = Color.White;
-            public static readonly Color SurfaceAlt    = Color.FromArgb(249, 249, 249);
+            public static readonly Color SurfaceAlt    = Color.FromArgb(248, 250, 252);
 
-            // Accent - Windows 11 blue
-            public static readonly Color Primary       = Color.FromArgb(0, 120, 212);
-            public static readonly Color PrimaryHover  = Color.FromArgb(0, 102, 180);
-            public static readonly Color PrimaryPress  = Color.FromArgb(0, 84, 153);
-            public static readonly Color PrimaryLight  = Color.FromArgb(204, 228, 255);
+            // Accent - Indigo 600
+            public static readonly Color Primary       = Color.FromArgb( 79,  70, 229); // #4F46E5
+            public static readonly Color PrimaryHover  = Color.FromArgb( 67,  56, 202); // #4338CA indigo-700
+            public static readonly Color PrimaryPress  = Color.FromArgb( 55,  48, 163); // #3730A3 indigo-800
+            public static readonly Color PrimaryLight  = Color.FromArgb(224, 231, 255); // #E0E7FF indigo-100
 
-            // Text
-            public static readonly Color Text          = Color.FromArgb(26,  26,  26);
-            public static readonly Color TextSecondary = Color.FromArgb(97,  97,  97);
-            public static readonly Color TextDisabled  = Color.FromArgb(161, 161, 161);
+            // Text - slate scale, very high contrast
+            public static readonly Color Text          = Color.FromArgb( 15,  23,  42); // #0F172A slate-900
+            public static readonly Color TextSecondary = Color.FromArgb( 51,  65,  85); // #334155 slate-700 (was 97,97,97 — too light)
+            public static readonly Color TextDisabled  = Color.FromArgb(148, 163, 184); // #94A3B8 slate-400
             public static readonly Color TextOnPrimary = Color.White;
 
             // Borders
-            public static readonly Color Border        = Color.FromArgb(213, 213, 213);
-            public static readonly Color BorderFocus   = Color.FromArgb(0, 120, 212);
+            public static readonly Color Border        = Color.FromArgb(203, 213, 225); // #CBD5E1 slate-300
+            public static readonly Color BorderFocus   = Color.FromArgb( 79,  70, 229);
 
             // Grids
-            public static readonly Color GridHeader    = Color.FromArgb(248, 249, 250);
-            public static readonly Color GridAlternate = Color.FromArgb(248, 249, 250);
-            public static readonly Color GridSelection = Color.FromArgb(204, 228, 255); // solid, alpha breaks DataGridView
+            public static readonly Color GridHeader    = Color.FromArgb(241, 245, 249); // slate-100
+            public static readonly Color GridAlternate = Color.FromArgb(248, 250, 252); // slate-50
+            public static readonly Color GridSelection = Color.FromArgb(224, 231, 255); // indigo-100
 
-            // Status
-            public static readonly Color Success  = Color.FromArgb(16,  124, 16);
-            public static readonly Color Warning  = Color.FromArgb(193, 100, 0);
-            public static readonly Color Error    = Color.FromArgb(196, 43,  28);
-            public static readonly Color Info     = Color.FromArgb(0,   120, 212);
+            // Status — keep semantic colors but tuned to new palette
+            public static readonly Color Success  = Color.FromArgb( 22, 163,  74); // #16A34A green-600
+            public static readonly Color Warning  = Color.FromArgb(217, 119,   6); // #D97706 amber-600
+            public static readonly Color Error    = Color.FromArgb(220,  38,  38); // #DC2626 red-600
+            public static readonly Color Info     = Color.FromArgb( 79,  70, 229);
         }
 
         #endregion
@@ -210,9 +212,14 @@ namespace Free1X2.UI.Modern.Theming
         {
             // Replace legacy background colors; preserve intentional Surface/white controls
             Color bg = uc.BackColor;
-            if (bg == Color.Bisque || bg == Color.NavajoWhite || bg == Color.Khaki ||
-                bg == SystemColors.Control || bg == Color.DarkSalmon || bg == Color.LightSalmon)
-                uc.BackColor = Colors.Background;
+            if (bg == Color.Bisque       || bg == Color.NavajoWhite ||
+                bg == Color.Khaki        || bg == SystemColors.Control ||
+                bg == Color.DarkSalmon   || bg == Color.LightSalmon  ||
+                bg == Color.LemonChiffon || bg == Color.AntiqueWhite ||
+                bg == Color.Ivory        || bg == Color.Wheat        ||
+                bg == Color.OldLace      || bg == Color.PapayaWhip   ||
+                bg == Color.Moccasin     || bg == Color.PeachPuff)
+                uc.BackColor = Colors.Surface;
             uc.ForeColor = Colors.Text;
         }
 
@@ -233,7 +240,10 @@ namespace Free1X2.UI.Modern.Theming
 
         private static void StyleGroupBox(GroupBox gb)
         {
-            gb.ForeColor = Colors.TextSecondary;
+            // Use full-strength text + bold so titles stay legible even when
+            // the GroupBox is disabled (Windows lightens the ForeColor further).
+            gb.ForeColor = Colors.Text;
+            gb.Font      = Fonts.Bold;
         }
 
         private static void StyleTabControl(TabControl tc)

@@ -64,6 +64,8 @@
   <ItemGroup>
     <!-- Temporarily exclude legacy Web Services during migration -->
     <Compile Remove="Web References\**\*.cs" />
+    <!-- Keep Debug/* exception handler implementation to avoid duplicate types -->
+    <Compile Remove="Infraestructura\ManejadorExcepciones.cs" />
     <None Include="Web References\**\*.cs" />
   </ItemGroup>
 

@@ -13,6 +13,8 @@ namespace Free1X2.UI.Controls
 
 		private Color colorFondo = System.Drawing.Color.Wheat;
 
+		public event EventHandler PronosticoChanged;
+
 		public Prono1X2()
 		{
 			InitializeComponent();
@@ -56,12 +58,12 @@ namespace Free1X2.UI.Controls
 			set
 			{
 				string valores = value;
-				
+
 				//reinicializar pronosticos
 				this.lblSigno1.BackColor = colorFondo;
 				this.lblSignoX.BackColor = colorFondo;
 				this.lblSigno2.BackColor = colorFondo;
-				
+
 				foreach(char val in valores)
 				{
 					switch( val )
@@ -74,10 +76,11 @@ namespace Free1X2.UI.Controls
 							break;
 						case '2':
 							lblSigno2.BackColor = System.Drawing.Color.LimeGreen;
-							break;							
+							break;
 					}
 				}
-			
+
+				PronosticoChanged?.Invoke(this, EventArgs.Empty);
 			}
 		}
 		
@@ -93,9 +96,10 @@ namespace Free1X2.UI.Controls
 			else
 			{
 				this.lblSigno1.BackColor = colorFondo;
-			}	
+			}
+			PronosticoChanged?.Invoke(this, EventArgs.Empty);
 		}
-		
+
 		void LblSignoXClick(object sender, System.EventArgs e)
 		{
 			if( this.lblSignoX.BackColor == colorFondo )
@@ -105,9 +109,10 @@ namespace Free1X2.UI.Controls
 			else
 			{
 				this.lblSignoX.BackColor = colorFondo;
-			}	
+			}
+			PronosticoChanged?.Invoke(this, EventArgs.Empty);
 		}
-		
+
 		void LblSigno2Click(object sender, System.EventArgs e)
 		{
 			if( this.lblSigno2.BackColor == colorFondo )
@@ -117,7 +122,8 @@ namespace Free1X2.UI.Controls
 			else
 			{
 				this.lblSigno2.BackColor = colorFondo;
-			}	
+			}
+			PronosticoChanged?.Invoke(this, EventArgs.Empty);
 		}
 		
 		void InitializeComponent() {
