@@ -1,5 +1,4 @@
 using System;
-using System.Windows.Forms;
 using System.Collections;
 using Free1X2.EntradaSalida;
 
@@ -152,7 +151,7 @@ namespace Free1X2.Reduccion
 					if(ticks==500)
 					{
 						ticks=0;
-						Application.DoEvents();
+						Free1X2.Abstractions.UiPump.Pump();
 						if (salida) break;
 					}
 				}
@@ -209,7 +208,7 @@ namespace Free1X2.Reduccion
 			            if (ticks == 500)
 			            {
 			                ticks = 0;
-			                Application.DoEvents();
+			                Free1X2.Abstractions.UiPump.Pump();
 			                if (salida) break;
 			            }
 			        }
@@ -236,7 +235,7 @@ namespace Free1X2.Reduccion
 			            if (ticks == 500)
 			            {
 			                ticks = 0;
-			                Application.DoEvents();
+			                Free1X2.Abstractions.UiPump.Pump();
 			                if (salida) break;
 			            }
 			            int numCol2 = Convert.ToInt16(colsReductoras[i]);

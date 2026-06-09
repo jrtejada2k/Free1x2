@@ -17,7 +17,6 @@
 using System;
 using System.Collections.Generic;
 using System.Xml;
-using System.Windows.Forms;
 
 namespace Free1X2.MotorCalculo
 {
@@ -28,7 +27,7 @@ namespace Free1X2.MotorCalculo
 
         public ControladoresImpresion()
         {
-            InicializaParametros(Application.StartupPath);
+            InicializaParametros(System.AppContext.BaseDirectory.TrimEnd(System.IO.Path.DirectorySeparatorChar, System.IO.Path.AltDirectorySeparatorChar));
         }
         protected void InicializaParametros(string directorioInicio)
         {

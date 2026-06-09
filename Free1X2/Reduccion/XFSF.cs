@@ -20,7 +20,6 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 using System;
-using System.Windows.Forms;
 using Free1X2.EntradaSalida;
 using Free1X2.Utils;
 
@@ -64,7 +63,7 @@ namespace Free1X2.Reduccion
 			
 			while (true) {
 				//permitimos que el programa ejecute los eventos correspondientes
-				Application.DoEvents();
+				Free1X2.Abstractions.UiPump.Pump();
 				if (salida) break;	
 				flags[nextcol] = 999999999;		// marca de columna reductora
 				com.byteCol2 [0]=columnas[nextcol,0];

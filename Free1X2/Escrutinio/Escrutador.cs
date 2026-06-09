@@ -18,7 +18,6 @@
 
 using System;
 using System.Collections;
-using System.Windows.Forms;
 using System.Data;
 using System.IO;
 using Free1X2.EntradaSalida;
@@ -130,7 +129,7 @@ namespace Free1X2.Escrutinio
 				{
 					break;
 				}
-				Application.DoEvents();
+				Free1X2.Abstractions.UiPump.Pump();
 				premios = EscrutaColumna( columnas[i] );				
 				PonerPremios( premios, i+1, columnas[i], archivo);				
 			}

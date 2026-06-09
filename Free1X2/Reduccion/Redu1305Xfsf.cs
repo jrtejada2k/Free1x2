@@ -19,7 +19,6 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 using System.Collections;
-using System.Windows.Forms;
 using Free1X2.EntradaSalida;
 using Free1X2.Utils;
 
@@ -73,7 +72,7 @@ namespace Free1X2.Reduccion
             for (nsel = primera; nsel < indices; nsel++) if (flags[nsel] == 1) break;   // selecció primera
 			while (true) 
 			{
-				Application.DoEvents(); 
+				Free1X2.Abstractions.UiPump.Pump(); 
 				if (salida) break;
 				validas[nsel]=true; 
 				noColumnasFinales++; 
@@ -93,7 +92,7 @@ namespace Free1X2.Reduccion
 			{
 				if (flags[nr]==2)
 				{
-					Application.DoEvents(); 
+					Free1X2.Abstractions.UiPump.Pump(); 
 					if (salida) break;
 					validas[nr]=true; 
 					noColumnasFinales++; 
@@ -117,7 +116,7 @@ namespace Free1X2.Reduccion
             for (nsel = primera; nsel < indices; nsel++) if (flags[nsel] == 1) break;   // selecció primera
 			while (true) 
 			{
-				Application.DoEvents(); 
+				Free1X2.Abstractions.UiPump.Pump(); 
 				if (salida) break;
 				validas[nsel]=true; 
 				noColumnasFinales++; 
@@ -137,7 +136,7 @@ namespace Free1X2.Reduccion
 			{
 				if (flags[nr]==2)
 				{
-					Application.DoEvents(); 
+					Free1X2.Abstractions.UiPump.Pump(); 
 					if (salida) break;
 					validas[nr]=true; 
 					noColumnasFinales++; 

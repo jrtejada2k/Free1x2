@@ -17,7 +17,6 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-using System.Windows.Forms;
 using System.Collections;
 
 using Free1X2.EntradaSalida;
@@ -77,7 +76,7 @@ namespace Free1X2.Reduccion
 			for(;;)
 			{
 				//permitimos que el programa ejecute los eventos correspondientes
-				Application.DoEvents();
+				Free1X2.Abstractions.UiPump.Pump();
 				
 				// Obtenemos la apuesta mas alta...
 				int res = 0;

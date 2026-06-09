@@ -20,7 +20,6 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 using System.Collections;
-using System.Windows.Forms;
 using Free1X2.EntradaSalida;
 using Free1X2.Utils;
 
@@ -81,7 +80,7 @@ namespace Free1X2.Analisis
 
             if (noPartidosB != noPartidosA)
             {
-                MessageBox.Show("Los Dos archivos tienen un número distinto de signos");
+                Free1X2.Abstractions.UserDialogs.ShowError("Los Dos archivos tienen un número distinto de signos");
                 return;
             }
             InicializarNumeroDePartidos();

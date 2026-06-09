@@ -20,7 +20,6 @@
 
 using System;
 using System.Collections;
-using System.Windows.Forms;
 using Free1X2.EntradaSalida;
 using Free1X2.Utils;
 
@@ -97,7 +96,7 @@ namespace Free1X2.Reduccion
                     CalculaLasQueReduce((int)columnas[nr], 1, (short)(noPartidos - nivelReduccion), -1, false);
 				}
 				noColumnasProcesadas = nr-noColumnasIniciales; // esto es solo para no desanimar al usuario
-				Application.DoEvents();
+				Free1X2.Abstractions.UiPump.Pump();
 				if (salida) break;	
 			}
 			
@@ -133,7 +132,7 @@ namespace Free1X2.Reduccion
 					if (flags[(int) columnas[nr]]==max) n[nr]++;
 				}
 				//permitimos que el programa ejecute los eventos correspondientes
-				Application.DoEvents();	
+				Free1X2.Abstractions.UiPump.Pump();	
 				if (salida) break;
 				nextcol=(-1); min=(-1);
 
@@ -186,7 +185,7 @@ namespace Free1X2.Reduccion
 
             for (Partido = PosicionInicial; Partido < noPartidos + 1; Partido++)
 			{
-                Application.DoEvents();
+                Free1X2.Abstractions.UiPump.Pump();
 				SigIni = ((IndiceInicial / pot[Partido - 1]) % 3);
 				for (z = 0; z<3; z++)
 				{

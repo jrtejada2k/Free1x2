@@ -18,10 +18,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Windows.Forms;
 
 using Free1X2.EntradaSalida;
-using Free1X2.UI;
 using Free1X2.Utils;
 
 namespace Free1X2.MotorCalculo
@@ -102,7 +100,7 @@ namespace Free1X2.MotorCalculo
 
             {
                 //Permitir que el programa procese eventos
-                Application.DoEvents();
+                Free1X2.Abstractions.UiPump.Pump();
                 dt1 = DateTime.Now;
             }
             
@@ -140,7 +138,7 @@ namespace Free1X2.MotorCalculo
             if (DateTime.Now.Subtract(dt1).Milliseconds > 800)
             {
                 //Permitir que el programa procese eventos
-                Application.DoEvents();
+                Free1X2.Abstractions.UiPump.Pump();
                 dt1 = DateTime.Now;
             }
 
@@ -287,9 +285,9 @@ namespace Free1X2.MotorCalculo
             {
                 // Muestra la pantalla de análisis
 
-                VisorAnalisisColumnasFrm visor = new VisorAnalisisColumnasFrm(ContenedorAnalisisColumnasGlobal, GruposPartidos[0]);
-                Application.DoEvents();
-                visor.Show();
+                Free1X2.Abstractions.AnalisisUi.MostrarVisor(ContenedorAnalisisColumnasGlobal, GruposPartidos[0]);
+                Free1X2.Abstractions.UiPump.Pump();
+                
                 
             }
         }
@@ -335,8 +333,8 @@ namespace Free1X2.MotorCalculo
             if (ContenedorAnalisisColumnasGlobal != null && noColsAceptadas > 0)
             {
                 // Muestra la pantalla de análisis
-                VisorAnalisisColumnasFrm visor = new VisorAnalisisColumnasFrm(ContenedorAnalisisColumnasGlobal, GruposPartidos[0]);
-                visor.Show();
+                Free1X2.Abstractions.AnalisisUi.MostrarVisor(ContenedorAnalisisColumnasGlobal, GruposPartidos[0]);
+                
             }
         }
 
@@ -415,7 +413,7 @@ namespace Free1X2.MotorCalculo
 
         protected void InicializaParametros()
         {
-            AConfiguracion aConfig = new AConfiguracion(Application.StartupPath);
+            AConfiguracion aConfig = new AConfiguracion(System.AppContext.BaseDirectory.TrimEnd(System.IO.Path.DirectorySeparatorChar, System.IO.Path.AltDirectorySeparatorChar));
 
             //inicializa parametros de condiciones establecidas en parametros.free1x2
 

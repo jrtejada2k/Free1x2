@@ -19,7 +19,6 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 using System;
-using System.Windows.Forms;
 using Free1X2.EntradaSalida;
 using Free1X2.Utils;
 
@@ -67,14 +66,14 @@ namespace Free1X2.Reduccion
 				}
 				 
 				noColumnasProcesadas = nr-noColumnasIniciales; // esto es solo para no desanimar al usuario
-				Application.DoEvents();	
+				Free1X2.Abstractions.UiPump.Pump();	
 				if (salida) break;
 			}
 			noColumnasProcesadas=0;
 			while (true) 
 			{
 				//permitimos que el programa ejecute los eventos correspondientes
-				Application.DoEvents();	
+				Free1X2.Abstractions.UiPump.Pump();	
 				if (salida) break;
 				nextcol=(-1); min=(-1);	nv=(-1);		// seleccion de la maxima reductora. 0 es posible
 				for (nr=0; nr<noColumnasIniciales; nr++) 

@@ -190,7 +190,7 @@ namespace Free1X2.MotorCalculo
             }
             catch
             {
-                System.Windows.Forms.MessageBox.Show("Hay errores en los valores introducidos", "Error");
+                Free1X2.Abstractions.UserDialogs.ShowError("Hay errores en los valores introducidos");
                 return;
             }		
 		}
@@ -218,7 +218,7 @@ namespace Free1X2.MotorCalculo
                 }
                 catch
                 {
-                    System.Windows.Forms.MessageBox.Show("Hay errores en los valores introducidos", "Error");
+                    Free1X2.Abstractions.UserDialogs.ShowError("Hay errores en los valores introducidos");
                     return;
                 }
                 usaControlGrupos = true;

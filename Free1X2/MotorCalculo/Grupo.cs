@@ -57,7 +57,7 @@ namespace Free1X2.MotorCalculo
 		{
 			// Obtiene el no de partidos del boleto y los separadores
 			string[] separador=null;
-			AConfiguracion aConfig = new AConfiguracion( System.Windows.Forms.Application.StartupPath );
+			AConfiguracion aConfig = new AConfiguracion( System.AppContext.BaseDirectory.TrimEnd(System.IO.Path.DirectorySeparatorChar, System.IO.Path.AltDirectorySeparatorChar) );
 			aConfig.ObtenNumPartidos(ref numPartidos, ref separador);
 		}
 
