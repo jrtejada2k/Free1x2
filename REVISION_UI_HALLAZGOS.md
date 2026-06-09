@@ -139,3 +139,23 @@ Free1X2/UI/MainForm.cs                       ← SetBotonEstado (botones semánt
 Free1X2/UI/Controls/CtrSemaforo.cs           ← semáforo
 tools/apply_theme_batch.py                   ← script que inyectó OnLoad en 164 archivos
 ```
+
+---
+
+## Actualización — Rediseño Fluent (2026-05-29, rama `ui-icons-palette`)
+
+Fase A del rediseño aplicada **en el sistema central** (se propaga a los 166 forms). Build limpio (0 errores) + smoke-test de arranque sin excepciones. **Pendiente: verificación visual en Windows.**
+
+| Hallazgo original | Estado | Cómo |
+|-------------------|--------|------|
+| #1 Sin esquinas redondeadas | ✅ Resuelto | `RoundButton` — botones con `Region` redondeado + borde antialiased |
+| #2 Botones forzados a blanco | ✅ Mejorado | `MakePrimary` + auto-promoción del `AcceptButton` a acento índigo (jerarquía 1ario/2ario) |
+| #3 Bug `StylePanel` | ✅ Resuelto | helper `IsLegacyBackground` compartido; remapea todos los colores legacy |
+| #5 Tipos sin handler | ✅ Resuelto | añadidos `TreeView` y `PictureBox` |
+| Densidad de grids | ✅ Añadido | row 28 / header 34 / padding celda 8×4 |
+| Estado de foco en inputs | ✅ Añadido | wash índigo sutil (`SurfaceFocus`) en TextBox al enfocar |
+| #4 Layout/espaciado por-form | ⏳ Pendiente | Reflow de MainForm/Boleto/etc. — **requiere verificación visual** (posición absoluta, riesgo de solapes a ciegas) |
+| Paleta azul → slate/índigo | ✅ Hecho | nueva paleta de mayor contraste |
+| Iconos legacy → Segoe Fluent | ✅ Hecho | `SegoeIcons` + `IconReplacer` |
+
+**Sombra/elevación**: no implementada — en WinForms la sombra de un botón/card requiere pintar fuera de sus límites (en el padre); se evaluará junto con el reflow de layout, ya con render visible.

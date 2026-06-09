@@ -25,9 +25,12 @@ namespace Free1X2.UI.Controls
 		/// </summary>
 		private System.ComponentModel.Container components = null;
 
+		public event EventHandler PronosticoChanged;
+
 		public PartidoBoleto()
 		{
 			InitializeComponent();
+			pronostico.PronosticoChanged += (s, e) => PronosticoChanged?.Invoke(this, EventArgs.Empty);
 		}
         protected override void OnLoad(System.EventArgs e)
         {
