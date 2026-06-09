@@ -18,7 +18,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Windows.Forms;
 using System.Xml;
 using System.IO;
 
@@ -39,7 +38,7 @@ namespace Free1X2.EntradaSalida
 		
 		public AConfiguracion()
 		{
-			InicializaParametros(Application.StartupPath);
+			InicializaParametros(System.AppContext.BaseDirectory.TrimEnd(System.IO.Path.DirectorySeparatorChar, System.IO.Path.AltDirectorySeparatorChar));
 		}
 
 		protected void InicializaParametros(string directorioInicio)
@@ -165,7 +164,7 @@ namespace Free1X2.EntradaSalida
         }
         public void ObtenEstadoNotificaciones(ref SortedList<int, string> notificaciones)
         {
-            StreamReader sr = new StreamReader(Application.StartupPath + "/Comunicaciones/comunicaciones.free1x2");
+            StreamReader sr = new StreamReader(System.AppContext.BaseDirectory.TrimEnd(System.IO.Path.DirectorySeparatorChar, System.IO.Path.AltDirectorySeparatorChar) + "/Comunicaciones/comunicaciones.free1x2");
             notificaciones.Clear();
 
             while (sr.Peek() != -1)

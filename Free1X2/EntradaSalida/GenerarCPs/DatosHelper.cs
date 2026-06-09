@@ -1,5 +1,4 @@
 using System.IO;
-using System.Windows.Forms;
 
 namespace Free1X2.EntradaSalida.GenerarCPs
 {
@@ -13,7 +12,7 @@ namespace Free1X2.EntradaSalida.GenerarCPs
 
 		public DatosHelper()
 		{
-			applicationPath = Application.StartupPath;
+			applicationPath = System.AppContext.BaseDirectory.TrimEnd(System.IO.Path.DirectorySeparatorChar, System.IO.Path.AltDirectorySeparatorChar);
 			xmlFile = applicationPath + "/ColumnasProbables.xml";
 		}
 

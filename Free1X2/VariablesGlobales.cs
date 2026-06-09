@@ -1,7 +1,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Windows.Forms;
 using Free1X2.EntradaSalida;
 
 namespace Free1X2
@@ -121,7 +120,7 @@ namespace Free1X2
 			// Try multiple possible paths for the configuration file
 			string[] possiblePaths = {
 				System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location),
-				Application.StartupPath,
+				System.AppContext.BaseDirectory.TrimEnd(System.IO.Path.DirectorySeparatorChar, System.IO.Path.AltDirectorySeparatorChar),
 				Environment.CurrentDirectory,
 				System.IO.Path.Combine(Environment.CurrentDirectory, "bin"),
 				System.IO.Path.GetDirectoryName(Environment.GetCommandLineArgs()[0])
@@ -143,7 +142,7 @@ namespace Free1X2
 			}
 			
 			// Fallback to application startup path
-			return Application.StartupPath ?? Environment.CurrentDirectory;
+			return System.AppContext.BaseDirectory.TrimEnd(System.IO.Path.DirectorySeparatorChar, System.IO.Path.AltDirectorySeparatorChar) ?? Environment.CurrentDirectory;
 		}
 		
 		private static void SetDefaultValues()

@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Text;
-using System.Windows.Forms;
 
 using System.IO;
 
@@ -11,8 +10,8 @@ namespace Free1X2.EntradaSalida
         public Dictionary<string, string> ObtenerIdioma(string idioma)
         {
             Dictionary<string, string> diccionario = new Dictionary<string, string>();
-            string path = Application.StartupPath+"/Idioma/";
-            DirectoryInfo dInfo = new DirectoryInfo(Application.StartupPath + "/Idioma/");
+            string path = System.AppContext.BaseDirectory.TrimEnd(System.IO.Path.DirectorySeparatorChar, System.IO.Path.AltDirectorySeparatorChar)+"/Idioma/";
+            DirectoryInfo dInfo = new DirectoryInfo(System.AppContext.BaseDirectory.TrimEnd(System.IO.Path.DirectorySeparatorChar, System.IO.Path.AltDirectorySeparatorChar) + "/Idioma/");
             FileInfo[] fInfo = dInfo.GetFiles("*.lang");
             if (fInfo.Length > 0)
             {
@@ -46,7 +45,7 @@ namespace Free1X2.EntradaSalida
         public string[] ObtenerListaDeIdiomasDisponibles()
         {
             string[] lista = null;
-            DirectoryInfo dInfo = new DirectoryInfo(Application.StartupPath + "/Idioma/");
+            DirectoryInfo dInfo = new DirectoryInfo(System.AppContext.BaseDirectory.TrimEnd(System.IO.Path.DirectorySeparatorChar, System.IO.Path.AltDirectorySeparatorChar) + "/Idioma/");
             FileInfo[] fInfo = dInfo.GetFiles("*.lang");
             if (fInfo.Length > 0)
             {

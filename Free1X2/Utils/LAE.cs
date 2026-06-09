@@ -18,7 +18,6 @@
 using System;
 using System.Text;
 using System.Collections;
-using System.Windows.Forms;
 using Free1X2.EntradaSalida;
 
 namespace Free1X2.Utils
@@ -45,7 +44,7 @@ namespace Free1X2.Utils
 			_ColumnaPremiada=columnaPremiada;
 
 
-			AConfiguracion ac = new AConfiguracion(Application.StartupPath);
+			AConfiguracion ac = new AConfiguracion(System.AppContext.BaseDirectory.TrimEnd(System.IO.Path.DirectorySeparatorChar, System.IO.Path.AltDirectorySeparatorChar));
 			ac.ObtenValoresLAE(ref _PrecioApuesta, ref _PorcentajePremioCategoria[0], ref _Recaudacion, ref moneda);
 			_PorcentajePremioCategoria[1]=10;
 			_PorcentajePremioCategoria[2]=10;
@@ -86,7 +85,7 @@ namespace Free1X2.Utils
 			CalculaPremios();
 
             IArchivoColumnas comBaseCols;
-			string NombreFicheroJornadas=Application.StartupPath + "/Jornadas/InfoJornadasLAE.txt";
+			string NombreFicheroJornadas=System.AppContext.BaseDirectory.TrimEnd(System.IO.Path.DirectorySeparatorChar, System.IO.Path.AltDirectorySeparatorChar) + "/Jornadas/InfoJornadasLAE.txt";
 			comBaseCols = new ArchivoColumnasTexto(NombreFicheroJornadas);
 			StringBuilder linea= new StringBuilder ("");
 			while( comBaseCols.SiguienteColumna() )
