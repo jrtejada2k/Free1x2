@@ -40,15 +40,23 @@
 - **`Free1X2.Domain.Tests`** (xUnit): **10/10 tests** golden-master (RangosHelper, Comparador).
 - Proyectos añadidos a `Free1X2.sln`.
 
+### Fase 0b — quitar WinForms de 5 archivos (HECHO)
+- `Application.StartupPath` → `AppContext.BaseDirectory` + `Path` separators; quitado `using System.Windows.Forms` en: `VariablesGlobales`, `EntradaSalida/{AConfiguracion, ArchivoIdioma, GenerarCPs/DatosHelper}`, `Utils/LAE`. Ya WinForms-free.
+- Acoplamiento UI **real** que sigue en WinForms (no es solo path): `Utils/ValidadorCaracteres` (SendKeys), `Utils/Porcentajes` (MessageBox/Clipboard), `Utils/ControlCompatibility` (Form).
+
 **Builds verdes:** Domain 0 err · WinForms 0 err · WinUI 0 err · tests 10/10.
 
 ## Próximos pasos (en orden) — retomar aquí
 
-1. **Desacoplar `VariablesGlobales`** (`Free1X2/VariablesGlobales.cs`, namespace `Free1X2`):
-   - Lo lee casi todo `MotorCalculo`; usa `using System.Windows.Forms` + `Application.StartupPath` (líneas ~4, 124, 146).
-   - Plan: separar la config de dominio (`NumeroPartidos`, `PuntosFijos/Dobles/Triples`, `Separador`, etc.) en una clase de `Free1X2.Domain`, y dejar las flags de UI (`MostrarTs*`) en WinForms. Sustituir `Application.StartupPath` por `IAppPaths`.
-2. **Desacoplar `EntradaSalida`** (`AConfiguracion`, `ArchivoIdioma`, `GenerarCPs/DatosHelper`): inyectar `IAppPaths` en vez de `Application.StartupPath`.
-3. **Mover el grueso de `MotorCalculo`** (filtros, controladores, modelos) a Domain una vez desacoplado `VariablesGlobales`. `Analizador.cs` necesita además quitar `using Free1X2.UI` (`VisorAnalisisColumnasFrm`) y usar `IProgressNotifier`.
+> Nota: `EntradaSalida` ya no usa WinForms, pero su **cierre de dependencias arrastra `MotorCalculo`** (Grupos/filtros). No se puede mover a Domain hasta desacoplar `MotorCalculo`. Por eso el siguiente paso es el refactor grande, no más mover hojas.
+
+1. **`MotorCalculo` — el desacople grande** (es la presa):
+   - `Analizador.cs`: quitar `using Free1X2.UI` + `VisorAnalisisColumnasFrm` (devolver `ContenedorAnalisisGlobal`, que la UI cree su visor); sustituir `Application.DoEvents` por `IProgressNotifier`.
+   - `ControladoresImpresion.cs`: `Application.StartupPath` → `IAppPaths`.
+2. **`Reduccion/`** (7 subclases con `Application.DoEvents`): mover `ReductorBase`/`IReductor`, inyectar `IProgressNotifier` (reemplazar los DoEvents).
+3. **`Escrutinio/Escrutador.cs`**: reemplazar `DataSet` por DTO de dominio (`ResultadoEscrutinio`).
+4. **Mover a Domain** (cuando 1–3 listos): `MotorCalculo` + `EntradaSalida` + `VariablesGlobales` + `Reduccion` + `Escrutinio` (conjunto cerrado), conservando namespaces.
+5. **`Utils/Grafico.cs`** (filtros, controladores, modelos) a Domain una vez desacoplado `VariablesGlobales`. `Analizador.cs` necesita además quitar `using Free1X2.UI` (`VisorAnalisisColumnasFrm`) y usar `IProgressNotifier`.
 4. **`Reduccion/`**: mover `ReductorBase`/`IReductor`, inyectar `IProgressNotifier` en las subclases (sustituir los `Application.DoEvents`).
 5. **`Escrutinio/Escrutador.cs`**: reemplazar el `DataSet` por un DTO de dominio (`ResultadoEscrutinio`).
 6. **`Utils/Grafico.cs`**: extraer el cálculo (Domain) y dejar el render `PictureBox` en UI.
