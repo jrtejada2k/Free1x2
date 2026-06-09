@@ -23,8 +23,9 @@
             <Color x:Key="AppBorder">#CBD5E1</Color>
             <Color x:Key="AppText">#0F172A</Color>
             <Color x:Key="AppTextSecondary">#334155</Color>
-            <Color x:Key="AppSuccess">#16A34A</Color>
-            <Color x:Key="AppWarning">#D97706</Color>
+            <Color x:Key="AppSuccess">#15803D</Color><!-- green-700: texto blanco AA (4.5:1) -->
+            <Color x:Key="AppWarning">#B45309</Color><!-- amber-700: texto sobre SurfaceAlt AA -->
+            <Color x:Key="AppOnSuccess">#FFFFFF</Color>
             <Color x:Key="AppError">#DC2626</Color>
 
             <SolidColorBrush x:Key="AppBackgroundBrush"     Color="{StaticResource AppBackground}" />
@@ -53,8 +54,9 @@
             <Color x:Key="AppBorder">#334155</Color>
             <Color x:Key="AppText">#F1F5F9</Color>
             <Color x:Key="AppTextSecondary">#94A3B8</Color>
-            <Color x:Key="AppSuccess">#22C55E</Color>
+            <Color x:Key="AppSuccess">#16A34A</Color><!-- green-600 (dark): mejor contraste con texto blanco -->
             <Color x:Key="AppWarning">#F59E0B</Color>
+            <Color x:Key="AppOnSuccess">#FFFFFF</Color>
             <Color x:Key="AppError">#EF4444</Color>
 
             <SolidColorBrush x:Key="AppBackgroundBrush"     Color="{StaticResource AppBackground}" />

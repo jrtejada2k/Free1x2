@@ -17,6 +17,11 @@
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <SelfContained>true</SelfContained>
     <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+    <!-- MVVMTK0045: aviso de AOT/WinRT por [ObservableProperty] sobre campos.
+         La alternativa (partial properties) no la genera correctamente el toolset
+         actual de CommunityToolkit.Mvvm 8.4.0, así que se silencia de forma intencional.
+         La app no usa NativeAOT, por lo que no aplica en la práctica. -->
+    <NoWarn>$(NoWarn);MVVMTK0045</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

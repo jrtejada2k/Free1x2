@@ -35,6 +35,7 @@ public sealed partial class MainWindow : Window
             {
                 "home"         => typeof(HomePage),
                 "boleto"       => typeof(BoletoPage),
+                "componentes"  => typeof(ComponentesPage),
                 "filtros"      => typeof(PlaceholderPage),
                 "operaciones"  => typeof(PlaceholderPage),
                 "estadisticas" => typeof(PlaceholderPage),

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ============================================================
+         Estilos reutilizables del sistema de diseño Free1X2.
+         Sólo usa ThemeResource/StaticResource de Tokens.xaml.
+         ============================================================ -->
+
+    <!-- ===== Tipografía / encabezados ===== -->
+    <Style x:Key="PageTitleTextBlockStyle" TargetType="TextBlock"
+           BasedOn="{StaticResource TitleLargeTextBlockStyle}">
+        <Setter Property="Foreground" Value="{ThemeResource AppTextBrush}" />
+    </Style>
+
+    <Style x:Key="SectionHeaderTextBlockStyle" TargetType="TextBlock"
+           BasedOn="{StaticResource SubtitleTextBlockStyle}">
+        <Setter Property="Foreground" Value="{ThemeResource AppTextBrush}" />
+    </Style>
+
+    <Style x:Key="CardTitleTextBlockStyle" TargetType="TextBlock"
+           BasedOn="{StaticResource BodyStrongTextBlockStyle}">
+        <Setter Property="Foreground" Value="{ThemeResource AppTextBrush}" />
+    </Style>
+
+    <Style x:Key="SecondaryTextBlockStyle" TargetType="TextBlock"
+           BasedOn="{StaticResource BodyTextBlockStyle}">
+        <Setter Property="Foreground" Value="{ThemeResource AppTextSecondaryBrush}" />
+    </Style>
+
+    <!-- ===== Card (Border con esquinas redondeadas + borde sutil) ===== -->
+    <Style x:Key="AppCardStyle" TargetType="Border">
+        <Setter Property="Background" Value="{ThemeResource AppSurfaceBrush}" />
+        <Setter Property="BorderBrush" Value="{ThemeResource AppBorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="{StaticResource AppCardCornerRadius}" />
+        <Setter Property="Padding" Value="20" />
+    </Style>
+
+    <!-- ===== Toggle de signo 1 / X / 2 del boleto ===== -->
+    <Style x:Key="SignoToggleButtonStyle" TargetType="ToggleButton">
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="MinWidth" Value="0" />
+        <Setter Property="Padding" Value="0,6" />
+        <Setter Property="CornerRadius" Value="6" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+
+    <!-- ============================================================
+         Botón de filtro — 4 estados (Activo / Error / Neutro / Inactivo).
+         Equivale a SetBotonEstado(...) del MainForm WinForms.
+         ============================================================ -->
+
+    <!-- Base común de los botones de filtro -->
+    <Style x:Key="FiltroButtonBaseStyle" TargetType="Button">
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="HorizontalContentAlignment" Value="Left" />
+        <Setter Property="Padding" Value="12,8" />
+        <Setter Property="CornerRadius" Value="{StaticResource AppCornerRadius}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="MinHeight" Value="36" />
+    </Style>
+
+    <!-- Inactivo: superficie neutra (estado por defecto) -->
+    <Style x:Key="FiltroButtonInactivoStyle" TargetType="Button"
+           BasedOn="{StaticResource FiltroButtonBaseStyle}">
+        <Setter Property="Background" Value="{ThemeResource AppSurfaceBrush}" />
+        <Setter Property="Foreground" Value="{ThemeResource AppTextBrush}" />
+        <Setter Property="BorderBrush" Value="{ThemeResource AppBorderBrush}" />
+    </Style>
+
+    <!-- Neutro: filtro presente pero sin evaluar (ámbar suave) -->
+    <Style x:Key="FiltroButtonNeutroStyle" TargetType="Button"
+           BasedOn="{StaticResource FiltroButtonBaseStyle}">
+        <Setter Property="Background" Value="{ThemeResource AppSurfaceAltBrush}" />
+        <Setter Property="Foreground" Value="{ThemeResource AppWarningBrush}" />
+        <Setter Property="BorderBrush" Value="{ThemeResource AppWarningBrush}" />
+    </Style>
+
+    <!-- Activo: filtro aplicado correctamente (verde) -->
+    <Style x:Key="FiltroButtonActivoStyle" TargetType="Button"
+           BasedOn="{StaticResource FiltroButtonBaseStyle}">
+        <Setter Property="Background" Value="{ThemeResource AppSuccessBrush}" />
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="BorderBrush" Value="{ThemeResource AppSuccessBrush}" />
+    </Style>
+
+    <!-- Error: filtro con datos pero inválido (rojo) -->
+    <Style x:Key="FiltroButtonErrorStyle" TargetType="Button"
+           BasedOn="{StaticResource FiltroButtonBaseStyle}">
+        <Setter Property="Background" Value="{ThemeResource AppErrorBrush}" />
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="BorderBrush" Value="{ThemeResource AppErrorBrush}" />
+    </Style>
+
+</ResourceDictionary>

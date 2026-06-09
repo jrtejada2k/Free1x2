@@ -285,10 +285,9 @@ namespace Free1X2.MotorCalculo
             {
                 // Muestra la pantalla de análisis
 
-                Free1X2.Abstractions.AnalisisUi.MostrarVisor(ContenedorAnalisisColumnasGlobal, GruposPartidos[0]);
+                // Fidelidad legacy: bombear la cola ANTES de abrir el visor.
                 Free1X2.Abstractions.UiPump.Pump();
-                
-                
+                Free1X2.Abstractions.AnalisisUi.MostrarVisor(ContenedorAnalisisColumnasGlobal, GruposPartidos[0]);
             }
         }
         public void AnalizaCombinacion(bool analizarColumnas, bool esArchivo)

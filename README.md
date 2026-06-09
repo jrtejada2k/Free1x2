@@ -37,7 +37,7 @@ Detalle completo de cada función en el [manual de usuario](docs/MANUAL_USUARIO.
 | Proyecto | TFM | Rol |
 |----------|-----|-----|
 | **`Free1X2`** | `net8.0-windows` (WinForms) | Aplicación actual (UI + parte de la lógica). |
-| **`Free1X2.Domain`** | `net8.0` | Lógica de dominio desacoplada de la UI (en migración). Abstracciones `IProgressNotifier`, `IAppPaths`. |
+| **`Free1X2.Domain`** | `net8.0` | Lógica de dominio desacoplada de la UI (en migración). Hooks de desacople en `Abstractions/`: `UiPump` (↔ `Application.DoEvents`), `UserDialogs` (↔ `MessageBox`), `AnalisisUi` (↔ visor de análisis), cableados desde WinForms en `Program.WireDomainHooks()`. |
 | **`Free1X2.WinUI`** | `net8.0-windows10.0.19041.0` (WinUI 3) | Nueva UI Fluent (Windows App SDK 1.6, self-contained). En construcción. |
 | **`Free1X2.Domain.Tests`** | `net8.0` (xUnit) | Red de tests golden-master del dominio. |
 | **`Free1X2.Shared`** | `net8.0` | Contratos/servicios compartidos. |

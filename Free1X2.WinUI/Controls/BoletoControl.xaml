@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="Free1X2.WinUI.Controls.BoletoControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:Free1X2.WinUI.Controls">
+
+    <Grid RowSpacing="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Cabecera con resumen en vivo y acción Limpiar -->
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" Spacing="2">
+                <TextBlock Text="Boleto base" Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                <TextBlock Text="{x:Bind ViewModel.Resumen, Mode=OneWay}"
+                           Foreground="{ThemeResource AppTextSecondaryBrush}"
+                           AutomationProperties.Name="Resumen del boleto" />
+            </StackPanel>
+
+            <Button Grid.Column="1"
+                    Content="Limpiar"
+                    VerticalAlignment="Top"
+                    Command="{x:Bind ViewModel.LimpiarCommand}"
+                    AutomationProperties.Name="Limpiar todos los signos del boleto" />
+        </Grid>
+
+        <!-- Lista de los 14 partidos -->
+        <Border Grid.Row="1"
+                Style="{StaticResource AppCardStyle}"
+                Padding="8">
+            <ListView ItemsSource="{x:Bind ViewModel.Partidos}"
+                      SelectionMode="None"
+                      IsItemClickEnabled="False"
+                      AutomationProperties.Name="Lista de partidos del boleto">
+                <ListView.Header>
+                    <Grid Padding="8,4" ColumnSpacing="6">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="32" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="44" />
+                            <ColumnDefinition Width="44" />
+                            <ColumnDefinition Width="44" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="#"
+                                   Foreground="{ThemeResource AppTextSecondaryBrush}"
+                                   Style="{StaticResource CaptionTextBlockStyle}" />
+                        <TextBlock Grid.Column="1" Text="Partido"
+                                   Foreground="{ThemeResource AppTextSecondaryBrush}"
+                                   Style="{StaticResource CaptionTextBlockStyle}" />
+                        <TextBlock Grid.Column="2" Text="1" HorizontalAlignment="Center"
+                                   Foreground="{ThemeResource AppTextSecondaryBrush}"
+                                   Style="{StaticResource CaptionTextBlockStyle}" />
+                        <TextBlock Grid.Column="3" Text="X" HorizontalAlignment="Center"
+                                   Foreground="{ThemeResource AppTextSecondaryBrush}"
+                                   Style="{StaticResource CaptionTextBlockStyle}" />
+                        <TextBlock Grid.Column="4" Text="2" HorizontalAlignment="Center"
+                                   Foreground="{ThemeResource AppTextSecondaryBrush}"
+                                   Style="{StaticResource CaptionTextBlockStyle}" />
+                    </Grid>
+                </ListView.Header>
+
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        <Setter Property="Padding" Value="4,2" />
+                        <Setter Property="MinHeight" Value="0" />
+                    </Style>
+                </ListView.ItemContainerStyle>
+
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="controls:PartidoViewModel">
+                        <Grid ColumnSpacing="6" Padding="4,2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="32" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="44" />
+                                <ColumnDefinition Width="44" />
+                                <ColumnDefinition Width="44" />
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0"
+                                       Text="{x:Bind NumeroTexto}"
+                                       VerticalAlignment="Center"
+                                       Foreground="{ThemeResource AppTextSecondaryBrush}" />
+
+                            <TextBlock Grid.Column="1"
+                                       Text="{x:Bind Equipos}"
+                                       VerticalAlignment="Center"
+                                       TextTrimming="CharacterEllipsis" />
+
+                            <ToggleButton Grid.Column="2"
+                                          Content="1"
+                                          IsChecked="{x:Bind Signo1, Mode=TwoWay}"
+                                          Style="{StaticResource SignoToggleButtonStyle}"
+                                          AutomationProperties.Name="{x:Bind Equipos}"
+                                          AutomationProperties.HelpText="Signo 1 (gana el local)" />
+
+                            <ToggleButton Grid.Column="3"
+                                          Content="X"
+                                          IsChecked="{x:Bind SignoX, Mode=TwoWay}"
+                                          Style="{StaticResource SignoToggleButtonStyle}"
+                                          AutomationProperties.Name="{x:Bind Equipos}"
+                                          AutomationProperties.HelpText="Signo X (empate)" />
+
+                            <ToggleButton Grid.Column="4"
+                                          Content="2"
+                                          IsChecked="{x:Bind Signo2, Mode=TwoWay}"
+                                          Style="{StaticResource SignoToggleButtonStyle}"
+                                          AutomationProperties.Name="{x:Bind Equipos}"
+                                          AutomationProperties.HelpText="Signo 2 (gana el visitante)" />
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Border>
+    </Grid>
+</UserControl>

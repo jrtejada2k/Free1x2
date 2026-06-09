@@ -38,6 +38,9 @@
                 <muxc:NavigationViewItem Content="Operaciones" Tag="operaciones">
                     <muxc:NavigationViewItem.Icon><FontIcon Glyph="&#xE8EF;" /></muxc:NavigationViewItem.Icon>
                 </muxc:NavigationViewItem>
+                <muxc:NavigationViewItem Content="Componentes" Tag="componentes">
+                    <muxc:NavigationViewItem.Icon><FontIcon Glyph="&#xE790;" /></muxc:NavigationViewItem.Icon>
+                </muxc:NavigationViewItem>
                 <muxc:NavigationViewItemSeparator />
                 <muxc:NavigationViewItem Content="Estadísticas" Tag="estadisticas">
                     <muxc:NavigationViewItem.Icon><FontIcon Glyph="&#xE9D2;" /></muxc:NavigationViewItem.Icon>

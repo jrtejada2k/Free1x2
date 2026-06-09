@@ -89,7 +89,7 @@ El dominio real sigue **dentro de `Free1X2/`** (WinForms); `Free1X2.Domain` solo
 
 ## 6. Riesgos para la migración a WinUI 3 (por dificultad)
 
-1. **Desacoplar el dominio de WinForms (bloqueante).** 18 archivos dependen de `System.Windows.Forms`. Las interfaces `IProgressNotifier`/`IAppPaths` de `Free1X2.Domain` son el inicio correcto, aún sin adoptar en el motor.
+1. **Desacoplar el dominio de WinForms.** *(En su mayor parte resuelto.)* `MotorCalculo`, `Reduccion`, `Escrutinio` y `EntradaSalida` ya están libres de `System.Windows.Forms`: las llamadas a `Application.DoEvents`/`MessageBox`/visor se enrutan por los hooks estáticos `Free1X2.Abstractions.{UiPump, UserDialogs, AnalisisUi}` (`UiHooks.cs`), cableados desde WinForms en `Program.WireDomainHooks()`. `Application.StartupPath` → `AppContext.BaseDirectory`. Quedan acoplados solo archivos UI-genuinos en `Utils` (`Grafico`/PictureBox, `Porcentajes`/MessageBox+Clipboard, `ValidadorCaracteres`/SendKeys, `ControlCompatibility`/Form) y `Analisis/AnalisisCombinacion` (TreeNode).
 2. **God-forms con lógica embebida.** `TriosFrm`, `BancoPruebasFrm`, `ColProbablesFrm`, `PosiblesPremiosFrm`, `TramificarForm` (>3.000 líneas c/u). El grueso del esfuerzo.
 3. **`VariablesGlobales` y `parametros.free1x2`.** 69 archivos dependen del singleton → reemplazar por config inyectada.
 4. **`DataSet`/`DataTable` en escrutinio** (19 archivos) → modelos POCO + colecciones observables.
