@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.FormatosFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ported="using:Free1X2.WinUI.Views.Ported">
+
+    <ScrollViewer>
+        <StackPanel Padding="32" Spacing="24" MaxWidth="900" HorizontalAlignment="Left">
+
+            <!-- ===== Encabezado ===== -->
+            <StackPanel Spacing="6">
+                <TextBlock Text="Formatos (1, X, 2, V, *)"
+                           Style="{StaticResource PageTitleTextBlockStyle}" />
+                <TextBlock Text="Un formato es una determinada secuencia de signos; esta condición controla la repetición o aparición de los distintos formatos."
+                           Style="{StaticResource SecondaryTextBlockStyle}"
+                           TextWrapping="Wrap" />
+            </StackPanel>
+
+            <!-- ===== Navegación entre relaciones de formatos ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                    <Button Content="&#xE76B;"
+                            FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                            Command="{x:Bind ViewModel.RetrocederCommand}"
+                            AutomationProperties.Name="Relación anterior"
+                            ToolTipService.ToolTip="Relación anterior" />
+                    <TextBlock Text="{x:Bind ViewModel.ContadorTexto, Mode=OneWay}"
+                               MinWidth="56" TextAlignment="Center"
+                               VerticalAlignment="Center"
+                               Style="{StaticResource CardTitleTextBlockStyle}"
+                               AutomationProperties.Name="Relación actual" />
+                    <Button Content="&#xE76C;"
+                            FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                            Command="{x:Bind ViewModel.AvanzarCommand}"
+                            AutomationProperties.Name="Relación siguiente"
+                            ToolTipService.ToolTip="Relación siguiente" />
+                    <Button Content="Eliminar actual"
+                            Command="{x:Bind ViewModel.EliminarActualCommand}"
+                            Margin="24,0,0,0"
+                            AutomationProperties.Name="Eliminar la relación actual" />
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Líneas de formato + límites ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Líneas de formato"
+                               Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <TextBlock Text="Cada línea es una secuencia de signos (1, X, 2, V, *) y su rango de apariciones Mín-Máx."
+                               Style="{StaticResource SecondaryTextBlockStyle}"
+                               TextWrapping="Wrap" />
+
+                    <!-- Cabecera de columnas -->
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Formato"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Column="1" Text="Mín-Máx"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                    </Grid>
+
+                    <ListView ItemsSource="{x:Bind ViewModel.RelacionActual.Lineas, Mode=OneWay}"
+                              SelectionMode="None"
+                              MaxHeight="360"
+                              AutomationProperties.Name="Líneas de formato">
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="Padding" Value="0,2" />
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                <Setter Property="MinHeight" Value="0" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="ported:LineaFormatoViewModel">
+                                <Grid ColumnSpacing="12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Grid.Column="0"
+                                             Text="{x:Bind Formato, Mode=TwoWay}"
+                                             PlaceholderText="p. ej. 1X2"
+                                             CharacterCasing="Upper"
+                                             AutomationProperties.Name="Secuencia de signos del formato" />
+                                    <TextBox Grid.Column="1"
+                                             Text="{x:Bind RangoAparicion, Mode=TwoWay}"
+                                             PlaceholderText="mín-máx"
+                                             AutomationProperties.Name="Rango de apariciones" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+
+                    <!-- Límites de la relación -->
+                    <Grid ColumnSpacing="24" RowSpacing="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Líneas"
+                                   VerticalAlignment="Center"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBox Grid.Row="0" Grid.Column="1"
+                                 Text="{x:Bind ViewModel.RelacionActual.LimiteLineas, Mode=TwoWay}"
+                                 InputScope="Number" MaxWidth="200" HorizontalAlignment="Left"
+                                 AutomationProperties.Name="Límite de líneas" />
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Global"
+                                   VerticalAlignment="Center"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBox Grid.Row="1" Grid.Column="1"
+                                 Text="{x:Bind ViewModel.RelacionActual.Global, Mode=TwoWay}"
+                                 InputScope="Number" MaxWidth="200" HorizontalAlignment="Left"
+                                 AutomationProperties.Name="Límite global" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Utilidades de formatos ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Utilidades de formatos"
+                               Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <TextBlock Text="Herramientas auxiliares para generar o analizar formatos."
+                               Style="{StaticResource SecondaryTextBlockStyle}" />
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" Content="Saca formatos"
+                                Click="OnSacaFormatos"
+                                HorizontalAlignment="Stretch"
+                                AutomationProperties.Name="Saca formatos" />
+                        <Button Grid.Column="1" Content="Pares"
+                                Click="OnPares"
+                                HorizontalAlignment="Stretch"
+                                AutomationProperties.Name="Pares" />
+                        <Button Grid.Column="2" Content="Tríos"
+                                Click="OnTrios"
+                                HorizontalAlignment="Stretch"
+                                AutomationProperties.Name="Tríos" />
+                        <Button Grid.Column="3" Content="Sumas pares nat."
+                                Click="OnSumasPares"
+                                HorizontalAlignment="Stretch"
+                                AutomationProperties.Name="Sumas pares naturales" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Acciones de la condición (legacy MenuCondiciones) ===== -->
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <Button Content="Aceptar" Style="{StaticResource AccentButtonStyle}"
+                        Click="OnAceptar"
+                        AutomationProperties.Name="Aceptar y aplicar el filtro" />
+                <Button Content="Estadísticas" Click="OnEstadisticas"
+                        AutomationProperties.Name="Ver estadísticas del filtro" />
+                <Button Content="Guardar" Click="OnGuardar"
+                        AutomationProperties.Name="Guardar la condición en archivo" />
+                <Button Content="Abrir" Click="OnAbrir"
+                        AutomationProperties.Name="Abrir una condición desde archivo" />
+                <Button Content="Copiar" Click="OnCopiar"
+                        AutomationProperties.Name="Copiar la condición" />
+                <Button Content="Pegar" Click="OnPegar"
+                        AutomationProperties.Name="Pegar la condición" />
+                <Button Content="Borrar" Click="OnBorrar"
+                        AutomationProperties.Name="Borrar los datos del filtro" />
+                <Button Content="Cancelar" Click="OnCancelar"
+                        AutomationProperties.Name="Cancelar sin guardar" />
+            </StackPanel>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

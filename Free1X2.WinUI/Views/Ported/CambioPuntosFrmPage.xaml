@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.CambioPuntosFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Free1X2.WinUI.Views.Ported"
+    Background="{ThemeResource AppBackgroundBrush}">
+
+    <Grid Padding="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Encabezado -->
+        <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,20">
+            <TextBlock
+                Text="Cambiar Puntuación"
+                Style="{StaticResource TitleTextBlockStyle}" />
+            <TextBlock
+                Text="Define los puntos asignados a cada tipo de signo al evaluar columnas."
+                Style="{StaticResource CaptionTextBlockStyle}"
+                Foreground="{ThemeResource AppTextSecondaryBrush}" />
+        </StackPanel>
+
+        <!-- Tarjeta de parámetros -->
+        <Border
+            Grid.Row="1"
+            Style="{StaticResource AppCardStyle}"
+            VerticalAlignment="Top"
+            MaxWidth="420"
+            HorizontalAlignment="Left">
+            <StackPanel Spacing="16">
+
+                <Grid ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock
+                        Grid.Column="0"
+                        Text="Valor Fijos"
+                        VerticalAlignment="Center"
+                        Style="{StaticResource BodyStrongTextBlockStyle}"
+                        Foreground="{ThemeResource AppTextBrush}" />
+                    <NumberBox
+                        Grid.Column="1"
+                        Width="140"
+                        SpinButtonPlacementMode="Compact"
+                        SmallChange="1"
+                        Minimum="0"
+                        Value="{x:Bind ViewModel.ValorFijos, Mode=TwoWay}"
+                        AutomationProperties.Name="Valor de puntos para signos fijos" />
+                </Grid>
+
+                <Grid ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock
+                        Grid.Column="0"
+                        Text="Valor Dobles"
+                        VerticalAlignment="Center"
+                        Style="{StaticResource BodyStrongTextBlockStyle}"
+                        Foreground="{ThemeResource AppTextBrush}" />
+                    <NumberBox
+                        Grid.Column="1"
+                        Width="140"
+                        SpinButtonPlacementMode="Compact"
+                        SmallChange="1"
+                        Minimum="0"
+                        Value="{x:Bind ViewModel.ValorDobles, Mode=TwoWay}"
+                        AutomationProperties.Name="Valor de puntos para signos dobles" />
+                </Grid>
+
+                <Grid ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock
+                        Grid.Column="0"
+                        Text="Valor Triples"
+                        VerticalAlignment="Center"
+                        Style="{StaticResource BodyStrongTextBlockStyle}"
+                        Foreground="{ThemeResource AppTextBrush}" />
+                    <NumberBox
+                        Grid.Column="1"
+                        Width="140"
+                        SpinButtonPlacementMode="Compact"
+                        SmallChange="1"
+                        Minimum="0"
+                        Value="{x:Bind ViewModel.ValorTriples, Mode=TwoWay}"
+                        AutomationProperties.Name="Valor de puntos para signos triples" />
+                </Grid>
+
+                <!-- Acciones -->
+                <StackPanel
+                    Orientation="Horizontal"
+                    Spacing="12"
+                    HorizontalAlignment="Right"
+                    Margin="0,8,0,0">
+                    <Button
+                        Content="Cancelar"
+                        Click="OnCancelarClick"
+                        AutomationProperties.Name="Cancelar y descartar cambios" />
+                    <Button
+                        Content="Aceptar"
+                        Style="{StaticResource AccentButtonStyle}"
+                        Click="OnAceptarClick"
+                        AutomationProperties.Name="Aceptar y guardar puntuación" />
+                </StackPanel>
+
+            </StackPanel>
+        </Border>
+    </Grid>
+</Page>
