@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.AnalizarCombinacionFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:Free1X2.WinUI.Controls"
+    xmlns:ported="using:Free1X2.WinUI.Views.Ported">
+
+    <ScrollViewer>
+        <StackPanel Padding="32" Spacing="24" MaxWidth="900" HorizontalAlignment="Left">
+
+            <!-- ===== Encabezado ===== -->
+            <StackPanel Spacing="6">
+                <TextBlock Text="Analizar combinación"
+                           Style="{StaticResource PageTitleTextBlockStyle}" />
+                <TextBlock
+                    Text="Resultado del análisis de la combinación frente a las condiciones y filtros definidos. Cada condición se marca como acertada, aceptada por tolerancias o fallada."
+                    Style="{StaticResource SecondaryTextBlockStyle}"
+                    TextWrapping="Wrap" />
+            </StackPanel>
+
+            <!-- ===== Árbol de condiciones evaluadas (equivale a treeView1 del WinForms) ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Condiciones evaluadas"
+                               Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                    <TreeView ItemsSource="{x:Bind ViewModel.Nodos}"
+                              SelectionMode="None"
+                              MinHeight="320">
+                        <TreeView.ItemTemplate>
+                            <DataTemplate x:DataType="ported:NodoAnalisisViewModel">
+                                <TreeViewItem ItemsSource="{x:Bind Hijos}"
+                                              IsExpanded="True"
+                                              AutomationProperties.Name="{x:Bind EstadoTexto}">
+                                    <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                                        <controls:SemaforoControl
+                                            Estado="{x:Bind Semaforo}"
+                                            VerticalAlignment="Center" />
+                                        <TextBlock Text="{x:Bind Titulo}"
+                                                   Foreground="{ThemeResource AppTextBrush}"
+                                                   VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </TreeViewItem>
+                            </DataTemplate>
+                        </TreeView.ItemTemplate>
+                    </TreeView>
+
+                    <!-- Mensaje cuando aún no hay resultados (el árbol lo rellena el dominio). -->
+                    <TextBlock
+                        Text="Sin resultados todavía. El árbol se rellena al analizar una combinación."
+                        Style="{StaticResource SecondaryTextBlockStyle}"
+                        TextWrapping="Wrap"
+                        Visibility="{x:Bind ViewModel.MensajeVacioVisibility, Mode=OneWay}" />
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Leyenda (equivale al panel1 con los 3 iconos del WinForms) ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Leyenda"
+                               Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                    <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                        <controls:SemaforoControl Estado="Verde" VerticalAlignment="Center" />
+                        <TextBlock Text="Condición acertada"
+                                   Foreground="{ThemeResource AppTextBrush}"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                        <controls:SemaforoControl Estado="Neutro" VerticalAlignment="Center" />
+                        <TextBlock Text="Condición aceptada por tolerancias"
+                                   Foreground="{ThemeResource AppTextBrush}"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                        <controls:SemaforoControl Estado="Rojo" VerticalAlignment="Center" />
+                        <TextBlock Text="Condición fallada"
+                                   Foreground="{ThemeResource AppTextBrush}"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

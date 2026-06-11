@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.DescargaBoletoFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Free1X2.WinUI.Views.Ported"
+    Background="{ThemeResource AppBackgroundBrush}">
+
+    <Grid Padding="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Encabezado -->
+        <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,20">
+            <TextBlock
+                Text="Descargar Boleto"
+                Style="{StaticResource PageTitleTextBlockStyle}" />
+            <TextBlock
+                Text="Elige la jornada y la temporada para descargar el boleto oficial online."
+                Style="{StaticResource SecondaryTextBlockStyle}"
+                Foreground="{ThemeResource AppTextSecondaryBrush}" />
+        </StackPanel>
+
+        <!-- Tarjeta de parámetros -->
+        <Border
+            Grid.Row="1"
+            Style="{StaticResource AppCardStyle}"
+            VerticalAlignment="Top"
+            MaxWidth="420"
+            HorizontalAlignment="Left">
+            <StackPanel Spacing="16">
+
+                <Grid ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock
+                        Grid.Column="0"
+                        Text="Jornada"
+                        VerticalAlignment="Center"
+                        Style="{StaticResource BodyStrongTextBlockStyle}"
+                        Foreground="{ThemeResource AppTextBrush}" />
+                    <ComboBox
+                        Grid.Column="1"
+                        MinWidth="140"
+                        ItemsSource="{x:Bind ViewModel.Jornadas}"
+                        SelectedItem="{x:Bind ViewModel.JornadaSeleccionada, Mode=TwoWay}"
+                        AutomationProperties.Name="Jornada a descargar" />
+                </Grid>
+
+                <Grid ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock
+                        Grid.Column="0"
+                        Text="Temporada"
+                        VerticalAlignment="Center"
+                        Style="{StaticResource BodyStrongTextBlockStyle}"
+                        Foreground="{ThemeResource AppTextBrush}" />
+                    <ComboBox
+                        Grid.Column="1"
+                        MinWidth="140"
+                        ItemsSource="{x:Bind ViewModel.Temporadas}"
+                        SelectedItem="{x:Bind ViewModel.TemporadaSeleccionada, Mode=TwoWay}"
+                        AutomationProperties.Name="Temporada a descargar" />
+                </Grid>
+
+                <!-- Acciones -->
+                <StackPanel
+                    Orientation="Horizontal"
+                    Spacing="12"
+                    HorizontalAlignment="Right"
+                    Margin="0,8,0,0">
+                    <Button
+                        Content="Descargar Boleto"
+                        Style="{StaticResource AccentButtonStyle}"
+                        Click="OnDescargarClick"
+                        AutomationProperties.Name="Descargar el boleto seleccionado" />
+                </StackPanel>
+
+                <!-- Mensaje de estado (legacy: lblMensaje) -->
+                <TextBlock
+                    Text="{x:Bind ViewModel.Mensaje, Mode=OneWay}"
+                    TextWrapping="Wrap"
+                    HorizontalAlignment="Center"
+                    Style="{StaticResource SecondaryTextBlockStyle}"
+                    Foreground="{ThemeResource AppErrorBrush}" />
+
+            </StackPanel>
+        </Border>
+    </Grid>
+</Page>

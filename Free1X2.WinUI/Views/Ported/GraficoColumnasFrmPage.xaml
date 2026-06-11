@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.GraficoColumnasFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Free1X2.WinUI.Views.Ported"
+    Background="{ThemeResource AppBackgroundBrush}">
+
+    <Grid Padding="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Encabezado -->
+        <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,20">
+            <TextBlock
+                Text="Representación gráfica de la combinación"
+                Style="{StaticResource PageTitleTextBlockStyle}" />
+            <TextBlock
+                Text="Abre un fichero de columnas y representa la combinación en 10 franjas, entre su valor mínimo y máximo."
+                Style="{StaticResource SecondaryTextBlockStyle}"
+                Foreground="{ThemeResource AppTextSecondaryBrush}" />
+        </StackPanel>
+
+        <Grid Grid.Row="1" ColumnSpacing="20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Tarjeta de parámetros / acciones -->
+            <Border
+                Grid.Column="0"
+                Style="{StaticResource AppCardStyle}"
+                VerticalAlignment="Top"
+                MinWidth="360"
+                MaxWidth="420">
+                <StackPanel Spacing="16">
+
+                    <TextBlock
+                        Text="Combinación"
+                        Style="{StaticResource SectionHeaderTextBlockStyle}" />
+
+                    <!-- Fichero de columnas -->
+                    <StackPanel Spacing="6">
+                        <TextBlock
+                            Text="Fichero de columnas"
+                            Style="{StaticResource CardTitleTextBlockStyle}"
+                            Foreground="{ThemeResource AppTextBrush}" />
+                        <Grid ColumnSpacing="8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox
+                                Grid.Column="0"
+                                PlaceholderText="Ruta del fichero de columnas (*.txt)"
+                                Text="{x:Bind ViewModel.FicheroEntrada, Mode=TwoWay}"
+                                AutomationProperties.Name="Ruta del fichero de columnas" />
+                            <Button
+                                Grid.Column="1"
+                                Content="Abrir combinación"
+                                Style="{StaticResource AccentButtonStyle}"
+                                Command="{x:Bind ViewModel.AbrirCombinacionCommand}"
+                                AutomationProperties.Name="Abrir el fichero de columnas y representar la combinación" />
+                        </Grid>
+                    </StackPanel>
+
+                    <!-- Límites de la combinación -->
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Spacing="2">
+                            <TextBlock
+                                Text="Mínimo"
+                                Style="{StaticResource SecondaryTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                            <TextBlock
+                                Text="{x:Bind ViewModel.MinimoTexto, Mode=OneWay}"
+                                Style="{StaticResource CardTitleTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextBrush}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Spacing="2">
+                            <TextBlock
+                                Text="Máximo"
+                                Style="{StaticResource SecondaryTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                            <TextBlock
+                                Text="{x:Bind ViewModel.MaximoTexto, Mode=OneWay}"
+                                Style="{StaticResource CardTitleTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextBrush}" />
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Acciones -->
+                    <StackPanel
+                        Orientation="Horizontal"
+                        Spacing="12"
+                        HorizontalAlignment="Right"
+                        Margin="0,4,0,0">
+                        <Button
+                            Content="Cancelar"
+                            Command="{x:Bind ViewModel.CancelarCommand}"
+                            AutomationProperties.Name="Detener la representación en curso" />
+                        <Button
+                            Content="Guía"
+                            IsEnabled="{x:Bind ViewModel.HayCombinacion, Mode=OneWay}"
+                            Command="{x:Bind ViewModel.MostrarGuiaCommand}"
+                            AutomationProperties.Name="Mostrar la guía de filas representadas" />
+                    </StackPanel>
+
+                    <TextBlock
+                        Text="{x:Bind ViewModel.EstadoTexto, Mode=OneWay}"
+                        Style="{StaticResource SecondaryTextBlockStyle}"
+                        Foreground="{ThemeResource AppTextSecondaryBrush}"
+                        TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <!-- Tarjeta del gráfico + guía -->
+            <Border
+                Grid.Column="1"
+                Style="{StaticResource AppCardStyle}">
+                <Grid RowSpacing="12">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock
+                        Grid.Row="0"
+                        Text="Representación de las columnas"
+                        Style="{StaticResource SectionHeaderTextBlockStyle}" />
+
+                    <!-- Lienzo del gráfico (10 franjas).
+                         TODO[dominio]: dibujar aquí las líneas verticales por apuesta
+                         (legacy: GraficoColumnasFrm_Paint, e.Graphics.DrawLine sobre 10 rectángulos). -->
+                    <Border
+                        Grid.Row="1"
+                        Background="{ThemeResource AppSurfaceAltBrush}"
+                        BorderBrush="{ThemeResource AppBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="6"
+                        MinHeight="280">
+                        <Canvas x:Name="LienzoGrafico" />
+                    </Border>
+
+                    <!-- Guía: filas de la quiniela representadas por cada franja -->
+                    <ListView
+                        Grid.Row="2"
+                        Header="Filas representadas"
+                        MaxHeight="180"
+                        SelectionMode="None"
+                        ItemsSource="{x:Bind ViewModel.LineasGuia, Mode=OneWay}" />
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</Page>

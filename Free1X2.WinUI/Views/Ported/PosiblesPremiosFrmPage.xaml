@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.PosiblesPremiosFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Free1X2.WinUI.Views.Ported"
+    x:Name="PageRoot"
+    Background="{ThemeResource AppBackgroundBrush}">
+
+    <Grid Padding="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Encabezado -->
+        <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,20">
+            <TextBlock
+                Text="Posibles Premios"
+                Style="{StaticResource PageTitleTextBlockStyle}" />
+            <TextBlock
+                Text="Introduce la columna ganadora, abre un fichero de boletos y calcula a cuántos premios opta cada columna jugada."
+                Style="{StaticResource SecondaryTextBlockStyle}"
+                Foreground="{ThemeResource AppTextSecondaryBrush}" />
+        </StackPanel>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <Grid ColumnSpacing="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1.4*" />
+                    <ColumnDefinition Width="1*" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Columna izquierda: rejilla de partidos -->
+                <Border Grid.Column="0" Style="{StaticResource AppCardStyle}">
+                    <StackPanel Spacing="12">
+                        <TextBlock
+                            Text="Columna ganadora y columnas jugadas"
+                            Style="{StaticResource SectionHeaderTextBlockStyle}"
+                            Foreground="{ThemeResource AppTextBrush}" />
+                        <TextBlock
+                            Text="Para cada partido elige el signo ganador (1 / X / 2, o * si no es definitivo). Las casillas de la derecha muestran los signos de las hasta 8 columnas leídas del fichero."
+                            Style="{StaticResource SecondaryTextBlockStyle}"
+                            Foreground="{ThemeResource AppTextSecondaryBrush}" />
+
+                        <!-- Cabecera -->
+                        <Grid ColumnSpacing="8" Padding="0,4,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="44" />
+                                <ColumnDefinition Width="120" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Part."
+                                Style="{StaticResource CardTitleTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextBrush}" />
+                            <TextBlock Grid.Column="1" Text="Ganadora"
+                                Style="{StaticResource CardTitleTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextBrush}" />
+                            <TextBlock Grid.Column="2" Text="Columnas jugadas (C1..C8)"
+                                Style="{StaticResource CardTitleTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextBrush}" />
+                        </Grid>
+
+                        <!-- Filas: 16 partidos (legacy: txt1..txt16 + lblP{n}C1..C8) -->
+                        <ItemsControl ItemsSource="{x:Bind ViewModel.Partidos, Mode=OneWay}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="local:PartidoPremioItem">
+                                    <Grid ColumnSpacing="8" Padding="0,3" VerticalAlignment="Center">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="44" />
+                                            <ColumnDefinition Width="120" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock Grid.Column="0"
+                                            Text="{x:Bind NumeroTexto}"
+                                            VerticalAlignment="Center"
+                                            Foreground="{ThemeResource AppTextBrush}" />
+
+                                        <ComboBox Grid.Column="1"
+                                            HorizontalAlignment="Stretch"
+                                            ItemsSource="{Binding SignosPosibles, ElementName=PageRoot}"
+                                            SelectedItem="{x:Bind SignoGanador, Mode=TwoWay}"
+                                            AutomationProperties.Name="Signo ganador del partido" />
+
+                                        <!-- Signos de las columnas jugadas (solo lectura) -->
+                                        <ItemsControl Grid.Column="2"
+                                            ItemsSource="{x:Bind SignosColumnas, Mode=OneWay}">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <StackPanel Orientation="Horizontal" Spacing="4" />
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate x:DataType="x:String">
+                                                    <Border
+                                                        Width="24" Height="24"
+                                                        Background="{ThemeResource AppSurfaceAltBrush}"
+                                                        BorderBrush="{ThemeResource AppBorderBrush}"
+                                                        BorderThickness="1"
+                                                        CornerRadius="2">
+                                                        <TextBlock
+                                                            Text="{x:Bind}"
+                                                            HorizontalAlignment="Center"
+                                                            VerticalAlignment="Center"
+                                                            FontFamily="Consolas"
+                                                            Foreground="{ThemeResource AppTextBrush}" />
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <!-- Columna derecha: fichero, opciones y resultados -->
+                <StackPanel Grid.Column="1" Spacing="16">
+
+                    <!-- Fichero de boletos -->
+                    <Border Style="{StaticResource AppCardStyle}">
+                        <StackPanel Spacing="12">
+                            <TextBlock
+                                Text="Fichero de boletos"
+                                Style="{StaticResource SectionHeaderTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextBrush}" />
+                            <TextBlock
+                                Text="{x:Bind ViewModel.NombreArchivo, Mode=OneWay}"
+                                Style="{StaticResource SecondaryTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextSecondaryBrush}"
+                                TextTrimming="CharacterEllipsis" />
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Button
+                                    Content="Archivo..."
+                                    Command="{x:Bind ViewModel.AbrirArchivoCommand}"
+                                    AutomationProperties.Name="Abrir fichero de boletos" />
+                                <Button
+                                    Content="&#x25C0;"
+                                    Command="{x:Bind ViewModel.AtrasCommand}"
+                                    AutomationProperties.Name="Boleto anterior" />
+                                <Button
+                                    Content="&#x25B6;"
+                                    Command="{x:Bind ViewModel.AdelanteCommand}"
+                                    AutomationProperties.Name="Boleto siguiente" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Opciones -->
+                    <Border Style="{StaticResource AppCardStyle}">
+                        <StackPanel Spacing="8">
+                            <TextBlock
+                                Text="Opciones"
+                                Style="{StaticResource SectionHeaderTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextBrush}" />
+                            <CheckBox
+                                Content="Considerar último partido como pleno"
+                                IsChecked="{x:Bind ViewModel.ConsiderarPleno, Mode=TwoWay}" />
+                            <CheckBox
+                                Content="Generar resumen"
+                                IsChecked="{x:Bind ViewModel.GenerarResumen, Mode=TwoWay}" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Resultados -->
+                    <Border Style="{StaticResource AppCardStyle}">
+                        <StackPanel Spacing="6">
+                            <TextBlock
+                                Text="Resultados"
+                                Style="{StaticResource SectionHeaderTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextBrush}" />
+                            <TextBlock Text="{x:Bind ViewModel.OptandoA16, Mode=OneWay}"
+                                Foreground="{ThemeResource AppTextBrush}" />
+                            <TextBlock Text="{x:Bind ViewModel.OptandoA15, Mode=OneWay}"
+                                Foreground="{ThemeResource AppTextBrush}" />
+                            <TextBlock Text="{x:Bind ViewModel.OptandoA14, Mode=OneWay}"
+                                Foreground="{ThemeResource AppTextBrush}" />
+                            <TextBlock Text="{x:Bind ViewModel.OptandoA13, Mode=OneWay}"
+                                Foreground="{ThemeResource AppTextBrush}" />
+                            <TextBlock Text="{x:Bind ViewModel.OptandoA12, Mode=OneWay}"
+                                Foreground="{ThemeResource AppTextBrush}" />
+                            <TextBlock Text="{x:Bind ViewModel.OptandoA11, Mode=OneWay}"
+                                Foreground="{ThemeResource AppTextBrush}" />
+                            <TextBlock Text="{x:Bind ViewModel.OptandoA10, Mode=OneWay}"
+                                Foreground="{ThemeResource AppTextBrush}" />
+                            <TextBlock Text="{x:Bind ViewModel.ColumnasConPremio, Mode=OneWay}"
+                                Style="{StaticResource BodyStrongTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextBrush}"
+                                Margin="0,6,0,0" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
+        </ScrollViewer>
+
+        <!-- Acciones -->
+        <StackPanel
+            Grid.Row="2"
+            Orientation="Horizontal"
+            Spacing="12"
+            HorizontalAlignment="Right"
+            Margin="0,16,0,0">
+            <Button
+                Content="Mis mejores opciones"
+                Command="{x:Bind ViewModel.MejoresOpcionesCommand}"
+                AutomationProperties.Name="Abrir mis mejores opciones" />
+            <Button
+                Content="Ver"
+                Command="{x:Bind ViewModel.VerCommand}"
+                AutomationProperties.Name="Ver resumen" />
+            <Button
+                Content="Copiar"
+                Command="{x:Bind ViewModel.CopiarCommand}"
+                AutomationProperties.Name="Copiar resumen al portapapeles" />
+            <Button
+                Content="Guardar Resumen"
+                Command="{x:Bind ViewModel.GuardarCommand}"
+                AutomationProperties.Name="Guardar resumen en fichero" />
+            <Button
+                Content="Calcular"
+                Style="{StaticResource AccentButtonStyle}"
+                Command="{x:Bind ViewModel.CalcularCommand}"
+                AutomationProperties.Name="Calcular posibles premios" />
+        </StackPanel>
+    </Grid>
+</Page>

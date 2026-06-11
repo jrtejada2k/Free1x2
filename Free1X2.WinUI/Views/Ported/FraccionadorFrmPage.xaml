@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.FraccionadorFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Free1X2.WinUI.Views.Ported"
+    Background="{ThemeResource AppBackgroundBrush}">
+
+    <ScrollViewer>
+        <Grid Padding="24" MaxWidth="720" HorizontalAlignment="Left">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!-- Encabezado -->
+            <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,20">
+                <TextBlock
+                    Text="Fraccionador"
+                    Style="{StaticResource PageTitleTextBlockStyle}" />
+                <TextBlock
+                    Text="Carga un archivo de columnas (*.txt) y divídelo en varios archivos de salida numerados, ya sea por cuotas fijas por columnas o en tramos iguales."
+                    Style="{StaticResource SecondaryTextBlockStyle}" />
+            </StackPanel>
+
+            <!-- Tarjeta: Entrada -->
+            <Border Grid.Row="1" Style="{StaticResource AppCardStyle}" Margin="0,0,0,16">
+                <StackPanel Spacing="16">
+                    <TextBlock
+                        Text="Archivo de entrada"
+                        Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock
+                            Grid.Column="0"
+                            Text="{x:Bind ViewModel.NombreArchivoEntrada, Mode=OneWay}"
+                            VerticalAlignment="Center"
+                            TextTrimming="CharacterEllipsis"
+                            Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                        <Button
+                            Grid.Column="1"
+                            Content="Entrada…"
+                            Command="{x:Bind ViewModel.EntradaCommand}"
+                            AutomationProperties.Name="Seleccionar archivo de columnas (*.txt) de entrada" />
+                    </Grid>
+                    <TextBlock
+                        Text="{x:Bind ViewModel.TotalColumnasTexto, Mode=OneWay}"
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                </StackPanel>
+            </Border>
+
+            <!-- Tarjeta: Modo de fraccionado -->
+            <Border Grid.Row="2" Style="{StaticResource AppCardStyle}" Margin="0,0,0,16">
+                <StackPanel Spacing="16">
+                    <TextBlock
+                        Text="Fraccionar por"
+                        Style="{StaticResource SectionHeaderTextBlockStyle}" />
+
+                    <!-- Selección de modo (legacy groupBox1: rbcols / radioButton2) -->
+                    <StackPanel Orientation="Horizontal" Spacing="24">
+                        <RadioButton
+                            Content="Columnas"
+                            GroupName="ModoFraccionado"
+                            IsChecked="{x:Bind ViewModel.PorColumnas, Mode=TwoWay}"
+                            AutomationProperties.Name="Fraccionar por columnas (cuotas fijas)" />
+                        <RadioButton
+                            Content="Tramos"
+                            GroupName="ModoFraccionado"
+                            AutomationProperties.Name="Fraccionar por tramos iguales" />
+                    </StackPanel>
+
+                    <!-- Por tramos: cuántas partes iguales (legacy gbtrams / tbqnts) -->
+                    <NumberBox
+                        Header="¿Cuántos tramos?"
+                        Width="160"
+                        HorizontalAlignment="Left"
+                        Minimum="0"
+                        SpinButtonPlacementMode="Inline"
+                        Value="{x:Bind ViewModel.CuantasPartes, Mode=TwoWay}"
+                        IsEnabled="{x:Bind ViewModel.ModoTramosHabilitado, Mode=OneWay}"
+                        AutomationProperties.Name="Número de tramos iguales en que dividir el archivo" />
+                </StackPanel>
+            </Border>
+
+            <!-- Tarjeta: Por columnas (20 cuotas) -->
+            <Border Grid.Row="3" Style="{StaticResource AppCardStyle}" Margin="0,0,0,16">
+                <StackPanel Spacing="16">
+                    <TextBlock
+                        Text="Por columnas"
+                        Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                    <TextBlock
+                        Text="Cantidad de columnas que recibe cada archivo de salida (1 a 20). El reparto se detiene en la primera cuota igual a 0."
+                        Style="{StaticResource SecondaryTextBlockStyle}" />
+
+                    <!-- 20 cuotas: cada NumberBox lleva su propio IsEnabled (regla anti-crash 1) -->
+                    <ItemsControl ItemsSource="{x:Bind ViewModel.CuotasColumnas, Mode=OneWay}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Spacing="8" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="local:CuotaColumna">
+                                <Grid ColumnSpacing="12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="40" />
+                                        <ColumnDefinition Width="200" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock
+                                        Grid.Column="0"
+                                        Text="{x:Bind Etiqueta}"
+                                        VerticalAlignment="Center"
+                                        Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                                    <NumberBox
+                                        Grid.Column="1"
+                                        Minimum="0"
+                                        SpinButtonPlacementMode="Inline"
+                                        Value="{x:Bind Cantidad, Mode=TwoWay}"
+                                        AutomationProperties.Name="Cantidad de columnas para este archivo de salida" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- Estado + acciones -->
+            <Grid Grid.Row="4" ColumnSpacing="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Estado del proceso (legacy lcols / lfiles / ltime) -->
+                <Border Grid.Column="0" Style="{StaticResource AppCardStyle}">
+                    <StackPanel Spacing="8">
+                        <TextBlock
+                            Text="Resultado"
+                            Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                        <Grid ColumnSpacing="12" RowSpacing="4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Columnas:" Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{x:Bind ViewModel.TotalColumnasTexto, Mode=OneWay}" Foreground="{ThemeResource AppTextBrush}" />
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Archivos:" Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{x:Bind ViewModel.ArchivosGeneradosTexto, Mode=OneWay}" Foreground="{ThemeResource AppTextBrush}" />
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Tiempo:" Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{x:Bind ViewModel.TiempoTranscurrido, Mode=OneWay}" Foreground="{ThemeResource AppTextBrush}" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Acciones -->
+                <StackPanel Grid.Column="1" Spacing="12" VerticalAlignment="Bottom">
+                    <Button
+                        Content="Fraccionar"
+                        Style="{StaticResource AccentButtonStyle}"
+                        Command="{x:Bind ViewModel.FraccionarCommand}"
+                        IsEnabled="{x:Bind ViewModel.EntradaCargada, Mode=OneWay}"
+                        AutomationProperties.Name="Fraccionar el archivo cargado en archivos de salida" />
+                    <Button
+                        Content="Cerrar"
+                        Command="{x:Bind ViewModel.CerrarCommand}"
+                        AutomationProperties.Name="Cerrar la pantalla" />
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </ScrollViewer>
+</Page>

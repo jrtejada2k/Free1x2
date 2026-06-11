@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.IfThenFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ported="using:Free1X2.WinUI.Views.Ported">
+
+    <ScrollViewer>
+        <StackPanel Padding="32" Spacing="24" MaxWidth="1000" HorizontalAlignment="Left">
+
+            <!-- ===== Encabezado ===== -->
+            <StackPanel Spacing="6">
+                <TextBlock Text="Condiciones relacionadas (if-then)"
+                           Style="{StaticResource PageTitleTextBlockStyle}" />
+                <TextBlock
+                    Text="Define relaciones &quot;si se produce una condición, entonces debe cumplirse otra&quot;, ya sea entre condiciones de filtro o entre grupos de partidos."
+                    Style="{StaticResource SecondaryTextBlockStyle}"
+                    TextWrapping="Wrap" />
+            </StackPanel>
+
+            <Pivot>
+
+                <!-- ============================================================ -->
+                <!-- ===== Pestaña 1: Condiciones sencillas ===================== -->
+                <!-- ============================================================ -->
+                <PivotItem Header="Condiciones sencillas">
+                    <StackPanel Spacing="24" Margin="0,12,0,0">
+
+                        <!-- ===== Bloque "Si ..." ===== -->
+                        <Border Style="{StaticResource AppCardStyle}">
+                            <StackPanel Spacing="12">
+                                <TextBlock Text="Si ..." Style="{StaticResource CardTitleTextBlockStyle}" />
+                                <Grid ColumnSpacing="16" RowSpacing="8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <ComboBox Grid.Column="0"
+                                              Header="Condición genérica"
+                                              HorizontalAlignment="Stretch"
+                                              ItemsSource="{x:Bind ViewModel.CondicionesGenericasDisponibles}"
+                                              SelectedItem="{x:Bind ViewModel.CondicionGenericaIf, Mode=TwoWay}" />
+
+                                    <ComboBox Grid.Column="1"
+                                              Header="Condición específica"
+                                              HorizontalAlignment="Stretch"
+                                              ItemsSource="{x:Bind ViewModel.CondicionesEspecificasIf, Mode=OneWay}"
+                                              SelectedItem="{x:Bind ViewModel.CondicionEspecificaIf, Mode=TwoWay}" />
+
+                                    <NumberBox Grid.Column="2"
+                                               Header="Valor"
+                                               MinWidth="100"
+                                               Minimum="0"
+                                               Maximum="14"
+                                               SpinButtonPlacementMode="Inline"
+                                               Value="{x:Bind ViewModel.ValorIf, Mode=TwoWay}" />
+
+                                    <ToggleSwitch Grid.Column="3"
+                                                  Header="Negado"
+                                                  VerticalAlignment="Bottom"
+                                                  IsOn="{x:Bind ViewModel.NegadoIf, Mode=TwoWay}" />
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- ===== Bloque "Entonces ..." ===== -->
+                        <Border Style="{StaticResource AppCardStyle}">
+                            <StackPanel Spacing="12">
+                                <TextBlock Text="Entonces ..." Style="{StaticResource CardTitleTextBlockStyle}" />
+                                <Grid ColumnSpacing="16" RowSpacing="8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <ComboBox Grid.Column="0"
+                                              Header="Condición genérica"
+                                              HorizontalAlignment="Stretch"
+                                              ItemsSource="{x:Bind ViewModel.CondicionesGenericasDisponibles}"
+                                              SelectedItem="{x:Bind ViewModel.CondicionGenericaThen, Mode=TwoWay}" />
+
+                                    <ComboBox Grid.Column="1"
+                                              Header="Condición específica"
+                                              HorizontalAlignment="Stretch"
+                                              ItemsSource="{x:Bind ViewModel.CondicionesEspecificasThen, Mode=OneWay}"
+                                              SelectedItem="{x:Bind ViewModel.CondicionEspecificaThen, Mode=TwoWay}" />
+
+                                    <NumberBox Grid.Column="2"
+                                               Header="Valor"
+                                               MinWidth="100"
+                                               Minimum="0"
+                                               Maximum="14"
+                                               SpinButtonPlacementMode="Inline"
+                                               Value="{x:Bind ViewModel.ValorThen, Mode=TwoWay}" />
+
+                                    <ToggleSwitch Grid.Column="3"
+                                                  Header="Negado"
+                                                  VerticalAlignment="Bottom"
+                                                  IsOn="{x:Bind ViewModel.NegadoThen, Mode=TwoWay}" />
+                                </Grid>
+
+                                <StackPanel Orientation="Horizontal" Spacing="12">
+                                    <Button Content="Añadir"
+                                            Style="{StaticResource AccentButtonStyle}"
+                                            Command="{x:Bind ViewModel.AnadirCondicionCommand}"
+                                            AutomationProperties.Name="Añadir relación" />
+                                    <Button Content="Borrar relación"
+                                            Command="{x:Bind ViewModel.BorrarCondicionesSeleccionadasCommand}"
+                                            AutomationProperties.Name="Borrar relaciones seleccionadas" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- ===== Lista de relaciones ===== -->
+                        <Border Style="{StaticResource AppCardStyle}">
+                            <StackPanel Spacing="12">
+                                <TextBlock Text="Relaciones" Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                                <Grid ColumnSpacing="12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="2*" />
+                                        <ColumnDefinition Width="2*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Width="40" Text=""
+                                               Style="{StaticResource SecondaryTextBlockStyle}" />
+                                    <TextBlock Grid.Column="1" Text="Si se produce ..."
+                                               Style="{StaticResource SecondaryTextBlockStyle}" />
+                                    <TextBlock Grid.Column="2" Text="... debe cumplirse que ..."
+                                               Style="{StaticResource SecondaryTextBlockStyle}" />
+                                </Grid>
+
+                                <ListView ItemsSource="{x:Bind ViewModel.Relaciones}"
+                                          SelectionMode="None"
+                                          MaxHeight="280">
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate x:DataType="ported:RelacionIfThenViewModel">
+                                            <Grid ColumnSpacing="12" Padding="0,4">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="2*" />
+                                                    <ColumnDefinition Width="2*" />
+                                                </Grid.ColumnDefinitions>
+                                                <CheckBox Grid.Column="0" Width="40"
+                                                          IsChecked="{x:Bind Seleccionada, Mode=TwoWay}"
+                                                          AutomationProperties.Name="Seleccionar relación" />
+                                                <TextBlock Grid.Column="1" Text="{x:Bind Si}"
+                                                           TextWrapping="Wrap" VerticalAlignment="Center"
+                                                           Foreground="{ThemeResource AppTextBrush}" />
+                                                <TextBlock Grid.Column="2" Text="{x:Bind Entonces}"
+                                                           TextWrapping="Wrap" VerticalAlignment="Center"
+                                                           Foreground="{ThemeResource AppTextBrush}" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                </ListView>
+
+                                <Grid ColumnSpacing="16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8"
+                                                VerticalAlignment="Center">
+                                        <TextBlock Text="Condiciones en lista:"
+                                                   VerticalAlignment="Center"
+                                                   Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                                        <TextBlock Text="{x:Bind ViewModel.CondicionesEnListaTexto, Mode=OneWay}"
+                                                   VerticalAlignment="Center"
+                                                   Style="{StaticResource BodyStrongTextBlockStyle}"
+                                                   Foreground="{ThemeResource AppTextBrush}" />
+                                    </StackPanel>
+                                    <TextBox Grid.Column="1"
+                                             Header="Condiciones que deben cumplirse"
+                                             MinWidth="160"
+                                             PlaceholderText="p.ej. 1 ó 1-3"
+                                             Text="{x:Bind ViewModel.RangoCondiciones, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                    </StackPanel>
+                </PivotItem>
+
+                <!-- ============================================================ -->
+                <!-- ===== Pestaña 2: Grupos =================================== -->
+                <!-- ============================================================ -->
+                <PivotItem Header="Grupos">
+                    <StackPanel Spacing="24" Margin="0,12,0,0">
+
+                        <Border Style="{StaticResource AppCardStyle}">
+                            <StackPanel Spacing="12">
+                                <TextBlock Text="Relación entre grupos de partidos"
+                                           Style="{StaticResource CardTitleTextBlockStyle}" />
+                                <TextBlock
+                                    Text="Selecciona el grupo &quot;Si&quot; y el grupo &quot;Entonces&quot;. Ambos deben ser distintos."
+                                    Style="{StaticResource SecondaryTextBlockStyle}"
+                                    TextWrapping="Wrap" />
+
+                                <Grid ColumnSpacing="16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0" Spacing="8">
+                                        <ComboBox Header="Si grupo ..."
+                                                  HorizontalAlignment="Stretch"
+                                                  ItemsSource="{x:Bind ViewModel.GruposDisponibles, Mode=OneWay}"
+                                                  SelectedItem="{x:Bind ViewModel.GrupoIf, Mode=TwoWay}" />
+                                        <ToggleSwitch Header="Negado"
+                                                      IsOn="{x:Bind ViewModel.NegadoGrupoIf, Mode=TwoWay}" />
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="1" Spacing="8">
+                                        <ComboBox Header="... entonces grupo ..."
+                                                  HorizontalAlignment="Stretch"
+                                                  ItemsSource="{x:Bind ViewModel.GruposDisponibles, Mode=OneWay}"
+                                                  SelectedItem="{x:Bind ViewModel.GrupoThen, Mode=TwoWay}" />
+                                        <ToggleSwitch Header="Negado"
+                                                      IsOn="{x:Bind ViewModel.NegadoGrupoThen, Mode=TwoWay}" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <StackPanel Orientation="Horizontal" Spacing="12">
+                                    <Button Content="Añadir"
+                                            Style="{StaticResource AccentButtonStyle}"
+                                            Command="{x:Bind ViewModel.AnadirGrupoCommand}"
+                                            AutomationProperties.Name="Añadir relación de grupos" />
+                                    <Button Content="Borrar relación"
+                                            Command="{x:Bind ViewModel.BorrarGruposSeleccionadosCommand}"
+                                            AutomationProperties.Name="Borrar relaciones de grupos seleccionadas" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource AppCardStyle}">
+                            <StackPanel Spacing="12">
+                                <TextBlock Text="Relaciones de grupos" Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                                <Grid ColumnSpacing="12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="2*" />
+                                        <ColumnDefinition Width="2*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Width="40" Text=""
+                                               Style="{StaticResource SecondaryTextBlockStyle}" />
+                                    <TextBlock Grid.Column="1" Text="Si se produce ..."
+                                               Style="{StaticResource SecondaryTextBlockStyle}" />
+                                    <TextBlock Grid.Column="2" Text="... debe cumplirse que ..."
+                                               Style="{StaticResource SecondaryTextBlockStyle}" />
+                                </Grid>
+
+                                <ListView ItemsSource="{x:Bind ViewModel.RelacionesGrupos}"
+                                          SelectionMode="None"
+                                          MaxHeight="280">
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate x:DataType="ported:RelacionIfThenViewModel">
+                                            <Grid ColumnSpacing="12" Padding="0,4">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="2*" />
+                                                    <ColumnDefinition Width="2*" />
+                                                </Grid.ColumnDefinitions>
+                                                <CheckBox Grid.Column="0" Width="40"
+                                                          IsChecked="{x:Bind Seleccionada, Mode=TwoWay}"
+                                                          AutomationProperties.Name="Seleccionar relación de grupos" />
+                                                <TextBlock Grid.Column="1" Text="{x:Bind Si}"
+                                                           TextWrapping="Wrap" VerticalAlignment="Center"
+                                                           Foreground="{ThemeResource AppTextBrush}" />
+                                                <TextBlock Grid.Column="2" Text="{x:Bind Entonces}"
+                                                           TextWrapping="Wrap" VerticalAlignment="Center"
+                                                           Foreground="{ThemeResource AppTextBrush}" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                </ListView>
+
+                                <Grid ColumnSpacing="16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8"
+                                                VerticalAlignment="Center">
+                                        <TextBlock Text="Condiciones en lista:"
+                                                   VerticalAlignment="Center"
+                                                   Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                                        <TextBlock Text="{x:Bind ViewModel.GruposEnListaTexto, Mode=OneWay}"
+                                                   VerticalAlignment="Center"
+                                                   Style="{StaticResource BodyStrongTextBlockStyle}"
+                                                   Foreground="{ThemeResource AppTextBrush}" />
+                                    </StackPanel>
+                                    <TextBox Grid.Column="1"
+                                             Header="Condiciones que deben cumplirse"
+                                             MinWidth="160"
+                                             PlaceholderText="p.ej. 1 ó 1-3"
+                                             Text="{x:Bind ViewModel.RangoGrupos, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                    </StackPanel>
+                </PivotItem>
+
+            </Pivot>
+
+            <!-- ===== Acciones (equivale a MenuCondiciones del form legacy) ===== -->
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <Button Content="Aceptar"
+                        Style="{StaticResource AccentButtonStyle}"
+                        Command="{x:Bind ViewModel.AceptarCommand}"
+                        AutomationProperties.Name="Aceptar" />
+                <Button Content="Guardar"
+                        Command="{x:Bind ViewModel.GuardarCommand}"
+                        AutomationProperties.Name="Guardar condición" />
+                <Button Content="Abrir"
+                        Command="{x:Bind ViewModel.AbrirCommand}"
+                        AutomationProperties.Name="Abrir condición" />
+                <Button Content="Copiar"
+                        Command="{x:Bind ViewModel.CopiarCommand}"
+                        AutomationProperties.Name="Copiar condición" />
+                <Button Content="Pegar"
+                        Command="{x:Bind ViewModel.PegarCommand}"
+                        AutomationProperties.Name="Pegar condición" />
+                <Button Content="Borrar"
+                        Command="{x:Bind ViewModel.BorrarCommand}"
+                        AutomationProperties.Name="Borrar datos del filtro" />
+            </StackPanel>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

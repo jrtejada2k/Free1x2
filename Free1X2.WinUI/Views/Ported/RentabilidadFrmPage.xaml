@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.RentabilidadFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Free1X2.WinUI.Views.Ported"
+    Background="{ThemeResource AppBackgroundBrush}">
+
+    <ScrollViewer>
+        <StackPanel Padding="24" Spacing="20" MaxWidth="1000" HorizontalAlignment="Left">
+
+            <!-- Encabezado -->
+            <StackPanel Spacing="4">
+                <TextBlock
+                    Text="Rentabilidad"
+                    Style="{StaticResource PageTitleTextBlockStyle}" />
+                <TextBlock
+                    Text="Obtiene la Esperanza Matemática de premio (EM) de las columnas a partir de la probabilidad real y las frecuencias apostadas."
+                    Style="{StaticResource SecondaryTextBlockStyle}" />
+            </StackPanel>
+
+            <!-- Ficheros: origen y salida -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Ficheros" Style="{StaticResource SectionHeaderTextBlockStyle}" />
+
+                    <!-- Origen de las columnas (legacy: rb14Triples / rbFichero) -->
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Origen de las columnas" Style="{StaticResource CardTitleTextBlockStyle}" />
+                        <RadioButton
+                            Content="14 Triples"
+                            GroupName="OrigenColumnas"
+                            IsChecked="{x:Bind ViewModel.OrigenEs14Triples, Mode=OneWay}"
+                            AutomationProperties.Name="Origen 14 triples" />
+                        <RadioButton
+                            Content="Fichero"
+                            GroupName="OrigenColumnas"
+                            IsChecked="{x:Bind ViewModel.OrigenEsFichero, Mode=TwoWay}"
+                            AutomationProperties.Name="Origen fichero" />
+
+                        <!-- Regla anti-crash: el IsEnabled va en CADA control hijo, no en el panel. -->
+                        <Grid ColumnSpacing="8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox
+                                Grid.Column="0"
+                                PlaceholderText="Fichero de columnas de entrada"
+                                IsEnabled="{x:Bind ViewModel.OrigenEsFichero, Mode=OneWay}"
+                                Text="{x:Bind ViewModel.FicheroEntrada, Mode=TwoWay}"
+                                AutomationProperties.Name="Fichero de entrada" />
+                            <Button
+                                Grid.Column="1"
+                                Content="&#xE838;"
+                                FontFamily="Segoe MDL2 Assets"
+                                IsEnabled="{x:Bind ViewModel.OrigenEsFichero, Mode=OneWay}"
+                                Command="{x:Bind ViewModel.SeleccionarFicheroEntradaCommand}"
+                                AutomationProperties.Name="Abrir fichero de entrada" />
+                        </Grid>
+                    </StackPanel>
+
+                    <!-- Salida de resultados (legacy: txFicheroSalida + button4) -->
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Salida de resultados" Style="{StaticResource CardTitleTextBlockStyle}" />
+                        <Grid ColumnSpacing="8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox
+                                Grid.Column="0"
+                                PlaceholderText="Fichero de salida"
+                                Text="{x:Bind ViewModel.FicheroSalida, Mode=TwoWay}"
+                                AutomationProperties.Name="Fichero de salida" />
+                            <Button
+                                Grid.Column="1"
+                                Content="&#xE74E;"
+                                FontFamily="Segoe MDL2 Assets"
+                                Command="{x:Bind ViewModel.SeleccionarFicheroSalidaCommand}"
+                                AutomationProperties.Name="Guardar fichero de salida" />
+                        </Grid>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Parámetros: recaudación y límites de EM -->
+            <Grid ColumnSpacing="20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Recaudación considerada -->
+                <Border Grid.Column="0" Style="{StaticResource AppCardStyle}" VerticalAlignment="Top">
+                    <StackPanel Spacing="16">
+                        <TextBlock Text="Recaudación considerada" Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                        <NumberBox
+                            Width="200"
+                            HorizontalAlignment="Left"
+                            SpinButtonPlacementMode="Hidden"
+                            Minimum="0"
+                            Value="{x:Bind ViewModel.Recaudacion, Mode=TwoWay}"
+                            AutomationProperties.Name="Recaudación considerada" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Límites Esperanza Matemática -->
+                <Border Grid.Column="1" Style="{StaticResource AppCardStyle}" VerticalAlignment="Top">
+                    <StackPanel Spacing="16">
+                        <TextBlock Text="Límites Esperanza Matemática" Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                        <Grid ColumnSpacing="16" RowSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <TextBlock
+                                Grid.Row="0" Grid.Column="0"
+                                Text="Mínimo"
+                                VerticalAlignment="Center"
+                                Style="{StaticResource BodyStrongTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextBrush}" />
+                            <NumberBox
+                                Grid.Row="0" Grid.Column="1"
+                                Width="140"
+                                HorizontalAlignment="Left"
+                                SpinButtonPlacementMode="Compact"
+                                SmallChange="0.01"
+                                Value="{x:Bind ViewModel.EmMin, Mode=TwoWay}"
+                                AutomationProperties.Name="EM mínima" />
+
+                            <TextBlock
+                                Grid.Row="1" Grid.Column="0"
+                                Text="Máximo"
+                                VerticalAlignment="Center"
+                                Style="{StaticResource BodyStrongTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextBrush}" />
+                            <NumberBox
+                                Grid.Row="1" Grid.Column="1"
+                                Width="140"
+                                HorizontalAlignment="Left"
+                                SpinButtonPlacementMode="Compact"
+                                SmallChange="1"
+                                Value="{x:Bind ViewModel.EmMax, Mode=TwoWay}"
+                                AutomationProperties.Name="EM máxima" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- Opciones de salida -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Opciones de salida" Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                    <ToggleSwitch
+                        Header="Ordenar columnas por EM"
+                        IsOn="{x:Bind ViewModel.OrdenarPorEm, Mode=TwoWay}"
+                        AutomationProperties.Name="Ordenar columnas por EM" />
+                    <ToggleSwitch
+                        Header="Añadir EM al fichero de salida"
+                        IsOn="{x:Bind ViewModel.AnadirEmAlFichero, Mode=TwoWay}"
+                        AutomationProperties.Name="Añadir EM al fichero de salida" />
+                </StackPanel>
+            </Border>
+
+            <!-- Acción principal + estado -->
+            <StackPanel Orientation="Horizontal" Spacing="16">
+                <Button
+                    Content="Calcular"
+                    Style="{StaticResource AccentButtonStyle}"
+                    Command="{x:Bind ViewModel.CalcularCommand}"
+                    AutomationProperties.Name="Calcular rentabilidad" />
+                <TextBlock
+                    VerticalAlignment="Center"
+                    Text="{x:Bind ViewModel.EstadoTexto, Mode=OneWay}"
+                    Foreground="{ThemeResource AppTextSecondaryBrush}" />
+            </StackPanel>
+
+            <!-- Valoración de una columna -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Calcular Valoración de una columna" Style="{StaticResource SectionHeaderTextBlockStyle}" />
+
+                    <Grid ColumnSpacing="16" RowSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock
+                            Grid.Row="0" Grid.Column="0"
+                            Text="Columna"
+                            VerticalAlignment="Center"
+                            Style="{StaticResource BodyStrongTextBlockStyle}"
+                            Foreground="{ThemeResource AppTextBrush}" />
+                        <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                            <TextBox
+                                Width="200"
+                                MaxLength="14"
+                                CharacterCasing="Upper"
+                                PlaceholderText="14 signos (1 X 2)"
+                                Text="{x:Bind ViewModel.Columna, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                AutomationProperties.Name="Columna a valorar" />
+                            <Button
+                                Content="&#xE9F9;"
+                                FontFamily="Segoe MDL2 Assets"
+                                Command="{x:Bind ViewModel.CalcularValoracionColumnaCommand}"
+                                AutomationProperties.Name="Calcular valoración de la columna" />
+                        </StackPanel>
+
+                        <TextBlock
+                            Grid.Row="1" Grid.Column="0"
+                            Text="Premio estimado de 14"
+                            VerticalAlignment="Center"
+                            Style="{StaticResource BodyStrongTextBlockStyle}"
+                            Foreground="{ThemeResource AppTextBrush}" />
+                        <TextBlock
+                            Grid.Row="1" Grid.Column="1"
+                            VerticalAlignment="Center"
+                            Text="{x:Bind ViewModel.PremioEstimado14Texto, Mode=OneWay}"
+                            Foreground="{ThemeResource AppTextSecondaryBrush}" />
+
+                        <TextBlock
+                            Grid.Row="2" Grid.Column="0"
+                            Text="Probabilidad real"
+                            VerticalAlignment="Center"
+                            Style="{StaticResource BodyStrongTextBlockStyle}"
+                            Foreground="{ThemeResource AppTextBrush}" />
+                        <TextBlock
+                            Grid.Row="2" Grid.Column="1"
+                            VerticalAlignment="Center"
+                            Text="{x:Bind ViewModel.ProbabilidadRealTexto, Mode=OneWay}"
+                            Foreground="{ThemeResource AppTextSecondaryBrush}" />
+
+                        <TextBlock
+                            Grid.Row="3" Grid.Column="0"
+                            Text="Esperanza matemática"
+                            VerticalAlignment="Center"
+                            Style="{StaticResource BodyStrongTextBlockStyle}"
+                            Foreground="{ThemeResource AppTextBrush}" />
+                        <TextBlock
+                            Grid.Row="3" Grid.Column="1"
+                            VerticalAlignment="Center"
+                            Text="{x:Bind ViewModel.EsperanzaMatematicaTexto, Mode=OneWay}"
+                            Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Valoraciones (porcentajes) apostadas / reales -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Valoraciones (porcentajes)" Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                    <TextBlock
+                        Style="{StaticResource SecondaryTextBlockStyle}"
+                        Text="Porcentajes apostados y reales por partido (1/X/2). TODO: portar el control Free1X2.UI.Controls.ControlPorcentajes (dos columnas: apostadas y reales) que alimenta el cálculo de EM en RentabilidadFrm." />
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.ProbabilidadPremiosPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Free1X2.WinUI.Views.Ported"
+    Background="{ThemeResource AppBackgroundBrush}">
+
+    <ScrollViewer>
+        <StackPanel Padding="24" Spacing="20" MaxWidth="900" HorizontalAlignment="Left">
+
+            <!-- Encabezado -->
+            <StackPanel Spacing="4">
+                <TextBlock
+                    Text="Probabilidades de Premios"
+                    Style="{StaticResource PageTitleTextBlockStyle}" />
+                <TextBlock
+                    Text="Compara dos conjuntos de columnas (madre frente a hijas) y calcula la probabilidad de premio por cada categoría de aciertos dentro del rango indicado."
+                    Style="{StaticResource SecondaryTextBlockStyle}" />
+            </StackPanel>
+
+            <!-- Selección de columnas -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Columnas a comparar" Style="{StaticResource SectionHeaderTextBlockStyle}" />
+
+                    <Grid ColumnSpacing="16" RowSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <!-- Columnas madre -->
+                        <TextBlock
+                            Grid.Row="0" Grid.Column="0"
+                            Text="Columnas &quot;madre&quot;"
+                            VerticalAlignment="Center"
+                            Style="{StaticResource BodyStrongTextBlockStyle}"
+                            Foreground="{ThemeResource AppTextBrush}" />
+                        <TextBlock
+                            Grid.Row="0" Grid.Column="1"
+                            VerticalAlignment="Center"
+                            Text="{x:Bind ViewModel.NombreColumnasMadre, Mode=OneWay}"
+                            Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                        <Button
+                            Grid.Row="0" Grid.Column="2"
+                            Content="Seleccionar..."
+                            Command="{x:Bind ViewModel.SeleccionarMadreCommand}"
+                            AutomationProperties.Name="Seleccionar archivo de columnas madre" />
+
+                        <!-- Columnas hijas -->
+                        <TextBlock
+                            Grid.Row="1" Grid.Column="0"
+                            Text="Columnas &quot;hijas&quot;"
+                            VerticalAlignment="Center"
+                            Style="{StaticResource BodyStrongTextBlockStyle}"
+                            Foreground="{ThemeResource AppTextBrush}" />
+                        <TextBlock
+                            Grid.Row="1" Grid.Column="1"
+                            VerticalAlignment="Center"
+                            Text="{x:Bind ViewModel.NombreColumnasHija, Mode=OneWay}"
+                            Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                        <Button
+                            Grid.Row="1" Grid.Column="2"
+                            Content="Seleccionar..."
+                            Command="{x:Bind ViewModel.SeleccionarHijaCommand}"
+                            AutomationProperties.Name="Seleccionar archivo de columnas hijas" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Rango de premios -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Rango de premios" Style="{StaticResource SectionHeaderTextBlockStyle}" />
+
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <TextBlock
+                            Text="Rango de aciertos"
+                            VerticalAlignment="Center"
+                            Style="{StaticResource BodyStrongTextBlockStyle}"
+                            Foreground="{ThemeResource AppTextBrush}" />
+                        <TextBox
+                            Width="200"
+                            PlaceholderText="Ej. 10-14"
+                            Text="{x:Bind ViewModel.RangoPremios, Mode=TwoWay}"
+                            AutomationProperties.Name="Rango de premios" />
+                    </StackPanel>
+
+                    <TextBlock
+                        Text="Si se deja vacío se usa el rango por defecto 10-14."
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                </StackPanel>
+            </Border>
+
+            <!-- Calcular -->
+            <Button
+                Content="Calcular"
+                Style="{StaticResource AccentButtonStyle}"
+                HorizontalAlignment="Left"
+                IsEnabled="{x:Bind ViewModel.PuedeCalcular, Mode=OneWay}"
+                Command="{x:Bind ViewModel.CalcularCommand}"
+                AutomationProperties.Name="Calcular probabilidades de premios" />
+
+            <!-- Resultados -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Probabilidades por categoría" Style="{StaticResource SectionHeaderTextBlockStyle}" />
+
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Categoría" Style="{StaticResource CardTitleTextBlockStyle}" />
+                        <TextBlock Grid.Column="1" Text="Probabilidad" Style="{StaticResource CardTitleTextBlockStyle}" />
+                    </Grid>
+
+                    <ListView
+                        ItemsSource="{x:Bind ViewModel.Resultados, Mode=OneWay}"
+                        SelectionMode="None"
+                        IsItemClickEnabled="False">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="local:ProbabilidadPremioItem">
+                                <Grid ColumnSpacing="12" Padding="0,4">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{x:Bind Categoria}" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Column="1" Text="{x:Bind ProbabilidadTexto}" VerticalAlignment="Center" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

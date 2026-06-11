@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.FrmDependenciaLinealPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Free1X2.WinUI.Views.Ported"
+    xmlns:controls="using:Microsoft.UI.Xaml.Controls"
+    x:Name="PageRoot"
+    Background="{ThemeResource AppBackgroundBrush}">
+
+    <ScrollViewer>
+        <Grid Padding="24" MaxWidth="760" HorizontalAlignment="Left">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!-- Encabezado -->
+            <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,20">
+                <TextBlock
+                    Text="Dependencia Lineal"
+                    Style="{StaticResource PageTitleTextBlockStyle}" />
+                <TextBlock
+                    Text="Recalcula el signo del partido a tratar como combinación lineal (módulo 3 ó 2) de los signos del resto de partidos, ponderados por sus coeficientes."
+                    Style="{StaticResource SecondaryTextBlockStyle}" />
+            </StackPanel>
+
+            <!-- Tarjeta: archivos -->
+            <Border Grid.Row="1" Style="{StaticResource AppCardStyle}" Margin="0,0,0,16">
+                <StackPanel Spacing="16">
+                    <TextBlock
+                        Text="Archivos de columnas"
+                        Style="{StaticResource SectionHeaderTextBlockStyle}" />
+
+                    <!-- Fichero de entrada -->
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="150" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock
+                            Grid.Column="0"
+                            Text="Fichero de entrada"
+                            VerticalAlignment="Center"
+                            Style="{StaticResource BodyStrongTextBlockStyle}"
+                            Foreground="{ThemeResource AppTextBrush}" />
+                        <TextBlock
+                            Grid.Column="1"
+                            Text="{x:Bind ViewModel.NombreFicheroEntrada, Mode=OneWay}"
+                            VerticalAlignment="Center"
+                            TextTrimming="CharacterEllipsis"
+                            Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                        <Button
+                            Grid.Column="2"
+                            Content="Seleccionar…"
+                            Command="{x:Bind ViewModel.SeleccionarEntradaCommand}"
+                            AutomationProperties.Name="Seleccionar fichero de columnas de entrada" />
+                    </Grid>
+
+                    <!-- Fichero de salida -->
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="150" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock
+                            Grid.Column="0"
+                            Text="Fichero de salida"
+                            VerticalAlignment="Center"
+                            Style="{StaticResource BodyStrongTextBlockStyle}"
+                            Foreground="{ThemeResource AppTextBrush}" />
+                        <TextBlock
+                            Grid.Column="1"
+                            Text="{x:Bind ViewModel.NombreFicheroSalida, Mode=OneWay}"
+                            VerticalAlignment="Center"
+                            TextTrimming="CharacterEllipsis"
+                            Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                        <Button
+                            Grid.Column="2"
+                            Content="Seleccionar…"
+                            Command="{x:Bind ViewModel.SeleccionarSalidaCommand}"
+                            AutomationProperties.Name="Seleccionar fichero de columnas de salida" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Tarjeta: partidos (pronóstico + coeficientes) -->
+            <Border Grid.Row="2" Style="{StaticResource AppCardStyle}" Margin="0,0,0,16">
+                <StackPanel Spacing="12">
+                    <TextBlock
+                        Text="Partidos"
+                        Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                    <TextBlock
+                        Text="Elige el partido a tratar y, en él, marca los signos (1/X/2). Para el resto de partidos indica su coeficiente (0, 1 ó 2)."
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        Foreground="{ThemeResource AppTextSecondaryBrush}" />
+
+                    <!-- Cabecera de columnas -->
+                    <Grid ColumnSpacing="12" Margin="0,4,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="64" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="140" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Partido"
+                                   Style="{StaticResource CardTitleTextBlockStyle}" />
+                        <TextBlock Grid.Column="1" Text="Pronóstico (1 / X / 2)"
+                                   Style="{StaticResource CardTitleTextBlockStyle}" />
+                        <TextBlock Grid.Column="2" Text="Coeficiente"
+                                   Style="{StaticResource CardTitleTextBlockStyle}" />
+                        <TextBlock Grid.Column="3" Text="Partido a tratar"
+                                   Style="{StaticResource CardTitleTextBlockStyle}" />
+                    </Grid>
+
+                    <ListView
+                        ItemsSource="{x:Bind ViewModel.Partidos}"
+                        SelectionMode="None"
+                        IsItemClickEnabled="False">
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                <Setter Property="Padding" Value="0,2" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="local:DependenciaPartidoViewModel">
+                                <Grid ColumnSpacing="12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="64" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="140" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock
+                                        Grid.Column="0"
+                                        Text="{x:Bind Etiqueta}"
+                                        VerticalAlignment="Center"
+                                        Style="{StaticResource BodyStrongTextBlockStyle}"
+                                        Foreground="{ThemeResource AppTextBrush}" />
+
+                                    <!-- Signos 1 / X / 2 del partido a tratar -->
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6"
+                                                VerticalAlignment="Center">
+                                        <ToggleButton
+                                            Content="1"
+                                            Style="{StaticResource SignoToggleButtonStyle}"
+                                            IsChecked="{x:Bind Signo1, Mode=TwoWay}"
+                                            IsEnabled="{x:Bind EsPartidoATratar, Mode=OneWay}"
+                                            AutomationProperties.Name="Signo 1" />
+                                        <ToggleButton
+                                            Content="X"
+                                            Style="{StaticResource SignoToggleButtonStyle}"
+                                            IsChecked="{x:Bind SignoX, Mode=TwoWay}"
+                                            IsEnabled="{x:Bind EsPartidoATratar, Mode=OneWay}"
+                                            AutomationProperties.Name="Signo X" />
+                                        <ToggleButton
+                                            Content="2"
+                                            Style="{StaticResource SignoToggleButtonStyle}"
+                                            IsChecked="{x:Bind Signo2, Mode=TwoWay}"
+                                            IsEnabled="{x:Bind EsPartidoATratar, Mode=OneWay}"
+                                            AutomationProperties.Name="Signo 2" />
+                                    </StackPanel>
+
+                                    <!-- Coeficiente 0/1/2 -->
+                                    <controls:NumberBox
+                                        Grid.Column="2"
+                                        Value="{x:Bind Coeficiente, Mode=TwoWay}"
+                                        Minimum="0"
+                                        Maximum="2"
+                                        SmallChange="1"
+                                        SpinButtonPlacementMode="Inline"
+                                        AutomationProperties.Name="Coeficiente del partido" />
+
+                                    <!-- Marcar como partido a tratar -->
+                                    <Button
+                                        Grid.Column="3"
+                                        Content="Tratar este"
+                                        HorizontalAlignment="Left"
+                                        Command="{Binding ViewModel.MarcarPartidoATratarCommand, ElementName=PageRoot}"
+                                        CommandParameter="{Binding}"
+                                        AutomationProperties.Name="Marcar este partido como el partido a tratar" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </StackPanel>
+            </Border>
+
+            <!-- Tarjeta: estado -->
+            <Border Grid.Row="3" Style="{StaticResource AppCardStyle}" Margin="0,0,0,16">
+                <StackPanel Spacing="8">
+                    <TextBlock
+                        Text="Estado"
+                        Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                    <TextBlock
+                        Text="{x:Bind ViewModel.MensajeEstado, Mode=OneWay}"
+                        TextWrapping="Wrap"
+                        Foreground="{ThemeResource AppAccentBrush}" />
+                </StackPanel>
+            </Border>
+
+            <!-- Acciones -->
+            <StackPanel
+                Grid.Row="4"
+                Orientation="Horizontal"
+                Spacing="12"
+                HorizontalAlignment="Right">
+                <Button
+                    Content="Cancelar"
+                    Command="{x:Bind ViewModel.CancelarCommand}"
+                    AutomationProperties.Name="Cancelar y cerrar" />
+                <Button
+                    Content="Aceptar"
+                    Style="{StaticResource AccentButtonStyle}"
+                    IsEnabled="{x:Bind ViewModel.PuedeAceptar, Mode=OneWay}"
+                    Command="{x:Bind ViewModel.AceptarCommand}"
+                    AutomationProperties.Name="Ejecutar el cálculo de dependencia lineal" />
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
+</Page>

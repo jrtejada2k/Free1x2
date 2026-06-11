@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.CopiarDatosCPFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ScrollViewer>
+        <StackPanel Padding="32" Spacing="24" MaxWidth="640" HorizontalAlignment="Left">
+
+            <!-- ===== Encabezado ===== -->
+            <StackPanel Spacing="6">
+                <TextBlock Text="Copiar Datos"
+                           Style="{StaticResource PageTitleTextBlockStyle}" />
+                <TextBlock Text="Selecciona el rango de columnas a copiar indicando desde qué columna hasta qué columna. Los límites están encadenados para que el rango siempre sea válido."
+                           Style="{StaticResource SecondaryTextBlockStyle}"
+                           TextWrapping="Wrap" />
+            </StackPanel>
+
+            <!-- ===== Rango de columnas ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Columnas" Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                    <Grid ColumnSpacing="12" RowSpacing="8" VerticalAlignment="Center">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Column="0" Text="desde"
+                                   VerticalAlignment="Center"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <NumberBox Grid.Column="1"
+                                   Value="{x:Bind ViewModel.Desde, Mode=TwoWay}"
+                                   Minimum="{x:Bind ViewModel.DesdeMinimo, Mode=OneWay}"
+                                   Maximum="{x:Bind ViewModel.DesdeMaximo, Mode=OneWay}"
+                                   SpinButtonPlacementMode="Compact" MinWidth="130"
+                                   AutomationProperties.Name="Columna desde" />
+
+                        <TextBlock Grid.Column="2" Text="hasta"
+                                   VerticalAlignment="Center"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <NumberBox Grid.Column="3"
+                                   Value="{x:Bind ViewModel.Hasta, Mode=TwoWay}"
+                                   Minimum="{x:Bind ViewModel.HastaMinimo, Mode=OneWay}"
+                                   SpinButtonPlacementMode="Compact" MinWidth="130"
+                                   AutomationProperties.Name="Columna hasta" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Acciones + estado ===== -->
+            <StackPanel Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
+                <Button Content="Copiar"
+                        Style="{StaticResource AccentButtonStyle}"
+                        Command="{x:Bind ViewModel.CopiarCommand}"
+                        AutomationProperties.Name="Copiar el rango de columnas seleccionado" />
+                <Button Content="Cancelar"
+                        Command="{x:Bind ViewModel.CancelarCommand}"
+                        AutomationProperties.Name="Cancelar" />
+                <TextBlock Text="{x:Bind ViewModel.Estado, Mode=OneWay}"
+                           VerticalAlignment="Center"
+                           Style="{StaticResource SecondaryTextBlockStyle}" />
+            </StackPanel>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

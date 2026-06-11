@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.DifColsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Free1X2.WinUI.Views.Ported"
+    Background="{ThemeResource AppBackgroundBrush}">
+
+    <ScrollViewer>
+        <Grid Padding="24" MaxWidth="720" HorizontalAlignment="Left">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!-- Encabezado -->
+            <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,20">
+                <TextBlock
+                    Text="Diferencias entre columnas"
+                    Style="{StaticResource PageTitleTextBlockStyle}" />
+                <TextBlock
+                    Text="Genera columnas (14 triples o desde un fichero) y las acepta sólo si su número de diferencias respecto a la columna base y a las ya aceptadas cae dentro de los rangos indicados."
+                    Style="{StaticResource SecondaryTextBlockStyle}" />
+            </StackPanel>
+
+            <!-- Tarjeta: Generación por (legacy groupBox "Generación por") -->
+            <Border Grid.Row="1" Style="{StaticResource AppCardStyle}" Margin="0,0,0,16">
+                <StackPanel Spacing="12">
+                    <TextBlock
+                        Text="Generación por"
+                        Style="{StaticResource SectionHeaderTextBlockStyle}" />
+
+                    <!-- legacy: rb14T -->
+                    <RadioButton
+                        Content="14 triples"
+                        GroupName="ModoGeneracion"
+                        IsChecked="{x:Bind ViewModel.GeneraTriples, Mode=TwoWay}"
+                        AutomationProperties.Name="Generar las 4.782.969 columnas de 14 triples internamente" />
+
+                    <!-- legacy: rbFile + lblFileIn -->
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <RadioButton
+                            Grid.Column="0"
+                            Content="Fichero"
+                            GroupName="ModoGeneracion"
+                            IsChecked="{x:Bind ViewModel.GeneraFichero, Mode=TwoWay}"
+                            AutomationProperties.Name="Generar leyendo columnas desde un fichero de entrada" />
+                        <TextBlock
+                            Grid.Column="1"
+                            Text="{x:Bind ViewModel.NombreFicheroEntrada, Mode=OneWay}"
+                            VerticalAlignment="Center"
+                            TextTrimming="CharacterEllipsis"
+                            Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Tarjeta: Condicionada por (legacy groupBox2 "Condicionada por") -->
+            <Border Grid.Row="2" Style="{StaticResource AppCardStyle}" Margin="0,0,0,16">
+                <StackPanel Spacing="12">
+                    <TextBlock
+                        Text="Condicionada por"
+                        Style="{StaticResource SectionHeaderTextBlockStyle}" />
+
+                    <!-- legacy: rbBase + tbColbase (columna base de 14 signos) -->
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="160" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <RadioButton
+                            Grid.Column="0"
+                            Content="Columna Base"
+                            GroupName="ModoCondicion"
+                            VerticalAlignment="Center"
+                            IsChecked="{x:Bind ViewModel.CondicionColumnaBase, Mode=TwoWay}"
+                            AutomationProperties.Name="Condicionar respecto a una columna base escrita a mano" />
+                        <TextBox
+                            Grid.Column="1"
+                            MaxLength="14"
+                            CharacterCasing="Upper"
+                            Text="{x:Bind ViewModel.ColumnaBase, Mode=TwoWay}"
+                            PlaceholderText="1X1212X2111121"
+                            AutomationProperties.Name="Columna base de 14 signos (1, X o 2)" />
+                    </Grid>
+
+                    <!-- legacy: rbColsB + lblFileCond (fichero de condiciones) -->
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="160" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <RadioButton
+                            Grid.Column="0"
+                            Content="Fichero"
+                            GroupName="ModoCondicion"
+                            VerticalAlignment="Center"
+                            IsChecked="{x:Bind ViewModel.CondicionFichero, Mode=TwoWay}"
+                            AutomationProperties.Name="Condicionar respecto a un fichero de condiciones" />
+                        <TextBlock
+                            Grid.Column="1"
+                            Text="{x:Bind ViewModel.NombreFicheroCondiciones, Mode=OneWay}"
+                            VerticalAlignment="Center"
+                            TextTrimming="CharacterEllipsis"
+                            Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                    </Grid>
+
+                    <!-- legacy: label3 "diferencias" + tbdifbase + label "min(-,-)max" -->
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="160" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                            <TextBlock
+                                Text="Diferencias s/col. Base"
+                                Foreground="{ThemeResource AppTextBrush}" />
+                            <TextBlock
+                                Text="min(-,-)max"
+                                Style="{StaticResource CaptionTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                        </StackPanel>
+                        <TextBox
+                            Grid.Column="1"
+                            MaxLength="20"
+                            Text="{x:Bind ViewModel.DiferenciasBase, Mode=TwoWay}"
+                            PlaceholderText="0-5,6,7-14"
+                            AutomationProperties.Name="Rangos de diferencias admitidas respecto a la columna base" />
+                    </Grid>
+
+                    <!-- legacy: label5 "s/col.result." + tbdifresul -->
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="160" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                            <TextBlock
+                                Text="Diferencias s/col. result."
+                                Foreground="{ThemeResource AppTextBrush}" />
+                            <TextBlock
+                                Text="min(-,-)max"
+                                Style="{StaticResource CaptionTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                        </StackPanel>
+                        <TextBox
+                            Grid.Column="1"
+                            MaxLength="20"
+                            Text="{x:Bind ViewModel.DiferenciasResultado, Mode=TwoWay}"
+                            PlaceholderText="6-14"
+                            AutomationProperties.Name="Rangos de diferencias admitidas respecto a las columnas ya aceptadas" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Tarjeta: Proceso (legacy groupBox3 "Proceso") -->
+            <Border Grid.Row="3" Style="{StaticResource AppCardStyle}" Margin="0,0,0,16">
+                <StackPanel Spacing="16">
+                    <TextBlock
+                        Text="Proceso"
+                        Style="{StaticResource SectionHeaderTextBlockStyle}" />
+
+                    <!-- legacy: label1 "lím.col" + tblimcol -->
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="160" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock
+                            Grid.Column="0"
+                            Text="Límite de columnas"
+                            VerticalAlignment="Center"
+                            Foreground="{ThemeResource AppTextBrush}" />
+                        <NumberBox
+                            Grid.Column="1"
+                            HorizontalAlignment="Stretch"
+                            Minimum="0"
+                            SpinButtonPlacementMode="Inline"
+                            Value="{x:Bind ViewModel.LimiteColumnas, Mode=TwoWay}"
+                            AutomationProperties.Name="Número máximo de columnas a grabar" />
+                    </Grid>
+
+                    <!-- legacy: lblResul "Admitidas" + lblTime "Tiempo" -->
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Spacing="2">
+                            <TextBlock
+                                Text="Admitidas"
+                                Style="{StaticResource CaptionTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                            <TextBlock
+                                Text="{x:Bind ViewModel.AdmitidasTexto, Mode=OneWay}"
+                                Style="{StaticResource BodyStrongTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextBrush}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Spacing="2">
+                            <TextBlock
+                                Text="Tiempo"
+                                Style="{StaticResource CaptionTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                            <TextBlock
+                                Text="{x:Bind ViewModel.TiempoTexto, Mode=OneWay}"
+                                Style="{StaticResource BodyStrongTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextBrush}" />
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- legacy: bCalc / bGrab / bCancelar -->
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Button
+                            Content="Calcular"
+                            Style="{StaticResource AccentButtonStyle}"
+                            IsEnabled="{x:Bind ViewModel.PuedeCalcular, Mode=OneWay}"
+                            Command="{x:Bind ViewModel.CalcularCommand}"
+                            AutomationProperties.Name="Calcular las columnas admitidas" />
+                        <Button
+                            Content="Grabar"
+                            IsEnabled="{x:Bind ViewModel.PuedeGrabar, Mode=OneWay}"
+                            Command="{x:Bind ViewModel.GrabarCommand}"
+                            AutomationProperties.Name="Grabar las columnas admitidas a un fichero" />
+                        <Button
+                            Content="Cancelar"
+                            IsEnabled="{x:Bind ViewModel.PuedeCancelar, Mode=OneWay}"
+                            Command="{x:Bind ViewModel.CancelarCommand}"
+                            AutomationProperties.Name="Cancelar el cálculo en curso" />
+                    </StackPanel>
+
+                    <!-- legacy: btnDiferencias (abre GeneradorCPSDiferencias) -->
+                    <Button
+                        Content="CPs por diferencias…"
+                        HorizontalAlignment="Left"
+                        Command="{x:Bind ViewModel.AbrirCpsPorDiferenciasCommand}"
+                        AutomationProperties.Name="Abrir generador de CPs por diferencias" />
+                </StackPanel>
+            </Border>
+        </Grid>
+    </ScrollViewer>
+</Page>

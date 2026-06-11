@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.OrdenarPorProbabilidadFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Background="{ThemeResource AppBackgroundBrush}">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Encabezado -->
+        <StackPanel Grid.Row="0" Padding="32,32,32,8" Spacing="4">
+            <TextBlock Text="Ordenación de columnas por probabilidad" Style="{StaticResource PageTitleTextBlockStyle}" />
+            <TextBlock Text="Ordena o filtra las columnas de la quiniela en torno a un valor central y las escribe a un fichero de salida."
+                       Style="{StaticResource SecondaryTextBlockStyle}" TextWrapping="Wrap" />
+        </StackPanel>
+
+        <!-- Contenido desplazable -->
+        <ScrollViewer Grid.Row="1" Padding="32,8,32,8" VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="16" MaxWidth="820" HorizontalAlignment="Left">
+
+                <!-- Tarjeta: origen de las columnas (groupBox1 del form legacy) -->
+                <Border Style="{StaticResource AppCardStyle}">
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="Origen de las columnas a ordenar" Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                        <RadioButton Content="14 Triples"
+                                     GroupName="Origen"
+                                     IsChecked="{x:Bind ViewModel.Origen14Triples, Mode=TwoWay}"
+                                     AutomationProperties.Name="Origen: 14 triples" />
+
+                        <RadioButton Content="Fichero"
+                                     GroupName="Origen"
+                                     IsChecked="{x:Bind ViewModel.OrigenFichero, Mode=TwoWay}"
+                                     AutomationProperties.Name="Origen: fichero" />
+
+                        <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center" Margin="24,0,0,0">
+                            <Button Content="Seleccionar archivo..."
+                                    Command="{x:Bind ViewModel.SeleccionarFicheroEntradaCommand}"
+                                    IsEnabled="{x:Bind ViewModel.FicheroEntradaHabilitado, Mode=OneWay}"
+                                    AutomationProperties.Name="Seleccionar fichero de entrada" />
+                            <TextBlock Text="{x:Bind ViewModel.FicheroEntrada, Mode=OneWay}"
+                                       VerticalAlignment="Center"
+                                       Style="{StaticResource SecondaryTextBlockStyle}" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Tarjeta: fichero de salida (groupSalida del form legacy) -->
+                <Border Style="{StaticResource AppCardStyle}">
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="Fichero de salida" Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                        <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                            <Button Content="Seleccionar archivo..."
+                                    Command="{x:Bind ViewModel.SeleccionarFicheroSalidaCommand}"
+                                    AutomationProperties.Name="Seleccionar fichero de salida" />
+                            <TextBlock Text="{x:Bind ViewModel.FicheroSalida, Mode=OneWay}"
+                                       VerticalAlignment="Center"
+                                       Style="{StaticResource SecondaryTextBlockStyle}" />
+                        </StackPanel>
+
+                        <NumberBox Header="Nº máximo de columnas"
+                                   Value="{x:Bind ViewModel.MaxColumnas, Mode=TwoWay}"
+                                   Minimum="1" SpinButtonPlacementMode="Inline"
+                                   HorizontalAlignment="Left" MinWidth="200"
+                                   AutomationProperties.Name="Número máximo de columnas" />
+
+                        <CheckBox Content="Añadir probabilidad acumulada"
+                                  IsChecked="{x:Bind ViewModel.AnadirProbabilidadAcumulada, Mode=TwoWay}"
+                                  AutomationProperties.Name="Añadir probabilidad acumulada a la salida" />
+
+                        <NumberBox Header="Límite de la prob. acumulada"
+                                   Value="{x:Bind ViewModel.LimiteProbAcumulada, Mode=TwoWay}"
+                                   Minimum="0" SpinButtonPlacementMode="Inline"
+                                   HorizontalAlignment="Left" MinWidth="200"
+                                   AutomationProperties.Name="Límite de la probabilidad acumulada" />
+
+                        <CheckBox Content="Añadir Premio de 14 aciertos"
+                                  IsChecked="{x:Bind ViewModel.AnadirPremio14, Mode=TwoWay}"
+                                  AutomationProperties.Name="Añadir premio de 14 aciertos a la salida" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Tarjeta: criterio de ordenación (tabControl1 del form legacy) -->
+                <Border Style="{StaticResource AppCardStyle}">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="Criterio de ordenación" Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                        <Pivot SelectedIndex="{x:Bind ViewModel.PestanaSeleccionada, Mode=TwoWay}">
+
+                            <!-- Tab: Por productos -->
+                            <PivotItem Header="Por productos">
+                                <StackPanel Spacing="16" Margin="0,8,0,0">
+
+                                    <!-- groupBox2: valor central de ordenación -->
+                                    <TextBlock Text="Valor central de ordenación" Style="{StaticResource SectionHeaderTextBlockStyle}" />
+
+                                    <Grid ColumnSpacing="12" RowSpacing="10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+
+                                        <RadioButton Grid.Row="0" Grid.Column="0" Content="Nº acertantes" GroupName="Central"
+                                                     VerticalAlignment="Center"
+                                                     IsChecked="{x:Bind ViewModel.ModoAcertantes, Mode=TwoWay}" />
+                                        <TextBox Grid.Row="0" Grid.Column="1"
+                                                 Text="{x:Bind ViewModel.Acertantes, Mode=TwoWay}"
+                                                 IsEnabled="{x:Bind ViewModel.AcertantesHabilitado, Mode=OneWay}"
+                                                 AutomationProperties.Name="Valor: número de acertantes" />
+
+                                        <RadioButton Grid.Row="1" Grid.Column="0" Content="Premio" GroupName="Central"
+                                                     VerticalAlignment="Center"
+                                                     IsChecked="{x:Bind ViewModel.ModoPremio, Mode=TwoWay}" />
+                                        <TextBox Grid.Row="1" Grid.Column="1"
+                                                 Text="{x:Bind ViewModel.Premio, Mode=TwoWay}"
+                                                 IsEnabled="{x:Bind ViewModel.PremioHabilitado, Mode=OneWay}"
+                                                 AutomationProperties.Name="Valor: premio" />
+
+                                        <RadioButton Grid.Row="2" Grid.Column="0" Content="Probabilidad" GroupName="Central"
+                                                     VerticalAlignment="Center"
+                                                     IsChecked="{x:Bind ViewModel.ModoProbabilidad, Mode=TwoWay}" />
+                                        <TextBox Grid.Row="2" Grid.Column="1"
+                                                 Text="{x:Bind ViewModel.Probabilidad, Mode=TwoWay}"
+                                                 IsEnabled="{x:Bind ViewModel.ProbabilidadHabilitado, Mode=OneWay}"
+                                                 AutomationProperties.Name="Valor: probabilidad" />
+
+                                        <RadioButton Grid.Row="3" Grid.Column="0" Content="Log. neperiano" GroupName="Central"
+                                                     VerticalAlignment="Center"
+                                                     IsChecked="{x:Bind ViewModel.ModoLN, Mode=TwoWay}" />
+                                        <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Spacing="12">
+                                            <TextBox Width="180"
+                                                     Text="{x:Bind ViewModel.Ln, Mode=TwoWay}"
+                                                     IsEnabled="{x:Bind ViewModel.LnHabilitado, Mode=OneWay}"
+                                                     AutomationProperties.Name="Valor: logaritmo neperiano" />
+                                            <ComboBox ItemsSource="{x:Bind ViewModel.OpcionesAciertos}"
+                                                      SelectedItem="{x:Bind ViewModel.AciertosSeleccionados, Mode=TwoWay}"
+                                                      Visibility="{x:Bind ViewModel.ComboAciertosVisible, Mode=OneWay}"
+                                                      MinWidth="80"
+                                                      AutomationProperties.Name="Aciertos a considerar" />
+                                        </StackPanel>
+
+                                        <RadioButton Grid.Row="4" Grid.Column="0" Content="Columna" GroupName="Central"
+                                                     VerticalAlignment="Center"
+                                                     IsChecked="{x:Bind ViewModel.ModoColumna, Mode=TwoWay}" />
+                                        <TextBox Grid.Row="4" Grid.Column="1"
+                                                 Text="{x:Bind ViewModel.Columna, Mode=TwoWay}"
+                                                 CharacterCasing="Upper" MaxLength="14"
+                                                 IsEnabled="{x:Bind ViewModel.ColumnaHabilitado, Mode=OneWay}"
+                                                 AutomationProperties.Name="Valor: columna" />
+                                    </Grid>
+
+                                    <!-- grLAE: configuración L.A.E. -->
+                                    <TextBlock Text="Configuración L.A.E." Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                                    <StackPanel Spacing="10" MaxWidth="360" HorizontalAlignment="Left">
+                                        <TextBox Header="Recaudación"
+                                                 Text="{x:Bind ViewModel.Recaudacion, Mode=TwoWay}"
+                                                 AutomationProperties.Name="Recaudación" />
+                                        <TextBox Header="Precio de una apuesta"
+                                                 Text="{x:Bind ViewModel.PrecioApuesta, Mode=TwoWay}"
+                                                 AutomationProperties.Name="Precio de una apuesta" />
+                                        <TextBox Header="% para los 14 aciertos"
+                                                 Text="{x:Bind ViewModel.PorcentajePremio14, Mode=TwoWay}"
+                                                 AutomationProperties.Name="Porcentaje para los 14 aciertos" />
+                                    </StackPanel>
+                                </StackPanel>
+                            </PivotItem>
+
+                            <!-- Tab: Por Sumas -->
+                            <PivotItem Header="Por Sumas">
+                                <StackPanel Spacing="12" Margin="0,8,0,0">
+                                    <NumberBox Header="Valor central de ordenación"
+                                               Value="{x:Bind ViewModel.ValorCentralSumas, Mode=TwoWay}"
+                                               SpinButtonPlacementMode="Inline"
+                                               HorizontalAlignment="Left" MinWidth="200"
+                                               AutomationProperties.Name="Valor central de ordenación (sumas)" />
+                                </StackPanel>
+                            </PivotItem>
+
+                            <!-- Tab: Multiple -->
+                            <PivotItem Header="Multiple">
+                                <StackPanel Spacing="16" Margin="0,8,0,0">
+                                    <TextBlock Text="Ordenación por múltiples puntos" Style="{StaticResource SectionHeaderTextBlockStyle}" />
+
+                                    <!-- groupBox3: tipo de valoración -->
+                                    <StackPanel Spacing="8">
+                                        <TextBlock Text="Tipo de valoración" Style="{StaticResource SecondaryTextBlockStyle}" />
+                                        <StackPanel Orientation="Horizontal" Spacing="24">
+                                            <RadioButton Content="Por probabilidad (LN)" GroupName="Valoracion"
+                                                         IsChecked="{x:Bind ViewModel.MultiplePorProbabilidad, Mode=TwoWay}" />
+                                            <RadioButton Content="Por sumas" GroupName="Valoracion"
+                                                         IsChecked="{x:Bind ViewModel.MultiplePorSumas, Mode=TwoWay}" />
+                                        </StackPanel>
+                                    </StackPanel>
+
+                                    <Grid ColumnSpacing="16" RowSpacing="12" MaxWidth="520" HorizontalAlignment="Left">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+
+                                        <NumberBox Grid.Row="0" Grid.Column="0" Header="LN mínimo"
+                                                   Value="{x:Bind ViewModel.LnMinimo, Mode=TwoWay}"
+                                                   SpinButtonPlacementMode="Inline"
+                                                   AutomationProperties.Name="LN mínimo" />
+                                        <NumberBox Grid.Row="0" Grid.Column="1" Header="LN máximo"
+                                                   Value="{x:Bind ViewModel.LnMaximo, Mode=TwoWay}"
+                                                   SpinButtonPlacementMode="Inline"
+                                                   AutomationProperties.Name="LN máximo" />
+                                        <NumberBox Grid.Row="1" Grid.Column="0" Header="Nº puntos centrales"
+                                                   Value="{x:Bind ViewModel.NumPuntos, Mode=TwoWay}"
+                                                   Minimum="1" SpinButtonPlacementMode="Inline"
+                                                   AutomationProperties.Name="Número de puntos centrales" />
+                                        <NumberBox Grid.Row="1" Grid.Column="1" Header="Nº columnas por punto"
+                                                   Value="{x:Bind ViewModel.NumColumnasPorTramo, Mode=TwoWay}"
+                                                   Minimum="0" SpinButtonPlacementMode="Inline"
+                                                   AutomationProperties.Name="Número de columnas por punto" />
+                                    </Grid>
+                                </StackPanel>
+                            </PivotItem>
+
+                        </Pivot>
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Barra de acciones (btCalcular / button3 del form legacy) -->
+        <Border Grid.Row="2" Padding="32,16"
+                Background="{ThemeResource AppSurfaceBrush}"
+                BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="0,1,0,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0" VerticalAlignment="Center"
+                           Text="{x:Bind ViewModel.Estado, Mode=OneWay}"
+                           Style="{StaticResource SecondaryTextBlockStyle}" />
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right">
+                    <Button Content="Cancelar"
+                            Command="{x:Bind ViewModel.CancelarCommand}"
+                            Click="BtnCancelar_Click"
+                            AutomationProperties.Name="Cancelar y cerrar" />
+                    <Button Content="Ordenar" Style="{StaticResource AccentButtonStyle}"
+                            Command="{x:Bind ViewModel.OrdenarCommand}"
+                            AutomationProperties.Name="Ordenar las columnas" />
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</Page>

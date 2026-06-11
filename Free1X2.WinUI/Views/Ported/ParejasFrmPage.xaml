@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.ParejasFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Free1X2.WinUI.Views.Ported"
+    Background="{ThemeResource AppBackgroundBrush}">
+
+    <ScrollViewer>
+        <StackPanel Padding="24" Spacing="16" MaxWidth="1040" HorizontalAlignment="Left">
+
+            <!-- Encabezado -->
+            <StackPanel Spacing="4" Margin="0,0,0,4">
+                <TextBlock
+                    Text="Pares"
+                    Style="{StaticResource PageTitleTextBlockStyle}" />
+                <TextBlock
+                    Text="Filtra columnas según el resultado de parejas de partidos: cada combinación (11, 1x, 12, x1, xx, x2, 21, 2x, 22) recibe un nivel, y cada nivel exige un número de aciertos dentro de un rango."
+                    Style="{StaticResource SecondaryTextBlockStyle}"
+                    TextWrapping="Wrap" />
+            </StackPanel>
+
+            <!-- Tarjeta: Niveles (14 partidos x 9 combinaciones de pareja) -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="12">
+                    <TextBlock
+                        Text="Niveles"
+                        Style="{StaticResource SectionHeaderTextBlockStyle}" />
+
+                    <ScrollViewer
+                        HorizontalScrollMode="Auto"
+                        HorizontalScrollBarVisibility="Auto"
+                        VerticalScrollMode="Disabled">
+                        <StackPanel Spacing="4">
+
+                            <!-- Cabecera de columnas: Par (P1,P2) + 9 combinaciones -->
+                            <Grid ColumnSpacing="6" MinWidth="900">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="44" />
+                                    <ColumnDefinition Width="120" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="#" HorizontalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                                <TextBlock Grid.Column="1" Text="Par (P1 / P2)" HorizontalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                                <TextBlock Grid.Column="2" Text="11" HorizontalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                                <TextBlock Grid.Column="3" Text="1x" HorizontalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                                <TextBlock Grid.Column="4" Text="12" HorizontalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                                <TextBlock Grid.Column="5" Text="x1" HorizontalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                                <TextBlock Grid.Column="6" Text="xx" HorizontalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                                <TextBlock Grid.Column="7" Text="x2" HorizontalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                                <TextBlock Grid.Column="8" Text="21" HorizontalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                                <TextBlock Grid.Column="9" Text="2x" HorizontalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                                <TextBlock Grid.Column="10" Text="22" HorizontalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                            </Grid>
+
+                            <ItemsControl ItemsSource="{x:Bind ViewModel.Niveles}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="local:NivelPareja">
+                                        <Grid ColumnSpacing="6" MinWidth="900" Margin="0,2">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="44" />
+                                                <ColumnDefinition Width="120" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock
+                                                Grid.Column="0"
+                                                Text="{x:Bind NumeroTexto}"
+                                                VerticalAlignment="Center"
+                                                HorizontalAlignment="Center"
+                                                Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                                            <Grid Grid.Column="1" ColumnSpacing="4">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBox Grid.Column="0" Text="{x:Bind P1, Mode=TwoWay}" TextAlignment="Center" AutomationProperties.Name="Posición 1 de la pareja" />
+                                                <TextBox Grid.Column="1" Text="{x:Bind P2, Mode=TwoWay}" TextAlignment="Center" AutomationProperties.Name="Posición 2 de la pareja" />
+                                            </Grid>
+                                            <TextBox Grid.Column="2" Text="{x:Bind V11, Mode=TwoWay}" TextAlignment="Center" AutomationProperties.Name="Nivel combinación 11" />
+                                            <TextBox Grid.Column="3" Text="{x:Bind V1X, Mode=TwoWay}" TextAlignment="Center" AutomationProperties.Name="Nivel combinación 1x" />
+                                            <TextBox Grid.Column="4" Text="{x:Bind V12, Mode=TwoWay}" TextAlignment="Center" AutomationProperties.Name="Nivel combinación 12" />
+                                            <TextBox Grid.Column="5" Text="{x:Bind VX1, Mode=TwoWay}" TextAlignment="Center" AutomationProperties.Name="Nivel combinación x1" />
+                                            <TextBox Grid.Column="6" Text="{x:Bind VXX, Mode=TwoWay}" TextAlignment="Center" AutomationProperties.Name="Nivel combinación xx" />
+                                            <TextBox Grid.Column="7" Text="{x:Bind VX2, Mode=TwoWay}" TextAlignment="Center" AutomationProperties.Name="Nivel combinación x2" />
+                                            <TextBox Grid.Column="8" Text="{x:Bind V21, Mode=TwoWay}" TextAlignment="Center" AutomationProperties.Name="Nivel combinación 21" />
+                                            <TextBox Grid.Column="9" Text="{x:Bind V2X, Mode=TwoWay}" TextAlignment="Center" AutomationProperties.Name="Nivel combinación 2x" />
+                                            <TextBox Grid.Column="10" Text="{x:Bind V22, Mode=TwoWay}" TextAlignment="Center" AutomationProperties.Name="Nivel combinación 22" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </ScrollViewer>
+                </StackPanel>
+            </Border>
+
+            <!-- Tarjeta: Condiciones (rango de aciertos por nivel 1..7) -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="12">
+                    <TextBlock
+                        Text="Condiciones"
+                        Style="{StaticResource SectionHeaderTextBlockStyle}" />
+
+                    <StackPanel Spacing="4" MaxWidth="320" HorizontalAlignment="Left">
+                        <!-- Cabecera: niv / min / max -->
+                        <Grid ColumnSpacing="8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="60" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="niv" HorizontalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                            <TextBlock Grid.Column="1" Text="min" HorizontalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                            <TextBlock Grid.Column="2" Text="max" HorizontalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                        </Grid>
+
+                        <ItemsControl ItemsSource="{x:Bind ViewModel.Condiciones}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="local:CondicionNivel">
+                                    <Grid ColumnSpacing="8" Margin="0,2">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="60" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock
+                                            Grid.Column="0"
+                                            Text="{x:Bind NivelTexto}"
+                                            VerticalAlignment="Center"
+                                            HorizontalAlignment="Center"
+                                            Foreground="{ThemeResource AppTextBrush}" />
+                                        <TextBox Grid.Column="1" Text="{x:Bind Min, Mode=TwoWay}" TextAlignment="Center" AutomationProperties.Name="Mínimo de aciertos del nivel" />
+                                        <TextBox Grid.Column="2" Text="{x:Bind Max, Mode=TwoWay}" TextAlignment="Center" AutomationProperties.Name="Máximo de aciertos del nivel" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Tarjeta: Análisis de la Columna Ganadora -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="12">
+                    <TextBlock
+                        Text="Análisis Resultados"
+                        Style="{StaticResource SectionHeaderTextBlockStyle}" />
+
+                    <Grid ColumnSpacing="12" MaxWidth="560" HorizontalAlignment="Left">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox
+                            Grid.Column="0"
+                            Header="Columna Ganadora"
+                            Text="{x:Bind ViewModel.ColumnaGanadora, Mode=TwoWay}"
+                            AutomationProperties.Name="Columna ganadora a analizar" />
+                        <Button
+                            Grid.Column="1"
+                            Content="Analizar"
+                            VerticalAlignment="Bottom"
+                            Command="{x:Bind ViewModel.AnalizarCommand}"
+                            AutomationProperties.Name="Analizar la columna ganadora" />
+                    </Grid>
+
+                    <!-- Recuento por nivel 1..7 (legacy r1..r7) -->
+                    <Grid ColumnSpacing="8" MaxWidth="560" HorizontalAlignment="Left">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="1" HorizontalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="2" HorizontalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                        <TextBlock Grid.Row="0" Grid.Column="2" Text="3" HorizontalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                        <TextBlock Grid.Row="0" Grid.Column="3" Text="4" HorizontalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                        <TextBlock Grid.Row="0" Grid.Column="4" Text="5" HorizontalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                        <TextBlock Grid.Row="0" Grid.Column="5" Text="6" HorizontalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                        <TextBlock Grid.Row="0" Grid.Column="6" Text="7" HorizontalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="{x:Bind ViewModel.ResultadoNivel1, Mode=OneWay}" HorizontalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}" Foreground="{ThemeResource AppTextBrush}" />
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{x:Bind ViewModel.ResultadoNivel2, Mode=OneWay}" HorizontalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}" Foreground="{ThemeResource AppTextBrush}" />
+                        <TextBlock Grid.Row="1" Grid.Column="2" Text="{x:Bind ViewModel.ResultadoNivel3, Mode=OneWay}" HorizontalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}" Foreground="{ThemeResource AppTextBrush}" />
+                        <TextBlock Grid.Row="1" Grid.Column="3" Text="{x:Bind ViewModel.ResultadoNivel4, Mode=OneWay}" HorizontalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}" Foreground="{ThemeResource AppTextBrush}" />
+                        <TextBlock Grid.Row="1" Grid.Column="4" Text="{x:Bind ViewModel.ResultadoNivel5, Mode=OneWay}" HorizontalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}" Foreground="{ThemeResource AppTextBrush}" />
+                        <TextBlock Grid.Row="1" Grid.Column="5" Text="{x:Bind ViewModel.ResultadoNivel6, Mode=OneWay}" HorizontalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}" Foreground="{ThemeResource AppTextBrush}" />
+                        <TextBlock Grid.Row="1" Grid.Column="6" Text="{x:Bind ViewModel.ResultadoNivel7, Mode=OneWay}" HorizontalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}" Foreground="{ThemeResource AppTextBrush}" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Tarjeta: Progreso del cálculo -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <Grid ColumnSpacing="24" HorizontalAlignment="Left">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Spacing="2">
+                        <TextBlock Text="Procesadas" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                        <TextBlock Text="{x:Bind ViewModel.Procesadas, Mode=OneWay}" Style="{StaticResource BodyStrongTextBlockStyle}" Foreground="{ThemeResource AppTextBrush}" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Spacing="2">
+                        <TextBlock Text="Válidas" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                        <TextBlock Text="{x:Bind ViewModel.Validas, Mode=OneWay}" Style="{StaticResource BodyStrongTextBlockStyle}" Foreground="{ThemeResource AppSuccessBrush}" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="2" Spacing="2">
+                        <TextBlock Text="Tiempo" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                        <TextBlock Text="{x:Bind ViewModel.Tiempo, Mode=OneWay}" Style="{StaticResource BodyStrongTextBlockStyle}" Foreground="{ThemeResource AppTextBrush}" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Acciones -->
+            <StackPanel
+                Orientation="Horizontal"
+                Spacing="12"
+                HorizontalAlignment="Left">
+                <Button
+                    Content="Leer condiciones"
+                    Command="{x:Bind ViewModel.LeerCommand}"
+                    AutomationProperties.Name="Leer condiciones desde archivo" />
+                <Button
+                    Content="Salvar condiciones"
+                    Command="{x:Bind ViewModel.SalvarCondicionesCommand}"
+                    AutomationProperties.Name="Guardar condiciones en archivo" />
+                <Button
+                    Content="Grabar resultado"
+                    IsEnabled="{x:Bind ViewModel.PuedeGrabar, Mode=OneWay}"
+                    Command="{x:Bind ViewModel.GrabarResultadoCommand}"
+                    AutomationProperties.Name="Guardar las columnas filtradas" />
+                <Button
+                    Content="Cancelar"
+                    Command="{x:Bind ViewModel.CancelarCommand}"
+                    AutomationProperties.Name="Cancelar y cerrar" />
+                <Button
+                    Content="Calcular"
+                    Style="{StaticResource AccentButtonStyle}"
+                    IsEnabled="{x:Bind ViewModel.PuedeCalcular, Mode=OneWay}"
+                    Command="{x:Bind ViewModel.CalcularCommand}"
+                    AutomationProperties.Name="Filtrar columnas del archivo de entrada" />
+            </StackPanel>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

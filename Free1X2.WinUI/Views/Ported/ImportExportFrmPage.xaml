@@ -1,0 +1,96 @@
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.ImportExportFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Background="{StaticResource AppBackgroundBrush}">
+
+    <ScrollViewer Padding="24">
+        <StackPanel Spacing="20" MaxWidth="640" HorizontalAlignment="Left">
+
+            <TextBlock
+                Style="{StaticResource PageTitleTextBlockStyle}"
+                Text="Importar / Exportar columnas" />
+
+            <!-- Tipo de conversion (legacy: groupBox1 con rConv3 / rConv4) -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="12">
+                    <TextBlock
+                        Style="{StaticResource SectionHeaderTextBlockStyle}"
+                        Text="Tipo de conversión" />
+                    <ComboBox
+                        HorizontalAlignment="Stretch"
+                        ItemsSource="{x:Bind ViewModel.OpcionesConversion}"
+                        SelectedIndex="{x:Bind ViewModel.ConversionSeleccionada, Mode=TwoWay}" />
+                </StackPanel>
+            </Border>
+
+            <!-- Fichero de entrada (legacy: lblCombinacion + txFicheroEntrada + btnAbrirEntrada) -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="12">
+                    <TextBlock
+                        Style="{StaticResource SectionHeaderTextBlockStyle}"
+                        Text="Fichero de entrada" />
+                    <Grid ColumnSpacing="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox
+                            Grid.Column="0"
+                            PlaceholderText="Ruta del fichero de entrada"
+                            Text="{x:Bind ViewModel.FicheroEntrada, Mode=TwoWay}" />
+                        <Button
+                            Grid.Column="1"
+                            Content="Examinar..."
+                            Command="{x:Bind ViewModel.AbrirEntradaCommand}" />
+                    </Grid>
+                    <TextBlock
+                        Style="{StaticResource SecondaryTextBlockStyle}"
+                        Text="{x:Bind ViewModel.ColsEntradaTexto, Mode=OneWay}" />
+                </StackPanel>
+            </Border>
+
+            <!-- Fichero de salida (legacy: label1 + txtFicheroSalida + btnAbrirSalida) -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="12">
+                    <TextBlock
+                        Style="{StaticResource SectionHeaderTextBlockStyle}"
+                        Text="Fichero de salida" />
+                    <Grid ColumnSpacing="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox
+                            Grid.Column="0"
+                            PlaceholderText="Ruta del fichero de salida"
+                            Text="{x:Bind ViewModel.FicheroSalida, Mode=TwoWay}" />
+                        <Button
+                            Grid.Column="1"
+                            Content="Examinar..."
+                            Command="{x:Bind ViewModel.AbrirSalidaCommand}" />
+                    </Grid>
+                    <TextBlock
+                        Style="{StaticResource SecondaryTextBlockStyle}"
+                        Text="{x:Bind ViewModel.ColsSalidaTexto, Mode=OneWay}" />
+                </StackPanel>
+            </Border>
+
+            <!-- Acciones (legacy: btnOk "Hacer" / btnCancel "Cancelar") -->
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <Button
+                    Style="{StaticResource AccentButtonStyle}"
+                    Content="Hacer"
+                    Command="{x:Bind ViewModel.HacerCommand}" />
+                <Button
+                    Content="Cancelar"
+                    Command="{x:Bind ViewModel.CancelarCommand}" />
+            </StackPanel>
+
+            <TextBlock
+                Style="{StaticResource SecondaryTextBlockStyle}"
+                Text="{x:Bind ViewModel.EstadoTexto, Mode=OneWay}" />
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

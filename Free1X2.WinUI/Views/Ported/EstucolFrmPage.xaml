@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.EstucolFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ScrollViewer>
+        <StackPanel Padding="32" Spacing="24" MaxWidth="900" HorizontalAlignment="Left">
+
+            <!-- ===== Encabezado (legacy: EstucolFrm.Text) ===== -->
+            <StackPanel Spacing="6">
+                <TextBlock Text="EstuCol - Generador / Analizador de Columnas Probables"
+                           Style="{StaticResource PageTitleTextBlockStyle}" />
+                <TextBlock
+                    Text="Selecciona los archivos de columnas reducidas y ganadoras, elige cómo agrupar las columnas y genera el informe del análisis."
+                    Style="{StaticResource SecondaryTextBlockStyle}"
+                    TextWrapping="Wrap" />
+            </StackPanel>
+
+            <!-- ===== Entrada Columnas Reducidas (legacy: groupBox1) ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Entrada Columnas"
+                               Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Button Grid.Column="0"
+                                Content="Archivo..."
+                                Command="{x:Bind ViewModel.AbrirArchivoReducidasCommand}"
+                                AutomationProperties.Name="Abrir archivo de columnas reducidas" />
+
+                        <TextBlock Grid.Column="1"
+                                   VerticalAlignment="Center"
+                                   Text="{x:Bind ViewModel.NombreArchivoReducidas, Mode=OneWay}"
+                                   Style="{StaticResource SecondaryTextBlockStyle}"
+                                   TextTrimming="CharacterEllipsis" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Entrada Columnas Ganadoras (legacy: groupBox2) ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Entrada Columnas Ganadoras"
+                               Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Button Grid.Column="0"
+                                Content="Archivo..."
+                                Command="{x:Bind ViewModel.AbrirArchivoGanadorasCommand}"
+                                AutomationProperties.Name="Abrir archivo de columnas ganadoras" />
+
+                        <TextBlock Grid.Column="1"
+                                   VerticalAlignment="Center"
+                                   Text="{x:Bind ViewModel.NombreArchivoGanadoras, Mode=OneWay}"
+                                   Style="{StaticResource SecondaryTextBlockStyle}"
+                                   TextTrimming="CharacterEllipsis" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Agrupación de Columnas (legacy: groupBox3, rdbAgrupacionA/B/C) ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="10">
+                    <TextBlock Text="Agrupación de Columnas"
+                               Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                    <RadioButton Content="1,2 - 3,4..."
+                                 GroupName="Agrupacion"
+                                 IsChecked="{x:Bind ViewModel.AgrupacionA, Mode=TwoWay}"
+                                 AutomationProperties.Name="Agrupación 1,2 - 3,4" />
+
+                    <RadioButton Content="1,2 - 2,3..."
+                                 GroupName="Agrupacion"
+                                 IsChecked="{x:Bind ViewModel.AgrupacionB, Mode=TwoWay}"
+                                 AutomationProperties.Name="Agrupación 1,2 - 2,3" />
+
+                    <RadioButton Content="1,3 - 2,4..."
+                                 GroupName="Agrupacion"
+                                 IsChecked="{x:Bind ViewModel.AgrupacionC, Mode=TwoWay}"
+                                 AutomationProperties.Name="Agrupación 1,3 - 2,4" />
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Acción (legacy: btnComenzar "Obtener Informe") ===== -->
+            <Button Content="Obtener Informe"
+                    Style="{StaticResource AccentButtonStyle}"
+                    IsEnabled="{x:Bind ViewModel.PuedeComenzar, Mode=OneWay}"
+                    Command="{x:Bind ViewModel.ComenzarCommand}"
+                    AutomationProperties.Name="Obtener el informe del análisis" />
+
+            <!-- ===== Estado (legacy: statusStrip1 / lblEstado) ===== -->
+            <TextBlock Text="{x:Bind ViewModel.Estado, Mode=OneWay}"
+                       Style="{StaticResource CaptionTextBlockStyle}"
+                       Foreground="{StaticResource AppTextSecondaryBrush}" />
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

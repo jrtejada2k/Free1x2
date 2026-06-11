@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.BoletoFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:Free1X2.WinUI.Controls">
+
+    <ScrollViewer>
+        <StackPanel Padding="32" Spacing="24" MaxWidth="820" HorizontalAlignment="Left">
+
+            <!-- ===== Encabezado ===== -->
+            <StackPanel Spacing="6">
+                <TextBlock Text="Boleto"
+                           Style="{StaticResource PageTitleTextBlockStyle}" />
+                <TextBlock Text="Visor de boletos imprimibles de un archivo de combinación. Abre el archivo y navega entre los boletos que contiene."
+                           Style="{StaticResource SecondaryTextBlockStyle}"
+                           TextWrapping="Wrap" />
+            </StackPanel>
+
+            <!-- ===== Archivo de combinación ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Archivo de combinación" Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Button Grid.Column="0"
+                                Content="Abrir archivo"
+                                Click="OnSeleccionarCombinacion"
+                                AutomationProperties.Name="Seleccionar archivo de combinación"
+                                MinWidth="150"
+                                HorizontalContentAlignment="Left" />
+                        <TextBlock Grid.Column="1"
+                                   Text="{x:Bind ViewModel.ArchivoCombinacion, Mode=OneWay}"
+                                   VerticalAlignment="Center"
+                                   Style="{StaticResource SecondaryTextBlockStyle}"
+                                   TextTrimming="CharacterEllipsis" />
+                    </Grid>
+
+                    <Button Content="Cargar boletos"
+                            Style="{StaticResource AccentButtonStyle}"
+                            Command="{x:Bind ViewModel.CargarCommand}"
+                            AutomationProperties.Name="Cargar los boletos del archivo seleccionado" />
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Navegación entre boletos ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Navegación" Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                    <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                        <Button Content="|&lt;"
+                                Command="{x:Bind ViewModel.PrimeroCommand}"
+                                AutomationProperties.Name="Primer boleto" />
+                        <Button Content="&lt;"
+                                Command="{x:Bind ViewModel.AnteriorCommand}"
+                                AutomationProperties.Name="Boleto anterior" />
+
+                        <TextBlock Text="Boleto nº" VerticalAlignment="Center"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <NumberBox Value="{x:Bind ViewModel.IrABoleto, Mode=TwoWay}"
+                                   Minimum="1"
+                                   SpinButtonPlacementMode="Compact"
+                                   MinWidth="120"
+                                   AutomationProperties.Name="Número de boleto al que ir" />
+                        <Button Content="Ir"
+                                Command="{x:Bind ViewModel.IrCommand}"
+                                AutomationProperties.Name="Ir al boleto indicado" />
+
+                        <TextBlock Text="de" VerticalAlignment="Center"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Text="{x:Bind ViewModel.TotalBoletosTexto, Mode=OneWay}"
+                                   VerticalAlignment="Center"
+                                   Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                        <Button Content="&gt;"
+                                Command="{x:Bind ViewModel.SiguienteCommand}"
+                                AutomationProperties.Name="Boleto siguiente" />
+                        <Button Content="&gt;|"
+                                Command="{x:Bind ViewModel.UltimoCommand}"
+                                AutomationProperties.Name="Último boleto" />
+                    </StackPanel>
+
+                    <TextBlock Text="{x:Bind ViewModel.Estado, Mode=OneWay}"
+                               Style="{StaticResource SecondaryTextBlockStyle}"
+                               TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Boleto actual ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Boleto actual" Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <!-- Reemplaza el WinForms ControlBoleto: muestra el boleto numBol activo.
+                         La sincronización de signos la realizará el dominio (ver ViewModel.LlenarBoleto). -->
+                    <controls:BoletoControl />
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

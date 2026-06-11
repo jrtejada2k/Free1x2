@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.EscrutiniosFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Free1X2.WinUI.Views.Ported"
+    Background="{ThemeResource AppBackgroundBrush}">
+
+    <ScrollViewer>
+        <Grid Padding="24" MaxWidth="820" HorizontalAlignment="Left">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!-- Encabezado -->
+            <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,20">
+                <TextBlock
+                    Text="Escrutinios"
+                    Style="{StaticResource PageTitleTextBlockStyle}" />
+                <TextBlock
+                    Text="Escruta tus ficheros de columnas contra una columna ganadora, otro fichero de referencia o las jornadas del histórico, y obtén el número de aciertos."
+                    Style="{StaticResource SecondaryTextBlockStyle}" />
+            </StackPanel>
+
+            <!-- Tarjeta: opciones generales -->
+            <Border Grid.Row="1" Style="{StaticResource AppCardStyle}" Margin="0,0,0,16">
+                <StackPanel Spacing="16">
+                    <TextBlock
+                        Text="Opciones generales"
+                        Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                    <Grid ColumnSpacing="24" RowSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox
+                            Grid.Column="0"
+                            Width="200"
+                            Header="Rango de aciertos a mostrar"
+                            PlaceholderText="10-14"
+                            Text="{x:Bind ViewModel.RangoAciertos, Mode=TwoWay}"
+                            AutomationProperties.Name="Rango de aciertos a mostrar como columnas" />
+                        <ToggleSwitch
+                            Grid.Column="1"
+                            VerticalAlignment="Bottom"
+                            Header="Registrar columnas premiadas"
+                            OnContent="Sí"
+                            OffContent="No"
+                            IsOn="{x:Bind ViewModel.ActivarVerPremiadas, Mode=TwoWay}"
+                            AutomationProperties.Name="Activar registro de columnas premiadas" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Tarjeta: modo de escrutinio (pestañas) -->
+            <Border Grid.Row="2" Style="{StaticResource AppCardStyle}" Margin="0,0,0,16">
+                <Pivot SelectedIndex="{x:Bind ViewModel.TabSeleccionada, Mode=TwoWay}">
+
+                    <!-- Pestaña 1: Escrutinio simple -->
+                    <PivotItem Header="Escrutinio simple">
+                        <StackPanel Spacing="12">
+                            <TextBlock
+                                Text="Escruta los ficheros contra una columna ganadora introducida a mano."
+                                Style="{StaticResource SecondaryTextBlockStyle}" />
+                            <Grid ColumnSpacing="12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox
+                                    Grid.Column="0"
+                                    Header="Columna ganadora"
+                                    PlaceholderText="Ej.: 1X21XX2*1X211"
+                                    MaxLength="14"
+                                    Text="{x:Bind ViewModel.ColumnaGanadora, Mode=TwoWay}"
+                                    AutomationProperties.Name="Columna ganadora" />
+                                <Button
+                                    Grid.Column="1"
+                                    VerticalAlignment="Bottom"
+                                    Content="Actualizar desde Free1X2.com"
+                                    Command="{x:Bind ViewModel.ActualizarColumnaGanadoraCommand}"
+                                    AutomationProperties.Name="Actualizar columna ganadora desde Free1X2.com" />
+                            </Grid>
+                            <TextBlock
+                                Text="Signos válidos — 1: Local · X: Empate · 2: Visitante · *: Comodín · S: Suspendido"
+                                Style="{StaticResource CaptionTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                        </StackPanel>
+                    </PivotItem>
+
+                    <!-- Pestaña 2: Escrutinio contra fichero -->
+                    <PivotItem Header="Contra fichero">
+                        <StackPanel Spacing="12">
+                            <TextBlock
+                                Text="Escruta los ficheros contra las columnas de otro fichero de referencia."
+                                Style="{StaticResource SecondaryTextBlockStyle}" />
+                            <Grid ColumnSpacing="12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Button
+                                    Grid.Column="0"
+                                    VerticalAlignment="Bottom"
+                                    Content="Fichero de referencia…"
+                                    Command="{x:Bind ViewModel.SeleccionarFicheroReferenciaCommand}"
+                                    AutomationProperties.Name="Seleccionar fichero de referencia" />
+                                <TextBlock
+                                    Grid.Column="1"
+                                    VerticalAlignment="Center"
+                                    TextTrimming="CharacterEllipsis"
+                                    Text="{x:Bind ViewModel.FicheroReferencia, Mode=OneWay}"
+                                    Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                            </Grid>
+                        </StackPanel>
+                    </PivotItem>
+
+                    <!-- Pestaña 3: Escrutinio contra jornadas -->
+                    <PivotItem Header="Contra jornadas">
+                        <StackPanel Spacing="12">
+                            <TextBlock
+                                Text="Escruta cada fichero contra la temporada y jornada correspondiente del histórico de resultados."
+                                Style="{StaticResource SecondaryTextBlockStyle}" />
+                            <Grid ColumnSpacing="12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox
+                                    Grid.Column="0"
+                                    Header="Plantilla de nombre de archivo (usa /t y /j)"
+                                    PlaceholderText="quiniela_/t_/j.txt"
+                                    Text="{x:Bind ViewModel.PlantillaNombreArchivo, Mode=TwoWay}"
+                                    AutomationProperties.Name="Plantilla de nombre de archivo" />
+                                <Button
+                                    Grid.Column="1"
+                                    VerticalAlignment="Bottom"
+                                    Content="Insertar /t"
+                                    Command="{x:Bind ViewModel.InsertarTemporadaCommand}"
+                                    AutomationProperties.Name="Insertar marcador de temporada" />
+                                <Button
+                                    Grid.Column="2"
+                                    VerticalAlignment="Bottom"
+                                    Content="Insertar /j"
+                                    Command="{x:Bind ViewModel.InsertarJornadaCommand}"
+                                    AutomationProperties.Name="Insertar marcador de jornada" />
+                            </Grid>
+
+                            <Grid ColumnSpacing="12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <ComboBox
+                                    Grid.Column="0"
+                                    HorizontalAlignment="Stretch"
+                                    Header="Dígitos de temporada"
+                                    ItemsSource="{x:Bind ViewModel.OpcionesDigitosTemporada}"
+                                    SelectedIndex="{x:Bind ViewModel.DigitosTemporada, Mode=TwoWay}"
+                                    AutomationProperties.Name="Dígitos de temporada" />
+                                <ComboBox
+                                    Grid.Column="1"
+                                    HorizontalAlignment="Stretch"
+                                    Header="Dígitos de jornada"
+                                    ItemsSource="{x:Bind ViewModel.OpcionesDigitosJornada}"
+                                    SelectedIndex="{x:Bind ViewModel.DigitosJornada, Mode=TwoWay}"
+                                    AutomationProperties.Name="Dígitos de jornada" />
+                            </Grid>
+
+                            <Grid ColumnSpacing="12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Button
+                                    Grid.Column="0"
+                                    VerticalAlignment="Bottom"
+                                    Content="Carpeta…"
+                                    Command="{x:Bind ViewModel.SeleccionarCarpetaCommand}"
+                                    AutomationProperties.Name="Seleccionar carpeta de ficheros" />
+                                <TextBlock
+                                    Grid.Column="1"
+                                    VerticalAlignment="Center"
+                                    TextTrimming="CharacterEllipsis"
+                                    Text="{x:Bind ViewModel.Carpeta, Mode=OneWay}"
+                                    Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                            </Grid>
+
+                            <TextBlock
+                                Text="Temporadas"
+                                Style="{StaticResource CardTitleTextBlockStyle}" />
+                            <ListView
+                                Height="140"
+                                SelectionMode="Multiple"
+                                ItemsSource="{x:Bind ViewModel.Temporadas}"
+                                BorderBrush="{ThemeResource AppBorderBrush}"
+                                BorderThickness="1"
+                                CornerRadius="4"
+                                AutomationProperties.Name="Temporadas a escrutar" />
+                        </StackPanel>
+                    </PivotItem>
+                </Pivot>
+            </Border>
+
+            <!-- Tarjeta: ficheros a escrutar -->
+            <Border Grid.Row="3" Style="{StaticResource AppCardStyle}" Margin="0,0,0,16">
+                <StackPanel Spacing="12">
+                    <TextBlock
+                        Text="Ficheros a escrutar"
+                        Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                    <TextBlock
+                        Text="No aplica al modo «Contra jornadas»: ahí los ficheros se localizan con la plantilla de nombre."
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                    <Button
+                        Content="Seleccionar ficheros…"
+                        IsEnabled="{x:Bind ViewModel.MostrarFicheroAEscrutar, Mode=OneWay}"
+                        Command="{x:Bind ViewModel.SeleccionarFicherosCommand}"
+                        AutomationProperties.Name="Seleccionar ficheros a escrutar" />
+                    <ListView
+                        Height="120"
+                        SelectionMode="None"
+                        IsEnabled="{x:Bind ViewModel.MostrarFicheroAEscrutar, Mode=OneWay}"
+                        ItemsSource="{x:Bind ViewModel.FicherosAEscrutar}"
+                        BorderBrush="{ThemeResource AppBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="4"
+                        AutomationProperties.Name="Ficheros a escrutar seleccionados" />
+                </StackPanel>
+            </Border>
+
+            <!-- Acciones principales -->
+            <Grid Grid.Row="4" Margin="0,0,0,16" ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Button
+                    Grid.Column="0"
+                    Content="Escrutar"
+                    Style="{StaticResource AccentButtonStyle}"
+                    Command="{x:Bind ViewModel.EscrutarCommand}"
+                    AutomationProperties.Name="Iniciar escrutinio" />
+                <TextBlock
+                    Grid.Column="1"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center"
+                    Text="{x:Bind ViewModel.Estado, Mode=OneWay}"
+                    Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                <Button
+                    Grid.Column="2"
+                    Content="Posibles premios"
+                    Command="{x:Bind ViewModel.PosiblesPremiosCommand}"
+                    AutomationProperties.Name="Ver posibles premios" />
+            </Grid>
+
+            <!-- Tarjeta: resultados -->
+            <Border Grid.Row="5" Style="{StaticResource AppCardStyle}" Margin="0,0,0,16">
+                <StackPanel Spacing="12">
+                    <TextBlock
+                        Text="Resultados"
+                        Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                    <ListView
+                        Height="220"
+                        ItemsSource="{x:Bind ViewModel.Resultados}"
+                        BorderBrush="{ThemeResource AppBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="4"
+                        AutomationProperties.Name="Resultados del escrutinio" />
+                    <!-- TODO[dominio]: sustituir esta ListView por una rejilla con columnas
+                         Seleccionado/Archivo/No/Columna/aciertos/Ac. Totales (legacy dgResultados). -->
+                </StackPanel>
+            </Border>
+
+            <!-- Acciones sobre resultados -->
+            <StackPanel
+                Grid.Row="6"
+                Orientation="Horizontal"
+                Spacing="12"
+                HorizontalAlignment="Left">
+                <Button
+                    Content="Seleccionar todas"
+                    IsEnabled="{x:Bind ViewModel.HayResultados, Mode=OneWay}"
+                    Command="{x:Bind ViewModel.SeleccionarTodasCommand}"
+                    AutomationProperties.Name="Seleccionar todas las columnas" />
+                <Button
+                    Content="Deseleccionar todas"
+                    IsEnabled="{x:Bind ViewModel.HayResultados, Mode=OneWay}"
+                    Command="{x:Bind ViewModel.DeseleccionarTodasCommand}"
+                    AutomationProperties.Name="Deseleccionar todas las columnas" />
+                <Button
+                    Content="Grabar columnas…"
+                    IsEnabled="{x:Bind ViewModel.HayResultados, Mode=OneWay}"
+                    Command="{x:Bind ViewModel.GrabarColumnasCommand}"
+                    AutomationProperties.Name="Grabar columnas seleccionadas" />
+                <Button
+                    Content="Ver premiadas"
+                    IsEnabled="{x:Bind ViewModel.PuedeVerPremiadas, Mode=OneWay}"
+                    Command="{x:Bind ViewModel.VerPremiadasCommand}"
+                    AutomationProperties.Name="Ver columnas premiadas" />
+                <Button
+                    Content="Cancelar"
+                    Command="{x:Bind ViewModel.CancelarCommand}"
+                    AutomationProperties.Name="Cancelar y cerrar" />
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
+</Page>

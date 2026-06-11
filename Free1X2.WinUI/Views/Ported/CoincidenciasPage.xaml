@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.CoincidenciasPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ported="using:Free1X2.WinUI.Views.Ported">
+
+    <ScrollViewer>
+        <StackPanel Padding="32" Spacing="24" MaxWidth="1000" HorizontalAlignment="Left">
+
+            <!-- ===== Encabezado ===== -->
+            <StackPanel Spacing="6">
+                <TextBlock Text="Coincidencias" Style="{StaticResource PageTitleTextBlockStyle}" />
+                <TextBlock
+                    Text="Calcula la radiografía de 108 características de las columnas y filtra las de entrada según las coincidencias con las columnas ganadoras de referencia."
+                    Style="{StaticResource SecondaryTextBlockStyle}"
+                    TextWrapping="Wrap" />
+            </StackPanel>
+
+            <!-- ===== Fichero de entrada ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Fichero de entrada" Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                        <Button Content="Seleccionar fichero…"
+                                Command="{x:Bind ViewModel.SeleccionarFicheroEntradaCommand}"
+                                AutomationProperties.Name="Seleccionar fichero de columnas de entrada" />
+                        <TextBlock Text="{x:Bind ViewModel.FicheroEntrada, Mode=OneWay}"
+                                   VerticalAlignment="Center"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                    </StackPanel>
+                    <Grid ColumnSpacing="24">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Style="{StaticResource SecondaryTextBlockStyle}"
+                                   Text="Columnas leídas" />
+                        <TextBlock Grid.Column="1" Style="{StaticResource BodyStrongTextBlockStyle}"
+                                   Foreground="{ThemeResource AppTextBrush}"
+                                   Text="{x:Bind ViewModel.ColumnasLeidas, Mode=OneWay}" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Columnas ganadoras de referencia ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Columnas ganadoras de referencia"
+                               Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                    <!-- Ganadora anterior -->
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Ganadora anterior"
+                                   Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                        <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                            <Button Content="Fichero…"
+                                    Command="{x:Bind ViewModel.SeleccionarGanadorasAnteriorCommand}"
+                                    AutomationProperties.Name="Seleccionar fichero de ganadoras anteriores" />
+                            <TextBlock Text="{x:Bind ViewModel.FicheroGanadorasAnterior, Mode=OneWay}"
+                                       VerticalAlignment="Center"
+                                       Style="{StaticResource SecondaryTextBlockStyle}" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                            <Button Content="−"
+                                    Command="{x:Bind ViewModel.GanadoraAnteriorAnteriorCommand}"
+                                    AutomationProperties.Name="Ganadora anterior previa" />
+                            <Button Content="+"
+                                    Command="{x:Bind ViewModel.GanadoraAnteriorSiguienteCommand}"
+                                    AutomationProperties.Name="Ganadora anterior siguiente" />
+                            <TextBlock Text="{x:Bind ViewModel.IndiceGanadoraAnterior, Mode=OneWay}"
+                                       VerticalAlignment="Center"
+                                       Style="{StaticResource BodyStrongTextBlockStyle}"
+                                       Foreground="{ThemeResource AppTextBrush}" />
+                            <Border Background="{ThemeResource AppSurfaceAltBrush}"
+                                    CornerRadius="{StaticResource AppCornerRadius}"
+                                    Padding="12,6" VerticalAlignment="Center">
+                                <TextBlock Text="{x:Bind ViewModel.ColumnaGanadoraAnterior, Mode=OneWay}"
+                                           FontFamily="Consolas"
+                                           Foreground="{ThemeResource AppTextBrush}" />
+                            </Border>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Ganadora reciente -->
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Ganadora reciente"
+                                   Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                        <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                            <Button Content="Fichero…"
+                                    Command="{x:Bind ViewModel.SeleccionarGanadorasRecienteCommand}"
+                                    AutomationProperties.Name="Seleccionar fichero de ganadoras recientes" />
+                            <TextBlock Text="{x:Bind ViewModel.FicheroGanadorasReciente, Mode=OneWay}"
+                                       VerticalAlignment="Center"
+                                       Style="{StaticResource SecondaryTextBlockStyle}" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                            <Button Content="−"
+                                    Command="{x:Bind ViewModel.GanadoraRecienteAnteriorCommand}"
+                                    AutomationProperties.Name="Ganadora reciente previa" />
+                            <Button Content="+"
+                                    Command="{x:Bind ViewModel.GanadoraRecienteSiguienteCommand}"
+                                    AutomationProperties.Name="Ganadora reciente siguiente" />
+                            <TextBlock Text="{x:Bind ViewModel.IndiceGanadoraReciente, Mode=OneWay}"
+                                       VerticalAlignment="Center"
+                                       Style="{StaticResource BodyStrongTextBlockStyle}"
+                                       Foreground="{ThemeResource AppTextBrush}" />
+                            <Border Background="{ThemeResource AppSurfaceAltBrush}"
+                                    CornerRadius="{StaticResource AppCornerRadius}"
+                                    Padding="12,6" VerticalAlignment="Center">
+                                <TextBlock Text="{x:Bind ViewModel.ColumnaGanadoraReciente, Mode=OneWay}"
+                                           FontFamily="Consolas"
+                                           Foreground="{ThemeResource AppTextBrush}" />
+                            </Border>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <Button Content="Calcular radiografía"
+                            Command="{x:Bind ViewModel.CalcularRadiografiaCommand}"
+                            AutomationProperties.Name="Calcular la radiografía de la ganadora anterior" />
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Condiciones (grupos / rango) ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Condiciones" Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <TextBlock
+                        Text="Cada condición define un grupo de características (1-108, p.ej. «1-9,33») y el rango de coincidencias admitidas (p.ej. «0-3»)."
+                        Style="{StaticResource SecondaryTextBlockStyle}"
+                        TextWrapping="Wrap" />
+
+                    <!-- Cabecera de columnas -->
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="160" />
+                            <ColumnDefinition Width="60" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Grupos" Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Column="1" Text="Rango" Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Column="2" Text="Rsl." Style="{StaticResource SecondaryTextBlockStyle}" />
+                    </Grid>
+
+                    <ItemsControl ItemsSource="{x:Bind ViewModel.Condiciones}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="ported:CoincidenciaCondicionViewModel">
+                                <Grid Margin="0,4" ColumnSpacing="12" VerticalAlignment="Center">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="160" />
+                                        <ColumnDefinition Width="60" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Grid.Column="0"
+                                             Text="{x:Bind Grupos, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             PlaceholderText="p.ej. 1-9,33"
+                                             AutomationProperties.Name="Grupos de características" />
+                                    <TextBox Grid.Column="1"
+                                             Text="{x:Bind Rango, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             PlaceholderText="p.ej. 0-3"
+                                             AutomationProperties.Name="Rango de coincidencias admitidas" />
+                                    <TextBlock Grid.Column="2"
+                                               Text="{x:Bind ResultadoTexto, Mode=OneWay}"
+                                               VerticalAlignment="Center"
+                                               Style="{StaticResource BodyStrongTextBlockStyle}"
+                                               Foreground="{ThemeResource AppTextBrush}" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Button Content="Añadir condición"
+                                Command="{x:Bind ViewModel.AgregarCondicionCommand}"
+                                AutomationProperties.Name="Añadir una condición" />
+                        <Button Content="Quitar última"
+                                Command="{x:Bind ViewModel.QuitarCondicionCommand}"
+                                AutomationProperties.Name="Quitar la última condición" />
+                        <Button Content="Leer…"
+                                Command="{x:Bind ViewModel.LeerCondicionesCommand}"
+                                AutomationProperties.Name="Leer condiciones desde archivo" />
+                        <Button Content="Guardar…"
+                                Command="{x:Bind ViewModel.GuardarCondicionesCommand}"
+                                AutomationProperties.Name="Guardar condiciones en archivo" />
+                        <TextBlock Text="{x:Bind ViewModel.FicheroCondiciones, Mode=OneWay}"
+                                   VerticalAlignment="Center"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Cálculo y estado ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Cálculo" Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Button Content="Calcular"
+                                Style="{StaticResource AccentButtonStyle}"
+                                Command="{x:Bind ViewModel.CalcularCommand}"
+                                AutomationProperties.Name="Calcular las columnas válidas" />
+                        <Button Content="Cancelar"
+                                Command="{x:Bind ViewModel.CancelarCommand}"
+                                AutomationProperties.Name="Cancelar el cálculo en curso" />
+                        <Button Content="Analizar"
+                                Command="{x:Bind ViewModel.AnalizarCommand}"
+                                AutomationProperties.Name="Analizar coincidencias entre ganadoras" />
+                    </StackPanel>
+
+                    <Grid ColumnSpacing="24" RowSpacing="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Procesadas"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Row="0" Grid.Column="1"
+                                   Text="{x:Bind ViewModel.ColumnasProcesadas, Mode=OneWay}"
+                                   Style="{StaticResource BodyStrongTextBlockStyle}"
+                                   Foreground="{ThemeResource AppTextBrush}" />
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Válidas"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Row="1" Grid.Column="1"
+                                   Text="{x:Bind ViewModel.ColumnasValidas, Mode=OneWay}"
+                                   Style="{StaticResource BodyStrongTextBlockStyle}"
+                                   Foreground="{ThemeResource AppTextBrush}" />
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Tiempo"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Row="2" Grid.Column="1"
+                                   Text="{x:Bind ViewModel.Tiempo, Mode=OneWay}"
+                                   Style="{StaticResource BodyStrongTextBlockStyle}"
+                                   Foreground="{ThemeResource AppTextBrush}" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Radiografía ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Radiografía" Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <TextBlock
+                        Text="Valor de las 108 características de la columna ganadora anterior."
+                        Style="{StaticResource SecondaryTextBlockStyle}"
+                        TextWrapping="Wrap" />
+
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="48" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="60" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="C." Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Column="1" Text="Descripción" Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Column="2" Text="Valor" Style="{StaticResource SecondaryTextBlockStyle}" />
+                    </Grid>
+
+                    <ListView ItemsSource="{x:Bind ViewModel.Radiografia}"
+                              SelectionMode="None"
+                              MaxHeight="320">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="ported:RadiografiaFilaViewModel">
+                                <Grid ColumnSpacing="12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="48" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="60" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{x:Bind CodigoTexto}"
+                                               Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                                    <TextBlock Grid.Column="1" Text="{x:Bind Descripcion}"
+                                               Foreground="{ThemeResource AppTextBrush}" />
+                                    <TextBlock Grid.Column="2" Text="{x:Bind ValorTexto, Mode=OneWay}"
+                                               Foreground="{ThemeResource AppTextBrush}" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+
+                    <Button Content="Imprimir radiografía"
+                            Command="{x:Bind ViewModel.ImprimirRadiografiaCommand}"
+                            AutomationProperties.Name="Imprimir la radiografía a fichero" />
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Distribución de aceptadas ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Distribución de aceptadas"
+                               Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                    <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                        <TextBlock Text="Índice AMC" VerticalAlignment="Center"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <ComboBox ItemsSource="{x:Bind ViewModel.IndicesAmc}"
+                                  SelectedItem="{x:Bind ViewModel.IndiceAmcSeleccionado, Mode=TwoWay}"
+                                  MinWidth="80"
+                                  AutomationProperties.Name="Índice AMC mostrado" />
+                    </StackPanel>
+
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="48" />
+                            <ColumnDefinition Width="48" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="C" Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Column="1" Text="S" Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Column="2" Text="s/AC" Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Column="3" Text="s/GR" Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Column="4" Text="AMC" Style="{StaticResource SecondaryTextBlockStyle}" />
+                    </Grid>
+
+                    <ListView ItemsSource="{x:Bind ViewModel.Distribucion}"
+                              SelectionMode="None"
+                              MaxHeight="320">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="ported:DistribucionFilaViewModel">
+                                <Grid ColumnSpacing="12" VerticalAlignment="Center">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="48" />
+                                        <ColumnDefinition Width="48" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{x:Bind NumeroTexto}"
+                                               VerticalAlignment="Center"
+                                               Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                                    <CheckBox Grid.Column="1"
+                                              IsChecked="{x:Bind Seleccionada, Mode=TwoWay}"
+                                              MinWidth="0"
+                                              AutomationProperties.Name="Incluir esta fila al grabar" />
+                                    <TextBlock Grid.Column="2" Text="{x:Bind PorAceptadasTexto, Mode=OneWay}"
+                                               VerticalAlignment="Center"
+                                               Foreground="{ThemeResource AppTextBrush}" />
+                                    <TextBlock Grid.Column="3" Text="{x:Bind PorGrupoTexto, Mode=OneWay}"
+                                               VerticalAlignment="Center"
+                                               Foreground="{ThemeResource AppTextBrush}" />
+                                    <TextBlock Grid.Column="4" Text="{x:Bind AmcTexto, Mode=OneWay}"
+                                               VerticalAlignment="Center"
+                                               Foreground="{ThemeResource AppTextBrush}" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Grabado de resultados ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Grabar resultados" Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Button Content="Grabar resultado"
+                                Command="{x:Bind ViewModel.GrabarResultadoCommand}"
+                                AutomationProperties.Name="Grabar las columnas válidas a fichero" />
+                        <Button Content="Grabar distribuciones en Excel"
+                                Command="{x:Bind ViewModel.GrabarExcelCommand}"
+                                AutomationProperties.Name="Exportar las distribuciones a Excel" />
+                    </StackPanel>
+                    <Grid ColumnSpacing="24" RowSpacing="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Fichero salida"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Row="0" Grid.Column="1"
+                                   Text="{x:Bind ViewModel.FicheroSalida, Mode=OneWay}"
+                                   Style="{StaticResource BodyStrongTextBlockStyle}"
+                                   Foreground="{ThemeResource AppTextBrush}" />
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Grabadas"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Row="1" Grid.Column="1"
+                                   Text="{x:Bind ViewModel.ColumnasGrabadas, Mode=OneWay}"
+                                   Style="{StaticResource BodyStrongTextBlockStyle}"
+                                   Foreground="{ThemeResource AppTextBrush}" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

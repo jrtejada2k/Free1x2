@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.ReductorFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ScrollViewer>
+        <StackPanel Padding="32" Spacing="24" MaxWidth="900" HorizontalAlignment="Left">
+
+            <!-- Título real del form: this.Text = "Reductor" -->
+            <StackPanel Spacing="6">
+                <TextBlock Text="Reductor" Style="{StaticResource PageTitleTextBlockStyle}" />
+                <TextBlock Text="Reduce un archivo de columnas aplicando un método y nivel de reducción."
+                           Style="{StaticResource SecondaryTextBlockStyle}" />
+            </StackPanel>
+
+            <!-- ===== Datos de Entrada (groupBox) ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Datos de Entrada" Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                    <Grid ColumnSpacing="12" RowSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <!-- btnSelFile + lblSelFile -->
+                        <Button Grid.Row="0" Grid.Column="0"
+                                Content="Archivo entrada"
+                                MinWidth="140"
+                                Command="{x:Bind ViewModel.SeleccionarArchivoEntradaCommand}" />
+                        <TextBlock Grid.Row="0" Grid.Column="1"
+                                   VerticalAlignment="Center"
+                                   Style="{StaticResource SecondaryTextBlockStyle}"
+                                   Text="{x:Bind ViewModel.ArchivoEntradaTexto, Mode=OneWay}" />
+
+                        <!-- btnFileOutput + lblFicheroSalida -->
+                        <Button Grid.Row="1" Grid.Column="0"
+                                Content="Archivo salida"
+                                MinWidth="140"
+                                Command="{x:Bind ViewModel.SeleccionarArchivoSalidaCommand}" />
+                        <TextBlock Grid.Row="1" Grid.Column="1"
+                                   VerticalAlignment="Center"
+                                   Style="{StaticResource SecondaryTextBlockStyle}"
+                                   Text="{x:Bind ViewModel.ArchivoSalidaTexto, Mode=OneWay}" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Nivel y Método (grNivelReduccion + groupBox1) ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Nivel y Método de Reducción" Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                    <Grid ColumnSpacing="24">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <!-- cmbNivel -->
+                        <ComboBox Grid.Column="0"
+                                  Header="Nivel Reducción"
+                                  MinWidth="120"
+                                  ItemsSource="{x:Bind ViewModel.NivelesReduccion}"
+                                  SelectedItem="{x:Bind ViewModel.NivelSeleccionado, Mode=TwoWay}" />
+
+                        <!-- cBoxMetodo -->
+                        <ComboBox Grid.Column="1"
+                                  Header="Método Reducción"
+                                  MinWidth="220"
+                                  ItemsSource="{x:Bind ViewModel.MetodosReduccion}"
+                                  SelectedItem="{x:Bind ViewModel.MetodoSeleccionado, Mode=TwoWay}" />
+                    </Grid>
+
+                    <!-- chkExternas (IsEnabled en el propio control, nunca en el panel) -->
+                    <ToggleSwitch Header="Admitir columnas externas"
+                                  OnContent="Sí" OffContent="No"
+                                  IsOn="{x:Bind ViewModel.AdmitirColumnasExternas, Mode=TwoWay}"
+                                  IsEnabled="{x:Bind ViewModel.ColumnasExternasHabilitado, Mode=OneWay}" />
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Opciones (groupBox2) ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Opciones" Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                    <Grid ColumnSpacing="24">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <!-- tBoxMaxCols -->
+                        <NumberBox Grid.Column="0"
+                                   Header="Máx. Columnas"
+                                   MinWidth="160"
+                                   Minimum="0"
+                                   SpinButtonPlacementMode="Inline"
+                                   Value="{x:Bind ViewModel.MaxColumnas, Mode=TwoWay}" />
+
+                        <!-- tBoxMaxPercent -->
+                        <NumberBox Grid.Column="1"
+                                   Header="Máx. %"
+                                   MinWidth="160"
+                                   Minimum="0" Maximum="100"
+                                   SpinButtonPlacementMode="Inline"
+                                   Value="{x:Bind ViewModel.MaxPorcentaje, Mode=TwoWay}" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Resultados (labels lblColsIni/Proc/Adm/Percent/Tempo) ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Resultados" Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                    <Grid ColumnSpacing="12" RowSpacing="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Col. Iniciales"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Row="0" Grid.Column="1"
+                                   Text="{x:Bind ViewModel.ColsInicialesTexto, Mode=OneWay}" />
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Procesadas"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Row="1" Grid.Column="1"
+                                   Text="{x:Bind ViewModel.ColsProcesadasTexto, Mode=OneWay}" />
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Admitidas"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Row="2" Grid.Column="1"
+                                   Text="{x:Bind ViewModel.ColsAdmitidasTexto, Mode=OneWay}" />
+
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Porcentaje"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Row="3" Grid.Column="1"
+                                   Text="{x:Bind ViewModel.PorcentajeTexto, Mode=OneWay}" />
+
+                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Tiempo"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Row="4" Grid.Column="1"
+                                   Text="{x:Bind ViewModel.TiempoTexto, Mode=OneWay}" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Acciones (btnReducir / btnCancel) ===== -->
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <Button Content="Reducir"
+                        Style="{StaticResource AccentButtonStyle}"
+                        IsEnabled="{x:Bind ViewModel.PuedeReducir, Mode=OneWay}"
+                        Command="{x:Bind ViewModel.ReducirCommand}" />
+                <Button Content="Cancelar"
+                        Command="{x:Bind ViewModel.CancelarCommand}" />
+            </StackPanel>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.FigurasFiltrosFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ported="using:Free1X2.WinUI.Views.Ported">
+
+    <ScrollViewer>
+        <StackPanel Padding="32" Spacing="24" MaxWidth="900" HorizontalAlignment="Left">
+
+            <!-- ===== Encabezado ===== -->
+            <StackPanel Spacing="6">
+                <TextBlock Text="Figuras" Style="{StaticResource PageTitleTextBlockStyle}" />
+                <TextBlock
+                    Text="Edita la lista de figuras asociadas a este filtro. Cada casilla representa una figura; escribe sus dígitos o usa el comodín."
+                    Style="{StaticResource SecondaryTextBlockStyle}"
+                    TextWrapping="Wrap" />
+            </StackPanel>
+
+            <!-- ===== Rejilla de casillas de figuras ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Casillas de figuras"
+                               Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <TextBlock Text="{x:Bind ViewModel.ValoresPermitidosTexto}"
+                               Style="{StaticResource SecondaryTextBlockStyle}"
+                               TextWrapping="Wrap" />
+
+                    <ItemsControl ItemsSource="{x:Bind ViewModel.Casillas}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="ported:CasillaFiguraViewModel">
+                                <StackPanel Margin="0,0,8,8" Spacing="4" Width="56">
+                                    <TextBlock Text="{x:Bind Etiqueta}"
+                                               Style="{StaticResource CaptionTextBlockStyle}"
+                                               Foreground="{ThemeResource AppTextSecondaryBrush}"
+                                               HorizontalAlignment="Center" />
+                                    <TextBox Text="{x:Bind Texto, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             TextAlignment="Center"
+                                             MaxLength="6"
+                                             AutomationProperties.Name="{x:Bind Etiqueta}" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Acciones (btnOk / btnAbrir / btnBorrar / btnCancelar del form legacy) ===== -->
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <Button Content="Aceptar"
+                        Style="{StaticResource AccentButtonStyle}"
+                        Command="{x:Bind ViewModel.AceptarCommand}"
+                        AutomationProperties.Name="Aceptar figuras" />
+                <Button Content="Abrir…"
+                        Command="{x:Bind ViewModel.AbrirCommand}"
+                        AutomationProperties.Name="Abrir figuras desde archivo" />
+                <Button Content="Borrar"
+                        Command="{x:Bind ViewModel.BorrarCommand}"
+                        AutomationProperties.Name="Borrar todas las casillas" />
+                <Button Content="Cancelar"
+                        Command="{x:Bind ViewModel.CancelarCommand}"
+                        AutomationProperties.Name="Cancelar" />
+            </StackPanel>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

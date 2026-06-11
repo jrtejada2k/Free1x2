@@ -1,0 +1,281 @@
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.aidomnouPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Background="{StaticResource AppBackgroundBrush}">
+
+    <Grid Padding="24" RowSpacing="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Encabezado. Título real del form legacy (this.Text): "Filtro Aidomnou" -->
+        <StackPanel Grid.Row="0" Spacing="4">
+            <TextBlock
+                Style="{StaticResource PageTitleTextBlockStyle}"
+                Text="Filtro Aidomnou" />
+            <TextBlock
+                Style="{StaticResource SecondaryTextBlockStyle}"
+                Text="Genera 6 columnas probables a partir de las valoraciones de los 14 partidos, define límites de aciertos por columna y filtra un fichero de columnas que cumplan esas condiciones." />
+        </StackPanel>
+
+        <ScrollViewer Grid.Row="1">
+            <StackPanel Spacing="16" MaxWidth="900" HorizontalAlignment="Left">
+
+                <!-- Nota legacy (lNota): condiciones de generación en aidomnou.cfg -->
+                <Border Style="{StaticResource AppCardStyle}">
+                    <StackPanel Spacing="8">
+                        <TextBlock
+                            Style="{StaticResource CardTitleTextBlockStyle}"
+                            Text="Nota" />
+                        <TextBlock
+                            Style="{StaticResource SecondaryTextBlockStyle}"
+                            TextWrapping="Wrap"
+                            Text="Las condiciones de generación de las 6 columnas, tras una primera ejecución, aparecen editables en el fichero de configuración 'aidomnou.cfg'." />
+                    </StackPanel>
+                </Border>
+
+                <!-- Valoraciones de los 14 partidos (legacy: control Free1X2.UI.Controls.valors).
+                     Matriz 14x3 con la valoración de cada signo (1 / X / 2) por partido.
+                     TODO: portar el UserControl 'valors' (RetVals devuelve double[14,3]).
+                     Aquí se deja como placeholder textual; la rejilla editable se portará aparte. -->
+                <Border Style="{StaticResource AppCardStyle}">
+                    <StackPanel Spacing="12">
+                        <TextBlock
+                            Style="{StaticResource SectionHeaderTextBlockStyle}"
+                            Text="Valoraciones (14 partidos · 1 / X / 2)" />
+                        <TextBlock
+                            Style="{StaticResource SecondaryTextBlockStyle}"
+                            TextWrapping="Wrap"
+                            Text="Rejilla de valoración de cada signo por partido (legacy: control 'valors', double[14,3]). Pendiente de portar como rejilla editable." />
+                    </StackPanel>
+                </Border>
+
+                <!-- Columnas generadas (legacy: groupBox2 "Columnas Probables").
+                     6 columnas x 14 partidos de etiquetas de solo lectura (l011..l146) con signos -/1/2/12/X/1X/X2/1X2.
+                     TODO: portar la rejilla de resultados desde cps[14,6] (Cambia()). -->
+                <Border Style="{StaticResource AppCardStyle}">
+                    <StackPanel Spacing="12">
+                        <TextBlock
+                            Style="{StaticResource SectionHeaderTextBlockStyle}"
+                            Text="Columnas Probables (resultado)" />
+                        <TextBlock
+                            Style="{StaticResource SecondaryTextBlockStyle}"
+                            TextWrapping="Wrap"
+                            Text="6 columnas generadas (14 partidos cada una) que se rellenan al calcular. Pendiente de portar como rejilla de solo lectura (legacy: PintaPantalla / cps[14,6])." />
+                        <ListView
+                            SelectionMode="None"
+                            MaxHeight="220"
+                            BorderThickness="0"
+                            ItemsSource="{x:Bind ViewModel.ColumnasGeneradas, Mode=OneWay}" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Límites por columna + suma + recorrido (legacy: tbmg1..tbmg6, tbmgsuma, tbmgreco).
+                     Cada límite es un rango "min-max". -->
+                <Border Style="{StaticResource AppCardStyle}">
+                    <StackPanel Spacing="12">
+                        <TextBlock
+                            Style="{StaticResource SectionHeaderTextBlockStyle}"
+                            Text="Límites de aciertos (rango min-max)" />
+                        <Grid ColumnSpacing="12" RowSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <TextBox
+                                Grid.Row="0" Grid.Column="0"
+                                Header="Columna 1"
+                                MaxLength="14"
+                                PlaceholderText="0-14"
+                                Text="{x:Bind ViewModel.LimColumna1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBox
+                                Grid.Row="0" Grid.Column="1"
+                                Header="Columna 2"
+                                MaxLength="14"
+                                PlaceholderText="0-14"
+                                Text="{x:Bind ViewModel.LimColumna2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBox
+                                Grid.Row="0" Grid.Column="2"
+                                Header="Columna 3"
+                                MaxLength="14"
+                                PlaceholderText="0-14"
+                                Text="{x:Bind ViewModel.LimColumna3, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBox
+                                Grid.Row="0" Grid.Column="3"
+                                Header="Columna 4"
+                                MaxLength="14"
+                                PlaceholderText="0-14"
+                                Text="{x:Bind ViewModel.LimColumna4, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBox
+                                Grid.Row="1" Grid.Column="0"
+                                Header="Columna 5"
+                                MaxLength="14"
+                                PlaceholderText="0-14"
+                                Text="{x:Bind ViewModel.LimColumna5, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBox
+                                Grid.Row="1" Grid.Column="1"
+                                Header="Columna 6"
+                                MaxLength="14"
+                                PlaceholderText="0-14"
+                                Text="{x:Bind ViewModel.LimColumna6, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBox
+                                Grid.Row="1" Grid.Column="2"
+                                Header="Suma"
+                                MaxLength="14"
+                                PlaceholderText="0-84"
+                                Text="{x:Bind ViewModel.LimSuma, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBox
+                                Grid.Row="1" Grid.Column="3"
+                                Header="Recorrido"
+                                MaxLength="14"
+                                PlaceholderText="0-14"
+                                Text="{x:Bind ViewModel.LimRecorrido, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        </Grid>
+
+                        <!-- Acciones sobre los límites (legacy: bSalvaCondis / bLeeCondis, ficheros .cnd) -->
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Button Content="Salvar Límites" Command="{x:Bind ViewModel.SalvarLimitesCommand}" />
+                            <Button Content="Recuperar Límites" Command="{x:Bind ViewModel.RecuperarLimitesCommand}" />
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                Style="{StaticResource SecondaryTextBlockStyle}"
+                                Text="{x:Bind ViewModel.FicheroRangos, Mode=OneWay}" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Cálculo / filtrado del fichero de columnas (legacy: bCalcular / bGrabaCols) -->
+                <Border Style="{StaticResource AppCardStyle}">
+                    <StackPanel Spacing="12">
+                        <TextBlock
+                            Style="{StaticResource SectionHeaderTextBlockStyle}"
+                            Text="Cálculo del filtro" />
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Button
+                                Style="{StaticResource AccentButtonStyle}"
+                                Content="Calcular"
+                                Command="{x:Bind ViewModel.CalcularCommand}" />
+                            <Button Content="Grabar Resultado" Command="{x:Bind ViewModel.GrabarResultadoCommand}" />
+                            <Button Content="Exportar Columnas" Command="{x:Bind ViewModel.ExportarColumnasCommand}" />
+                            <Button Content="Cancelar" Command="{x:Bind ViewModel.CancelarCommand}" />
+                        </StackPanel>
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Spacing="2">
+                                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="Procesadas" />
+                                <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}" Text="{x:Bind ViewModel.ColsProcesadas, Mode=OneWay}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Spacing="2">
+                                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="Válidas" />
+                                <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}" Text="{x:Bind ViewModel.ColsValidas, Mode=OneWay}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" Spacing="2">
+                                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="Tiempo" />
+                                <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}" Text="{x:Bind ViewModel.Tiempo, Mode=OneWay}" />
+                            </StackPanel>
+                        </Grid>
+                        <TextBlock
+                            Style="{StaticResource SecondaryTextBlockStyle}"
+                            Text="{x:Bind ViewModel.FicheroResultado, Mode=OneWay}" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Análisis de columnas ganadoras (legacy: groupBox3 "Análisis Resultados") -->
+                <Border Style="{StaticResource AppCardStyle}">
+                    <StackPanel Spacing="12">
+                        <TextBlock
+                            Style="{StaticResource SectionHeaderTextBlockStyle}"
+                            Text="Análisis Resultados" />
+
+                        <!-- Navegación por el fichero de ganadoras (legacy: bFG / bMenosR / bMasR, lbCGR) -->
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Button Content="Fichero Ganadoras" Command="{x:Bind ViewModel.AbrirGanadorasCommand}" />
+                            <Button Content="-" Command="{x:Bind ViewModel.GanadoraAnteriorCommand}" AutomationProperties.Name="Ganadora anterior" />
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                MinWidth="56"
+                                TextAlignment="Center"
+                                Style="{StaticResource BodyStrongTextBlockStyle}"
+                                Text="{x:Bind ViewModel.PaginacionGanadoras, Mode=OneWay}" />
+                            <Button Content="+" Command="{x:Bind ViewModel.GanadoraSiguienteCommand}" AutomationProperties.Name="Ganadora siguiente" />
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                Style="{StaticResource SecondaryTextBlockStyle}"
+                                Text="{x:Bind ViewModel.FicheroGanadoras, Mode=OneWay}" />
+                        </StackPanel>
+
+                        <TextBox
+                            Header="Columna a analizar (14 signos: 1 / X / 2)"
+                            MaxLength="14"
+                            CharacterCasing="Upper"
+                            PlaceholderText="Ej. 2222XXXX222XXX"
+                            Text="{x:Bind ViewModel.ColumnaResultado, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                        <Button Content="Analizar" Command="{x:Bind ViewModel.AnalizarCommand}" />
+
+                        <!-- Resultado del análisis (legacy: lrk1..lrk6 + lsuma + lreco) -->
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Spacing="2">
+                                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="C1" />
+                                <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}" Text="{x:Bind ViewModel.Rk1, Mode=OneWay}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Spacing="2">
+                                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="C2" />
+                                <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}" Text="{x:Bind ViewModel.Rk2, Mode=OneWay}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" Spacing="2">
+                                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="C3" />
+                                <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}" Text="{x:Bind ViewModel.Rk3, Mode=OneWay}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="3" Spacing="2">
+                                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="C4" />
+                                <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}" Text="{x:Bind ViewModel.Rk4, Mode=OneWay}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="4" Spacing="2">
+                                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="C5" />
+                                <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}" Text="{x:Bind ViewModel.Rk5, Mode=OneWay}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="5" Spacing="2">
+                                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="C6" />
+                                <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}" Text="{x:Bind ViewModel.Rk6, Mode=OneWay}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="6" Spacing="2">
+                                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="Suma" />
+                                <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}" Text="{x:Bind ViewModel.SumaAnalisis, Mode=OneWay}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="7" Spacing="2">
+                                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="Recorrido" />
+                                <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}" Text="{x:Bind ViewModel.RecorridoAnalisis, Mode=OneWay}" />
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Page>

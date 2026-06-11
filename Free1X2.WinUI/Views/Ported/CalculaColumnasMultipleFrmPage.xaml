@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.CalculaColumnasMultipleFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ScrollViewer>
+        <StackPanel Padding="32" Spacing="24" MaxWidth="900" HorizontalAlignment="Left">
+
+            <!-- ===== Encabezado ===== -->
+            <StackPanel Spacing="6">
+                <TextBlock Text="Calcular Múltiples Combinaciones"
+                           Style="{StaticResource PageTitleTextBlockStyle}" />
+                <TextBlock Text="Procesa en lote varios archivos de combinaciones (.comb / .xml) y genera sus columnas reducidas en la carpeta Columnas."
+                           Style="{StaticResource SecondaryTextBlockStyle}"
+                           TextWrapping="Wrap" />
+            </StackPanel>
+
+            <!-- ===== Archivos de combinaciones (listaFicheros + btnSelArch) ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Archivos a procesar"
+                               Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <TextBlock Text="Selecciona uno o varios archivos de combinaciones. Se procesarán en orden alfabético."
+                               Style="{StaticResource SecondaryTextBlockStyle}"
+                               TextWrapping="Wrap" />
+
+                    <Button Content="Seleccionar archivos…"
+                            Command="{x:Bind ViewModel.SeleccionarArchivosCommand}"
+                            AutomationProperties.Name="Seleccionar archivos de combinaciones" />
+
+                    <ListView ItemsSource="{x:Bind ViewModel.Ficheros, Mode=OneWay}"
+                              SelectedIndex="{x:Bind ViewModel.FicheroSeleccionado, Mode=TwoWay}"
+                              SelectionMode="Single"
+                              MaxHeight="220"
+                              BorderBrush="{StaticResource AppBorderBrush}"
+                              BorderThickness="1"
+                              Background="{StaticResource AppSurfaceBrush}"
+                              AutomationProperties.Name="Lista de archivos seleccionados" />
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Estadísticas del cálculo (labels del form legacy) ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Estadísticas del cálculo"
+                               Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                    <!-- Cabecera de columnas: Columnas / Coste -->
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="140" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text=""
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Column="1" Text="Columnas"
+                                   TextAlignment="Right"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Column="2" Text="Coste"
+                                   TextAlignment="Right"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                    </Grid>
+
+                    <!-- Procesadas (label3 / lblColsProcesadas / colProcesadaCoste) -->
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="140" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Procesadas"
+                                   VerticalAlignment="Center"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Column="1" Text="{x:Bind ViewModel.ColumnasProcesadas, Mode=OneWay}"
+                                   TextAlignment="Right"
+                                   Style="{StaticResource CardTitleTextBlockStyle}" />
+                        <TextBlock Grid.Column="2" Text="{x:Bind ViewModel.CosteProcesadas, Mode=OneWay}"
+                                   TextAlignment="Right"
+                                   Style="{StaticResource CardTitleTextBlockStyle}" />
+                    </Grid>
+
+                    <!-- Aceptadas (label4 / lblColsAdmitidas / colAceptadaCoste) -->
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="140" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Aceptadas"
+                                   VerticalAlignment="Center"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Column="1" Text="{x:Bind ViewModel.ColumnasAceptadas, Mode=OneWay}"
+                                   TextAlignment="Right"
+                                   Style="{StaticResource CardTitleTextBlockStyle}" />
+                        <TextBlock Grid.Column="2" Text="{x:Bind ViewModel.CosteAceptadas, Mode=OneWay}"
+                                   TextAlignment="Right"
+                                   Style="{StaticResource CardTitleTextBlockStyle}" />
+                    </Grid>
+
+                    <!-- Porcentaje (label8 / lblPorcentaje) -->
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="140" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Porcentaje"
+                                   VerticalAlignment="Center"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Column="1" Text="{x:Bind ViewModel.Porcentaje, Mode=OneWay}"
+                                   TextAlignment="Right"
+                                   Style="{StaticResource CardTitleTextBlockStyle}" />
+                        <TextBlock Grid.Column="2" Text=""
+                                   Style="{StaticResource CardTitleTextBlockStyle}" />
+                    </Grid>
+
+                    <!-- Estimadas (label7 / lblColsEstimadas / colEstimadasCoste) -->
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="140" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Estimadas"
+                                   VerticalAlignment="Center"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Column="1" Text="{x:Bind ViewModel.ColumnasEstimadas, Mode=OneWay}"
+                                   TextAlignment="Right"
+                                   Style="{StaticResource CardTitleTextBlockStyle}" />
+                        <TextBlock Grid.Column="2" Text="{x:Bind ViewModel.CosteEstimadas, Mode=OneWay}"
+                                   TextAlignment="Right"
+                                   Style="{StaticResource CardTitleTextBlockStyle}" />
+                    </Grid>
+
+                    <!-- Máximo (label1 / lblColsMaximo / colMaximoCoste) -->
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="140" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Máximo"
+                                   VerticalAlignment="Center"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Column="1" Text="{x:Bind ViewModel.ColumnasMaximas, Mode=OneWay}"
+                                   TextAlignment="Right"
+                                   Style="{StaticResource CardTitleTextBlockStyle}" />
+                        <TextBlock Grid.Column="2" Text="{x:Bind ViewModel.CosteMaximas, Mode=OneWay}"
+                                   TextAlignment="Right"
+                                   Style="{StaticResource CardTitleTextBlockStyle}" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Tiempos (label / label2 / lblSeg) ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Tiempos"
+                               Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                    <Grid ColumnSpacing="16" RowSpacing="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="140" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Comienzo"
+                                   VerticalAlignment="Center"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{x:Bind ViewModel.HoraComienzo, Mode=OneWay}"
+                                   Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Final"
+                                   VerticalAlignment="Center"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{x:Bind ViewModel.HoraFinal, Mode=OneWay}"
+                                   Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Tiempo total"
+                                   VerticalAlignment="Center"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{x:Bind ViewModel.TiempoTotal, Mode=OneWay}"
+                                   Style="{StaticResource CardTitleTextBlockStyle}" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Progreso (progressBarArchivos / progressBar) ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Progreso"
+                               Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                    <TextBlock Text="Archivos"
+                               Style="{StaticResource SecondaryTextBlockStyle}" />
+                    <ProgressBar Value="{x:Bind ViewModel.ProgresoArchivos, Mode=OneWay}"
+                                 Maximum="100"
+                                 Visibility="{x:Bind ViewModel.ProgresoVisible, Mode=OneWay}"
+                                 AutomationProperties.Name="Progreso del lote de archivos" />
+
+                    <TextBlock Text="Columnas del archivo en curso"
+                               Style="{StaticResource SecondaryTextBlockStyle}" />
+                    <ProgressBar Value="{x:Bind ViewModel.ProgresoColumnas, Mode=OneWay}"
+                                 Maximum="100"
+                                 Visibility="{x:Bind ViewModel.ProgresoVisible, Mode=OneWay}"
+                                 AutomationProperties.Name="Progreso de columnas del archivo actual" />
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Acciones (btnCalcular / btnCancelar) ===== -->
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <Button Content="Calcular"
+                        Style="{StaticResource AccentButtonStyle}"
+                        IsEnabled="{x:Bind ViewModel.PuedeCalcular, Mode=OneWay}"
+                        Command="{x:Bind ViewModel.CalcularCommand}"
+                        AutomationProperties.Name="Calcular las combinaciones seleccionadas" />
+                <Button Content="Cancelar"
+                        Command="{x:Bind ViewModel.CancelarCommand}"
+                        AutomationProperties.Name="Cancelar el cálculo" />
+            </StackPanel>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

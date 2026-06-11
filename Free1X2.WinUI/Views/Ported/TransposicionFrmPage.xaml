@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.TransposicionFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Free1X2.WinUI.Views.Ported"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    Background="{ThemeResource AppBackgroundBrush}">
+
+    <ScrollViewer>
+        <Grid Padding="24" MaxWidth="760" HorizontalAlignment="Left">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!-- Encabezado -->
+            <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,20">
+                <TextBlock
+                    Text="Transposición de columnas"
+                    Style="{StaticResource PageTitleTextBlockStyle}" />
+                <TextBlock
+                    Text="Reordena los 14 signos de cada columna del archivo de entrada. Para cada posición de salida indica de qué posición de la entrada (1 a 14) se toma el signo. Cada valor 1-14 debe usarse exactamente una vez (es una permutación)."
+                    Style="{StaticResource SecondaryTextBlockStyle}" />
+            </StackPanel>
+
+            <!-- Tarjeta: archivos -->
+            <Border Grid.Row="1" Style="{StaticResource AppCardStyle}" Margin="0,0,0,16">
+                <StackPanel Spacing="16">
+                    <TextBlock
+                        Text="Archivos"
+                        Style="{StaticResource SectionHeaderTextBlockStyle}" />
+
+                    <!-- Entrada -->
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="140" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock
+                            Grid.Column="0"
+                            Text="Entrada"
+                            VerticalAlignment="Center"
+                            Style="{StaticResource BodyStrongTextBlockStyle}"
+                            Foreground="{ThemeResource AppTextBrush}" />
+                        <TextBlock
+                            Grid.Column="1"
+                            Text="{x:Bind ViewModel.NombreEntrada, Mode=OneWay}"
+                            VerticalAlignment="Center"
+                            TextTrimming="CharacterEllipsis"
+                            Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                        <Button
+                            Grid.Column="2"
+                            Content="Seleccionar…"
+                            Command="{x:Bind ViewModel.SeleccionarEntradaCommand}"
+                            AutomationProperties.Name="Seleccionar archivo de columnas de entrada" />
+                    </Grid>
+
+                    <!-- Salida -->
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="140" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock
+                            Grid.Column="0"
+                            Text="Salida"
+                            VerticalAlignment="Center"
+                            Style="{StaticResource BodyStrongTextBlockStyle}"
+                            Foreground="{ThemeResource AppTextBrush}" />
+                        <TextBlock
+                            Grid.Column="1"
+                            Text="{x:Bind ViewModel.NombreSalida, Mode=OneWay}"
+                            VerticalAlignment="Center"
+                            TextTrimming="CharacterEllipsis"
+                            Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                        <Button
+                            Grid.Column="2"
+                            Content="Seleccionar…"
+                            Command="{x:Bind ViewModel.SeleccionarSalidaCommand}"
+                            AutomationProperties.Name="Seleccionar archivo de columnas de salida" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Tarjeta: orden de transposición -->
+            <Border Grid.Row="2" Style="{StaticResource AppCardStyle}" Margin="0,0,0,16">
+                <StackPanel Spacing="12">
+                    <TextBlock
+                        Text="Orden de transposición"
+                        Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                    <TextBlock
+                        Text="Salida ← Entrada: el signo de cada posición de salida (1-14) se toma de la posición de la entrada indicada."
+                        Style="{StaticResource SecondaryTextBlockStyle}" />
+
+                    <!-- Las 14 posiciones de salida. Cada NumberBox = posición de entrada origen. -->
+                    <muxc:VariableSizedWrapGrid
+                        Orientation="Horizontal"
+                        MaximumRowsOrColumns="7"
+                        ItemWidth="92"
+                        ItemHeight="74">
+                        <NumberBox Header="Salida 1" SpinButtonPlacementMode="Hidden" SmallChange="1" Minimum="1" Maximum="14" Value="{x:Bind ViewModel.Pos1, Mode=TwoWay}" AutomationProperties.Name="Posición de entrada para la salida 1" />
+                        <NumberBox Header="Salida 2" SpinButtonPlacementMode="Hidden" SmallChange="1" Minimum="1" Maximum="14" Value="{x:Bind ViewModel.Pos2, Mode=TwoWay}" AutomationProperties.Name="Posición de entrada para la salida 2" />
+                        <NumberBox Header="Salida 3" SpinButtonPlacementMode="Hidden" SmallChange="1" Minimum="1" Maximum="14" Value="{x:Bind ViewModel.Pos3, Mode=TwoWay}" AutomationProperties.Name="Posición de entrada para la salida 3" />
+                        <NumberBox Header="Salida 4" SpinButtonPlacementMode="Hidden" SmallChange="1" Minimum="1" Maximum="14" Value="{x:Bind ViewModel.Pos4, Mode=TwoWay}" AutomationProperties.Name="Posición de entrada para la salida 4" />
+                        <NumberBox Header="Salida 5" SpinButtonPlacementMode="Hidden" SmallChange="1" Minimum="1" Maximum="14" Value="{x:Bind ViewModel.Pos5, Mode=TwoWay}" AutomationProperties.Name="Posición de entrada para la salida 5" />
+                        <NumberBox Header="Salida 6" SpinButtonPlacementMode="Hidden" SmallChange="1" Minimum="1" Maximum="14" Value="{x:Bind ViewModel.Pos6, Mode=TwoWay}" AutomationProperties.Name="Posición de entrada para la salida 6" />
+                        <NumberBox Header="Salida 7" SpinButtonPlacementMode="Hidden" SmallChange="1" Minimum="1" Maximum="14" Value="{x:Bind ViewModel.Pos7, Mode=TwoWay}" AutomationProperties.Name="Posición de entrada para la salida 7" />
+                        <NumberBox Header="Salida 8" SpinButtonPlacementMode="Hidden" SmallChange="1" Minimum="1" Maximum="14" Value="{x:Bind ViewModel.Pos8, Mode=TwoWay}" AutomationProperties.Name="Posición de entrada para la salida 8" />
+                        <NumberBox Header="Salida 9" SpinButtonPlacementMode="Hidden" SmallChange="1" Minimum="1" Maximum="14" Value="{x:Bind ViewModel.Pos9, Mode=TwoWay}" AutomationProperties.Name="Posición de entrada para la salida 9" />
+                        <NumberBox Header="Salida 10" SpinButtonPlacementMode="Hidden" SmallChange="1" Minimum="1" Maximum="14" Value="{x:Bind ViewModel.Pos10, Mode=TwoWay}" AutomationProperties.Name="Posición de entrada para la salida 10" />
+                        <NumberBox Header="Salida 11" SpinButtonPlacementMode="Hidden" SmallChange="1" Minimum="1" Maximum="14" Value="{x:Bind ViewModel.Pos11, Mode=TwoWay}" AutomationProperties.Name="Posición de entrada para la salida 11" />
+                        <NumberBox Header="Salida 12" SpinButtonPlacementMode="Hidden" SmallChange="1" Minimum="1" Maximum="14" Value="{x:Bind ViewModel.Pos12, Mode=TwoWay}" AutomationProperties.Name="Posición de entrada para la salida 12" />
+                        <NumberBox Header="Salida 13" SpinButtonPlacementMode="Hidden" SmallChange="1" Minimum="1" Maximum="14" Value="{x:Bind ViewModel.Pos13, Mode=TwoWay}" AutomationProperties.Name="Posición de entrada para la salida 13" />
+                        <NumberBox Header="Salida 14" SpinButtonPlacementMode="Hidden" SmallChange="1" Minimum="1" Maximum="14" Value="{x:Bind ViewModel.Pos14, Mode=TwoWay}" AutomationProperties.Name="Posición de entrada para la salida 14" />
+                    </muxc:VariableSizedWrapGrid>
+                </StackPanel>
+            </Border>
+
+            <!-- Tarjeta: estado -->
+            <Border Grid.Row="3" Style="{StaticResource AppCardStyle}" Margin="0,0,0,16">
+                <StackPanel Spacing="8">
+                    <TextBlock
+                        Text="Estado"
+                        Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                    <TextBlock
+                        Text="{x:Bind ViewModel.Estado, Mode=OneWay}"
+                        TextWrapping="Wrap"
+                        Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                </StackPanel>
+            </Border>
+
+            <!-- Acciones -->
+            <StackPanel
+                Grid.Row="4"
+                Orientation="Horizontal"
+                Spacing="12"
+                HorizontalAlignment="Right">
+                <Button
+                    Content="Cancelar"
+                    Command="{x:Bind ViewModel.CancelarCommand}"
+                    AutomationProperties.Name="Cancelar y cerrar" />
+                <Button
+                    Content="Transponer"
+                    Style="{StaticResource AccentButtonStyle}"
+                    IsEnabled="{x:Bind ViewModel.PuedeTransponer, Mode=OneWay}"
+                    Command="{x:Bind ViewModel.TransponerCommand}"
+                    AutomationProperties.Name="Ejecutar la transposición de columnas" />
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
+</Page>

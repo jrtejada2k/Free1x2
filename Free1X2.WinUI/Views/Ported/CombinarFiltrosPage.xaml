@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.CombinarFiltrosPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Free1X2.WinUI.Views.Ported"
+    Background="{ThemeResource AppBackgroundBrush}">
+
+    <ScrollViewer>
+        <Grid Padding="32" RowSpacing="16" ColumnSpacing="16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="320" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Encabezado -->
+            <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Spacing="4">
+                <TextBlock Text="Combinación de Filtros"
+                           Style="{StaticResource PageTitleTextBlockStyle}" />
+                <TextBlock Text="Combina varios archivos de columnas y cuenta en cuántos filtros aparece cada una."
+                           Style="{StaticResource SecondaryTextBlockStyle}" />
+            </StackPanel>
+
+            <!-- Tarjeta: lista de filtros (DataGrid legacy) -->
+            <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource AppCardStyle}">
+                <Grid RowSpacing="12">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Text="Filtros"
+                               Style="{StaticResource SectionHeaderTextBlockStyle}" />
+
+                    <!-- ckMD: Activa / Desactiva -->
+                    <ToggleSwitch Grid.Row="1"
+                                  Header="Activar / Desactivar todos"
+                                  IsOn="{x:Bind ViewModel.ActivarTodas, Mode=TwoWay}"
+                                  Toggled="ActivarTodas_Toggled" />
+
+                    <!-- DataGridView legacy -> ListView -->
+                    <ListView Grid.Row="2"
+                              MinHeight="280"
+                              ItemsSource="{x:Bind ViewModel.Filtros, Mode=OneWay}"
+                              SelectionMode="None"
+                              Background="{ThemeResource AppSurfaceAltBrush}"
+                              BorderBrush="{ThemeResource AppBorderBrush}"
+                              BorderThickness="1">
+                        <ListView.HeaderTemplate>
+                            <DataTemplate>
+                                <Grid Padding="12,8" ColumnSpacing="8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="40" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="70" />
+                                        <ColumnDefinition Width="60" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="N"
+                                               Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                                    <TextBlock Grid.Column="1" Text="Filtro"
+                                               Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                                    <TextBlock Grid.Column="2" Text="Activo"
+                                               Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                                    <TextBlock Grid.Column="3" Text="Cols."
+                                               Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.HeaderTemplate>
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="local:FiltroFilaViewModel">
+                                <Grid Padding="0,4" ColumnSpacing="8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="40" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="70" />
+                                        <ColumnDefinition Width="60" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0"
+                                               Text="{x:Bind NumeroTexto, Mode=OneWay}"
+                                               VerticalAlignment="Center" />
+                                    <TextBlock Grid.Column="1"
+                                               Text="{x:Bind Nombre, Mode=OneWay}"
+                                               TextTrimming="CharacterEllipsis"
+                                               VerticalAlignment="Center" />
+                                    <CheckBox Grid.Column="2"
+                                              IsChecked="{x:Bind Activo, Mode=TwoWay}"
+                                              VerticalAlignment="Center" />
+                                    <TextBlock Grid.Column="3"
+                                               Text="{x:Bind ColumnasTexto, Mode=OneWay}"
+                                               HorizontalTextAlignment="Right"
+                                               VerticalAlignment="Center" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+
+                    <!-- Botones de carga/gestión de la lista -->
+                    <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="8">
+                        <Button Content="Cargar Filtro"
+                                Command="{x:Bind ViewModel.CargarFiltroCommand}" />
+                        <Button Content="Cargar Lista"
+                                Command="{x:Bind ViewModel.CargarListaCommand}" />
+                        <Button Content="Salvar Lista"
+                                Command="{x:Bind ViewModel.SalvarListaCommand}" />
+                        <Button Content="Reiniciar Todo"
+                                Command="{x:Bind ViewModel.ReiniciarTodoCommand}" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Columna derecha: proceso + salida -->
+            <StackPanel Grid.Row="1" Grid.Column="1" Spacing="16">
+
+                <!-- Tarjeta: Proceso -->
+                <Border Style="{StaticResource AppCardStyle}">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="Proceso"
+                                   Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                        <TextBlock Text="Cualquier variación en la lista de filtros requiere repetir el proceso antes de sumar o grabar columnas."
+                                   Style="{StaticResource SecondaryTextBlockStyle}"
+                                   TextWrapping="Wrap" />
+                        <Button Content="Iniciar Proceso"
+                                Style="{StaticResource AccentButtonStyle}"
+                                HorizontalAlignment="Stretch"
+                                Command="{x:Bind ViewModel.IniciarCommand}" />
+                        <Button Content="Cancelar"
+                                HorizontalAlignment="Stretch"
+                                Command="{x:Bind ViewModel.CancelarCommand}" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Tarjeta: Salida (groupBox2 "Salida" legacy) -->
+                <Border Style="{StaticResource AppCardStyle}">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="Salida"
+                                   Style="{StaticResource SectionHeaderTextBlockStyle}" />
+
+                        <!-- tbmin / tbmax: rango de "Filtros Acertados" -->
+                        <TextBlock Text="Filtros acertados"
+                                   Style="{StaticResource CardTitleTextBlockStyle}" />
+                        <Grid ColumnSpacing="8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <NumberBox Grid.Column="0"
+                                       Header="Mínimo"
+                                       Minimum="1"
+                                       SpinButtonPlacementMode="Compact"
+                                       Value="{x:Bind ViewModel.Minimo, Mode=TwoWay}" />
+                            <NumberBox Grid.Column="1"
+                                       Header="Máximo"
+                                       Minimum="1"
+                                       SpinButtonPlacementMode="Compact"
+                                       Value="{x:Bind ViewModel.Maximo, Mode=TwoWay}" />
+                        </Grid>
+
+                        <Button Content="Sumar cols."
+                                HorizontalAlignment="Stretch"
+                                Command="{x:Bind ViewModel.SumarColumnasCommand}" />
+                        <Button Content="Grabar cols."
+                                HorizontalAlignment="Stretch"
+                                Command="{x:Bind ViewModel.GrabarColumnasCommand}" />
+
+                        <!-- lCols: total de columnas -->
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Total columnas"
+                                       Style="{StaticResource SecondaryTextBlockStyle}" />
+                            <TextBlock Text="{x:Bind ViewModel.TotalColumnasTexto, Mode=OneWay}"
+                                       Style="{StaticResource BodyStrongTextBlockStyle}" />
+                        </StackPanel>
+
+                        <!-- lfilout: archivo de salida -->
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Archivo de salida"
+                                       Style="{StaticResource SecondaryTextBlockStyle}" />
+                            <TextBlock Text="{x:Bind ViewModel.ArchivoSalida, Mode=OneWay}"
+                                       TextTrimming="CharacterEllipsis" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
+</Page>

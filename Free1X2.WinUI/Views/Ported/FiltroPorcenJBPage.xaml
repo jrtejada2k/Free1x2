@@ -1,0 +1,310 @@
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.FiltroPorcenJBPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Background="{StaticResource AppBackgroundBrush}">
+
+    <ScrollViewer Padding="24">
+        <StackPanel Spacing="16" MaxWidth="900">
+
+            <!-- Encabezado -->
+            <StackPanel Spacing="4">
+                <TextBlock
+                    Style="{StaticResource PageTitleTextBlockStyle}"
+                    Text="Separador Porcentajes Juan Bellas" />
+                <TextBlock
+                    Style="{StaticResource SecondaryTextBlockStyle}"
+                    Text="Clasifica los porcentajes de los 14 partidos en 7 bandas y filtra columnas segun rangos por banda." />
+            </StackPanel>
+
+            <!-- Limites de banda -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="12">
+                    <TextBlock
+                        Style="{StaticResource CardTitleTextBlockStyle}"
+                        Text="Limites de banda (&lt;=)" />
+                    <TextBlock
+                        Style="{StaticResource SecondaryTextBlockStyle}"
+                        Text="Umbrales crecientes que definen las 7 bandas de porcentaje." />
+                    <Grid ColumnSpacing="12" RowSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <NumberBox
+                            Grid.Row="0" Grid.Column="0"
+                            Header="Limite 1"
+                            SpinButtonPlacementMode="Compact"
+                            Value="{x:Bind ViewModel.Limite1, Mode=TwoWay}" />
+                        <NumberBox
+                            Grid.Row="0" Grid.Column="1"
+                            Header="Limite 2"
+                            SpinButtonPlacementMode="Compact"
+                            Value="{x:Bind ViewModel.Limite2, Mode=TwoWay}" />
+                        <NumberBox
+                            Grid.Row="0" Grid.Column="2"
+                            Header="Limite 3"
+                            SpinButtonPlacementMode="Compact"
+                            Value="{x:Bind ViewModel.Limite3, Mode=TwoWay}" />
+                        <NumberBox
+                            Grid.Row="1" Grid.Column="0"
+                            Header="Limite 4"
+                            SpinButtonPlacementMode="Compact"
+                            Value="{x:Bind ViewModel.Limite4, Mode=TwoWay}" />
+                        <NumberBox
+                            Grid.Row="1" Grid.Column="1"
+                            Header="Limite 5"
+                            SpinButtonPlacementMode="Compact"
+                            Value="{x:Bind ViewModel.Limite5, Mode=TwoWay}" />
+                        <NumberBox
+                            Grid.Row="1" Grid.Column="2"
+                            Header="Limite 6"
+                            SpinButtonPlacementMode="Compact"
+                            Value="{x:Bind ViewModel.Limite6, Mode=TwoWay}" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Rangos por banda -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="12">
+                    <TextBlock
+                        Style="{StaticResource CardTitleTextBlockStyle}"
+                        Text="Rangos por banda (min-max)" />
+                    <TextBlock
+                        Style="{StaticResource SecondaryTextBlockStyle}"
+                        Text="Aciertos permitidos por banda. Formato 'min-max', p. ej. 0-3." />
+                    <Grid ColumnSpacing="12" RowSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <TextBox
+                            Grid.Row="0" Grid.Column="0"
+                            Header="Banda 1"
+                            Text="{x:Bind ViewModel.Rango1, Mode=TwoWay}" />
+                        <TextBox
+                            Grid.Row="0" Grid.Column="1"
+                            Header="Banda 2"
+                            Text="{x:Bind ViewModel.Rango2, Mode=TwoWay}" />
+                        <TextBox
+                            Grid.Row="0" Grid.Column="2"
+                            Header="Banda 3"
+                            Text="{x:Bind ViewModel.Rango3, Mode=TwoWay}" />
+                        <TextBox
+                            Grid.Row="0" Grid.Column="3"
+                            Header="Banda 4"
+                            Text="{x:Bind ViewModel.Rango4, Mode=TwoWay}" />
+                        <TextBox
+                            Grid.Row="1" Grid.Column="0"
+                            Header="Banda 5"
+                            Text="{x:Bind ViewModel.Rango5, Mode=TwoWay}" />
+                        <TextBox
+                            Grid.Row="1" Grid.Column="1"
+                            Header="Banda 6"
+                            Text="{x:Bind ViewModel.Rango6, Mode=TwoWay}" />
+                        <TextBox
+                            Grid.Row="1" Grid.Column="2"
+                            Header="Banda 7"
+                            Text="{x:Bind ViewModel.Rango7, Mode=TwoWay}" />
+                        <TextBox
+                            Grid.Row="1" Grid.Column="3"
+                            Header="Recorrido"
+                            Text="{x:Bind ViewModel.Recorrido, Mode=TwoWay}" />
+                    </Grid>
+
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Button
+                            Content="Salvar Rangos"
+                            Command="{x:Bind ViewModel.SalvarRangosCommand}" />
+                        <Button
+                            Content="Leer Rangos"
+                            Command="{x:Bind ViewModel.LeerRangosCommand}" />
+                        <TextBlock
+                            VerticalAlignment="Center"
+                            Style="{StaticResource SecondaryTextBlockStyle}"
+                            Text="{x:Bind ViewModel.FicheroRangos, Mode=OneWay}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Calculo de columnas admitidas -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="12">
+                    <TextBlock
+                        Style="{StaticResource CardTitleTextBlockStyle}"
+                        Text="Filtrado de columnas" />
+                    <TextBlock
+                        Style="{StaticResource SecondaryTextBlockStyle}"
+                        Text="Carga un fichero de columnas de entrada, aplica los rangos y obtiene las admitidas." />
+
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Button
+                            Content="Calcular"
+                            Style="{StaticResource AccentButtonStyle}"
+                            Command="{x:Bind ViewModel.CalcularCommand}" />
+                        <Button
+                            Content="Grabar Resultado"
+                            Command="{x:Bind ViewModel.GrabarResultadoCommand}" />
+                        <Button
+                            Content="Exportar"
+                            Command="{x:Bind ViewModel.ExportarCommand}" />
+                        <Button
+                            Content="Cancelar"
+                            Command="{x:Bind ViewModel.CancelarCommand}" />
+                    </StackPanel>
+
+                    <Grid ColumnSpacing="16" RowSpacing="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Procesadas:" />
+                        <TextBlock
+                            Grid.Row="0" Grid.Column="1"
+                            Style="{StaticResource SecondaryTextBlockStyle}"
+                            Text="{x:Bind ViewModel.ColumnasProcesadas, Mode=OneWay}" />
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Admitidas:" />
+                        <TextBlock
+                            Grid.Row="1" Grid.Column="1"
+                            Style="{StaticResource SecondaryTextBlockStyle}"
+                            Text="{x:Bind ViewModel.ColumnasAdmitidas, Mode=OneWay}" />
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Tiempo:" />
+                        <TextBlock
+                            Grid.Row="2" Grid.Column="1"
+                            Style="{StaticResource SecondaryTextBlockStyle}"
+                            Text="{x:Bind ViewModel.Tiempo, Mode=OneWay}" />
+
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Fichero:" />
+                        <TextBlock
+                            Grid.Row="3" Grid.Column="1"
+                            Style="{StaticResource SecondaryTextBlockStyle}"
+                            Text="{x:Bind ViewModel.FicheroResultado, Mode=OneWay}" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Analisis de resultados -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="12">
+                    <TextBlock
+                        Style="{StaticResource CardTitleTextBlockStyle}"
+                        Text="Analisis resultados" />
+                    <TextBlock
+                        Style="{StaticResource SecondaryTextBlockStyle}"
+                        Text="Carga columnas ganadoras y analiza la columna seleccionada banda a banda." />
+
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Button
+                            Content="Cargar Ganadoras"
+                            Command="{x:Bind ViewModel.CargarGanadorasCommand}" />
+                        <Button
+                            Content="Anterior"
+                            Command="{x:Bind ViewModel.GanadoraAnteriorCommand}" />
+                        <Button
+                            Content="Siguiente"
+                            Command="{x:Bind ViewModel.GanadoraSiguienteCommand}" />
+                        <TextBlock
+                            VerticalAlignment="Center"
+                            Style="{StaticResource SecondaryTextBlockStyle}"
+                            Text="{x:Bind ViewModel.ContadorGanadoras, Mode=OneWay}" />
+                    </StackPanel>
+
+                    <TextBlock
+                        Style="{StaticResource SecondaryTextBlockStyle}"
+                        Text="{x:Bind ViewModel.FicheroGanadoras, Mode=OneWay}" />
+
+                    <TextBox
+                        Header="Columna ganadora"
+                        Text="{x:Bind ViewModel.ColumnaGanadora, Mode=TwoWay}" />
+
+                    <Button
+                        Content="Analizar"
+                        Command="{x:Bind ViewModel.AnalizarCommand}" />
+
+                    <Grid ColumnSpacing="12" RowSpacing="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Banda 1" />
+                        <TextBlock
+                            Grid.Row="0" Grid.Column="1"
+                            Style="{StaticResource SecondaryTextBlockStyle}"
+                            Text="{x:Bind ViewModel.AnalisisBanda1, Mode=OneWay}" />
+                        <TextBlock Grid.Row="0" Grid.Column="2" Text="Banda 2" />
+                        <TextBlock
+                            Grid.Row="0" Grid.Column="3"
+                            Style="{StaticResource SecondaryTextBlockStyle}"
+                            Text="{x:Bind ViewModel.AnalisisBanda2, Mode=OneWay}" />
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Banda 3" />
+                        <TextBlock
+                            Grid.Row="1" Grid.Column="1"
+                            Style="{StaticResource SecondaryTextBlockStyle}"
+                            Text="{x:Bind ViewModel.AnalisisBanda3, Mode=OneWay}" />
+                        <TextBlock Grid.Row="1" Grid.Column="2" Text="Banda 4" />
+                        <TextBlock
+                            Grid.Row="1" Grid.Column="3"
+                            Style="{StaticResource SecondaryTextBlockStyle}"
+                            Text="{x:Bind ViewModel.AnalisisBanda4, Mode=OneWay}" />
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Banda 5" />
+                        <TextBlock
+                            Grid.Row="2" Grid.Column="1"
+                            Style="{StaticResource SecondaryTextBlockStyle}"
+                            Text="{x:Bind ViewModel.AnalisisBanda5, Mode=OneWay}" />
+                        <TextBlock Grid.Row="2" Grid.Column="2" Text="Banda 6" />
+                        <TextBlock
+                            Grid.Row="2" Grid.Column="3"
+                            Style="{StaticResource SecondaryTextBlockStyle}"
+                            Text="{x:Bind ViewModel.AnalisisBanda6, Mode=OneWay}" />
+
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Banda 7" />
+                        <TextBlock
+                            Grid.Row="3" Grid.Column="1"
+                            Style="{StaticResource SecondaryTextBlockStyle}"
+                            Text="{x:Bind ViewModel.AnalisisBanda7, Mode=OneWay}" />
+                        <TextBlock Grid.Row="3" Grid.Column="2" Text="Recorrido" />
+                        <TextBlock
+                            Grid.Row="3" Grid.Column="3"
+                            Style="{StaticResource SecondaryTextBlockStyle}"
+                            Text="{x:Bind ViewModel.AnalisisRecorrido, Mode=OneWay}" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

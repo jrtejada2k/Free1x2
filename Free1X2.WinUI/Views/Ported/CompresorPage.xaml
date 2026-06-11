@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.CompresorPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Free1X2.WinUI.Views.Ported"
+    Background="{ThemeResource AppBackgroundBrush}">
+
+    <ScrollViewer>
+        <Grid Padding="24" MaxWidth="640" HorizontalAlignment="Left">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!-- Encabezado -->
+            <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,20">
+                <TextBlock
+                    Text="Compresor *.z3q"
+                    Style="{StaticResource PageTitleTextBlockStyle}" />
+                <TextBlock
+                    Text="Comprime archivos de columnas (*.txt) al formato propio *.z3q y descomprímelos de vuelta a texto."
+                    Style="{StaticResource SecondaryTextBlockStyle}" />
+            </StackPanel>
+
+            <!-- Tarjeta: Comprimir -->
+            <Border Grid.Row="1" Style="{StaticResource AppCardStyle}" Margin="0,0,0,16">
+                <StackPanel Spacing="16">
+                    <TextBlock
+                        Text="Comprimir"
+                        Style="{StaticResource SectionHeaderTextBlockStyle}" />
+
+                    <!-- Selección de archivo de columnas -->
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock
+                            Grid.Column="0"
+                            Text="{x:Bind ViewModel.NombreArchivoTexto, Mode=OneWay}"
+                            VerticalAlignment="Center"
+                            TextTrimming="CharacterEllipsis"
+                            Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                        <Button
+                            Grid.Column="1"
+                            Content="Archivo…"
+                            Command="{x:Bind ViewModel.ComprimirArchivoCommand}"
+                            AutomationProperties.Name="Seleccionar archivo de columnas (*.txt) para comprimir" />
+                    </Grid>
+
+                    <!-- Nivel de compresión -->
+                    <ComboBox
+                        Header="Nivel de compresión"
+                        Width="120"
+                        HorizontalAlignment="Left"
+                        ItemsSource="{x:Bind ViewModel.NivelesCompresion}"
+                        SelectedIndex="{x:Bind ViewModel.NivelSeleccionado, Mode=TwoWay}"
+                        AutomationProperties.Name="Nivel de compresión (0 a 9)" />
+                </StackPanel>
+            </Border>
+
+            <!-- Tarjeta: Descomprimir -->
+            <Border Grid.Row="2" Style="{StaticResource AppCardStyle}" Margin="0,0,0,16">
+                <StackPanel Spacing="16">
+                    <TextBlock
+                        Text="Descomprimir"
+                        Style="{StaticResource SectionHeaderTextBlockStyle}" />
+
+                    <!-- Selección de archivo comprimido -->
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock
+                            Grid.Column="0"
+                            Text="{x:Bind ViewModel.NombreArchivoComprimido, Mode=OneWay}"
+                            VerticalAlignment="Center"
+                            TextTrimming="CharacterEllipsis"
+                            Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                        <Button
+                            Grid.Column="1"
+                            Content="Archivo…"
+                            Command="{x:Bind ViewModel.DescomprimirArchivoCommand}"
+                            AutomationProperties.Name="Seleccionar archivo comprimido (*.z3q) para descomprimir" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Tarjeta: Estado -->
+            <Border Grid.Row="3" Style="{StaticResource AppCardStyle}" Margin="0,0,0,16">
+                <StackPanel Spacing="8">
+                    <TextBlock
+                        Text="Estado"
+                        Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                    <TextBlock
+                        Text="{x:Bind ViewModel.Estado, Mode=OneWay}"
+                        TextWrapping="Wrap"
+                        Foreground="{ThemeResource AppAccentBrush}" />
+                </StackPanel>
+            </Border>
+
+            <!-- Acciones -->
+            <StackPanel
+                Grid.Row="4"
+                Orientation="Horizontal"
+                Spacing="12"
+                HorizontalAlignment="Right">
+                <Button
+                    Content="Cerrar"
+                    Command="{x:Bind ViewModel.CerrarCommand}"
+                    AutomationProperties.Name="Cerrar la pantalla" />
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
+</Page>

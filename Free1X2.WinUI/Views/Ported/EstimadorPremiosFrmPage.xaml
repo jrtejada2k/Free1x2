@@ -1,0 +1,396 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.EstimadorPremiosFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Free1X2.WinUI.Views.Ported"
+    Background="{ThemeResource AppBackgroundBrush}">
+
+    <ScrollViewer>
+        <StackPanel Padding="24" Spacing="20" MaxWidth="1000" HorizontalAlignment="Left">
+
+            <!-- Encabezado -->
+            <StackPanel Spacing="4">
+                <TextBlock
+                    Text="Estimación de premios"
+                    Style="{StaticResource PageTitleTextBlockStyle}" />
+                <TextBlock
+                    Text="Estima los acertantes y premios por categoría a partir de la recaudación, el bote y el reparto de porcentajes de la jornada."
+                    Style="{StaticResource SecondaryTextBlockStyle}" />
+            </StackPanel>
+
+            <!-- Jornada -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Jornada" Style="{StaticResource SectionHeaderTextBlockStyle}" />
+
+                    <Grid ColumnSpacing="16" RowSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock
+                            Grid.Row="0" Grid.Column="0"
+                            Text="Temporada"
+                            VerticalAlignment="Center"
+                            Style="{StaticResource BodyStrongTextBlockStyle}"
+                            Foreground="{ThemeResource AppTextBrush}" />
+                        <TextBox
+                            Grid.Row="0" Grid.Column="1"
+                            Width="160"
+                            HorizontalAlignment="Left"
+                            Text="{x:Bind ViewModel.Temporada, Mode=TwoWay}"
+                            AutomationProperties.Name="Temporada" />
+
+                        <TextBlock
+                            Grid.Row="1" Grid.Column="0"
+                            Text="Jornada"
+                            VerticalAlignment="Center"
+                            Style="{StaticResource BodyStrongTextBlockStyle}"
+                            Foreground="{ThemeResource AppTextBrush}" />
+                        <StackPanel
+                            Grid.Row="1" Grid.Column="1"
+                            Orientation="Horizontal"
+                            Spacing="8">
+                            <NumberBox
+                                Width="120"
+                                SpinButtonPlacementMode="Compact"
+                                SmallChange="1"
+                                Minimum="0"
+                                Value="{x:Bind ViewModel.Jornada, Mode=TwoWay}"
+                                AutomationProperties.Name="Número de jornada" />
+                            <Button
+                                Content="&#xE76B;"
+                                FontFamily="Segoe MDL2 Assets"
+                                Command="{x:Bind ViewModel.JornadaAnteriorCommand}"
+                                AutomationProperties.Name="Jornada anterior" />
+                            <Button
+                                Content="&#xE76C;"
+                                FontFamily="Segoe MDL2 Assets"
+                                Command="{x:Bind ViewModel.JornadaPosteriorCommand}"
+                                AutomationProperties.Name="Jornada posterior" />
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Parámetros económicos y reparto -->
+            <Grid ColumnSpacing="20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Datos económicos -->
+                <Border Grid.Column="0" Style="{StaticResource AppCardStyle}" VerticalAlignment="Top">
+                    <StackPanel Spacing="16">
+                        <TextBlock Text="Datos económicos" Style="{StaticResource SectionHeaderTextBlockStyle}" />
+
+                        <Grid ColumnSpacing="16" RowSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <TextBlock
+                                Grid.Row="0" Grid.Column="0"
+                                Text="Recaudación"
+                                VerticalAlignment="Center"
+                                Style="{StaticResource BodyStrongTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextBrush}" />
+                            <NumberBox
+                                Grid.Row="0" Grid.Column="1"
+                                Width="160"
+                                SpinButtonPlacementMode="Hidden"
+                                Minimum="0"
+                                Value="{x:Bind ViewModel.Recaudacion, Mode=TwoWay}"
+                                AutomationProperties.Name="Recaudación total" />
+
+                            <TextBlock
+                                Grid.Row="1" Grid.Column="0"
+                                Text="Bote"
+                                VerticalAlignment="Center"
+                                Style="{StaticResource BodyStrongTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextBrush}" />
+                            <NumberBox
+                                Grid.Row="1" Grid.Column="1"
+                                Width="160"
+                                SpinButtonPlacementMode="Hidden"
+                                Minimum="0"
+                                Value="{x:Bind ViewModel.Bote, Mode=TwoWay}"
+                                AutomationProperties.Name="Bote acumulado" />
+
+                            <TextBlock
+                                Grid.Row="2" Grid.Column="0"
+                                Text="Precio apuesta"
+                                VerticalAlignment="Center"
+                                Style="{StaticResource BodyStrongTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextBrush}" />
+                            <NumberBox
+                                Grid.Row="2" Grid.Column="1"
+                                Width="160"
+                                SpinButtonPlacementMode="Compact"
+                                SmallChange="0.1"
+                                Minimum="0"
+                                Value="{x:Bind ViewModel.PrecioApuesta, Mode=TwoWay}"
+                                AutomationProperties.Name="Precio por apuesta" />
+
+                            <TextBlock
+                                Grid.Row="3" Grid.Column="0"
+                                Text="Nº columnas"
+                                VerticalAlignment="Center"
+                                Style="{StaticResource BodyStrongTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextBrush}" />
+                            <TextBlock
+                                Grid.Row="3" Grid.Column="1"
+                                MinWidth="160"
+                                TextAlignment="Right"
+                                VerticalAlignment="Center"
+                                Text="{x:Bind ViewModel.NumApuestasTexto, Mode=OneWay}"
+                                Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Reparto de premios -->
+                <Border Grid.Column="1" Style="{StaticResource AppCardStyle}" VerticalAlignment="Top">
+                    <StackPanel Spacing="16">
+                        <TextBlock Text="Reparto de premios (%)" Style="{StaticResource SectionHeaderTextBlockStyle}" />
+
+                        <Grid ColumnSpacing="16" RowSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <TextBlock
+                                Grid.Row="0" Grid.Column="0"
+                                Text="Destinado a premios"
+                                VerticalAlignment="Center"
+                                Style="{StaticResource BodyStrongTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextBrush}" />
+                            <NumberBox
+                                Grid.Row="0" Grid.Column="1"
+                                Width="100"
+                                SpinButtonPlacementMode="Compact"
+                                SmallChange="1"
+                                Minimum="0" Maximum="100"
+                                Value="{x:Bind ViewModel.PorcentajeDestinadoAPremios, Mode=TwoWay}"
+                                AutomationProperties.Name="Porcentaje destinado a premios" />
+
+                            <TextBlock
+                                Grid.Row="1" Grid.Column="0"
+                                Text="Para 14 aciertos"
+                                VerticalAlignment="Center"
+                                Style="{StaticResource BodyStrongTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextBrush}" />
+                            <NumberBox
+                                Grid.Row="1" Grid.Column="1"
+                                Width="100"
+                                SpinButtonPlacementMode="Compact"
+                                SmallChange="1"
+                                Minimum="0" Maximum="100"
+                                Value="{x:Bind ViewModel.PorcentajePara14, Mode=TwoWay}"
+                                AutomationProperties.Name="Porcentaje para 14 aciertos" />
+
+                            <TextBlock
+                                Grid.Row="2" Grid.Column="0"
+                                Text="Para 13 aciertos"
+                                VerticalAlignment="Center"
+                                Style="{StaticResource BodyStrongTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextBrush}" />
+                            <NumberBox
+                                Grid.Row="2" Grid.Column="1"
+                                Width="100"
+                                SpinButtonPlacementMode="Compact"
+                                SmallChange="1"
+                                Minimum="0" Maximum="100"
+                                Value="{x:Bind ViewModel.PorcentajePara13, Mode=TwoWay}"
+                                AutomationProperties.Name="Porcentaje para 13 aciertos" />
+
+                            <TextBlock
+                                Grid.Row="3" Grid.Column="0"
+                                Text="Para 12 aciertos"
+                                VerticalAlignment="Center"
+                                Style="{StaticResource BodyStrongTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextBrush}" />
+                            <NumberBox
+                                Grid.Row="3" Grid.Column="1"
+                                Width="100"
+                                SpinButtonPlacementMode="Compact"
+                                SmallChange="1"
+                                Minimum="0" Maximum="100"
+                                Value="{x:Bind ViewModel.PorcentajePara12, Mode=TwoWay}"
+                                AutomationProperties.Name="Porcentaje para 12 aciertos" />
+
+                            <TextBlock
+                                Grid.Row="4" Grid.Column="0"
+                                Text="Para 11 aciertos"
+                                VerticalAlignment="Center"
+                                Style="{StaticResource BodyStrongTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextBrush}" />
+                            <NumberBox
+                                Grid.Row="4" Grid.Column="1"
+                                Width="100"
+                                SpinButtonPlacementMode="Compact"
+                                SmallChange="1"
+                                Minimum="0" Maximum="100"
+                                Value="{x:Bind ViewModel.PorcentajePara11, Mode=TwoWay}"
+                                AutomationProperties.Name="Porcentaje para 11 aciertos" />
+
+                            <TextBlock
+                                Grid.Row="5" Grid.Column="0"
+                                Text="Para 10 aciertos"
+                                VerticalAlignment="Center"
+                                Style="{StaticResource BodyStrongTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextBrush}" />
+                            <NumberBox
+                                Grid.Row="5" Grid.Column="1"
+                                Width="100"
+                                SpinButtonPlacementMode="Compact"
+                                SmallChange="1"
+                                Minimum="0" Maximum="100"
+                                Value="{x:Bind ViewModel.PorcentajePara10, Mode=TwoWay}"
+                                AutomationProperties.Name="Porcentaje para 10 aciertos" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- Calcular -->
+            <Button
+                Content="Calcular"
+                Style="{StaticResource AccentButtonStyle}"
+                HorizontalAlignment="Left"
+                Command="{x:Bind ViewModel.CalcularCommand}"
+                AutomationProperties.Name="Calcular previsión de premios" />
+
+            <!-- Previsión de premios -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Previsión de premios" Style="{StaticResource SectionHeaderTextBlockStyle}" />
+
+                    <!-- Cabecera de columnas -->
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="120" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Categoría" Style="{StaticResource CardTitleTextBlockStyle}" />
+                        <TextBlock Grid.Column="1" Text="Acertantes" Style="{StaticResource CardTitleTextBlockStyle}" />
+                        <TextBlock Grid.Column="2" Text="Premio" Style="{StaticResource CardTitleTextBlockStyle}" />
+                    </Grid>
+
+                    <ListView
+                        ItemsSource="{x:Bind ViewModel.Prevision, Mode=OneWay}"
+                        SelectionMode="None"
+                        IsItemClickEnabled="False">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="local:PrevisionPremioItem">
+                                <Grid ColumnSpacing="12" Padding="0,4">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="120" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{x:Bind Categoria}" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Column="1" Text="{x:Bind AcertantesTexto, Mode=OneWay}" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Column="2" Text="{x:Bind PremioTexto, Mode=OneWay}" VerticalAlignment="Center" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+
+                    <Button
+                        Content="Copiar previsión al escrutinio real"
+                        HorizontalAlignment="Left"
+                        Command="{x:Bind ViewModel.CopiarPrevisionCommand}"
+                        AutomationProperties.Name="Copiar previsión al escrutinio real" />
+                </StackPanel>
+            </Border>
+
+            <!-- Escrutinio real -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Escrutinio real" Style="{StaticResource SectionHeaderTextBlockStyle}" />
+
+                    <HyperlinkButton
+                        Content="Resultados escrutinio oficial"
+                        Padding="0"
+                        Command="{x:Bind ViewModel.AbrirEscrutinioOficialCommand}"
+                        AutomationProperties.Name="Abrir resultados del escrutinio oficial" />
+
+                    <!-- Cabecera de columnas -->
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="120" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Categoría" Style="{StaticResource CardTitleTextBlockStyle}" />
+                        <TextBlock Grid.Column="1" Text="Acertantes" Style="{StaticResource CardTitleTextBlockStyle}" />
+                        <TextBlock Grid.Column="2" Text="Premio" Style="{StaticResource CardTitleTextBlockStyle}" />
+                    </Grid>
+
+                    <ListView
+                        ItemsSource="{x:Bind ViewModel.EscrutinioReal, Mode=OneWay}"
+                        SelectionMode="None"
+                        IsItemClickEnabled="False">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="local:EscrutinioRealItem">
+                                <Grid ColumnSpacing="12" Padding="0,4">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="120" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{x:Bind Categoria}" VerticalAlignment="Center" />
+                                    <NumberBox
+                                        Grid.Column="1"
+                                        SpinButtonPlacementMode="Hidden"
+                                        Minimum="0"
+                                        Value="{x:Bind Acertantes, Mode=TwoWay}"
+                                        AutomationProperties.Name="Acertantes reales" />
+                                    <NumberBox
+                                        Grid.Column="2"
+                                        SpinButtonPlacementMode="Hidden"
+                                        Minimum="0"
+                                        Value="{x:Bind Premio, Mode=TwoWay}"
+                                        AutomationProperties.Name="Premio real" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+
+                    <Button
+                        Content="Guardar escrutinio"
+                        Style="{StaticResource AccentButtonStyle}"
+                        HorizontalAlignment="Left"
+                        Command="{x:Bind ViewModel.GuardarEscrutinioCommand}"
+                        AutomationProperties.Name="Guardar escrutinio real" />
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

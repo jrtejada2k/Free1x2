@@ -1,0 +1,52 @@
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.CrearGruposFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Background="{ThemeResource AppBackgroundBrush}">
+
+    <Grid Padding="24" RowSpacing="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Encabezado: título real del form legacy -->
+        <TextBlock
+            Grid.Row="0"
+            Style="{StaticResource PageTitleTextBlockStyle}"
+            Text="Crear nuevos grupos" />
+
+        <!-- Sección de entrada -->
+        <Border Grid.Row="1" Style="{StaticResource AppCardStyle}">
+            <StackPanel Spacing="16">
+                <TextBlock
+                    Style="{StaticResource SectionHeaderTextBlockStyle}"
+                    Text="¿Cuántos grupos nuevos?" />
+
+                <!-- Legacy: NumericUpDown udNumGrupos -->
+                <NumberBox
+                    Header="Número de grupos"
+                    Minimum="0"
+                    Maximum="9999"
+                    SmallChange="1"
+                    LargeChange="10"
+                    SpinButtonPlacementMode="Inline"
+                    Value="{x:Bind ViewModel.NumGrupos, Mode=TwoWay}" />
+
+                <StackPanel
+                    Orientation="Horizontal"
+                    Spacing="12">
+                    <!-- Legacy: btnCrear (habilitado sólo si valor > 0) -->
+                    <Button
+                        Style="{StaticResource AccentButtonStyle}"
+                        Content="Crear"
+                        Command="{x:Bind ViewModel.CrearCommand}" />
+                    <!-- Legacy: btnCancelar -->
+                    <Button
+                        Content="Cancelar"
+                        Command="{x:Bind ViewModel.CancelarCommand}" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Page>

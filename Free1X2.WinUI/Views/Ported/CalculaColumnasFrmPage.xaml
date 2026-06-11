@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.CalculaColumnasFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Background="{ThemeResource AppBackgroundBrush}">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Encabezado -->
+        <StackPanel Grid.Row="0" Padding="32,32,32,8" Spacing="4">
+            <TextBlock Text="Calcular columnas" Style="{StaticResource PageTitleTextBlockStyle}" />
+            <TextBlock Text="Genera y cuenta las columnas de la combinación actual, opcionalmente analizándolas o grabándolas a un archivo."
+                       Style="{StaticResource SecondaryTextBlockStyle}" TextWrapping="Wrap" />
+        </StackPanel>
+
+        <!-- Contenido desplazable -->
+        <ScrollViewer Grid.Row="1" Padding="32,8,32,8" VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="16" MaxWidth="760" HorizontalAlignment="Left">
+
+                <!-- Tarjeta: modo de cálculo (groupBox1 del form legacy) -->
+                <Border Style="{StaticResource AppCardStyle}">
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="Modo de cálculo" Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                        <RadioButton Content="Calcular"
+                                     GroupName="ModoCalculo"
+                                     IsChecked="{x:Bind ViewModel.ModoCalcular, Mode=TwoWay}"
+                                     AutomationProperties.Name="Modo: sólo calcular columnas" />
+
+                        <RadioButton Content="Calcular y analizar"
+                                     GroupName="ModoCalculo"
+                                     IsChecked="{x:Bind ViewModel.ModoAnalizar, Mode=TwoWay}"
+                                     AutomationProperties.Name="Modo: calcular y analizar" />
+
+                        <CheckBox Content="Incluir pleno al 15" Margin="24,0,0,0"
+                                  IsChecked="{x:Bind ViewModel.IncluirPleno, Mode=TwoWay}"
+                                  IsEnabled="{x:Bind ViewModel.IncluirPlenoHabilitado, Mode=OneWay}"
+                                  AutomationProperties.Name="Incluir pleno al 15 (requiere modo calcular y analizar)" />
+
+                        <RadioButton Content="Grabar archivo"
+                                     GroupName="ModoCalculo"
+                                     IsChecked="{x:Bind ViewModel.ModoGrabar, Mode=TwoWay}"
+                                     AutomationProperties.Name="Modo: grabar columnas a un archivo" />
+
+                        <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center" Margin="24,0,0,0">
+                            <Button Content="Seleccionar archivo..."
+                                    Command="{x:Bind ViewModel.SeleccionarArchivoCommand}"
+                                    IsEnabled="{x:Bind ViewModel.SeleccionArchivoHabilitado, Mode=OneWay}"
+                                    AutomationProperties.Name="Seleccionar archivo de resultados" />
+                            <TextBlock Text="{x:Bind ViewModel.NombreArchivo, Mode=OneWay}"
+                                       VerticalAlignment="Center"
+                                       Style="{StaticResource SecondaryTextBlockStyle}" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Tarjeta: estadísticas del cálculo -->
+                <Border Style="{StaticResource AppCardStyle}">
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="Resultados" Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                        <Grid ColumnSpacing="16" RowSpacing="8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <!-- Cabeceras -->
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="Columnas"
+                                       Style="{StaticResource SecondaryTextBlockStyle}" HorizontalAlignment="Right" />
+                            <TextBlock Grid.Row="0" Grid.Column="2" Text="Coste"
+                                       Style="{StaticResource SecondaryTextBlockStyle}" HorizontalAlignment="Right" MinWidth="120" />
+
+                            <!-- Procesadas -->
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Procesadas" Style="{StaticResource SecondaryTextBlockStyle}" />
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{x:Bind ViewModel.ColsProcesadas, Mode=OneWay}" HorizontalAlignment="Right" />
+                            <TextBlock Grid.Row="1" Grid.Column="2" Text="{x:Bind ViewModel.CosteProcesadas, Mode=OneWay}" HorizontalAlignment="Right" />
+
+                            <!-- Aceptadas -->
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Aceptadas" Style="{StaticResource SecondaryTextBlockStyle}" />
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{x:Bind ViewModel.ColsAceptadas, Mode=OneWay}" HorizontalAlignment="Right" />
+                            <TextBlock Grid.Row="2" Grid.Column="2" Text="{x:Bind ViewModel.CosteAceptadas, Mode=OneWay}" HorizontalAlignment="Right" />
+
+                            <!-- Estimadas -->
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Estimadas" Style="{StaticResource SecondaryTextBlockStyle}" />
+                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{x:Bind ViewModel.ColsEstimadas, Mode=OneWay}" HorizontalAlignment="Right" />
+                            <TextBlock Grid.Row="3" Grid.Column="2" Text="{x:Bind ViewModel.CosteEstimadas, Mode=OneWay}" HorizontalAlignment="Right" />
+
+                            <!-- Máximo -->
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="Máximo" Style="{StaticResource SecondaryTextBlockStyle}" />
+                            <TextBlock Grid.Row="4" Grid.Column="1" Text="{x:Bind ViewModel.ColsMaximo, Mode=OneWay}" HorizontalAlignment="Right" />
+                            <TextBlock Grid.Row="4" Grid.Column="2" Text="{x:Bind ViewModel.CosteMaximo, Mode=OneWay}" HorizontalAlignment="Right" />
+                        </Grid>
+
+                        <Grid ColumnSpacing="16" Margin="0,8,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="% aceptación" Style="{StaticResource SecondaryTextBlockStyle}" VerticalAlignment="Center" />
+                            <TextBlock Grid.Column="1" Text="{x:Bind ViewModel.Porcentaje, Mode=OneWay}" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                        </Grid>
+
+                        <ProgressBar Margin="0,4,0,0" Minimum="0" Maximum="100"
+                                     Value="{x:Bind ViewModel.Progreso, Mode=OneWay}"
+                                     Visibility="{x:Bind ViewModel.ProgresoVisible, Mode=OneWay}"
+                                     AutomationProperties.Name="Progreso del cálculo" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Tarjeta: tiempos -->
+                <Border Style="{StaticResource AppCardStyle}">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Tiempos" Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                        <Grid ColumnSpacing="16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Comienzo" Style="{StaticResource SecondaryTextBlockStyle}" />
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{x:Bind ViewModel.HoraComienzo, Mode=OneWay}" HorizontalAlignment="Right" />
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Final" Style="{StaticResource SecondaryTextBlockStyle}" />
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{x:Bind ViewModel.HoraFinal, Mode=OneWay}" HorizontalAlignment="Right" />
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Transcurrido" Style="{StaticResource SecondaryTextBlockStyle}" />
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{x:Bind ViewModel.TiempoTranscurrido, Mode=OneWay}" HorizontalAlignment="Right" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Barra de acciones -->
+        <Border Grid.Row="2" Padding="32,16"
+                Background="{ThemeResource AppSurfaceBrush}"
+                BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="0,1,0,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0" VerticalAlignment="Center"
+                           Text="{x:Bind ViewModel.Estado, Mode=OneWay}"
+                           Style="{StaticResource SecondaryTextBlockStyle}" />
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right">
+                    <Button Content="Cancelar"
+                            Command="{x:Bind ViewModel.CancelarCommand}"
+                            Click="BtnCancelar_Click"
+                            AutomationProperties.Name="Cancelar y cerrar" />
+                    <Button Content="Calcular" Style="{StaticResource AccentButtonStyle}"
+                            Command="{x:Bind ViewModel.CalcularCommand}"
+                            AutomationProperties.Name="Iniciar el cálculo de columnas" />
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</Page>

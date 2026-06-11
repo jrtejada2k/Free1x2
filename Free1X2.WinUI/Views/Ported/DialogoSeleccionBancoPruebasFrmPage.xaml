@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.DialogoSeleccionBancoPruebasFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ported="using:Free1X2.WinUI.Views.Ported"
+    Background="{ThemeResource AppBackgroundBrush}">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Encabezado (legacy: Text del form = "Selección de columnas") -->
+        <StackPanel Grid.Row="0" Padding="32,32,32,8" Spacing="4">
+            <TextBlock Text="Selección de columnas"
+                       Style="{StaticResource PageTitleTextBlockStyle}" />
+            <!-- legacy: label1 (color Maroon) -->
+            <TextBlock Text="{x:Bind ViewModel.Descripcion}"
+                       Style="{StaticResource SecondaryTextBlockStyle}"
+                       TextWrapping="Wrap" />
+        </StackPanel>
+
+        <!-- Tabla de conceptos (legacy: dataGrid1, columnas Concepto/Checked/Mínimo/Máximo) -->
+        <Border Grid.Row="1" Style="{StaticResource AppCardStyle}" Margin="24,8,24,8">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Text="Conceptos del escrutinio"
+                           Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                <!-- Cabecera de columnas -->
+                <Grid Grid.Row="1" Margin="0,12,0,4" Padding="0,0,12,0" ColumnSpacing="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="90" />
+                        <ColumnDefinition Width="140" />
+                        <ColumnDefinition Width="140" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="Concepto"
+                               Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                    <TextBlock Grid.Column="1" Text="Incluir"
+                               Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                    <TextBlock Grid.Column="2" Text="Mínimo"
+                               Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                    <TextBlock Grid.Column="3" Text="Máximo"
+                               Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                </Grid>
+
+                <ListView Grid.Row="2"
+                          ItemsSource="{x:Bind ViewModel.Conceptos}"
+                          SelectionMode="None"
+                          AutomationProperties.Name="Conceptos del criterio de selección">
+                    <ListView.ItemTemplate>
+                        <DataTemplate x:DataType="ported:ConceptoSeleccionItem">
+                            <Grid ColumnSpacing="12" Padding="0,4">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="90" />
+                                    <ColumnDefinition Width="140" />
+                                    <ColumnDefinition Width="140" />
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Grid.Column="0"
+                                           Text="{x:Bind Concepto}"
+                                           VerticalAlignment="Center"
+                                           TextWrapping="Wrap" />
+
+                                <CheckBox Grid.Column="1"
+                                          IsChecked="{x:Bind Incluido, Mode=TwoWay}"
+                                          MinWidth="0"
+                                          VerticalAlignment="Center"
+                                          AutomationProperties.Name="Incluir concepto en el criterio" />
+
+                                <NumberBox Grid.Column="2"
+                                           Value="{x:Bind Minimo, Mode=TwoWay}"
+                                           SpinButtonPlacementMode="Compact"
+                                           VerticalAlignment="Center"
+                                           AutomationProperties.Name="Valor mínimo del concepto" />
+
+                                <NumberBox Grid.Column="3"
+                                           Value="{x:Bind Maximo, Mode=TwoWay}"
+                                           SpinButtonPlacementMode="Compact"
+                                           VerticalAlignment="Center"
+                                           AutomationProperties.Name="Valor máximo del concepto" />
+                            </Grid>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </Grid>
+        </Border>
+
+        <!-- Barra de acciones (legacy: button1 "Aceptar" / btCancelar "Cancelar") -->
+        <Border Grid.Row="2" Padding="32,16"
+                Background="{ThemeResource AppSurfaceBrush}"
+                BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="0,1,0,0">
+            <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right">
+                <Button Content="Aceptar"
+                        Style="{StaticResource AccentButtonStyle}"
+                        Command="{x:Bind ViewModel.AceptarCommand}"
+                        Click="BtnAceptar_Click"
+                        AutomationProperties.Name="Aceptar la selección de columnas" />
+                <Button Content="Cancelar"
+                        Command="{x:Bind ViewModel.CancelarCommand}"
+                        Click="BtnCancelar_Click"
+                        AutomationProperties.Name="Cancelar y cerrar el diálogo" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</Page>

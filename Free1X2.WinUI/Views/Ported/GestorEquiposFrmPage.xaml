@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.GestorEquiposFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ScrollViewer>
+        <StackPanel Padding="32" Spacing="24" HorizontalAlignment="Left">
+
+            <!-- ===== Encabezado (Text del Form: "Gestión de Equipos") ===== -->
+            <StackPanel Spacing="6">
+                <TextBlock Text="Gestión de Equipos"
+                           Style="{StaticResource PageTitleTextBlockStyle}" />
+                <TextBlock Text="Organiza los equipos por categoría. Mueve equipos entre 1ª, 2ª y 2ªB, da de alta o elimina equipos y guarda los cambios."
+                           Style="{StaticResource SecondaryTextBlockStyle}"
+                           TextWrapping="Wrap" MaxWidth="760" />
+            </StackPanel>
+
+            <!-- ===== Acciones globales (btnNuevoEquipo / btnGuardar) ===== -->
+            <StackPanel Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
+                <Button Content="Nuevo equipo"
+                        Command="{x:Bind ViewModel.NuevoEquipoCommand}"
+                        AutomationProperties.Name="Dar de alta un equipo nuevo" />
+                <Button Content="Guardar archivos"
+                        Style="{StaticResource AccentButtonStyle}"
+                        Command="{x:Bind ViewModel.GuardarCommand}"
+                        AutomationProperties.Name="Guardar los equipos de todas las categorías" />
+                <TextBlock Text="{x:Bind ViewModel.Estado, Mode=OneWay}"
+                           VerticalAlignment="Center"
+                           Style="{StaticResource SecondaryTextBlockStyle}" />
+            </StackPanel>
+
+            <!-- ===== Categorías y movimientos ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <Grid ColumnSpacing="12" RowSpacing="8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <!-- Cabeceras (label1..label4) -->
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Equipos 1ª"
+                               Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <TextBlock Grid.Row="0" Grid.Column="2" Text="Equipos 2ª"
+                               Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <TextBlock Grid.Row="0" Grid.Column="4" Text="Equipos 2ªB"
+                               Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <TextBlock Grid.Row="0" Grid.Column="5" Text="Internacionales"
+                               Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                    <!-- Lista 1ª (lbEquipos1) -->
+                    <ListView Grid.Row="1" Grid.Column="0" MinHeight="320"
+                              ItemsSource="{x:Bind ViewModel.EquiposPrimera}"
+                              SelectedItem="{x:Bind ViewModel.SeleccionPrimera, Mode=TwoWay}"
+                              BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1"
+                              AutomationProperties.Name="Equipos de Primera" />
+
+                    <!-- Botones entre 1ª y 2ª (btnASegunda / btnAPrimera) -->
+                    <StackPanel Grid.Row="1" Grid.Column="1" Spacing="8"
+                                VerticalAlignment="Center">
+                        <Button Content="&#xE76C;" FontFamily="Segoe MDL2 Assets"
+                                Command="{x:Bind ViewModel.MoverAPrimeraASegundaCommand}"
+                                ToolTipService.ToolTip="Mover de 1ª a 2ª"
+                                AutomationProperties.Name="Mover de Primera a Segunda" />
+                        <Button Content="&#xE76B;" FontFamily="Segoe MDL2 Assets"
+                                Command="{x:Bind ViewModel.MoverASegundaAPrimeraCommand}"
+                                ToolTipService.ToolTip="Mover de 2ª a 1ª"
+                                AutomationProperties.Name="Mover de Segunda a Primera" />
+                    </StackPanel>
+
+                    <!-- Lista 2ª (lbEquipos2) -->
+                    <ListView Grid.Row="1" Grid.Column="2" MinHeight="320"
+                              ItemsSource="{x:Bind ViewModel.EquiposSegunda}"
+                              SelectedItem="{x:Bind ViewModel.SeleccionSegunda, Mode=TwoWay}"
+                              BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1"
+                              AutomationProperties.Name="Equipos de Segunda" />
+
+                    <!-- Botones entre 2ª y 2ªB (btnASegundaB / btnASegundaSube) -->
+                    <StackPanel Grid.Row="1" Grid.Column="3" Spacing="8"
+                                VerticalAlignment="Center">
+                        <Button Content="&#xE76C;" FontFamily="Segoe MDL2 Assets"
+                                Command="{x:Bind ViewModel.MoverASegundaASegundaBCommand}"
+                                ToolTipService.ToolTip="Mover de 2ª a 2ªB"
+                                AutomationProperties.Name="Mover de Segunda a Segunda B" />
+                        <Button Content="&#xE76B;" FontFamily="Segoe MDL2 Assets"
+                                Command="{x:Bind ViewModel.MoverASegundaBASegundaCommand}"
+                                ToolTipService.ToolTip="Mover de 2ªB a 2ª"
+                                AutomationProperties.Name="Mover de Segunda B a Segunda" />
+                    </StackPanel>
+
+                    <!-- Lista 2ªB (lbEquipos2B) -->
+                    <ListView Grid.Row="1" Grid.Column="4" MinHeight="320"
+                              ItemsSource="{x:Bind ViewModel.EquiposSegundaB}"
+                              SelectedItem="{x:Bind ViewModel.SeleccionSegundaB, Mode=TwoWay}"
+                              BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1"
+                              AutomationProperties.Name="Equipos de Segunda B" />
+
+                    <!-- Lista Internacionales (lbEquiposInt) -->
+                    <ListView Grid.Row="1" Grid.Column="5" MinHeight="320"
+                              ItemsSource="{x:Bind ViewModel.EquiposInt}"
+                              SelectedItem="{x:Bind ViewModel.SeleccionInt, Mode=TwoWay}"
+                              BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1"
+                              AutomationProperties.Name="Equipos internacionales" />
+
+                    <!-- Botones eliminar por categoría (btnEliminaDeX) -->
+                    <Button Grid.Row="2" Grid.Column="0" Content="Eliminar"
+                            HorizontalAlignment="Left" Margin="0,4,0,0"
+                            Command="{x:Bind ViewModel.EliminarDePrimeraCommand}"
+                            AutomationProperties.Name="Eliminar equipo de Primera" />
+                    <Button Grid.Row="2" Grid.Column="2" Content="Eliminar"
+                            HorizontalAlignment="Left" Margin="0,4,0,0"
+                            Command="{x:Bind ViewModel.EliminarDeSegundaCommand}"
+                            AutomationProperties.Name="Eliminar equipo de Segunda" />
+                    <Button Grid.Row="2" Grid.Column="4" Content="Eliminar"
+                            HorizontalAlignment="Left" Margin="0,4,0,0"
+                            Command="{x:Bind ViewModel.EliminarDeSegundaBCommand}"
+                            AutomationProperties.Name="Eliminar equipo de Segunda B" />
+                    <Button Grid.Row="2" Grid.Column="5" Content="Eliminar"
+                            HorizontalAlignment="Left" Margin="0,4,0,0"
+                            Command="{x:Bind ViewModel.EliminarDeIntCommand}"
+                            AutomationProperties.Name="Eliminar equipo internacional" />
+                </Grid>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.CopiarCPFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ScrollViewer>
+        <StackPanel Padding="32" Spacing="24" MaxWidth="640" HorizontalAlignment="Left">
+
+            <!-- ===== Encabezado ===== -->
+            <StackPanel Spacing="6">
+                <TextBlock Text="Copiar Columnas"
+                           Style="{StaticResource PageTitleTextBlockStyle}" />
+                <TextBlock Text="Copia columnas probables a uno o varios grupos del boleto. Indica las columnas por índice (5), lista (1,3,5) o rango (1-5) y elige los grupos destino."
+                           Style="{StaticResource SecondaryTextBlockStyle}"
+                           TextWrapping="Wrap" />
+            </StackPanel>
+
+            <!-- ===== Columnas a copiar (label1 + txtCP) ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Columnas a copiar" Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                    <TextBox Header="Columnas"
+                             PlaceholderText="Ej.: 5  |  1,3,5  |  1-5"
+                             Text="{x:Bind ViewModel.Columnas, Mode=TwoWay}"
+                             MaxWidth="320" HorizontalAlignment="Left"
+                             AutomationProperties.Name="Índices de columnas a copiar" />
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Grupos destino (label2 + cmbGrupo MultiExtended) ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Grupos destino" Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <TextBlock Text="Selecciona uno o varios grupos a los que copiar las columnas."
+                               Style="{StaticResource SecondaryTextBlockStyle}"
+                               TextWrapping="Wrap" />
+
+                    <ListView ItemsSource="{x:Bind ViewModel.Grupos}"
+                              SelectionMode="Multiple"
+                              SelectionChanged="GruposListView_SelectionChanged"
+                              MaxWidth="320" Height="180"
+                              HorizontalAlignment="Left"
+                              BorderBrush="{ThemeResource AppBorderBrush}"
+                              BorderThickness="1"
+                              Background="{ThemeResource AppSurfaceBrush}"
+                              AutomationProperties.Name="Grupos destino de la copia" />
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Acciones (btnCopiar / btnCancelar / btnCrearGrupos) ===== -->
+            <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                <Button Content="Copiar"
+                        Style="{StaticResource AccentButtonStyle}"
+                        Command="{x:Bind ViewModel.CopiarCommand}"
+                        AutomationProperties.Name="Copiar las columnas a los grupos seleccionados" />
+                <Button Content="Crear grupos"
+                        Command="{x:Bind ViewModel.CrearGruposCommand}"
+                        AutomationProperties.Name="Crear nuevos grupos destino" />
+                <Button Content="Cancelar"
+                        Command="{x:Bind ViewModel.CancelarCommand}"
+                        AutomationProperties.Name="Cancelar y cerrar" />
+            </StackPanel>
+
+            <!-- ===== Estado / feedback ===== -->
+            <TextBlock Text="{x:Bind ViewModel.Estado, Mode=OneWay}"
+                       Style="{StaticResource SecondaryTextBlockStyle}"
+                       TextWrapping="Wrap" />
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

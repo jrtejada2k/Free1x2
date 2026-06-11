@@ -1,0 +1,403 @@
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.ColProbablesFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Background="{StaticResource AppBackgroundBrush}">
+
+    <Grid Padding="24" RowSpacing="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Encabezado. Título real del form legacy: "Columnas Probables" -->
+        <StackPanel Grid.Row="0" Spacing="4">
+            <TextBlock
+                Style="{StaticResource PageTitleTextBlockStyle}"
+                Text="Columnas Probables" />
+            <TextBlock
+                Style="{StaticResource SecondaryTextBlockStyle}"
+                Text="Una Columna Probable es un segundo pronóstico sobre un grupo de partidos, expresando la posibilidad de que se den ciertos resultados." />
+        </StackPanel>
+
+        <!-- Pestañas del form legacy (TabControl tabControl1) -->
+        <Pivot Grid.Row="1">
+
+            <!-- ===================== Columnas ===================== -->
+            <PivotItem Header="Columnas">
+                <ScrollViewer>
+                    <StackPanel Spacing="16" MaxWidth="720" HorizontalAlignment="Left">
+
+                        <!-- Pronóstico de la columna -->
+                        <Border Style="{StaticResource AppCardStyle}">
+                            <StackPanel Spacing="12">
+                                <TextBlock
+                                    Style="{StaticResource SectionHeaderTextBlockStyle}"
+                                    Text="Columna probable" />
+                                <TextBox
+                                    Header="Pronóstico (14 signos: 1 / X / 2)"
+                                    MaxLength="14"
+                                    CharacterCasing="Upper"
+                                    PlaceholderText="Ej. 1X21X2111XX221"
+                                    Text="{x:Bind ViewModel.Pronostico, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBox
+                                    Header="Puntos"
+                                    Text="{x:Bind ViewModel.Puntos, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Rangos de aciertos -->
+                        <Border Style="{StaticResource AppCardStyle}">
+                            <StackPanel Spacing="12">
+                                <TextBlock
+                                    Style="{StaticResource SectionHeaderTextBlockStyle}"
+                                    Text="Rangos (valores 0..14)" />
+                                <TextBox
+                                    Header="Aciertos"
+                                    PlaceholderText="Ej. 0-14 ó 3,5,7"
+                                    Text="{x:Bind ViewModel.Aciertos, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBox
+                                    Header="Ac. Seguidos"
+                                    Text="{x:Bind ViewModel.AciertosSeguidos, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBox
+                                    Header="Fallos Seguidos"
+                                    Text="{x:Bind ViewModel.FallosSeguidos, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Tolerancias locales -->
+                        <Border Style="{StaticResource AppCardStyle}">
+                            <StackPanel Spacing="12">
+                                <TextBlock
+                                    Style="{StaticResource SectionHeaderTextBlockStyle}"
+                                    Text="Tolerancias locales" />
+                                <TextBox
+                                    Header="Aciertos"
+                                    Text="{x:Bind ViewModel.AciertosTol, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBox
+                                    Header="Ac. Seguidos"
+                                    Text="{x:Bind ViewModel.AciertosSeguidosTol, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBox
+                                    Header="Fallos Seguidos"
+                                    Text="{x:Bind ViewModel.FallosSeguidosTol, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBlock
+                                    Style="{StaticResource SecondaryTextBlockStyle}"
+                                    Text="Núm Tolerancias" />
+                                <StackPanel Orientation="Horizontal" Spacing="12">
+                                    <ToggleButton
+                                        Style="{StaticResource SignoToggleButtonStyle}"
+                                        Content="0"
+                                        IsChecked="{x:Bind ViewModel.Tolerancia0, Mode=TwoWay}" />
+                                    <ToggleButton
+                                        Style="{StaticResource SignoToggleButtonStyle}"
+                                        Content="1"
+                                        IsChecked="{x:Bind ViewModel.Tolerancia1, Mode=TwoWay}" />
+                                    <ToggleButton
+                                        Style="{StaticResource SignoToggleButtonStyle}"
+                                        Content="2"
+                                        IsChecked="{x:Bind ViewModel.Tolerancia2, Mode=TwoWay}" />
+                                    <ToggleButton
+                                        Style="{StaticResource SignoToggleButtonStyle}"
+                                        Content="3"
+                                        IsChecked="{x:Bind ViewModel.Tolerancia3, Mode=TwoWay}" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Navegación entre columnas probables -->
+                        <Border Style="{StaticResource AppCardStyle}">
+                            <StackPanel Spacing="12">
+                                <TextBlock
+                                    Style="{StaticResource SectionHeaderTextBlockStyle}"
+                                    Text="Navegación" />
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <Button Content="|&lt;" Command="{x:Bind ViewModel.IrPrimeraColumnaCommand}" AutomationProperties.Name="Primera columna" />
+                                    <Button Content="&lt;&lt;" Command="{x:Bind ViewModel.ColumnasAtras3Command}" AutomationProperties.Name="Retroceder grupo" />
+                                    <Button Content="&lt;" Command="{x:Bind ViewModel.ColumnaAnteriorCommand}" AutomationProperties.Name="Columna anterior" />
+                                    <TextBlock
+                                        VerticalAlignment="Center"
+                                        MinWidth="56"
+                                        TextAlignment="Center"
+                                        Style="{StaticResource BodyStrongTextBlockStyle}"
+                                        Text="{x:Bind ViewModel.PaginacionColumnas, Mode=OneWay}" />
+                                    <Button Content="&gt;" Command="{x:Bind ViewModel.ColumnaSiguienteCommand}" AutomationProperties.Name="Columna siguiente" />
+                                    <Button Content="&gt;&gt;" Command="{x:Bind ViewModel.ColumnasAdelante3Command}" AutomationProperties.Name="Avanzar grupo" />
+                                    <Button Content="&gt;|" Command="{x:Bind ViewModel.IrUltimaColumnaCommand}" AutomationProperties.Name="Última columna" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Acciones sobre columnas -->
+                        <Border Style="{StaticResource AppCardStyle}">
+                            <StackPanel Spacing="12">
+                                <TextBlock
+                                    Style="{StaticResource SectionHeaderTextBlockStyle}"
+                                    Text="Acciones" />
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <Button Content="Todos a Triple" Command="{x:Bind ViewModel.TodosATripleCommand}" />
+                                    <Button Content="Borrar Pronósticos" Command="{x:Bind ViewModel.BorrarPronosticosCommand}" />
+                                    <Button Content="Eliminar actual" Command="{x:Bind ViewModel.EliminarColumnaActualCommand}" />
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <Button Content="Copiar datos" Command="{x:Bind ViewModel.CopiarDatosCommand}" />
+                                    <Button Content="Copiar Columnas" Command="{x:Bind ViewModel.CopiarColumnasCommand}" />
+                                    <Button Content="Cambiar Puntuación" Command="{x:Bind ViewModel.CambiarPuntuacionCommand}" />
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <Button Content="Importador CPs" Command="{x:Bind ViewModel.ImportarCPsCommand}" />
+                                    <Button Content="Exportador CPs" Command="{x:Bind ViewModel.ExportarCPsCommand}" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                    </StackPanel>
+                </ScrollViewer>
+            </PivotItem>
+
+            <!-- ===================== Relaciones I ===================== -->
+            <PivotItem Header="Relaciones I">
+                <ScrollViewer>
+                    <StackPanel Spacing="16" MaxWidth="640" HorizontalAlignment="Left">
+                        <Border Style="{StaticResource AppCardStyle}">
+                            <StackPanel Spacing="12">
+                                <TextBlock
+                                    Style="{StaticResource SectionHeaderTextBlockStyle}"
+                                    Text="Relaciones" />
+                                <TextBlock
+                                    Style="{StaticResource SecondaryTextBlockStyle}"
+                                    Text="Introducir datos en ambas casillas." />
+                                <TextBox
+                                    Header="Columnas"
+                                    Text="{x:Bind ViewModel.Rel1Columnas, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBox
+                                    Header="Suma Aciertos"
+                                    Text="{x:Bind ViewModel.Rel1SumaAciertos, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBox
+                                    Header="Recorrido"
+                                    Text="{x:Bind ViewModel.Rel1Recorrido, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBox
+                                    Header="¿Cuántas Columnas?"
+                                    Text="{x:Bind ViewModel.Rel1CuantasCP, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBox
+                                    Header="Número de Aciertos"
+                                    Text="{x:Bind ViewModel.Rel1NumeroAciertos, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource AppCardStyle}">
+                            <StackPanel Spacing="12">
+                                <TextBlock
+                                    Style="{StaticResource SectionHeaderTextBlockStyle}"
+                                    Text="Actual / Guardadas" />
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <Button Content="&lt;" Command="{x:Bind ViewModel.Rel1AnteriorCommand}" AutomationProperties.Name="Relación anterior" />
+                                    <TextBlock
+                                        VerticalAlignment="Center"
+                                        MinWidth="56"
+                                        TextAlignment="Center"
+                                        Style="{StaticResource BodyStrongTextBlockStyle}"
+                                        Text="{x:Bind ViewModel.PaginacionRel1, Mode=OneWay}" />
+                                    <Button Content="&gt;" Command="{x:Bind ViewModel.Rel1SiguienteCommand}" AutomationProperties.Name="Relación siguiente" />
+                                    <Button Content="Eliminar Actual" Command="{x:Bind ViewModel.Rel1EliminarCommand}" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </PivotItem>
+
+            <!-- ===================== Relaciones II ===================== -->
+            <PivotItem Header="Relaciones II">
+                <ScrollViewer>
+                    <StackPanel Spacing="16" MaxWidth="720" HorizontalAlignment="Left">
+
+                        <Border Style="{StaticResource AppCardStyle}">
+                            <StackPanel Spacing="12">
+                                <TextBlock
+                                    Style="{StaticResource SectionHeaderTextBlockStyle}"
+                                    Text="Sumas de AC/ACS/FS" />
+                                <TextBlock
+                                    Style="{StaticResource SecondaryTextBlockStyle}"
+                                    Text="Los aciertos se refieren a la SUMA de AC, ACS o FS entre todas las columnas. (Introducir intervalo o columnas individuales: a-b ó a,c,d)" />
+                                <TextBox
+                                    Header="Las columnas"
+                                    Text="{x:Bind ViewModel.Rel2SumaColsA, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <ComboBox
+                                    Header="Concepto"
+                                    ItemsSource="{x:Bind ViewModel.OpcionesConcepto}"
+                                    SelectedItem="{x:Bind ViewModel.Rel2SumaConcepto, Mode=TwoWay}" />
+                                <TextBox
+                                    Header="Tendrán (nº aciertos)"
+                                    Text="{x:Bind ViewModel.Rel2SumaNumAciertos, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <ComboBox
+                                    Header="Más / Menos"
+                                    ItemsSource="{x:Bind ViewModel.OpcionesMasMenos}"
+                                    SelectedItem="{x:Bind ViewModel.Rel2SumaMasMenos, Mode=TwoWay}" />
+                                <TextBox
+                                    Header="Que las columnas"
+                                    Text="{x:Bind ViewModel.Rel2SumaColsB, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource AppCardStyle}">
+                            <StackPanel Spacing="12">
+                                <TextBlock
+                                    Style="{StaticResource SectionHeaderTextBlockStyle}"
+                                    Text="AC/ACS/FS individuales" />
+                                <TextBlock
+                                    Style="{StaticResource SecondaryTextBlockStyle}"
+                                    Text="Los aciertos se refieren a los AC, ACS o FS INDIVIDUALES de CADA columna. (Introducir intervalo o columnas individuales: a-b ó a,c,d)" />
+                                <TextBox
+                                    Header="Las columnas"
+                                    Text="{x:Bind ViewModel.Rel2IndColsA, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <ComboBox
+                                    Header="Concepto"
+                                    ItemsSource="{x:Bind ViewModel.OpcionesConcepto}"
+                                    SelectedItem="{x:Bind ViewModel.Rel2IndConcepto, Mode=TwoWay}" />
+                                <TextBox
+                                    Header="Tendrán (nº aciertos)"
+                                    Text="{x:Bind ViewModel.Rel2IndNumAciertos, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <ComboBox
+                                    Header="Más / Menos"
+                                    ItemsSource="{x:Bind ViewModel.OpcionesMasMenos}"
+                                    SelectedItem="{x:Bind ViewModel.Rel2IndMasMenos, Mode=TwoWay}" />
+                                <TextBox
+                                    Header="Que las columnas"
+                                    Text="{x:Bind ViewModel.Rel2IndColsB, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource AppCardStyle}">
+                            <StackPanel Spacing="12">
+                                <TextBlock
+                                    Style="{StaticResource SectionHeaderTextBlockStyle}"
+                                    Text="Actual / Guardadas" />
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <Button Content="&lt;" Command="{x:Bind ViewModel.Rel2AnteriorCommand}" AutomationProperties.Name="Relación anterior" />
+                                    <TextBlock
+                                        VerticalAlignment="Center"
+                                        MinWidth="56"
+                                        TextAlignment="Center"
+                                        Style="{StaticResource BodyStrongTextBlockStyle}"
+                                        Text="{x:Bind ViewModel.PaginacionRel2, Mode=OneWay}" />
+                                    <Button Content="&gt;" Command="{x:Bind ViewModel.Rel2SiguienteCommand}" AutomationProperties.Name="Relación siguiente" />
+                                    <Button Content="Eliminar Actual" Command="{x:Bind ViewModel.Rel2EliminarCommand}" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </PivotItem>
+
+            <!-- ===================== Relaciones III ===================== -->
+            <PivotItem Header="Relaciones III">
+                <ScrollViewer>
+                    <StackPanel Spacing="16" MaxWidth="640" HorizontalAlignment="Left">
+
+                        <Border Style="{StaticResource AppCardStyle}">
+                            <StackPanel Spacing="12">
+                                <TextBlock
+                                    Style="{StaticResource SectionHeaderTextBlockStyle}"
+                                    Text="Columnas" />
+                                <TextBox
+                                    Header="Columnas implicadas"
+                                    Text="{x:Bind ViewModel.Rel3Columnas, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <ComboBox
+                                    Header="Concepto"
+                                    ItemsSource="{x:Bind ViewModel.OpcionesConcepto}"
+                                    SelectedItem="{x:Bind ViewModel.Rel3Concepto, Mode=TwoWay}" />
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource AppCardStyle}">
+                            <StackPanel Spacing="12">
+                                <TextBlock
+                                    Style="{StaticResource SectionHeaderTextBlockStyle}"
+                                    Text="Escaleras" />
+                                <TextBox
+                                    Header="Total"
+                                    Text="{x:Bind ViewModel.Rel3EscalerasTotal, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBox
+                                    Header="Ascendentes"
+                                    Text="{x:Bind ViewModel.Rel3EscalerasAsc, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBox
+                                    Header="Descendentes"
+                                    Text="{x:Bind ViewModel.Rel3EscalerasDesc, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource AppCardStyle}">
+                            <StackPanel Spacing="12">
+                                <TextBlock
+                                    Style="{StaticResource SectionHeaderTextBlockStyle}"
+                                    Text="Sándwichs" />
+                                <TextBox
+                                    Header="Total"
+                                    Text="{x:Bind ViewModel.Rel3Sandwichs, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Agrupaciones de Aciertos (Solapadas / Paso Fijo): legacy DataGrid de solo lectura.
+                             TODO: portar dgAgrpacionesSolapadas / dgAgrupacionesPasoFijo con un ListView/DataGrid. -->
+
+                        <Border Style="{StaticResource AppCardStyle}">
+                            <StackPanel Spacing="12">
+                                <TextBlock
+                                    Style="{StaticResource SectionHeaderTextBlockStyle}"
+                                    Text="Actual / Guardadas" />
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <Button Content="&lt;" Command="{x:Bind ViewModel.Rel3AnteriorCommand}" AutomationProperties.Name="Relación anterior" />
+                                    <TextBlock
+                                        VerticalAlignment="Center"
+                                        MinWidth="56"
+                                        TextAlignment="Center"
+                                        Style="{StaticResource BodyStrongTextBlockStyle}"
+                                        Text="{x:Bind ViewModel.PaginacionRel3, Mode=OneWay}" />
+                                    <Button Content="&gt;" Command="{x:Bind ViewModel.Rel3SiguienteCommand}" AutomationProperties.Name="Relación siguiente" />
+                                    <Button Content="Eliminar Actual" Command="{x:Bind ViewModel.Rel3EliminarCommand}" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </PivotItem>
+
+            <!-- ===================== Control Fallos ===================== -->
+            <PivotItem Header="Control Fallos">
+                <ScrollViewer>
+                    <StackPanel Spacing="16" MaxWidth="640" HorizontalAlignment="Left">
+                        <Border Style="{StaticResource AppCardStyle}">
+                            <StackPanel Spacing="12">
+                                <TextBlock
+                                    Style="{StaticResource SectionHeaderTextBlockStyle}"
+                                    Text="Control de fallos" />
+                                <TextBox
+                                    Header="Número de Fallos de Controles"
+                                    Text="{x:Bind ViewModel.NumeroFallosControles, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <TextBox
+                                    Header="Puntos"
+                                    Text="{x:Bind ViewModel.PuntosControl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                                <!-- Tabla de controles de fallo (legacy dgControlFallos: Columnas / Tolerancias / Aciertos).
+                                     TODO: portar arrayControlesFallo (CPControlFallos) con un ListView/DataGrid editable. -->
+                                <TextBlock
+                                    Style="{StaticResource SecondaryTextBlockStyle}"
+                                    Text="Tabla de controles (Columnas / Tolerancias / Aciertos): pendiente de portar." />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </PivotItem>
+
+        </Pivot>
+
+        <!-- Acción global del filtro (legacy MenuCondiciones1: aceptar / cancelar / copiar / pegar) -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right">
+            <Button
+                Style="{StaticResource AccentButtonStyle}"
+                Content="Aceptar"
+                Command="{x:Bind ViewModel.AceptarCommand}" />
+        </StackPanel>
+    </Grid>
+</Page>

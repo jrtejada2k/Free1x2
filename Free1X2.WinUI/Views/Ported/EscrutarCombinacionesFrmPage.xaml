@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.EscrutarCombinacionesFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ported="using:Free1X2.WinUI.Views.Ported">
+
+    <ScrollViewer>
+        <StackPanel Padding="32" Spacing="24" MaxWidth="980" HorizontalAlignment="Left">
+
+            <!-- ===== Encabezado (Text del Form: "Escrutar combinaciones") ===== -->
+            <StackPanel Spacing="6">
+                <TextBlock Text="Escrutar combinaciones"
+                           Style="{StaticResource PageTitleTextBlockStyle}" />
+                <TextBlock
+                    Text="Puntúa uno o varios ficheros de combinaciones contra columna(s) ganadora(s). Elige un modo de escrutinio, define el rango de aciertos y lanza el cálculo."
+                    Style="{StaticResource SecondaryTextBlockStyle}"
+                    TextWrapping="Wrap" />
+            </StackPanel>
+
+            <!-- ===== Ficheros a escrutar + rango de aciertos (comunes) ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Ficheros y aciertos"
+                               Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Button Content="Fichero a escrutar"
+                                Command="{x:Bind ViewModel.SeleccionarFicherosCommand}" />
+                        <TextBox Header="No Aciertos"
+                                 Width="160"
+                                 Text="{x:Bind ViewModel.NoAciertos, Mode=TwoWay}"
+                                 PlaceholderText="10-14" />
+                    </StackPanel>
+
+                    <TextBlock Text="Ficheros seleccionados"
+                               Style="{StaticResource SecondaryTextBlockStyle}" />
+                    <ListView ItemsSource="{x:Bind ViewModel.FicherosAEscrutar}"
+                              SelectionMode="None"
+                              MinHeight="110"
+                              MaxHeight="180"
+                              Background="{ThemeResource AppSurfaceAltBrush}"
+                              BorderBrush="{ThemeResource AppBorderBrush}"
+                              BorderThickness="1" />
+
+                    <CheckBox Content="Activar Ver Premiadas"
+                              IsChecked="{x:Bind ViewModel.VerPremiadas, Mode=TwoWay}" />
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Selector de modo (TabControl tpSimple / tbFichero / tbTemporada) ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Modo de escrutinio"
+                               Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                    <ComboBox Header="Modo"
+                              MinWidth="280"
+                              ItemsSource="{x:Bind ViewModel.ModosEscrutinio}"
+                              SelectedIndex="{x:Bind ViewModel.ModoSeleccionadoIndex, Mode=TwoWay}" />
+
+                    <!-- ===== Modo simple: columna ganadora (txtCG1..txtCG14) ===== -->
+                    <TextBlock Text="Columna ganadora"
+                               Style="{StaticResource SecondaryTextBlockStyle}"
+                               Visibility="{x:Bind ViewModel.ModoSimpleVisibility, Mode=OneWay}" />
+                    <ItemsControl ItemsSource="{x:Bind ViewModel.SignosGanadores}"
+                                  Visibility="{x:Bind ViewModel.ModoSimpleVisibility, Mode=OneWay}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal" Spacing="10" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="ported:SignoGanadorViewModel">
+                                <StackPanel Spacing="4" HorizontalAlignment="Center">
+                                    <TextBlock Text="{x:Bind Etiqueta}"
+                                               HorizontalAlignment="Center"
+                                               Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                                    <ToggleButton Content="1"
+                                                  Style="{StaticResource SignoToggleButtonStyle}"
+                                                  IsChecked="{x:Bind Es1, Mode=TwoWay}" />
+                                    <ToggleButton Content="X"
+                                                  Style="{StaticResource SignoToggleButtonStyle}"
+                                                  IsChecked="{x:Bind EsX, Mode=TwoWay}" />
+                                    <ToggleButton Content="2"
+                                                  Style="{StaticResource SignoToggleButtonStyle}"
+                                                  IsChecked="{x:Bind Es2, Mode=TwoWay}" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBox Header="Columna ganadora (texto)"
+                             MaxWidth="220"
+                             HorizontalAlignment="Left"
+                             MaxLength="14"
+                             PlaceholderText="1X2..."
+                             Text="{x:Bind ViewModel.ColumnaGanadoraTexto, Mode=TwoWay}"
+                             Visibility="{x:Bind ViewModel.ModoSimpleVisibility, Mode=OneWay}" />
+
+                    <!-- ===== Modo contra fichero (btnFileRef / lblFileRef) ===== -->
+                    <Button Content="Fichero referencia"
+                            HorizontalAlignment="Left"
+                            Command="{x:Bind ViewModel.SeleccionarFicheroReferenciaCommand}"
+                            Visibility="{x:Bind ViewModel.ModoFicheroVisibility, Mode=OneWay}" />
+                    <TextBlock Text="{x:Bind ViewModel.FicheroReferencia, Mode=OneWay}"
+                               Style="{StaticResource SecondaryTextBlockStyle}"
+                               Visibility="{x:Bind ViewModel.ModoFicheroVisibility, Mode=OneWay}" />
+
+                    <!-- ===== Modo contra jornadas (plantilla + dígitos + temporadas) ===== -->
+                    <TextBox Header="Plantilla de nombre de archivo"
+                             MinWidth="320"
+                             HorizontalAlignment="Left"
+                             PlaceholderText="quiniela_/t_/j.comb"
+                             Text="{x:Bind ViewModel.PlantillaNombreArchivo, Mode=TwoWay}"
+                             Visibility="{x:Bind ViewModel.ModoJornadasVisibility, Mode=OneWay}" />
+
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Button Content="/t"
+                                ToolTipService.ToolTip="Introducir temporada"
+                                Command="{x:Bind ViewModel.InsertarMarcadorTemporadaCommand}"
+                                Visibility="{x:Bind ViewModel.ModoJornadasVisibility, Mode=OneWay}" />
+                        <Button Content="/j"
+                                ToolTipService.ToolTip="Introducir jornada"
+                                Command="{x:Bind ViewModel.InsertarMarcadorJornadaCommand}"
+                                Visibility="{x:Bind ViewModel.ModoJornadasVisibility, Mode=OneWay}" />
+                        <Button Content="Ver archivos"
+                                Command="{x:Bind ViewModel.VerArchivosCommand}"
+                                Visibility="{x:Bind ViewModel.ModoJornadasVisibility, Mode=OneWay}" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Spacing="24">
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="Dígitos temporadas"
+                                       Style="{StaticResource SecondaryTextBlockStyle}"
+                                       Visibility="{x:Bind ViewModel.ModoJornadasVisibility, Mode=OneWay}" />
+                            <ToggleSwitch OffContent="4 dígitos"
+                                          OnContent="2 dígitos"
+                                          IsOn="{x:Bind ViewModel.TemporadaDosDigitos, Mode=TwoWay}"
+                                          Visibility="{x:Bind ViewModel.ModoJornadasVisibility, Mode=OneWay}" />
+                        </StackPanel>
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="Dígitos jornadas"
+                                       Style="{StaticResource SecondaryTextBlockStyle}"
+                                       Visibility="{x:Bind ViewModel.ModoJornadasVisibility, Mode=OneWay}" />
+                            <ToggleSwitch OffContent="1 dígito"
+                                          OnContent="2 dígitos"
+                                          IsOn="{x:Bind ViewModel.JornadaDosDigitos, Mode=TwoWay}"
+                                          Visibility="{x:Bind ViewModel.ModoJornadasVisibility, Mode=OneWay}" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <Button Content="Carpeta..."
+                            HorizontalAlignment="Left"
+                            Command="{x:Bind ViewModel.SeleccionarCarpetaCommand}"
+                            Visibility="{x:Bind ViewModel.ModoJornadasVisibility, Mode=OneWay}" />
+                    <TextBlock Text="{x:Bind ViewModel.CarpetaJornadas, Mode=OneWay}"
+                               Style="{StaticResource SecondaryTextBlockStyle}"
+                               Visibility="{x:Bind ViewModel.ModoJornadasVisibility, Mode=OneWay}" />
+
+                    <TextBlock Text="Temporadas"
+                               Style="{StaticResource SecondaryTextBlockStyle}"
+                               Visibility="{x:Bind ViewModel.ModoJornadasVisibility, Mode=OneWay}" />
+                    <ListView ItemsSource="{x:Bind ViewModel.Temporadas}"
+                              SelectionMode="Multiple"
+                              MinHeight="100"
+                              MaxHeight="160"
+                              Width="180"
+                              HorizontalAlignment="Left"
+                              Background="{ThemeResource AppSurfaceAltBrush}"
+                              BorderBrush="{ThemeResource AppBorderBrush}"
+                              BorderThickness="1"
+                              Visibility="{x:Bind ViewModel.ModoJornadasVisibility, Mode=OneWay}" />
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Acciones de escrutinio ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Escrutinio"
+                               Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Button Content="Escrutar!"
+                                Style="{StaticResource AccentButtonStyle}"
+                                Command="{x:Bind ViewModel.EscrutarCommand}" />
+                        <Button Content="Posibles premios"
+                                Command="{x:Bind ViewModel.PosiblesPremiosCommand}" />
+                        <TextBlock Text="{x:Bind ViewModel.TiempoTexto, Mode=OneWay}"
+                                   VerticalAlignment="Center"
+                                   Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Resultados (dgResultados) ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Resultados"
+                               Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                    <ListView ItemsSource="{x:Bind ViewModel.Resultados}"
+                              SelectionMode="None"
+                              MinHeight="220"
+                              Background="{ThemeResource AppSurfaceAltBrush}"
+                              BorderBrush="{ThemeResource AppBorderBrush}"
+                              BorderThickness="1" />
+
+                    <TextBlock
+                        Text="Sin resultados todavía. Lanza un escrutinio para ver las columnas premiadas."
+                        Style="{StaticResource SecondaryTextBlockStyle}"
+                        TextWrapping="Wrap"
+                        Visibility="{x:Bind ViewModel.MensajeVacioVisibility, Mode=OneWay}" />
+
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Button Content="Seleccionar Todas"
+                                Command="{x:Bind ViewModel.SeleccionarTodasCommand}" />
+                        <Button Content="Deseleccionar Todas"
+                                Command="{x:Bind ViewModel.DeseleccionarTodasCommand}" />
+                        <Button Content="Grabar cols"
+                                Command="{x:Bind ViewModel.GrabarColumnasCommand}" />
+                        <Button Content="Ver Premiadas"
+                                Command="{x:Bind ViewModel.VerPremiadasAccionCommand}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

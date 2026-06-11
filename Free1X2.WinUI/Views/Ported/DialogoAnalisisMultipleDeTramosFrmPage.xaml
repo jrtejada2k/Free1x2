@@ -1,0 +1,414 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.DialogoAnalisisMultipleDeTramosFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ported="using:Free1X2.WinUI.Views.Ported">
+
+    <ScrollViewer>
+        <StackPanel Padding="32" Spacing="24" MaxWidth="980" HorizontalAlignment="Left">
+
+            <!-- ===== Encabezado ===== -->
+            <StackPanel Spacing="6">
+                <TextBlock Text="Definición múltiple de jornadas y ficheros"
+                           Style="{StaticResource PageTitleTextBlockStyle}" />
+                <TextBlock Text="Selecciona el fichero de valoraciones históricas y define qué combinaciones analizar: una misma combinación sobre varias temporadas, o una combinación distinta por jornada. Añade además el criterio de selección de jornadas por recaudación e importes de premio."
+                           Style="{StaticResource SecondaryTextBlockStyle}"
+                           TextWrapping="Wrap" />
+            </StackPanel>
+
+            <!-- ===== Fichero de valoraciones históricas (legacy label1 + txNombreFicheroValoraciones + btSeleccionarFichero) ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Fichero de valoraciones históricas"
+                               Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0"
+                                 Text="{x:Bind ViewModel.FicheroValoraciones, Mode=OneWay}"
+                                 IsReadOnly="True"
+                                 PlaceholderText="Ningún fichero seleccionado"
+                                 AutomationProperties.Name="Fichero de valoraciones históricas" />
+                        <Button Grid.Column="1"
+                                Content="&#xE8E5;  Seleccionar"
+                                FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                Command="{x:Bind ViewModel.SeleccionarFicheroValoracionesCommand}"
+                                AutomationProperties.Name="Seleccionar fichero de valoraciones" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Modos (legacy tabControl1 con tab14T y tabFicheros) ===== -->
+            <TabView IsAddTabButtonVisible="False"
+                     CanReorderTabs="False"
+                     CanDragTabs="False"
+                     AutomationProperties.Name="Modo de definición de combinaciones">
+                <TabView.TabItems>
+
+                    <!-- ===== Pestaña: Combinación única (legacy tab14T) ===== -->
+                    <TabViewItem Header="Combinación única" IsClosable="False">
+                        <ScrollViewer>
+                            <StackPanel Spacing="24" Padding="4,16,4,4">
+
+                                <!-- Origen de la combinación (legacy rb14Triples / rbFichero + txFichero + btSeleccionarCombi) -->
+                                <Border Style="{StaticResource AppCardStyle}">
+                                    <StackPanel Spacing="16">
+                                        <TextBlock Text="Origen de la combinación"
+                                                   Style="{StaticResource CardTitleTextBlockStyle}" />
+                                        <ToggleSwitch IsOn="{x:Bind ViewModel.Usar14Triples, Mode=TwoWay}"
+                                                      Header="Usar el desarrollo de 14 triples"
+                                                      OnContent="14 triples"
+                                                      OffContent="Fichero de combinación"
+                                                      AutomationProperties.Name="Usar 14 triples o un fichero de combinación" />
+                                        <Grid ColumnSpacing="12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBox Grid.Column="0"
+                                                     Text="{x:Bind ViewModel.FicheroCombinacion, Mode=OneWay}"
+                                                     IsReadOnly="True"
+                                                     PlaceholderText="Fichero de combinación (si no se usan 14 triples)"
+                                                     AutomationProperties.Name="Fichero de combinación" />
+                                            <Button Grid.Column="1"
+                                                    Content="&#xE8E5;  Seleccionar"
+                                                    FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                    Command="{x:Bind ViewModel.SeleccionarCombinacionCommand}"
+                                                    AutomationProperties.Name="Seleccionar fichero de combinación" />
+                                        </Grid>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Temporadas (legacy label2 + chkTemporadas + btTodas + btNinguna) -->
+                                <Border Style="{StaticResource AppCardStyle}">
+                                    <StackPanel Spacing="16">
+                                        <TextBlock Text="Temporadas"
+                                                   Style="{StaticResource CardTitleTextBlockStyle}" />
+                                        <TextBlock Text="Marca las temporadas leídas del fichero de valoraciones sobre las que aplicar la combinación."
+                                                   Style="{StaticResource SecondaryTextBlockStyle}"
+                                                   TextWrapping="Wrap" />
+                                        <StackPanel Orientation="Horizontal" Spacing="12">
+                                            <Button Content="Todas"
+                                                    Command="{x:Bind ViewModel.MarcarTodasTemporadasCommand}"
+                                                    AutomationProperties.Name="Marcar todas las temporadas" />
+                                            <Button Content="Ninguna"
+                                                    Command="{x:Bind ViewModel.DesmarcarTodasTemporadasCommand}"
+                                                    AutomationProperties.Name="Desmarcar todas las temporadas" />
+                                        </StackPanel>
+                                        <ListView ItemsSource="{x:Bind ViewModel.Temporadas, Mode=OneWay}"
+                                                  SelectionMode="None"
+                                                  MaxHeight="280"
+                                                  AutomationProperties.Name="Lista de temporadas">
+                                            <ListView.ItemContainerStyle>
+                                                <Style TargetType="ListViewItem">
+                                                    <Setter Property="Padding" Value="0,2" />
+                                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                                    <Setter Property="MinHeight" Value="0" />
+                                                </Style>
+                                            </ListView.ItemContainerStyle>
+                                            <ListView.ItemTemplate>
+                                                <DataTemplate x:DataType="ported:TemporadaSeleccionableViewModel">
+                                                    <CheckBox IsChecked="{x:Bind Seleccionada, Mode=TwoWay}"
+                                                              Content="{x:Bind Nombre}"
+                                                              AutomationProperties.Name="Temporada" />
+                                                </DataTemplate>
+                                            </ListView.ItemTemplate>
+                                        </ListView>
+                                    </StackPanel>
+                                </Border>
+
+                            </StackPanel>
+                        </ScrollViewer>
+                    </TabViewItem>
+
+                    <!-- ===== Pestaña: Una combinación por jornada (legacy tabFicheros) ===== -->
+                    <TabViewItem Header="Una combinación por jornada" IsClosable="False">
+                        <ScrollViewer>
+                            <StackPanel Spacing="24" Padding="4,16,4,4">
+
+                                <!-- Selección de temporada y jornada (legacy txTemporada/txTemporada2/txJornada + botones) -->
+                                <Border Style="{StaticResource AppCardStyle}">
+                                    <StackPanel Spacing="16">
+                                        <TextBlock Text="Temporada y jornada"
+                                                   Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                                        <Grid ColumnSpacing="12" RowSpacing="12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                            </Grid.RowDefinitions>
+
+                                            <!-- Temporada -->
+                                            <NumberBox Grid.Row="0" Grid.Column="0"
+                                                       Header="Temporada"
+                                                       Value="{x:Bind ViewModel.Temporada, Mode=TwoWay}"
+                                                       SpinButtonPlacementMode="Inline"
+                                                       Minimum="1900" Maximum="2100"
+                                                       MinWidth="160"
+                                                       AutomationProperties.Name="Temporada de inicio" />
+                                            <Button Grid.Row="0" Grid.Column="1"
+                                                    Content="&#xE76B;"
+                                                    FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                    VerticalAlignment="Bottom"
+                                                    Command="{x:Bind ViewModel.TemporadaAnteriorCommand}"
+                                                    AutomationProperties.Name="Temporada anterior"
+                                                    ToolTipService.ToolTip="Temporada anterior" />
+                                            <Button Grid.Row="0" Grid.Column="2"
+                                                    Content="&#xE76C;"
+                                                    FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                    VerticalAlignment="Bottom"
+                                                    Command="{x:Bind ViewModel.TemporadaSiguienteCommand}"
+                                                    AutomationProperties.Name="Temporada siguiente"
+                                                    ToolTipService.ToolTip="Temporada siguiente" />
+
+                                            <!-- Jornada -->
+                                            <NumberBox Grid.Row="1" Grid.Column="0"
+                                                       Header="Jornada"
+                                                       Value="{x:Bind ViewModel.Jornada, Mode=TwoWay}"
+                                                       SpinButtonPlacementMode="Inline"
+                                                       Minimum="0" Maximum="43"
+                                                       MinWidth="160"
+                                                       AutomationProperties.Name="Jornada" />
+                                            <Button Grid.Row="1" Grid.Column="1"
+                                                    Content="&#xE76B;"
+                                                    FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                    VerticalAlignment="Bottom"
+                                                    Command="{x:Bind ViewModel.JornadaAnteriorCommand}"
+                                                    AutomationProperties.Name="Jornada anterior"
+                                                    ToolTipService.ToolTip="Jornada anterior" />
+                                            <Button Grid.Row="1" Grid.Column="2"
+                                                    Content="&#xE76C;"
+                                                    FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                    VerticalAlignment="Bottom"
+                                                    Command="{x:Bind ViewModel.JornadaSiguienteCommand}"
+                                                    AutomationProperties.Name="Jornada siguiente"
+                                                    ToolTipService.ToolTip="Jornada siguiente" />
+                                        </Grid>
+
+                                        <TextBlock Text="{x:Bind ViewModel.TemporadaTexto, Mode=OneWay}"
+                                                   Style="{StaticResource SecondaryTextBlockStyle}"
+                                                   AutomationProperties.Name="Temporada en formato AAAA/AAAA" />
+
+                                        <StackPanel Orientation="Horizontal" Spacing="12">
+                                            <Button Content="&#xE710;  Añadir"
+                                                    FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                    Command="{x:Bind ViewModel.AnadirCombinacionCommand}"
+                                                    AutomationProperties.Name="Añadir combinación a la lista" />
+                                            <Button Content="&#xE74D;  Eliminar"
+                                                    FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                    Command="{x:Bind ViewModel.EliminarCombinacionCommand}"
+                                                    AutomationProperties.Name="Eliminar combinación seleccionada" />
+                                            <Button Content="&#xE74E;  Guardar"
+                                                    FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                    Command="{x:Bind ViewModel.GuardarListaCommand}"
+                                                    AutomationProperties.Name="Guardar lista de combinaciones" />
+                                            <Button Content="&#xE8E5;  Leer"
+                                                    FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                                    Command="{x:Bind ViewModel.LeerListaCommand}"
+                                                    AutomationProperties.Name="Leer lista de combinaciones" />
+                                        </StackPanel>
+
+                                        <CheckBox IsChecked="{x:Bind ViewModel.AnalizarFicherosEn14Triples, Mode=TwoWay}"
+                                                  Content="Analizar ficheros dentro del desarrollo de 14 triples"
+                                                  AutomationProperties.Name="Analizar ficheros dentro del desarrollo de 14 triples" />
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Lista de combinaciones (legacy dgListaFicheros) -->
+                                <Border Style="{StaticResource AppCardStyle}">
+                                    <StackPanel Spacing="16">
+                                        <TextBlock Text="Combinaciones por jornada"
+                                                   Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                                        <!-- Cabecera de columnas -->
+                                        <Grid ColumnSpacing="12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="100" />
+                                                <ColumnDefinition Width="60" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="Temporada"
+                                                       Style="{StaticResource SecondaryTextBlockStyle}" />
+                                            <TextBlock Grid.Column="1" Text="Jor."
+                                                       Style="{StaticResource SecondaryTextBlockStyle}" />
+                                            <TextBlock Grid.Column="2" Text="Fichero"
+                                                       Style="{StaticResource SecondaryTextBlockStyle}" />
+                                        </Grid>
+
+                                        <ListView ItemsSource="{x:Bind ViewModel.Combinaciones, Mode=OneWay}"
+                                                  SelectionMode="Extended"
+                                                  MaxHeight="320"
+                                                  AutomationProperties.Name="Lista de combinaciones por jornada">
+                                            <ListView.ItemContainerStyle>
+                                                <Style TargetType="ListViewItem">
+                                                    <Setter Property="Padding" Value="0,4" />
+                                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                                    <Setter Property="MinHeight" Value="0" />
+                                                </Style>
+                                            </ListView.ItemContainerStyle>
+                                            <ListView.ItemTemplate>
+                                                <DataTemplate x:DataType="ported:CombinacionFilaViewModel">
+                                                    <Grid ColumnSpacing="12">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="100" />
+                                                            <ColumnDefinition Width="60" />
+                                                            <ColumnDefinition Width="*" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Grid.Column="0" Text="{x:Bind Temporada}"
+                                                                   VerticalAlignment="Center"
+                                                                   AutomationProperties.Name="Temporada" />
+                                                        <TextBlock Grid.Column="1" Text="{x:Bind Jornada}"
+                                                                   VerticalAlignment="Center"
+                                                                   AutomationProperties.Name="Jornada" />
+                                                        <TextBlock Grid.Column="2" Text="{x:Bind Ruta}"
+                                                                   VerticalAlignment="Center"
+                                                                   TextTrimming="CharacterEllipsis"
+                                                                   AutomationProperties.Name="Fichero" />
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ListView.ItemTemplate>
+                                        </ListView>
+                                    </StackPanel>
+                                </Border>
+
+                            </StackPanel>
+                        </ScrollViewer>
+                    </TabViewItem>
+
+                </TabView.TabItems>
+            </TabView>
+
+            <!-- ===== Criterio de selección de jornadas (legacy grSeleccionJornada) ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Criterio de selección de jornadas"
+                               Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <TextBlock Text="Las jornadas se filtran por el rango de recaudación y por el importe (mínimo y máximo) de los premios de 14, 13, 12, 11 y 10 aciertos."
+                               Style="{StaticResource SecondaryTextBlockStyle}"
+                               TextWrapping="Wrap" />
+
+                    <Grid ColumnSpacing="16" RowSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <!-- Cabeceras -->
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="Mínimo"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Row="0" Grid.Column="2" Text="Máximo"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+
+                        <!-- Recaudación -->
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Recaudación"
+                                   VerticalAlignment="Center"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <NumberBox Grid.Row="1" Grid.Column="1"
+                                   Value="{x:Bind ViewModel.RecaudacionMinima, Mode=TwoWay}"
+                                   Minimum="0"
+                                   AutomationProperties.Name="Recaudación mínima" />
+                        <NumberBox Grid.Row="1" Grid.Column="2"
+                                   Value="{x:Bind ViewModel.RecaudacionMaxima, Mode=TwoWay}"
+                                   Minimum="0"
+                                   AutomationProperties.Name="Recaudación máxima" />
+
+                        <!-- Premio de 14 -->
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Importe premio de 14"
+                                   VerticalAlignment="Center"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <NumberBox Grid.Row="2" Grid.Column="1"
+                                   Value="{x:Bind ViewModel.PremioMinimoDe14, Mode=TwoWay}"
+                                   Minimum="0"
+                                   AutomationProperties.Name="Premio mínimo de 14" />
+                        <NumberBox Grid.Row="2" Grid.Column="2"
+                                   Value="{x:Bind ViewModel.PremioMaximoDe14, Mode=TwoWay}"
+                                   Minimum="0"
+                                   AutomationProperties.Name="Premio máximo de 14" />
+
+                        <!-- Premio de 13 -->
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Importe premio de 13"
+                                   VerticalAlignment="Center"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <NumberBox Grid.Row="3" Grid.Column="1"
+                                   Value="{x:Bind ViewModel.PremioMinimoDe13, Mode=TwoWay}"
+                                   Minimum="0"
+                                   AutomationProperties.Name="Premio mínimo de 13" />
+                        <NumberBox Grid.Row="3" Grid.Column="2"
+                                   Value="{x:Bind ViewModel.PremioMaximoDe13, Mode=TwoWay}"
+                                   Minimum="0"
+                                   AutomationProperties.Name="Premio máximo de 13" />
+
+                        <!-- Premio de 12 -->
+                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Importe premio de 12"
+                                   VerticalAlignment="Center"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <NumberBox Grid.Row="4" Grid.Column="1"
+                                   Value="{x:Bind ViewModel.PremioMinimoDe12, Mode=TwoWay}"
+                                   Minimum="0"
+                                   AutomationProperties.Name="Premio mínimo de 12" />
+                        <NumberBox Grid.Row="4" Grid.Column="2"
+                                   Value="{x:Bind ViewModel.PremioMaximoDe12, Mode=TwoWay}"
+                                   Minimum="0"
+                                   AutomationProperties.Name="Premio máximo de 12" />
+
+                        <!-- Premio de 11 -->
+                        <TextBlock Grid.Row="5" Grid.Column="0" Text="Importe premio de 11"
+                                   VerticalAlignment="Center"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <NumberBox Grid.Row="5" Grid.Column="1"
+                                   Value="{x:Bind ViewModel.PremioMinimoDe11, Mode=TwoWay}"
+                                   Minimum="0"
+                                   AutomationProperties.Name="Premio mínimo de 11" />
+                        <NumberBox Grid.Row="5" Grid.Column="2"
+                                   Value="{x:Bind ViewModel.PremioMaximoDe11, Mode=TwoWay}"
+                                   Minimum="0"
+                                   AutomationProperties.Name="Premio máximo de 11" />
+
+                        <!-- Premio de 10 -->
+                        <TextBlock Grid.Row="6" Grid.Column="0" Text="Importe premio de 10"
+                                   VerticalAlignment="Center"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <NumberBox Grid.Row="6" Grid.Column="1"
+                                   Value="{x:Bind ViewModel.PremioMinimoDe10, Mode=TwoWay}"
+                                   Minimum="0"
+                                   AutomationProperties.Name="Premio mínimo de 10" />
+                        <NumberBox Grid.Row="6" Grid.Column="2"
+                                   Value="{x:Bind ViewModel.PremioMaximoDe10, Mode=TwoWay}"
+                                   Minimum="0"
+                                   AutomationProperties.Name="Premio máximo de 10" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Acciones del diálogo (legacy btAceptar / btCancelar) ===== -->
+            <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right">
+                <Button Content="Cancelar"
+                        Command="{x:Bind ViewModel.CancelarCommand}"
+                        AutomationProperties.Name="Cancelar" />
+                <Button Content="Aceptar"
+                        Style="{StaticResource AccentButtonStyle}"
+                        Command="{x:Bind ViewModel.AceptarCommand}"
+                        AutomationProperties.Name="Aceptar" />
+            </StackPanel>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

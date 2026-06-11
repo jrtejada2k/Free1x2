@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.SelecJMPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ScrollViewer>
+        <StackPanel Padding="32" Spacing="24" MaxWidth="960" HorizontalAlignment="Left">
+
+            <!-- ===== Encabezado ===== -->
+            <StackPanel Spacing="6">
+                <TextBlock Text="Selección 5+5+4 de JuanM" Style="{StaticResource PageTitleTextBlockStyle}" />
+                <TextBlock Text="Reparte los 14 partidos en tres grupos (5 + 5 + 4), genera las tablas ordenadas de cada grupo, aplica límites por grupo y por total, y obtiene las columnas válidas por corte o por valor. Debe haber 5 partidos en cada uno de los grupos 1 y 2, y 4 partidos en el grupo 3."
+                           Style="{StaticResource SecondaryTextBlockStyle}"
+                           TextWrapping="Wrap" />
+            </StackPanel>
+
+            <!-- ===== Valoraciones por partido (control legacy 'valors') ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Valoraciones por partido" Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <TextBlock Text="Origen de datos del control 'valors' (valoraciones 1 / X / 2 por partido). La carga y edición de la rejilla se portará por separado."
+                               Style="{StaticResource SecondaryTextBlockStyle}"
+                               TextWrapping="Wrap" />
+                    <!-- TODO: Dominio legacy — control Free1X2.UI.Controls.valors (rejilla de valoraciones por partido).
+                         Provee nvals = valors1.RetVals() usado por SelecJM.RecuperaPantalla(). -->
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Grupos (g01..g14) ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Grupos" Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <TextBlock Text="Indica el grupo (1, 2 ó 3) al que pertenece cada partido. Deben quedar 5 partidos en el grupo 1, 5 en el grupo 2 y 4 en el grupo 3."
+                               Style="{StaticResource SecondaryTextBlockStyle}"
+                               TextWrapping="Wrap" />
+
+                    <Grid ColumnSpacing="16" RowSpacing="10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <TextBox Grid.Row="0" Grid.Column="0" Width="84" MaxLength="1" Header="Partido 1"  Text="{x:Bind ViewModel.Grupo01, Mode=TwoWay}" />
+                        <TextBox Grid.Row="0" Grid.Column="1" Width="84" MaxLength="1" Header="Partido 2"  Text="{x:Bind ViewModel.Grupo02, Mode=TwoWay}" />
+                        <TextBox Grid.Row="0" Grid.Column="2" Width="84" MaxLength="1" Header="Partido 3"  Text="{x:Bind ViewModel.Grupo03, Mode=TwoWay}" />
+                        <TextBox Grid.Row="0" Grid.Column="3" Width="84" MaxLength="1" Header="Partido 4"  Text="{x:Bind ViewModel.Grupo04, Mode=TwoWay}" />
+
+                        <TextBox Grid.Row="1" Grid.Column="0" Width="84" MaxLength="1" Header="Partido 5"  Text="{x:Bind ViewModel.Grupo05, Mode=TwoWay}" />
+                        <TextBox Grid.Row="1" Grid.Column="1" Width="84" MaxLength="1" Header="Partido 6"  Text="{x:Bind ViewModel.Grupo06, Mode=TwoWay}" />
+                        <TextBox Grid.Row="1" Grid.Column="2" Width="84" MaxLength="1" Header="Partido 7"  Text="{x:Bind ViewModel.Grupo07, Mode=TwoWay}" />
+                        <TextBox Grid.Row="1" Grid.Column="3" Width="84" MaxLength="1" Header="Partido 8"  Text="{x:Bind ViewModel.Grupo08, Mode=TwoWay}" />
+
+                        <TextBox Grid.Row="2" Grid.Column="0" Width="84" MaxLength="1" Header="Partido 9"  Text="{x:Bind ViewModel.Grupo09, Mode=TwoWay}" />
+                        <TextBox Grid.Row="2" Grid.Column="1" Width="84" MaxLength="1" Header="Partido 10" Text="{x:Bind ViewModel.Grupo10, Mode=TwoWay}" />
+                        <TextBox Grid.Row="2" Grid.Column="2" Width="84" MaxLength="1" Header="Partido 11" Text="{x:Bind ViewModel.Grupo11, Mode=TwoWay}" />
+                        <TextBox Grid.Row="2" Grid.Column="3" Width="84" MaxLength="1" Header="Partido 12" Text="{x:Bind ViewModel.Grupo12, Mode=TwoWay}" />
+
+                        <TextBox Grid.Row="3" Grid.Column="0" Width="84" MaxLength="1" Header="Partido 13" Text="{x:Bind ViewModel.Grupo13, Mode=TwoWay}" />
+                        <TextBox Grid.Row="3" Grid.Column="1" Width="84" MaxLength="1" Header="Partido 14" Text="{x:Bind ViewModel.Grupo14, Mode=TwoWay}" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Límites ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Límites" Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <TextBlock Text="Rangos de posiciones admitidas dentro de la tabla ordenada de cada grupo y del total. Formato: a-b separados por comas, p. ej. 1-50,80-120."
+                               Style="{StaticResource SecondaryTextBlockStyle}"
+                               TextWrapping="Wrap" />
+
+                    <Grid ColumnSpacing="12" RowSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="120" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Grupo 1 (1-243)" VerticalAlignment="Center" Style="{StaticResource CardTitleTextBlockStyle}" />
+                        <TextBox  Grid.Row="0" Grid.Column="1" Text="{x:Bind ViewModel.LimiteGrupo1, Mode=TwoWay}" AutomationProperties.Name="Límites del grupo 1" />
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Grupo 2 (1-243)" VerticalAlignment="Center" Style="{StaticResource CardTitleTextBlockStyle}" />
+                        <TextBox  Grid.Row="1" Grid.Column="1" Text="{x:Bind ViewModel.LimiteGrupo2, Mode=TwoWay}" AutomationProperties.Name="Límites del grupo 2" />
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Grupo 3 (1-81)" VerticalAlignment="Center" Style="{StaticResource CardTitleTextBlockStyle}" />
+                        <TextBox  Grid.Row="2" Grid.Column="1" Text="{x:Bind ViewModel.LimiteGrupo3, Mode=TwoWay}" AutomationProperties.Name="Límites del grupo 3" />
+
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Total (1-567)" VerticalAlignment="Center" Style="{StaticResource CardTitleTextBlockStyle}" />
+                        <TextBox  Grid.Row="3" Grid.Column="1" Text="{x:Bind ViewModel.LimiteTotal, Mode=TwoWay}" AutomationProperties.Name="Límites del total" />
+                    </Grid>
+
+                    <!-- Porcentajes acumulados por grupo (readonly: lpc1/lpc2/lpc3) -->
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" Spacing="4">
+                            <TextBlock Text="% Grupo 1" Style="{StaticResource SecondaryTextBlockStyle}" />
+                            <TextBlock Text="{x:Bind ViewModel.Porcentaje1, Mode=OneWay}" Style="{StaticResource CardTitleTextBlockStyle}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Spacing="4">
+                            <TextBlock Text="% Grupo 2" Style="{StaticResource SecondaryTextBlockStyle}" />
+                            <TextBlock Text="{x:Bind ViewModel.Porcentaje2, Mode=OneWay}" Style="{StaticResource CardTitleTextBlockStyle}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" Spacing="4">
+                            <TextBlock Text="% Grupo 3" Style="{StaticResource SecondaryTextBlockStyle}" />
+                            <TextBlock Text="{x:Bind ViewModel.Porcentaje3, Mode=OneWay}" Style="{StaticResource CardTitleTextBlockStyle}" />
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Modo de examen (GroupBox "Examinar": por corte / por valor) -->
+                    <ComboBox Header="Examinar"
+                              MinWidth="200"
+                              ItemsSource="{x:Bind ViewModel.ModosExamen}"
+                              SelectedItem="{x:Bind ViewModel.ModoExamen, Mode=TwoWay}"
+                              AutomationProperties.Name="Modo de examen: por corte o por valor" />
+
+                    <!-- Condiciones: leer/salvar fichero .cnd -->
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Button Content="Leer condiciones"
+                                Command="{x:Bind ViewModel.LeerCondicionesCommand}"
+                                AutomationProperties.Name="Leer condiciones desde fichero" />
+                        <Button Content="Salvar condiciones"
+                                Command="{x:Bind ViewModel.SalvarCondicionesCommand}"
+                                AutomationProperties.Name="Salvar condiciones a fichero" />
+                    </StackPanel>
+                    <TextBlock Text="{x:Bind ViewModel.FicheroCondiciones, Mode=OneWay}"
+                               Style="{StaticResource SecondaryTextBlockStyle}" />
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Proceso (Calcular / Cancelar / Grabar + estado) ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Proceso" Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Button Content="Calcular"
+                                Style="{StaticResource AccentButtonStyle}"
+                                Command="{x:Bind ViewModel.CalcularCommand}"
+                                AutomationProperties.Name="Calcular columnas válidas" />
+                        <Button Content="Cancelar"
+                                Command="{x:Bind ViewModel.CancelarCommand}"
+                                AutomationProperties.Name="Cancelar el cálculo en curso" />
+                        <Button Content="Grabar columnas"
+                                Command="{x:Bind ViewModel.GrabarColumnasCommand}"
+                                AutomationProperties.Name="Grabar las columnas válidas a fichero" />
+                    </StackPanel>
+
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" Spacing="4">
+                            <TextBlock Text="Procesadas" Style="{StaticResource SecondaryTextBlockStyle}" />
+                            <TextBlock Text="{x:Bind ViewModel.Procesadas, Mode=OneWay}" Style="{StaticResource CardTitleTextBlockStyle}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Spacing="4">
+                            <TextBlock Text="Válidas" Style="{StaticResource SecondaryTextBlockStyle}" />
+                            <TextBlock Text="{x:Bind ViewModel.Validas, Mode=OneWay}" Style="{StaticResource CardTitleTextBlockStyle}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" Spacing="4">
+                            <TextBlock Text="Tiempo" Style="{StaticResource SecondaryTextBlockStyle}" />
+                            <TextBlock Text="{x:Bind ViewModel.Tiempo, Mode=OneWay}" Style="{StaticResource CardTitleTextBlockStyle}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="3" Spacing="4">
+                            <TextBlock Text="Fichero" Style="{StaticResource SecondaryTextBlockStyle}" />
+                            <TextBlock Text="{x:Bind ViewModel.FicheroSalida, Mode=OneWay}" Style="{StaticResource CardTitleTextBlockStyle}" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Análisis de resultados (GroupBox "Análisis Resultados") ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Análisis de resultados" Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <TextBlock Text="Carga un fichero de columnas ganadoras, navega entre ellas y ubica la columna seleccionada dentro del rango ordenado de cada grupo."
+                               Style="{StaticResource SecondaryTextBlockStyle}"
+                               TextWrapping="Wrap" />
+
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Button Content="Cargar ganadoras"
+                                Command="{x:Bind ViewModel.CargarGanadorasCommand}"
+                                AutomationProperties.Name="Cargar fichero de columnas ganadoras" />
+                        <TextBlock Text="{x:Bind ViewModel.FicheroGanadoras, Mode=OneWay}"
+                                   VerticalAlignment="Center"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                    </StackPanel>
+
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBox Grid.Column="0"
+                                 Header="Columna ganadora"
+                                 MaxLength="14"
+                                 Text="{x:Bind ViewModel.ColumnaGanadora, Mode=TwoWay}"
+                                 AutomationProperties.Name="Columna ganadora a analizar" />
+                        <TextBlock Grid.Column="1"
+                                   Text="{x:Bind ViewModel.IndiceGanadora, Mode=OneWay}"
+                                   VerticalAlignment="Bottom" Margin="0,0,0,8"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <Button Grid.Column="2" Content="-"
+                                VerticalAlignment="Bottom"
+                                Command="{x:Bind ViewModel.GanadoraAnteriorCommand}"
+                                AutomationProperties.Name="Columna ganadora anterior" />
+                        <Button Grid.Column="3" Content="+"
+                                VerticalAlignment="Bottom"
+                                Command="{x:Bind ViewModel.GanadoraSiguienteCommand}"
+                                AutomationProperties.Name="Columna ganadora siguiente" />
+                    </Grid>
+
+                    <Button Content="Analizar"
+                            IsEnabled="{x:Bind ViewModel.PuedeAnalizar, Mode=OneWay}"
+                            Command="{x:Bind ViewModel.AnalizarCommand}"
+                            AutomationProperties.Name="Analizar la columna ganadora" />
+
+                    <!-- Rangos resultantes (ang1/ang2/ang3/angt) -->
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" Spacing="4">
+                            <TextBlock Text="Rango gr.1" Style="{StaticResource SecondaryTextBlockStyle}" />
+                            <TextBlock Text="{x:Bind ViewModel.RangoGrupo1, Mode=OneWay}" Style="{StaticResource CardTitleTextBlockStyle}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Spacing="4">
+                            <TextBlock Text="Rango gr.2" Style="{StaticResource SecondaryTextBlockStyle}" />
+                            <TextBlock Text="{x:Bind ViewModel.RangoGrupo2, Mode=OneWay}" Style="{StaticResource CardTitleTextBlockStyle}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" Spacing="4">
+                            <TextBlock Text="Rango gr.3" Style="{StaticResource SecondaryTextBlockStyle}" />
+                            <TextBlock Text="{x:Bind ViewModel.RangoGrupo3, Mode=OneWay}" Style="{StaticResource CardTitleTextBlockStyle}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="3" Spacing="4">
+                            <TextBlock Text="Rango total" Style="{StaticResource SecondaryTextBlockStyle}" />
+                            <TextBlock Text="{x:Bind ViewModel.RangoTotal, Mode=OneWay}" Style="{StaticResource CardTitleTextBlockStyle}" />
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>
