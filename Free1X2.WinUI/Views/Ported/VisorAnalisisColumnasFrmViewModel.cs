@@ -49,6 +49,13 @@ namespace Free1X2.WinUI.Views.Ported
 
     public partial class VisorAnalisisColumnasFrmViewModel : ObservableObject
     {
+        // Payload que el dominio entrega a través del hook AnalisisUi.MostrarVisor
+        // (contenedor = Free1X2.Analisis.ContenedorAnalisisGlobal, grupo = Free1X2.MotorCalculo.Grupo).
+        // Se guarda de forma estática hasta que el cableado completo del visor lo consuma.
+        // TODO(visor): consumir estos objetos para reconstruir el árbol de análisis.
+        public static object? UltimoContenedor { get; set; }
+        public static object? UltimoGrupo { get; set; }
+
         public VisorAnalisisColumnasFrmViewModel()
         {
             // Legacy MostrarDatos(): el orden y los textos de las pestañas provienen del Designer
