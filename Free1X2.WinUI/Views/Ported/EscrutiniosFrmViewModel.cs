@@ -1,7 +1,14 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data;
+using System.IO;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Free1X2.Escrutinio;
+using Free1X2.Utils;
+using Free1X2.WinUI.Services;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -15,9 +22,6 @@ namespace Free1X2.WinUI.Views.Ported;
 /// </summary>
 public partial class EscrutiniosFrmViewModel : ObservableObject
 {
-    // Número de partidos de la quiniela (legacy: VariablesGlobales.NumeroPartidos; por defecto 14).
-    private const int NumeroPartidos = 14;
-
     // Tipo de escrutinio según la pestaña activa (legacy: tipoEscrutinio; 1=simple, 2=fichero, 3=jornadas).
     // Se deriva de TabSeleccionada para mantener el binding en un solo sitio.
     public int TipoEscrutinio => TabSeleccionada + 1;
@@ -102,6 +106,13 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
     // Filas de resultados del escrutinio (legacy: dgResultados / resultadosDS "Resultados").
     public ObservableCollection<object> Resultados { get; } = new();
 
+    // Histograma de premios globales: nº de columnas con N aciertos (legacy: premiosGlobales[]).
+    public ObservableCollection<PremioHistograma> Histograma { get; } = new();
+
+    // Rutas completas de los ficheros a escrutar (las propiedades *Texto sólo muestran el nombre).
+    private readonly List<string> _archivosComb = new();
+    private string _archivoReferencia = "";
+
     // ===== Estados de habilitación de botones =====
 
     // Habilita Seleccionar/Deseleccionar/Grabar tras un escrutinio (legacy: btnEnableSel/btnDisabSel.Enabled).
@@ -114,10 +125,10 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
 
     public EscrutiniosFrmViewModel()
     {
-        // TODO[dominio]: inicializar rango por defecto con el nº real de partidos:
-        //   RangoAciertos = "10-" + VariablesGlobales.NumeroPartidos;  (legacy ctor)
+        // Rango por defecto con el nº real de partidos (legacy ctor: "10-" + NumeroPartidos).
+        RangoAciertos = "10-" + Free1X2.VariablesGlobales.NumeroPartidos;
         // TODO[dominio]: cargar Temporadas leyendo Jornadas/Resultados.txt en orden descendente
-        //   (legacy crearDataset(): rellena dsJornadas y lstTemporadas).
+        //   (legacy crearDataset(): rellena dsJornadas y lstTemporadas) — requerido para tipo 3.
     }
 
     /// <summary>
@@ -125,10 +136,25 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
     /// Legacy: BtnFileOrigClick -> OpenFileDialog (carpeta Columnas, *.txt, Multiselect).
     /// </summary>
     [RelayCommand]
-    private void SeleccionarFicheros()
+    private async Task SeleccionarFicherosAsync()
     {
-        // TODO[dominio]: abrir FileOpenPicker múltiple en la carpeta Columnas (*.txt).
-        //   Legacy: archivosComb = rutas; FicherosAEscrutar = Path.GetFileName(cada ruta).
+        var picker = new Windows.Storage.Pickers.FileOpenPicker
+        {
+            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
+        };
+        picker.FileTypeFilter.Add(".txt");
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        var files = await picker.PickMultipleFilesAsync();
+        if (files == null || files.Count == 0) return;
+
+        _archivosComb.Clear();
+        FicherosAEscrutar.Clear();
+        foreach (var f in files)
+        {
+            _archivosComb.Add(f.Path);
+            FicherosAEscrutar.Add(f.Name);
+        }
     }
 
     /// <summary>
@@ -136,10 +162,20 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
     /// Legacy: BtnFileRefClick -> OpenFileDialog (carpeta Columnas, *.txt).
     /// </summary>
     [RelayCommand]
-    private void SeleccionarFicheroReferencia()
+    private async Task SeleccionarFicheroReferenciaAsync()
     {
-        // TODO[dominio]: abrir FileOpenPicker; guardar ruta completa y mostrar
-        //   FicheroReferencia = Path.GetFileName(ruta). (legacy lblFileRef + Tag)
+        var picker = new Windows.Storage.Pickers.FileOpenPicker
+        {
+            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
+        };
+        picker.FileTypeFilter.Add(".txt");
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        var file = await picker.PickSingleFileAsync();
+        if (file == null) return;
+
+        _archivoReferencia = file.Path;
+        FicheroReferencia = file.Name;
     }
 
     /// <summary>
@@ -190,18 +226,87 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
     /// Legacy: BtnComienzoClick -> SonDatosValidos() + RealizaEscrutinio().
     /// </summary>
     [RelayCommand]
-    private void Escrutar()
+    private async Task EscrutarAsync()
     {
-        // TODO[dominio]: validar entradas (legacy SonDatosValidos) y ejecutar (legacy RealizaEscrutinio):
-        //   - Construir int[] colAciertos con RangosHelper.ObtenIntArray(RangoAciertos).
-        //   - Estado = "Calculando..."; reiniciar dataset/grid de resultados.
-        //   - tipo 1: Escrutador.EscrutaCombConColumna(ColumnaGanadora, ...) por cada fichero.
-        //   - tipo 2: Escrutador.EscrutaCombConTemporada(rutaReferencia, ...) por cada fichero.
-        //   - tipo 3: recorrer Temporadas/jornadas del histórico, resolver nombre con la
-        //     plantilla (/t, /j según DigitosTemporada/DigitosJornada) y escrutar cada archivo.
-        //   - escrutador.AñadirAGanadoras = ActivarVerPremiadas; acumular premios globales.
-        //   - Estado = "Final = " + (fin-inicio);
-        //   - HayResultados = true; PuedeVerPremiadas = ActivarVerPremiadas.
+        // Validación equivalente a SonDatosValidos() (subconjunto: tipos 1 y 2).
+        if (_archivosComb.Count == 0 && TipoEscrutinio != 3)
+        {
+            Free1X2.Abstractions.UserDialogs.ShowError("Falta fichero a escrutar.");
+            return;
+        }
+        if (TipoEscrutinio == 2 && _archivoReferencia.Length == 0)
+        {
+            Free1X2.Abstractions.UserDialogs.ShowError("Falta fichero de referencia.");
+            return;
+        }
+        if (TipoEscrutinio == 3)
+        {
+            // El escrutinio contra jornadas requiere el dataset de Jornadas/Resultados.txt
+            // (legacy crearDataset + recorrido temporada/jornada). Pendiente de portar.
+            // TODO(escrutinio-jornadas): portar la rama tipoEscrutinio==3 de RealizaEscrutinio.
+            Free1X2.Abstractions.UserDialogs.ShowError(
+                "El escrutinio contra jornadas aún no está disponible en esta versión.");
+            return;
+        }
+
+        // RangosHelper.ObtenIntArray: convierte "10-14" en el array de nº de aciertos a contar.
+        int[] colAciertos = new RangosHelper().ObtenIntArray(RangoAciertos);
+        bool verPremiadas = ActivarVerPremiadas;
+        int tipo = TipoEscrutinio;
+        string colGan = ColumnaGanadora;
+        string archivoRef = _archivoReferencia;
+        var archivos = new List<string>(_archivosComb);
+
+        Estado = "Calculando...";
+        Resultados.Clear();
+        Histograma.Clear();
+
+        var hora0 = DateTime.Now;
+
+        // RealizaEscrutinio() corre el motor por cada fichero y acumula premiosGlobales.
+        // Se ejecuta en un hilo de fondo; el DataSet de resultados queda en memoria y el
+        // histograma se publica en la UI al terminar.
+        int[] premiosGlobales = await Task.Run(() =>
+        {
+            int[] globales = new int[Free1X2.VariablesGlobales.NumeroPartidos + 1];
+            var resultadosDS = new DataSet();
+
+            foreach (string archivo in archivos)
+            {
+                var escrutador = new Escrutador(colAciertos)
+                {
+                    ArchivoColumnas = archivo,
+                    AñadirAGanadoras = verPremiadas,
+                };
+
+                if (tipo == 1)
+                    escrutador.EscrutaCombConColumna(colGan, resultadosDS, Path.GetFileName(archivo));
+                else // tipo == 2
+                    escrutador.EscrutaCombConTemporada(archivoRef, resultadosDS, Path.GetFileName(archivo));
+
+                int[] premios = escrutador.PremiosTotales;
+                for (int i = 0; i <= Free1X2.VariablesGlobales.NumeroPartidos; i++)
+                    globales[i] += premios[i];
+            }
+            return globales;
+        });
+
+        // Publica el histograma (nº de aciertos -> columnas) sólo para los rangos pedidos.
+        Array.Sort(colAciertos);
+        for (int k = colAciertos.Length - 1; k >= 0; k--)
+        {
+            int aciertos = colAciertos[k];
+            if (aciertos >= 0 && aciertos < premiosGlobales.Length)
+                Histograma.Add(new PremioHistograma(aciertos, premiosGlobales[aciertos]));
+        }
+
+        var hora9 = DateTime.Now;
+        string tiempo = "Final = " + (hora9 - hora0);
+        if (tiempo.Length >= 18) tiempo = tiempo.Substring(0, 18);
+        Estado = tiempo;
+
+        HayResultados = true;
+        PuedeVerPremiadas = verPremiadas;
     }
 
     /// <summary>
@@ -269,4 +374,21 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
         // TODO[dominio]: detener escrutinio en curso y navegar atrás (Frame.GoBack)
         //   o cerrar el host contenedor. (legacy BtnCancelarClick)
     }
+}
+
+/// <summary>Una fila del histograma de premios: nº de aciertos y nº de columnas con ese acierto.</summary>
+public sealed class PremioHistograma
+{
+    public PremioHistograma(int aciertos, int columnas)
+    {
+        Aciertos = aciertos;
+        Columnas = columnas;
+    }
+
+    public int Aciertos { get; }
+    public int Columnas { get; }
+
+    // Texto para bindear directamente a TextBlock.Text (regla anti-crash: no bindear int crudo).
+    public string AciertosTexto => Aciertos.ToString();
+    public string ColumnasTexto => Columnas.ToString();
 }

@@ -1,11 +1,14 @@
+using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Free1X2.EntradaSalida;
 
 namespace Free1X2.WinUI.Views.Ported;
 
 /// <summary>
 /// ViewModel para la pantalla "Cambiar Puntuación" (legacy: CambioPuntosFrm).
 /// Gestiona los puntos asignados a Fijos, Dobles y Triples al evaluar columnas.
+/// Lee/escribe vía Free1X2.EntradaSalida.AConfiguracion (ObtenPuntosCP/GuardarPuntosCP).
 /// </summary>
 public partial class CambioPuntosFrmViewModel : ObservableObject
 {
@@ -25,25 +28,42 @@ public partial class CambioPuntosFrmViewModel : ObservableObject
 
     /// <summary>
     /// Carga los valores actuales de puntuación desde la configuración persistida.
+    /// Legacy: AConfiguracion.ObtenPuntosCP(ref valorFijos, ref valorDobles, ref valorTriples).
     /// </summary>
     public void CargarPuntos()
     {
-        // TODO[dominio]: leer puntuación desde la configuración legacy.
-        //   Legacy: Free1X2.EntradaSalida.AConfiguracion.ObtenPuntosCP(ref valorFijos, ref valorDobles, ref valorTriples)
-        //   El dominio aún no está migrado a Free1X2.Domain; placeholders por defecto.
-        ValorFijos = 0;
-        ValorDobles = 0;
-        ValorTriples = 0;
+        try
+        {
+            int fijos = 0, dobles = 0, triples = 0;
+            new AConfiguracion().ObtenPuntosCP(ref fijos, ref dobles, ref triples);
+            ValorFijos = fijos;
+            ValorDobles = dobles;
+            ValorTriples = triples;
+        }
+        catch
+        {
+            // Sin archivo de configuración accesible: valores por defecto.
+            ValorFijos = 0;
+            ValorDobles = 0;
+            ValorTriples = 0;
+        }
     }
 
     /// <summary>
-    /// Persiste los valores actuales de puntuación. Devuelve true si se guardó correctamente.
+    /// Persiste los valores actuales de puntuación.
+    /// Legacy: AConfiguracion.GuardarPuntosCP(valorFijos, valorDobles, valorTriples).
     /// </summary>
     [RelayCommand]
     private void Guardar()
     {
-        // TODO[dominio]: guardar puntuación en la configuración legacy.
-        //   Legacy: Free1X2.EntradaSalida.AConfiguracion.GuardarPuntosCP(valorFijos, valorDobles, valorTriples)
-        //   Convertir ValorFijos/ValorDobles/ValorTriples (double) a int antes de persistir.
+        try
+        {
+            new AConfiguracion().GuardarPuntosCP((int)ValorFijos, (int)ValorDobles, (int)ValorTriples);
+            Free1X2.Abstractions.UserDialogs.ShowInfo("Puntuación guardada.");
+        }
+        catch (Exception ex)
+        {
+            Free1X2.Abstractions.UserDialogs.ShowError("No se pudo guardar la puntuación: " + ex.Message);
+        }
     }
 }

@@ -1,7 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Free1X2.EntradaSalida;
+using Free1X2.Reduccion;
+using Free1X2.WinUI.Services;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -87,58 +91,166 @@ public partial class ReductorFrmViewModel : ObservableObject
     [ObservableProperty]
     private bool _puedeReducir;
 
+    [ObservableProperty]
+    private bool _reduciendo;
+
+    // Rutas completas (las propiedades *Texto sólo muestran el nombre, como en el legacy).
+    private string _archivoEntrada = "";
+    private string _archivoSalida = "";
+    private IReduccion? _reductor;
+
     private void ActualizarPuedeReducir()
     {
-        PuedeReducir = ArchivoEntradaTexto != "(falta selección)"
-                       && ArchivoSalidaTexto != "(falta selección)";
+        PuedeReducir = _archivoEntrada.Length > 0 && _archivoSalida.Length > 0 && !Reduciendo;
+    }
+
+    // EsArchivoEntradaValido de ReductorFrm.cs: el archivo de entrada debe tener 14 signos.
+    private static bool EsArchivoEntradaValido(string aEntrada)
+    {
+        try
+        {
+            IArchivoColumnas comBaseCols = new ArchivoColumnasTexto(aEntrada);
+            comBaseCols.LeerTodasColsANumero();
+            comBaseCols = new ArchivoColumnasTexto(aEntrada);
+            int numSignos = comBaseCols.ObtenNumSignos();
+            comBaseCols.Cerrar();
+            return numSignos == 14;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     // ----- Acciones (botones) -----
 
     // btnSelFile: OpenFileDialog para el archivo de entrada (.txt en Columnas\).
     [RelayCommand]
-    private void SeleccionarArchivoEntrada()
+    private async Task SeleccionarArchivoEntradaAsync()
     {
-        // TODO: portar BtnSelFileClick de ReductorFrm.cs.
-        //   - Abrir FileOpenPicker (.txt) en la carpeta "Columnas".
-        //   - Validar con EsArchivoEntradaValido (ArchivoColumnasTexto.ObtenNumSignos() == 14).
-        //   - Asignar ArchivoEntradaTexto = Path.GetFileName(...).
+        var picker = new Windows.Storage.Pickers.FileOpenPicker
+        {
+            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
+        };
+        picker.FileTypeFilter.Add(".txt");
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        var file = await picker.PickSingleFileAsync();
+        if (file == null) return;
+
+        if (!EsArchivoEntradaValido(file.Path))
+        {
+            Free1X2.Abstractions.UserDialogs.ShowError(
+                "El archivo de entrada debe tener 14 partidos.\n" +
+                "Compruebe además que no hay líneas en blanco adicionales al final del archivo.");
+            return;
+        }
+
+        _archivoEntrada = file.Path;
+        ArchivoEntradaTexto = file.Name;
         ActualizarPuedeReducir();
     }
 
     // btnFileOutput: SaveFileDialog para el archivo de salida.
     [RelayCommand]
-    private void SeleccionarArchivoSalida()
+    private async Task SeleccionarArchivoSalidaAsync()
     {
-        // TODO: portar btnFileOutput_Click de ReductorFrm.cs.
-        //   - Abrir FileSavePicker (.txt) en la carpeta "Columnas".
-        //   - Asignar ArchivoSalidaTexto = Path.GetFileName(...).
+        var picker = new Windows.Storage.Pickers.FileSavePicker
+        {
+            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
+            SuggestedFileName = "Reducido",
+        };
+        picker.FileTypeChoices.Add("Columnas", new List<string> { ".txt" });
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        var file = await picker.PickSaveFileAsync();
+        if (file == null) return;
+
+        _archivoSalida = file.Path;
+        ArchivoSalidaTexto = file.Name;
         ActualizarPuedeReducir();
     }
 
     // btnReducir: lanza la reducción en un hilo aparte (legacy ComienzaReduccion).
     [RelayCommand]
-    private void Reducir()
+    private async Task ReducirAsync()
     {
-        // TODO: portar ComienzaReduccion de ReductorFrm.cs.
-        //   - Seleccionar IReduccion según MetodoSeleccionado:
-        //       "grandes archivos" -> new Redu1305Xfsf(AdmitirColumnasExternas)
-        //       "menos tiempo"     -> new JDC(AdmitirColumnasExternas)
-        //       "menos columnas"   -> new JDCDobleContador(AdmitirColumnasExternas)
-        //       (legacy también: "menos columnas 2" -> new ReductorTM())
-        //   - reductor.ComienzaReduccion(archivoEntrada, archivoSalida,
-        //       int.Parse(NivelSeleccionado), (int)MaxColumnas, (int)MaxPorcentaje)
-        //     ejecutado fuera del hilo de UI (Task.Run); usar un DispatcherTimer
-        //     (equivalente a myTimer, 3000 ms) para refrescar los textos de resultado.
-        //   - Al terminar, volcar NoColumnasIniciales / NoColumnasProcesadas /
-        //     NoColumnasFinales en ColsInicialesTexto/ColsProcesadasTexto/ColsAdmitidasTexto,
-        //     PorcentajeTexto y TiempoTexto.
+        if (Reduciendo) return;
+
+        // Selección del algoritmo según el método (cBoxMetodo del form legacy).
+        bool externas = AdmitirColumnasExternas;
+        _reductor = MetodoSeleccionado switch
+        {
+            "grandes archivos" => new Redu1305Xfsf(externas),
+            "menos tiempo"     => new JDC(externas),
+            "menos columnas"   => new JDCDobleContador(externas),
+            "menos columnas 2" => new ReductorTM(),
+            _                  => new JDC(externas),
+        };
+
+        int nivel = int.Parse(NivelSeleccionado);
+        int maxCol = (int)MaxColumnas;
+        int percent = (int)MaxPorcentaje;
+
+        Reduciendo = true;
+        ActualizarPuedeReducir();
+        ColsInicialesTexto = "-";
+        ColsProcesadasTexto = "-";
+        ColsAdmitidasTexto = "-";
+        PorcentajeTexto = "-";
+        TiempoTexto = "-";
+
+        var hora0 = DateTime.Now;
+
+        // Timer de refresco (equivale al myTimer de 3000 ms + TimerEventProcessor).
+        var timer = AppServices.UiDispatcher?.CreateTimer();
+        if (timer != null)
+        {
+            timer.Interval = TimeSpan.FromMilliseconds(3000);
+            timer.Tick += (_, _) => RefrescarContadores(hora0);
+            timer.Start();
+        }
+
+        try
+        {
+            await Task.Run(() =>
+                _reductor.ComienzaReduccion(_archivoEntrada, _archivoSalida, nivel, maxCol, percent));
+        }
+        catch (Exception ex)
+        {
+            Free1X2.Abstractions.UserDialogs.ShowError("Error en la reducción: " + ex.Message);
+        }
+        finally
+        {
+            timer?.Stop();
+            RefrescarContadores(hora0);
+            Reduciendo = false;
+            ActualizarPuedeReducir();
+        }
+    }
+
+    // TimerEventProcessor / final de ComienzaReduccion: vuelca los contadores del reductor.
+    private void RefrescarContadores(DateTime hora0)
+    {
+        if (_reductor == null) return;
+        int ini = _reductor.NoColumnasIniciales;
+        int proc = _reductor.NoColumnasProcesadas;
+        int fin = _reductor.NoColumnasFinales;
+
+        ColsInicialesTexto = " = " + ini;
+        ColsProcesadasTexto = " = " + proc;
+        ColsAdmitidasTexto = " = " + fin;
+        PorcentajeTexto = ini > 0 ? " = " + (proc * 100 / ini) : "-";
+        TiempoTexto = (DateTime.Now - hora0).ToString();
     }
 
     // btnCancel: cancela la reducción y cierra el formulario.
     [RelayCommand]
     private void Cancelar()
     {
-        // TODO: portar BtnCancelClick de ReductorFrm.cs (reductor.Cancelar() + cerrar/navegar atrás).
+        // BtnCancelClick: reductor.Cancelar(). El cierre/navegación lo gestiona la Page.
+        _reductor?.Cancelar();
+        Reduciendo = false;
+        ActualizarPuedeReducir();
     }
 }

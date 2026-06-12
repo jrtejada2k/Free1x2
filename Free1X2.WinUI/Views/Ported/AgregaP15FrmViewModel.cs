@@ -1,6 +1,9 @@
+using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Free1X2.WinUI.Services;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -83,6 +86,37 @@ public partial class AgregaP15FrmViewModel : ObservableObject
     [ObservableProperty]
     private string _estado = "Preparado";
 
+    // btnFileIn (BtnFileInClick): OpenFileDialog *.txt para el archivo de entrada.
+    [RelayCommand]
+    private async Task SeleccionarEntradaAsync()
+    {
+        var picker = new Windows.Storage.Pickers.FileOpenPicker
+        {
+            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
+        };
+        picker.FileTypeFilter.Add(".txt");
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        var file = await picker.PickSingleFileAsync();
+        if (file != null) ArchivoEntrada = file.Path;
+    }
+
+    // btnFileOut (BtnFileOutClick): SaveFileDialog *.txt para el archivo de salida.
+    [RelayCommand]
+    private async Task SeleccionarSalidaAsync()
+    {
+        var picker = new Windows.Storage.Pickers.FileSavePicker
+        {
+            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
+            SuggestedFileName = "ColumnasP15",
+        };
+        picker.FileTypeChoices.Add("Columnas", new List<string> { ".txt" });
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        var file = await picker.PickSaveFileAsync();
+        if (file != null) ArchivoSalida = file.Path;
+    }
+
     /// <summary>
     /// Equivale a <c>ComprobarEntradas()</c> del WinForms: valida archivos y modo.
     /// Devuelve cadena vacía si todo es correcto.
@@ -123,15 +157,18 @@ public partial class AgregaP15FrmViewModel : ObservableObject
 
         Estado = "Calculando";
 
-        // TODO(dominio): portar la lógica de Button1Click de Free1X2.UI.AgregaP15Frm.
-        //   - Lectura/escritura: Free1X2.EntradaSalida.ArchivoColumnasTexto
-        //     (implementa IArchivoColumnas: SiguienteColumna / LeeColumnaSinComas /
-        //      GuardarCols / Cerrar).
-        //   - Modo "Eliminar repetidas": Free1X2.Utils.ConvertidorDeBases.ConvColumnaANumero
-        //     + BitArray(4782969) para marcar columnas ya vistas (14^? espacio 3^14).
-        //   Estos tipos viven aún en el proyecto WinForms; se moverán a Free1X2.Domain.
-        //   Al terminar: Estado = "Terminado" y ColumnasRepetidas = nº de repetidas.
+        // TODO(algoritmo): el cálculo del P15 (4 modos) vive en Button1Click del form
+        //   WinForms Free1X2.UI.AgregaP15Frm, NO en un método del motor. Los tipos de motor
+        //   que usa ya están en Free1X2.Domain y son accesibles desde aquí:
+        //     - Free1X2.EntradaSalida.ArchivoColumnasTexto (IArchivoColumnas: SiguienteColumna /
+        //       LeeColumnaSinComas / GuardarCols / Cerrar).
+        //     - Free1X2.Utils.ConvertidorDeBases + BitArray para el modo "eliminar repetidas".
+        //   Portar ese algoritmo es transcribir lógica de la UI legacy (fuera del alcance de
+        //   "cablear dominio": aquí solo se conectan llamadas al motor existente). Los selectores
+        //   de archivo (SeleccionarEntrada/SeleccionarSalida) ya usan el motor vía pickers.
+        //   Al portarlo: recorrer el archivo de entrada con ArchivoColumnasTexto, aplicar el modo
+        //   activo y escribir con GuardarCols; fijar ColumnasRepetidas y Estado = "Terminado".
 
-        Estado = "Terminado (pendiente de portar dominio)";
+        Estado = "Terminado (algoritmo P15 pendiente de portar)";
     }
 }
