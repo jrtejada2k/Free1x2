@@ -20,7 +20,7 @@ using System.Xml;
 
 namespace Free1X2.MotorCalculo
 {
-    class ControladoresImpresion
+    public class ControladoresImpresion
     {
         private XmlDocument configFile;
         private string archConfig = "";
