@@ -294,4 +294,4 @@ Las combinaciones temporales se guardan como backups y se pueden limpiar desde `
 
 ---
 
-*Manual reconstruido para la versión actual de Free1X2. Para la arquitectura técnica y el estado de la migración a WinUI 3, ver [`../README.md`](../README.md) y [`../PLAN_MIGRACION_WINUI3.md`](../PLAN_MIGRACION_WINUI3.md).*
+*Manual reconstruido para la versión actual de Free1X2. Para el detalle de **flujos funcionales y de datos** (cómo viaja una columna por el motor), ver [`MANUAL_FLUJOS.md`](MANUAL_FLUJOS.md). Para la arquitectura técnica y el estado de la migración a WinUI 3, ver [`../README.md`](../README.md) y [`../PLAN_MIGRACION_WINUI3.md`](../PLAN_MIGRACION_WINUI3.md).*
