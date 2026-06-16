@@ -1,18 +1,15 @@
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Navigation;
 
 namespace Free1X2.WinUI.Views.Ported;
 
 /// <summary>
 /// Port WinUI 3 del WinForms <c>ValoracionFrm</c> (filtro "Valoración" /
-/// <c>FiltroValoracionSignos</c>). Permite asignar a cada partido unas
-/// valoraciones 1/X/2 (control de porcentajes) y filtrar columnas cuya
-/// valoración Global, de Unos, Equis y Doses caiga dentro de los rangos
-/// indicados, en modo "suma" o "multiplo" (productos x 3E7). Incluye el cálculo
-/// de la valoración de una columna concreta y utilidades (buscar límite,
-/// columnas base) y la barra de condiciones (Aceptar, Estadísticas, Guardar,
-/// Abrir, Copiar, Pegar, Borrar, Cancelar). La lógica de dominio
-/// (FiltroValoracionSignos, ControlPorcentajes, persistencia) está marcada como
-/// TODO en el ViewModel.
+/// <c>FiltroValoracionSignos</c>). Permite elegir el tipo (suma / productos x 3E7) y
+/// acotar los rangos de valoración Global, de Unos, Equis y Doses. Recibe el Grupo a editar
+/// vía AppState.GrupoEnEdicion y escribe tipo + rangos de vuelta al filtro al Aceptar,
+/// conservando la matriz de porcentajes existente. El control de porcentajes y el cálculo
+/// de valoración quedan como TODO en el ViewModel.
 /// </summary>
 public sealed partial class ValoracionFrmPage : Page
 {
@@ -21,5 +18,12 @@ public sealed partial class ValoracionFrmPage : Page
     public ValoracionFrmPage()
     {
         this.InitializeComponent();
+        ViewModel.Volver = () => { if (Frame?.CanGoBack == true) Frame.GoBack(); };
+    }
+
+    protected override void OnNavigatedTo(NavigationEventArgs e)
+    {
+        base.OnNavigatedTo(e);
+        ViewModel.CargarDesdeGrupo();
     }
 }

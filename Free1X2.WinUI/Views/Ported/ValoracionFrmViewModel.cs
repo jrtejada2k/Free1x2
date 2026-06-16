@@ -1,6 +1,10 @@
+using System;
 using System.Collections.Generic;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Free1X2;
+using Free1X2.MotorCalculo;
+using Free1X2.WinUI.Services;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -83,6 +87,42 @@ public partial class ValoracionFrmViewModel : ObservableObject
     [ObservableProperty]
     private string _columnasBase = string.Empty;
 
+    // Matrices de porcentajes 1/X/2 cargadas del filtro. Sin control de porcentajes en WinUI,
+    // se preservan tal cual (no se reescriben al Aceptar). Ver TODO en Calcular/Aceptar.
+    private double[]? _valores1;
+    private double[]? _valoresX;
+    private double[]? _valores2;
+
+    /// <summary>Acción para volver atrás (la cablea la página con Frame.GoBack()). CerrarVentana() legacy.</summary>
+    public Action? Volver { get; set; }
+
+    // tipoValoracion del dominio ("suma" / "multiplo") a partir de la opción de pantalla.
+    private string TipoValoracionDominio =>
+        TipoValoracionSeleccionado == "Por sumas" ? "suma" : "multiplo";
+
+    /// <summary>
+    /// Vuelca los valores del FiltroValoracionSignos del grupo en edición a la pantalla.
+    /// Equivale a ValoracionFrm.InicializarPantalla() (Free1X2/UI/Filtros/ValoracionFrm.cs líneas 97-118).
+    /// </summary>
+    public void CargarDesdeGrupo()
+    {
+        var grupo = AppState.GrupoEnEdicion;
+        if (grupo is null) return;
+
+        var filtro = (FiltroValoracionSignos)grupo.GetFiltro(Filtro.ValoracionSignos.ToString());
+        if (!filtro.ContieneDatos) return;
+
+        TipoValoracionSeleccionado = filtro.TipoValoracion == "suma" ? "Por sumas" : "Por productos x 3E7";
+        // Preservar la matriz de porcentajes (no hay control para editarla en WinUI).
+        _valores1 = filtro.Valores1;
+        _valoresX = filtro.ValoresX;
+        _valores2 = filtro.Valores2;
+        ValorGlobal = filtro.ValorGlobal;
+        ValorUnos = filtro.ValorUnos;
+        ValorEquis = filtro.ValorEquis;
+        ValorDoses = filtro.ValorDoses;
+    }
+
     [RelayCommand]
     private void Calcular()
     {
@@ -116,8 +156,36 @@ public partial class ValoracionFrmViewModel : ObservableObject
     [RelayCommand]
     private void Aceptar()
     {
-        // TODO: Dominio legacy — menuCondiciones1_BOk(): ActualizarDatos();
-        //   grupo.ActivaFiltro(filtro); CerrarVentana().
+        // Equivale a ValoracionFrm.menuCondiciones1_BOk -> ActualizarDatos() + ActivaFiltro
+        //   (Free1X2/UI/Filtros/ValoracionFrm.cs líneas 344-363, 968-1004).
+        var grupo = AppState.GrupoEnEdicion;
+        if (grupo is null) { Volver?.Invoke(); return; }
+
+        var filtro = (FiltroValoracionSignos)grupo.GetFiltro(Filtro.ValoracionSignos.ToString());
+        filtro.ReinicializaValores();
+
+        filtro.TipoValoracion = TipoValoracionDominio;
+        // TODO[porcentajes]: el form legacy recalcula valores1/X/2 desde controlPorcentajes1.Valores
+        //   en PrepararValores() (ValoracionFrm.cs líneas 206-312) y luego PonerCondicionesFiltro().
+        //   No hay control de porcentajes en la página WinUI todavía: se conserva la matriz cargada
+        //   del filtro (o se deja vacía si era un filtro nuevo). Editar los porcentajes requiere
+        //   portar el control ControlPorcentajes; mientras tanto solo se editan tipo y rangos.
+        if (_valores1 != null) filtro.Valores1 = _valores1;
+        if (_valoresX != null) filtro.ValoresX = _valoresX;
+        if (_valores2 != null) filtro.Valores2 = _valores2;
+        filtro.ValorGlobal = ValorGlobal ?? "";
+        filtro.ValorUnos = ValorUnos ?? "";
+        filtro.ValorEquis = ValorEquis ?? "";
+        filtro.ValorDoses = ValorDoses ?? "";
+        if (filtro.ContieneDatos == false)
+        {
+            filtro.IsActive = true;
+        }
+        filtro.ContieneDatos = true;
+
+        grupo.ActivaFiltro(filtro);
+        AppState.Instancia.NotificarCambio();
+        Volver?.Invoke();
     }
 
     [RelayCommand]
@@ -161,14 +229,20 @@ public partial class ValoracionFrmViewModel : ObservableObject
     [RelayCommand]
     private void Borrar()
     {
-        // TODO: Dominio legacy — menuCondiciones1_BBorrar(): confirma y reinicia
-        //   filtro = new FiltroValoracionSignos(); InicializarPantalla();
-        //   ReiniciarValoracionPantalla() (limpia MinMaxSumas / MinMaxProductos).
+        // Equivale a menuCondiciones1_BBorrar: limpia la pantalla (rangos + min-max).
+        ValorGlobal = string.Empty;
+        ValorUnos = string.Empty;
+        ValorEquis = string.Empty;
+        ValorDoses = string.Empty;
+        MinMaxSumas = string.Empty;
+        MinMaxProductos = string.Empty;
+        _valores1 = _valoresX = _valores2 = null;
     }
 
     [RelayCommand]
     private void Cancelar()
     {
-        // TODO: Dominio legacy — menuCondiciones1_BCancelar(): CerrarVentana().
+        // Equivale a menuCondiciones1_BCancelar -> CerrarVentana() (sin aplicar cambios).
+        Volver?.Invoke();
     }
 }

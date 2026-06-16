@@ -1,7 +1,9 @@
+using System;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Free1X2.Utils;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -40,6 +42,19 @@ public partial class FigurasFiltrosFrmViewModel : ObservableObject
     // Valores admitidos por dígito de figura (legacy: valoresPermitidos en FigurasFiltrosFrm).
     private const int NumeroCasillasPorDefecto = 12;
 
+    /// <summary>
+    /// Lista de figuras que el form padre (Contactos / SignosSeguidos / PesosNum) pasa POR REFERENCIA
+    /// para que esta pantalla la edite (análogo al ctor legacy FigurasFiltrosFrm(List&lt;long&gt; figuras, ...)).
+    /// Es un handoff estático al estilo de AppState.GrupoEnEdicion: el padre lo asigna antes de navegar
+    /// y lee los cambios al volver. Mientras los padres no naveguen aquí, queda en null (lista local).
+    /// </summary>
+    public static List<long>? FigurasEnEdicion { get; set; }
+
+    private List<long> _figurasCondicion = new();
+
+    /// <summary>Acción para volver atrás (la cablea la página con Frame.GoBack()).</summary>
+    public Action? Volver { get; set; }
+
     public FigurasFiltrosFrmViewModel()
     {
         Casillas = new ObservableCollection<CasillaFiguraViewModel>();
@@ -47,10 +62,27 @@ public partial class FigurasFiltrosFrmViewModel : ObservableObject
         {
             Casillas.Add(new CasillaFiguraViewModel(i));
         }
+    }
 
-        // TODO(dominio): rellenar las casillas con las figuras recibidas.
-        //   Legacy FigurasFiltrosFrm(List<long> figuras, int longitudFigura, IFiltro filtro):
-        //   crea un CtrlFiguras(figuras) y vuelca cada figura en una CtrlCasillaFigura.
+    /// <summary>
+    /// Vuelca la lista de figuras recibida (FigurasEnEdicion) en las casillas.
+    /// Equivale al ctor legacy FigurasFiltrosFrm: new CtrlFiguras(figuras) (líneas 41-63).
+    /// </summary>
+    public void CargarDesdeHandoff()
+    {
+        _figurasCondicion = FigurasEnEdicion ?? new List<long>();
+
+        // Asegurar suficientes casillas + algunas vacías de margen.
+        while (Casillas.Count < _figurasCondicion.Count + 2)
+        {
+            Casillas.Add(new CasillaFiguraViewModel(Casillas.Count));
+        }
+        for (int i = 0; i < Casillas.Count; i++)
+        {
+            Casillas[i].Texto = i < _figurasCondicion.Count
+                ? UtilidadesEntradasValores.ObtenerTextoFiguraFromLong(_figurasCondicion[i])
+                : string.Empty;
+        }
     }
 
     /// <summary>Casillas editables de la rejilla de figuras.</summary>
@@ -63,25 +95,52 @@ public partial class FigurasFiltrosFrmViewModel : ObservableObject
     public string ValoresPermitidosTexto =>
         "Valores admitidos por casilla: 0 a 16, o el comodín *.";
 
+    // Valida que cada dígito hexadecimal de la figura esté en 0..16 (legacy: valoresPermitidos).
+    private static bool EsFiguraValida(long figura)
+    {
+        long temp = figura;
+        while (temp != 0)
+        {
+            int valor = (int)(temp & 15);
+            if (valor < 0 || valor > 16) return false;
+            temp >>= 4;
+        }
+        return true;
+    }
+
     [RelayCommand]
     private void Aceptar()
     {
-        // TODO(dominio): recoger las figuras válidas y cerrar.
-        //   Legacy FigurasFiltrosFrm.ObtenerFiguras() / btnOk_Click():
-        //     foreach casilla -> Utils.UtilidadesEntradasValores.ObtenerLongFiguraFromText(texto);
-        //     if (EsFiguraValida(figura) && !figurasCondicion.Contains(figura)) figurasCondicion.Add(figura);
-        //     this.Close();
+        // Equivale a FigurasFiltrosFrm.ObtenerFiguras() + btnOk_Click() (líneas 70-110).
+        _figurasCondicion.Clear();
+        foreach (var casilla in Casillas)
+        {
+            string texto = (casilla.Texto ?? "").Trim();
+            if (texto == "") continue;
+            long figura;
+            try
+            {
+                figura = UtilidadesEntradasValores.ObtenerLongFiguraFromText(texto);
+            }
+            catch
+            {
+                continue; // entrada no convertible (p. ej. comodín "*"): se omite.
+            }
+            if (EsFiguraValida(figura) && !_figurasCondicion.Contains(figura))
+            {
+                _figurasCondicion.Add(figura);
+            }
+        }
+        // El padre comparte la misma referencia de lista (FigurasEnEdicion), así que ve los cambios.
+        Volver?.Invoke();
     }
 
     [RelayCommand]
     private void Abrir()
     {
-        // TODO(dominio): cargar figuras desde un archivo ".fig<Condicion>" y recargar la rejilla.
-        //   Legacy FigurasFiltrosFrm.btnAbrir_Click():
-        //     OpenFileDialog (carpeta /Condiciones, filtro "*.fig" + DeterminarCondicion());
-        //     StreamReader -> ObtenerLongFiguraFromText(linea) por cada línea;
-        //     BorrarCasillas(); recrear CtrlFiguras(figurasCondicion).
-        //   DeterminarCondicion() depende de _filtro.NombreFiltro (Contactos -> "Contactos", SignosSeguidos -> "V1X2").
+        // TODO[persistencia]: cargar figuras desde un archivo ".fig<Condicion>" con FileOpenPicker
+        //   (FigurasFiltrosFrm.btnAbrir_Click líneas 253-280): leer líneas -> ObtenerLongFiguraFromText
+        //   y recargar la rejilla. DeterminarCondicion() depende de NombreFiltro (Contactos / V1X2).
     }
 
     [RelayCommand]
@@ -92,13 +151,13 @@ public partial class FigurasFiltrosFrmViewModel : ObservableObject
         {
             casilla.Texto = string.Empty;
         }
-        // TODO(dominio): figurasCondicion.Clear();
+        _figurasCondicion.Clear();
     }
 
     [RelayCommand]
     private void Cancelar()
     {
-        // TODO(dominio): cerrar sin aplicar cambios.
-        //   Legacy FigurasFiltrosFrm.btnCancelar_Click(): this.Close();
+        // Equivale a btnCancelar_Click -> this.Close() (sin aplicar cambios).
+        Volver?.Invoke();
     }
 }

@@ -1,15 +1,15 @@
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Navigation;
 
 namespace Free1X2.WinUI.Views.Ported;
 
 /// <summary>
 /// Página portada del WinForms "FigurasFiltrosFrm".
 /// Edita la lista de figuras de una condición de filtro mediante una rejilla de casillas
-/// (cada casilla admite los valores 0..16 o el comodín "*"), con acciones Aceptar, Abrir
-/// (cargar desde archivo .fig), Borrar y Cancelar.
-/// La conversión texto→figura (long), la validación (EsFiguraValida) y la persistencia
-/// dependen del dominio legacy (Utils.UtilidadesEntradasValores / IFiltro) y están marcadas
-/// como TODO en el ViewModel.
+/// (cada casilla admite los valores 0..16 o el comodín "*"). Recibe la List&lt;long&gt; a editar
+/// del form padre (Contactos / SignosSeguidos / PesosNum) vía el handoff estático
+/// <c>FigurasFiltrosFrmViewModel.FigurasEnEdicion</c> y escribe los cambios sobre esa misma
+/// referencia al Aceptar. La carga desde archivo .fig queda como TODO en el ViewModel.
 /// </summary>
 public sealed partial class FigurasFiltrosFrmPage : Page
 {
@@ -18,5 +18,12 @@ public sealed partial class FigurasFiltrosFrmPage : Page
     public FigurasFiltrosFrmPage()
     {
         this.InitializeComponent();
+        ViewModel.Volver = () => { if (Frame?.CanGoBack == true) Frame.GoBack(); };
+    }
+
+    protected override void OnNavigatedTo(NavigationEventArgs e)
+    {
+        base.OnNavigatedTo(e);
+        ViewModel.CargarDesdeHandoff();
     }
 }
