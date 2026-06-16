@@ -1,13 +1,19 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Free1X2;
+using Free1X2.EntradaSalida;
 using Free1X2.MotorCalculo;
+using Free1X2.MotorCalculo.Estadisticas;
 using Free1X2.Utils;
 using Free1X2.WinUI.Controls;
 using Free1X2.WinUI.Services;
+using Windows.Storage;
+using Windows.Storage.Pickers;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -107,6 +113,17 @@ public partial class ValoracionFrmViewModel : ObservableObject
     /// <summary>Acción para volver atrás (la cablea la página con Frame.GoBack()). CerrarVentana() legacy.</summary>
     public Action? Volver { get; set; }
 
+    /// <summary>Acción para navegar a otra página (la cablea la página con Frame.Navigate(tipo)).</summary>
+    public Action<Type>? Navegar { get; set; }
+
+    // Fichero temporal de copiar/pegar (legacy: StartupPath + "/Temp/tmp.valor").
+    private static string RutaTemporal =>
+        Path.Combine(AppContext.BaseDirectory, "Temp", "tmp.valor");
+
+    // Directorio de columnas ganadoras (legacy: StartupPath + "/Ganadoras/").
+    private static string DirectorioGanadoras =>
+        Path.Combine(AppContext.BaseDirectory, "Ganadoras") + Path.DirectorySeparatorChar;
+
     // tipoValoracion del dominio ("suma" / "multiplo") a partir de la opción de pantalla.
     private string TipoValoracionDominio =>
         TipoValoracionSeleccionado == "Por sumas" ? "suma" : "multiplo";
@@ -123,6 +140,12 @@ public partial class ValoracionFrmViewModel : ObservableObject
         var filtro = (FiltroValoracionSignos)grupo.GetFiltro(Filtro.ValoracionSignos.ToString());
         if (!filtro.ContieneDatos) return;
 
+        InicializarPantalla(filtro);
+    }
+
+    // Vuelca un FiltroValoracionSignos a la pantalla (InicializarPantalla legacy, líneas 97-118).
+    private void InicializarPantalla(FiltroValoracionSignos filtro)
+    {
         TipoValoracionSeleccionado = filtro.TipoValoracion == "suma" ? "Por sumas" : "Por productos x 3E7";
         // Volcar la matriz del filtro a la rejilla de porcentajes (equivale a
         // ValoracionFrm.PonerValoracionPantalla(filtro.Valores1, ValoresX, Valores2)).
@@ -332,20 +355,14 @@ public partial class ValoracionFrmViewModel : ObservableObject
 
     // --- Barra de condiciones (control legacy MenuCondiciones) ---
 
-    [RelayCommand]
-    private void Aceptar()
+    /// <summary>
+    /// Vuelca los valores de pantalla a un FiltroValoracionSignos.
+    /// Réplica de ValoracionFrm.ActualizarDatos()/ObtenerFiltroTemporal() (ValoracionFrm.cs líneas 968-996).
+    /// PrepararValores() lee la rejilla de porcentajes (PorcentajesHelper.AMatriz) en valores1/X/2.
+    /// </summary>
+    private void VolcarA(FiltroValoracionSignos filtro)
     {
-        // Equivale a ValoracionFrm.menuCondiciones1_BOk -> ActualizarDatos() + ActivaFiltro
-        //   (Free1X2/UI/Filtros/ValoracionFrm.cs líneas 344-363, 968-1004).
-        var grupo = AppState.GrupoEnEdicion;
-        if (grupo is null) { Volver?.Invoke(); return; }
-
-        // Equivale a ValoracionFrm.ActualizarDatos() = PrepararValores() + PonerCondicionesFiltro()
-        //   (ValoracionFrm.cs líneas 968-972, 344-363). PrepararValores() lee la rejilla de
-        //   porcentajes (PorcentajesHelper.AMatriz) en valores1/X/2 antes de poblar el filtro.
         PrepararValores();
-
-        var filtro = (FiltroValoracionSignos)grupo.GetFiltro(Filtro.ValoracionSignos.ToString());
         filtro.ReinicializaValores();
 
         filtro.TipoValoracion = TipoValoracionDominio;
@@ -361,48 +378,136 @@ public partial class ValoracionFrmViewModel : ObservableObject
             filtro.IsActive = true;
         }
         filtro.ContieneDatos = true;
+    }
+
+    // Construye un FiltroValoracionSignos temporal con los valores de pantalla (ObtenerFiltroTemporal legacy).
+    private FiltroValoracionSignos ObtenerFiltroTemporal()
+    {
+        var filtroTemp = new FiltroValoracionSignos();
+        VolcarA(filtroTemp);
+        return filtroTemp;
+    }
+
+    [RelayCommand]
+    private void Aceptar()
+    {
+        // Equivale a ValoracionFrm.menuCondiciones1_BOk -> ActualizarDatos() + ActivaFiltro
+        //   (Free1X2/UI/Filtros/ValoracionFrm.cs líneas 344-363, 968-1004).
+        var grupo = AppState.GrupoEnEdicion;
+        if (grupo is null) { Volver?.Invoke(); return; }
+
+        var filtro = (FiltroValoracionSignos)grupo.GetFiltro(Filtro.ValoracionSignos.ToString());
+        VolcarA(filtro);
 
         grupo.ActivaFiltro(filtro);
         AppState.Instancia.NotificarCambio();
         Volver?.Invoke();
     }
 
+    // Guarda en disco el filtro temporal (ValoracionFrm.guardar(), líneas 1049-1053).
+    private void GuardarEn(string nombreArchivo)
+    {
+        var filtroTemp = ObtenerFiltroTemporal();
+        var archComb = new ArchivoCondiciones { NombreArchivo = nombreArchivo };
+        archComb.GuardaArchivo(filtroTemp);
+    }
+
+    // Abre la condición desde disco y vuelca sus valores (ValoracionFrm.abrir(), líneas 1037-1046).
+    private void AbrirDesde(string nombreArchivo)
+    {
+        var archComb = new ArchivoCondiciones();
+        if (archComb.AbrirArchivoCombinacion(nombreArchivo))
+        {
+            Grupo g = archComb.LeeCondicion();
+            var filtro = (FiltroValoracionSignos)g.GetFiltro("ValoracionSignos");
+            InicializarPantalla(filtro);
+        }
+    }
+
     [RelayCommand]
     private void Estadisticas()
     {
-        // TODO: Dominio legacy — menuCondiciones1_BEstadisticas():
-        //   filtroTemp = ObtenerFiltroTemporal();
-        //   CalculadorEstadisticas.EstadisticasFiltro(filtroTemp, ".../Ganadoras/");
-        //   abre VisorEstadisticas (port: AnastaticsPage / VisorEstadisticas).
+        // Equivale a ValoracionFrm.menuCondiciones1_BEstadisticas (ValoracionFrm.cs líneas 1107-1117).
+        var filtroTemp = ObtenerFiltroTemporal();
+        var calc = new CalculadorEstadisticas();
+        List<Estadistica> lista = calc.EstadisticasFiltro(filtroTemp, DirectorioGanadoras);
+
+        VisorEstadisticasViewModel.UltimasEstadisticas = lista;
+        Navegar?.Invoke(typeof(VisorEstadisticasPage));
     }
 
     [RelayCommand]
-    private void Guardar()
+    private async Task Guardar()
     {
-        // TODO: Dominio legacy — menuCondiciones1_BGuardar(): ActualizarDatos();
-        //   SaveFileDialog (*.valor/*.xml) -> ArchivoCondiciones.GuardaArchivo(filtro).
+        // Equivale a ValoracionFrm.menuCondiciones1_BGuardar (ValoracionFrm.cs líneas 1027-1035).
+        var picker = new FileSavePicker
+        {
+            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
+            SuggestedFileName = "Valoracion",
+        };
+        picker.FileTypeChoices.Add("Valoración de Signos", new List<string> { ".valor" });
+        picker.FileTypeChoices.Add("Valoración de Signos (XML)", new List<string> { ".xml" });
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        StorageFile? file = await picker.PickSaveFileAsync();
+        if (file == null) return;
+
+        try
+        {
+            GuardarEn(file.Path);
+        }
+        catch (Exception ex)
+        {
+            AppServices.MostrarError("No se pudo guardar: " + ex.Message);
+        }
     }
 
     [RelayCommand]
-    private void Abrir()
+    private async Task Abrir()
     {
-        // TODO: Dominio legacy — menuCondiciones1_BAbrir(): ActualizarDatos();
-        //   OpenFileDialog (*.valor/*.xml) -> ArchivoCondiciones.LeeCondicion() ->
-        //   filtro = g.GetFiltro("ValoracionSignos"); InicializarPantalla().
+        // Equivale a ValoracionFrm.menuCondiciones1_BAbrir (ValoracionFrm.cs líneas 1011-1025).
+        var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
+        picker.FileTypeFilter.Add(".valor");
+        picker.FileTypeFilter.Add(".xml");
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        StorageFile? file = await picker.PickSingleFileAsync();
+        if (file == null) return;
+
+        try
+        {
+            AbrirDesde(file.Path);
+        }
+        catch (Exception ex)
+        {
+            AppServices.MostrarError("No se pudo abrir: " + ex.Message);
+        }
     }
 
     [RelayCommand]
     private void Copiar()
     {
-        // TODO: Dominio legacy — menuCondiciones1_BCopiar(): ActualizarDatos();
-        //   guarda fichero temporal "Temp/tmp.valor" y habilita Pegar.
+        // Equivale a ValoracionFrm.menuCondiciones1_BCopiar (ValoracionFrm.cs líneas 1073-1079).
+        try
+        {
+            string ruta = RutaTemporal;
+            Directory.CreateDirectory(Path.GetDirectoryName(ruta)!);
+            GuardarEn(ruta);
+        }
+        catch (Exception ex)
+        {
+            AppServices.MostrarError("No se pudo copiar: " + ex.Message);
+        }
     }
 
     [RelayCommand]
     private void Pegar()
     {
-        // TODO: Dominio legacy — menuCondiciones1_BPegar(): abrir "Temp/tmp.valor".
-        //   El botón sólo se habilita si existe el temporal (compruebaPegar()).
+        // Equivale a ValoracionFrm.menuCondiciones1_BPegar (ValoracionFrm.cs líneas 1082-1091).
+        if (File.Exists(RutaTemporal))
+        {
+            AbrirDesde(RutaTemporal);
+        }
     }
 
     [RelayCommand]

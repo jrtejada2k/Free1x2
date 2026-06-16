@@ -18,11 +18,21 @@ public sealed partial class SignosSeguidosFrmPage : Page
     {
         this.InitializeComponent();
         ViewModel.Volver = () => { if (Frame?.CanGoBack == true) Frame.GoBack(); };
+        ViewModel.Navegar = tipo => Frame?.Navigate(tipo);
     }
 
     protected override void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
-        ViewModel.CargarDesdeGrupo();
+        // Al volver del editor de figuras o del visor de estadísticas (NavigationMode.Back)
+        // sólo refrescamos los indicadores de figuras; recargar desde el grupo borraría la edición.
+        if (e.NavigationMode == NavigationMode.Back)
+        {
+            ViewModel.RefrescarFiguras();
+        }
+        else
+        {
+            ViewModel.CargarDesdeGrupo();
+        }
     }
 }

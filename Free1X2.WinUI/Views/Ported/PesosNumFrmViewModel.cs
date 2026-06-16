@@ -1,12 +1,18 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Free1X2;
+using Free1X2.EntradaSalida;
 using Free1X2.MotorCalculo;
+using Free1X2.MotorCalculo.Estadisticas;
 using Free1X2.Utils;
 using Free1X2.WinUI.Services;
+using Windows.Storage;
+using Windows.Storage.Pickers;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -62,6 +68,17 @@ public partial class PesosNumFrmViewModel : ObservableObject
     /// <summary>Acción para volver atrás (la cablea la página con Frame.GoBack()). CerrarVentana() legacy.</summary>
     public Action? Volver { get; set; }
 
+    /// <summary>Acción para navegar a otra página (la cablea la página con Frame.Navigate(tipo)).</summary>
+    public Action<Type>? Navegar { get; set; }
+
+    // Fichero temporal de copiar/pegar (legacy: StartupPath + "/Temp/tmp.pes").
+    private static string RutaTemporal =>
+        Path.Combine(AppContext.BaseDirectory, "Temp", "tmp.pes");
+
+    // Directorio de columnas ganadoras (legacy: StartupPath + "/Ganadoras/").
+    private static string DirectorioGanadoras =>
+        Path.Combine(AppContext.BaseDirectory, "Ganadoras") + Path.DirectorySeparatorChar;
+
     /// <summary>
     /// Vuelca los valores del FiltroPesosNumericos del grupo en edición a la pantalla.
     /// Equivale a PesosNumFrm.MarcarValores() (Free1X2/UI/Filtros/PesosNumFrm.cs líneas 93-134).
@@ -72,6 +89,12 @@ public partial class PesosNumFrmViewModel : ObservableObject
         if (grupo is null) return;
 
         var filtro = (FiltroPesosNumericos)grupo.GetFiltro(Filtro.PesosNumericos.ToString());
+        MarcarValores(filtro);
+    }
+
+    // Vuelca un FiltroPesosNumericos a la pantalla (MarcarValores legacy, líneas 93-134).
+    private void MarcarValores(FiltroPesosNumericos filtro)
+    {
         PesoGlobal = filtro.GetPNGlobal();
         PesoVariantes = filtro.GetPNVariantes();
         PesoUnos = filtro.GetPNUnos();
@@ -192,15 +215,12 @@ public partial class PesosNumFrmViewModel : ObservableObject
         "El Peso Numérico de una columna es una representación numérica de la columna. " +
         "También se puede expresar el Peso Numérico de Variantes, 1, X y 2.";
 
-    [RelayCommand]
-    private void Aceptar()
+    /// <summary>
+    /// Vuelca los valores y figuras de pantalla a un FiltroPesosNumericos.
+    /// Réplica de PesosNumFrm.ActualizarDatos() (PesosNumFrm.cs líneas 136-267).
+    /// </summary>
+    private void VolcarA(FiltroPesosNumericos filtro)
     {
-        // Equivale a PesosNumFrm.menuCondiciones1_BOk -> ActualizarDatos() + ActivaFiltro
-        //   (Free1X2/UI/Filtros/PesosNumFrm.cs líneas 136-267, 1086-1092).
-        var grupo = AppState.GrupoEnEdicion;
-        if (grupo is null) { Volver?.Invoke(); return; }
-
-        var filtro = (FiltroPesosNumericos)grupo.GetFiltro(Filtro.PesosNumericos.ToString());
         var figuras = ConstruirFiguras();
         string todosValores = UtilidadesEntradasValores.ObtenerTodosValores();
 
@@ -242,48 +262,136 @@ public partial class PesosNumFrmViewModel : ObservableObject
             filtro.IsActive = false;
             filtro.ContieneDatos = false;
         }
+    }
+
+    // Construye un FiltroPesosNumericos temporal con los valores de pantalla (ObtenerFiltroTemporal legacy, línea 268).
+    private FiltroPesosNumericos ObtenerFiltroTemporal()
+    {
+        var filtroTemp = new FiltroPesosNumericos();
+        VolcarA(filtroTemp);
+        return filtroTemp;
+    }
+
+    [RelayCommand]
+    private void Aceptar()
+    {
+        // Equivale a PesosNumFrm.menuCondiciones1_BOk -> ActualizarDatos() + ActivaFiltro
+        //   (Free1X2/UI/Filtros/PesosNumFrm.cs líneas 136-267, 1086-1092).
+        var grupo = AppState.GrupoEnEdicion;
+        if (grupo is null) { Volver?.Invoke(); return; }
+
+        var filtro = (FiltroPesosNumericos)grupo.GetFiltro(Filtro.PesosNumericos.ToString());
+        VolcarA(filtro);
 
         grupo.ActivaFiltro(filtro);
         AppState.Instancia.NotificarCambio();
         Volver?.Invoke();
     }
 
+    // Guarda en disco el filtro temporal (PesosNumFrm.guardar(), líneas 1137-1142).
+    private void GuardarEn(string nombreArchivo)
+    {
+        var filtroTemp = ObtenerFiltroTemporal();
+        var archComb = new ArchivoCondiciones { NombreArchivo = nombreArchivo };
+        archComb.GuardaArchivo(filtroTemp);
+    }
+
+    // Abre la condición desde disco y vuelca sus valores (PesosNumFrm.abrir(), líneas 1125-1134).
+    private void AbrirDesde(string nombreArchivo)
+    {
+        var archComb = new ArchivoCondiciones();
+        if (archComb.AbrirArchivoCombinacion(nombreArchivo))
+        {
+            Grupo g = archComb.LeeCondicion();
+            var filtro = (FiltroPesosNumericos)g.GetFiltro("PesosNumericos");
+            MarcarValores(filtro);
+        }
+    }
+
     [RelayCommand]
     private void Estadisticas()
     {
-        // TODO(dominio): abrir el VisorEstadisticas con un filtro temporal.
-        //   Legacy PesosNumFrm.menuCondiciones1_BEstadisticas():
-        //     filtroTemp = ObtenerFiltroTemporal();
-        //     lista = new CalculadorEstadisticas().EstadisticasFiltro(filtroTemp, ".../Ganadoras/");
-        //     new VisorEstadisticas(lista).ShowDialog();
+        // Equivale a PesosNumFrm.menuCondiciones1_BEstadisticas (PesosNumFrm.cs líneas 1244-1254).
+        var filtroTemp = ObtenerFiltroTemporal();
+        var calc = new CalculadorEstadisticas();
+        List<Estadistica> lista = calc.EstadisticasFiltro(filtroTemp, DirectorioGanadoras);
+
+        VisorEstadisticasViewModel.UltimasEstadisticas = lista;
+        Navegar?.Invoke(typeof(VisorEstadisticasPage));
     }
 
     [RelayCommand]
-    private void Guardar()
+    private async Task Guardar()
     {
-        // TODO(dominio): ActualizarDatos() + SaveFileDialog (*.pes/*.xml) + ArchivoCondiciones.GuardaArchivo(filtro).
-        //   Legacy PesosNumFrm.menuCondiciones1_BGuardar() / guardar().
+        // Equivale a PesosNumFrm.menuCondiciones1_BGuardar (PesosNumFrm.cs líneas 1115-1123).
+        var picker = new FileSavePicker
+        {
+            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
+            SuggestedFileName = "PesosNumericos",
+        };
+        picker.FileTypeChoices.Add("Pesos Numéricos", new List<string> { ".pes" });
+        picker.FileTypeChoices.Add("Pesos Numéricos (XML)", new List<string> { ".xml" });
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        StorageFile? file = await picker.PickSaveFileAsync();
+        if (file == null) return;
+
+        try
+        {
+            GuardarEn(file.Path);
+        }
+        catch (Exception ex)
+        {
+            AppServices.MostrarError("No se pudo guardar: " + ex.Message);
+        }
     }
 
     [RelayCommand]
-    private void Abrir()
+    private async Task Abrir()
     {
-        // TODO(dominio): OpenFileDialog (*.pes/*.xml) + ArchivoCondiciones.LeeCondicion() + MarcarValores().
-        //   Legacy PesosNumFrm.menuCondiciones1_BAbrir() / abrir().
+        // Equivale a PesosNumFrm.menuCondiciones1_BAbrir (PesosNumFrm.cs líneas 1104-1113).
+        var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
+        picker.FileTypeFilter.Add(".pes");
+        picker.FileTypeFilter.Add(".xml");
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        StorageFile? file = await picker.PickSingleFileAsync();
+        if (file == null) return;
+
+        try
+        {
+            AbrirDesde(file.Path);
+        }
+        catch (Exception ex)
+        {
+            AppServices.MostrarError("No se pudo abrir: " + ex.Message);
+        }
     }
 
     [RelayCommand]
     private void Copiar()
     {
-        // TODO(dominio): ActualizarDatos() + guardar a Temp/tmp.pes; habilita Pegar.
-        //   Legacy PesosNumFrm.menuCondiciones1_BCopiar().
+        // Equivale a PesosNumFrm.menuCondiciones1_BCopiar (PesosNumFrm.cs líneas ~1160).
+        try
+        {
+            string ruta = RutaTemporal;
+            Directory.CreateDirectory(Path.GetDirectoryName(ruta)!);
+            GuardarEn(ruta);
+        }
+        catch (Exception ex)
+        {
+            AppServices.MostrarError("No se pudo copiar: " + ex.Message);
+        }
     }
 
     [RelayCommand]
     private void Pegar()
     {
-        // TODO(dominio): abrir Temp/tmp.pes y recargar la pantalla.
-        //   Legacy PesosNumFrm.menuCondiciones1_BPegar().
+        // Equivale a PesosNumFrm.menuCondiciones1_BPegar (PesosNumFrm.cs líneas ~1175).
+        if (File.Exists(RutaTemporal))
+        {
+            AbrirDesde(RutaTemporal);
+        }
     }
 
     [RelayCommand]
