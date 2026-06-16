@@ -23,12 +23,24 @@ public sealed partial class ContactosFrmPage : Page
         // Reevaluar el semáforo de figuras cuando cambie el estado en el ViewModel.
         ViewModel.PropertyChanged += OnViewModelPropertyChanged;
         ViewModel.Volver = () => { if (Frame?.CanGoBack == true) Frame.GoBack(); };
+        // La VM navega al editor de figuras / visor de estadísticas a través del Frame.
+        ViewModel.Navegar = tipo => Frame?.Navigate(tipo);
     }
 
     protected override void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
-        ViewModel.CargarDesdeGrupo();
+        // Al volver del editor de figuras (NavigationMode.Back) sólo refrescamos el semáforo:
+        // recargar desde el grupo borraría las filas/figuras en edición. En la entrada normal
+        // (New / navegación hacia delante) sí cargamos los valores del grupo.
+        if (e.NavigationMode == NavigationMode.Back)
+        {
+            ViewModel.RefrescarFiguras();
+        }
+        else
+        {
+            ViewModel.CargarDesdeGrupo();
+        }
     }
 
     /// <summary>Estado del semáforo que refleja si la condición tiene figuras asociadas.</summary>

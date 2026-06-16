@@ -88,6 +88,12 @@
                 <Button Content="Abrir"
                         Command="{x:Bind ViewModel.AbrirCommand}"
                         AutomationProperties.Name="Abrir condición" />
+                <Button Content="Copiar"
+                        Command="{x:Bind ViewModel.CopiarCommand}"
+                        AutomationProperties.Name="Copiar la condición al portapapeles interno" />
+                <Button Content="Pegar"
+                        Command="{x:Bind ViewModel.PegarCommand}"
+                        AutomationProperties.Name="Pegar la condición desde el portapapeles interno" />
                 <Button Content="Estadísticas"
                         Command="{x:Bind ViewModel.EstadisticasCommand}"
                         AutomationProperties.Name="Estadísticas del filtro" />

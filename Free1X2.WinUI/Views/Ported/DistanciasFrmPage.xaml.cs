@@ -18,6 +18,8 @@ public sealed partial class DistanciasFrmPage : Page
         this.InitializeComponent();
         // La VM cierra la página volviendo atrás en el Frame (equivale a CerrarVentana()).
         ViewModel.Volver = () => { if (Frame?.CanGoBack == true) Frame.GoBack(); };
+        // La VM navega al visor de estadísticas a través del Frame (mismo patrón que MainPage).
+        ViewModel.Navegar = tipo => Frame?.Navigate(tipo);
     }
 
     protected override void OnNavigatedTo(NavigationEventArgs e)

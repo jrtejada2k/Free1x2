@@ -1,9 +1,14 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Free1X2.Utils;
+using Free1X2.WinUI.Services;
+using Windows.Storage;
+using Windows.Storage.Pickers;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -49,6 +54,14 @@ public partial class FigurasFiltrosFrmViewModel : ObservableObject
     /// y lee los cambios al volver. Mientras los padres no naveguen aquí, queda en null (lista local).
     /// </summary>
     public static List<long>? FigurasEnEdicion { get; set; }
+
+    /// <summary>
+    /// Nombre de la condición que posee las figuras (Contactos / SignosSeguidos). El padre lo asigna
+    /// antes de navegar. Determina la extensión de archivo de figuras (.fig{Condicion}) al Abrir.
+    /// Equivale a FigurasFiltrosFrm.DeterminarCondicion() (FigurasFiltrosFrm.cs líneas 239-252):
+    /// Contactos -> "Contactos"; SignosSeguidos -> "V1X2".
+    /// </summary>
+    public static string? NombreCondicion { get; set; }
 
     private List<long> _figurasCondicion = new();
 
@@ -135,12 +148,58 @@ public partial class FigurasFiltrosFrmViewModel : ObservableObject
         Volver?.Invoke();
     }
 
-    [RelayCommand]
-    private void Abrir()
+    // Extensión de archivo de figuras según la condición (DeterminarCondicion legacy):
+    //   Contactos -> ".figContactos"; SignosSeguidos -> ".figV1X2"; resto -> ".fig".
+    private static string ExtensionFiguras()
     {
-        // TODO[persistencia]: cargar figuras desde un archivo ".fig<Condicion>" con FileOpenPicker
-        //   (FigurasFiltrosFrm.btnAbrir_Click líneas 253-280): leer líneas -> ObtenerLongFiguraFromText
-        //   y recargar la rejilla. DeterminarCondicion() depende de NombreFiltro (Contactos / V1X2).
+        string condicion = NombreCondicion switch
+        {
+            "Contactos" => "Contactos",
+            "SignosSeguidos" => "V1X2",
+            _ => "",
+        };
+        return ".fig" + condicion;
+    }
+
+    [RelayCommand]
+    private async Task Abrir()
+    {
+        // Equivale a FigurasFiltrosFrm.btnAbrir_Click (FigurasFiltrosFrm.cs líneas 253-280):
+        //   OpenFileDialog (.fig<Condicion>) -> leer líneas -> ObtenerLongFiguraFromText -> recargar rejilla.
+        var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
+        picker.FileTypeFilter.Add(ExtensionFiguras());
+        picker.FileTypeFilter.Add("*");
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        StorageFile? file = await picker.PickSingleFileAsync();
+        if (file == null) return;
+
+        try
+        {
+            _figurasCondicion.Clear();
+            foreach (string linea in File.ReadLines(file.Path))
+            {
+                if (string.IsNullOrWhiteSpace(linea)) continue;
+                long figuraTemp = UtilidadesEntradasValores.ObtenerLongFiguraFromText(linea.Trim());
+                _figurasCondicion.Add(figuraTemp);
+            }
+
+            // Recargar la rejilla con las figuras leídas (legacy: new CtrlFiguras(figurasCondicion)).
+            while (Casillas.Count < _figurasCondicion.Count + 2)
+            {
+                Casillas.Add(new CasillaFiguraViewModel(Casillas.Count));
+            }
+            for (int i = 0; i < Casillas.Count; i++)
+            {
+                Casillas[i].Texto = i < _figurasCondicion.Count
+                    ? UtilidadesEntradasValores.ObtenerTextoFiguraFromLong(_figurasCondicion[i])
+                    : string.Empty;
+            }
+        }
+        catch (Exception ex)
+        {
+            AppServices.MostrarError("No se pudo abrir el archivo de figuras: " + ex.Message);
+        }
     }
 
     [RelayCommand]
