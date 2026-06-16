@@ -160,8 +160,10 @@
                     <TextBlock Text="Temporadas"
                                Style="{StaticResource SecondaryTextBlockStyle}"
                                Visibility="{x:Bind ViewModel.ModoJornadasVisibility, Mode=OneWay}" />
-                    <ListView ItemsSource="{x:Bind ViewModel.Temporadas}"
+                    <ListView x:Name="ListaTemporadas"
+                              ItemsSource="{x:Bind ViewModel.Temporadas}"
                               SelectionMode="Multiple"
+                              SelectionChanged="OnTemporadasSeleccionadas"
                               MinHeight="100"
                               MaxHeight="160"
                               Width="180"
@@ -191,7 +193,30 @@
                 </StackPanel>
             </Border>
 
-            <!-- ===== Resultados (dgResultados) ===== -->
+            <!-- ===== Resumen de premios por categoría (premiosTotales) ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Premios por categoría"
+                               Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <ListView ItemsSource="{x:Bind ViewModel.Histograma}"
+                              SelectionMode="None"
+                              MinHeight="80"
+                              MaxHeight="180"
+                              Background="{ThemeResource AppSurfaceAltBrush}"
+                              BorderBrush="{ThemeResource AppBorderBrush}"
+                              BorderThickness="1">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="x:String">
+                                <TextBlock Text="{x:Bind}"
+                                           FontFamily="Consolas"
+                                           Foreground="{ThemeResource AppTextBrush}" />
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Resultados (dgResultados): columnas premiadas seleccionables ===== -->
             <Border Style="{StaticResource AppCardStyle}">
                 <StackPanel Spacing="16">
                     <TextBlock Text="Resultados"
@@ -202,7 +227,27 @@
                               MinHeight="220"
                               Background="{ThemeResource AppSurfaceAltBrush}"
                               BorderBrush="{ThemeResource AppBorderBrush}"
-                              BorderThickness="1" />
+                              BorderThickness="1">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="ported:CombinacionPremiadaItem">
+                                <Grid ColumnSpacing="12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <CheckBox Grid.Column="0"
+                                              MinWidth="0"
+                                              IsChecked="{x:Bind Seleccionado, Mode=TwoWay}"
+                                              AutomationProperties.Name="Seleccionar fila" />
+                                    <TextBlock Grid.Column="1"
+                                               VerticalAlignment="Center"
+                                               FontFamily="Consolas"
+                                               Text="{x:Bind Resumen}"
+                                               Foreground="{ThemeResource AppTextBrush}" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
 
                     <TextBlock
                         Text="Sin resultados todavía. Lanza un escrutinio para ver las columnas premiadas."
@@ -220,6 +265,30 @@
                         <Button Content="Ver Premiadas"
                                 Command="{x:Bind ViewModel.VerPremiadasAccionCommand}" />
                     </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Columnas premiadas (legacy ColumnasPremiadasFrm) ===== -->
+            <Border Style="{StaticResource AppCardStyle}"
+                    Visibility="{x:Bind ViewModel.MostrarPremiadas, Mode=OneWay}">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Columnas premiadas"
+                               Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <ListView ItemsSource="{x:Bind ViewModel.Premiadas}"
+                              SelectionMode="None"
+                              MinHeight="120"
+                              MaxHeight="240"
+                              Background="{ThemeResource AppSurfaceAltBrush}"
+                              BorderBrush="{ThemeResource AppBorderBrush}"
+                              BorderThickness="1">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="ported:CombinacionPremiadaItem">
+                                <TextBlock FontFamily="Consolas"
+                                           Foreground="{ThemeResource AppTextBrush}"
+                                           Text="{x:Bind Resumen}" />
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
                 </StackPanel>
             </Border>
 
