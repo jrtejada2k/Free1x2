@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Free1X2.MotorCalculo.Estadisticas;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -31,6 +32,17 @@ public sealed class EstadisticaItem
 public partial class VisorEstadisticasViewModel : ObservableObject
 {
     /// <summary>
+    /// Handoff estático con la lista de estadísticas que el formulario llamante calcula
+    /// (CalculadorEstadisticas.EstadisticasFiltro) y deja para el visor. Equivale al argumento
+    /// del ctor legacy VisorEstadisticas(List&lt;Estadistica&gt; est). El visor lo lee al navegar
+    /// (mismo patrón que EstucolFrmViewModel.UltimoInforme).
+    /// TODO[productor]: los formularios de filtro (ContactosFrm.Estadisticas, etc., aún stubs y
+    ///   fuera del alcance de este lote) deben fijar UltimasEstadisticas antes de navegar aquí.
+    ///   Legacy: ContactosFrm.cs líneas 775-789 -> new VisorEstadisticas(lista).
+    /// </summary>
+    public static List<Estadistica>? UltimasEstadisticas { get; set; }
+
+    /// <summary>
     /// Colección de estadísticas a mostrar en la rejilla
     /// (legacy: DataSet/DataTable "Estadísticas" enlazado a dgEstadisticas.DataSource,
     /// alimentado por el formulario que abría este diálogo a través del constructor
@@ -45,17 +57,22 @@ public partial class VisorEstadisticasViewModel : ObservableObject
 
     public VisorEstadisticasViewModel()
     {
-        // TODO[dominio]: poblar 'Estadisticas' a partir de la lista de
-        //   Free1X2.MotorCalculo.Estadisticas.Estadistica que el formulario llamante
-        //   pasaba al constructor legacy VisorEstadisticas(List<Estadistica> est).
-        //   Legacy: VisorEstadisticas.LlenarEstadisticas()
-        //     - Por cada Estadistica e de la lista:
-        //         Estadisticas.Add(new EstadisticaItem
-        //         {
-        //             Archivo = e.Archivo,
-        //             Cumplimiento = e.Cumplimiento + "%"
-        //         });
-        //   La navegación a esta Page deberá entregar la lista (p. ej. vía parámetro de
-        //   Navigate / inyección) ya que aquí no se construye la lógica de dominio.
+        // Réplica 1:1 de VisorEstadisticas.LlenarEstadisticas(): por cada Estadistica de la
+        // lista, una fila con Archivo y Cumplimiento + "%". La lista llega por el handoff
+        // estático (la Page se reconstruye en cada navegación, así que basta con leerlo aquí).
+        var lista = UltimasEstadisticas;
+        if (lista != null)
+        {
+            for (int i = 0; i < lista.Count; i++)
+            {
+                Estadistica estadistica = lista[i];
+                Estadisticas.Add(new EstadisticaItem
+                {
+                    Archivo = estadistica.Archivo,
+                    Cumplimiento = estadistica.Cumplimiento + "%",
+                });
+            }
+        }
+        OnPropertyChanged(nameof(SinDatos));
     }
 }
