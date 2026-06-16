@@ -66,8 +66,9 @@ public partial class FormatosViewModel : ObservableObject
 /// El usuario define una o varias relaciones de formatos navegables (1/N) y, por
 /// cada una, hasta 30 líneas (secuencia + rango Min-Max) más los límites Líneas/Global.
 ///
-/// Datos en memoria; la persistencia y el cálculo aún viven en el dominio legacy
-/// (ver los TODO en FormatosFrmPage.xaml.cs).
+/// Persistencia (Guardar/Abrir/Copiar/Pegar) vía ArchivoCondiciones (.fmt/.xml + Temp/tmp.fmt)
+/// y Estadísticas vía CalculadorEstadisticas -> VisorEstadisticasPage. Las utilidades
+/// "Sacar formatos / Pares / Tríos / Sumas pares" siguen pendientes (forms no portados).
 /// </summary>
 public partial class FormatosFrmViewModel : ObservableObject
 {

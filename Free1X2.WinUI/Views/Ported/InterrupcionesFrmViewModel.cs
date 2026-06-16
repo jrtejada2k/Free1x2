@@ -22,8 +22,8 @@ namespace Free1X2.WinUI.Views.Ported;
 ///   - Interrupciones seguidas (Global / Var / 1 / X / 2).
 /// Cada propiedad almacena la lista de valores tal como el control legacy
 /// OptionNumTol0_14 (lista separada por comas, p. ej. "0,1,2").
-/// La lógica de dominio (FiltroInterrupciones, ArchivoCondiciones, CalculadorEstadisticas)
-/// está marcada como TODO; aquí solo se replica el estado de pantalla.
+/// Persistencia (Guardar/Abrir/Copiar/Pegar) vía ArchivoCondiciones (.int/.xml + Temp/tmp.int)
+/// y Estadísticas vía CalculadorEstadisticas -> VisorEstadisticasPage.
 /// </summary>
 public partial class InterrupcionesFrmViewModel : ObservableObject
 {

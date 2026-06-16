@@ -22,8 +22,8 @@ namespace Free1X2.WinUI.Views.Ported;
 /// Cada simetría es una lista de partidos separados por comas (a,b), guiones (a-b)
 /// o una mezcla (a,b-c). El filtro mantiene además un campo "Aciertos" (intervalos
 /// individuales o rangos: "1,3,5-7"). Equivale a los CtrlSimetria + txtAciertos del
-/// WinForms SimetriasFrm. La lógica de dominio (FiltroSimetrias, Simetria,
-/// ArchivoCondiciones, CalculadorEstadisticas) está marcada como TODO.
+/// WinForms SimetriasFrm. Persistencia (Guardar/Abrir/Copiar/Pegar) vía ArchivoCondiciones
+/// (.sim/.xml + Temp/tmp.sim) y Estadísticas vía CalculadorEstadisticas -> VisorEstadisticasPage.
 /// </summary>
 public partial class SimetriasFrmViewModel : ObservableObject
 {

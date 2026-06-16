@@ -39,7 +39,8 @@ public partial class Formato123Item : ObservableObject
 /// ViewModel portado de Free1X2.UI.Filtros.Formatos123Frm (WinForms).
 /// Replica los campos de entrada: lista de formatos 123 (con min/max aciertos),
 /// líneas acertadas, "ignorar repeticiones", la rejilla de porcentajes/valoración
-/// y el traductor 1X2 -> 123. La persistencia/estadísticas quedan como TODO.
+/// y el traductor 1X2 -> 123. Persistencia (Guardar/Abrir/Copiar/Pegar) vía
+/// ArchivoCondiciones (.123/.xml + Temp/tmp.123) y Estadísticas -> VisorEstadisticasPage.
 /// </summary>
 public partial class Formatos123FrmViewModel : ObservableObject
 {
@@ -277,9 +278,10 @@ public partial class Formatos123FrmViewModel : ObservableObject
     [RelayCommand]
     private void Analizar()
     {
-        // TODO (dominio): legacy btnAnalisis_Click.
-        // Abre AnalisisFormatos123Frm con filtro.ArrayFormatos (requiere
-        // que el filtro tenga formatos guardados).
+        // TODO[forma-no-portada]: abrir AnalisisFormatos123Frm con filtro.ArrayFormatos
+        //   (Formatos123Frm.btnAnalisis_Click). Bloqueado: la página AnalisisFormatos123FrmPage
+        //   pertenece a otro lote y aún no acepta el handoff de formatos. Fuera del alcance de
+        //   este cableado de persistencia/estadísticas.
     }
 
     [RelayCommand]
@@ -521,7 +523,8 @@ public partial class Formatos123FrmViewModel : ObservableObject
     [RelayCommand]
     private void Borrar()
     {
-        // TODO (dominio): legacy menuCondiciones1_BBorrar (confirmación + reset filtro).
+        // Equivale a Formatos123Frm.menuCondiciones1_BBorrar: limpia la pantalla (los datos se
+        //   aplican al filtro real sólo al Aceptar).
         Formatos.Clear();
         for (int i = 1; i <= 8; i++)
         {

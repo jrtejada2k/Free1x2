@@ -22,9 +22,10 @@ namespace Free1X2.WinUI.Views.Ported;
 /// <c>FiltroValoracionSignos</c>). Asigna a cada partido unas valoraciones 1/X/2
 /// (rejilla PorcentajesControl) y filtra columnas cuya valoración Global, de Unos,
 /// Equis y Doses caiga en los rangos indicados, en modo "suma" o "multiplo".
-/// El cálculo (PrepararValores/Calcular/columnas base/Aceptar) está portado; la
-/// persistencia (Guardar/Abrir/Copiar/Pegar/Estadísticas) queda como TODO citando
-/// la clase legacy correspondiente.
+/// El cálculo (PrepararValores/Calcular/columnas base/Aceptar) está portado y la
+/// persistencia (Guardar/Abrir/Copiar/Pegar) usa ArchivoCondiciones (.valor/.xml +
+/// Temp/tmp.valor); Estadísticas vía CalculadorEstadisticas -> VisorEstadisticasPage.
+/// "Buscar límite" sigue pendiente (BuscaLimsFrm no portado).
 /// </summary>
 public partial class ValoracionFrmViewModel : ObservableObject
 {
@@ -349,8 +350,9 @@ public partial class ValoracionFrmViewModel : ObservableObject
     [RelayCommand]
     private void BuscarLimite()
     {
-        // TODO: Dominio legacy — ValoracionFrm.btnBuscarLimites_Click():
-        //   abre el form BuscaLimsFrm (port: BuscaLimsFrmPage) como diálogo.
+        // TODO[forma-no-portada]: abrir BuscaLimsFrmPage como diálogo
+        //   (ValoracionFrm.btnBuscarLimites_Click). Bloqueado: BuscaLimsFrm pertenece a otro lote
+        //   y su flujo de límites aún no está portado. Fuera del alcance de este cableado.
     }
 
     // --- Barra de condiciones (control legacy MenuCondiciones) ---

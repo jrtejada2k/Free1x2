@@ -49,8 +49,8 @@ public partial class SimetriaLinea : ObservableObject
 /// DISTINTOS entre los grupos especificados. El form permite guardar varios "conjuntos"
 /// (cada uno es una <c>Diferencia</c> del <c>FiltroDiferencias</c>) y navegar entre ellos.
 ///
-/// La lógica de dominio (FiltroDiferencias, Diferencia, ArchivoCondiciones,
-/// CalculadorEstadisticas, Grupo, etc.) está marcada como TODO.
+/// Persistencia (Guardar/Abrir/Copiar/Pegar) vía ArchivoCondiciones (.dif/.xml + Temp/tmp.rep)
+/// y Estadísticas vía CalculadorEstadisticas -> VisorEstadisticasPage.
 /// </summary>
 public partial class DiferenciasFrmViewModel : ObservableObject
 {

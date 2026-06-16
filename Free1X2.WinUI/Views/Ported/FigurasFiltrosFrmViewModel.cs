@@ -39,8 +39,8 @@ public partial class CasillaFiguraViewModel : ObservableObject
 /// <summary>
 /// ViewModel de la pantalla portada del WinForms "FigurasFiltrosFrm".
 /// Mantiene la rejilla de casillas de figuras y las acciones del form legacy
-/// (Aceptar, Abrir desde archivo, Borrar, Cancelar). La conversión de texto a
-/// figura (long) y la persistencia se delegan al dominio legacy (ver TODOs).
+/// (Aceptar, Abrir desde archivo, Borrar, Cancelar). La conversión de texto a figura (long)
+/// se delega a UtilidadesEntradasValores; Abrir lee figuras desde un archivo .fig{Condicion}.
 /// </summary>
 public partial class FigurasFiltrosFrmViewModel : ObservableObject
 {

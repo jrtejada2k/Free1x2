@@ -41,8 +41,8 @@ public partial class OpcionSeleccionableViewModel : ObservableObject
 /// ViewModel de la pantalla portada del WinForms "PesosNumFrm".
 /// Mantiene los conjuntos de Pesos Numéricos (Global / Variantes / 1 / X / 2),
 /// sus tolerancias homónimas, las tolerancias numéricas (0..5) y las figuras
-/// seleccionables. La conversión texto→valores, el cálculo y la persistencia se
-/// delegan al dominio legacy (ver TODOs).
+/// seleccionables. Persistencia (Guardar/Abrir/Copiar/Pegar) vía ArchivoCondiciones
+/// (.pes/.xml + Temp/tmp.pes) y Estadísticas vía CalculadorEstadisticas -> VisorEstadisticasPage.
 /// </summary>
 public partial class PesosNumFrmViewModel : ObservableObject
 {

@@ -39,7 +39,8 @@ public partial class FilaContactoViewModel : ObservableObject
 /// ViewModel de la pantalla de filtro "Contactos".
 /// Mantiene las 10 filas de parejas de signos y el estado de las figuras.
 /// Hace el round-trip contra <c>FiltroContactos</c> del Grupo en edición
-/// (AppState.GrupoEnEdicion). La edición de figuras y la persistencia en disco quedan como TODO.
+/// (AppState.GrupoEnEdicion). La edición de figuras navega a FigurasFiltrosFrmPage y la
+/// persistencia en disco se hace vía ArchivoCondiciones (.cont/.xml + Temp/tmp.cont).
 /// </summary>
 public partial class ContactosFrmViewModel : ObservableObject
 {
