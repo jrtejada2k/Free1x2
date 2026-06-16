@@ -6,8 +6,8 @@ namespace Free1X2.WinUI.Views.Ported;
 /// Page portada del WinForms legacy "EscrutiniosFrm" (título "Escrutinios").
 /// Escruta uno o varios ficheros de columnas en tres modos: contra una columna
 /// ganadora manual, contra otro fichero de referencia, o contra las jornadas del
-/// histórico. La lógica de dominio (Escrutador, ArchivoColumnasTexto, lectura de
-/// Jornadas/Resultados.txt, Free1X2WService, selección de archivos) queda como TODO.
+/// histórico. El motor (Escrutador), la lectura de Jornadas/Resultados.txt, la
+/// grabación de columnas y la lista de premiadas están cableados en el ViewModel.
 /// </summary>
 public sealed partial class EscrutiniosFrmPage : Page
 {
@@ -16,5 +16,21 @@ public sealed partial class EscrutiniosFrmPage : Page
     public EscrutiniosFrmPage()
     {
         InitializeComponent();
+    }
+
+    /// <summary>
+    /// Propaga al ViewModel las temporadas marcadas (legacy: lstTemporadas.SelectedIndices,
+    /// MultiExtended). La selección múltiple vive en el control de UI.
+    /// </summary>
+    private void OnTemporadasSeleccionadas(object sender, SelectionChangedEventArgs e)
+    {
+        ViewModel.TemporadasSeleccionadas.Clear();
+        foreach (var item in ListaTemporadas.SelectedItems)
+        {
+            if (item is string s && int.TryParse(s, out int temp))
+            {
+                ViewModel.TemporadasSeleccionadas.Add(temp);
+            }
+        }
     }
 }
