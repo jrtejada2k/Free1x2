@@ -1,82 +1,151 @@
+using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Input;
+using Free1X2.EntradaSalida;
+using Free1X2.MotorCalculo;
+using Free1X2.WinUI.Services;
+using Windows.Storage;
+using Windows.Storage.Pickers;
 
 namespace Free1X2.WinUI.Views.Ported;
 
 /// <summary>
 /// ViewModel para la pantalla "Exportador de Columnas Probables".
-/// Replica el WinForms <c>ExportadorCPsFrm</c>, un diálogo sin campos de entrada
-/// que recibe una lista de <c>ColumnaProbable</c> y ofrece dos formas de
-/// exportarla a fichero (más cancelar):
+/// Replica el WinForms <c>ExportadorCPsFrm</c>, un diálogo que recibe una lista de
+/// <c>ColumnaProbable</c> y ofrece exportarla a fichero (más cancelar):
 ///   - Simple: sólo las columnas/pronósticos a un .txt (btnExportarSimples).
 ///   - Con aciertos: pronósticos + aciertos, aciertos seguidos y fallos seguidos
 ///     a un .clm (btnExportarClm).
-/// La selección de fichero (SaveFileDialog) y la escritura quedan como TODO
-/// hasta portar el dominio (MotorCalculo.ColumnaProbable / EntradaSalida).
+/// La escritura usa el motor real (ArchivoColumnasTexto y ColumnaProbable), igual que el
+/// legacy. La lista de origen se inyecta vía <see cref="EstablecerColumnas"/> al navegar.
 /// </summary>
 public partial class ExportadorCPsFrmViewModel : ObservableObject
 {
-    // ===== Estado / feedback (no existía en el WinForms; sustituye al cierre del diálogo) =====
+    // Lista de CPs a exportar (legacy: constructor ExportadorCPsFrm(List<ColumnaProbable> lista)).
+    private List<ColumnaProbable> _lista = new();
+
+    // ===== Estado / feedback (sustituye al cierre del diálogo) =====
     [ObservableProperty]
     private string _estado = "Elige el formato de exportación de las columnas probables.";
 
-    // TODO(dominio): el constructor del WinForms recibía
-    //   List<ColumnaProbable> lista (las columnas a exportar). Aquí debería
-    //   inyectarse/recibirse esa lista al navegar a la página. Se expone el
-    //   número de columnas como texto para mostrarlo en la cabecera.
     [ObservableProperty]
     private string _numeroColumnasTexto = "0 columnas para exportar.";
 
     public ExportadorCPsFrmViewModel()
     {
-        // TODO(dominio): recibir la List<ColumnaProbable> de origen (el WinForms la
-        //   pasaba por constructor: ExportadorCPsFrm(List<ColumnaProbable> lista))
-        //   y actualizar NumeroColumnasTexto con lista.Count.
     }
 
     /// <summary>
-    /// Equivale a <c>btnExportarSimples_Click</c> del WinForms: exporta sólo las
-    /// columnas (PronosticosString) a un fichero de texto (*.txt).
+    /// Inyecta la lista de columnas a exportar. El WinForms la recibía por constructor; en
+    /// WinUI la pasa quien navegue a la página (p. ej. ColProbablesFrm.ExportaColumnas,
+    /// ver Free1X2/UI/Filtros/ColProbablesFrm.cs línea 748).
+    /// </summary>
+    public void EstablecerColumnas(List<ColumnaProbable> lista)
+    {
+        _lista = lista ?? new List<ColumnaProbable>();
+        ActualizarResumen();
+    }
+
+    /// <summary>
+    /// btnExportarSimples_Click del WinForms: exporta sólo las columnas (PronosticosString)
+    /// a un fichero de texto (*.txt) usando ArchivoColumnasTexto.GuardarTodasCols(.., true).
     /// </summary>
     [RelayCommand]
-    private void ExportarSimples()
+    private async Task ExportarSimples()
     {
-        // TODO(dominio): portar ExportadorCPsFrm.btnExportarSimples_Click():
-        //   - Abrir un selector de fichero (equivalente a SaveFileDialog,
-        //     InitialDirectory "Columnas\\", filtro "Columnas Simples (*.txt)").
-        //   - Construir string[] columnas con lista[i].PronosticosString.
-        //   - Usar EntradaSalida.IArchivoColumnas / ArchivoColumnasTexto:
-        //       comBaseCols.GuardarTodasCols(columnas, true); comBaseCols.Cerrar();
-        //   - Cerrar la página al terminar.
-        Estado = "Exportar columnas simples a .txt (pendiente de portar dominio).";
+        var picker = new FileSavePicker
+        {
+            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
+            DefaultFileExtension = ".txt",
+            SuggestedFileName = "columnas",
+        };
+        picker.FileTypeChoices.Add("Columnas Simples", new List<string> { ".txt" });
+        picker.FileTypeChoices.Add("Todos los archivos", new List<string> { "." });
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        StorageFile? archivo = await picker.PickSaveFileAsync();
+        if (archivo is null)
+        {
+            return;
+        }
+
+        string ruta = archivo.Path;
+        List<ColumnaProbable> lista = _lista;
+
+        await Task.Run(() =>
+        {
+            string[] columnas = new string[lista.Count];
+            IArchivoColumnas comBaseCols = new ArchivoColumnasTexto(ruta);
+            for (int i = 0; i < lista.Count; i++)
+            {
+                columnas[i] = lista[i].PronosticosString;
+            }
+            comBaseCols.GuardarTodasCols(columnas, true);
+            comBaseCols.Cerrar();
+        });
+
+        Estado = $"Exportadas {lista.Count} columnas simples a {Path.GetFileName(ruta)}.";
     }
 
     /// <summary>
-    /// Equivale a <c>btnExportarClm_Click</c> del WinForms: exporta cada columna con
-    /// sus aciertos (Ac), aciertos seguidos (Acs) y fallos seguidos (Fs) a un *.clm.
+    /// btnExportarClm_Click del WinForms: exporta cada columna con sus aciertos (Ac),
+    /// aciertos seguidos (Acs) y fallos seguidos (Fs) a un *.clm, una línea por columna.
     /// </summary>
     [RelayCommand]
-    private void ExportarConAciertos()
+    private async Task ExportarConAciertos()
     {
-        // TODO(dominio): portar ExportadorCPsFrm.btnExportarClm_Click():
-        //   - Abrir selector de fichero (SaveFileDialog, "Columnas\\",
-        //     filtro "Columnas Con Aciertos (*.clm)").
-        //   - Por cada ColumnaProbable cp escribir una línea:
-        //       cp.PronosticosString + "#" + cp.GetAciertos() + "#" +
-        //       cp.GetAciertosSeguidos() + "#" + cp.GetFallosSeguidos()
-        //     (StreamWriter por línea, como en el WinForms).
-        //   - Cerrar la página al terminar.
-        Estado = "Exportar columnas con aciertos a .clm (pendiente de portar dominio).";
+        var picker = new FileSavePicker
+        {
+            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
+            DefaultFileExtension = ".clm",
+            SuggestedFileName = "columnas",
+        };
+        picker.FileTypeChoices.Add("Columnas Con Aciertos", new List<string> { ".clm" });
+        picker.FileTypeChoices.Add("Todos los archivos", new List<string> { "." });
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        StorageFile? archivo = await picker.PickSaveFileAsync();
+        if (archivo is null)
+        {
+            return;
+        }
+
+        string ruta = archivo.Path;
+        List<ColumnaProbable> lista = _lista;
+
+        await Task.Run(() =>
+        {
+            using var sw = new StreamWriter(ruta);
+            for (int i = 0; i < lista.Count; i++)
+            {
+                ColumnaProbable cp = lista[i];
+                string linea = cp.PronosticosString + "#" + cp.GetAciertos() + "#" +
+                               cp.GetAciertosSeguidos() + "#" + cp.GetFallosSeguidos();
+                sw.WriteLine(linea);
+            }
+            sw.Close();
+        });
+
+        Estado = $"Exportadas {lista.Count} columnas con aciertos a {Path.GetFileName(ruta)}.";
     }
 
     /// <summary>
-    /// Equivale a <c>btnCancelar_Click</c> del WinForms (Close()).
+    /// btnCancelar_Click del WinForms (Close()).
     /// </summary>
     [RelayCommand]
     private void Cancelar()
     {
-        // TODO(dominio/navegación): cerrar/navegar atrás. En el WinForms era Close().
         Estado = "Cancelado.";
+        // TODO (navegación): el WinForms hacía Close(); en WinUI el cierre/navegación atrás lo
+        //   gestiona el contenedor de la Page.
+    }
+
+    private void ActualizarResumen()
+    {
+        int n = _lista.Count;
+        NumeroColumnasTexto = n == 1 ? "1 columna para exportar." : $"{n} columnas para exportar.";
     }
 }
