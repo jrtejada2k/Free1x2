@@ -21,6 +21,12 @@ public sealed class EstadisticaItem
     /// (legacy: columna "Cumplimiento" = Estadistica.Cumplimiento + "%").
     /// </summary>
     public string Cumplimiento { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Valor numérico de cumplimiento (0..100) para la barra de progreso. Es el mismo
+    /// Estadistica.Cumplimiento, sólo acotado al rango visible de la barra; no se inventa nada.
+    /// </summary>
+    public double CumplimientoValor { get; set; }
 }
 
 /// <summary>
@@ -66,10 +72,14 @@ public partial class VisorEstadisticasViewModel : ObservableObject
             for (int i = 0; i < lista.Count; i++)
             {
                 Estadistica estadistica = lista[i];
+                double valor = estadistica.Cumplimiento;
+                if (valor < 0) valor = 0;
+                if (valor > 100) valor = 100;
                 Estadisticas.Add(new EstadisticaItem
                 {
                     Archivo = estadistica.Archivo,
                     Cumplimiento = estadistica.Cumplimiento + "%",
+                    CumplimientoValor = valor,
                 });
             }
         }

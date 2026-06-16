@@ -1,3 +1,4 @@
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
 namespace Free1X2.WinUI.Views.Ported
@@ -15,5 +16,12 @@ namespace Free1X2.WinUI.Views.Ported
             //       y llamaba MostrarDatos(0) para construir las pestañas activas. Falta cablear
             //       esos parámetros de dominio al ViewModel.
         }
+
+        /// <summary>
+        /// Oculta el título de un bloque de matriz cuando está vacío (las secciones de un solo
+        /// bloque no llevan título; CPs/Diferencias/Formatos sí). Usado por x:Bind en el DataTemplate.
+        /// </summary>
+        public static Visibility VisibilidadTexto(string texto) =>
+            string.IsNullOrEmpty(texto) ? Visibility.Collapsed : Visibility.Visible;
     }
 }

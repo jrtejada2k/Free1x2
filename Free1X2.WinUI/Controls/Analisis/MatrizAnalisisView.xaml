@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="Free1X2.WinUI.Controls.Analisis.MatrizAnalisisView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:analisis="using:Free1X2.WinUI.Controls.Analisis">
+
+    <!-- Rejilla de análisis: una fila por concepto (réplica de las filas de CtrlCasilla
+         del WinForms). Cada celda es un cuadro de ancho fijo, las de cabecera resaltadas.
+         El scroll horizontal permite matrices anchas (muchos partidos). -->
+    <ScrollViewer
+        HorizontalScrollBarVisibility="Auto"
+        VerticalScrollBarVisibility="Disabled"
+        HorizontalScrollMode="Auto">
+        <ItemsControl x:Name="FilasHost">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="analisis:FilaMatrizAnalisis">
+                    <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,0,0,2">
+                        <!-- Etiqueta del concepto (columna fija) -->
+                        <Border
+                            Width="150"
+                            MinHeight="26"
+                            Padding="6,2"
+                            VerticalAlignment="Stretch"
+                            Background="{ThemeResource AppSurfaceAltBrush}"
+                            BorderBrush="{ThemeResource AppBorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="2">
+                            <TextBlock
+                                Text="{x:Bind Etiqueta}"
+                                VerticalAlignment="Center"
+                                TextWrapping="Wrap"
+                                FontSize="12"
+                                Foreground="{ThemeResource AppTextBrush}" />
+                        </Border>
+                        <!-- Celdas de datos -->
+                        <ItemsControl ItemsSource="{x:Bind Celdas}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal" Spacing="2" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="analisis:CeldaAnalisis">
+                                    <Border
+                                        Width="34"
+                                        MinHeight="26"
+                                        Background="{x:Bind analisis:MatrizAnalisisView.FondoCelda(EsCabecera)}"
+                                        BorderBrush="{ThemeResource AppBorderBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="2">
+                                        <TextBlock
+                                            Text="{x:Bind Valor}"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            FontFamily="Consolas"
+                                            FontSize="12"
+                                            Foreground="{ThemeResource AppTextBrush}" />
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </ScrollViewer>
+</UserControl>
