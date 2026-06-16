@@ -31,6 +31,29 @@ public sealed partial class DialogoAnalisisMultipleDeTramosFrmPage : Page
         this.InitializeComponent();
     }
 
+    /// <summary>
+    /// Mantiene <see cref="DialogoAnalisisMultipleDeTramosFrmViewModel.CombinacionesSeleccionadas"/>
+    /// en sync con la selección múltiple del ListView (legacy dgListaFicheros.IsSelected). WinUI no
+    /// permite enlazar (x:Bind) la selección múltiple a una colección del VM, así que se replica aquí
+    /// (mismo patrón que CopiarCPFrmPage). También deja CombinacionSeleccionada con la última fila
+    /// activa para el caso de selección simple.
+    /// </summary>
+    private void CombinacionesListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (sender is not ListView lv) return;
+        ViewModel.CombinacionesSeleccionadas.Clear();
+        foreach (var item in lv.SelectedItems)
+        {
+            if (item is CombinacionFilaViewModel fila)
+            {
+                ViewModel.CombinacionesSeleccionadas.Add(fila);
+            }
+        }
+        ViewModel.CombinacionSeleccionada = lv.SelectedItems.Count > 0
+            ? lv.SelectedItems[^1] as CombinacionFilaViewModel
+            : null;
+    }
+
     // Toda la lógica de dominio se invocará desde los RelayCommand del ViewModel:
     //  - btSeleccionarFichero_Click / CargarListaDeTemporadas(): leer el fichero de
     //    valoraciones históricas con Free1X2.EntradaSalida.ArchivoColumnasTexto
