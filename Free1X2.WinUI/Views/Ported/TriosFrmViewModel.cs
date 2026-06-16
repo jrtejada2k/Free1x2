@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -9,6 +10,86 @@ using Free1X2.WinUI.Services;
 using Windows.Storage.Pickers;
 
 namespace Free1X2.WinUI.Views.Ported;
+
+/// <summary>
+/// Fila editable de la rejilla de "Niveles" del WinForms <c>TriosFrm</c>. Cada fila tiene los
+/// 3 índices del trío (Pos1/Pos2/Pos3, 1-based: qué tres partidos forman el trío) y los 27
+/// niveles por combinación de signos del trío (V0..V26 en el orden 111, 11X, 112, 1X1, 1XX,
+/// 1X2, 121, 12X, 122, X11, X1X, X12, XX1, XXX, XX2, X21, X2X, X22, 211, 21X, 212, 2X1, 2XX,
+/// 2X2, 221, 22X, 222). Mapea 1:1 a la matriz nivells[fila, 0..29] de RecuperarPantalla()
+/// (Free1X2/UI/TriosFrm.cs línea 772 en adelante). Los valores son string para editarlos en
+/// TextBox (regla anti-crash: no se bindean ints directos a Text).
+/// </summary>
+public partial class NivelRowItem : ObservableObject
+{
+    [ObservableProperty] private string _pos1 = "0";
+    [ObservableProperty] private string _pos2 = "0";
+    [ObservableProperty] private string _pos3 = "0";
+    [ObservableProperty] private string _v0 = "0";
+    [ObservableProperty] private string _v1 = "0";
+    [ObservableProperty] private string _v2 = "0";
+    [ObservableProperty] private string _v3 = "0";
+    [ObservableProperty] private string _v4 = "0";
+    [ObservableProperty] private string _v5 = "0";
+    [ObservableProperty] private string _v6 = "0";
+    [ObservableProperty] private string _v7 = "0";
+    [ObservableProperty] private string _v8 = "0";
+    [ObservableProperty] private string _v9 = "0";
+    [ObservableProperty] private string _v10 = "0";
+    [ObservableProperty] private string _v11 = "0";
+    [ObservableProperty] private string _v12 = "0";
+    [ObservableProperty] private string _v13 = "0";
+    [ObservableProperty] private string _v14 = "0";
+    [ObservableProperty] private string _v15 = "0";
+    [ObservableProperty] private string _v16 = "0";
+    [ObservableProperty] private string _v17 = "0";
+    [ObservableProperty] private string _v18 = "0";
+    [ObservableProperty] private string _v19 = "0";
+    [ObservableProperty] private string _v20 = "0";
+    [ObservableProperty] private string _v21 = "0";
+    [ObservableProperty] private string _v22 = "0";
+    [ObservableProperty] private string _v23 = "0";
+    [ObservableProperty] private string _v24 = "0";
+    [ObservableProperty] private string _v25 = "0";
+    [ObservableProperty] private string _v26 = "0";
+
+    /// <summary>Número de fila (1-based) para la cabecera. Legacy: grupos p0x/p1x..pbx.</summary>
+    public string Etiqueta { get; init; } = string.Empty;
+
+    /// <summary>Devuelve la celda c (0..29) como entero (0 si no parsea). Para volcar a nivells[fila, c].</summary>
+    public int Celda(int c) => c switch
+    {
+        0 => AInt(Pos1), 1 => AInt(Pos2), 2 => AInt(Pos3),
+        3 => AInt(V0), 4 => AInt(V1), 5 => AInt(V2), 6 => AInt(V3), 7 => AInt(V4),
+        8 => AInt(V5), 9 => AInt(V6), 10 => AInt(V7), 11 => AInt(V8), 12 => AInt(V9),
+        13 => AInt(V10), 14 => AInt(V11), 15 => AInt(V12), 16 => AInt(V13), 17 => AInt(V14),
+        18 => AInt(V15), 19 => AInt(V16), 20 => AInt(V17), 21 => AInt(V18), 22 => AInt(V19),
+        23 => AInt(V20), 24 => AInt(V21), 25 => AInt(V22), 26 => AInt(V23), 27 => AInt(V24),
+        28 => AInt(V25), 29 => AInt(V26),
+        _ => 0,
+    };
+
+    /// <summary>Asigna la celda c (0..29) desde un entero (round-trip de Abrir Condiciones).</summary>
+    public void FijarCelda(int c, int valor)
+    {
+        string s = valor.ToString();
+        switch (c)
+        {
+            case 0: Pos1 = s; break; case 1: Pos2 = s; break; case 2: Pos3 = s; break;
+            case 3: V0 = s; break; case 4: V1 = s; break; case 5: V2 = s; break;
+            case 6: V3 = s; break; case 7: V4 = s; break; case 8: V5 = s; break;
+            case 9: V6 = s; break; case 10: V7 = s; break; case 11: V8 = s; break;
+            case 12: V9 = s; break; case 13: V10 = s; break; case 14: V11 = s; break;
+            case 15: V12 = s; break; case 16: V13 = s; break; case 17: V14 = s; break;
+            case 18: V15 = s; break; case 19: V16 = s; break; case 20: V17 = s; break;
+            case 21: V18 = s; break; case 22: V19 = s; break; case 23: V20 = s; break;
+            case 24: V21 = s; break; case 25: V22 = s; break; case 26: V23 = s; break;
+            case 27: V24 = s; break; case 28: V25 = s; break; case 29: V26 = s; break;
+        }
+    }
+
+    private static int AInt(string? s) => int.TryParse(s, out int v) ? v : 0;
+}
 
 /// <summary>
 /// ViewModel del WinForms <c>TriosFrm</c> ("Tríos").
@@ -23,20 +104,36 @@ namespace Free1X2.WinUI.Views.Ported;
 /// int[12,30] nivells (3 posiciones de trío + 27 niveles por combinación) e int[5,3]
 /// rks (min, max, recuento por nivel).
 ///
-/// IMPORTANTE: la rejilla de "Niveles" (matriz nivells) NO está portada en
-/// TriosFrmPage.xaml — está marcada como TODO de dominio en esa Page. Sin esos datos
-/// la matriz nivells queda a 0 y Valida() no contabiliza tríos. Aquí se cablea todo lo
-/// que sí está expuesto (Límites, ficheros, bucle de cálculo, grabar, analizar). Cuando
-/// se porte la rejilla de Niveles, rellenar la matriz en RecuperarPantalla().
+/// La rejilla de "Niveles" (matriz nivells[12,30]) está portada en TriosFrmPage.xaml como un
+/// ItemsControl editable sobre la colección Niveles (12 filas de NivelRowItem). RecuperarPantalla()
+/// vuelca esa colección a la matriz nivells para que Valida() contabilice los tríos, igual que el
+/// formulario legacy. Aquí se cablea todo (Límites, Niveles, ficheros, bucle de cálculo, grabar,
+/// analizar). Las matrices de dominio son int[12,30] nivells y int[5,3] rks (min, max, recuento).
 /// </summary>
 public partial class TriosFrmViewModel : ObservableObject
 {
+    public TriosFrmViewModel()
+    {
+        // 12 filas de Niveles (legacy: grupos p0x/p1x..p7x + va/vb), editables en la Page.
+        Niveles = new ObservableCollection<NivelRowItem>();
+        for (int r = 0; r < 12; r++)
+        {
+            Niveles.Add(new NivelRowItem { Etiqueta = (r + 1).ToString() });
+        }
+    }
+
     // Matriz de validación de columnas (legacy: BitArray validas de 4.782.969 = 3^14).
     private readonly BitArray _validasBits = new(4782969);
 
-    // Matriz de niveles de trío (legacy: int[12,30] nivells). De momento a 0: la rejilla de
-    // "Niveles" no está portada en la Page (ver TODO de TriosFrmPage.xaml, Free1X2/UI/TriosFrm.cs línea 761).
+    // Matriz de niveles de trío (legacy: int[12,30] nivells). Se rellena en RecuperarPantalla()
+    // desde la colección Niveles (rejilla portada en TriosFrmPage.xaml).
     private int[,] _nivells = new int[12, 30];
+
+    /// <summary>
+    /// Rejilla de "Niveles": 12 filas con los 3 índices del trío + 27 niveles por combinación de
+    /// signos. Equivale a los cientos de TextBox v###/p##/va##/vb## del WinForms TriosFrm.
+    /// </summary>
+    public ObservableCollection<NivelRowItem> Niveles { get; }
 
     // Límites por nivel (legacy: int[5,3] rks -> {0=min,1=max,2=recuento}).
     private int[,] _rks = new int[5, 3];
@@ -211,9 +308,8 @@ public partial class TriosFrmViewModel : ObservableObject
     [RelayCommand]
     private async Task AbrirCondicionesAsync()
     {
-        // Legacy: TriosFrm.LeeCondis() — carga desde fichero la tabla de Límites y la matriz
-        // de Niveles. Aquí sólo se pueden cargar los Límites (5 niveles min/max): la primera
-        // sección del fichero son las 12 líneas de la matriz de Niveles, que no tiene UI portada.
+        // Legacy: TriosFrm.LeeCondis() (líneas 473-602) — 12 líneas de Niveles (30 valores
+        // c/u: Pos1,Pos2,Pos3 + 27 niveles) seguidas de 5 líneas de Límites (min,max).
         var picker = new FileOpenPicker
         {
             SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
@@ -228,10 +324,17 @@ public partial class TriosFrmViewModel : ObservableObject
         try
         {
             string[] lineas = await File.ReadAllLinesAsync(file.Path);
-            // Estructura legacy: 12 líneas de Niveles + 5 líneas de Límites (min,max).
-            // Sólo se vuelcan los Límites; la matriz de Niveles requiere la rejilla aún no portada.
-            // TODO[dominio]: volcar las 12 primeras líneas a _nivells cuando se porte la rejilla de
-            //   "Niveles" (Free1X2/UI/TriosFrm.cs LeeCondis, línea 473).
+            // Estructura legacy: 12 líneas de Niveles (30 valores) + 5 líneas de Límites (min,max).
+            // Las 12 primeras se vuelcan a la colección Niveles (rejilla portada); las 5 últimas a Límites.
+            for (int r = 0; r < 12 && r < lineas.Length && r < Niveles.Count; r++)
+            {
+                string[] aux = lineas[r].Split(',');
+                for (int c = 0; c < 30 && c < aux.Length; c++)
+                {
+                    Niveles[r].FijarCelda(c, int.TryParse(aux[c].Trim(), out int v) ? v : 0);
+                }
+            }
+
             int totalLimites = 5;
             int inicioLimites = lineas.Length - totalLimites;
             if (inicioLimites < 0) inicioLimites = 0;
@@ -259,9 +362,9 @@ public partial class TriosFrmViewModel : ObservableObject
     [RelayCommand]
     private async Task SalvarCondicionesAsync()
     {
-        // Legacy: TriosFrm.SalvaCondis() — persiste la matriz de Niveles (12 líneas) y los
-        // Límites (5 líneas min,max). Aquí se guardan los Límites; las 12 líneas de Niveles se
-        // emiten desde _nivells (a 0 mientras la rejilla no esté portada) para mantener el formato.
+        // Legacy: TriosFrm.SalvaCondis() (líneas 603+) — persiste la matriz de Niveles (12 líneas
+        // de 30 valores) y los Límites (5 líneas min,max). RecuperarPantalla() llena _nivells desde
+        // la rejilla portada, por lo que las 12 líneas reflejan los valores editados por el usuario.
         var picker = new FileSavePicker
         {
             SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
@@ -306,9 +409,9 @@ public partial class TriosFrmViewModel : ObservableObject
     // ===== Lógica de dominio replicada 1:1 del WinForms TriosFrm =====
 
     /// <summary>
-    /// Vuelca los Límites de la pantalla a rks[5,3]. La matriz nivells[12,30] queda a 0
-    /// mientras la rejilla de "Niveles" no esté portada (TODO en TriosFrmPage.xaml).
-    /// Legacy: TriosFrm.RecuperarPantalla() (línea 761).
+    /// Vuelca los Límites (rks[5,3]) y la rejilla de Niveles (nivells[12,30]) de la pantalla a las
+    /// matrices de dominio. Legacy: TriosFrm.RecuperarPantalla() (líneas 761-1132): rks desde
+    /// c11/c12..c51/c52 y nivells desde p##/v###/va##/vb##.
     /// </summary>
     private void RecuperarPantalla()
     {
@@ -318,9 +421,16 @@ public partial class TriosFrmViewModel : ObservableObject
         _rks[2, 0] = (int)Nivel3Min; _rks[2, 1] = (int)Nivel3Max;
         _rks[3, 0] = (int)Nivel4Min; _rks[3, 1] = (int)Nivel4Max;
         _rks[4, 0] = (int)Nivel5Min; _rks[4, 1] = (int)Nivel5Max;
-        // _nivells: la rejilla de Niveles no está portada en la Page. Permanece a 0.
-        // TODO[dominio]: volcar la rejilla de "Niveles" a _nivells[12,30] cuando se porte
-        //   (Free1X2/UI/TriosFrm.cs RecuperarPantalla, líneas 772-1131).
+
+        // nivells desde la rejilla de Niveles (12 filas × 30 celdas: 3 posiciones de trío + 27 niveles).
+        _nivells = new int[12, 30];
+        for (int r = 0; r < 12 && r < Niveles.Count; r++)
+        {
+            for (int c = 0; c < 30; c++)
+            {
+                _nivells[r, c] = Niveles[r].Celda(c);
+            }
+        }
     }
 
     /// <summary>Valida una columna contra los tríos/condiciones. Legacy: TriosFrm.Valida (1133-1176).</summary>
