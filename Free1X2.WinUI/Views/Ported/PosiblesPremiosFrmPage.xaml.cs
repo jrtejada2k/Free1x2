@@ -26,5 +26,10 @@ public sealed partial class PosiblesPremiosFrmPage : Page
     public PosiblesPremiosFrmPage()
     {
         InitializeComponent();
+
+        // La VM navega a través del ContentFrame de la página (mismo patrón que MainPage):
+        //   Ver -> VisorPosiblesPremiosPage (handoff estático), MejoresOpciones -> MejoresOpcionesFrmPage
+        //   (contexto como parámetro de navegación).
+        ViewModel.Navegar = (tipo, parametro) => Frame?.Navigate(tipo, parametro);
     }
 }

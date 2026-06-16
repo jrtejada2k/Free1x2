@@ -12,6 +12,17 @@ using Microsoft.UI.Dispatching;
 namespace Free1X2.WinUI.Views.Ported;
 
 /// <summary>
+/// Contexto del flujo legacy PosiblesPremiosFrm.btnMejoresOpciones_Click, que en WinForms se
+/// inyectaba por propiedades antes de ShowDialog (ColumnaGanadora, ArchivoColumnas y el flag de
+/// pleno del ctor). Aquí viaja como parámetro de navegación a MejoresOpcionesFrmPage y se reenvía
+/// al ViewModel con EstablecerContexto.
+/// </summary>
+public sealed record MejoresOpcionesContexto(
+    string ColumnaGanadora,
+    IReadOnlyList<string> ArchivoColumnas,
+    bool ContemplaPleno);
+
+/// <summary>
 /// Representa una casilla "Partido Involucrado" (legacy: ckb1..ckb16).
 /// Numero = etiqueta del partido (1..16); Involucrado = estado marcado;
 /// Visible = se muestra solo si el partido existe segun la longitud de la

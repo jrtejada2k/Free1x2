@@ -1,4 +1,5 @@
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Navigation;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -18,10 +19,23 @@ public sealed partial class MejoresOpcionesFrmPage : Page
     public MejoresOpcionesFrmPage()
     {
         InitializeComponent();
+    }
 
-        // TODO[dominio]: en el form legacy, OnLoad llamaba a
-        //   AdaptarInterfaz(ColumnaGanadora.Length) para ocultar las casillas de
-        //   partidos inexistentes. Aqui, cuando se porte la entrada de ColumnaGanadora,
-        //   invocar ViewModel.AdaptarInterfaz(longitud) con la longitud real.
+    /// <summary>
+    /// Recibe el contexto del flujo legacy (PosiblesPremiosFrm.btnMejoresOpciones_Click):
+    /// columna ganadora, columnas jugadas y si se contempla el pleno al 15. El form legacy lo
+    /// inyectaba por propiedades antes de ShowDialog y, en OnLoad, llamaba a
+    /// AdaptarInterfaz(ColumnaGanadora.Length). Aquí llega como parámetro de navegación
+    /// (mismo patrón que CopiarDatosCPFrmPage.OnNavigatedTo con e.Parameter).
+    /// </summary>
+    protected override void OnNavigatedTo(NavigationEventArgs e)
+    {
+        base.OnNavigatedTo(e);
+
+        if (e.Parameter is MejoresOpcionesContexto ctx)
+        {
+            // EstablecerContexto ya recalcula AdaptarInterfaz con la longitud real de la columna.
+            ViewModel.EstablecerContexto(ctx.ColumnaGanadora, ctx.ArchivoColumnas, ctx.ContemplaPleno);
+        }
     }
 }

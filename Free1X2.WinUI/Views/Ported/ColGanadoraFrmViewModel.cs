@@ -45,6 +45,13 @@ public partial class ColGanadoraFrmViewModel : ObservableObject
     public string LongitudRequeridaTexto => _numPartidos.ToString();
 
     /// <summary>
+    /// Navegación a otra página del ContentFrame, inyectada por la Page (mismo patrón que
+    /// MainPageViewModel.Navegar). El análisis de fallos se entrega por el handoff estático
+    /// AnalizarCombinacionFrmViewModel.UltimoAnalisis, así que basta con navegar sin parámetro.
+    /// </summary>
+    public Action<Type>? Navegar { get; set; }
+
+    /// <summary>
     /// True si la columna ganadora tiene exactamente la longitud requerida
     /// (legacy: ColGanadoraFrm.btnComienzo_Click valida cg.Length != numPartidos).
     /// </summary>
@@ -140,17 +147,14 @@ public partial class ColGanadoraFrmViewModel : ObservableObject
         // Conversión de la columna ganadora a su representación numérica (legacy línea 207).
         long columnaNumerica = Free1X2.Utils.UtilColumnas.ConvStrToLong(ColumnaGanadora);
 
-        // TODO[dominio]: ejecutar el análisis de fallos.
-        //   Legacy: new Free1X2.Analisis.AnalisisCombinacion().AnalizarCombinacion(
+        // Legacy (Free1X2/UI/ColGanadoraFrm.cs líneas 206-207):
+        //   new Free1X2.Analisis.AnalisisCombinacion().AnalizarCombinacion(
         //       archivo, columnaNumerica, analizador, miListaPronosticos);
-        //   (Free1X2/UI/ColGanadoraFrm.cs línea 206-207).
-        //   AnalisisCombinacion NO está portado al dominio: vive en Free1X2/Analisis/AnalisisCombinacion.cs
-        //   y depende de AnalizarCombinacionFrm (TreeView WinForms con ShowDialog), por lo que su
-        //   salida visual no tiene equivalente WinUI todavía. Cuando se porte, sustituir esta llamada
-        //   y mostrar el árbol de fallos en una página/diálogo WinUI.
-        _ = columnaNumerica; _ = analizador; _ = miListaPronosticos; _ = archivo;
-        AppServices.MostrarInfo(
-            "Combinación cargada y columna ganadora validada. El visor del árbol de fallos " +
-            "(AnalisisCombinacion) está pendiente de portar al dominio/WinUI.");
+        // El algoritmo de AnalisisCombinacion está portado 1:1 dentro de
+        // AnalizarCombinacionFrmViewModel (lee este handoff en su constructor y construye el árbol
+        // de fallos). Sólo hace falta dejar los argumentos en el handoff estático y navegar al visor.
+        AnalizarCombinacionFrmViewModel.UltimoAnalisis =
+            (archivo, columnaNumerica, analizador, miListaPronosticos);
+        Navegar?.Invoke(typeof(AnalizarCombinacionFrmPage));
     }
 }

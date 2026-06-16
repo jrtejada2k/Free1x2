@@ -15,10 +15,16 @@ public sealed partial class ColGanadoraFrmPage : Page
     {
         InitializeComponent();
 
-        // TODO[dominio]: recibir el contexto del flujo legacy (constructor ColGanadoraFrm):
-        //   nPartidos, nombreCombi (string), analizador (Free1X2.MotorCalculo.Analizador) y
-        //   listaPronosticos (string[]). En navegación WinUI pasar estos datos como parámetro
-        //   de OnNavigatedTo y reenviarlos al ViewModel (EstablecerNumeroPartidos, etc.).
+        // La VM navega al visor del árbol de fallos a través del ContentFrame (mismo patrón
+        // que MainPage): Analizar -> AnalizarCombinacionFrmPage (handoff estático UltimoAnalisis).
+        ViewModel.Navegar = tipo => Frame?.Navigate(tipo);
+
+        // TODO[contexto-en-pantalla]: la rama "Analizar combinación en pantalla" requiere el
+        //   contexto del flujo legacy (constructor ColGanadoraFrm): nPartidos, nombreCombi,
+        //   analizador (Free1X2.MotorCalculo.Analizador) y listaPronosticos (string[]). Cuando
+        //   la pantalla llamante pase estos datos por navegación (e.Parameter), reenviarlos en
+        //   OnNavigatedTo a ViewModel.EstablecerContexto(...). La rama "Abrir combinación" ya
+        //   funciona de forma autónoma (carga el .comb desde el picker).
     }
 
     private void OnAnalizarClick(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
