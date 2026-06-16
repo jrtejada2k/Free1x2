@@ -1,12 +1,18 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Free1X2;
+using Free1X2.EntradaSalida;
 using Free1X2.MotorCalculo;
+using Free1X2.MotorCalculo.Estadisticas;
 using Free1X2.Utils;
 using Free1X2.WinUI.Services;
+using Windows.Storage;
+using Windows.Storage.Pickers;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -55,6 +61,17 @@ public partial class DiferenciasFrmViewModel : ObservableObject
 
     /// <summary>Acción para volver atrás (la cablea la página con Frame.GoBack()). CerrarVentana() legacy.</summary>
     public Action? Volver { get; set; }
+
+    /// <summary>Acción para navegar a otra página (la cablea la página con Frame.Navigate(tipo)).</summary>
+    public Action<Type>? Navegar { get; set; }
+
+    // Fichero temporal de copiar/pegar (legacy: StartupPath + "/Temp/tmp.rep").
+    private static string RutaTemporal =>
+        Path.Combine(AppContext.BaseDirectory, "Temp", "tmp.rep");
+
+    // Directorio de columnas ganadoras (legacy: StartupPath + "/Ganadoras/").
+    private static string DirectorioGanadoras =>
+        Path.Combine(AppContext.BaseDirectory, "Ganadoras") + Path.DirectorySeparatorChar;
 
     public DiferenciasFrmViewModel()
     {
@@ -425,41 +442,140 @@ public partial class DiferenciasFrmViewModel : ObservableObject
     [RelayCommand]
     private void Estadisticas()
     {
-        // menuCondiciones1_BEstadisticas del form legacy.
-        // TODO: Dominio legacy — ActualizarDatos();
-        //   CalculadorEstadisticas.EstadisticasFiltro(filtro, ".../Ganadoras/")
-        //   y mostrar Estadisticas.VisorEstadisticas.
+        // Equivale a DiferenciasFrm.menuCondiciones1_BEstadisticas (DiferenciasFrm.cs líneas 402-414):
+        //   ActualizarDatos(); filtroTemp = filtro; EstadisticasFiltro -> VisorEstadisticas.
+        var filtro = ObtenerFiltro();
+        if (filtro is null) return;
+
+        ActualizarDatos(filtro);
+        var calc = new CalculadorEstadisticas();
+        List<Estadistica> lista = calc.EstadisticasFiltro(filtro, DirectorioGanadoras);
+
+        VisorEstadisticasViewModel.UltimasEstadisticas = lista;
+        Navegar?.Invoke(typeof(VisorEstadisticasPage));
+    }
+
+    // Guarda en disco el FiltroDiferencias del grupo en edición (DiferenciasFrm.guardar, líneas 427-432).
+    private void GuardarEn(string nombreArchivo)
+    {
+        var filtro = ObtenerFiltro();
+        if (filtro is null) return;
+
+        ActualizarDatos(filtro);
+        var archComb = new ArchivoCondiciones { NombreArchivo = nombreArchivo };
+        archComb.GuardaArchivo(filtro);
+    }
+
+    // Abre la condición desde disco, copia sus Diferencias al filtro del grupo y vuelca a pantalla
+    // (DiferenciasFrm.abrir, líneas 491-506).
+    private void AbrirDesde(string nombreArchivo)
+    {
+        var grupo = AppState.GrupoEnEdicion;
+        if (grupo is null) return;
+
+        var archComb = new ArchivoCondiciones();
+        if (!archComb.AbrirArchivoCombinacion(nombreArchivo)) return;
+
+        Grupo g = archComb.LeeCondicion();
+        var leido = (FiltroDiferencias)g.GetFiltro("Diferencias");
+        if (!leido.ContieneDatos) return;
+
+        // Reinstancia el filtro del grupo y copia las Diferencias leídas (legacy: filtro = new FiltroDiferencias()
+        // antes de abrir + grupo.ActivaFiltro(filtro)).
+        var filtro = (FiltroDiferencias)grupo.GetFiltro("Diferencias");
+        filtro.Diferencias.Clear();
+        foreach (var dif in leido.Diferencias)
+        {
+            filtro.Diferencias.Add(dif);
+        }
+        filtro.ContieneDatos = leido.ContieneDatos;
+        filtro.IsActive = leido.IsActive;
+        grupo.ActivaFiltro(filtro);
+
+        _indice = 0;
+        if (filtro.ContieneDatos && filtro.Diferencias.Count > 0)
+        {
+            MarcarValores(filtro.Diferencias[0]);
+        }
+        else
+        {
+            LimpiarPantalla();
+        }
+        RefrescarContador(filtro);
     }
 
     [RelayCommand]
-    private void Guardar()
+    private async Task Guardar()
     {
-        // menuCondiciones1_BGuardar del form legacy.
-        // TODO: Dominio legacy — ActualizarDatos();
-        //   ArchivoCondiciones.GuardaArchivo(filtro) (filtros *.dif / *.xml).
+        // Equivale a DiferenciasFrm.menuCondiciones1_BGuardar (DiferenciasFrm.cs líneas 416-426).
+        var picker = new FileSavePicker
+        {
+            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
+            SuggestedFileName = "Diferencias",
+        };
+        picker.FileTypeChoices.Add("Diferencias", new List<string> { ".dif" });
+        picker.FileTypeChoices.Add("Diferencias (XML)", new List<string> { ".xml" });
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        StorageFile? file = await picker.PickSaveFileAsync();
+        if (file == null) return;
+
+        try
+        {
+            GuardarEn(file.Path);
+        }
+        catch (Exception ex)
+        {
+            AppServices.MostrarError("No se pudo guardar: " + ex.Message);
+        }
     }
 
     [RelayCommand]
-    private void Abrir()
+    private async Task Abrir()
     {
-        // menuCondiciones1_BAbrir del form legacy.
-        // TODO: Dominio legacy — ArchivoCondiciones.AbrirArchivoCombinacion(...) +
-        //   LeeCondicion() y volcar el FiltroDiferencias a la pantalla (MarcarValores).
+        // Equivale a DiferenciasFrm.menuCondiciones1_BAbrir (DiferenciasFrm.cs líneas 475-490).
+        var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
+        picker.FileTypeFilter.Add(".dif");
+        picker.FileTypeFilter.Add(".xml");
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        StorageFile? file = await picker.PickSingleFileAsync();
+        if (file == null) return;
+
+        try
+        {
+            AbrirDesde(file.Path);
+        }
+        catch (Exception ex)
+        {
+            AppServices.MostrarError("No se pudo abrir: " + ex.Message);
+        }
     }
 
     [RelayCommand]
     private void Copiar()
     {
-        // menuCondiciones1_BCopiar del form legacy.
-        // TODO: Dominio legacy — ActualizarDatos(); guardar fichero temporal "Temp/tmp.rep".
+        // Equivale a DiferenciasFrm.menuCondiciones1_BCopiar (DiferenciasFrm.cs líneas 392-400).
+        try
+        {
+            string ruta = RutaTemporal;
+            Directory.CreateDirectory(Path.GetDirectoryName(ruta)!);
+            GuardarEn(ruta);
+        }
+        catch (Exception ex)
+        {
+            AppServices.MostrarError("No se pudo copiar: " + ex.Message);
+        }
     }
 
     [RelayCommand]
     private void Pegar()
     {
-        // menuCondiciones1_BPegar del form legacy.
-        // TODO: Dominio legacy — crear FiltroDiferencias nuevo, grupo.ActivaFiltro(filtro)
-        //   y abrir el fichero temporal "Temp/tmp.rep".
+        // Equivale a DiferenciasFrm.menuCondiciones1_BPegar (DiferenciasFrm.cs líneas 434-450).
+        if (File.Exists(RutaTemporal))
+        {
+            AbrirDesde(RutaTemporal);
+        }
     }
 
     [RelayCommand]

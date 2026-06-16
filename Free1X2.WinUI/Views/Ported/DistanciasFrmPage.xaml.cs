@@ -25,7 +25,11 @@ public sealed partial class DistanciasFrmPage : Page
     protected override void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
-        // Carga los valores actuales del filtro del grupo en edición (MarcarValores legacy).
-        ViewModel.CargarDesdeGrupo();
+        // Al volver del visor de estadísticas (NavigationMode.Back) no recargamos desde el grupo
+        // para no perder los valores en edición; en la entrada normal cargamos (MarcarValores legacy).
+        if (e.NavigationMode != NavigationMode.Back)
+        {
+            ViewModel.CargarDesdeGrupo();
+        }
     }
 }
