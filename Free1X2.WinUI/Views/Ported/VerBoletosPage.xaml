@@ -3,6 +3,7 @@
     x:Class="Free1X2.WinUI.Views.Ported.VerBoletosPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:Free1X2.WinUI.Controls"
     Background="{ThemeResource AppBackgroundBrush}">
 
     <Grid>
@@ -80,6 +81,51 @@
                                          IsChecked="{x:Bind ViewModel.SentidoDescendente, Mode=TwoWay}"
                                          AutomationProperties.Name="Orden descendente" />
                         </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Tarjeta: boleto cargado (legacy btnOk -> boleto.ShowDialog()) -->
+                <!-- Reutiliza el visor BoletoMatrizControl con la navegación del BoletoFrm. -->
+                <Border Style="{StaticResource AppCardStyle}"
+                        Visibility="{x:Bind ViewModel.BoletoVisible, Mode=OneWay}">
+                    <StackPanel Spacing="16">
+                        <TextBlock Text="Boleto" Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                        <!-- Navegación entre boletos (enlazada al BoletoFrmViewModel embebido) -->
+                        <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                            <Button Content="|&lt;"
+                                    Command="{x:Bind ViewModel.Boleto.PrimeroCommand}"
+                                    AutomationProperties.Name="Primer boleto" />
+                            <Button Content="&lt;"
+                                    Command="{x:Bind ViewModel.Boleto.AnteriorCommand}"
+                                    AutomationProperties.Name="Boleto anterior" />
+
+                            <TextBlock Text="Boleto nº" VerticalAlignment="Center"
+                                       Style="{StaticResource SecondaryTextBlockStyle}" />
+                            <NumberBox Value="{x:Bind ViewModel.Boleto.IrABoleto, Mode=TwoWay}"
+                                       Minimum="1"
+                                       SpinButtonPlacementMode="Compact"
+                                       MinWidth="120"
+                                       AutomationProperties.Name="Número de boleto al que ir" />
+                            <Button Content="Ir"
+                                    Command="{x:Bind ViewModel.Boleto.IrCommand}"
+                                    AutomationProperties.Name="Ir al boleto indicado" />
+
+                            <TextBlock Text="de" VerticalAlignment="Center"
+                                       Style="{StaticResource SecondaryTextBlockStyle}" />
+                            <TextBlock Text="{x:Bind ViewModel.Boleto.TotalBoletosTexto, Mode=OneWay}"
+                                       VerticalAlignment="Center"
+                                       Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                            <Button Content="&gt;"
+                                    Command="{x:Bind ViewModel.Boleto.SiguienteCommand}"
+                                    AutomationProperties.Name="Boleto siguiente" />
+                            <Button Content="&gt;|"
+                                    Command="{x:Bind ViewModel.Boleto.UltimoCommand}"
+                                    AutomationProperties.Name="Último boleto" />
+                        </StackPanel>
+
+                        <controls:BoletoMatrizControl x:Name="BoletoVisual" />
                     </StackPanel>
                 </Border>
 

@@ -72,10 +72,22 @@ public partial class VerBoletosViewModel : ObservableObject
     [ObservableProperty]
     private string _estado = "Seleccione un fichero de columnas";
 
+    // Indica si el boleto ya se ha cargado y debe mostrarse el visor embebido.
+    [ObservableProperty]
+    private bool _boletoVisible;
+
+    /// <summary>
+    /// Visor de boletos embebido. Reutiliza el <see cref="BoletoFrmViewModel"/> (que ya
+    /// está cableado al motor real: ArchivoColumnasTexto + CreaMatriz +
+    /// OrdenarMatrizColumnas) igual que el legacy hacía con <c>boleto.ShowDialog()</c>.
+    /// La página enlaza el <c>BoletoMatrizControl</c> y la navegación a este sub-VM.
+    /// </summary>
+    public BoletoFrmViewModel Boleto { get; } = new();
+
     /// <summary>
     /// Solicitud de apertura del boleto (legacy: btnOk_Click -> boleto.ShowDialog()).
     /// Argumentos: ruta del fichero, criterio (OrdenarMatriz) y sentido (TipoOrden) ya resueltos.
-    /// La página host navega a BoletoFrmPage con estos parámetros.
+    /// La página host reacciona mostrando el visor embebido (BoletoMatrizControl).
     /// </summary>
     public event EventHandler<(string fichero, OrdenarMatriz orden, TipoOrden tipo)>? AbrirBoletoSolicitado;
 
@@ -136,7 +148,7 @@ public partial class VerBoletosViewModel : ObservableObject
 
     /// <summary>Muestra el boleto (btnOk_Click del form legacy).</summary>
     [RelayCommand]
-    private void MostrarBoleto()
+    private async Task MostrarBoletoAsync()
     {
         if (!OkHabilitado || string.IsNullOrEmpty(Fichero) || Fichero == "(falta selección)")
         {
@@ -146,8 +158,19 @@ public partial class VerBoletosViewModel : ObservableObject
 
         // Legacy btnOk_Click: boleto.ArchivoCombinacion = fichero.Text;
         //   boleto.ordenarPor = ordenarPor; boleto.tipoOrden = tipoOrden; boleto.ShowDialog().
+        // Aquí se reutiliza el BoletoFrmViewModel embebido (cableado al motor real) y se
+        // carga el boleto en el visor BoletoMatrizControl de la propia página.
         Estado = "Mostrando boleto";
+        Boleto.ArchivoCombinacion = Fichero;
+        Boleto.OrdenarPor = OrdenSeleccionado;
+        Boleto.TipoOrden = TipoSeleccionado;
+
+        // Avisa a la página (suscribe Boleto.BoletoCambiado antes de cargar).
         AbrirBoletoSolicitado?.Invoke(this, (Fichero, OrdenSeleccionado, TipoSeleccionado));
+
+        await Boleto.CargarCommand.ExecuteAsync(null);
+        BoletoVisible = true;
+        Estado = Boleto.Estado;
     }
 
     /// <summary>Cancela / cierra (btnCancel_Click del form legacy).</summary>

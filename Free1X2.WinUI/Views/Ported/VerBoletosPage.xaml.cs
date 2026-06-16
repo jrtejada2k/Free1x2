@@ -16,6 +16,15 @@ public sealed partial class VerBoletosPage : Page
     public VerBoletosPage()
     {
         this.InitializeComponent();
+
+        // Sincroniza el visor embebido con el BoletoFrmViewModel reutilizado: cada vez que
+        // cambia el boleto (carga / navegación) se vuelca en el BoletoMatrizControl.
+        ViewModel.Boleto.BoletoCambiado += OnBoletoCambiado;
+    }
+
+    private void OnBoletoCambiado(object? sender, (string[] signos, int[] numerosColumna) e)
+    {
+        BoletoVisual.Llenar(e.signos, e.numerosColumna);
     }
 
     private void BtnCancelar_Click(object sender, RoutedEventArgs e)
