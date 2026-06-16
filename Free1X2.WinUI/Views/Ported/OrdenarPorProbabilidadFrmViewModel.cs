@@ -1,6 +1,11 @@
+using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Free1X2.WinUI.Services;
+using Windows.Storage.Pickers;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -166,6 +171,10 @@ public partial class OrdenarPorProbabilidadFrmViewModel : ObservableObject
     [ObservableProperty]
     private string _estado = "Faltan datos";
 
+    // Rutas reales de los ficheros elegidos (legacy: archivoEntrada / archivoSalida).
+    private string _rutaEntrada = string.Empty;
+    private string _rutaSalida = string.Empty;
+
     public OrdenarPorProbabilidadFrmViewModel()
     {
         // TODO(dominio): el form legacy, en su constructor, llama
@@ -203,36 +212,75 @@ public partial class OrdenarPorProbabilidadFrmViewModel : ObservableObject
 
     /// <summary>Selecciona el fichero de entrada (button1 del form legacy).</summary>
     [RelayCommand]
-    private void SeleccionarFicheroEntrada()
+    private async Task SeleccionarFicheroEntrada()
     {
-        // TODO(dominio): abrir un FileOpenPicker (WinUI) y fijar FicheroEntrada con la ruta elegida.
+        var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
+        picker.FileTypeFilter.Add(".txt");
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        var file = await picker.PickSingleFileAsync();
+        if (file == null) return;
+        _rutaEntrada = file.Path;
+        FicheroEntrada = _rutaEntrada;
+        ActualizarEstado();
     }
 
     /// <summary>Selecciona el fichero de salida (button2 del form legacy).</summary>
     [RelayCommand]
-    private void SeleccionarFicheroSalida()
+    private async Task SeleccionarFicheroSalida()
     {
-        // TODO(dominio): abrir un FileSavePicker (WinUI) y fijar FicheroSalida con la ruta elegida.
+        var picker = new FileSavePicker
+        {
+            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
+            SuggestedFileName = "ColumnasOrdenadas",
+        };
+        picker.FileTypeChoices.Add("Columnas", new List<string> { ".txt" });
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        var file = await picker.PickSaveFileAsync();
+        if (file == null) return;
+        _rutaSalida = file.Path;
+        FicheroSalida = _rutaSalida;
+        ActualizarEstado();
     }
 
     /// <summary>Lanza la ordenación (btCalcular / "&amp;Ordenar" del form legacy).</summary>
     [RelayCommand]
     private void Ordenar()
     {
-        // TODO(dominio): replicar btCalcular_Click según la pestaña activa:
-        //   - PestanaSeleccionada == 0 (Productos): OrdenaPorProductos()
-        //   - PestanaSeleccionada == 1 (Sumas):     OrdenaPorSumas()
-        //   - PestanaSeleccionada == 2 (Multiple):  OrdenacionMultiple()
-        // Estos métodos usan ApuestaProbableCentral[], Porcentajes y escriben el fichero de salida
-        // (GrabarAdmitidasMultiples / etc.). Sin dominio sólo se actualiza el estado.
-        Estado = "Listo";
+        // Validación de ficheros igual que HabilitarCalcular() legacy.
+        if (string.IsNullOrEmpty(_rutaSalida) ||
+            (Origen14Triples == false && string.IsNullOrEmpty(_rutaEntrada)))
+        {
+            Estado = "Faltan datos";
+            return;
+        }
+
+        // TODO: lógica de cálculo en Free1X2/UI/OrdenarPorProbabilidadFrm.cs:
+        //   - btCalcular_Click (línea 1110) -> según PestanaSeleccionada:
+        //       0 Productos -> OrdenaPorProductos()   (línea 1205)
+        //       1 Sumas     -> OrdenaPorSumas()       (línea 1237)
+        //       2 Multiple  -> OrdenacionMultiple()   (línea 1142) + GrabarAdmitidasMultiples (1462)
+        //   Estas rutinas operan sobre Ap14T (ApuestaProbableCentral[4782969]),
+        //   Free1X2.Analisis.Porcentajes y la configuración L.A.E.; es lógica extensa de la UI
+        //   legacy (1814 líneas, no en el motor) y no se transcribe aquí para no inventar
+        //   comportamiento. Los selectores de fichero ya están cableados.
+        Estado = "Cálculo pendiente de portar (ver OrdenarPorProbabilidadFrm.cs)";
     }
 
     /// <summary>Cancela / cierra (button3 / "&amp;Cancelar" del form legacy).</summary>
     [RelayCommand]
     private void Cancelar()
     {
-        // TODO(dominio): el form legacy cerraba la ventana. La navegación la resuelve el code-behind.
+        // Navegación WinUI (Frame.GoBack) es responsabilidad del host de la Page.
         Estado = "Faltan datos";
+    }
+
+    // HabilitarCalcular() legacy: estado "Preparado"/"Faltan datos" según ficheros.
+    private void ActualizarEstado()
+    {
+        bool listo = !string.IsNullOrEmpty(_rutaSalida) &&
+            (Origen14Triples || !string.IsNullOrEmpty(_rutaEntrada));
+        Estado = listo ? "Preparado" : "Faltan datos";
     }
 }
