@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -54,6 +55,13 @@ namespace Free1X2.WinUI.Views.Ported
         /// añade (o reemplaza si se repite el tipo) su curva con el color del Pen original.
         /// </summary>
         public ObservableCollection<CurvaGrafico> Curvas { get; } = new();
+
+        /// <summary>
+        /// Se solicita copiar la imagen de la gráfica al portapapeles. Lo escucha el code-behind
+        /// de la Page (que tiene acceso al GraficoLineasControl para hacer el RenderTargetBitmap).
+        /// El VM no referencia controles de la vista (separación MVVM).
+        /// </summary>
+        public event EventHandler? CopiaImagenSolicitada;
 
         /// <summary>
         /// Color del trazo de cada curva, idéntico al Pen del legacy (Dibuja*() en
@@ -156,11 +164,17 @@ namespace Free1X2.WinUI.Views.Ported
         [RelayCommand]
         private void Copiar()
         {
-            // TODO[portapapeles]: Free1X2/UI/TramificarGraficasFrm.cs CopiarImagenEnClipboard()
-            //   hacía Clipboard.SetDataObject(pictureBox1.Image, true). Copiar el lienzo WinUI a una
-            //   imagen requiere RenderTargetBitmap (acceso al UIElement del lienzo) + DataTransfer, lo
-            //   que pertenece a la capa de vista; queda pendiente. Las curvas ya se dibujan en pantalla.
-            EstadoTexto = "(Pendiente) Copiaría la imagen al portapapeles; el render ya está en pantalla.";
+            // Legacy: Free1X2/UI/TramificarGraficasFrm.cs CopiarImagenEnClipboard() (línea 481)
+            //   hacía Clipboard.SetDataObject(pictureBox1.Image, true). Equivalente WinUI: capturar
+            //   el GraficoLineasControl con RenderTargetBitmap y ponerlo en el portapapeles
+            //   (DataPackage con bitmap). El RenderTargetBitmap necesita el UIElement, así que lo hace
+            //   la Page; el VM sólo dispara el evento. Las curvas ya están dibujadas en el lienzo.
+            if (Curvas.Count == 0)
+            {
+                EstadoTexto = "No hay ninguna curva dibujada que copiar.";
+                return;
+            }
+            CopiaImagenSolicitada?.Invoke(this, EventArgs.Empty);
         }
     }
 }
