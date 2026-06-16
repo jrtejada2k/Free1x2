@@ -1,4 +1,5 @@
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Navigation;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -9,9 +10,9 @@ namespace Free1X2.WinUI.Views.Ported;
 /// navegables (1/N), cada una con hasta 30 líneas (secuencia de signos 1/X/2/V/*
 /// + rango Mín-Máx de apariciones) y los límites Líneas/Global.
 ///
-/// La UI y el estado en memoria viven en <see cref="FormatosFrmViewModel"/>.
-/// La lógica de dominio (cálculo, persistencia, estadísticas) está marcada con TODO
-/// porque aún no existe en Free1X2.Domain; se referencian los tipos legacy a invocar.
+/// Recibe el Grupo a editar vía AppState.GrupoEnEdicion y escribe los cambios de vuelta
+/// al <c>FiltroFormatosSignos</c> al Aceptar. Las utilidades de formatos y la persistencia
+/// en disco quedan como TODO.
 /// </summary>
 public sealed partial class FormatosFrmPage : Page
 {
@@ -20,6 +21,13 @@ public sealed partial class FormatosFrmPage : Page
     public FormatosFrmPage()
     {
         this.InitializeComponent();
+        ViewModel.Volver = () => { if (Frame?.CanGoBack == true) Frame.GoBack(); };
+    }
+
+    protected override void OnNavigatedTo(NavigationEventArgs e)
+    {
+        base.OnNavigatedTo(e);
+        ViewModel.CargarDesdeGrupo();
     }
 
     // ===== Utilidades de formatos =====
@@ -49,9 +57,8 @@ public sealed partial class FormatosFrmPage : Page
 
     private void OnAceptar(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
-        // TODO (dominio): volcar ViewModel -> Free1X2.MotorCalculo.FiltroFormatosSignos
-        // (lista de FormatosSignos con sus FormatoSignos) y activar el filtro vía
-        // Grupo.ActivaFiltro(filtroFormatos); luego cerrar/navegar de vuelta.
+        // Vuelca el ViewModel al FiltroFormatosSignos, lo activa y vuelve atrás.
+        ViewModel.AceptarCommand.Execute(null);
     }
 
     private void OnEstadisticas(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
@@ -91,6 +98,7 @@ public sealed partial class FormatosFrmPage : Page
 
     private void OnCancelar(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
-        // TODO (UI): cerrar/navegar de vuelta sin guardar.
+        // Cierra/navega de vuelta sin guardar (CerrarVentana legacy).
+        ViewModel.CancelarCommand.Execute(null);
     }
 }

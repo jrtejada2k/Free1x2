@@ -1,7 +1,11 @@
+using System;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Free1X2;
+using Free1X2.MotorCalculo;
+using Free1X2.WinUI.Services;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -86,11 +90,122 @@ public partial class Formatos123FrmViewModel : ObservableObject
     [ObservableProperty]
     private string _columna123 = string.Empty;
 
+    /// <summary>Acción para volver atrás (la cablea la página con Frame.GoBack()). CerrarVentana() legacy.</summary>
+    public Action? Volver { get; set; }
+
+    /// <summary>
+    /// Vuelca los formatos del FiltroFormatos123 del grupo en edición a la pantalla.
+    /// Equivale a Formatos123Frm.MarcarValores() (Free1X2/UI/Filtros/Formatos123Frm.cs líneas 562-613).
+    /// NOTA: la matriz de Valoración (porcentajes) no tiene control en WinUI todavía; se preserva
+    /// la del filtro al Aceptar (no se reescribe). Ver TODO en Aceptar.
+    /// </summary>
+    public void CargarDesdeGrupo()
+    {
+        var grupo = AppState.GrupoEnEdicion;
+        if (grupo is null) return;
+
+        var filtro = (FiltroFormatos123)grupo.GetFiltro(Filtro.Formatos123.ToString());
+        if (!filtro.ContieneDatos) return;
+
+        Formatos.Clear();
+        int n = 1;
+        foreach (Formato123 f in filtro.ArrayFormatos)
+        {
+            Formatos.Add(new Formato123Item
+            {
+                Numero = n.ToString(),
+                Formato = f.Formato,
+                AciertosMin = f.AciertosMin.ToString(),
+                AciertosMax = f.AciertosMax.ToString(),
+            });
+            n++;
+        }
+        // Filas en blanco extra para edición (el form legacy precarga muchas).
+        for (int i = 0; i < 8; i++)
+        {
+            Formatos.Add(new Formato123Item { Numero = (Formatos.Count + 1).ToString() });
+        }
+
+        AciertosPermitidos = filtro.AciertosFiltro ?? string.Empty;
+        IgnorarRepeticiones = filtro.PasoFijo;
+    }
+
     [RelayCommand]
     private void AgregarFila()
     {
         // Legacy: Añadir_Enter agregaba un CtrlFormato123 nuevo al final.
         Formatos.Add(new Formato123Item { Numero = (Formatos.Count + 1).ToString() });
+    }
+
+    // Solo se admiten dígitos 1/2/3 en el formato (Formatos123Frm.CompruebaFormato línea 156).
+    private static bool FormatoEsValido(string formato)
+    {
+        if (formato.Length == 0 || formato.Length > 14) return false;
+        foreach (char c in formato)
+        {
+            if (c != '1' && c != '2' && c != '3') return false;
+        }
+        return true;
+    }
+
+    // Construye la lista de formatos válidos (CompruebaEntradas + AñadirFormato, líneas 116-155).
+    private List<Formato123> ConstruirFormatos()
+    {
+        var lista = new List<Formato123>();
+        foreach (var item in Formatos)
+        {
+            string formato = (item.Formato ?? "").Trim();
+            if (formato == "") continue;
+            if (!FormatoEsValido(formato)) continue;
+
+            var f = new Formato123 { Formato = formato };
+            if (!IgnorarRepeticiones)
+            {
+                // Si no se ignoran repeticiones, min/max deben ser enteros válidos.
+                if (!int.TryParse((item.AciertosMin ?? "").Trim(), out int min)) continue;
+                if (!int.TryParse((item.AciertosMax ?? "").Trim(), out int max)) continue;
+                f.AciertosMin = min;
+                f.AciertosMax = max;
+            }
+            else
+            {
+                f.AciertosMin = 0;
+                f.AciertosMax = 0;
+            }
+            if (!lista.Contains(f)) lista.Add(f);
+        }
+        return lista;
+    }
+
+    // Parsea txtAciertos (individuales o intervalos "a-b") a List<int> (ObtenerAciertosPermitidos, líneas 231-255).
+    private List<int> ConstruirAciertos()
+    {
+        var aciertos = new List<int>();
+        if (string.IsNullOrWhiteSpace(AciertosPermitidos)) return aciertos;
+
+        foreach (string parte in AciertosPermitidos.Split(','))
+        {
+            string p = parte.Trim();
+            if (p == "") continue;
+            if (p.LastIndexOf('-') == -1)
+            {
+                if (int.TryParse(p, out int v) && v >= 0 && v <= 40) aciertos.Add(v);
+            }
+            else
+            {
+                string[] intervalo = p.Split('-');
+                if (intervalo.Length == 2 &&
+                    int.TryParse(intervalo[0].Trim(), out int desde) &&
+                    int.TryParse(intervalo[1].Trim(), out int hasta))
+                {
+                    for (int j = desde; j <= hasta; j++)
+                    {
+                        if (j >= 0 && j <= 40) aciertos.Add(j);
+                    }
+                }
+            }
+        }
+        return aciertos;
     }
 
     [RelayCommand]
@@ -114,9 +229,42 @@ public partial class Formatos123FrmViewModel : ObservableObject
     [RelayCommand]
     private void Aceptar()
     {
-        // TODO (dominio): legacy menuCondiciones1_BOk.
-        // CompruebaEntradas + ObtenerAciertosPermitidos, volcar a FiltroFormatos123,
-        // ActivaFiltro en el Grupo y cerrar la ventana.
+        // Equivale a Formatos123Frm.menuCondiciones1_BOk -> volcar al filtro + ActivaFiltro
+        //   (Free1X2/UI/Filtros/Formatos123Frm.cs líneas 744-772).
+        var grupo = AppState.GrupoEnEdicion;
+        if (grupo is null) { Volver?.Invoke(); return; }
+
+        var filtro = (FiltroFormatos123)grupo.GetFiltro(Filtro.Formatos123.ToString());
+
+        var arrayFormatos = ConstruirFormatos();
+        var arrayAciertos = ConstruirAciertos();
+
+        if (arrayAciertos.Count > 0)
+        {
+            arrayAciertos.Sort();
+            filtro.AciertosMax = arrayAciertos[arrayAciertos.Count - 1];
+            filtro.AciertosMin = arrayAciertos[0];
+        }
+        filtro.ArrayAciertos = arrayAciertos;
+        filtro.ArrayFormatos = arrayFormatos;
+        filtro.PasoFijo = IgnorarRepeticiones;
+        filtro.AciertosFiltro = AciertosPermitidos ?? string.Empty;
+        filtro.IsActive = filtro.NecesitaGuardar();
+        if (filtro.ContieneDatos == false)
+        {
+            filtro.ContieneDatos = filtro.NecesitaGuardar();
+        }
+
+        // TODO[valoración]: el form legacy también vuelca la valoración de porcentajes:
+        //   filtro.Valoracion = controlPorcentajes1.Valores;
+        //   filtro.ValoracionTranformada = TransformarValoracion(controlPorcentajes1.Valores);
+        //   (Formatos123Frm.menuCondiciones1_BOk líneas 752-753 + TransformarValoracion líneas 637-690).
+        //   No hay control de porcentajes en la página WinUI todavía, así que se conserva la
+        //   valoración existente del filtro (cargada al abrir) y NO se reescribe aquí.
+
+        grupo.ActivaFiltro(filtro);
+        AppState.Instancia.NotificarCambio();
+        Volver?.Invoke();
     }
 
     [RelayCommand]
@@ -157,6 +305,7 @@ public partial class Formatos123FrmViewModel : ObservableObject
     [RelayCommand]
     private void Cancelar()
     {
-        // TODO (dominio): legacy menuCondiciones1_BCancelar -> CerrarVentana().
+        // Equivale a menuCondiciones1_BCancelar -> CerrarVentana() (sin aplicar cambios).
+        Volver?.Invoke();
     }
 }
