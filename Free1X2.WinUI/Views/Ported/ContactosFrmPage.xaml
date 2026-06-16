@@ -94,6 +94,9 @@
                 <Button Content="Borrar"
                         Command="{x:Bind ViewModel.BorrarCommand}"
                         AutomationProperties.Name="Borrar datos del filtro" />
+                <Button Content="Cancelar"
+                        Command="{x:Bind ViewModel.CancelarCommand}"
+                        AutomationProperties.Name="Cancelar y volver sin aplicar cambios" />
             </StackPanel>
 
         </StackPanel>

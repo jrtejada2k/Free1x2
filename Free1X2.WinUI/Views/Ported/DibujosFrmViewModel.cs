@@ -1,8 +1,13 @@
+using System;
+using System.Collections;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Free1X2;
+using Free1X2.MotorCalculo;
+using Free1X2.WinUI.Services;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -55,9 +60,40 @@ public partial class DibujosFrmViewModel : ObservableObject
     [ObservableProperty]
     private int _seleccionados;
 
+    /// <summary>Acción para volver atrás (la cablea la página con Frame.GoBack()). CerrarVentana() legacy.</summary>
+    public Action? Volver { get; set; }
+
     public DibujosFrmViewModel()
     {
         GenerarCasillas();
+        RecalcularResumen();
+    }
+
+    /// <summary>
+    /// Vuelca los dibujos seleccionados del FiltroDibujos del grupo en edición a la malla.
+    /// Equivale a DibujosFrm.MarcarValores() -> gridDibujosCentral.Dibujos = filtro.Dibujos.
+    /// </summary>
+    public void CargarDesdeGrupo()
+    {
+        var grupo = AppState.GrupoEnEdicion;
+        if (grupo is null) return;
+
+        var filtro = (FiltroDibujos)grupo.GetFiltro(Filtro.Dibujos.ToString());
+
+        // filtro.Dibujos es un ArrayList de etiquetas "X+2".
+        var seleccionados = new HashSet<string>();
+        if (filtro.Dibujos != null)
+        {
+            foreach (var item in filtro.Dibujos)
+            {
+                if (item is string s) seleccionados.Add(s.Trim());
+            }
+        }
+
+        foreach (var celda in Dibujos)
+        {
+            celda.Seleccionado = seleccionados.Contains(celda.Etiqueta);
+        }
         RecalcularResumen();
     }
 
@@ -117,12 +153,35 @@ public partial class DibujosFrmViewModel : ObservableObject
     [RelayCommand]
     private void Aceptar()
     {
-        // TODO (dominio): construir FiltroDibujos con los dibujos seleccionados
-        //   (Dibujos.Where(d => d.Seleccionado).Select(d => d.Etiqueta)) y activarlo en el grupo:
-        //   var filtro = (FiltroDibujos)grupo.GetFiltro(Filtro.Dibujos.ToString());
-        //   filtro.ContieneDatos = TieneSeleccion; filtro.IsActive = TieneSeleccion;
-        //   filtro.Dibujos = <ArrayList de etiquetas>;
-        //   analizador.GruposPartidos[grupoPantalla].ActivaFiltro(filtro);
+        // Equivale a DibujosFrm.menuCondiciones1_BOk (Free1X2/UI/Filtros/DibujosFrm.cs líneas 254-277).
+        var grupo = AppState.GrupoEnEdicion;
+        if (grupo is null) { Volver?.Invoke(); return; }
+
+        var filtro = (FiltroDibujos)grupo.GetFiltro(Filtro.Dibujos.ToString());
+
+        // El setter de filtro.Dibujos reconstruye la matriz interna y pone ContieneDatos.
+        var lista = new ArrayList();
+        foreach (var celda in Dibujos.Where(d => d.Seleccionado))
+        {
+            lista.Add(celda.Etiqueta);
+        }
+
+        if (lista.Count > 0)
+        {
+            filtro.ContieneDatos = true;
+            filtro.IsActive = true;
+            filtro.Dibujos = lista;
+        }
+        else
+        {
+            filtro.IsActive = false;
+            filtro.ContieneDatos = false;
+            filtro.Dibujos = lista; // vacía
+        }
+
+        grupo.ActivaFiltro(filtro);
+        AppState.Instancia.NotificarCambio();
+        Volver?.Invoke();
     }
 
     /// <summary>Calcula estadísticas del filtro temporal de dibujos.</summary>
@@ -161,6 +220,7 @@ public partial class DibujosFrmViewModel : ObservableObject
     [RelayCommand]
     private void Cancelar()
     {
-        // TODO (dominio): recargar valores del filtro (MarcarValores) y cerrar la ventana.
+        // Equivale a menuCondiciones1_BCancelar -> CerrarVentana() (sin aplicar cambios).
+        Volver?.Invoke();
     }
 }
