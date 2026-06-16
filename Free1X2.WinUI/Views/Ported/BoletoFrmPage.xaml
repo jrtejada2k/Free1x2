@@ -96,9 +96,10 @@
             <Border Style="{StaticResource AppCardStyle}">
                 <StackPanel Spacing="16">
                     <TextBlock Text="Boleto actual" Style="{StaticResource CardTitleTextBlockStyle}" />
-                    <!-- Reemplaza el WinForms ControlBoleto: muestra el boleto numBol activo.
-                         La sincronización de signos la realizará el dominio (ver ViewModel.LlenarBoleto). -->
-                    <controls:BoletoControl />
+                    <!-- Reemplaza el WinForms ControlBoleto: pinta las 8 columnas del boleto
+                         numBol activo (signos 1/X/2 marcados). La página lo sincroniza con
+                         ViewModel.BoletoCambiado -> BoletoVisual.Llenar. -->
+                    <controls:BoletoMatrizControl x:Name="BoletoVisual" />
                 </StackPanel>
             </Border>
 
