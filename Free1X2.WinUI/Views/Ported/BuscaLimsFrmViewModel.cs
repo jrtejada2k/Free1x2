@@ -1,10 +1,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Free1X2;
 using Free1X2.Utils;
+using Free1X2.WinUI.Controls;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -17,6 +20,11 @@ namespace Free1X2.WinUI.Views.Ported;
 /// </summary>
 public partial class BuscaLimsFrmViewModel : ObservableObject
 {
+    // Rejilla de valoraciones 1/X/2 por partido (reemplaza el UserControl WinForms 'valors'
+    // / valors1). PorcentajesHelper.AMatriz(Porcentajes) == valors1.RetVals() (double[N,3]).
+    public ObservableCollection<FilaPorcentaje> Porcentajes { get; } =
+        PorcentajesHelper.Crear(VariablesGlobales.NumeroPartidos);
+
     // Rango de aciertos permitidos respecto a la columna base. Campo legacy tblac (default "4-9").
     [ObservableProperty]
     private string _rangoAciertos = "4-9";
@@ -82,13 +90,9 @@ public partial class BuscaLimsFrmViewModel : ObservableObject
         catch { _noPartidos = 14; }
         if (_noPartidos <= 0) _noPartidos = 14;
 
-        // TODO: valoración real — control 'valors'. Ver Free1X2/UI/BuscaLimsFrm.cs línea 111
-        //   (dv = valors1.RetVals()). El control Free1X2.UI.Controls.valors (rejilla de
-        //   valoraciones 1/X/2 por partido) aún no está portado a WinUI. Mientras tanto se usa
-        //   una valoración neutra: la columna base y los recuentos Procesadas/Admitidas son
-        //   correctos; los límites de Sumas/Productos son los de la valoración neutra (todos
-        //   los signos valen igual) y deberán recalcularse al portar la rejilla de valores.
-        _dv = ValoracionNeutra(_noPartidos);
+        // Valoración real desde la rejilla de porcentajes. Equivale a
+        // BuscaLimsFrm.RecuperaPantalla() línea 111: dv = valors1.RetVals().
+        _dv = PorcentajesHelper.AMatriz(Porcentajes);  // == valors1.RetVals()
 
         string rango = RangoAciertos;
         PuedeCalcular = false;
@@ -248,22 +252,6 @@ public partial class BuscaLimsFrmViewModel : ObservableObject
                 }
             }
         }
-    }
-
-    /// <summary>
-    /// Valoración neutra mientras el control 'valors' no esté portado: todos los partidos con
-    /// 1 &gt; X &gt; 2 por orden estable, de modo que CalculoCB devuelve "111...1" como columna base.
-    /// </summary>
-    private static double[,] ValoracionNeutra(int partidos)
-    {
-        double[,] v = new double[partidos, 3];
-        for (int i = 0; i < partidos; i++)
-        {
-            v[i, 0] = 3; // signo 1
-            v[i, 1] = 2; // signo X
-            v[i, 2] = 1; // signo 2
-        }
-        return v;
     }
 
     /// <summary>Agrupa el resultado del cálculo para devolverlo desde el hilo de fondo.</summary>
