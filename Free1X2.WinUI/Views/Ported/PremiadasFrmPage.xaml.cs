@@ -10,7 +10,8 @@ namespace Free1X2.WinUI.Views.Ported;
 /// Permite grabar a fichero las columnas de una frecuencia seleccionada (legacy: bGrabar)
 /// y analizar en qué jornadas aparece dicha frecuencia (legacy: bAnaliza).
 ///
-/// La lógica de cálculo/persistencia se deja como TODO en el ViewModel citando PremiadasFrm.
+/// El cálculo (Genera/Trasvasa/Examina), la grabación y el análisis están cableados
+/// en el ViewModel replicando PremiadasFrm.
 /// </summary>
 public sealed partial class PremiadasFrmPage : Page
 {
@@ -19,5 +20,15 @@ public sealed partial class PremiadasFrmPage : Page
     public PremiadasFrmPage()
     {
         InitializeComponent();
+    }
+
+    /// <summary>
+    /// Propaga al ViewModel el índice de la frecuencia seleccionada en el ListView
+    /// (legacy: lbPremis.SelectedIndex, usado por Grabar y Analiza). La selección vive
+    /// en el control de UI, igual que en ColumnasPremiadasFrmPage.
+    /// </summary>
+    private void OnFrecuenciaSeleccionada(object sender, SelectionChangedEventArgs e)
+    {
+        ViewModel.FrecuenciaSeleccionadaIndex = ListaFrecuencias.SelectedIndex;
     }
 }

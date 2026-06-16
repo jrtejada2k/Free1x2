@@ -129,7 +129,8 @@
                     x:Name="ListaFrecuencias"
                     Grid.Row="1" Grid.Column="0"
                     ItemsSource="{x:Bind ViewModel.Frecuencias, Mode=OneWay}"
-                    SelectionMode="Extended"
+                    SelectionMode="Single"
+                    SelectionChanged="OnFrecuenciaSeleccionada"
                     AutomationProperties.Name="Listado de frecuencias de premios">
                     <ListView.ItemTemplate>
                         <DataTemplate x:DataType="x:String">
