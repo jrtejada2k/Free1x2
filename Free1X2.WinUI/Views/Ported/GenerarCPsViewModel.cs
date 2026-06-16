@@ -1,7 +1,15 @@
+using System;
 using System.Collections.ObjectModel;
-using System.Collections.Generic;
+using System.Data;
+using System.IO;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Free1X2;
+using Free1X2.EntradaSalida.GenerarCPs;
+using Free1X2.WinUI.Services;
+using Windows.Storage;
+using Windows.Storage.Pickers;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -32,17 +40,18 @@ public partial class ValoracionPartidoItem : ObservableObject
 /// <summary>
 /// ViewModel de la Page portada desde el WinForms "GenerarCPs"
 /// (Generador de Columnas Probables).
+///
+/// La generación (btnOK_Click) está cableada al motor real (Free1X2.EntradaSalida.GenerarCPs:
+/// DatosHelper, ColumnasProbables, CPs, IO). La importación de % depende de la clase legacy
+/// Free1X2.Utils.Porcentajes (no portada al dominio), por lo que sólo abre el selector y
+/// queda un TODO preciso.
 /// </summary>
 public partial class GenerarCPsViewModel : ObservableObject
 {
-    // Número de partidos de la quiniela. En el legacy se leía de
-    // VariablesGlobales.NumeroPartidos.
-    private const int NumeroPartidos = 14;
-
     public GenerarCPsViewModel()
     {
         Valoraciones = new ObservableCollection<ValoracionPartidoItem>();
-        for (int i = 1; i <= NumeroPartidos; i++)
+        for (int i = 1; i <= VariablesGlobales.NumeroPartidos; i++)
         {
             Valoraciones.Add(new ValoracionPartidoItem { NumeroPartido = i });
         }
@@ -64,35 +73,96 @@ public partial class GenerarCPsViewModel : ObservableObject
 
     /// <summary>
     /// btnOK_Click del legacy: valida la jornada, copia la valoración a la
-    /// matriz y genera/guarda los ficheros de columnas probables.
+    /// matriz y genera/guarda los ficheros de columnas probables en Condiciones/.
     /// </summary>
     [RelayCommand]
-    private void Generar()
+    private async Task Generar()
     {
-        if (Jornada <= 0)
+        int jornada = (int)Jornada;
+        if (jornada <= 0)
         {
             Estado = "Especifique un número de jornada.";
+            AppServices.MostrarError("Especifique un número de jornada");
             return;
         }
 
-        // TODO (dominio): replicar GenerarCPs.btnOK_Click — copiar valoración
-        // (CopiarValoracion), cargar configuración de CPs (DatosHelper.ObtenerDatos),
-        // generar columnas (CPs.CrearCPs) y guardar los ficheros .txt en
-        // Condiciones/ vía la clase IO. No implementado en esta capa de UI.
-        Estado = "Generación pendiente de la capa de dominio (CPs / IO).";
+        // Copiamos la valoración a la matriz (legacy CopiarValoracion()).
+        Valoracion[] valores = CopiarValoracion();
+
+        Estado = "Generando columnas...";
+
+        try
+        {
+            int ficheros = await Task.Run(() =>
+            {
+                // Cargamos los datos de las columnas en memoria.
+                var dh = new DatosHelper();
+                ColumnasProbables dsConfCol = dh.ObtenerDatos();
+
+                // Carpeta Condiciones bajo el directorio base de la app (igual semántica que
+                // el legacy Application.StartupPath + "/Condiciones/").
+                string baseDir = AppContext.BaseDirectory.TrimEnd(
+                    Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+                string carpeta = Path.Combine(baseDir, "Condiciones");
+                Directory.CreateDirectory(carpeta);
+
+                int generados = 0;
+                IO f2;
+                for (int i = 0; i < dsConfCol.Tables["Tipos de CPs"]!.Rows.Count; i++)
+                {
+                    var dv = new DataView(dsConfCol.Tables["Configuracion de CPs"]);
+                    string filtro = "Tipo = " + dsConfCol.Tables["Tipos de CPs"]!.Rows[i]["Tipo"];
+                    dv.RowFilter = filtro;
+                    DataSet ds = LlenarDataset(dv, valores);
+                    string txt = LlenarTxtColumnas(ds);
+                    string nombre = dsConfCol.Tables["Tipos de CPs"]!.Rows[i]["Nombre"].ToString()!;
+                    string fichero = Path.Combine(carpeta, nombre + "_j" + jornada + ".txt");
+                    fichero.Replace(" ", "_"); // (literal del legacy: no reasigna; se conserva el comportamiento)
+                    f2 = new IO(fichero);
+                    f2.GuardarTexto(txt);
+                    f2.Cerrar();
+                    generados++;
+                }
+                return generados;
+            });
+
+            Estado = $"Fichero(s) guardado(s) correctamente en la carpeta Condiciones ({ficheros}).";
+            AppServices.MostrarInfo("Fichero(s) guardado(s) correctamente en la carpeta Condiciones");
+        }
+        catch (Exception ex)
+        {
+            Estado = "Error al generar las columnas: " + ex.Message;
+            AppServices.MostrarError("Error al generar las columnas: " + ex.Message);
+        }
     }
 
     /// <summary>
-    /// btnImportarVal_Click del legacy: abre un .txt de valoración, lo parsea
-    /// con Porcentajes y vuelca los porcentajes a pantalla.
+    /// btnImportarVal_Click del legacy: abre un .txt de valoración. El parseo se hacía con
+    /// Free1X2.Utils.Porcentajes (detección de formato), no portada al dominio.
     /// </summary>
     [RelayCommand]
-    private void ImportarPorcentajes()
+    private async Task ImportarPorcentajes()
     {
-        // TODO (dominio): replicar GenerarCPs.btnImportarVal_Click — FileOpenPicker
-        // sobre Condiciones/*.txt, parseo con Free1X2 Porcentajes y volcado a
-        // Valoraciones (PonerValoracionPantalla). No implementado aquí.
-        Estado = "Importar % pendiente de la capa de dominio (Porcentajes).";
+        var picker = new FileOpenPicker
+        {
+            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
+        };
+        picker.FileTypeFilter.Add(".txt");
+        picker.FileTypeFilter.Add("*");
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        StorageFile? archivo = await picker.PickSingleFileAsync();
+        if (archivo is null)
+        {
+            return;
+        }
+
+        // TODO: parseo de valoraciones — ver Free1X2/UI/GenerarCPs.cs línea 280
+        //   (new Porcentajes(fileName); Pct.valores[i,0..2]) y volcar a Valoraciones +
+        //   CopiarValoracion(). La clase Free1X2.Utils.Porcentajes (detección de formato
+        //   1/3/42/43/44 valores por fila) vive en el proyecto WinForms, no en el dominio,
+        //   por lo que su transcripción queda pendiente para evitar fabricar lógica.
+        Estado = $"Archivo seleccionado ({archivo.Name}). Importación de % pendiente (Porcentajes no portada).";
     }
 
     /// <summary>
@@ -101,8 +171,8 @@ public partial class GenerarCPsViewModel : ObservableObject
     [RelayCommand]
     private void ConfigurarColumnas()
     {
-        // TODO (dominio/navegación): abrir el equivalente a ConfigCPsFrm.
-        Estado = "Configurar columnas pendiente de navegación (ConfigCPsFrm).";
+        // TODO (navegación): abrir el equivalente a ConfigCPsFrm (ConfigCPsFrmPage en WinUI).
+        Estado = "Configurar columnas: navegar a ConfigCPsFrmPage.";
     }
 
     /// <summary>
@@ -111,8 +181,8 @@ public partial class GenerarCPsViewModel : ObservableObject
     [RelayCommand]
     private void SeparadorPorcentajes()
     {
-        // TODO (dominio/navegación): abrir el equivalente a FiltroPorcenJB.
-        Estado = "Separador de porcentajes pendiente de navegación (FiltroPorcenJB).";
+        // TODO (navegación): abrir el equivalente a FiltroPorcenJB.
+        Estado = "Separador de porcentajes: navegar a FiltroPorcenJB.";
     }
 
     /// <summary>
@@ -121,7 +191,87 @@ public partial class GenerarCPsViewModel : ObservableObject
     [RelayCommand]
     private void CpsPorDiferencias()
     {
-        // TODO (dominio/navegación): abrir el equivalente a GeneradorCPSDiferencias.
-        Estado = "CPs por diferencias pendiente de navegación (GeneradorCPSDiferencias).";
+        // TODO (navegación): abrir el equivalente a GeneradorCPSDiferencias (GeneradorCPSDiferenciasPage).
+        Estado = "CPs por diferencias: navegar a GeneradorCPSDiferenciasPage.";
+    }
+
+    // ===== Lógica de dominio replicada del WinForms GenerarCPs =====
+
+    /// <summary>Legacy CopiarValoracion(): vuelca las valoraciones de pantalla a la matriz.</summary>
+    private Valoracion[] CopiarValoracion()
+    {
+        var valores = new Valoracion[VariablesGlobales.NumeroPartidos];
+        foreach (ValoracionPartidoItem item in Valoraciones)
+        {
+            int numPartido = item.NumeroPartido - 1;
+            if (numPartido < 0 || numPartido >= valores.Length) continue;
+            var valTemp = new Valoracion
+            {
+                Uno = item.Valor1,
+                Equis = item.ValorX,
+                Dos = item.Valor2,
+            };
+            valores[numPartido] = valTemp;
+        }
+        return valores;
+    }
+
+    /// <summary>Legacy LlenarDataset(DataView): genera las CPs con CPs.CrearCPs y arma el DataSet.</summary>
+    private static DataSet LlenarDataset(DataView dv, Valoracion[] valores)
+    {
+        var cps = new CPs();
+        string[,] columnas = cps.CrearCPs(dv, valores);
+        return LlenarDataset(columnas);
+    }
+
+    /// <summary>Legacy LlenarDataset(string[,]): convierte la matriz de columnas en un DataSet.</summary>
+    private static DataSet LlenarDataset(string[,] columnas)
+    {
+        int i;
+        int longitud = columnas.Length / VariablesGlobales.NumeroPartidos;
+        var myDataTable = new DataTable();
+        for (i = 0; i < longitud; i++)
+        {
+            var myDataColumn = new DataColumn
+            {
+                DataType = Type.GetType("System.String")!,
+                ColumnName = i.ToString(),
+            };
+            myDataTable.Columns.Add(myDataColumn);
+        }
+        for (i = 0; i < VariablesGlobales.NumeroPartidos; i++)
+        {
+            DataRow myDataRow = myDataTable.NewRow();
+            for (int j = 0; j < longitud; j++)
+            {
+                string col = columnas[i, j] ?? " ";
+                myDataRow[j.ToString()] = col;
+            }
+            myDataTable.Rows.Add(myDataRow);
+        }
+
+        var myDataSet = new DataSet();
+        myDataSet.Tables.Add(myDataTable);
+        return myDataSet;
+    }
+
+    /// <summary>Legacy LlenarTxtColumnas(): serializa el DataSet de columnas a texto (CSV por partido).</summary>
+    private static string LlenarTxtColumnas(DataSet dsCPs)
+    {
+        string txt = "";
+        const string nl = "\r\n";
+        for (int i = 0; i < dsCPs.Tables[0].Columns.Count; i++)
+        {
+            for (int j = 0; j < VariablesGlobales.NumeroPartidos; j++)
+            {
+                txt += dsCPs.Tables[0].Rows[j][i].ToString();
+                if (j < VariablesGlobales.NumeroPartidos - 1)
+                {
+                    txt += ",";
+                }
+            }
+            txt += nl;
+        }
+        return txt;
     }
 }

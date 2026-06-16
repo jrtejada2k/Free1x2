@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Free1X2;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -43,15 +44,12 @@ public partial class GEPTFila : ObservableObject
 /// </summary>
 public partial class GEPTFrmViewModel : ObservableObject
 {
-    // Legacy: VariablesGlobales.NumeroPartidos (quiniela estándar). Valor por defecto local
-    // mientras el dominio no esté migrado a Free1X2.Domain.
-    private const int NumeroPartidos = 15;
-
     public ObservableCollection<GEPTFila> Partidos { get; } = new();
 
     public GEPTFrmViewModel()
     {
-        for (int i = 1; i <= NumeroPartidos; i++)
+        // Legacy GEPTFrm usaba VariablesGlobales.NumeroPartidos (ya disponible en Free1X2.Domain).
+        for (int i = 1; i <= VariablesGlobales.NumeroPartidos; i++)
         {
             Partidos.Add(new GEPTFila(i));
         }

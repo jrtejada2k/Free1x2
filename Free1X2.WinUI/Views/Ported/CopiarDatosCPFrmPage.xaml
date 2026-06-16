@@ -45,6 +45,7 @@
                         <NumberBox Grid.Column="3"
                                    Value="{x:Bind ViewModel.Hasta, Mode=TwoWay}"
                                    Minimum="{x:Bind ViewModel.HastaMinimo, Mode=OneWay}"
+                                   Maximum="{x:Bind ViewModel.HastaMaximo, Mode=OneWay}"
                                    SpinButtonPlacementMode="Compact" MinWidth="130"
                                    AutomationProperties.Name="Columna hasta" />
                     </Grid>
