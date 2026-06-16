@@ -16,5 +16,6 @@ public sealed partial class FrmDependenciaLinealPage : Page
     public FrmDependenciaLinealPage()
     {
         InitializeComponent();
+        ViewModel.Volver = () => { if (Frame?.CanGoBack == true) Frame.GoBack(); };
     }
 }

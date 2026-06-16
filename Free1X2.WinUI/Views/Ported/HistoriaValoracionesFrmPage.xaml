@@ -2,6 +2,7 @@
     x:Class="Free1X2.WinUI.Views.Ported.HistoriaValoracionesFrmPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:Free1X2.WinUI.Controls"
     Background="{ThemeResource AppBackgroundBrush}">
 
     <ScrollViewer Padding="24">
@@ -62,6 +63,19 @@
                 </StackPanel>
             </Border>
 
+            <!-- Valoraciones a guardar (en el WinForms llegaban por constructor;
+                 aquí se editan en la rejilla 14x3) -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="12">
+                    <TextBlock
+                        Text="Valoraciones (1 / X / 2)"
+                        Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <controls:PorcentajesControl
+                        Filas="{x:Bind ViewModel.Filas}"
+                        Height="420" />
+                </StackPanel>
+            </Border>
+
             <!-- Fichero histórico de salida -->
             <Border Style="{StaticResource AppCardStyle}">
                 <StackPanel Spacing="16">
@@ -108,6 +122,11 @@
                     Content="Cancelar"
                     Command="{x:Bind ViewModel.CancelarCommand}" />
             </StackPanel>
+
+            <TextBlock
+                Text="{x:Bind ViewModel.Estado, Mode=OneWay}"
+                Style="{StaticResource SecondaryTextBlockStyle}"
+                TextWrapping="Wrap" />
 
         </StackPanel>
     </ScrollViewer>

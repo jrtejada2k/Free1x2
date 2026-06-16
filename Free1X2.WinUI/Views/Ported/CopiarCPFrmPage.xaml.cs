@@ -1,4 +1,5 @@
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Navigation;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -16,6 +17,14 @@ public sealed partial class CopiarCPFrmPage : Page
     public CopiarCPFrmPage()
     {
         this.InitializeComponent();
+        ViewModel.Volver = () => { if (Frame?.CanGoBack == true) Frame.GoBack(); };
+    }
+
+    protected override void OnNavigatedTo(NavigationEventArgs e)
+    {
+        base.OnNavigatedTo(e);
+        // Refresca los grupos destino y el origen de columnas con el estado actual del motor.
+        ViewModel.CargarDesdeGrupo();
     }
 
     /// <summary>

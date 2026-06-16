@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Free1X2.MotorCalculo;
+using Free1X2.WinUI.Services;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -13,6 +15,11 @@ namespace Free1X2.WinUI.Views.Ported;
 /// multi-selección de grupos destino (cmbGrupo, un ListBox MultiExtended).
 /// El usuario indica qué columnas (por índice, lista "1,3,5" o rango "1-5") quiere
 /// copiar y a qué grupo(s) del boleto deben copiarse.
+///
+/// Cableado al motor real: los grupos destino salen de
+/// <c>AppState.Instancia.Analizador.GruposPartidos</c> y el origen de las columnas es el
+/// <see cref="FiltroColProbables"/> del grupo en edición (<c>AppState.GrupoEnEdicion</c>),
+/// igual que el <c>grupoCP</c> que el WinForms recibía de ColProbablesFrm.
 /// </summary>
 public partial class CopiarCPFrmViewModel : ObservableObject
 {
@@ -40,21 +47,57 @@ public partial class CopiarCPFrmViewModel : ObservableObject
     [ObservableProperty]
     private string _estado = "Indica las columnas y el grupo destino.";
 
+    /// <summary>Acción de cierre/volver (la cablea la página con Frame.GoBack()). Legacy: Close().</summary>
+    public Action? Volver { get; set; }
+
+    // Índice del grupo en pantalla (legacy: noGrupoPantalla = mainFrm.NoGrupoPantalla).
+    private int _grupoPantalla;
+
+    // Lista de CPs de origen: las columnas del grupo en edición (legacy: grupoCP, recibido de ColProbablesFrm).
+    private List<ColumnaProbable>? _grupoCP;
+
     public CopiarCPFrmViewModel()
     {
-        // TODO(dominio): poblar Grupos a partir de
-        //   MainForm.MotorCalculo.GruposPartidos, replicando
-        //   CopiarCPFrm.InicializarGruposDropDown():
-        //     - el índice 0 se muestra como "Boleto Base";
-        //     - el resto como su número de grupo (1, 2, ...).
-        //   También preseleccionar el grupo en pantalla (MainForm.NoGrupoPantalla).
-        // Datos de ejemplo para visualizar la pantalla mientras se porta el dominio:
-        Grupos.Add("Boleto Base");
+        CargarDesdeGrupo();
+    }
+
+    /// <summary>
+    /// Puebla la lista de grupos destino y captura el origen de las columnas.
+    /// Equivale a CopiarCPFrm.InicializarGruposDropDown() (Free1X2/UI/Filtros/CopiarCPFrm.cs líneas 67-89):
+    ///   - el índice 0 se muestra como "Boleto Base"; el resto como su número de grupo (1, 2, ...);
+    ///   - se preselecciona el grupo en pantalla (AppState.GrupoPantalla).
+    /// </summary>
+    public void CargarDesdeGrupo()
+    {
+        Grupos.Clear();
+
+        GrupoPartidos grupos = AppState.Instancia.Analizador.GruposPartidos;
+        int noGrupos = grupos.Count;
+        for (int i = 0; i < noGrupos; i++)
+        {
+            Grupos.Add(i == 0 ? "Boleto Base" : i.ToString());
+        }
+
+        _grupoPantalla = AppState.Instancia.GrupoPantalla;
+
+        // Origen de las columnas: el grupo en edición. Si no hay, el grupo en pantalla.
+        Grupo? grupoOrigen = AppState.GrupoEnEdicion;
+        if (grupoOrigen is null && _grupoPantalla >= 0 && _grupoPantalla < noGrupos)
+        {
+            grupoOrigen = grupos[_grupoPantalla];
+        }
+
+        if (grupoOrigen is not null)
+        {
+            var filtroOrigen = (FiltroColProbables)grupoOrigen.GetFiltro(Filtro.ColProbables.ToString());
+            _grupoCP = filtroOrigen.ColProbables;
+        }
     }
 
     /// <summary>
     /// Equivale a <c>btnCopiar_Click</c> -> <c>CopiarColumnas()</c> del WinForms:
     /// valida los índices y copia cada ColumnaProbable a los grupos seleccionados.
+    /// (Free1X2/UI/Filtros/CopiarCPFrm.cs líneas 91-142.)
     /// </summary>
     [RelayCommand]
     private void Copiar()
@@ -71,11 +114,17 @@ public partial class CopiarCPFrmViewModel : ObservableObject
             return;
         }
 
+        if (_grupoCP is null)
+        {
+            Estado = "No hay columnas de origen (abra primero el editor de Columnas Probables).";
+            return;
+        }
+
         // Parseo de los índices con la lógica autocontenida del legacy (ObtenCP/EncuentraSeparador).
-        int[] indices;
+        int[] indexCP;
         try
         {
-            indices = ObtenCP(Columnas);
+            indexCP = ObtenCP(Columnas);
         }
         catch
         {
@@ -83,21 +132,86 @@ public partial class CopiarCPFrmViewModel : ObservableObject
             return;
         }
 
-        // TODO(dominio): completar CopiarCPFrm.CopiarColumnas() — la copia real necesita el
-        //   motor que no existe en esta capa aislada. Ver Free1X2/UI/Filtros/CopiarCPFrm.cs línea 91:
-        //   - Validar con IndicesValidos contra el tamaño de grupoCP (la lista de CPs de origen).
-        //   - Para cada grupo seleccionado (ObtenGrupo, MainForm.MotorCalculo.GruposPartidos),
-        //     obtener su FiltroColProbables (Filtro.ColProbables) y, por cada índice, clonar la
-        //     ColumnaProbable (Pronosticos, aciertos/seguidos/fallos y, si ToleranciaLocalActiva,
-        //     las tolerancias) y añadirla:
-        //       * si el grupo es el de pantalla -> grupoCP.Add(copia);
-        //       * en otro caso -> filtroCP.ColProbables.Add(copia); ContieneDatos = true; IsActive = true.
-        //   - Llamar a parentForm.CambiaCPSelecionado() y cerrar (Close()).
+        if (!IndicesValidos(indexCP, _grupoCP.Count))
+        {
+            Estado = $"Algún índice supera el número de columnas disponibles ({_grupoCP.Count}).";
+            return;
+        }
 
-        Estado = $"Columnas válidas ({indices.Length}); copia a {GruposSeleccionados.Count} grupo(s) pendiente del motor (sin form padre).";
+        GrupoPartidos grupos = AppState.Instancia.Analizador.GruposPartidos;
+        int copiadas = 0;
+
+        // Recorre todos los grupos y copia a los que estén seleccionados (legacy: cmbGrupo.GetSelected).
+        for (int numGrupo = 0; numGrupo < Grupos.Count; numGrupo++)
+        {
+            if (!GruposSeleccionados.Contains(Grupos[numGrupo]))
+            {
+                continue;
+            }
+
+            if (numGrupo < 0 || numGrupo >= grupos.Count)
+            {
+                continue;
+            }
+
+            Grupo grupoDestino = grupos[numGrupo];
+            var filtroCP = (FiltroColProbables)grupoDestino.GetFiltro(Filtro.ColProbables.ToString());
+
+            for (int i = 0; i < indexCP.Length; i++)
+            {
+                ColumnaProbable cp = _grupoCP[indexCP[i] - 1];
+
+                // Clona la columna probable (legacy CopiarColumnas líneas 110-122).
+                var cpCopia = new ColumnaProbable
+                {
+                    Pronosticos = cp.Pronosticos,
+                };
+                cpCopia.SetNoAciertos(cp.GetAciertos());
+                cpCopia.SetNoAciertosSeguidos(cp.GetAciertosSeguidos());
+                cpCopia.SetNoFallosSeguidos(cp.GetFallosSeguidos());
+
+                if (cp.ToleranciaLocalActiva)
+                {
+                    cpCopia.SetACTol(cp.GetACTol());
+                    cpCopia.SetACSTol(cp.GetACSTol());
+                    cpCopia.SetFSTol(cp.GetFSTol());
+                    cpCopia.SetTolerancias(cp.GetTolerancias());
+                }
+
+                if (_grupoPantalla == numGrupo)
+                {
+                    // Destino == grupo en pantalla: se añade a la lista de origen (legacy grupoCP.Add).
+                    _grupoCP.Add(cpCopia);
+                }
+                else
+                {
+                    filtroCP.ColProbables.Add(cpCopia);
+                    filtroCP.ContieneDatos = true;
+                    filtroCP.IsActive = true;
+                }
+                copiadas++;
+            }
+        }
+
+        AppState.Instancia.NotificarCambio();
+        Estado = $"Copiadas {copiadas} columna(s) a {GruposSeleccionados.Count} grupo(s).";
+        Volver?.Invoke();
     }
 
-    // ===== Helpers de parseo autocontenidos copiados de CopiarCPFrm =====
+    // ===== Helpers de parseo/validación autocontenidos copiados de CopiarCPFrm =====
+
+    // CopiarCPFrm.IndicesValidos: ningún índice supera el tamaño de la lista de origen.
+    private static bool IndicesValidos(int[] indexCP, int indiceMaximo)
+    {
+        for (int i = 0; i < indexCP.Length; i++)
+        {
+            if (indexCP[i] > indiceMaximo || indexCP[i] < 1)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
 
     // CopiarCPFrm.ObtenCP
     private static int[] ObtenCP(string valores)
@@ -161,22 +275,27 @@ public partial class CopiarCPFrmViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Equivale a <c>btnCrearGrupos_Click</c> del WinForms: abre un diálogo para
-    /// crear N grupos nuevos y los añade a la lista de destinos.
+    /// Equivale a <c>btnCrearGrupos_Click</c> del WinForms: crea N grupos nuevos
+    /// (con todos los partidos activos) y los añade a la lista de destinos.
+    /// (Free1X2/UI/Filtros/CopiarCPFrm.cs líneas 386-403.)
     /// </summary>
     [RelayCommand]
     private void CrearGrupos()
     {
-        // TODO(dominio): portar CopiarCPFrm.btnCrearGrupos_Click().
-        //   El WinForms abría CrearGruposFrm (ShowDialog), leía udNumGrupos.Value y,
-        //   por cada grupo nuevo, creaba un Grupo con partidos 1..14 activos
-        //   (PonerPartidosActivos("1,2,...,14")), lo añadía a
-        //   MainForm.analizador.GruposPartidos, llamaba a ActualizarGruposPronostico()
-        //   y agregaba el índice del nuevo grupo a cmbGrupo.Items.
-        //   En WinUI: lanzar la página/diálogo de creación de grupos y, al volver,
-        //   refrescar la colección Grupos.
+        // El WinForms abría CrearGruposFrm (ShowDialog) para leer udNumGrupos y luego creaba los
+        // grupos. En WinUI, la creación con cantidad la cubre CrearGruposFrmPage/ViewModel; aquí
+        // añadimos un grupo por pulsación (todos los partidos activos) y refrescamos la lista,
+        // que es la operación elemental equivalente del bucle legacy.
+        GrupoPartidos grupos = AppState.Instancia.Analizador.GruposPartidos;
+        var grupo = new Grupo();
+        grupo.PonerPartidosActivos("1,2,3,4,5,6,7,8,9,10,11,12,13,14");
+        grupos.AddGrupo(grupo);
+        AppState.Instancia.NotificarCambio();
 
-        Estado = "Crear grupos (pendiente de portar CrearGruposFrm).";
+        Grupos.Add((grupos.Count - 1).ToString());
+        Estado = $"Grupo {grupos.Count - 1} creado.";
+        // TODO[navegación]: para crear varios grupos a la vez (udNumGrupos), enlazar con
+        //   CrearGruposFrmPage (CrearGruposFrmViewModel) — Free1X2/UI/Filtros/CopiarCPFrm.cs línea 390.
     }
 
     /// <summary>
@@ -185,7 +304,7 @@ public partial class CopiarCPFrmViewModel : ObservableObject
     [RelayCommand]
     private void Cancelar()
     {
-        // TODO(dominio/navegación): cerrar/navegar atrás. En el WinForms era Close().
         Estado = "Cancelado.";
+        Volver?.Invoke();
     }
 }
