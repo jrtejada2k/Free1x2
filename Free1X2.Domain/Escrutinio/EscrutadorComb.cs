@@ -1,17 +1,17 @@
 // created on 17/01/2004 at 11:58
 // Free1X2 : Programa de quinielas "libre"
 // Copyright (C) 2006 Toni Moreno
-// 
+//
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -108,7 +108,7 @@ namespace Free1X2.Escrutinio
 		        string tmp = miListaPronosticos[i];
 		        miListaPronosticos[i]=tmp.Replace(",","");
 		    }
-		    Analisis.AnalisisCombinacion a=new Analisis.AnalisisCombinacion();
+		    Analisis.AnalizadorColumnaCombinacion a=new Analisis.AnalizadorColumnaCombinacion();
 		    long[] columnasTmp=new long[aciertos.Count];
             aciertos.Keys.CopyTo(columnasTmp,0);
 		    for (int i = 0; i < columnasTmp.Length; i++)
@@ -139,7 +139,7 @@ namespace Free1X2.Escrutinio
 				pararEscrutinio = true;
 			}
 		}
-		
+
 
 		public void PonerPremios(int[] premios, int noColumna, string columna)
 		{
@@ -149,13 +149,13 @@ namespace Free1X2.Escrutinio
 			row["Seleccionado"] = false;
 
 			for(int i = 1; i < premios.Length; i++)
-			{				
+			{
 				row["P" + i] = premios[i].ToString();
 				premiosTotales[i]+=premios[i];
-			}	
+			}
 			escrutinioDS.Tables["Resultados"].Rows.Add( row );
 		}
-		
+
 		public void PonerPremios(int[] premios, int noColumna, string columna, string archivo)
 		{
 			DataRow row = escrutinioDS.Tables["Resultados"].NewRow();
@@ -164,13 +164,13 @@ namespace Free1X2.Escrutinio
 			row["Archivo"] = archivo;
 			row["Seleccionado"] = false;
 			for(int i = 0; i < premios.Length; i++)
-			{				
+			{
 				row["P" + i] = premios[i].ToString();
 				premiosTotales[i]+=premios[i];
-			}	
+			}
 			escrutinioDS.Tables["Resultados"].Rows.Add( row );
 		}
-		
+
 		public void AñadirPremiosGlobales(int[] premiosGlobales)
 		{
 			DataRow row = escrutinioDS.Tables["Resultados"].NewRow();
@@ -180,9 +180,9 @@ namespace Free1X2.Escrutinio
 			row["Seleccionado"] = false;
 
 			for(int i = 0; i <= VariablesGlobales.NumeroPartidos; i++)
-			{				
-				row["P" + i] = premiosGlobales[i].ToString(); 
-			}	
+			{
+				row["P" + i] = premiosGlobales[i].ToString();
+			}
 			escrutinioDS.Tables["Resultados"].Rows.Add( row );
 		}
 
@@ -190,13 +190,13 @@ namespace Free1X2.Escrutinio
 		public string ArchivoColumnas
 		{
 			get{ return archivoCols; }
-			set{ archivoCols = value; }		
+			set{ archivoCols = value; }
 		}
 
 		public ArrayList ListaPremiadas
 		{
 			get{ return listaPremiadas;}
-			set{ listaPremiadas = value; }		
+			set{ listaPremiadas = value; }
 		}
 
 		public bool AñadirAGanadoras
