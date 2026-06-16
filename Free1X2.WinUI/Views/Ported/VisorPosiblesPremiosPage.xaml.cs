@@ -1,4 +1,6 @@
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -18,5 +20,31 @@ public sealed partial class VisorPosiblesPremiosPage : Page
     public VisorPosiblesPremiosPage()
     {
         InitializeComponent();
+    }
+
+    /// <summary>
+    /// Fondo de una casilla de signo: rojo cuando es un fallo respecto a la columna ganadora
+    /// (legacy: ControlPosiblesPremios pinta BackColor = Red cuando columna[i] != ganadora[i]).
+    /// </summary>
+    public static Brush FondoSigno(bool esAcierto)
+    {
+        string clave = esAcierto ? "AppSurfaceAltBrush" : "AppErrorBrush";
+        if (Application.Current.Resources.TryGetValue(clave, out var recurso) && recurso is Brush brush)
+        {
+            return brush;
+        }
+        return new SolidColorBrush(Microsoft.UI.Colors.Transparent);
+    }
+
+    /// <summary>Color del texto de un signo: blanco sobre fondo rojo (fallo) para legibilidad.</summary>
+    public static Brush TextoSigno(bool esAcierto)
+    {
+        if (esAcierto &&
+            Application.Current.Resources.TryGetValue("AppTextBrush", out var recurso) && recurso is Brush brush)
+        {
+            return brush;
+        }
+        // Fallo: texto blanco para contraste sobre el rojo de error.
+        return new SolidColorBrush(Microsoft.UI.Colors.White);
     }
 }

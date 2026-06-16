@@ -37,12 +37,17 @@
                 <Grid Grid.Row="0" Padding="12,0,12,8" ColumnSpacing="8">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="3*" />
-                        <ColumnDefinition Width="1*" />
+                        <ColumnDefinition Width="2*" />
+                        <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0" Text="Archivo"
                         Style="{StaticResource CardTitleTextBlockStyle}"
                         Foreground="{ThemeResource AppTextBrush}" />
                     <TextBlock Grid.Column="1" Text="Cumplimiento"
+                        Style="{StaticResource CardTitleTextBlockStyle}"
+                        Foreground="{ThemeResource AppTextBrush}"
+                        HorizontalAlignment="Center" />
+                    <TextBlock Grid.Column="2" Text="%" MinWidth="60"
                         Style="{StaticResource CardTitleTextBlockStyle}"
                         Foreground="{ThemeResource AppTextBrush}"
                         HorizontalAlignment="Center" />
@@ -70,13 +75,24 @@
                             <Grid Padding="0,4" ColumnSpacing="8">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="3*" />
-                                    <ColumnDefinition Width="1*" />
+                                    <ColumnDefinition Width="2*" />
+                                    <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0" Text="{x:Bind Archivo}"
                                     TextTrimming="CharacterEllipsis"
+                                    VerticalAlignment="Center"
                                     Foreground="{ThemeResource AppTextBrush}" />
-                                <TextBlock Grid.Column="1" Text="{x:Bind Cumplimiento}"
+                                <!-- Barra de cumplimiento (mismo valor que el texto %, sólo visual) -->
+                                <ProgressBar Grid.Column="1"
+                                    Minimum="0" Maximum="100"
+                                    Value="{x:Bind CumplimientoValor}"
+                                    VerticalAlignment="Center"
+                                    Margin="4,0" />
+                                <TextBlock Grid.Column="2" Text="{x:Bind Cumplimiento}"
+                                    MinWidth="60"
                                     HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    FontFamily="Consolas"
                                     Foreground="{ThemeResource AppTextBrush}" />
                             </Grid>
                         </DataTemplate>

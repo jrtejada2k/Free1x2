@@ -157,6 +157,24 @@
                             Text="Agrupaciones Paso Fijo"
                             Style="{StaticResource SectionHeaderTextBlockStyle}" />
 
+                        <!-- Cabecera de columnas (legacy CtrlAgrupacion: Número / Elementos / Aciertos) -->
+                        <Grid ColumnSpacing="8" Padding="8,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*" />
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Número"
+                                Style="{StaticResource CaptionTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                            <TextBlock Grid.Column="1" Text="Elementos"
+                                Style="{StaticResource CaptionTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                            <TextBlock Grid.Column="2" Text="Aciertos"
+                                Style="{StaticResource CaptionTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                        </Grid>
+
                         <ListView
                             ItemsSource="{x:Bind ViewModel.AgrupacionesPasoFijo}"
                             SelectionMode="None"
@@ -164,10 +182,19 @@
                             Background="{ThemeResource AppSurfaceBrush}">
                             <ListView.ItemTemplate>
                                 <DataTemplate x:DataType="local:VisorAbdonAgrupacion">
-                                    <TextBlock
-                                        Text="{x:Bind Texto}"
-                                        FontFamily="Consolas"
-                                        Padding="0,2" />
+                                    <Grid ColumnSpacing="8" Padding="0,2">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="2*" />
+                                            <ColumnDefinition Width="1*" />
+                                            <ColumnDefinition Width="1*" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{x:Bind Numero}"
+                                            FontFamily="Consolas" />
+                                        <TextBlock Grid.Column="1" Text="{x:Bind Elementos}"
+                                            FontFamily="Consolas" />
+                                        <TextBlock Grid.Column="2" Text="{x:Bind Aciertos}"
+                                            FontFamily="Consolas" />
+                                    </Grid>
                                 </DataTemplate>
                             </ListView.ItemTemplate>
                         </ListView>
@@ -242,6 +269,24 @@
                             Text="Agrupaciones Solapadas"
                             Style="{StaticResource SectionHeaderTextBlockStyle}" />
 
+                        <!-- Cabecera de columnas (legacy CtrlAgrupacion: Número / Elementos / Aciertos) -->
+                        <Grid ColumnSpacing="8" Padding="8,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*" />
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Número"
+                                Style="{StaticResource CaptionTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                            <TextBlock Grid.Column="1" Text="Elementos"
+                                Style="{StaticResource CaptionTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                            <TextBlock Grid.Column="2" Text="Aciertos"
+                                Style="{StaticResource CaptionTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                        </Grid>
+
                         <ListView
                             ItemsSource="{x:Bind ViewModel.AgrupacionesSolapadas}"
                             SelectionMode="None"
@@ -249,10 +294,19 @@
                             Background="{ThemeResource AppSurfaceBrush}">
                             <ListView.ItemTemplate>
                                 <DataTemplate x:DataType="local:VisorAbdonAgrupacion">
-                                    <TextBlock
-                                        Text="{x:Bind Texto}"
-                                        FontFamily="Consolas"
-                                        Padding="0,2" />
+                                    <Grid ColumnSpacing="8" Padding="0,2">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="2*" />
+                                            <ColumnDefinition Width="1*" />
+                                            <ColumnDefinition Width="1*" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{x:Bind Numero}"
+                                            FontFamily="Consolas" />
+                                        <TextBlock Grid.Column="1" Text="{x:Bind Elementos}"
+                                            FontFamily="Consolas" />
+                                        <TextBlock Grid.Column="2" Text="{x:Bind Aciertos}"
+                                            FontFamily="Consolas" />
+                                    </Grid>
                                 </DataTemplate>
                             </ListView.ItemTemplate>
                         </ListView>

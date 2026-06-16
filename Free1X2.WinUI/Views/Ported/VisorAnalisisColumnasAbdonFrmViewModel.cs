@@ -21,12 +21,27 @@ namespace Free1X2.WinUI.Views.Ported;
 /// </summary>
 public partial class VisorAbdonAgrupacion : ObservableObject
 {
-    /// <summary>Descripción textual de la agrupación (p. ej. "3-5+2+1").</summary>
+    /// <summary>Descripción textual completa de la agrupación (p. ej. "3-5+2+1").</summary>
     public string Texto { get; }
+
+    /// <summary>Número/rango de columnas de la agrupación (legacy: columna "Número" = valores[0]).</summary>
+    public string Numero { get; }
+
+    /// <summary>Nº de elementos de la agrupación (legacy: columna "Elementos" = valores[1]).</summary>
+    public string Elementos { get; }
+
+    /// <summary>Nº de aciertos de la agrupación (legacy: columna "Aciertos" = valores[2]).</summary>
+    public string Aciertos { get; }
 
     public VisorAbdonAgrupacion(string texto)
     {
         Texto = texto;
+        // Réplica de CtrlAgrupacion.LlenarAgrupaciones(): el string se parte por '+' en
+        // Número / Elementos / Aciertos. Se acota por longitud para no fabricar columnas.
+        string[] partes = (texto ?? string.Empty).Split('+');
+        Numero = partes.Length > 0 ? partes[0] : string.Empty;
+        Elementos = partes.Length > 1 ? partes[1] : string.Empty;
+        Aciertos = partes.Length > 2 ? partes[2] : string.Empty;
     }
 }
 

@@ -117,16 +117,24 @@
                                         CornerRadius="4"
                                         Padding="6">
                                         <StackPanel Spacing="4">
+                                            <!-- Nº de aciertos real de la columna (legacy: lblP1) -->
                                             <Border
                                                 Background="{ThemeResource AppSurfaceAltBrush}"
                                                 CornerRadius="2"
                                                 Padding="2">
                                                 <TextBlock
-                                                    Text="{x:Bind CategoriaTexto}"
+                                                    Text="{x:Bind AciertosTexto}"
                                                     HorizontalAlignment="Center"
-                                                    Style="{StaticResource CaptionTextBlockStyle}"
-                                                    Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                                                    FontFamily="Consolas"
+                                                    Foreground="{ThemeResource AppTextBrush}"
+                                                    ToolTipService.ToolTip="Aciertos de la columna" />
                                             </Border>
+                                            <!-- Categoría de premio a la que opta -->
+                                            <TextBlock
+                                                Text="{x:Bind CategoriaTexto}"
+                                                HorizontalAlignment="Center"
+                                                Style="{StaticResource CaptionTextBlockStyle}"
+                                                Foreground="{ThemeResource AppTextSecondaryBrush}" />
                                             <ItemsControl ItemsSource="{x:Bind Signos}">
                                                 <ItemsControl.ItemsPanel>
                                                     <ItemsPanelTemplate>
@@ -134,19 +142,19 @@
                                                     </ItemsPanelTemplate>
                                                 </ItemsControl.ItemsPanel>
                                                 <ItemsControl.ItemTemplate>
-                                                    <DataTemplate x:DataType="x:String">
+                                                    <DataTemplate x:DataType="local:SignoJugadoItem">
                                                         <Border
                                                             Width="24" Height="24"
-                                                            Background="{ThemeResource AppSurfaceAltBrush}"
+                                                            Background="{x:Bind local:VisorPosiblesPremiosPage.FondoSigno(EsAcierto)}"
                                                             BorderBrush="{ThemeResource AppBorderBrush}"
                                                             BorderThickness="1"
                                                             CornerRadius="2">
                                                             <TextBlock
-                                                                Text="{x:Bind}"
+                                                                Text="{x:Bind Signo}"
                                                                 HorizontalAlignment="Center"
                                                                 VerticalAlignment="Center"
                                                                 FontFamily="Consolas"
-                                                                Foreground="{ThemeResource AppTextBrush}" />
+                                                                Foreground="{x:Bind local:VisorPosiblesPremiosPage.TextoSigno(EsAcierto)}" />
                                                         </Border>
                                                     </DataTemplate>
                                                 </ItemsControl.ItemTemplate>

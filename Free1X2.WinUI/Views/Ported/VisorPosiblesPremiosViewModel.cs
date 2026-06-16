@@ -7,14 +7,30 @@ using Free1X2.Escrutinio;
 namespace Free1X2.WinUI.Views.Ported;
 
 /// <summary>
+/// Un signo de una columna jugada con marca de acierto/fallo respecto a la columna ganadora
+/// (legacy: ControlPosiblesPremios pinta de rojo el signo cuando difiere del ganador).
+/// </summary>
+public partial class SignoJugadoItem : ObservableObject
+{
+    /// <summary>Signo jugado en esta posición (legacy: columna[i]).</summary>
+    public string Signo { get; init; } = string.Empty;
+
+    /// <summary>true si coincide con el ganador; false marca un fallo (legacy: BackColor rojo).</summary>
+    public bool EsAcierto { get; init; }
+}
+
+/// <summary>
 /// Una columna jugada que opta a premio, dentro de un grupo del visor
 /// (legacy: cada string de las listas Col16..Col10 de PosiblesPremiosContenedor,
 /// pintado como un ControlPosiblesPremios vertical en el ContainerControl cctrl).
 /// </summary>
 public partial class ColumnaPremioItem : ObservableObject
 {
-    /// <summary>Signos de la columna jugada, de arriba a abajo (legacy: string 'columna').</summary>
-    public IReadOnlyList<string> Signos { get; init; } = new List<string>();
+    /// <summary>
+    /// Signos de la columna jugada con su marca de acierto/fallo, de arriba a abajo
+    /// (legacy: ControlPosiblesPremios recorre columnaGanadora.Length posiciones).
+    /// </summary>
+    public IReadOnlyList<SignoJugadoItem> Signos { get; init; } = new List<SignoJugadoItem>();
 
     /// <summary>
     /// Categoría de premio a la que opta esta columna (16/15/14/13/12/11/10 aciertos);
@@ -24,6 +40,12 @@ public partial class ColumnaPremioItem : ObservableObject
 
     /// <summary>Etiqueta de la categoría como texto (regla anti-crash 2: no se bindea int a Text).</summary>
     public string CategoriaTexto => Categoria.ToString();
+
+    /// <summary>
+    /// Nº de aciertos real de la columna, leído de los 2 últimos caracteres del string jugado
+    /// (legacy: ControlPosiblesPremios lblP1 = columna.Substring(columna.Length - 2, 2)).
+    /// </summary>
+    public string AciertosTexto { get; init; } = string.Empty;
 }
 
 /// <summary>
@@ -153,30 +175,49 @@ public partial class VisorPosiblesPremiosViewModel : ObservableObject
         }
 
         // Columnas premiadas, en el mismo orden que el legacy (Col16..Col10), conservando su categoría.
-        AgregarCategoria(contenedor.Col16, 16);
-        AgregarCategoria(contenedor.Col15, 15);
-        AgregarCategoria(contenedor.Col14, 14);
-        AgregarCategoria(contenedor.Col13, 13);
-        AgregarCategoria(contenedor.Col12, 12);
-        AgregarCategoria(contenedor.Col11, 11);
-        AgregarCategoria(contenedor.Col10, 10);
+        AgregarCategoria(contenedor.Col16, 16, colGanadora);
+        AgregarCategoria(contenedor.Col15, 15, colGanadora);
+        AgregarCategoria(contenedor.Col14, 14, colGanadora);
+        AgregarCategoria(contenedor.Col13, 13, colGanadora);
+        AgregarCategoria(contenedor.Col12, 12, colGanadora);
+        AgregarCategoria(contenedor.Col11, 11, colGanadora);
+        AgregarCategoria(contenedor.Col10, 10, colGanadora);
 
         ActualizarContador();
     }
 
-    // Crea un ColumnaPremioItem por cada columna jugada de la categoría dada (legacy: arrayColumnas).
-    private void AgregarCategoria(List<string> categoria, int aciertos)
+    // Crea un ColumnaPremioItem por cada columna jugada de la categoría dada (legacy: arrayColumnas
+    // pintado por ControlPosiblesPremios). Replica 1:1 ControlPosiblesPremios:
+    //   - aciertos = 2 últimos caracteres del string jugado (lblP1).
+    //   - se pintan columnaGanadora.Length posiciones; cada signo se marca como fallo si difiere.
+    private void AgregarCategoria(List<string> categoria, int aciertos, string colGanadora)
     {
         if (categoria == null) return;
         for (int i = 0; i < categoria.Count; i++)
         {
             string columna = categoria[i] ?? string.Empty;
-            var signos = new List<string>(columna.Length);
-            for (int s = 0; s < columna.Length; s++)
+
+            // Nº de aciertos real: legacy columna.Substring(columna.Length - 2, 2).
+            string aciertosTexto = columna.Length >= 2
+                ? columna.Substring(columna.Length - 2, 2)
+                : string.Empty;
+
+            // Sólo se pintan columnaGanadora.Length signos (legacy); el resto del string son
+            // los dígitos de aciertos, que no se muestran como signos.
+            var signos = new List<SignoJugadoItem>();
+            for (int s = 0; s < colGanadora.Length && s < columna.Length; s++)
             {
-                signos.Add(columna[s].ToString());
+                string signo = columna[s].ToString();
+                bool esAcierto = signo == colGanadora[s].ToString();
+                signos.Add(new SignoJugadoItem { Signo = signo, EsAcierto = esAcierto });
             }
-            ColumnasPremiadas.Add(new ColumnaPremioItem { Signos = signos, Categoria = aciertos });
+
+            ColumnasPremiadas.Add(new ColumnaPremioItem
+            {
+                Signos = signos,
+                Categoria = aciertos,
+                AciertosTexto = aciertosTexto,
+            });
         }
     }
 
