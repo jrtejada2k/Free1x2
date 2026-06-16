@@ -1,10 +1,14 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Free1X2.Analisis;
+using Free1X2.EntradaSalida;
+using Free1X2.Utils;
 using Free1X2.WinUI.Controls;
 using Free1X2.WinUI.Services;
 using Windows.Storage.Pickers;
@@ -17,6 +21,9 @@ namespace Free1X2.WinUI.Views.Ported;
 /// la probabilidad real y de las frecuencias apostadas, recorriendo o bien las 14 triples
 /// completas o las columnas de un fichero, y graba el resultado filtrado por límites de EM.
 /// También permite calcular la valoración (EM) de una sola columna concreta.
+///
+/// El motor de recorrido (EncontrarDistantes1 / ordena / GrabacionColumnas) se transcribe
+/// literalmente de RentabilidadFrm.cs operando sobre Ap14T = ApuestaProbable[3^14].
 /// </summary>
 public partial class RentabilidadFrmViewModel : ObservableObject
 {
@@ -88,10 +95,36 @@ public partial class RentabilidadFrmViewModel : ObservableObject
     [ObservableProperty]
     private string _estadoTexto = "Listo";
 
+    // Evita reentradas mientras se ejecuta el cálculo pesado.
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(CalcularCommand))]
+    private bool _calculando;
+
     private bool ColumnaValida => Columna != null && Columna.Length == 14;
 
     // ---------------------------------------------------------------------
-    // Acciones. La lógica de dominio queda como TODO citando la clase legacy.
+    // Estado del motor (transcrito de los campos de instancia de RentabilidadFrm).
+    // ---------------------------------------------------------------------
+    private const int NumColumnas14T = 4782969; // 3^14
+
+    private readonly int[] pot = new int[] { 1, 3, 9, 27, 81, 243, 729, 2187, 6561, 19683, 59049, 177147, 531441, 1594323 };
+    private float[,] pr = new float[14, 3];
+    private float[,] pa = new float[14, 3];
+    private float[,] Cra = new float[14, 3];
+    private float[,] Crp = new float[14, 3];
+    private ApuestaProbable[] Ap14T = Array.Empty<ApuestaProbable>();
+    private BitArray Bits = new BitArray(NumColumnas14T, false);
+    private float PremioTope;
+    private float PremioDe14;
+    private float Premio;
+    private float Esperanza;
+    private int Profundidad;
+    private double EMmin;
+    private double EMmax;
+    private int NumCols;
+
+    // ---------------------------------------------------------------------
+    // Acciones.
     // ---------------------------------------------------------------------
 
     /// <summary>
@@ -145,8 +178,9 @@ public partial class RentabilidadFrmViewModel : ObservableObject
         float premioDe14 = (float)precioApuesta * (float)pctPremio14 / 100;
         float premioTope = (float)Recaudacion * (float)pctPremio14 / 100;
 
-        float[,] pa = ValoresBase100(PorcentajesHelper.AMatriz(PorcentajesApostados));
-        float[,] pr = ValoresBase100(PorcentajesHelper.AMatriz(PorcentajesReales));
+        // v/p = controlPorcentajes*.Valores ; pa/pr = Porcentajes.ValoresBase100() (RentabilidadFrm.cs 122-130).
+        float[,] paLocal = new Porcentajes(PorcentajesHelper.AMatriz(PorcentajesApostados)).ValoresBase100();
+        float[,] prLocal = new Porcentajes(PorcentajesHelper.AMatriz(PorcentajesReales)).ValoresBase100();
 
         string apuesta = Columna;
         float p14Apostada = 1, p14Real = 1;
@@ -154,9 +188,9 @@ public partial class RentabilidadFrmViewModel : ObservableObject
         {
             switch (apuesta[partido])
             {
-                case '1': p14Apostada *= pa[partido, 0]; p14Real *= pr[partido, 0]; break;
-                case '2': p14Apostada *= pa[partido, 2]; p14Real *= pr[partido, 2]; break;
-                default: p14Apostada *= pa[partido, 1]; p14Real *= pr[partido, 1]; break;
+                case '1': p14Apostada *= paLocal[partido, 0]; p14Real *= prLocal[partido, 0]; break;
+                case '2': p14Apostada *= paLocal[partido, 2]; p14Real *= prLocal[partido, 2]; break;
+                default: p14Apostada *= paLocal[partido, 1]; p14Real *= prLocal[partido, 1]; break;
             }
         }
 
@@ -170,27 +204,13 @@ public partial class RentabilidadFrmViewModel : ObservableObject
         EstadoTexto = "Valoración calculada";
     }
 
-    // Legacy: Free1X2.Utils.Porcentajes.ValoresBase100() (Free1X2/Utils/Porcentajes.cs línea 341).
-    // Normaliza cada fila (1/X/2) a tanto-por-uno dividiendo por la suma de la fila. Se replica aquí
-    // porque ese helper vive en el proyecto WinForms y no está en Free1X2.Domain.
-    private static float[,] ValoresBase100(double[,] valores)
-    {
-        var b100 = new float[14, 3];
-        for (int i = 0; i < 14; i++)
-        {
-            float factor = (float)(valores[i, 0] + valores[i, 1] + valores[i, 2]);
-            for (int j = 0; j < 3; j++)
-                b100[i, j] = (float)(valores[i, j] / factor);
-        }
-        return b100;
-    }
-
     /// <summary>
     /// Calcula la rentabilidad de todas las columnas y graba el fichero de salida.
     /// Legacy: RentabilidadFrm.btnOK_Click (EncontrarDistantes1 + ordena + GrabacionColumnas).
+    /// Recorrido pesado del 3^14 -> Task.Run; estado por DispatcherQueue.
     /// </summary>
-    [RelayCommand]
-    private void Calcular()
+    [RelayCommand(CanExecute = nameof(PuedeCalcular))]
+    private async Task Calcular()
     {
         // Validación de ficheros (origen fichero requiere FicheroEntrada; salida siempre).
         if (string.IsNullOrEmpty(FicheroSalida) ||
@@ -200,16 +220,222 @@ public partial class RentabilidadFrmViewModel : ObservableObject
             return;
         }
 
-        // La parte de matriz SÍ se cablea: v/p = .Valores de los dos ControlPorcentajes
-        // (RentabilidadFrm.cs 889/890) y su normalización base-100 (895/897):
-        float[,] pa = ValoresBase100(PorcentajesHelper.AMatriz(PorcentajesApostados));
-        float[,] pr = ValoresBase100(PorcentajesHelper.AMatriz(PorcentajesReales));
-        _ = (pa, pr);
+        // Snapshot de los parámetros de UI (se leen en el hilo de UI antes del Task.Run).
+        double precioApuesta = Free1X2.VariablesGlobales.PrecioApuesta;
+        double pctPremio14 = Free1X2.VariablesGlobales.Porcentaje14;
+        PremioDe14 = (float)precioApuesta * (float)pctPremio14 / 100;
+        PremioTope = (float)Recaudacion * (float)pctPremio14 / 100;
 
-        // TODO[motor]: replicar btnOK_Click (RentabilidadFrm.cs 852) + EncontrarDistantes1 (949) +
-        //   ordena() + GrabacionColumnas(). Las matrices base-100 (pa/pr) ya están listas para
-        //   alimentar el recorrido, pero el motor recorre Ap14T = ApuestaProbableCentral[4782969]
-        //   (Bits, Cra/Crp, pot[]) y graba el fichero filtrado por EmMin/EmMax — no portado al dominio.
-        EstadoTexto = "Matrices listas; falta el motor de recorrido de 14 triples (RentabilidadFrm.cs 852)";
+        // v/p = controlPorcentajes*.Valores -> Porcentajes.ValoresBase100() (RentabilidadFrm.cs 889-897).
+        pa = new Porcentajes(PorcentajesHelper.AMatriz(PorcentajesApostados)).ValoresBase100();
+        pr = new Porcentajes(PorcentajesHelper.AMatriz(PorcentajesReales)).ValoresBase100();
+
+        bool origenFichero = OrigenEsFichero;
+        string ficheroEntrada = FicheroEntrada;
+        string ficheroSalida = FicheroSalida;
+        bool ordenar = OrdenarPorEm;
+        bool ponerEm = AnadirEmAlFichero;
+        double emMinTxt = EmMin;
+        double emMaxTxt = EmMax;
+
+        Calculando = true;
+        try
+        {
+            await Task.Run(() =>
+            {
+                ActualizarEstado("Inicializando...");
+
+                // -- Inicializamos el array por si ejecutamos por 2ª vez -- (RentabilidadFrm.cs 859-863).
+                Ap14T = new ApuestaProbable[NumColumnas14T];
+                for (int i = 0; i < NumColumnas14T; i++)
+                {
+                    Ap14T[i].Columna = i;
+                    Ap14T[i].Probabilidad = 0;
+                }
+
+                // Cargamos las columnas a analizar (RentabilidadFrm.cs 867-876).
+                if (origenFichero)
+                {
+                    ActualizarEstado("Leyendo columnas...");
+                    LeerColumnas(ficheroEntrada);   // Fichero
+                }
+                else
+                {
+                    Bits = new BitArray(NumColumnas14T, true); // 14 triples
+                }
+
+                ActualizarEstado("Calculando...");
+
+                float[] p14 = new float[2];
+                short Partido;
+
+                p14[0] = 1; // Probabilidad apostada
+                p14[1] = 1; // Probabilidad real
+
+                //-- probabilidad de la apuesta 11111111111111 -- (RentabilidadFrm.cs 905-916).
+                for (Partido = 0; Partido < 14; Partido++)
+                {
+                    p14[0] *= pa[Partido, 0];
+                    p14[1] *= pr[Partido, 0];
+
+                    //--valores cuando se falla cada uno de los signos, a usar para evaluar los 13's-----
+                    Cra[Partido, 0] = pa[Partido, 1] / pa[Partido, 0];
+                    Cra[Partido, 1] = pa[Partido, 2] / pa[Partido, 0];
+                    Crp[Partido, 0] = pr[Partido, 1] / pr[Partido, 0];
+                    Crp[Partido, 1] = pr[Partido, 2] / pr[Partido, 0];
+                }
+
+                Profundidad = 0;
+                Premio = PremioDe14 / p14[0];
+                if (Premio > PremioTope) Premio = PremioTope;
+                Esperanza = Premio * p14[1];
+                if (Bits[0])
+                {
+                    Ap14T[0].Columna = 0;
+                    Ap14T[0].Probabilidad = -Esperanza;
+                }
+                else
+                {
+                    Ap14T[0].Probabilidad = (float)3E+7;
+                }
+
+                EncontrarDistantes1(p14[0], p14[1], 0, 0, 14);
+
+                if (ordenar)
+                {
+                    ActualizarEstado("Ordenando...");
+                    ordena(0, 4782968);
+                }
+
+                ActualizarEstado("Grabando...");
+                GrabacionColumnas(ficheroSalida, emMinTxt, emMaxTxt, ponerEm);
+
+                ActualizarEstado("Finalizado (" + NumCols.ToString() + " columnas)");
+            });
+        }
+        catch (Exception ex)
+        {
+            ActualizarEstado("Error: " + ex.Message);
+        }
+        finally
+        {
+            Calculando = false;
+        }
+    }
+
+    private bool PuedeCalcular() => !Calculando;
+
+    // statusBarPanel6.Text legacy -> EstadoTexto marshalado al hilo de UI.
+    private void ActualizarEstado(string texto)
+    {
+        var disp = AppServices.UiDispatcher;
+        if (disp is null) { EstadoTexto = texto; return; }
+        disp.TryEnqueue(() => EstadoTexto = texto);
+    }
+
+    // ---------------------------------------------------------------------
+    // Motor transcrito literalmente de RentabilidadFrm.cs.
+    // ---------------------------------------------------------------------
+
+    // RentabilidadFrm.cs 1044-1049.
+    private void LeerColumnas(string ficheroEntrada)
+    {
+        IArchivoColumnas comBaseCols = new ArchivoColumnasTexto(ficheroEntrada);
+        Bits = comBaseCols.LeerTodasColsABitArray(14);
+        comBaseCols.Cerrar();
+    }
+
+    // RentabilidadFrm.cs 949-981.
+    private void EncontrarDistantes1(float pProbA, float pProbR, int IndiceInicial, int PosicionInicial, int pProfundidad)
+    {
+        int Partido;
+        int z;
+        int Indice;
+        float ProbA;
+        float ProbR;
+        Profundidad++;
+
+        //'--encontramos las apuestas que se diferencian en un solo signo ----
+        for (Partido = PosicionInicial; Partido < 14; Partido++)
+        {
+            for (z = 0; z < 2; z++)
+            {
+                Indice = IndiceInicial + pot[Partido] * (z + 1);
+                ProbA = pProbA * Cra[Partido, z];
+                ProbR = pProbR * Crp[Partido, z];
+                Premio = PremioDe14 / ProbA;
+                if (Premio > PremioTope) Premio = PremioTope;
+                Esperanza = Premio * ProbR;
+                if (Bits[Indice])
+                {
+                    Ap14T[Indice].Columna = Indice;
+                    Ap14T[Indice].Probabilidad = -Esperanza;
+                }
+                if (Profundidad < pProfundidad)
+                {
+                    EncontrarDistantes1(ProbA, ProbR, Indice, Partido + 1, pProfundidad);
+                }
+            }
+        }
+        Profundidad--;
+    }
+
+    // RentabilidadFrm.cs 1078-1107.
+    private void ordena(int izq, int der)
+    {
+        int i = 0, j = 0;
+        ApuestaProbable x = new ApuestaProbable();
+        ApuestaProbable aux = new ApuestaProbable();
+        i = izq;
+        j = der;
+        x = Ap14T[(izq + der) / 2];
+
+        do
+        {
+            while ((Ap14T[i].Probabilidad < x.Probabilidad) && (j <= der))
+            {
+                i++;
+            }
+            while ((x.Probabilidad < Ap14T[j].Probabilidad) && (j > izq))
+            {
+                j--;
+            }
+            if (i <= j)
+            {
+                aux = Ap14T[i];
+                Ap14T[i] = Ap14T[j];
+                Ap14T[j] = aux;
+                i++; j--;
+            }
+        } while (i <= j);
+        if (izq < j) ordena(izq, j);
+        if (i < der) ordena(i, der);
+    }
+
+    // RentabilidadFrm.cs 1051-1077.
+    private void GrabacionColumnas(string archivoSalida, double emMinTxt, double emMaxTxt, bool ponerEm)
+    {
+        EMmin = -emMinTxt;
+        EMmax = -emMaxTxt;
+        ConvertidorDeBases col = new ConvertidorDeBases();
+        IArchivoColumnas comCols = new ArchivoColumnasTexto(archivoSalida);
+        NumCols = 0;
+        if (ponerEm)
+        {
+            for (int nr = 0; nr < NumColumnas14T; nr++)
+            {
+                if (Bits[Ap14T[nr].Columna] && Ap14T[nr].Probabilidad >= EMmax && Ap14T[nr].Probabilidad <= EMmin)
+                { comCols.GuardarColsComa(col.ConvNumAColumna(Ap14T[nr].Columna) + (char)9 + (-Ap14T[nr].Probabilidad)); NumCols++; }
+            }
+        }
+        else
+        {
+            for (int nr = 0; nr < NumColumnas14T; nr++)
+            {
+                if (Bits[Ap14T[nr].Columna] && Ap14T[nr].Probabilidad >= EMmax && Ap14T[nr].Probabilidad <= EMmin)
+                { comCols.GuardarCols(col.ConvNumAColumna(Ap14T[nr].Columna)); NumCols++; }
+            }
+        }
+        comCols.Cerrar();
     }
 }
