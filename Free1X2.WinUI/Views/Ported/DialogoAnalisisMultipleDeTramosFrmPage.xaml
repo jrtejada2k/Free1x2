@@ -245,8 +245,8 @@
                                         </Grid>
 
                                         <ListView ItemsSource="{x:Bind ViewModel.Combinaciones, Mode=OneWay}"
-                                                  SelectedItem="{x:Bind ViewModel.CombinacionSeleccionada, Mode=TwoWay}"
-                                                  SelectionMode="Single"
+                                                  SelectionMode="Multiple"
+                                                  SelectionChanged="CombinacionesListView_SelectionChanged"
                                                   MaxHeight="320"
                                                   AutomationProperties.Name="Lista de combinaciones por jornada">
                                             <ListView.ItemContainerStyle>

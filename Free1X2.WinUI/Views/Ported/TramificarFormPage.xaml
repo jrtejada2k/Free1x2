@@ -2,7 +2,8 @@
 <Page
     x:Class="Free1X2.WinUI.Views.Ported.TramificarFormPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ported="using:Free1X2.WinUI.Views.Ported">
 
     <ScrollViewer>
         <StackPanel Padding="32" Spacing="24" MaxWidth="980" HorizontalAlignment="Left">
@@ -376,15 +377,100 @@
                 </StackPanel>
             </Border>
 
-            <!-- ===== Resultados (rejilla dgResultados / dgResultadosPrAcum) ===== -->
+            <!-- ===== Resultados (rejilla dgResultados sobre la lista de Tramos) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
                 <StackPanel Spacing="12">
                     <TextBlock Text="Resultados" Style="{StaticResource CardTitleTextBlockStyle}" />
-                    <TextBlock Text="Aquí se mostrarán los tramos calculados y su probabilidad acumulada. La rejilla de resultados se portará por separado."
+                    <TextBlock Text="Tramos calculados con su probabilidad acumulada, columnas premiadas por categoría (14..10), importe de premios y balance. Se rellena al pulsar «Tramificar»."
                                Style="{StaticResource SecondaryTextBlockStyle}" TextWrapping="Wrap" />
-                    <!-- TODO: Dominio legacy — rejillas dgResultados (tramos) y dgResultadosPrAcum
-                         (probabilidad acumulada) de TramificarForm, alimentadas por la lógica de
-                         escrutinio/valoración (MotorCalculo, Escrutinio, ApuestaProbEscrutada). -->
+
+                    <!-- Cabecera de columnas (legacy dgResultados.InicializaGridResultados) -->
+                    <Grid ColumnSpacing="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="40" />
+                            <ColumnDefinition Width="70" />
+                            <ColumnDefinition Width="70" />
+                            <ColumnDefinition Width="55" />
+                            <ColumnDefinition Width="75" />
+                            <ColumnDefinition Width="32" />
+                            <ColumnDefinition Width="32" />
+                            <ColumnDefinition Width="32" />
+                            <ColumnDefinition Width="32" />
+                            <ColumnDefinition Width="32" />
+                            <ColumnDefinition Width="60" />
+                            <ColumnDefinition Width="80" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Nº" Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Column="1" Text="Col. Inf." Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Column="2" Text="Col. Sup." Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Column="3" Text="Nº Cols." Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Column="4" Text="Prob. Max." Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Column="5" Text="14" Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Column="6" Text="13" Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Column="7" Text="12" Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Column="8" Text="11" Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Column="9" Text="10" Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Column="10" Text="NºPremios" Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Column="11" Text="Imp.Premios" Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Column="12" Text="Ingresos-Gastos" Style="{StaticResource SecondaryTextBlockStyle}" />
+                    </Grid>
+
+                    <ListView ItemsSource="{x:Bind ViewModel.Resultados, Mode=OneWay}"
+                              SelectionMode="None"
+                              MaxHeight="360"
+                              AutomationProperties.Name="Tramos calculados">
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="Padding" Value="0,2" />
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                <Setter Property="MinHeight" Value="0" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="ported:TramoFilaViewModel">
+                                <Grid ColumnSpacing="8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="40" />
+                                        <ColumnDefinition Width="70" />
+                                        <ColumnDefinition Width="70" />
+                                        <ColumnDefinition Width="55" />
+                                        <ColumnDefinition Width="75" />
+                                        <ColumnDefinition Width="32" />
+                                        <ColumnDefinition Width="32" />
+                                        <ColumnDefinition Width="32" />
+                                        <ColumnDefinition Width="32" />
+                                        <ColumnDefinition Width="32" />
+                                        <ColumnDefinition Width="60" />
+                                        <ColumnDefinition Width="80" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{x:Bind NumeroDeTramo}" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Column="1" Text="{x:Bind ColInferior}" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Column="2" Text="{x:Bind ColSuperior}" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Column="3" Text="{x:Bind NumColumnas}" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Column="4" Text="{x:Bind ProbMax}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Grid.Column="5" Text="{x:Bind P14}" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Column="6" Text="{x:Bind P13}" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Column="7" Text="{x:Bind P12}" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Column="8" Text="{x:Bind P11}" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Column="9" Text="{x:Bind P10}" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Column="10" Text="{x:Bind NumPremios}" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Column="11" Text="{x:Bind ImportePremios}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Grid.Column="12" Text="{x:Bind Balance}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Button Content="Ver gráficas"
+                                Command="{x:Bind ViewModel.VerGraficasCommand}"
+                                AutomationProperties.Name="Ver gráficas de los tramos" />
+                        <Button Content="Análisis múltiple"
+                                Command="{x:Bind ViewModel.AnalisisMultipleCommand}"
+                                AutomationProperties.Name="Definir análisis múltiple de jornadas" />
+                    </StackPanel>
                 </StackPanel>
             </Border>
 

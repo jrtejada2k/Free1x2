@@ -118,6 +118,14 @@ public partial class DialogoAnalisisMultipleDeTramosFrmViewModel : ObservableObj
     [ObservableProperty]
     private CombinacionFilaViewModel? _combinacionSeleccionada;
 
+    /// <summary>
+    /// Filas seleccionadas en la lista (legacy dgListaFicheros con multiselección). WinUI no
+    /// permite enlazar (x:Bind) la selección múltiple de un ListView a una colección del VM, así
+    /// que la página la mantiene en sync desde su SelectionChanged (cf. CopiarCPFrmPage). Replica
+    /// el recorrido de dgListaFicheros.IsSelected(i) del legacy btEliminar_Click.
+    /// </summary>
+    public ObservableCollection<CombinacionFilaViewModel> CombinacionesSeleccionadas { get; } = new();
+
     /// <summary>Temporada de inicio (legacy txTemporada). Su +1 se muestra como temporada2.</summary>
     [ObservableProperty]
     private double _temporada = 2004;
@@ -311,24 +319,32 @@ public partial class DialogoAnalisisMultipleDeTramosFrmViewModel : ObservableObj
     [RelayCommand]
     private void EliminarCombinacion()
     {
-        // Legacy btEliminar_Click: elimina de ListaCombinaciones las filas seleccionadas en el
-        // grid. En el XAML solo hay una fila seleccionable enlazada (CombinacionSeleccionada);
-        // se elimina esa de ambos modelos (dominio y vista) manteniendo su correspondencia.
-        var fila = CombinacionSeleccionada;
-        if (fila == null) return;
+        // Legacy btEliminar_Click (Free1X2/UI/DialogoAnalisisMultipleDeTramosFrm.cs línea 1044):
+        //   for (int i = ListaCombinaciones.Count-1; i>-1; i--)
+        //       if (dgListaFicheros.IsSelected(i)) ListaCombinaciones.RemoveAt(i);
+        //   GridDataBind();
+        // Aquí la selección múltiple del ListView se refleja en CombinacionesSeleccionadas (la
+        // página la sincroniza en SelectionChanged). Recorremos la VISTA (Combinaciones) en orden
+        // inverso —igual que el legacy recorre el grid— y, por cada fila seleccionada, eliminamos
+        // la entrada correspondiente de ambos modelos (vista + dominio) manteniendo su índice 1:1.
 
-        int idx = Combinaciones.IndexOf(fila);
-        if (idx >= 0)
+        // Conjunto de filas a borrar: las multiseleccionadas y, como respaldo (selección simple),
+        // la fila marcada como actual. Así el botón sigue funcionando aunque solo haya una.
+        var seleccionadas = new HashSet<CombinacionFilaViewModel>(CombinacionesSeleccionadas);
+        if (CombinacionSeleccionada != null) seleccionadas.Add(CombinacionSeleccionada);
+        if (seleccionadas.Count == 0) return;
+
+        for (int i = Combinaciones.Count - 1; i > -1; i--)
         {
-            Combinaciones.RemoveAt(idx);
-            if (idx < ListaCombinaciones.Count)
+            if (!seleccionadas.Contains(Combinaciones[i])) continue;
+            Combinaciones.RemoveAt(i);
+            if (i < ListaCombinaciones.Count)
             {
-                ListaCombinaciones.RemoveAt(idx);
+                ListaCombinaciones.RemoveAt(i);
             }
         }
+        CombinacionesSeleccionadas.Clear();
         CombinacionSeleccionada = null;
-        // TODO: borrado multiselección (legacy recorría dgListaFicheros.IsSelected de N filas) —
-        //       requiere enlazar ListView.SelectedItems; ver Free1X2/UI/DialogoAnalisisMultipleDeTramosFrm.cs línea 1044.
     }
 
     [RelayCommand]
