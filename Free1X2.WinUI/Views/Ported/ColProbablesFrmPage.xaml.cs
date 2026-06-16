@@ -17,6 +17,7 @@ namespace Free1X2.WinUI.Views.Ported
         {
             this.InitializeComponent();
             ViewModel.Volver = () => { if (Frame?.CanGoBack == true) Frame.GoBack(); };
+            ViewModel.Navegar = (tipo, parametro) => Frame?.Navigate(tipo, parametro);
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)

@@ -228,6 +228,12 @@ namespace Free1X2.WinUI.Views.Ported
         /// <summary>Acción de cierre/volver (la cablea la página con Frame.GoBack()). Legacy: cerrar diálogo.</summary>
         public Action? Volver { get; set; }
 
+        /// <summary>
+        /// Acción para navegar a otra página, opcionalmente con parámetro (la cablea la página con
+        /// Frame.Navigate(tipo, parametro)). Mismo patrón que PosiblesPremiosFrmPage.
+        /// </summary>
+        public Action<Type, object?>? Navegar { get; set; }
+
         public ColProbablesFrmViewModel()
         {
             CargarDesdeGrupo();
@@ -600,26 +606,34 @@ namespace Free1X2.WinUI.Views.Ported
         [RelayCommand]
         private void CopiarDatos()
         {
-            // TODO[navegación]: ColProbablesFrm.CopiaValoresCP (Free1X2/UI/Filtros/ColProbablesFrm.cs línea 761)
-            //   abría CopiarDatosCPFrm para elegir un rango [Desde,Hasta] y copiaba los rangos AC/ACS/FS
-            //   de la columna en pantalla a ese rango. En WinUI: navegar a CopiarDatosCPFrmPage (que ya
-            //   devuelve el rango con ResultadoConfirmado) y aplicar el bucle de copia sobre _grupoCP.
+            // Legacy ColProbablesFrm.CopiaValoresCP (Free1X2/UI/Filtros/ColProbablesFrm.cs línea 761):
+            //   abría CopiarDatosCPFrm(cpPantalla + 1, grupoCP.Count) para elegir un rango [Desde,Hasta].
+            // El rango inicial se pasa como parámetro de navegación, igual que el constructor legacy;
+            // CopiarDatosCPFrmPage.OnNavigatedTo lo consume vía ValueTuple<double,double>.
+            if (_grupoCP.Count == 0) return; // legacy: if (grupoCP.Count == 0) return;
+            Navegar?.Invoke(
+                typeof(CopiarDatosCPFrmPage),
+                ((double)(_cpPantalla + 1), (double)_grupoCP.Count));
+            // NOTA: tras elegir el rango, el legacy aplicaba sobre _grupoCP el bucle de copia de los
+            //   rangos AC/ACS/FS (líneas 791-809) leyendo el resultado del diálogo (Desde/Hasta +
+            //   ResultadoConfirmado). Ese paso requiere recuperar el resultado al volver de la página
+            //   (callback de navegación), no cableado en este patrón Navegar; queda fuera de alcance aquí.
         }
 
         [RelayCommand]
         private void CopiarColumnas()
         {
-            // TODO[navegación]: ColProbablesFrm btnCopiarCols abría CopiarCPFrm para copiar columnas a
-            //   otros grupos. En WinUI existe CopiarCPFrmPage (ya cableada al motor): navegar a ella
-            //   tras fijar AppState.GrupoEnEdicion con el grupo de origen.
+            // Legacy ColProbablesFrm.btnCopiarCols_Click (línea 3039): abría CopiarCPFrm(grupoCP, this)
+            //   para copiar columnas a otros grupos. CopiarCPFrmPage toma el origen de
+            //   AppState.GrupoEnEdicion (el mismo grupo en edición que esta pantalla), así que basta navegar.
+            Navegar?.Invoke(typeof(CopiarCPFrmPage), null);
         }
 
         [RelayCommand]
         private void CambiarPuntuacion()
         {
-            // TODO[dominio]: ColProbablesFrm btnPuntuacion ajustaba la puntuación (puntos fijos/dobles/
-            //   triples) vía FiltroColProbables.InicializaPuntosCP — requiere el diálogo de puntuación
-            //   del WinForms (no portado).
+            // Legacy ColProbablesFrm.btnPuntuacion_Click (línea 3092): CambioPuntosFrm f = new(); f.ShowDialog();
+            Navegar?.Invoke(typeof(CambioPuntosFrmPage), null);
         }
 
         [RelayCommand]
