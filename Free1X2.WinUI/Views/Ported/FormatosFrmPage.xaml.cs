@@ -22,12 +22,18 @@ public sealed partial class FormatosFrmPage : Page
     {
         this.InitializeComponent();
         ViewModel.Volver = () => { if (Frame?.CanGoBack == true) Frame.GoBack(); };
+        ViewModel.Navegar = tipo => Frame?.Navigate(tipo);
     }
 
     protected override void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
-        ViewModel.CargarDesdeGrupo();
+        // Al volver del visor de estadísticas (NavigationMode.Back) no recargamos desde el grupo
+        // para no perder los formatos en edición; en la entrada normal cargamos.
+        if (e.NavigationMode != NavigationMode.Back)
+        {
+            ViewModel.CargarDesdeGrupo();
+        }
     }
 
     // ===== Utilidades de formatos =====
@@ -63,37 +69,38 @@ public sealed partial class FormatosFrmPage : Page
 
     private void OnEstadisticas(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
-        // TODO (dominio): construir un FiltroFormatosSignos temporal y llamar a
-        // Free1X2.MotorCalculo.Estadisticas.CalculadorEstadisticas.EstadisticasFiltro(...)
-        // para mostrar el visor de estadísticas.
+        // FiltroFormatosSignos temporal -> CalculadorEstadisticas -> VisorEstadisticasPage.
+        ViewModel.EstadisticasCommand.Execute(null);
     }
 
     private void OnGuardar(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
-        // TODO (dominio): persistir vía Free1X2.EntradaSalida.ArchivoCondiciones.GuardaArchivo(filtro)
-        // (formato *.fmt / *.xml) usando un FileSavePicker.
+        // ArchivoCondiciones.GuardaArchivo(filtro) (*.fmt / *.xml) vía FileSavePicker.
+        ViewModel.GuardarCommand.Execute(null);
     }
 
     private void OnAbrir(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
-        // TODO (dominio): cargar vía Free1X2.EntradaSalida.ArchivoCondiciones.AbrirArchivoCombinacion(...)
-        // + LeeCondicion() usando un FileOpenPicker, y recargar el ViewModel.
+        // ArchivoCondiciones.AbrirArchivoCombinacion(...) + LeeCondicion() vía FileOpenPicker.
+        ViewModel.AbrirCommand.Execute(null);
     }
 
     private void OnCopiar(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
-        // TODO (dominio): copiar la condición actual a un fichero temporal (tmp.fmt)
-        // como hace el legacy con ArchivoCondiciones.
+        // Copia la condición al fichero temporal interno (Temp/tmp.fmt).
+        ViewModel.CopiarCommand.Execute(null);
     }
 
     private void OnPegar(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
-        // TODO (dominio): pegar desde el fichero temporal (tmp.fmt) recargando el ViewModel.
+        // Pega la condición desde el fichero temporal interno (Temp/tmp.fmt).
+        ViewModel.PegarCommand.Execute(null);
     }
 
     private void OnBorrar(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
-        // TODO (dominio): reiniciar el FiltroFormatosSignos y recargar el ViewModel.
+        // Reinicia el FiltroFormatosSignos del grupo y recarga la pantalla.
+        ViewModel.BorrarCommand.Execute(null);
     }
 
     private void OnCancelar(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)

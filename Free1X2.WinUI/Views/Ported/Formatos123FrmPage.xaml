@@ -189,6 +189,8 @@
                 <Button Content="Estadísticas" Command="{x:Bind ViewModel.EstadisticasCommand}" />
                 <Button Content="Guardar" Command="{x:Bind ViewModel.GuardarCommand}" />
                 <Button Content="Abrir" Command="{x:Bind ViewModel.AbrirCommand}" />
+                <Button Content="Copiar" Command="{x:Bind ViewModel.CopiarCommand}" />
+                <Button Content="Pegar" Command="{x:Bind ViewModel.PegarCommand}" />
                 <Button Content="Borrar" Command="{x:Bind ViewModel.BorrarCommand}" />
                 <Button Content="Cancelar" Command="{x:Bind ViewModel.CancelarCommand}" />
             </StackPanel>

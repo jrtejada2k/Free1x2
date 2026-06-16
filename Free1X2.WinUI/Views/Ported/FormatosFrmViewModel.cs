@@ -1,12 +1,18 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Free1X2;
+using Free1X2.EntradaSalida;
 using Free1X2.MotorCalculo;
+using Free1X2.MotorCalculo.Estadisticas;
 using Free1X2.Utils;
 using Free1X2.WinUI.Services;
+using Windows.Storage;
+using Windows.Storage.Pickers;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -72,6 +78,17 @@ public partial class FormatosFrmViewModel : ObservableObject
 
     /// <summary>Acción para volver atrás (la cablea la página con Frame.GoBack()). CerrarVentana() legacy.</summary>
     public Action? Volver { get; set; }
+
+    /// <summary>Acción para navegar a otra página (la cablea la página con Frame.Navigate(tipo)).</summary>
+    public Action<Type>? Navegar { get; set; }
+
+    // Fichero temporal de copiar/pegar (legacy: StartupPath + "/Temp/tmp.fmt").
+    private static string RutaTemporal =>
+        Path.Combine(AppContext.BaseDirectory, "Temp", "tmp.fmt");
+
+    // Directorio de columnas ganadoras (legacy: StartupPath + "/Ganadoras/").
+    private static string DirectorioGanadoras =>
+        Path.Combine(AppContext.BaseDirectory, "Ganadoras") + Path.DirectorySeparatorChar;
 
     public FormatosFrmViewModel()
     {
@@ -282,5 +299,171 @@ public partial class FormatosFrmViewModel : ObservableObject
         OnPropertyChanged(nameof(ContadorTexto));
         OnPropertyChanged(nameof(PuedeRetroceder));
         RetrocederCommand.NotifyCanExecuteChanged();
+    }
+
+    // ===== Persistencia y estadísticas (menuCondiciones legacy) =====
+
+    /// <summary>
+    /// Construye un FiltroFormatosSignos temporal con las relaciones de pantalla.
+    /// Réplica de FormatosFrm.ObtenerFiltroTemporal() (FormatosFrm.cs líneas 376-...).
+    /// </summary>
+    private FiltroFormatosSignos ObtenerFiltroTemporal()
+    {
+        var filtroTemp = new FiltroFormatosSignos();
+        var grupoFormatos = ConstruirFormatos();
+        if (grupoFormatos.Count > 0)
+        {
+            filtroTemp.ContieneDatos = true;
+            filtroTemp.IsActive = true;
+        }
+        filtroTemp.FormatosSignos = grupoFormatos;
+        return filtroTemp;
+    }
+
+    // Vuelca una lista de FormatosSignos al filtro del grupo en edición.
+    private FiltroFormatosSignos? ObtenerFiltroGrupo()
+    {
+        var grupo = AppState.GrupoEnEdicion;
+        if (grupo is null) return null;
+        return (FiltroFormatosSignos)grupo.GetFiltro(Filtro.FormatosSignos.ToString());
+    }
+
+    // Guarda en disco el filtro temporal (FormatosFrm.guardar(), líneas 968-978).
+    private void GuardarEn(string nombreArchivo)
+    {
+        var filtroTemp = ObtenerFiltroTemporal();
+        var archComb = new ArchivoCondiciones { NombreArchivo = nombreArchivo };
+        if (filtroTemp.FormatosSignos.Count > 0)
+        {
+            filtroTemp.ContieneDatos = true;
+            filtroTemp.IsActive = true;
+        }
+        archComb.GuardaArchivo(filtroTemp);
+    }
+
+    // Abre la condición desde disco, vuelca al filtro del grupo y recarga la pantalla
+    // (FormatosFrm.abrir(), líneas 955-966).
+    private void AbrirDesde(string nombreArchivo)
+    {
+        var filtroGrupo = ObtenerFiltroGrupo();
+        if (filtroGrupo is null) return;
+
+        var archComb = new ArchivoCondiciones();
+        if (!archComb.AbrirArchivoCombinacion(nombreArchivo)) return;
+
+        Grupo g = archComb.LeeCondicion();
+        var leido = (FiltroFormatosSignos)g.GetFiltro("FormatosSignos");
+        filtroGrupo.FormatosSignos = leido.FormatosSignos;
+        filtroGrupo.ContieneDatos = leido.ContieneDatos;
+        filtroGrupo.IsActive = leido.IsActive;
+
+        CargarDesdeGrupo();
+    }
+
+    /// <summary>Calcula estadísticas del filtro temporal de formatos (menuCondiciones1_BEstadisticas).</summary>
+    [RelayCommand]
+    private void Estadisticas()
+    {
+        // Equivale a FormatosFrm.menuCondiciones1_BEstadisticas (FormatosFrm.cs líneas 1028-1038).
+        var filtroTemp = ObtenerFiltroTemporal();
+        var calc = new CalculadorEstadisticas();
+        List<Estadistica> lista = calc.EstadisticasFiltro(filtroTemp, DirectorioGanadoras);
+
+        VisorEstadisticasViewModel.UltimasEstadisticas = lista;
+        Navegar?.Invoke(typeof(VisorEstadisticasPage));
+    }
+
+    /// <summary>Guarda la condición de formatos a un archivo .fmt/.xml.</summary>
+    [RelayCommand]
+    private async Task Guardar()
+    {
+        // Equivale a FormatosFrm.menuCondiciones1_BGuardar (FormatosFrm.cs líneas 944-953).
+        var picker = new FileSavePicker
+        {
+            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
+            SuggestedFileName = "Formatos",
+        };
+        picker.FileTypeChoices.Add("Formatos", new List<string> { ".fmt" });
+        picker.FileTypeChoices.Add("Formatos (XML)", new List<string> { ".xml" });
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        StorageFile? file = await picker.PickSaveFileAsync();
+        if (file == null) return;
+
+        try
+        {
+            GuardarEn(file.Path);
+        }
+        catch (Exception ex)
+        {
+            AppServices.MostrarError("No se pudo guardar: " + ex.Message);
+        }
+    }
+
+    /// <summary>Abre una condición de formatos desde un archivo .fmt/.xml.</summary>
+    [RelayCommand]
+    private async Task Abrir()
+    {
+        // Equivale a FormatosFrm.menuCondiciones1_BAbrir (FormatosFrm.cs líneas 929-942).
+        var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
+        picker.FileTypeFilter.Add(".fmt");
+        picker.FileTypeFilter.Add(".xml");
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        StorageFile? file = await picker.PickSingleFileAsync();
+        if (file == null) return;
+
+        try
+        {
+            AbrirDesde(file.Path);
+        }
+        catch (Exception ex)
+        {
+            AppServices.MostrarError("No se pudo abrir: " + ex.Message);
+        }
+    }
+
+    /// <summary>Copia la condición de formatos al fichero temporal interno.</summary>
+    [RelayCommand]
+    private void Copiar()
+    {
+        // Equivale a FormatosFrm.menuCondiciones1_BCopiar (FormatosFrm.cs líneas 993-1001).
+        try
+        {
+            string ruta = RutaTemporal;
+            Directory.CreateDirectory(Path.GetDirectoryName(ruta)!);
+            GuardarEn(ruta);
+        }
+        catch (Exception ex)
+        {
+            AppServices.MostrarError("No se pudo copiar: " + ex.Message);
+        }
+    }
+
+    /// <summary>Pega la condición de formatos desde el fichero temporal interno.</summary>
+    [RelayCommand]
+    private void Pegar()
+    {
+        // Equivale a FormatosFrm.menuCondiciones1_BPegar (FormatosFrm.cs líneas 1003-1013).
+        if (File.Exists(RutaTemporal))
+        {
+            AbrirDesde(RutaTemporal);
+        }
+    }
+
+    /// <summary>Borra los datos del filtro de formatos (menuCondiciones1_BBorrar).</summary>
+    [RelayCommand]
+    private void Borrar()
+    {
+        // Equivale a FormatosFrm.menuCondiciones1_BBorrar (FormatosFrm.cs líneas 980-991):
+        //   reinstancia el FiltroFormatosSignos del grupo y recarga la pantalla vacía.
+        var filtroGrupo = ObtenerFiltroGrupo();
+        if (filtroGrupo is not null)
+        {
+            filtroGrupo.FormatosSignos = new List<FormatosSignos>();
+            filtroGrupo.ContieneDatos = false;
+            filtroGrupo.IsActive = false;
+        }
+        CargarDesdeGrupo();
     }
 }
