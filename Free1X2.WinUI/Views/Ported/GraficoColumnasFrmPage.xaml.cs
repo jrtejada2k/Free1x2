@@ -33,10 +33,12 @@ public sealed partial class GraficoColumnasFrmPage : Page
     {
         InitializeComponent();
 
-        // El render real del gráfico (líneas verticales por apuesta sobre 10 franjas de 959x25)
-        // se hace aquí con WinUI Shapes a partir de las coordenadas ya calculadas por el VM en
-        // ViewModel.LineasGrafico. Se redibuja cuando esa colección cambia.
+        // El render real del gráfico (rectángulos de relleno granate + líneas verticales por apuesta
+        // sobre 10 franjas de 959x25) se hace aquí con WinUI Shapes a partir de las coordenadas ya
+        // calculadas por el VM en ViewModel.LineasGrafico y ViewModel.RectangulosRelleno. Se redibuja
+        // cuando cualquiera de esas colecciones cambia.
         ViewModel.LineasGrafico.CollectionChanged += LineasGrafico_CollectionChanged;
+        ViewModel.RectangulosRelleno.CollectionChanged += LineasGrafico_CollectionChanged;
         Loaded += (_, _) => Redibujar();
     }
 
@@ -59,6 +61,8 @@ public sealed partial class GraficoColumnasFrmPage : Page
 
         Color colorMarco = ColorDeRecurso("AppBorderBrush", Color.FromArgb(0xFF, 0xCB, 0xD5, 0xE1));
         Color colorLinea = ColorDeRecurso("AppAccentBrush", Color.FromArgb(0xFF, 0x4F, 0x46, 0xE5));
+        // Granate (legacy: Color.Maroon = #800000) para los rectángulos de relleno.
+        Color colorRelleno = Color.FromArgb(0xFF, 0x80, 0x00, 0x00);
 
         // Marcos de las 10 franjas (legacy: DrawRectangle(marco, 9, y*25+50, 959, 25)).
         var pincelMarco = new SolidColorBrush(colorMarco);
@@ -77,6 +81,24 @@ public sealed partial class GraficoColumnasFrmPage : Page
             LienzoGrafico.Children.Add(rect);
         }
 
+        // Rectángulos de relleno granate (legacy: FillRectangle(SolidBrush(Maroon), ...), líneas
+        // 268-273): delimitan la zona sobrante cuando la combinación es estrecha (diferencia < 9566).
+        // Se pintan antes que las líneas para que estas queden visibles encima (orden del legacy).
+        var pincelRelleno = new SolidColorBrush(colorRelleno);
+        foreach (var (rx, ry, rw, rh) in ViewModel.RectangulosRelleno)
+        {
+            if (rw <= 0 || rh <= 0) continue; // sin área visible (ej. maximo >= 958).
+            var rect = new Rectangle
+            {
+                Width = rw,
+                Height = rh,
+                Fill = pincelRelleno,
+            };
+            Canvas.SetLeft(rect, rx);
+            Canvas.SetTop(rect, ry);
+            LienzoGrafico.Children.Add(rect);
+        }
+
         // Una línea vertical por apuesta (legacy: DrawLine(myPen, ancho+10, alto*25+51, ancho+10, alto*25+74)).
         var pincelLinea = new SolidColorBrush(colorLinea);
         foreach (var (x, y0, y1) in ViewModel.LineasGrafico)
@@ -92,11 +114,6 @@ public sealed partial class GraficoColumnasFrmPage : Page
             };
             LienzoGrafico.Children.Add(linea);
         }
-
-        // TODO[render]: el legacy, cuando (maximo-minimo) < 9566, rellenaba en granate la zona
-        //   sobrante de la última franja útil y las franjas inferiores no usadas (FillRectangle,
-        //   GraficoColumnasFrm_Paint líneas 268-273) como delimitador visual. El VM aún no expone
-        //   esos rectángulos de relleno (sólo las líneas por apuesta), así que no se pintan aquí.
     }
 
     /// <summary>Obtiene el Color de un SolidColorBrush de recursos, o un fallback si no existe.</summary>
