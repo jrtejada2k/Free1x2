@@ -16,6 +16,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <!-- Encabezado -->
@@ -197,9 +198,11 @@
                                 Text="Temporadas"
                                 Style="{StaticResource CardTitleTextBlockStyle}" />
                             <ListView
+                                x:Name="ListaTemporadas"
                                 Height="140"
                                 SelectionMode="Multiple"
                                 ItemsSource="{x:Bind ViewModel.Temporadas}"
+                                SelectionChanged="OnTemporadasSeleccionadas"
                                 BorderBrush="{ThemeResource AppBorderBrush}"
                                 BorderThickness="1"
                                 CornerRadius="4"
@@ -270,19 +273,67 @@
                         Style="{StaticResource SectionHeaderTextBlockStyle}" />
                     <ListView
                         Height="220"
+                        SelectionMode="None"
                         ItemsSource="{x:Bind ViewModel.Resultados}"
                         BorderBrush="{ThemeResource AppBorderBrush}"
                         BorderThickness="1"
                         CornerRadius="4"
-                        AutomationProperties.Name="Resultados del escrutinio" />
-                    <!-- TODO[dominio]: sustituir esta ListView por una rejilla con columnas
-                         Seleccionado/Archivo/No/Columna/aciertos/Ac. Totales (legacy dgResultados). -->
+                        AutomationProperties.Name="Resultados del escrutinio">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="local:ResultadoEscrutinioItem">
+                                <Grid ColumnSpacing="12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <CheckBox
+                                        Grid.Column="0"
+                                        MinWidth="0"
+                                        IsChecked="{x:Bind Seleccionado, Mode=TwoWay}"
+                                        AutomationProperties.Name="Seleccionar fila" />
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        VerticalAlignment="Center"
+                                        FontFamily="Consolas"
+                                        Text="{x:Bind Resumen}"
+                                        Foreground="{ThemeResource AppTextBrush}" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </StackPanel>
+            </Border>
+
+            <!-- Tarjeta: columnas premiadas (legacy ColumnasPremiadasFrm) -->
+            <Border Grid.Row="6" Style="{StaticResource AppCardStyle}" Margin="0,0,0,16"
+                    Visibility="{x:Bind ViewModel.MostrarPremiadas, Mode=OneWay}">
+                <StackPanel Spacing="12">
+                    <TextBlock
+                        Text="Columnas premiadas"
+                        Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                    <ListView
+                        Height="200"
+                        SelectionMode="None"
+                        ItemsSource="{x:Bind ViewModel.Premiadas}"
+                        BorderBrush="{ThemeResource AppBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="4"
+                        AutomationProperties.Name="Columnas premiadas">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="local:ColumnaPremiadaItem">
+                                <TextBlock
+                                    FontFamily="Consolas"
+                                    Foreground="{ThemeResource AppTextBrush}"
+                                    Text="{x:Bind Columna}" />
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
                 </StackPanel>
             </Border>
 
             <!-- Acciones sobre resultados -->
             <StackPanel
-                Grid.Row="6"
+                Grid.Row="7"
                 Orientation="Horizontal"
                 Spacing="12"
                 HorizontalAlignment="Left">
