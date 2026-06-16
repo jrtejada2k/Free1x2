@@ -1,8 +1,11 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Free1X2.EntradaSalida;
+using Free1X2.Utils;
 using Free1X2.WinUI.Services;
 
 namespace Free1X2.WinUI.Views.Ported;
@@ -142,11 +145,18 @@ public partial class AgregaP15FrmViewModel : ObservableObject
         return error;
     }
 
+    // BitArray con 3^14 posiciones para detectar columnas repetidas (modo "eliminar partido 15").
+    // Igual que el campo Bits del WinForms AgregaP15Frm (new BitArray(4782969, false)).
+    private const int TamanoBits = 4782969;
+
     /// <summary>
-    /// Equivale a <c>Button1Click</c> del WinForms: ejecuta el cálculo del P15.
+    /// Equivale a <c>Button1Click</c> del WinForms (Free1X2/UI/AgregaP15Frm.cs ~479-688):
+    /// recorre el archivo de columnas de entrada y, según el modo activo, añade el Pleno al 15
+    /// a cada columna de 14 signos, escribiendo el resultado en el archivo de salida. El cálculo
+    /// se ejecuta en un hilo de fondo para no bloquear la UI.
     /// </summary>
     [RelayCommand]
-    private void Calcular()
+    private async Task CalcularAsync()
     {
         string error = ComprobarEntradas();
         if (!string.IsNullOrEmpty(error))
@@ -157,18 +167,202 @@ public partial class AgregaP15FrmViewModel : ObservableObject
 
         Estado = "Calculando";
 
-        // TODO(algoritmo): el cálculo del P15 (4 modos) vive en Button1Click del form
-        //   WinForms Free1X2.UI.AgregaP15Frm, NO en un método del motor. Los tipos de motor
-        //   que usa ya están en Free1X2.Domain y son accesibles desde aquí:
-        //     - Free1X2.EntradaSalida.ArchivoColumnasTexto (IArchivoColumnas: SiguienteColumna /
-        //       LeeColumnaSinComas / GuardarCols / Cerrar).
-        //     - Free1X2.Utils.ConvertidorDeBases + BitArray para el modo "eliminar repetidas".
-        //   Portar ese algoritmo es transcribir lógica de la UI legacy (fuera del alcance de
-        //   "cablear dominio": aquí solo se conectan llamadas al motor existente). Los selectores
-        //   de archivo (SeleccionarEntrada/SeleccionarSalida) ya usan el motor vía pickers.
-        //   Al portarlo: recorrer el archivo de entrada con ArchivoColumnasTexto, aplicar el modo
-        //   activo y escribir con GuardarCols; fijar ColumnasRepetidas y Estado = "Terminado".
+        // Captura de los parámetros de UI antes de saltar al hilo de fondo.
+        string archivoEntrada = ArchivoEntrada;
+        string archivoSalida = ArchivoSalida;
+        bool modoFijo = ModoFijo;
+        bool modoCondicional = ModoCondicional;
+        bool modoEliminar = ModoEliminarRepetidas;
+        bool modoCopiar = ModoCopiarPartido;
+        string signoFijo = SignoFijo ?? "";
+        int partidoCondicion = (int)PartidoCondicion;
+        string signoCondicion = SignoCondicion ?? "";
+        string signoSi = SignoSi ?? "";
+        string signoNo = SignoNo ?? "";
+        int partidoCopia = (int)PartidoCopia;
 
-        Estado = "Terminado (algoritmo P15 pendiente de portar)";
+        int repetidas = 0;
+
+        try
+        {
+            await Task.Run(() => repetidas = EjecutarAgregaP15(
+                archivoEntrada, archivoSalida,
+                modoFijo, modoCondicional, modoEliminar, modoCopiar,
+                signoFijo, partidoCondicion, signoCondicion, signoSi, signoNo, partidoCopia));
+        }
+        catch (Exception ex)
+        {
+            Free1X2.Abstractions.UserDialogs.ShowError("Error al añadir el P15: " + ex.Message);
+            Estado = "Error";
+            return;
+        }
+
+        ColumnasRepetidas = repetidas;
+        Estado = "Terminado";
+    }
+
+    /// <summary>
+    /// Transcripción fiel del bucle de cálculo de <c>Button1Click</c> del WinForms
+    /// <c>AgregaP15Frm</c>. Devuelve el número de columnas repetidas (modo eliminar partido 15).
+    /// </summary>
+    private static int EjecutarAgregaP15(
+        string archivoEntrada, string archivoSalida,
+        bool modoFijo, bool modoCondicional, bool modoEliminar, bool modoCopiar,
+        string signoFijo, int partidoCondicion, string signoCondicion, string signoSi, string signoNo,
+        int partidoCopia)
+    {
+        // Buffers de 8 columnas por signo del P15 (1 / X / 2), igual que el WinForms (vuelca a
+        // disco en bloques de 8 para agrupar por signo del pleno).
+        string[] Buffer1 = new string[8];
+        string[] BufferX = new string[8];
+        string[] Buffer2 = new string[8];
+        for (int i = 0; i < 8; i++)
+        {
+            Buffer1[i] = "";
+            BufferX[i] = "";
+            Buffer2[i] = "";
+        }
+        int Cont1 = 0, ContX = 0, Cont2 = 0;
+
+        int noColumnasFinal = 0;
+        int noColsRepetidas = 0;
+
+        BitArray bits = new BitArray(TamanoBits, false);
+
+        IArchivoColumnas comBaseCols = new ArchivoColumnasTexto(archivoEntrada);
+        IArchivoColumnas sw = new ArchivoColumnasTexto(archivoSalida);
+        ConvertidorDeBases conv = new ConvertidorDeBases();
+
+        while (comBaseCols.SiguienteColumna())
+        {
+            string columna = comBaseCols.LeeColumnaSinComas();
+
+            if (modoFijo)
+            {
+                // checkBox1: añade un signo fijo (textBox1) al final de cada columna.
+                sw.GuardarCols(columna + signoFijo);
+            }
+            else
+            {
+                if (modoCondicional)
+                {
+                    // checkBox2: si el partido N (textBox2, 1-based) es igual a signoCondicion
+                    // (textBox3), P15 = signoSi (textBox4); si no, P15 = signoNo (textBox5).
+                    int tmp = partidoCondicion - 1;
+                    char tmp2 = char.Parse(signoCondicion);
+                    if (columna[tmp] == tmp2)
+                    {
+                        columna = columna + signoSi;
+                    }
+                    else
+                    {
+                        columna = columna + signoNo;
+                    }
+                    switch (columna.Substring(14, 1))
+                    {
+                        case "1":
+                            Buffer1[Cont1] = columna;
+                            Cont1++;
+                            break;
+                        case "x":
+                        case "X":
+                            BufferX[ContX] = columna;
+                            ContX++;
+                            break;
+                        case "2":
+                            Buffer2[Cont2] = columna;
+                            Cont2++;
+                            break;
+                    }
+                    if (Cont1 == 8)
+                    {
+                        for (int i = 0; i < 8; i++) sw.GuardarCols(Buffer1[i]);
+                        Cont1 = 0;
+                    }
+                    else if (ContX == 8)
+                    {
+                        for (int i = 0; i < 8; i++) sw.GuardarCols(BufferX[i]);
+                        ContX = 0;
+                    }
+                    else if (Cont2 == 8)
+                    {
+                        for (int i = 0; i < 8; i++) sw.GuardarCols(Buffer2[i]);
+                        Cont2 = 0;
+                    }
+                }
+                if (modoEliminar)
+                {
+                    // checkBox3: deja sólo los 14 primeros signos y descarta columnas repetidas.
+                    columna = columna.Substring(0, 14);
+                    int Num = conv.ConvColumnaANumero(columna);
+                    if (bits[Num] == false)
+                    {
+                        bits[Num] = true;
+                        sw.GuardarCols(columna);
+                        noColumnasFinal++;
+                    }
+                    else
+                    {
+                        noColsRepetidas++;
+                    }
+                }
+                if (modoCopiar)
+                {
+                    // checkBox4: P15 = mismo resultado que el partido N (textBox6, 1-based).
+                    int tmp = partidoCopia - 1;
+                    columna = columna + columna[tmp];
+                    switch (columna.Substring(14, 1))
+                    {
+                        case "1":
+                            Buffer1[Cont1] = columna;
+                            Cont1++;
+                            break;
+                        case "x":
+                        case "X":
+                            BufferX[ContX] = columna;
+                            ContX++;
+                            break;
+                        case "2":
+                            Buffer2[Cont2] = columna;
+                            Cont2++;
+                            break;
+                    }
+                    if (Cont1 == 8)
+                    {
+                        for (int i = 0; i < 8; i++) sw.GuardarCols(Buffer1[i]);
+                        Cont1 = 0;
+                    }
+                    else if (ContX == 8)
+                    {
+                        for (int i = 0; i < 8; i++) sw.GuardarCols(BufferX[i]);
+                        ContX = 0;
+                    }
+                    else if (Cont2 == 8)
+                    {
+                        for (int i = 0; i < 8; i++) sw.GuardarCols(Buffer2[i]);
+                        Cont2 = 0;
+                    }
+                }
+            }
+        }
+        comBaseCols.Cerrar();
+
+        // Vuelca los restos de cada buffer (columnas que no completaron un bloque de 8).
+        if (Cont1 != 0)
+        {
+            for (int i = 0; i < Cont1; i++) sw.GuardarCols(Buffer1[i]);
+        }
+        if (ContX != 0)
+        {
+            for (int i = 0; i < ContX; i++) sw.GuardarCols(BufferX[i]);
+        }
+        if (Cont2 != 0)
+        {
+            for (int i = 0; i < Cont2; i++) sw.GuardarCols(Buffer2[i]);
+        }
+
+        sw.Cerrar();
+
+        return noColsRepetidas;
     }
 }

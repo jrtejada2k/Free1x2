@@ -44,6 +44,17 @@ public sealed class AppState
     public static Grupo? GrupoEnEdicion { get; set; }
 
     /// <summary>
+    /// Handoff para el cálculo de columnas: cuando la MainPage navega a "Calcular columnas",
+    /// pone esta bandera a <c>true</c> para que <c>CalculaColumnasFrmViewModel</c> use el
+    /// <see cref="Analizador"/> compartido (que ya lleva el boleto, grupos, condiciones e
+    /// If-Then) en lugar de crear uno propio. Equivale a que <c>MainForm.AbreCalculoColumnasFrm</c>
+    /// pase su <c>analizador</c> al constructor de <c>CalculaColumnasFrm</c>. La página de cálculo
+    /// la consume en su constructor y la reinicia a <c>false</c>, de modo que si se abre de forma
+    /// independiente desde la navegación seguirá creando su propio Analizador editable.
+    /// </summary>
+    public static bool UsarAnalizadorCompartido { get; set; }
+
+    /// <summary>
     /// Se dispara cuando cambia algo del estado del motor (combinación nueva/abierta,
     /// cambio de grupo, edición de filtros, filtro de columnas). La MainPage se suscribe
     /// para refrescar el boleto y los semáforos de condiciones.

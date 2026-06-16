@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Free1X2.EntradaSalida;
 using Free1X2.MotorCalculo;
 using Free1X2.WinUI.Services;
 
@@ -23,15 +24,22 @@ namespace Free1X2.WinUI.Views.Ported;
 ///       (pleno al 15 si <see cref="IncluirPleno"/> está activo).
 ///   - <see cref="ModoGrabar"/>:   Analizador.AnalizaCombinacion(archivoResultados) → graba a fichero.
 ///
-/// Diferencia con WinForms: el form legacy recibía un Analizador ya poblado desde MainForm.
-/// En WinUI todavía no existe ese flujo, así que el ViewModel construye su propio Analizador
-/// y permite editar los 14 pronósticos (SetPronostico). El motor se invoca igual que en
-/// WinForms; el bucle de cálculo corre en Task.Run y los contadores se refrescan en el hilo
-/// de UI con un DispatcherQueueTimer (equivalente al Timer de 500 ms del form legacy).
+/// Origen del Analizador (réplica de <c>MainForm.AbreCalculoColumnasFrm</c>, que pasa su
+/// <c>analizador</c> ya poblado al constructor de <c>CalculaColumnasFrm</c>):
+///   - Si la MainPage activó <see cref="AppState.UsarAnalizadorCompartido"/> al navegar
+///     ("Calcular"), este ViewModel usa el <see cref="AppState.Analizador"/> compartido, que ya
+///     lleva el boleto base, los grupos, las condiciones (IFiltro) y el If-Then, además del
+///     <c>ArchivoColumnasBase</c> fijado por la MainPage si el filtro de columnas está activo.
+///   - Si se abre de forma independiente desde la navegación, construye su PROPIO Analizador y
+///     permite editar los 14 pronósticos (SetPronostico) como combinación abierta ("1,X,2").
+/// El motor se invoca igual que en WinForms; el bucle de cálculo corre en Task.Run y los
+/// contadores se refrescan en el hilo de UI con un DispatcherQueueTimer (equivalente al Timer
+/// de 500 ms del form legacy).
 /// </summary>
 public partial class CalculaColumnasFrmViewModel : ObservableObject
 {
-    private readonly Analizador _analizador = new();
+    private readonly Analizador _analizador;
+    private readonly bool _usandoCompartido;
     private long _colsMaximas;
     private CancellationTokenSource? _cts;
 
@@ -120,12 +128,33 @@ public partial class CalculaColumnasFrmViewModel : ObservableObject
 
     public CalculaColumnasFrmViewModel()
     {
-        // Inicializa los 14 pronósticos a "1,X,2" (combinación abierta), igual que el
-        // estado por defecto del boleto en WinForms, y los registra en el Analizador.
-        for (int i = 0; i < Free1X2.VariablesGlobales.NumeroPartidos; i++)
+        // Handoff desde la MainPage: si pidió usar el Analizador compartido, lo tomamos (ya lleva
+        // boleto, grupos, condiciones, If-Then y ArchivoColumnasBase). Consumimos la bandera para
+        // que una apertura posterior desde la navegación vuelva a crear uno propio editable.
+        _usandoCompartido = AppState.UsarAnalizadorCompartido;
+        AppState.UsarAnalizadorCompartido = false;
+
+        if (_usandoCompartido)
         {
-            Pronosticos.Add("1,X,2");
-            _analizador.SetPronostico(i, "1,X,2");
+            // Usa el motor compartido: los pronósticos ya están fijados desde el boleto. Sólo
+            // reflejamos su estado en la colección (informativo; el cálculo opera sobre el motor).
+            _analizador = AppState.Instancia.Analizador;
+            string[] pron = _analizador.Pronosticos;
+            for (int i = 0; i < pron.Length; i++)
+            {
+                Pronosticos.Add(pron[i]);
+            }
+        }
+        else
+        {
+            // Modo independiente: Analizador propio con los 14 pronósticos a "1,X,2"
+            // (combinación abierta), igual que el estado por defecto del boleto en WinForms.
+            _analizador = new Analizador();
+            for (int i = 0; i < Free1X2.VariablesGlobales.NumeroPartidos; i++)
+            {
+                Pronosticos.Add("1,X,2");
+                _analizador.SetPronostico(i, "1,X,2");
+            }
         }
         RecalcularMaximas();
     }
@@ -146,20 +175,46 @@ public partial class CalculaColumnasFrmViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Aplica los pronósticos editados al Analizador y recalcula las columnas máximas.
-    /// Equivale a CalculaColumnasFrm_Load (rama sin filtro base: 2^dobles * 3^triples).
+    /// Recalcula las columnas máximas, réplica fiel de <c>CalculaColumnasFrm_Load</c>
+    /// (Free1X2/UI/CalculaColumnas.cs ~832-856):
+    ///   - Si hay <c>ArchivoColumnasBase</c> (filtro de columnas activo): máximas = nº de columnas
+    ///     del archivo (ObtenNumCols).
+    ///   - Si no: máximas = 2^dobles * 3^triples sobre los pronósticos.
+    /// En modo independiente, además aplica al Analizador los pronósticos editados; en modo
+    /// compartido NO los toca (ya vienen del boleto y de los grupos cargados en la MainPage).
     /// </summary>
     public void RecalcularMaximas()
     {
-        int dobles = 0, triples = 0;
-        for (int i = 0; i < Pronosticos.Count; i++)
+        if (_analizador.ArchivoColumnasBase.Length > 0)
         {
-            string p = (Pronosticos[i] ?? "").Replace(",", "");
-            _analizador.SetPronostico(i, Pronosticos[i] ?? "1,X,2");
-            if (p.Length == 2) dobles++;
-            if (p.Length == 3) triples++;
+            // Hay un filtro de columnas base: las máximas son las columnas del archivo.
+            try
+            {
+                IArchivoColumnas f = new ArchivoColumnasTexto(_analizador.ArchivoColumnasBase);
+                _colsMaximas = f.ObtenNumCols();
+                f.Cerrar();
+            }
+            catch
+            {
+                _colsMaximas = 0;
+            }
         }
-        _colsMaximas = Convert.ToInt64(Math.Pow(2, dobles) * Math.Pow(3, triples));
+        else
+        {
+            int dobles = 0, triples = 0;
+            for (int i = 0; i < Pronosticos.Count; i++)
+            {
+                string p = (Pronosticos[i] ?? "").Replace(",", "");
+                // En modo independiente, aplica el pronóstico editado al Analizador propio.
+                if (!_usandoCompartido)
+                {
+                    _analizador.SetPronostico(i, Pronosticos[i] ?? "1,X,2");
+                }
+                if (p.Length == 2) dobles++;
+                if (p.Length == 3) triples++;
+            }
+            _colsMaximas = Convert.ToInt64(Math.Pow(2, dobles) * Math.Pow(3, triples));
+        }
 
         ColsMaximo = _colsMaximas.ToString("#,##0;0");
         double costeMaximo = _colsMaximas * Free1X2.VariablesGlobales.PrecioApuesta;
