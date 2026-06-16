@@ -1,7 +1,11 @@
-using System.Collections.ObjectModel;
+using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.IO;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Free1X2.WinUI.Services;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -24,6 +28,8 @@ public partial class ProbabilidadPremioItem : ObservableObject
 /// ViewModel de la pantalla "Probabilidades de Premios" (legacy: ProbabilidadPremios).
 /// Selecciona dos ficheros de columnas (madre/hijas), un rango de aciertos y, al calcular,
 /// produce la probabilidad de premio por cada categoría dentro del rango.
+/// Cableado al motor real Free1X2.Analisis.Analizador (ComparaCombinaciones +
+/// ObtenProbabilidadPremios) y al parser Free1X2.Utils.UtilidadesEntradasValores.
 /// </summary>
 public partial class ProbabilidadPremiosViewModel : ObservableObject
 {
@@ -63,41 +69,103 @@ public partial class ProbabilidadPremiosViewModel : ObservableObject
     public ObservableCollection<ProbabilidadPremioItem> Resultados { get; } = new();
 
     [RelayCommand]
-    private void SeleccionarMadre()
+    private async Task SeleccionarMadreAsync()
     {
-        // TODO [dominio]: abrir OpenFileDialog (filtro "Columnas (*.txt)") como en
-        // ProbabilidadPremios.btnSelectMadreClick. En WinUI 3 usar FileOpenPicker.
-        // Al confirmar: _archivoColsMadre = ruta; NombreColumnasMadre = Path.GetFileNameWithoutExtension(ruta);
-        // MadreSeleccionada = true; (legacy: ActivarBotonCalculo()).
+        // Legacy: ProbabilidadPremios.btnSelectMadreClick (OpenFileDialog "Columnas (*.txt)").
+        var ruta = await SeleccionarColumnasAsync();
+        if (ruta == null) return;
+        _archivoColsMadre = ruta;
+        NombreColumnasMadre = Path.GetFileNameWithoutExtension(ruta);
+        MadreSeleccionada = true; // legacy: ActivarBotonCalculo()
     }
 
     [RelayCommand]
-    private void SeleccionarHija()
+    private async Task SeleccionarHijaAsync()
     {
-        // TODO [dominio]: abrir OpenFileDialog (filtro "Columnas (*.txt)") como en
-        // ProbabilidadPremios.btnSelectHijaClick. En WinUI 3 usar FileOpenPicker.
-        // Al confirmar: _archivoColsHija = ruta; NombreColumnasHija = Path.GetFileNameWithoutExtension(ruta);
-        // HijaSeleccionada = true; (legacy: ActivarBotonCalculo()).
+        // Legacy: ProbabilidadPremios.btnSelectHijaClick (OpenFileDialog "Columnas (*.txt)").
+        var ruta = await SeleccionarColumnasAsync();
+        if (ruta == null) return;
+        _archivoColsHija = ruta;
+        NombreColumnasHija = Path.GetFileNameWithoutExtension(ruta);
+        HijaSeleccionada = true; // legacy: ActivarBotonCalculo()
+    }
+
+    private static async Task<string?> SeleccionarColumnasAsync()
+    {
+        var picker = new Windows.Storage.Pickers.FileOpenPicker
+        {
+            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
+        };
+        picker.FileTypeFilter.Add(".txt");
+        picker.FileTypeFilter.Add("*");
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        var file = await picker.PickSingleFileAsync();
+        return file?.Path;
     }
 
     [RelayCommand]
-    private void Calcular()
+    private async Task CalcularAsync()
     {
-        // TODO [dominio]: replicar ProbabilidadPremios.ButtonClick.
-        //  1. Parsear RangoPremios con Free1X2.Utils.UtilidadesEntradasValores.ObtenerListaFromTxtAciertos(RangoPremios),
-        //     ordenar y tomar min/max; si vacío o error usar 10..14.
-        //  2. Crear Free1X2.Analisis.Analizador(minimoPremio) y llamar
-        //     ComparaCombinaciones(_archivoColsMadre, _archivoColsHija).
-        //  3. Para i de min..max: analizador.ObtenProbabilidadPremios(i) formateado como "#,##0.00;0.00".
-        //  Por ahora solo se limpia la colección; el cálculo real depende del dominio.
+        // Legacy: ProbabilidadPremios.ButtonClick.
+        // 1) Rango de premios: parsear RangoPremios; si vacío o error usar 10..14.
+        int minimoPremio;
+        int maximoPremio;
+        if (!string.IsNullOrEmpty(RangoPremios))
+        {
+            try
+            {
+                List<int> premios = Free1X2.Utils.UtilidadesEntradasValores.ObtenerListaFromTxtAciertos(RangoPremios);
+                premios.Sort();
+                minimoPremio = premios[0];
+                maximoPremio = premios[premios.Count - 1];
+            }
+            catch
+            {
+                minimoPremio = 10;
+                maximoPremio = 14;
+            }
+        }
+        else
+        {
+            minimoPremio = 10;
+            maximoPremio = 14;
+        }
+
         Resultados.Clear();
 
-        // Ejemplo de cómo se poblarían las filas una vez disponible el dominio:
-        // foreach (var (cat, prob) in resultadosDominio)
-        //     Resultados.Add(new ProbabilidadPremioItem
-        //     {
-        //         Categoria = $"Premio de {cat}",
-        //         ProbabilidadTexto = $"{prob.ToString("#,##0.00;0.00")} %"
-        //     });
+        string madre = _archivoColsMadre;
+        string hija = _archivoColsHija;
+
+        try
+        {
+            // 2) Análisis comparativo + 3) probabilidades por categoría (fuera del hilo de UI).
+            var filas = await Task.Run(() =>
+            {
+                var analizador = new Free1X2.Analisis.Analizador(minimoPremio);
+                analizador.ComparaCombinaciones(madre, hija);
+
+                var resultado = new List<(string Categoria, string Probabilidad)>();
+                for (int i = minimoPremio; i <= maximoPremio; i++)
+                {
+                    double prob = analizador.ObtenProbabilidadPremios(i);
+                    resultado.Add(($"Premio de {i}", prob.ToString("#,##0.00;0.00") + " %"));
+                }
+                return resultado;
+            });
+
+            foreach (var (categoria, probabilidad) in filas)
+            {
+                Resultados.Add(new ProbabilidadPremioItem
+                {
+                    Categoria = categoria,
+                    ProbabilidadTexto = probabilidad,
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            AppServices.MostrarError("Error al calcular las probabilidades: " + ex.Message);
+        }
     }
 }

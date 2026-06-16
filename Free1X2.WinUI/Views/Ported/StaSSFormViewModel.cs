@@ -35,8 +35,8 @@ public sealed class FilaSSViewModel
 ///
 /// Los datos provienen de la matriz legacy <c>int[,] rsl</c> (filas 0..3 = 1/X/2/V,
 /// columnas 0..14) y del entero <c>numcol</c> (número total de columnas analizadas),
-/// pasados por el constructor <c>StaSSForm(int[,] ofparent, int ncol)</c>.
-/// Aquí se dejan placeholders; el volcado real de datos es lógica de dominio (TODO).
+/// calculados por AnastaticsViewModel (modo "Signos seguidos") e inyectados vía
+/// <see cref="CargarDatos"/> (equivalente al ctor legacy StaSSForm(int[,] ofparent, int ncol)).
 /// </summary>
 public partial class StaSSFormViewModel : ObservableObject
 {
@@ -44,6 +44,10 @@ public partial class StaSSFormViewModel : ObservableObject
     public const int NumFilas = 4;            // 1 / X / 2 / V
 
     private static readonly string[] EtiquetasFila = { "cant. 1", "cant. X", "cant. 2", "cant. V" };
+
+    // Datos crudos en memoria (rsl[4,15] del legacy) y nº de columnas.
+    private readonly int[,] _rsl = new int[NumFilas, NumColumnasRejilla];
+    private int _numCol;
 
     public StaSSFormViewModel()
     {
@@ -58,20 +62,7 @@ public partial class StaSSFormViewModel : ObservableObject
 
         // Filas placeholder vacías hasta que el dominio rellene rsl/numcol.
         Filas = new ObservableCollection<FilaSSViewModel>();
-        for (int f = 0; f < NumFilas; f++)
-        {
-            var celdas = new string[NumColumnasRejilla];
-            for (int c = 0; c < NumColumnasRejilla; c++)
-                celdas[c] = "-";
-            Filas.Add(new FilaSSViewModel(EtiquetasFila[f], celdas));
-        }
-
-        // TODO: Dominio legacy — el constructor recibe (int[,] rsl, int numcol) y llama a
-        //   PintaPantalla(): si rbPercent.Checked -> Porcentajes(), si no -> PintaColumnas().
-        //   Porcentajes():  celda = (rsl[fila,col] * 10000 / numcol) / 1E2   (porcentaje, 2 dec.)
-        //   PintaColumnas(): celda = rsl[fila,col]                            (conteo bruto)
-        //   ColumnasTexto = numcol.ToString()  (label lncol del legacy).
-        //   Rellamar a Recalcular() al cambiar ModoSeleccionado (RbColsCheckedChanged).
+        Recalcular();
     }
 
     // Cabecera de columnas 0..14 (fila de labels superior del legacy).
@@ -94,7 +85,52 @@ public partial class StaSSFormViewModel : ObservableObject
     partial void OnModoSeleccionadoChanged(int value)
     {
         // Equivale a RbColsCheckedChanged -> PintaPantalla() del legacy.
-        // TODO: Dominio legacy — recalcular las celdas de Filas según el modo
-        //   (porcentaje vs conteo) usando rsl/numcol y refrescar Filas.
+        Recalcular();
+    }
+
+    /// <summary>
+    /// Carga la matriz calculada por el motor (equivale al ctor legacy
+    /// StaSSForm(int[,] ofparent, int ncol): rsl = ofparent; numcol = ncol; PintaPantalla()).
+    /// Sólo se usan filas 0..3 y columnas 0..14 de la matriz [15,15] del cálculo.
+    /// </summary>
+    public void CargarDatos(int[,] rsl, int numcol)
+    {
+        for (int f = 0; f < NumFilas; f++)
+            for (int c = 0; c < NumColumnasRejilla; c++)
+                _rsl[f, c] = rsl[f, c];
+
+        _numCol = numcol;
+        ColumnasTexto = numcol.ToString();
+        Recalcular();
+    }
+
+    /// <summary>
+    /// Equivalente a PintaPantalla(): si modo 0 -> Porcentajes(), si no -> PintaColumnas().
+    /// Porcentajes():  celda = (rsl[fila,col] * 10000 / numcol) / 1E2   (porcentaje, 2 dec.)
+    /// PintaColumnas(): celda = rsl[fila,col]                            (conteo bruto)
+    /// </summary>
+    private void Recalcular()
+    {
+        bool porcentajes = ModoSeleccionado == 0;
+        int divisor = _numCol == 0 ? 1 : _numCol; // evita /0 (el legacy asumía numcol>0)
+
+        Filas.Clear();
+        for (int f = 0; f < NumFilas; f++)
+        {
+            var celdas = new string[NumColumnasRejilla];
+            for (int c = 0; c < NumColumnasRejilla; c++)
+            {
+                if (porcentajes)
+                {
+                    double pct = (_rsl[f, c] * 10000 / divisor) / 1E2;
+                    celdas[c] = pct.ToString();
+                }
+                else
+                {
+                    celdas[c] = _rsl[f, c].ToString();
+                }
+            }
+            Filas.Add(new FilaSSViewModel(EtiquetasFila[f], celdas));
+        }
     }
 }

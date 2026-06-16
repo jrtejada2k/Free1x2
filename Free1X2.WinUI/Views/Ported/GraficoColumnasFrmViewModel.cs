@@ -1,7 +1,10 @@
+using System;
 using System.Collections.ObjectModel;
-using System.Collections.Generic;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Free1X2.EntradaSalida;
+using Free1X2.WinUI.Services;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -10,9 +13,20 @@ namespace Free1X2.WinUI.Views.Ported;
 /// Abre un fichero de columnas (.txt), calcula los límites (mínimo/máximo) de la combinación
 /// y la representa gráficamente en 10 franjas. La "Guía" muestra qué fila de la quiniela
 /// corresponde a cada franja del gráfico.
+///
+/// Cableado al motor real (Free1X2.EntradaSalida.ArchivoColumnasTexto): se computan los datos
+/// del gráfico (mínimo/máximo/escala y las coordenadas de cada línea por apuesta). El dibujo en
+/// sí (System.Drawing/Grafico.cs) se quedó en WinForms; ver TODO de renderizado en el code-behind.
 /// </summary>
 public partial class GraficoColumnasFrmViewModel : ObservableObject
 {
+    // Datos computados de la combinación (equivalen a los campos minimo/maximo del legacy).
+    private int _minimo;
+    private int _maximo;
+
+    // Señal de cancelación del bucle de dibujo (legacy: bool para).
+    private volatile bool _para;
+
     /// <summary>Ruta del fichero de columnas a representar (legacy: abreFicheroDialog.FileName).</summary>
     [ObservableProperty]
     private string _ficheroEntrada = string.Empty;
@@ -40,24 +54,100 @@ public partial class GraficoColumnasFrmViewModel : ObservableObject
     public ObservableCollection<string> LineasGuia { get; } = new();
 
     /// <summary>
-    /// Abre el fichero de columnas y dispara la representación gráfica.
+    /// Coordenadas de las líneas verticales a dibujar (una por apuesta). Cada elemento es
+    /// (X, Y0, Y1) en el mismo sistema del legacy (franjas de 25 px, 10 franjas).
+    /// El renderizado real sobre el Canvas se hace en el code-behind (ver TODO).
+    /// Equivale a las e.Graphics.DrawLine(myPen, ancho+10, alto*25+51, ancho+10, alto*25+74) del legacy.
+    /// </summary>
+    public ObservableCollection<(int X, int Y0, int Y1)> LineasGrafico { get; } = new();
+
+    /// <summary>
+    /// Abre el fichero de columnas y computa los datos de la representación gráfica.
+    /// Equivale a GraficoColumnasFrm.btnAbrir_Click + la parte de cálculo de GraficoColumnasFrm_Paint.
     /// </summary>
     [RelayCommand]
-    private void AbrirCombinacion()
+    private async Task AbrirCombinacionAsync()
     {
-        // TODO[dominio]: abrir diálogo de fichero y representar la combinación.
-        //   Legacy: GraficoColumnasFrm.btnAbrir_Click -> inicio=true; Refresh(); -> GraficoColumnasFrm_Paint
-        //     - OpenFileDialog: InitialDirectory "Columnas\\", filtro "Columnas(*.txt)|*.txt|Todos (*.*)|*.*".
-        //       En WinUI usar Windows.Storage.Pickers.FileOpenPicker.
-        //     - IArchivoColumnas archComb = new Free1X2.EntradaSalida.ArchivoColumnasTexto(ruta);
-        //       int[] matrizColumnas = archComb.LeerTodasColsANumero(); archComb.Cerrar();
-        //     - Array.Sort(matrizColumnas); minimo = matrizColumnas[0]; maximo = matrizColumnas[^1];
-        //       int diferencia = maximo - minimo;
-        //     - Escala: si diferencia<9566 escala=1 (resto se rellena en rojo), si no escala=diferencia/9565.938.
-        //       Para cada apuesta: num=(col-minimo)/escala; alto=(num/958)-0.5; ancho=num-(alto*958);
-        //       dibujar línea vertical en (ancho+10, alto*25+51)->(ancho+10, alto*25+74) sobre 10 franjas de 959x25.
-        //   En WinUI el dibujo iría a un Canvas / CanvasControl (Win2D) en el code-behind/control.
-        //   Free1X2.EntradaSalida.IArchivoColumnas aún no está migrado a Free1X2.Domain.
+        // Diálogo de fichero (legacy: OpenFileDialog "Columnas\\", filtro *.txt/*.*).
+        var picker = new Windows.Storage.Pickers.FileOpenPicker
+        {
+            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
+        };
+        picker.FileTypeFilter.Add(".txt");
+        picker.FileTypeFilter.Add("*");
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        var file = await picker.PickSingleFileAsync();
+        if (file == null) return;
+
+        FicheroEntrada = file.Path;
+        _para = false;
+        EstadoTexto = "Procesando...";
+
+        try
+        {
+            string ruta = FicheroEntrada;
+            var (lineas, minimo, maximo, apuestas) = await Task.Run(() => ComputarGrafico(ruta));
+
+            _minimo = minimo;
+            _maximo = maximo;
+            MinimoTexto = minimo.ToString();
+            MaximoTexto = maximo.ToString();
+
+            LineasGrafico.Clear();
+            foreach (var l in lineas) LineasGrafico.Add(l);
+
+            HayCombinacion = true;
+            EstadoTexto = $"{apuestas} apuestas representadas (mín. {minimo}, máx. {maximo}).";
+            // TODO[render]: dibujar LineasGrafico sobre el Canvas LienzoGrafico (10 franjas de 959x25
+            //   con marcos), equivalente a GraficoColumnasFrm_Paint en Free1X2/UI/GraficoColumnasFrm.cs
+            //   líneas 220-301 (System.Drawing.e.Graphics.DrawRectangle/DrawLine/FillRectangle).
+            //   No se porta el dibujo GDI+; las coordenadas ya están computadas en LineasGrafico.
+        }
+        catch (Exception ex)
+        {
+            HayCombinacion = false;
+            EstadoTexto = "Error al abrir la combinación.";
+            AppServices.MostrarError("No se ha podido representar la combinación: " + ex.Message);
+        }
+    }
+
+    /// <summary>
+    /// Computa las coordenadas de las líneas del gráfico y los límites de la combinación.
+    /// Réplica exacta del cálculo de GraficoColumnasFrm_Paint (sin la parte de dibujo).
+    /// </summary>
+    private (System.Collections.Generic.List<(int X, int Y0, int Y1)> Lineas, int Minimo, int Maximo, int Apuestas) ComputarGrafico(string ruta)
+    {
+        var lineas = new System.Collections.Generic.List<(int X, int Y0, int Y1)>();
+
+        IArchivoColumnas archComb = new ArchivoColumnasTexto(ruta);
+        int[] matrizColumnas = archComb.LeerTodasColsANumero();
+        int apuestas = matrizColumnas.Length;
+        archComb.Cerrar();
+
+        if (apuestas == 0) return (lineas, 0, 0, 0);
+
+        // Límites inferior y superior de la combinación.
+        Array.Sort(matrizColumnas);
+        int minimo = matrizColumnas[0];
+        int maximo = matrizColumnas[apuestas - 1];
+        int diferencia = maximo - minimo;
+
+        double escala = diferencia < 9566 ? 1 : diferencia / 9565.938;
+
+        for (int i = 0; i < apuestas; i++)
+        {
+            if (_para) break;
+            double num = (matrizColumnas[i] - minimo) / escala;
+            // Dividimos en 10 barras 4782969/(500*957)=10.
+            int alto = Convert.ToInt16((num / 958) - 0.5);
+            num -= (alto * 958);
+            int ancho = Convert.ToInt16(num);
+            // Línea vertical: (ancho+10, alto*25+51) -> (ancho+10, alto*25+74).
+            lineas.Add((ancho + 10, (alto * 25) + 51, (alto * 25) + 74));
+        }
+
+        return (lineas, minimo, maximo, apuestas);
     }
 
     /// <summary>
@@ -66,25 +156,55 @@ public partial class GraficoColumnasFrmViewModel : ObservableObject
     [RelayCommand]
     private void Cancelar()
     {
-        // TODO[dominio]: cancelar el bucle de dibujo en curso.
-        //   Legacy: GraficoColumnasFrm.btnSalir_Click establece 'para = true', que corta
-        //   el bucle de pintado de líneas dentro de GraficoColumnasFrm_Paint.
+        _para = true; // legacy: corta el bucle de pintado de líneas.
     }
 
     /// <summary>
     /// Muestra la guía: qué fila de la quiniela corresponde a cada una de las 10 franjas.
+    /// Equivale a GraficoColumnasFrm.btnGuia_Click.
     /// </summary>
     [RelayCommand]
     private void MostrarGuia()
     {
-        // TODO[dominio]: calcular las 10 filas representadas y rellenar LineasGuia.
-        //   Legacy: GraficoColumnasFrm.btnGuia_Click
-        //     int diferencia = maximo - minimo;
-        //     for (i=1..10):
-        //       string tmp = deBase10(((i-1)*(diferencia/10)) + minimo, 3, 14);  // base 3, 14 dígitos
-        //       tmp = tmp.Replace("1","X").Replace("0","1");                       // 0->1, 1->X, 2->2
-        //       linea = i.ToString("00") + ")  " + tmp;
-        //   'deBase10' (conversión a base 3) está en el propio GraficoColumnasFrm legacy.
-        //   Requiere 'minimo'/'maximo' calculados al abrir la combinación.
+        LineasGuia.Clear();
+        int diferencia = _maximo - _minimo;
+        for (int i = 1; i < 11; i++)
+        {
+            string tmp = DeBase10(((i - 1) * (diferencia / 10)) + _minimo, 3, 14);
+            tmp = tmp.Replace("1", "X");
+            tmp = tmp.Replace("0", "1");
+            LineasGuia.Add(i.ToString("00") + ")  " + tmp);
+        }
+    }
+
+    /// <summary>Conversión de base 10 a base 3 con longitud fija (legacy: GraficoColumnasFrm.deBase10).</summary>
+    private static string DeBase10(int numero, int nBase, int longitud)
+    {
+        string num = "";
+        int resto;
+        int divisor = 0;
+
+        if (numero < nBase)
+        {
+            resto = numero % nBase;
+            num = resto.ToString();
+        }
+        if (numero == nBase)
+        {
+            divisor = numero / nBase;
+        }
+        while (numero >= nBase)
+        {
+            resto = numero % nBase;
+            divisor = numero / nBase;
+            num = resto + num;
+            numero = divisor;
+        }
+        num = divisor + num;
+        while (num.Length < longitud)
+        {
+            num = "0" + num;
+        }
+        return num;
     }
 }

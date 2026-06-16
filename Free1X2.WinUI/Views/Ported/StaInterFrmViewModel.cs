@@ -21,10 +21,10 @@ namespace Free1X2.WinUI.Views.Ported
     /// "columnas" (el conteo crudo) mediante los RadioButton rbPercent/rbCols.
     ///
     /// El constructor legacy recibía: StaInterFrm(int[,] ofparent, int ncol).
-    /// rsl = matriz de resultados [5,14]; numcol = nº total de columnas analizadas.
+    /// rsl = matriz de resultados; numcol = nº total de columnas analizadas.
     ///
-    /// NOTA DE PORT: la lógica de dominio (de dónde sale rsl/numcol y el cálculo
-    /// real) NO se implementa aquí; ver TODO en CargarDatos().
+    /// Los datos (rsl/numcol) los calcula AnastaticsViewModel (modo "Interrupciones")
+    /// e inyecta vía <see cref="CargarDatos"/>.
     /// </summary>
     public partial class StaInterFrmViewModel : ObservableObject
     {
@@ -58,7 +58,7 @@ namespace Free1X2.WinUI.Views.Ported
         private int _numColumnas;
 
         // Texto del nº de columnas (lncol.Text en el legacy).
-        public string NumColumnasTexto => _numColumnas.ToString();
+        public string NumColumnasTexto => NumColumnas.ToString();
 
         // Índice seleccionado en "mostrar": 0 = porcentajes, 1 = columnas.
         [ObservableProperty]
@@ -77,9 +77,6 @@ namespace Free1X2.WinUI.Views.Ported
                 for (int c = 0; c < Columnas; c++) Celdas[f][c] = "-";
             }
 
-            // TODO(dominio): el constructor legacy hacía rsl = ofparent; numcol = ncol;
-            //                aquí debe inyectarse la matriz real y el nº de columnas.
-            CargarDatos();
             Repintar();
         }
 
@@ -88,13 +85,18 @@ namespace Free1X2.WinUI.Views.Ported
         partial void OnNumColumnasChanged(int value) => OnPropertyChanged(nameof(NumColumnasTexto));
 
         /// <summary>
-        /// Equivalente a la inicialización del ctor legacy (rsl/numcol).
+        /// Carga la matriz calculada por el motor (equivale al ctor legacy
+        /// StaInterFrm(int[,] ofparent, int ncol): rsl = ofparent; numcol = ncol; PintaPantalla()).
+        /// Sólo se usan las columnas 0..13 (los partidos) de la matriz [15,15] del cálculo.
         /// </summary>
-        private void CargarDatos()
+        public void CargarDatos(int[,] rsl, int numcol)
         {
-            // TODO(dominio): poblar _rsl[5,14] y NumColumnas a partir de la reducción
-            // que abría StaInterFrm (clase legacy Free1X2.UI.Estadisticas.StaInterFrm,
-            // parámetros int[,] ofparent y int ncol). No implementado en el port de UI.
+            for (int f = 0; f < Filas; f++)
+                for (int c = 0; c < Columnas; c++)
+                    _rsl[f, c] = rsl[f, c];
+
+            NumColumnas = numcol;
+            Repintar();
         }
 
         /// <summary>
@@ -105,7 +107,7 @@ namespace Free1X2.WinUI.Views.Ported
         private void Repintar()
         {
             bool porcentajes = ModoMostrarIndex == 0;
-            int divisor = _numColumnas == 0 ? 1 : _numColumnas; // evita /0 (el legacy asumía numcol>0)
+            int divisor = NumColumnas == 0 ? 1 : NumColumnas; // evita /0 (el legacy asumía numcol>0)
 
             for (int f = 0; f < Filas; f++)
             {

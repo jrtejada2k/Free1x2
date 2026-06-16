@@ -1,6 +1,11 @@
+using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Free1X2.EntradaSalida;
+using Free1X2.MotorCalculo.Estadisticas;
+using Free1X2.WinUI.Services;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -9,11 +14,21 @@ namespace Free1X2.WinUI.Views.Ported;
 /// Calcula estadísticas sobre un fichero de columnas (combinaciones de 14 signos 1/X/2):
 /// el usuario elige un modo de análisis, selecciona el fichero origen, calcula y muestra
 /// los resultados en una ventana específica por modo.
-/// Toda la lógica de dominio (lectura del fichero, Dibujos/DibRepes/StaInter/StaSigSeg,
-/// y la apertura de DibForm/DibRepFrm/StaInterFrm/StaSSForm) está marcada como TODO.
+///
+/// Cableado al motor real: lectura con Free1X2.EntradaSalida.ArchivoColumnasTexto y cálculo
+/// con Free1X2.MotorCalculo.Estadisticas.{Dibujos,DibRepes,StaInter,StaSigSeg}. Los modos
+/// "Interrupciones" y "Signos seguidos" rellenan los ViewModels de resultados
+/// (StaInterFrmViewModel / StaSSFormViewModel). Los modos "Variantes,X,2" y "Sus coincidencias"
+/// (legacy DibForm / DibRepFrm) no están en el alcance de este port — ver TODO en MostrarResultados.
 /// </summary>
 public partial class AnastaticsViewModel : ObservableObject
 {
+    // Matriz de resultados (legacy: int[,] rsl = new int[15,15]) y nº de columnas leídas.
+    private readonly int[,] _rsl = new int[15, 15];
+    private string[] _columnas = Array.Empty<string>();
+    private int _numcol;
+    private string _rutaOrigen = string.Empty;
+
     // Modos de análisis = los 4 RadioButton del GroupBox "Condiciones" del form legacy.
     // Índices: 0 rdib, 1 rdibrep, 2 rinter, 3 rsigseg (orden visual del legacy).
     public IReadOnlyList<string> Modos { get; } = new[]
@@ -44,40 +59,207 @@ public partial class AnastaticsViewModel : ObservableObject
     [ObservableProperty]
     private bool _resultadosListos;
 
+    // --- Resultados (rellenados por MostrarResultados según el modo) ---
+
+    /// <summary>Resultado del modo "Interrupciones" (StaInter). Null hasta calcularlo.</summary>
+    [ObservableProperty]
+    private StaInterFrmViewModel? _resultadoInter;
+
+    /// <summary>Resultado del modo "Signos seguidos" (StaSigSeg). Null hasta calcularlo.</summary>
+    [ObservableProperty]
+    private StaSSFormViewModel? _resultadoSigSeg;
+
     [RelayCommand]
-    private void SeleccionarOrigen()
+    private async Task SeleccionarOrigenAsync()
     {
         // Equivale a SelOrigen() del Anastatics legacy.
-        // TODO: Dominio legacy —
-        //   OpenFileDialog (filtro "Columnas(*.txt)|*.txt|Todos (*.*)|*.*") -> usar FileOpenPicker.
-        //   IArchivoColumnas ac = new ArchivoColumnasTexto(filein);
-        //   while (ac.SiguienteColumna()) { validar con VerColumna(ac.LeeColumnaSinComas()); ... }
-        //   Volcar nombre de fichero a FicheroOrigen y el contador a ColumnasTexto.
-        // Tras leer correctamente: OrigenSeleccionado = true; ResultadosListos = false;
+        var picker = new Windows.Storage.Pickers.FileOpenPicker
+        {
+            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
+        };
+        picker.FileTypeFilter.Add(".txt");
+        picker.FileTypeFilter.Add("*");
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        var file = await picker.PickSingleFileAsync();
+        if (file == null) return;
+
+        _rutaOrigen = file.Path;
+        FicheroOrigen = file.Name;
+        OrigenSeleccionado = false;
+        ResultadosListos = false;
+
+        try
+        {
+            // Lectura + validación VerColumna (14 signos de {1,2,X,x}).
+            var (columnas, errorEn) = await Task.Run(() =>
+            {
+                var lista = new List<string>();
+                int idxError = -1;
+                IArchivoColumnas ac = new ArchivoColumnasTexto(_rutaOrigen);
+                while (ac.SiguienteColumna())
+                {
+                    string tmp = VerColumna(ac.LeeColumnaSinComas());
+                    if (tmp.Length == 0) { idxError = lista.Count; break; }
+                    lista.Add(tmp);
+                    if (lista.Count == 500000) break;
+                }
+                ac.Cerrar();
+                return (lista, idxError);
+            });
+
+            if (errorEn >= 0)
+            {
+                AppServices.MostrarError("columna errónea = " + errorEn);
+                return;
+            }
+
+            _columnas = columnas.ToArray();
+            _numcol = _columnas.Length;
+            ColumnasTexto = _numcol.ToString();
+            OrigenSeleccionado = true;
+        }
+        catch (Exception ex)
+        {
+            AppServices.MostrarError("No se ha podido leer el fichero: " + ex.Message);
+        }
     }
 
     [RelayCommand]
-    private void Calcular()
+    private async Task CalcularAsync()
     {
         // Equivale a Proceso() del Anastatics legacy.
-        // TODO: Dominio legacy — según ModoSeleccionado, instanciar
-        //   0 -> Free1X2.MotorCalculo.Estadisticas.Dibujos
-        //   1 -> Free1X2.MotorCalculo.Estadisticas.DibRepes
-        //   2 -> Free1X2.MotorCalculo.Estadisticas.StaInter
-        //   3 -> Free1X2.MotorCalculo.Estadisticas.StaSigSeg
-        //   recorrer las columnas con .Procesar(col) y acumular en la matriz int[15,15] rsl.
-        // Tras el cálculo: ResultadosListos = true;
+        if (_numcol == 0)
+        {
+            AppServices.MostrarError("No hay columnas que analizar.");
+            return;
+        }
+
+        int modo = ModoSeleccionado;
+        var columnas = _columnas;
+        int numcol = _numcol;
+
+        try
+        {
+            int[,] rsl = await Task.Run(() => Proceso(modo, columnas, numcol));
+            // Vuelca el resultado calculado a la matriz miembro.
+            Array.Clear(_rsl, 0, _rsl.Length);
+            for (int f = 0; f < 15; f++)
+                for (int c = 0; c < 15; c++)
+                    _rsl[f, c] = rsl[f, c];
+
+            ResultadosListos = true;
+        }
+        catch (Exception ex)
+        {
+            AppServices.MostrarError("Error en el cálculo: " + ex.Message);
+        }
     }
 
     [RelayCommand]
     private void MostrarResultados()
     {
         // Equivale a Mostrar() del Anastatics legacy.
-        // TODO: Dominio legacy — según ModoSeleccionado abrir la ventana de resultados:
-        //   0 -> DibForm(rsl, numcol)
-        //   1 -> DibRepFrm(rsl, numcol)
-        //   2 -> StaInterFrm(rsl, numcol)
-        //   3 -> StaSSForm(rsl, numcol)
-        // (en WinUI: navegar a la Page de resultados correspondiente).
+        if (!ResultadosListos) return;
+
+        switch (ModoSeleccionado)
+        {
+            case 2: // rinter -> StaInterFrm(rsl, numcol)
+                var inter = new StaInterFrmViewModel();
+                inter.CargarDatos(_rsl, _numcol);
+                ResultadoInter = inter;
+                break;
+            case 3: // rsigseg -> StaSSForm(rsl, numcol)
+                var ss = new StaSSFormViewModel();
+                ss.CargarDatos(_rsl, _numcol);
+                ResultadoSigSeg = ss;
+                break;
+            default:
+                // TODO: modos 0/1 — ver Free1X2/UI/Estadisticas/statistics.cs líneas 53-60
+                //   0 (rdib) -> DibForm(rsl, numcol); 1 (rdibrep) -> DibRepFrm(rsl, numcol).
+                //   DibForm/DibRepFrm no están en el alcance de este port (no portados a WinUI).
+                AppServices.MostrarInfo("La vista de resultados para este modo aún no está portada.");
+                break;
+        }
+    }
+
+    /// <summary>
+    /// Réplica de Proceso() del Anastatics legacy: según el modo, recorre las columnas con
+    /// la clase de estadística correspondiente y acumula en rsl[15,15].
+    /// </summary>
+    private static int[,] Proceso(int modo, string[] columnas, int numcol)
+    {
+        var rsl = new int[15, 15];
+        int[] ind;
+
+        switch (modo)
+        {
+            case 0: // rdib -> Dibujos
+                var dibs = new Dibujos();
+                for (int nr = 0; nr < numcol; nr++)
+                {
+                    ind = dibs.Procesar(columnas[nr]);
+                    rsl[ind[3], ind[4]]++;
+                }
+                break;
+
+            case 1: // rdibrep -> DibRepes
+                {
+                    int numx, num2;
+                    int num1 = numx = num2 = 0;
+                    var dibrep = new DibRepes();
+                    for (int nr = 0; nr < numcol; nr++)
+                    {
+                        ind = dibrep.Procesar(columnas[nr]);
+                        rsl[0, ind[0]]++;
+                        if (num1 == ind[2]) rsl[1, ind[2]]++;
+                        if (numx == ind[3]) rsl[2, ind[3]]++;
+                        if (num2 == ind[4]) rsl[3, ind[4]]++;
+                        if ((numx + num2) == (ind[3] + ind[4])) rsl[4, (numx + num2)]++;
+                        num1 = ind[2]; numx = ind[3]; num2 = ind[4];
+                    }
+                }
+                break;
+
+            case 2: // rinter -> StaInter
+                var inter = new StaInter();
+                for (int nr = 0; nr < numcol; nr++)
+                {
+                    ind = inter.Procesar(columnas[nr]);
+                    rsl[0, ind[0]]++;
+                    rsl[1, ind[2]]++;
+                    rsl[2, ind[3]]++;
+                    rsl[3, ind[4]]++;
+                    rsl[4, ind[1]]++;
+                }
+                break;
+
+            case 3: // rsigseg -> StaSigSeg
+                var sigseg = new StaSigSeg();
+                for (int nr = 0; nr < numcol; nr++)
+                {
+                    ind = sigseg.Procesar(columnas[nr]);
+                    rsl[0, ind[2]]++;
+                    rsl[1, ind[3]]++;
+                    rsl[2, ind[4]]++;
+                    rsl[3, ind[1]]++;
+                }
+                break;
+        }
+
+        return rsl;
+    }
+
+    /// <summary>Valida una columna: 14 signos de {1,2,x,X}; devuelve "" si es errónea (legacy VerColumna).</summary>
+    private static string VerColumna(string columna)
+    {
+        string chval = "12xX";
+        if (columna.Length != 14) return "";
+        for (int nr = 0; nr < 14; nr++)
+        {
+            char ch = columna[nr];
+            if (chval.IndexOf(ch) < 0) return "";
+        }
+        return columna.Replace('x', 'X');
     }
 }
