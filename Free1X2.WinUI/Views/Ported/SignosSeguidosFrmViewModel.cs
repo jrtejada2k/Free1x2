@@ -1,7 +1,11 @@
+using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.Generic;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml;
+using Free1X2;
+using Free1X2.MotorCalculo;
+using Free1X2.WinUI.Services;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -64,6 +68,18 @@ public partial class SignosSeguidosFrmViewModel : ObservableObject
     public Visibility FigurasDosesVisibility =>
         FigurasDosesActivas ? Visibility.Visible : Visibility.Collapsed;
 
+    // El form legacy rellena los campos vacíos con "0,1,...,14" (SignosSeguidosFrm.ActualizarDatos línea 345).
+    private const string TodosValores = "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14";
+
+    // Listas de figuras cargadas del filtro; se preservan al Aceptar (edición de figuras pendiente).
+    private List<long>? _figurasV;
+    private List<long>? _figuras1;
+    private List<long>? _figurasX;
+    private List<long>? _figuras2;
+
+    /// <summary>Acción para volver atrás (la cablea la página con Frame.GoBack()). CerrarVentana() legacy.</summary>
+    public Action? Volver { get; set; }
+
     // true si hay algún valor introducido (NecesitaGuardarDatos() del form legacy).
     public bool ContieneDatos =>
         !string.IsNullOrWhiteSpace(Variantes) ||
@@ -71,23 +87,76 @@ public partial class SignosSeguidosFrmViewModel : ObservableObject
         !string.IsNullOrWhiteSpace(Equis) ||
         !string.IsNullOrWhiteSpace(Doses);
 
+    /// <summary>
+    /// Vuelca los valores del FiltroSignosSeguidos del grupo en edición a la pantalla.
+    /// Equivale a SignosSeguidosFrm.MarcarValores() (Free1X2/UI/Filtros/SignosSeguidosFrm.cs líneas 75-87).
+    /// </summary>
+    public void CargarDesdeGrupo()
+    {
+        var grupo = AppState.GrupoEnEdicion;
+        if (grupo is null) return;
+
+        var filtro = (FiltroSignosSeguidos)grupo.GetFiltro(Filtro.SignosSeguidos.ToString());
+        Variantes = filtro.GetVariantes();
+        Unos = filtro.GetUnos();
+        Equis = filtro.GetEquis();
+        Doses = filtro.GetDoses();
+
+        _figurasV = filtro.FigurasV;
+        _figuras1 = filtro.Figuras1;
+        _figurasX = filtro.FigurasX;
+        _figuras2 = filtro.Figuras2;
+        FigurasVariantesActivas = _figurasV != null && _figurasV.Count > 0;
+        FigurasUnosActivas = _figuras1 != null && _figuras1.Count > 0;
+        FigurasEquisActivas = _figurasX != null && _figurasX.Count > 0;
+        FigurasDosesActivas = _figuras2 != null && _figuras2.Count > 0;
+    }
+
     [RelayCommand]
     private void Aceptar()
     {
-        // TODO: Dominio legacy — guardar valores en FiltroSignosSeguidos y activar la condición.
-        //   FiltroSignosSeguidos.ReinicializaValores();
-        //   FiltroSignosSeguidos.SetNoVariantes/SetNoUnos/SetNoEquis/SetNoDoses(...) con los valores de pantalla;
-        //   si un campo está vacío usar "0,1,...,14" (todosValores).
-        //   FiltroSignosSeguidos.FigurasV/Figuras1/FigurasX/Figuras2 = listas correspondientes (si Count > 0).
-        //   FiltroSignosSeguidos.IsActive = ContieneDatos; FiltroSignosSeguidos.ContieneDatos = ContieneDatos;
-        //   Grupo.ActivaFiltro(filtro); (equivale a menuCondiciones1_BOk -> ActualizarDatos() del SignosSeguidosFrm legacy).
+        // Equivale a SignosSeguidosFrm.menuCondiciones1_BOk -> ActualizarDatos() + ActivaFiltro
+        //   (Free1X2/UI/Filtros/SignosSeguidosFrm.cs líneas 343-534).
+        var grupo = AppState.GrupoEnEdicion;
+        if (grupo is null) { Volver?.Invoke(); return; }
+
+        var filtro = (FiltroSignosSeguidos)grupo.GetFiltro(Filtro.SignosSeguidos.ToString());
+        filtro.ReinicializaValores();
+
+        if (ContieneDatos)
+        {
+            if (filtro.ContieneDatos == false)
+            {
+                filtro.IsActive = true;
+            }
+            filtro.ContieneDatos = true;
+
+            filtro.SetNoVariantes(!string.IsNullOrWhiteSpace(Variantes) ? Variantes : TodosValores);
+            filtro.SetNoUnos(!string.IsNullOrWhiteSpace(Unos) ? Unos : TodosValores);
+            filtro.SetNoEquis(!string.IsNullOrWhiteSpace(Equis) ? Equis : TodosValores);
+            filtro.SetNoDoses(!string.IsNullOrWhiteSpace(Doses) ? Doses : TodosValores);
+
+            if (_figurasV != null && _figurasV.Count > 0) filtro.FigurasV = _figurasV;
+            if (_figuras1 != null && _figuras1.Count > 0) filtro.Figuras1 = _figuras1;
+            if (_figurasX != null && _figurasX.Count > 0) filtro.FigurasX = _figurasX;
+            if (_figuras2 != null && _figuras2.Count > 0) filtro.Figuras2 = _figuras2;
+        }
+        else
+        {
+            filtro.IsActive = false;
+            filtro.ContieneDatos = false;
+        }
+
+        grupo.ActivaFiltro(filtro);
+        AppState.Instancia.NotificarCambio();
+        Volver?.Invoke();
     }
 
     [RelayCommand]
     private void Cancelar()
     {
-        // TODO: Navegación legacy — cerrar la ventana sin aplicar cambios
-        //   (equivale a menuCondiciones1_BCancelar -> CerrarVentana() del SignosSeguidosFrm legacy).
+        // Equivale a menuCondiciones1_BCancelar -> CerrarVentana() (sin aplicar cambios).
+        Volver?.Invoke();
     }
 
     [RelayCommand]
@@ -98,6 +167,7 @@ public partial class SignosSeguidosFrmViewModel : ObservableObject
         Unos = string.Empty;
         Equis = string.Empty;
         Doses = string.Empty;
+        _figurasV = _figuras1 = _figurasX = _figuras2 = null;
         FigurasVariantesActivas = false;
         FigurasUnosActivas = false;
         FigurasEquisActivas = false;

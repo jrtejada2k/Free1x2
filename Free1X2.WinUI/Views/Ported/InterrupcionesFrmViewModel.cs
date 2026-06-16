@@ -1,5 +1,9 @@
+using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Free1X2;
+using Free1X2.MotorCalculo;
+using Free1X2.WinUI.Services;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -60,6 +64,15 @@ public partial class InterrupcionesFrmViewModel : ObservableObject
     [ObservableProperty]
     private string _seg2 = string.Empty;
 
+    // El form legacy rellena los campos vacíos con "0,1,...,14" (InterrupcionesFrm.ActualizarDatos línea 489).
+    private const string TodosValores = "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14";
+
+    // Nombre del filtro: en el enum es NoInterrupciones (el form usa la cadena "NoInterrupciones").
+    private static string NombreFiltro => Filtro.NoInterrupciones.ToString();
+
+    /// <summary>Acción para volver atrás (la cablea la página con Frame.GoBack()). CerrarVentana() legacy.</summary>
+    public Action? Volver { get; set; }
+
     // true si hay algún valor introducido (NecesitaGuardarDatos() del form legacy).
     public bool ContieneDatos =>
         !string.IsNullOrWhiteSpace(IntGlobal) ||
@@ -73,17 +86,69 @@ public partial class InterrupcionesFrmViewModel : ObservableObject
         !string.IsNullOrWhiteSpace(SegX) ||
         !string.IsNullOrWhiteSpace(Seg2);
 
+    /// <summary>
+    /// Vuelca los valores del FiltroInterrupciones del grupo en edición a la pantalla.
+    /// Equivale a InterrupcionesFrm.MarcarValores() (Free1X2/UI/Filtros/InterrupcionesFrm.cs líneas 90-103).
+    /// </summary>
+    public void CargarDesdeGrupo()
+    {
+        var grupo = AppState.GrupoEnEdicion;
+        if (grupo is null) return;
+
+        var filtro = (FiltroInterrupciones)grupo.GetFiltro(NombreFiltro);
+        IntGlobal = filtro.GetIntGlobales();
+        IntVar = filtro.GetIntVar();
+        Int1 = filtro.GetInt1();
+        IntX = filtro.GetIntX();
+        Int2 = filtro.GetInt2();
+
+        SegGlobal = filtro.GetIntGlobalSeg();
+        SegVar = filtro.GetIntVarSeg();
+        Seg1 = filtro.GetInt1Seg();
+        SegX = filtro.GetIntXSeg();
+        Seg2 = filtro.GetInt2Seg();
+    }
+
     [RelayCommand]
     private void Aceptar()
     {
-        // TODO: Dominio legacy — equivale a ActualizarDatos() + menuCondiciones1_BOk del InterrupcionesFrm.
-        //   FiltroInterrupciones.ReinicializaValores();
-        //   Si ContieneDatos: para cada campo, si tiene valor SetNoInt*(valor),
-        //     si no SetNoInt*("0,1,2,...,14") (todosValores).
-        //     Interrupciones:        SetNoIntGlobales/SetNoIntVar/SetNoInt1/SetNoIntX/SetNoInt2.
-        //     Interrupciones seguidas: SetNoIntGlobalSeg/SetNoIntVarSeg/SetNoInt1Seg/SetNoIntXSeg/SetNoInt2Seg.
-        //   filtro.IsActive = ContieneDatos; filtro.ContieneDatos = ContieneDatos;
-        //   FormPadre.analizador.GruposPartidos[...].ActivaFiltro(filtro); y cerrar la ventana.
+        // Equivale a InterrupcionesFrm.menuCondiciones1_BOk -> ActualizarDatos() + ActivaFiltro
+        //   (Free1X2/UI/Filtros/InterrupcionesFrm.cs líneas 487-717).
+        var grupo = AppState.GrupoEnEdicion;
+        if (grupo is null) { Volver?.Invoke(); return; }
+
+        var filtro = (FiltroInterrupciones)grupo.GetFiltro(NombreFiltro);
+        filtro.ReinicializaValores();
+
+        if (ContieneDatos)
+        {
+            if (filtro.ContieneDatos == false)
+            {
+                filtro.IsActive = true;
+            }
+            filtro.ContieneDatos = true;
+
+            filtro.SetNoIntGlobales(!string.IsNullOrWhiteSpace(IntGlobal) ? IntGlobal : TodosValores);
+            filtro.SetNoIntVar(!string.IsNullOrWhiteSpace(IntVar) ? IntVar : TodosValores);
+            filtro.SetNoInt1(!string.IsNullOrWhiteSpace(Int1) ? Int1 : TodosValores);
+            filtro.SetNoIntX(!string.IsNullOrWhiteSpace(IntX) ? IntX : TodosValores);
+            filtro.SetNoInt2(!string.IsNullOrWhiteSpace(Int2) ? Int2 : TodosValores);
+
+            filtro.SetNoIntGlobalSeg(!string.IsNullOrWhiteSpace(SegGlobal) ? SegGlobal : TodosValores);
+            filtro.SetNoIntVarSeg(!string.IsNullOrWhiteSpace(SegVar) ? SegVar : TodosValores);
+            filtro.SetNoInt1Seg(!string.IsNullOrWhiteSpace(Seg1) ? Seg1 : TodosValores);
+            filtro.SetNoIntXSeg(!string.IsNullOrWhiteSpace(SegX) ? SegX : TodosValores);
+            filtro.SetNoInt2Seg(!string.IsNullOrWhiteSpace(Seg2) ? Seg2 : TodosValores);
+        }
+        else
+        {
+            filtro.IsActive = false;
+            filtro.ContieneDatos = false;
+        }
+
+        grupo.ActivaFiltro(filtro);
+        AppState.Instancia.NotificarCambio();
+        Volver?.Invoke();
     }
 
     [RelayCommand]
@@ -142,7 +207,7 @@ public partial class InterrupcionesFrmViewModel : ObservableObject
     [RelayCommand]
     private void Cancelar()
     {
-        // Equivale a menuCondiciones1_BCancelar -> CerrarVentana() del InterrupcionesFrm legacy.
-        // TODO: navegación — cerrar/volver a la página anterior.
+        // Equivale a menuCondiciones1_BCancelar -> CerrarVentana() (sin aplicar cambios).
+        Volver?.Invoke();
     }
 }
