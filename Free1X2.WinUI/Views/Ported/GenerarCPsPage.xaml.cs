@@ -13,5 +13,6 @@ public sealed partial class GenerarCPsPage : Page
     public GenerarCPsPage()
     {
         InitializeComponent();
+        ViewModel.Navegar = tipo => Frame?.Navigate(tipo);
     }
 }

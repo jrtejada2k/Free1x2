@@ -16,5 +16,6 @@ public sealed partial class CompresorPage : Page
     public CompresorPage()
     {
         InitializeComponent();
+        ViewModel.Volver = () => { if (Frame?.CanGoBack == true) Frame.GoBack(); };
     }
 }
