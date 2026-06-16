@@ -1,5 +1,9 @@
+using System;
+
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+
+using Free1X2.EntradaSalida;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -29,13 +33,12 @@ public partial class SalirFrmViewModel : ObservableObject
     [RelayCommand]
     private void ConfirmarSalida()
     {
+        // Legacy: SalirFrm.btnOK_Click -> exit = true; guardar preferencia; this.Close();
         SalirConfirmado = true;
         GuardarPreferenciaAdvertencia();
 
-        // TODO[dominio]: cerrar la aplicación tras confirmar.
-        //   Legacy: SalirFrm.btnOK_Click ponía exit = true y this.Close();
-        //   el MainForm consumía SalirFrm.exit para terminar la app.
-        //   En WinUI decidir aquí Application.Current.Exit() o cerrar la ventana host.
+        // Legacy: MainForm consumía SalirFrm.exit para terminar la app.
+        Microsoft.UI.Xaml.Application.Current.Exit();
     }
 
     /// <summary>
@@ -44,23 +47,32 @@ public partial class SalirFrmViewModel : ObservableObject
     [RelayCommand]
     private void CancelarSalida()
     {
+        // Legacy: SalirFrm.btnCancel_Click -> exit = false; guardar preferencia; this.Close().
         SalirConfirmado = false;
         GuardarPreferenciaAdvertencia();
-
-        // TODO[dominio]: cerrar el diálogo sin salir.
-        //   Legacy: SalirFrm.btnCancel_Click ponía exit = false y this.Close();
-        //   En navegación WinUI, invocar Frame.GoBack() o cerrar el host contenedor.
+        // El cierre del diálogo/navegación lo gestiona la página host (code-behind / Frame).
     }
 
     /// <summary>
     /// Persiste si debe seguir mostrándose la advertencia de salida.
+    /// Legacy: AConfiguracion.GuardarConfiguracionAdvertenciaSalir(!chbNoMostrar.Checked),
+    /// es decir se guarda "mostrar = !NoMostrarDeNuevo".
     /// </summary>
     private void GuardarPreferenciaAdvertencia()
     {
-        // TODO[dominio]: guardar la preferencia de advertencia de salida.
-        //   Legacy: new AConfiguracion(Application.StartupPath)
-        //           .GuardarConfiguracionAdvertenciaSalir(!chbNoMostrar.Checked);
-        //   Es decir, se guarda "mostrar = !NoMostrarDeNuevo".
-        //   El dominio (Free1X2.EntradaSalida.AConfiguracion) aún no está migrado.
+        try
+        {
+            // Legacy: new AConfiguracion(Application.StartupPath). En WinUI el directorio
+            // de inicio equivale a AppContext.BaseDirectory, que es el ctor por defecto.
+            var aConf = new AConfiguracion();
+            aConf.GuardarConfiguracionAdvertenciaSalir(!NoMostrarDeNuevo);
+        }
+        catch (Exception ex)
+        {
+            // El legacy no protegía esta llamada, pero en WinUI evitamos tumbar la app
+            // si parametros.free1x2 no está presente; se informa por el servicio de errores.
+            Services.AppServices.MostrarError(
+                $"No se pudo guardar la preferencia de salida: {ex.Message}");
+        }
     }
 }

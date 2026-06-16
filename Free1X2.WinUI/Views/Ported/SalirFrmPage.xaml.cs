@@ -18,19 +18,20 @@ public sealed partial class SalirFrmPage : Page
 
     private void OnConfirmarClick(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
+        // Legacy: SalirFrm.btnOK_Click -> exit = true; this.Close().
+        // El comando guarda la preferencia y llama Application.Current.Exit().
         ViewModel.ConfirmarSalidaCommand.Execute(null);
-
-        // TODO[dominio]: tras confirmar, terminar la aplicación.
-        //   Legacy: SalirFrm.btnOK_Click -> exit = true; this.Close();
-        //   MainForm consumía SalirFrm.exit para cerrar la app.
     }
 
     private void OnCancelarClick(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
+        // Legacy: SalirFrm.btnCancel_Click -> exit = false; this.Close().
         ViewModel.CancelarSalidaCommand.Execute(null);
 
-        // TODO[dominio]: cerrar el diálogo sin salir.
-        //   Legacy: SalirFrm.btnCancel_Click -> exit = false; this.Close();
-        //   En navegación WinUI, invocar Frame.GoBack() o cerrar el host contenedor.
+        // Cerrar el diálogo sin salir: si esta página está dentro de un Frame, retroceder.
+        if (Frame is { CanGoBack: true })
+        {
+            Frame.GoBack();
+        }
     }
 }
