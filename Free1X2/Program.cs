@@ -61,6 +61,15 @@ namespace Free1X2
             Free1X2.Abstractions.UiPump.Pump = Application.DoEvents;
             Free1X2.Abstractions.UserDialogs.ShowError = m => MessageBox.Show(m, "Error");
             Free1X2.Abstractions.UserDialogs.ShowInfo  = m => MessageBox.Show(m);
+            // Portapapeles: misma lógica que tenía Porcentajes con System.Windows.Forms.Clipboard.
+            Free1X2.Abstractions.Clipboard.Write = cadena => Clipboard.SetDataObject(cadena, true);
+            Free1X2.Abstractions.Clipboard.Read  = () =>
+            {
+                IDataObject iData = Clipboard.GetDataObject();
+                if (iData != null && iData.GetDataPresent(DataFormats.Text))
+                    return (string)iData.GetData(DataFormats.Text);
+                return string.Empty;
+            };
             Free1X2.Abstractions.AnalisisUi.MostrarVisor = (cont, grupo) =>
             {
                 var v = new Free1X2.UI.VisorAnalisisColumnasFrm(

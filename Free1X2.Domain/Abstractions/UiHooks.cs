@@ -33,4 +33,16 @@ namespace Free1X2.Abstractions
     {
         public static Action<object, object> MostrarVisor = static (_, __) => { };
     }
+
+    /// <summary>
+    /// Portapapeles desacoplado. El dominio formatea/parsea texto sin depender de
+    /// <c>System.Windows.Forms.Clipboard</c>. La UI asigna las implementaciones
+    /// (WinForms Clipboard / WinUI DataPackage); por defecto leer devuelve vacío y
+    /// escribir es no-op (headless/tests/WinUI sin cablear).
+    /// </summary>
+    public static class Clipboard
+    {
+        public static Func<string> Read  = static () => string.Empty;
+        public static Action<string> Write = static _ => { };
+    }
 }
