@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.IO;
+using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
@@ -21,6 +24,74 @@ public sealed partial class MainWindow : Window
 
         PoblarPantallasPortadas();
         ContentFrame.Navigate(typeof(MainPage));
+
+        // Smoke test permanente: solo se activa con FREE1X2_SMOKE=1. En ejecucion
+        // normal es un no-op. Recorre todas las pantallas portadas (+ MainPage/HomePage),
+        // registra fallos en %TEMP%\free1x2_smoke.log y cierra la app con exit 0.
+        if (Environment.GetEnvironmentVariable("FREE1X2_SMOKE") == "1")
+        {
+            IniciarSmokeTest();
+        }
+    }
+
+    // ===== Smoke test gated por FREE1X2_SMOKE (permanente, no-op sin la env var) =====
+
+    private DispatcherQueueTimer? _smokeTimer;
+    private List<Type>? _smokeRuta;
+    private int _smokeIndice;
+    private int _smokeOk;
+    private int _smokeFail;
+    private string _smokeLog = "";
+
+    private void IniciarSmokeTest()
+    {
+        _smokeLog = Path.Combine(Path.GetTempPath(), "free1x2_smoke.log");
+        try { File.WriteAllText(_smokeLog, "SMOKE START\r\n"); } catch { }
+
+        // Ruta: MainPage + HomePage + todas las pantallas portadas del registro.
+        _smokeRuta = new List<Type> { typeof(MainPage), typeof(HomePage) };
+        foreach (var p in PortedPagesRegistry.All)
+            _smokeRuta.Add(p.PageType);
+
+        _smokeIndice = 0;
+        _smokeOk = 0;
+        _smokeFail = 0;
+
+        _smokeTimer = DispatcherQueue.CreateTimer();
+        _smokeTimer.Interval = TimeSpan.FromMilliseconds(120);
+        _smokeTimer.Tick += SmokeTimer_Tick;
+        _smokeTimer.Start();
+    }
+
+    private void SmokeTimer_Tick(DispatcherQueueTimer sender, object args)
+    {
+        if (_smokeRuta == null) { return; }
+
+        if (_smokeIndice >= _smokeRuta.Count)
+        {
+            _smokeTimer?.Stop();
+            int total = _smokeOk + _smokeFail;
+            SmokeAppend($"SMOKE DONE total={total} ok={_smokeOk} fail={_smokeFail}");
+            Application.Current.Exit();
+            return;
+        }
+
+        Type pageType = _smokeRuta[_smokeIndice++];
+        try
+        {
+            ContentFrame.Navigate(pageType);
+            _smokeOk++;
+        }
+        catch (Exception ex)
+        {
+            _smokeFail++;
+            SmokeAppend($"FAIL {pageType.FullName}: {ex.GetType().Name}: {ex.Message}");
+        }
+    }
+
+    private void SmokeAppend(string linea)
+    {
+        try { File.AppendAllText(_smokeLog, linea + "\r\n"); } catch { }
     }
 
     // Puebla el NavigationView con las pantallas portadas desde WinForms (data-driven).

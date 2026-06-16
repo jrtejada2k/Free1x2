@@ -6,6 +6,15 @@
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     <RootNamespace>Free1X2.WinUI</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- Icono de la aplicacion (mismo .ico que la app WinForms). Se incrusta en el exe. -->
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
+    <!-- Metadatos del ensamblado / producto -->
+    <Product>Free1X2</Product>
+    <Authors>Free1X2.com</Authors>
+    <Company>Free1X2.com</Company>
+    <AssemblyVersion>0.78.0</AssemblyVersion>
+    <FileVersion>0.78.0</FileVersion>
+    <Version>0.78.0</Version>
     <Platforms>x86;x64;ARM64</Platforms>
     <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
     <UseWinUI>true</UseWinUI>
@@ -35,13 +44,18 @@
   </ItemGroup>
 
   <!-- Datos semilla del motor (config, idioma, equipos, impresión). Se copian junto
-       al exe preservando la estructura de carpetas; el dominio los lee con
-       System.AppContext.BaseDirectory. Sin ellos, Analizador/AConfiguracion crashea
-       al arrancar por falta de parametros.free1x2. -->
+       al exe preservando la estructura de carpetas (Equipos/, Idioma/, Impresion/);
+       el dominio los lee con System.AppContext.BaseDirectory. Sin ellos,
+       Analizador/AConfiguracion crashea al arrancar por falta de parametros.free1x2.
+       Se usa TargetPath (no Link) + CopyToPublishDirectory para que tanto 'build'
+       como 'publish' reubiquen los ficheros desde Datos/ a la raiz de salida
+       conservando los subdirectorios. Link es solo metadato de IDE y no fluye a
+       'dotnet publish', lo que dejaba fuera Equipos/Idioma/Impresion del paquete. -->
   <ItemGroup>
     <Content Include="Datos\**\*">
-      <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <TargetPath>%(RecursiveDir)%(Filename)%(Extension)</TargetPath>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
   </ItemGroup>
 
