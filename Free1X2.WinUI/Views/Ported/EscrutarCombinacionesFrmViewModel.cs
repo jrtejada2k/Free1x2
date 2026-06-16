@@ -1,8 +1,13 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Free1X2.WinUI.Services;
 using Microsoft.UI.Xaml;
+using Windows.Storage.Pickers;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -98,6 +103,12 @@ public partial class EscrutarCombinacionesFrmViewModel : ObservableObject
     /// <summary>Ficheros de combinaciones seleccionados a escrutar (listaFicheros).</summary>
     public ObservableCollection<string> FicherosAEscrutar { get; } = new();
 
+    // Rutas completas de los ficheros a escrutar (legacy: archivosComb, string[]).
+    private readonly List<string> _archivosComb = new();
+
+    // Ruta completa del fichero de referencia (legacy: archivoRef / lblFileRef.Tag).
+    private string _archivoRef = string.Empty;
+
     // ===== Modo simple: columna ganadora =====
     /// <summary>14 casillas de signo de la columna ganadora (txtCG1..txtCG14).</summary>
     public ObservableCollection<SignoGanadorViewModel> SignosGanadores { get; } = new();
@@ -146,40 +157,76 @@ public partial class EscrutarCombinacionesFrmViewModel : ObservableObject
     // ===== Acciones =====
 
     [RelayCommand]
-    private void SeleccionarFicheros()
+    private async Task SeleccionarFicherosAsync()
     {
-        // TODO (dominio): replicar BtnFileOrigClick de EscrutarCombinacionesFrm.
-        // Abrir OpenFileDialog multiselección (*.comb, *.xml) en "Columnas\\" y volcar
-        // los nombres en FicherosAEscrutar (legacy: archivosComb / listaFicheros).
+        // Legacy BtnFileOrigClick: OpenFileDialog multiselección (*.comb, *.xml) en "Columnas\\".
+        var picker = new FileOpenPicker
+        {
+            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
+        };
+        picker.FileTypeFilter.Add(".comb");
+        picker.FileTypeFilter.Add(".xml");
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        var files = await picker.PickMultipleFilesAsync();
+        if (files == null || files.Count == 0) return;
+
+        _archivosComb.Clear();
+        FicherosAEscrutar.Clear();
+        foreach (var f in files)
+        {
+            _archivosComb.Add(f.Path);
+            FicherosAEscrutar.Add(f.Name);
+        }
     }
 
     [RelayCommand]
-    private void SeleccionarFicheroReferencia()
+    private async Task SeleccionarFicheroReferenciaAsync()
     {
-        // TODO (dominio): replicar BtnFileRefClick de EscrutarCombinacionesFrm.
-        // Abrir OpenFileDialog (*.txt) en "Columnas\\" y asignar a FicheroReferencia
-        // (legacy: archivoRef / lblFileRef + lblFileRef.Tag).
+        // Legacy BtnFileRefClick: OpenFileDialog (*.txt) en "Columnas\\".
+        var picker = new FileOpenPicker
+        {
+            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
+        };
+        picker.FileTypeFilter.Add(".txt");
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        var file = await picker.PickSingleFileAsync();
+        if (file == null) return;
+
+        _archivoRef = file.Path;
+        FicheroReferencia = file.Name;
     }
 
     [RelayCommand]
-    private void SeleccionarCarpeta()
+    private async Task SeleccionarCarpetaAsync()
     {
-        // TODO (dominio): replicar btnBuscarCarpeta_Click de EscrutarCombinacionesFrm.
-        // Abrir FolderBrowserDialog y asignar a CarpetaJornadas (legacy: lblCarpeta).
+        // Legacy btnBuscarCarpeta_Click: FolderBrowserDialog -> lblCarpeta.
+        var picker = new FolderPicker
+        {
+            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
+        };
+        picker.FileTypeFilter.Add("*");
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        var folder = await picker.PickSingleFolderAsync();
+        if (folder == null) return;
+
+        CarpetaJornadas = folder.Path;
     }
 
     [RelayCommand]
     private void InsertarMarcadorTemporada()
     {
-        // TODO (dominio): replicar incluirPrefijo_click (btnIntrTemp) — insertar "/t"
-        // en PlantillaNombreArchivo (legacy: txtNombreArchBase).
+        // Legacy incluirPrefijo_click (btnIntrTemp): inserta "/t" en txtNombreArchBase.
+        PlantillaNombreArchivo += "/t";
     }
 
     [RelayCommand]
     private void InsertarMarcadorJornada()
     {
-        // TODO (dominio): replicar incluirPrefijo_click (btnIntrJorn) — insertar "/j"
-        // en PlantillaNombreArchivo (legacy: txtNombreArchBase).
+        // Legacy incluirPrefijo_click (btnIntrJorn): inserta "/j" en txtNombreArchBase.
+        PlantillaNombreArchivo += "/j";
     }
 
     [RelayCommand]
@@ -192,40 +239,129 @@ public partial class EscrutarCombinacionesFrmViewModel : ObservableObject
     [RelayCommand]
     private void Escrutar()
     {
-        // TODO (dominio): replicar BtnComienzoClick + RealizaEscrutinio de
-        // EscrutarCombinacionesFrm. Validar (SonDatosValidos), construir colAciertos
-        // (RangosHelper), instanciar EscrutadorComb por modo (Simple/Fichero/Jornadas),
-        // ObtenerPosiblesPremios + EscrutarCombinacion, acumular premios globales y
-        // volcar a Resultados + TiempoTexto.
+        // Validación previa equivalente a SonDatosValidos() (legacy línea 502), subconjunto
+        // soportable sin el dataset de jornadas.
+        int tipoEscrutinio = ModoSeleccionadoIndex + 1; // 1=Simple, 2=Fichero, 3=Jornadas (legacy Tag).
+        if (_archivosComb.Count == 0 && tipoEscrutinio != 3)
+        {
+            AppServices.MostrarError("Falta fichero a escrutar.");
+            return;
+        }
+        if (tipoEscrutinio == 1)
+        {
+            string col = ObtenerColumnaGanadora();
+            if (col.Replace("*", "") == string.Empty)
+            {
+                AppServices.MostrarError("Falta columna ganadora.");
+                return;
+            }
+        }
+        else if (tipoEscrutinio == 2 && _archivoRef.Length == 0)
+        {
+            AppServices.MostrarError("Falta fichero referencia.");
+            return;
+        }
+        else if (tipoEscrutinio == 3)
+        {
+            if (PlantillaNombreArchivo.Length == 0)
+            {
+                AppServices.MostrarError("Falta plantilla de nombre de fichero.");
+                return;
+            }
+            if (CarpetaJornadas.Length == 0)
+            {
+                AppServices.MostrarError("Falta la carpeta de los ficheros.");
+                return;
+            }
+            if (PlantillaNombreArchivo.IndexOf("/t", StringComparison.Ordinal) < 0)
+            {
+                AppServices.MostrarError("No se ha puesto el indicador de temporada (/t).");
+                return;
+            }
+            if (PlantillaNombreArchivo.IndexOf("/j", StringComparison.Ordinal) < 0)
+            {
+                AppServices.MostrarError("No se ha puesto el indicador de jornada (/j).");
+                return;
+            }
+        }
+
+        // TODO (dominio): ejecutar el escrutinio real (legacy BtnComienzoClick + RealizaEscrutinio,
+        //   Free1X2/UI/EscrutarCombinacionesFrm.cs línea 220-348). Bloqueado: usa EscrutadorComb
+        //   (ObtenerPosiblesPremios + EscrutarCombinacion), que NO está portado al dominio:
+        //   vive en Free1X2/Escrutinio/EscrutadorComb.cs. Cuando se porte, replicar:
+        //     - RangosHelper.ObtenIntArray(NoAciertos) -> colAciertos.
+        //     - InicializaResultadosDataSet() (legacy línea 139): DataSet "Resultados" con columnas
+        //       Seleccionado/LineaID/Columna/Archivo y P0..P(NumeroPartidos). NUNCA pasar un DataSet
+        //       sin la tabla "Resultados": el motor escribe filas vía PonerPremios y lanzaría
+        //       NullReferenceException (ver CrearDataSetResultados de EscrutiniosFrmViewModel).
+        //     - new EscrutadorComb(colAciertos) por modo, ObtenerPosiblesPremios(colGan, colAciertos),
+        //       EscrutarCombinacion(jornada), acumular premiosGlobales y volcar a Resultados + TiempoTexto.
+        AppServices.MostrarInfo(
+            "El escrutinio de combinaciones requiere EscrutadorComb, que aún no está portado al dominio. " +
+            "Los ficheros y parámetros ya están preparados.");
+    }
+
+    /// <summary>
+    /// Compone la columna ganadora a partir de los toggles de signos (legacy: ObtenColGanadora,
+    /// Free1X2/UI/EscrutarCombinacionesFrm.cs línea 370). Vacío => comodín '*'.
+    /// </summary>
+    private string ObtenerColumnaGanadora()
+    {
+        // Si el usuario tecleó la columna como texto, tiene prioridad (legacy txtColGanadora).
+        if (!string.IsNullOrWhiteSpace(ColumnaGanadoraTexto))
+        {
+            return ColumnaGanadoraTexto.Trim().ToUpper();
+        }
+
+        var sb = new System.Text.StringBuilder();
+        foreach (var s in SignosGanadores)
+        {
+            if (s.Es1) sb.Append('1');
+            else if (s.EsX) sb.Append('X');
+            else if (s.Es2) sb.Append('2');
+            else sb.Append('*');
+        }
+        return sb.ToString();
     }
 
     [RelayCommand]
     private void PosiblesPremios()
     {
-        // TODO (dominio): replicar btnPosiblesPremios_Click de EscrutarCombinacionesFrm.
+        // Legacy btnPosiblesPremios_Click (Free1X2/UI/EscrutarCombinacionesFrm.cs línea 2014):
+        //   new PosiblesPremiosFrm().Show().
+        // TODO[navegación]: navegar a PosiblesPremiosFrmPage (su ViewModel ya está cableado).
+        //   El host de navegación entre páginas no está en el alcance de este lote.
+        AppServices.MostrarInfo("Posibles premios: la navegación entre páginas se cableará con el shell.");
     }
 
     [RelayCommand]
     private void SeleccionarTodas()
     {
         // TODO (dominio): replicar btnEnableSel_Click — marcar todas las filas de dgResultados.
+        //   Bloqueado: las filas de resultado las produce el escrutinio con EscrutadorComb
+        //   (no portado, Free1X2/Escrutinio/EscrutadorComb.cs).
     }
 
     [RelayCommand]
     private void DeseleccionarTodas()
     {
         // TODO (dominio): replicar btnDisabSel_Click — desmarcar todas las filas de dgResultados.
+        //   Bloqueado igual que SeleccionarTodas (EscrutadorComb no portado).
     }
 
     [RelayCommand]
     private void GrabarColumnas()
     {
-        // TODO (dominio): replicar btnGrabaCols_Click — grabar las columnas seleccionadas.
+        // TODO (dominio): replicar btnGrabaCols_Click — grabar las columnas seleccionadas
+        //   (Free1X2/UI/EscrutarCombinacionesFrm.cs línea 1717). Bloqueado: requiere las filas
+        //   de resultado generadas por EscrutadorComb (no portado).
     }
 
     [RelayCommand]
     private void VerPremiadasAccion()
     {
-        // TODO (dominio): replicar btnVerPremiadas_Click — mostrar las columnas premiadas.
+        // TODO (dominio): replicar btnVerPremiadas_Click — mostrar las columnas premiadas
+        //   (Free1X2/UI/EscrutarCombinacionesFrm.cs línea 1741). Bloqueado: la lista de premiadas
+        //   la acumula EscrutadorComb (no portado).
     }
 }
