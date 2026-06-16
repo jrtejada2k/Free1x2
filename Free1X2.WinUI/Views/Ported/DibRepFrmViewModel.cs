@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Free1X2.WinUI.Views.Ported
@@ -16,12 +17,26 @@ namespace Free1X2.WinUI.Views.Ported
     //   - conteo bruto: rsl[f,c]                            (rbCols.Checked)
     // y un GroupBox "mostrar" con radios "porcentajes" / "columnas" que alterna el modo.
     //
-    // NOTA: la matriz de datos y numcol provienen del dominio (clase legacy DibRepFrm /
-    // el form padre que la construye). Aqui se exponen propiedades string ya formateadas
-    // para no violar las reglas anti-crash del XamlCompiler (no bind de int/double a TextBlock.Text).
-
+    // Es un sub-diálogo de SÓLO PRESENTACIÓN (sin E/S de fichero ni motor): formatea la matriz
+    // que entrega su form padre. En WinUI esa matriz llega por el handoff estático
+    // MatrizEntrada / NumColEntrada (igual patrón que AppState.GrupoEnEdicion). Mientras el
+    // productor (form padre) no lo rellene, la tabla se muestra a 0 (TODO documentado).
     public partial class DibRepFrmViewModel : ObservableObject
     {
+        /// <summary>
+        /// Matriz int[5,15] entregada por el form padre (legacy: ctor DibRepFrm(int[,] ofparent, int ncol)).
+        /// Handoff estático de proceso, análogo a AppState.GrupoEnEdicion.
+        /// TODO[dominio]: el productor (pantalla padre) debe asignar esta matriz y NumColEntrada
+        ///   antes de navegar a DibRepFrmPage (Free1X2/UI/Estadisticas/DibRepFrm.cs, constructor).
+        /// </summary>
+        public static int[,]? MatrizEntrada { get; set; }
+
+        /// <summary>Total de columnas analizadas (legacy: numcol). Handoff estático.</summary>
+        public static int NumColEntrada { get; set; }
+
+        private readonly int[,] _rsl;
+        private readonly int _numcol;
+
         // Numero de columnas total (numcol del form legacy). Expuesto como string para binding seguro.
         [ObservableProperty]
         private string _numColumnasTexto = "0";
@@ -49,16 +64,45 @@ namespace Free1X2.WinUI.Views.Ported
 
         public DibRepFrmViewModel()
         {
-            // TODO (dominio): poblar 'Filas', 'NumColumnasTexto' y aplicar el formato porcentaje/conteo
-            // a partir de la matriz int[5,15] (rsl) y numcol que entrega el form padre legacy
-            // (constructor DibRepFrm(int[,] ofparent, int ncol) -> PintaPantalla()/Porcentajes()/PintaColumnas()).
-            // Cuando MostrarPorcentajes cambie hay que reformatear las celdas:
-            //   porcentaje  = (rsl[f,c] * 10000 / numcol) / 1E2
-            //   conteo      = rsl[f,c]
-            // Por ahora se dejan placeholders para que la Page renderice sin datos de dominio.
-            for (int f = 0; f < EtiquetasFilas.Count; f++)
+            // Toma el handoff del form padre (legacy: rsl = ofparent; numcol = ncol).
+            _rsl = MatrizEntrada ?? new int[5, 15];
+            _numcol = NumColEntrada;
+            Repintar();
+        }
+
+        // Reacciona al cambio del selector "mostrar" (rbCols.CheckedChanged -> PintaPantalla legacy).
+        partial void OnMostrarPorcentajesChanged(bool value)
+        {
+            Repintar();
+        }
+
+        /// <summary>
+        /// Equivale a DibRepFrm.PintaPantalla() del legacy: rellena cada celda con el porcentaje
+        /// (rsl[f,c]*10000/numcol)/1E2 o el conteo bruto rsl[f,c] según el modo.
+        /// </summary>
+        private void Repintar()
+        {
+            NumColumnasTexto = _numcol.ToString();
+
+            Filas.Clear();
+            int filas = _rsl.GetLength(0);
+            int cols = _rsl.GetLength(1);
+            int divisor = _numcol == 0 ? 1 : _numcol;
+            var inv = CultureInfo.InvariantCulture;
+
+            for (int f = 0; f < filas; f++)
             {
-                var fila = new FilaCoincidencias(EtiquetasFilas[f]);
+                string etiqueta = f < EtiquetasFilas.Count ? EtiquetasFilas[f] : f.ToString();
+                var fila = new FilaCoincidencias(etiqueta);
+                fila.Celdas.Clear();
+                for (int c = 0; c < cols; c++)
+                {
+                    int valor = _rsl[f, c];
+                    string texto = MostrarPorcentajes
+                        ? ((valor * 10000 / divisor) / 1E2).ToString(inv)
+                        : valor.ToString(inv);
+                    fila.Celdas.Add(texto);
+                }
                 Filas.Add(fila);
             }
         }
@@ -78,7 +122,7 @@ namespace Free1X2.WinUI.Views.Ported
             Etiqueta = etiqueta;
             for (int c = 0; c < 15; c++)
             {
-                Celdas.Add("-"); // TODO (dominio): valor real desde rsl[fila, c].
+                Celdas.Add("-"); // Valor por defecto; Repintar() lo sustituye por rsl[fila, c].
             }
         }
     }

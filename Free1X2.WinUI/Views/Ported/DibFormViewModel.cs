@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
+using System.Text;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Free1X2.WinUI.Views.Ported;
@@ -25,11 +27,26 @@ public sealed class DibFila
 /// y pinta una rejilla de etiquetas: celdas lt#### (matriz), totales de fila lx##,
 /// totales de columna ld## y totales de diagonal/variantes lv##. El RadioButton "mostrar"
 /// alterna entre Porcentajes() (rbPercent, por defecto) y PintaColumnas() (rbCols).
-/// Toda la lógica de dominio (la matriz rsl, numcol y el cálculo de porcentajes/columnas)
-/// está marcada como TODO.
+///
+/// Es un sub-diálogo de SÓLO PRESENTACIÓN: no tiene E/S de fichero ni llama al motor; sólo
+/// formatea la matriz que le entrega su form padre (Anastatics). En WinUI esa matriz se
+/// entrega mediante el handoff estático <see cref="MatrizEntrada"/> / <see cref="NumColEntrada"/>,
+/// que rellena el productor antes de navegar (igual patrón que AppState.GrupoEnEdicion).
+/// Mientras Anastatics no lo rellene la tabla se muestra a 0 (TODO documentado).
 /// </summary>
 public partial class DibFormViewModel : ObservableObject
 {
+    /// <summary>
+    /// Matriz int[15,15] entregada por el form padre (legacy: ctor DibForm(int[,] ofparent, int ncol)).
+    /// Handoff estático de proceso, análogo a AppState.GrupoEnEdicion.
+    /// TODO[dominio]: el productor (AnastaticsViewModel / pantalla padre) debe asignar esta matriz
+    ///   y NumColEntrada antes de navegar a DibFormPage (Free1X2/UI/Estadisticas/DibForm.cs línea 244).
+    /// </summary>
+    public static int[,]? MatrizEntrada { get; set; }
+
+    /// <summary>Total de columnas analizadas (legacy: numcol). Handoff estático.</summary>
+    public static int NumColEntrada { get; set; }
+
     // Cabeceras de signo de las filas (label2..label9 + label238/label272/... del legacy).
     // Orden visual del legacy: "2","1","3","0","13","..." — aquí índice de fila 0..14.
     private static readonly IReadOnlyList<string> CabecerasFila = new[]
@@ -37,6 +54,10 @@ public partial class DibFormViewModel : ObservableObject
         "0", "1", "2", "3", "4", "5", "6", "7",
         "8", "9", "10", "11", "12", "13", "14",
     };
+
+    // Matriz y total de columnas tomados del handoff en construcción.
+    private readonly int[,] _rsl;
+    private readonly int _numcol;
 
     // rbPercent.Checked = true por defecto => MostrarColumnas = false (porcentajes).
     // ToggleSwitch.IsOn (On = columnas / Off = porcentajes).
@@ -52,17 +73,10 @@ public partial class DibFormViewModel : ObservableObject
 
     public DibFormViewModel()
     {
-        // Estructura de demostración: 15 filas vacías con su cabecera de signo.
-        // El contenido real (Celdas / TotalFila) lo poblará la lógica de dominio.
-        for (int f = 0; f < CabecerasFila.Count; f++)
-        {
-            Filas.Add(new DibFila
-            {
-                Cabecera = CabecerasFila[f],
-                Celdas = string.Empty,
-                TotalFila = string.Empty,
-            });
-        }
+        // Toma el handoff del form padre (legacy: rsl = ofparent; numcol = ncol).
+        _rsl = MatrizEntrada ?? new int[15, 15];
+        _numcol = NumColEntrada;
+        Repintar();
     }
 
     // Reacciona al cambio del selector "mostrar" (rbCols.CheckedChanged -> PintaPantalla legacy).
@@ -71,20 +85,55 @@ public partial class DibFormViewModel : ObservableObject
         Repintar();
     }
 
+    /// <summary>
+    /// Equivale a DibForm.PintaPantalla() del legacy:
+    ///   lncol.Text = "" + numcol;
+    ///   if (rbPercent.Checked) Porcentajes(); else PintaColumnas();
+    /// Con MostrarColumnas == false -> porcentaje (rsl[f,c]*10000/numcol)/1E2;
+    /// Con MostrarColumnas == true  -> recuento bruto rsl[f,c]. El total de fila es la suma.
+    /// </summary>
     private void Repintar()
     {
-        // Equivale a DibForm.PintaPantalla() del legacy:
-        //   lncol.Text = "" + numcol;
-        //   if (rbPercent.Checked) Porcentajes(); else PintaColumnas();
-        //
-        // TODO: Dominio legacy — recibir desde Anastatics la matriz int[15,15] rsl y numcol
-        //   (constructor legacy: DibForm(int[,] ofparent, int ncol)).
-        //   Con MostrarColumnas == false -> Porcentajes():
-        //       cada celda lt[f,c] = (rsl[f,c] * 10000 / numcol) / 1E2 (porcentaje con 2 decimales),
-        //       lx## = suma de la fila f, ld## = suma de la columna c,
-        //       lv## = sumas por diagonal (numvars[nf+nc] += rsl[nf,nc]).
-        //   Con MostrarColumnas == true -> PintaColumnas():
-        //       cada celda lt[f,c] = "" + rsl[f,c] (recuento bruto) y los mismos totales sin dividir.
-        //   Volcar numcol a NumColTexto y reconstruir Filas (Celdas/TotalFila ya formateados).
+        NumColTexto = _numcol.ToString();
+        Filas.Clear();
+
+        int filas = _rsl.GetLength(0);
+        int cols = _rsl.GetLength(1);
+        int divisor = _numcol == 0 ? 1 : _numcol;
+        var inv = CultureInfo.InvariantCulture;
+
+        for (int f = 0; f < filas; f++)
+        {
+            var sbCeldas = new StringBuilder();
+            long totalFila = 0;
+            for (int c = 0; c < cols; c++)
+            {
+                int valor = _rsl[f, c];
+                totalFila += valor;
+                if (c > 0) sbCeldas.Append("  ");
+                if (MostrarColumnas)
+                {
+                    // PintaColumnas(): recuento bruto (legacy: lt####.Text = "" + rsl[f,c]).
+                    sbCeldas.Append(valor.ToString(inv));
+                }
+                else
+                {
+                    // Porcentajes(): (rsl[f,c]*10000/numcol)/1E2 (2 decimales).
+                    double pct = (valor * 10000 / divisor) / 1E2;
+                    sbCeldas.Append(pct.ToString(inv));
+                }
+            }
+
+            string totalTexto = MostrarColumnas
+                ? totalFila.ToString(inv)
+                : ((totalFila * 10000 / divisor) / 1E2).ToString(inv);
+
+            Filas.Add(new DibFila
+            {
+                Cabecera = f < CabecerasFila.Count ? CabecerasFila[f] : f.ToString(),
+                Celdas = sbCeldas.ToString(),
+                TotalFila = totalTexto,
+            });
+        }
     }
 }
