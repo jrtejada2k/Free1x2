@@ -1,4 +1,11 @@
+using System.Collections.Specialized;
+using Microsoft.UI;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Shapes;
+using Windows.Foundation;
+using Windows.UI;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -10,15 +17,93 @@ namespace Free1X2.WinUI.Views.Ported;
 /// </summary>
 public sealed partial class GraficoColumnasFrmPage : Page
 {
+    // Geometría legacy (GraficoColumnasFrm_Paint): 10 franjas de 959 px de ancho x 25 px de alto,
+    // con marco en x=9. Las líneas por apuesta van de y=alto*25+51 a alto*25+74, x=ancho+10.
+    private const int NumFranjas = 10;
+    private const double AnchoFranja = 959;
+    private const double AltoFranja = 25;
+    private const double MargenX = 9;     // x del marco de cada franja (legacy: DrawRectangle 9,...)
+    private const double YBase = 50;      // y de la primera franja (legacy: (y*25)+50)
+    private const double LienzoAncho = MargenX + AnchoFranja + MargenX;            // ~977
+    private const double LienzoAlto = YBase + NumFranjas * AltoFranja + MargenX;   // ~309
+
     public GraficoColumnasFrmViewModel ViewModel { get; } = new();
 
     public GraficoColumnasFrmPage()
     {
         InitializeComponent();
 
-        // TODO[dominio]: el dibujo real del gráfico (líneas verticales por apuesta sobre
-        //   10 franjas de 959x25) se generaba en GraficoColumnasFrm_Paint con System.Drawing.
-        //   En WinUI debe redibujarse sobre 'LienzoGrafico' (Canvas) o un CanvasControl (Win2D)
-        //   tras leer las columnas con Free1X2.EntradaSalida.ArchivoColumnasTexto, aún no migrado.
+        // El render real del gráfico (líneas verticales por apuesta sobre 10 franjas de 959x25)
+        // se hace aquí con WinUI Shapes a partir de las coordenadas ya calculadas por el VM en
+        // ViewModel.LineasGrafico. Se redibuja cuando esa colección cambia.
+        ViewModel.LineasGrafico.CollectionChanged += LineasGrafico_CollectionChanged;
+        Loaded += (_, _) => Redibujar();
+    }
+
+    private void LineasGrafico_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        => Redibujar();
+
+    /// <summary>
+    /// Dibuja en el Canvas las 10 franjas (marcos) y una línea vertical por apuesta, a la escala
+    /// legacy. Réplica de GraficoColumnasFrm_Paint (Free1X2/UI/GraficoColumnasFrm.cs, líneas 220-301):
+    /// DrawRectangle de los 10 marcos + DrawLine de cada apuesta. Las coordenadas (X, Y0, Y1) ya
+    /// vienen calculadas en ViewModel.LineasGrafico.
+    /// </summary>
+    private void Redibujar()
+    {
+        if (LienzoGrafico == null) return;
+
+        LienzoGrafico.Children.Clear();
+        LienzoGrafico.Width = LienzoAncho;
+        LienzoGrafico.Height = LienzoAlto;
+
+        Color colorMarco = ColorDeRecurso("AppBorderBrush", Color.FromArgb(0xFF, 0xCB, 0xD5, 0xE1));
+        Color colorLinea = ColorDeRecurso("AppAccentBrush", Color.FromArgb(0xFF, 0x4F, 0x46, 0xE5));
+
+        // Marcos de las 10 franjas (legacy: DrawRectangle(marco, 9, y*25+50, 959, 25)).
+        var pincelMarco = new SolidColorBrush(colorMarco);
+        for (int y = 0; y < NumFranjas; y++)
+        {
+            var rect = new Rectangle
+            {
+                Width = AnchoFranja,
+                Height = AltoFranja,
+                Stroke = pincelMarco,
+                StrokeThickness = 1,
+                Fill = null,
+            };
+            Canvas.SetLeft(rect, MargenX);
+            Canvas.SetTop(rect, (y * AltoFranja) + YBase);
+            LienzoGrafico.Children.Add(rect);
+        }
+
+        // Una línea vertical por apuesta (legacy: DrawLine(myPen, ancho+10, alto*25+51, ancho+10, alto*25+74)).
+        var pincelLinea = new SolidColorBrush(colorLinea);
+        foreach (var (x, y0, y1) in ViewModel.LineasGrafico)
+        {
+            var linea = new Line
+            {
+                X1 = x,
+                Y1 = y0,
+                X2 = x,
+                Y2 = y1,
+                Stroke = pincelLinea,
+                StrokeThickness = 1,
+            };
+            LienzoGrafico.Children.Add(linea);
+        }
+
+        // TODO[render]: el legacy, cuando (maximo-minimo) < 9566, rellenaba en granate la zona
+        //   sobrante de la última franja útil y las franjas inferiores no usadas (FillRectangle,
+        //   GraficoColumnasFrm_Paint líneas 268-273) como delimitador visual. El VM aún no expone
+        //   esos rectángulos de relleno (sólo las líneas por apuesta), así que no se pintan aquí.
+    }
+
+    /// <summary>Obtiene el Color de un SolidColorBrush de recursos, o un fallback si no existe.</summary>
+    private Color ColorDeRecurso(string clave, Color porDefecto)
+    {
+        if (Application.Current.Resources.TryGetValue(clave, out var r) && r is SolidColorBrush b)
+            return b.Color;
+        return porDefecto;
     }
 }
