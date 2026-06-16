@@ -49,6 +49,13 @@ public partial class GraficoColumnasFrmViewModel : ObservableObject
     private bool _hayCombinacion;
 
     /// <summary>
+    /// Se solicita copiar/guardar la imagen del gráfico. Lo escucha el code-behind de la Page,
+    /// que es quien tiene acceso al Canvas (UIElement) para hacer el RenderTargetBitmap. El VM
+    /// no referencia controles de la vista (separación MVVM).
+    /// </summary>
+    public event EventHandler? CopiaImagenSolicitada;
+
+    /// <summary>
     /// Líneas de la guía: para cada una de las 10 franjas, la fila de la quiniela representada
     /// (legacy: btnGuia_Click, deBase10 + reemplazos 1->X, 0->1).
     /// </summary>
@@ -191,6 +198,23 @@ public partial class GraficoColumnasFrmViewModel : ObservableObject
     private void Cancelar()
     {
         _para = true; // legacy: corta el bucle de pintado de líneas.
+    }
+
+    /// <summary>
+    /// Copia/guarda la imagen del gráfico. El legacy GraficoColumnasFrm no tenía esta acción;
+    /// se añade como equivalente funcional WinUI (capturar el lienzo nativo a un mapa de bits y
+    /// llevarlo al portapapeles / guardarlo como PNG), reutilizando el render ya pintado en el Canvas.
+    /// El VM sólo dispara el evento; el RenderTargetBitmap (que necesita el UIElement) lo hace la Page.
+    /// </summary>
+    [RelayCommand]
+    private void Copiar()
+    {
+        if (!HayCombinacion)
+        {
+            EstadoTexto = "No hay ninguna combinación representada que copiar.";
+            return;
+        }
+        CopiaImagenSolicitada?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>

@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Background="{StaticResource AppBackgroundBrush}">
 
+    <Grid>
     <ScrollViewer>
         <StackPanel Margin="24" Spacing="20" MaxWidth="760" HorizontalAlignment="Left">
 
@@ -127,7 +128,7 @@
                     </Grid>
 
                     <Button
-                        Content="Imprimir"
+                        Content="Imprimir / Guardar como imagen"
                         Style="{StaticResource AccentButtonStyle}"
                         Command="{x:Bind ViewModel.ImprimirCommand}" />
                 </StackPanel>
@@ -135,4 +136,19 @@
 
         </StackPanel>
     </ScrollViewer>
+
+        <!-- Host invisible para componer y exportar el boleto como imagen. Está en el árbol
+             visual (RenderTargetBitmap lo exige) pero con Opacity=0 y sin hit-test, por lo que
+             no afecta a la vista del usuario. El Canvas se rellena en code-behind con las marcas
+             1/X/2 computadas por el VM antes de renderizar. -->
+        <Border
+            x:Name="HostExportacion"
+            Background="White"
+            Opacity="0"
+            IsHitTestVisible="False"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top">
+            <Canvas x:Name="LienzoBoleto" />
+        </Border>
+    </Grid>
 </Page>

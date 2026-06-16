@@ -118,6 +118,7 @@
             <!-- Lienzo de la gráfica (legacy: pictureBox1). Render nativo WinUI de las curvas. -->
             <Border Grid.Row="3" Style="{StaticResource AppCardStyle}" MinHeight="360">
                 <controls:GraficoLineasControl
+                    x:Name="LienzoGrafica"
                     Curvas="{x:Bind ViewModel.Curvas, Mode=OneWay}"
                     IntervaloGrid="{x:Bind ViewModel.TamanoGrid, Mode=OneWay}"
                     MinHeight="320" />
