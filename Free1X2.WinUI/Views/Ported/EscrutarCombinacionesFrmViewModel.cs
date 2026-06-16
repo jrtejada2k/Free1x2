@@ -77,9 +77,9 @@ public partial class SignoGanadorViewModel : ObservableObject
 /// en tres modos: escrutinio simple (columna manual), contra fichero de referencia y
 /// contra jornadas de una/varias temporadas.
 ///
-/// Esta clase reproduce únicamente la UI y el estado de entrada. Toda la lógica de
-/// dominio (lectura de ficheros, EscrutadorComb, cálculo de premios, persistencia) se
-/// deja marcada como TODO citando la clase legacy.
+/// La lógica de dominio (EscrutadorComb: ObtenerPosiblesPremios + EscrutarCombinacion,
+/// lectura de ficheros, cálculo de premios, grabación y lista de premiadas) está cableada.
+/// Sólo queda como TODO la navegación a PosiblesPremiosFrmPage (responsabilidad del shell).
 /// </summary>
 public partial class EscrutarCombinacionesFrmViewModel : ObservableObject
 {

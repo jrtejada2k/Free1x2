@@ -51,8 +51,10 @@ public partial class ResultadoEscrutinioItem : ObservableObject
 /// Escruta uno o varios ficheros de columnas contra: (1) una columna ganadora
 /// introducida a mano, (2) las columnas de un fichero de referencia o (3) la
 /// temporada/jornada correspondiente leída del histórico de resultados.
-/// Toda la lógica de dominio (Escrutador, ArchivoColumnasTexto, lectura de
-/// Jornadas/Resultados.txt, Free1X2WService) queda marcada como TODO.
+/// El motor (Escrutador), la lectura de Jornadas/Resultados.txt, la grabación de
+/// columnas (ArchivoColumnasTexto) y la lista de premiadas están cableados. Quedan
+/// como TODO la actualización por servicio web (Free1X2WService) y la navegación a
+/// PosiblesPremios/Cancelar (responsabilidad del shell de navegación).
 /// </summary>
 public partial class EscrutiniosFrmViewModel : ObservableObject
 {
