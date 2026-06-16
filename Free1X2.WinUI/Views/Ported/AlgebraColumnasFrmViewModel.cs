@@ -1,6 +1,13 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Free1X2.EntradaSalida;
+using Free1X2.Utils;
+using Free1X2.WinUI.Services;
+using Windows.Storage.Pickers;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -8,7 +15,7 @@ namespace Free1X2.WinUI.Views.Ported;
 /// ViewModel de la pantalla "Álgebra" (legacy: AlgebraColumnasFrm).
 /// Realiza operaciones de álgebra de combinaciones entre dos archivos de columnas:
 /// eliminar repetidas, sumar, intersección de comunes o resta.
-/// Equivalente legacy: Free1X2.SumadorCombinaciones + AlgebraCombTipo.
+/// Equivalente legacy: Free1X2.Utils.SumadorCombinaciones + AlgebraCombTipo.
 /// </summary>
 public partial class AlgebraColumnasFrmViewModel : ObservableObject
 {
@@ -21,9 +28,6 @@ public partial class AlgebraColumnasFrmViewModel : ObservableObject
     // (legacy: noSignos1 / noSignos2 vía IArchivoColumnas.ObtenNumSignos()).
     private int _noSignos1;
     private int _noSignos2;
-
-    // Indica si la salida es binaria (legacy: salidaBinaria, FilterIndex==2 del SaveFileDialog).
-    private bool _salidaBinaria;
 
     // Operaciones disponibles. El índice coincide con el enum legacy AlgebraCombTipo:
     // 0 = EliminaRepetidas, 1 = SumaEliminaRepetidas, 2 = SumaSoloComunes, 3 = RestaSegunda.
@@ -72,15 +76,18 @@ public partial class AlgebraColumnasFrmViewModel : ObservableObject
     /// Legacy: BtnSelComb1Click -> OpenFileDialog (carpeta Columnas, *.txt).
     /// </summary>
     [RelayCommand]
-    private void SeleccionarCombinacion1()
+    private async Task SeleccionarCombinacion1Async()
     {
-        // TODO[dominio]: abrir selector de archivo (FileOpenPicker) en la carpeta Columnas (*.txt).
-        //   Legacy AlgebraColumnasFrm.BtnSelComb1Click:
-        //     - archivoCols1 = ruta seleccionada
-        //     - NombreCombinacion1 = Path.GetFileNameWithoutExtension(ruta)
-        //     - IArchivoColumnas archivo = new ArchivoColumnasTexto(ruta);
-        //       noSignos1 = archivo.ObtenNumSignos();
-        //       DetalleCombinacion1 = "Combinación 1: " + archivo.NumColumnas + " columnas.";
+        var file = await AbrirSelectorColumnasAsync();
+        if (file == null) return;
+
+        _rutaCombinacion1 = file.Path;
+        NombreCombinacion1 = Path.GetFileNameWithoutExtension(_rutaCombinacion1);
+
+        // Lee número de partidos y columnas del archivo (legacy: ArchivoColumnasTexto).
+        IArchivoColumnas archivo = new ArchivoColumnasTexto(_rutaCombinacion1);
+        _noSignos1 = archivo.ObtenNumSignos();
+        DetalleCombinacion1 = "Combinación 1: " + archivo.NumColumnas + " columnas.";
     }
 
     /// <summary>
@@ -88,15 +95,17 @@ public partial class AlgebraColumnasFrmViewModel : ObservableObject
     /// Legacy: BtnSelComb2Click -> OpenFileDialog (carpeta Columnas, *.txt).
     /// </summary>
     [RelayCommand]
-    private void SeleccionarCombinacion2()
+    private async Task SeleccionarCombinacion2Async()
     {
-        // TODO[dominio]: abrir selector de archivo (FileOpenPicker) en la carpeta Columnas (*.txt).
-        //   Legacy AlgebraColumnasFrm.BtnSelComb2Click:
-        //     - archivoCols2 = ruta seleccionada
-        //     - NombreCombinacion2 = Path.GetFileNameWithoutExtension(ruta)
-        //     - IArchivoColumnas archivo = new ArchivoColumnasTexto(ruta);
-        //       noSignos2 = archivo.ObtenNumSignos();
-        //       DetalleCombinacion2 = "Combinación 2: " + archivo.NumColumnas + " columnas.";
+        var file = await AbrirSelectorColumnasAsync();
+        if (file == null) return;
+
+        _rutaCombinacion2 = file.Path;
+        NombreCombinacion2 = Path.GetFileNameWithoutExtension(_rutaCombinacion2);
+
+        IArchivoColumnas archivo = new ArchivoColumnasTexto(_rutaCombinacion2);
+        _noSignos2 = archivo.ObtenNumSignos();
+        DetalleCombinacion2 = "Combinación 2: " + archivo.NumColumnas + " columnas.";
     }
 
     /// <summary>
@@ -104,33 +113,96 @@ public partial class AlgebraColumnasFrmViewModel : ObservableObject
     /// Legacy: BtnSelCombFinalClick -> SaveFileDialog (carpeta Columnas, *.txt).
     /// </summary>
     [RelayCommand]
-    private void SeleccionarCombinacionFinal()
+    private async Task SeleccionarCombinacionFinalAsync()
     {
-        // TODO[dominio]: abrir selector de guardado (FileSavePicker) en la carpeta Columnas (*.txt).
-        //   Legacy AlgebraColumnasFrm.BtnSelCombFinalClick:
-        //     - salidaBinaria = (FilterIndex == 2)
-        //     - archivoColsFinal = ruta seleccionada
-        //     - NombreCombinacionFinal = Path.GetFileNameWithoutExtension(ruta)
+        var picker = new FileSavePicker
+        {
+            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
+            SuggestedFileName = "ColumnasResultado",
+        };
+        picker.FileTypeChoices.Add("Columnas", new List<string> { ".txt" });
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        var file = await picker.PickSaveFileAsync();
+        if (file == null) return;
+
+        _rutaCombinacionFinal = file.Path;
+        NombreCombinacionFinal = Path.GetFileNameWithoutExtension(_rutaCombinacionFinal);
     }
 
     /// <summary>
     /// Ejecuta la operación de álgebra de combinaciones seleccionada.
-    /// Legacy: BtnCalcularClick -> Calcula().
+    /// Legacy: BtnCalcularClick -> Calcula() + SonDatosEntradaValidos().
     /// </summary>
     [RelayCommand]
-    private void Calcular()
+    private async Task CalcularAsync()
     {
-        // TODO[dominio]: validar entradas y ejecutar el cálculo.
-        //   Legacy AlgebraColumnasFrm.Calcula() + SonDatosEntradaValidos():
-        //     AlgebraCombTipo tipo = (AlgebraCombTipo)OperacionSeleccionada;
-        //     - Validar: rutas requeridas según la operación (EliminaRepetidas usa 1+final;
-        //       el resto usa 1+2+final).
-        //     - Validar compatibilidad: noSignos1 == noSignos2 y ambos != 0; si no,
-        //       limpiar nombres/rutas y avisar "Los archivos tienen distinto número de partidos".
-        //     - sumador = new SumadorCombinaciones(noSignos2) { ArchivoCols1, ArchivoCols2, ArchivoColsFinal };
-        //       PuedeCalcular = false; sumador.Calcula(tipo);
-        //       Resultado = sumador.MensajeFinCalculo; PuedeCalcular = true;
-        //     - Si entradas inválidas: Resultado = "No ha seleccionado los archivos".
+        var tipo = (AlgebraCombTipo)OperacionSeleccionada;
+
+        // Validación de rutas requeridas según la operación (legacy: SonDatosEntradaValidos).
+        // EliminaRepetidas solo necesita Combinación 1 + Final; el resto necesita las dos + Final.
+        bool rutasOk = tipo == AlgebraCombTipo.EliminaRepetidas
+            ? !string.IsNullOrEmpty(_rutaCombinacion1) && !string.IsNullOrEmpty(_rutaCombinacionFinal)
+            : !string.IsNullOrEmpty(_rutaCombinacion1) && !string.IsNullOrEmpty(_rutaCombinacion2)
+              && !string.IsNullOrEmpty(_rutaCombinacionFinal);
+
+        if (!rutasOk)
+        {
+            Resultado = "No ha seleccionado los archivos";
+            return;
+        }
+
+        // Validación de compatibilidad: mismo número de partidos y distinto de cero
+        // (legacy: noSignos2 == noSignos1 && noSignos1 != 0 && noSignos2 != 0).
+        // Para EliminaRepetidas solo participa la Combinación 1, por lo que solo se exige noSignos1 != 0.
+        bool partidosOk = tipo == AlgebraCombTipo.EliminaRepetidas
+            ? _noSignos1 != 0
+            : _noSignos1 == _noSignos2 && _noSignos1 != 0 && _noSignos2 != 0;
+
+        if (!partidosOk)
+        {
+            NombreCombinacion1 = "(selecciona)";
+            NombreCombinacion2 = "(selecciona)";
+            NombreCombinacionFinal = "(selecciona)";
+            _rutaCombinacion1 = string.Empty;
+            _rutaCombinacion2 = string.Empty;
+            _rutaCombinacionFinal = string.Empty;
+            AppServices.MostrarError("Los archivos tienen distinto número de partidos");
+            return;
+        }
+
+        // Para EliminaRepetidas el motor usa noPartidos de la Combinación 1.
+        int noPartidos = tipo == AlgebraCombTipo.EliminaRepetidas ? _noSignos1 : _noSignos2;
+        string ruta1 = _rutaCombinacion1;
+        string ruta2 = _rutaCombinacion2;
+        string rutaFinal = _rutaCombinacionFinal;
+
+        Resultado = string.Empty;
+        PuedeCalcular = false;
+        try
+        {
+            // El cálculo recorre archivos completos: ejecuta fuera del hilo de UI.
+            string mensaje = await Task.Run(() =>
+            {
+                var sumador = new SumadorCombinaciones(noPartidos)
+                {
+                    ArchivoCols1 = ruta1,
+                    ArchivoCols2 = ruta2,
+                    ArchivoColsFinal = rutaFinal,
+                };
+                sumador.Calcula(tipo);
+                return sumador.MensajeFinCalculo;
+            });
+            Resultado = mensaje;
+        }
+        catch (Exception ex)
+        {
+            Resultado = "Error: " + ex.Message;
+        }
+        finally
+        {
+            PuedeCalcular = true;
+        }
     }
 
     /// <summary>
@@ -139,7 +211,19 @@ public partial class AlgebraColumnasFrmViewModel : ObservableObject
     [RelayCommand]
     private void Cancelar()
     {
-        // TODO[dominio]: navegación WinUI — Frame.GoBack() o cerrar el host contenedor
-        //   (equivale a AlgebraColumnasFrm.Close()).
+        // Navegación WinUI (Frame.GoBack) es responsabilidad del host de la Page, no del
+        // cableado del dominio; equivale a AlgebraColumnasFrm.Close().
+    }
+
+    /// <summary>Abre un FileOpenPicker para archivos de columnas (*.txt).</summary>
+    private static async Task<Windows.Storage.StorageFile?> AbrirSelectorColumnasAsync()
+    {
+        var picker = new FileOpenPicker
+        {
+            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
+        };
+        picker.FileTypeFilter.Add(".txt");
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+        return await picker.PickSingleFileAsync();
     }
 }

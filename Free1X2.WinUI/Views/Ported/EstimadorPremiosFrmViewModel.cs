@@ -1,3 +1,4 @@
+using System;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -99,9 +100,12 @@ public partial class EstimadorPremiosFrmViewModel : ObservableObject
             EscrutinioReal.Add(new EscrutinioRealItem { Categoria = cat });
         }
 
-        // TODO[dominio]: inicializar temporada por defecto.
-        //   Legacy: EstimadorPremiosFrm ctor calcula la temporada según el mes actual
-        //   (mes<7 -> año-1/año ; sino año/año+1) y rellena txTemporada.
+        // Temporada por defecto según el mes actual (legacy: EstimadorPremiosFrm ctor):
+        // mes < 7 -> año-1/año ; en otro caso año/año+1.
+        var ahora = DateTime.Now;
+        Temporada = ahora.Month < 7
+            ? (ahora.Year - 1) + "/" + ahora.Year
+            : ahora.Year + "/" + (ahora.Year + 1);
     }
 
     /// <summary>
@@ -110,12 +114,11 @@ public partial class EstimadorPremiosFrmViewModel : ObservableObject
     [RelayCommand]
     private void Calcular()
     {
-        // TODO[dominio]: ejecutar el cálculo de estimación de premios.
-        //   Legacy: EstimadorPremiosFrm.button2_Click -> usa Free1X2.Analisis.ApuestaProbableCentral,
-        //   Free1X2.Analisis.Porcentajes (controlPorcentajes1), los arrays p/Cr/v/Signos y los
-        //   porcentajes DestinadoAPremiosCategoria para calcular Acertantes[] y Premios[].
-        //   Volcar el resultado en cada PrevisionPremioItem.AcertantesTexto / PremioTexto
-        //   y actualizar NumApuestasTexto. El dominio aún no está migrado.
+        // TODO: lógica en Free1X2/UI/EstimadorPremiosFrm.cs línea 1885 (button2_Click).
+        //   El cálculo lee la matriz de porcentajes de la jornada del UserControl
+        //   Free1X2.UI.Controls.ControlPorcentajes (controlPorcentajes1.Valores, línea 1913),
+        //   aún no portado a WinUI, junto con ApuestaProbableCentral/Porcentajes. Sin ese
+        //   control no hay datos de entrada que cablear al motor sin inventar valores.
     }
 
     /// <summary>
@@ -124,8 +127,11 @@ public partial class EstimadorPremiosFrmViewModel : ObservableObject
     [RelayCommand]
     private void JornadaAnterior()
     {
-        // TODO[dominio]: decrementar jornada y recargar porcentajes/datos.
-        //   Legacy: EstimadorPremiosFrm.btJornadaAnterior_Click.
+        // Decrementa la jornada (legacy: btJornadaAnterior_Click). La recarga de los
+        // porcentajes persistidos depende del UserControl ControlPorcentajes (no portado).
+        if (Jornada > 1) Jornada--;
+        // TODO: recarga de datos/porcentajes en Free1X2/UI/EstimadorPremiosFrm.cs (btJornadaAnterior_Click)
+        //   — requiere ControlPorcentajes, aún no portado a WinUI.
     }
 
     /// <summary>
@@ -134,19 +140,28 @@ public partial class EstimadorPremiosFrmViewModel : ObservableObject
     [RelayCommand]
     private void JornadaPosterior()
     {
-        // TODO[dominio]: incrementar jornada y recargar porcentajes/datos.
-        //   Legacy: EstimadorPremiosFrm.btJornadaPosterior_Click.
+        // Incrementa la jornada (legacy: btJornadaPosterior_Click).
+        Jornada++;
+        // TODO: recarga de datos/porcentajes en Free1X2/UI/EstimadorPremiosFrm.cs (btJornadaPosterior_Click)
+        //   — requiere ControlPorcentajes, aún no portado a WinUI.
     }
 
     /// <summary>
-    /// Copia los valores de previsión al escrutinio real. Legacy: btCopiar_Click.
+    /// Copia los valores de previsión estimados a las celdas del escrutinio real.
+    /// (Reinterpretación WinUI del legacy btCopiar_Click, que copiaba al portapapeles.)
     /// </summary>
     [RelayCommand]
     private void CopiarPrevision()
     {
-        // TODO[dominio]: copiar Acertantes/Premios estimados a las celdas de escrutinio real.
-        //   Legacy: EstimadorPremiosFrm.btCopiar_Click.
+        for (int i = 0; i < Prevision.Count && i < EscrutinioReal.Count; i++)
+        {
+            EscrutinioReal[i].Acertantes = ParseDouble(Prevision[i].AcertantesTexto);
+            EscrutinioReal[i].Premio = ParseDouble(Prevision[i].PremioTexto);
+        }
     }
+
+    private static double ParseDouble(string texto) =>
+        double.TryParse(texto, out double v) ? v : 0;
 
     /// <summary>
     /// Guarda el escrutinio real introducido por el usuario. Legacy: btGuardarEscrutinio_Click.
@@ -154,17 +169,27 @@ public partial class EstimadorPremiosFrmViewModel : ObservableObject
     [RelayCommand]
     private void GuardarEscrutinio()
     {
-        // TODO[dominio]: persistir el escrutinio real (acertantes/premios oficiales) de la jornada.
-        //   Legacy: EstimadorPremiosFrm.btGuardarEscrutinio_Click + Free1X2.EntradaSalida.
+        // TODO: lógica en Free1X2/UI/EstimadorPremiosFrm.cs línea 2260 (btGuardarEscrutinio_Click).
+        //   Usa Free1X2...LAE (GrabarJornada) con la columna premiada leída de la matriz de
+        //   labels del form legacy y los acertantes reales; depende de tipos/IO no expuestos en
+        //   este flujo aislado de utilidades file→file.
     }
 
     /// <summary>
-    /// Abre/descarga los resultados del escrutinio oficial (LAE). Legacy: linkLAE_LinkClicked.
+    /// Abre los resultados del escrutinio oficial (LAE). Legacy: linkLAE_LinkClicked.
     /// </summary>
     [RelayCommand]
-    private void AbrirEscrutinioOficial()
+    private async void AbrirEscrutinioOficial()
     {
-        // TODO[dominio]: abrir el origen de "Resultados escrutinio oficial".
-        //   Legacy: EstimadorPremiosFrm.linkLAE_LinkClicked (LinkLabel -> recurso oficial LAE).
+        // Legacy linkLAE_LinkClicked abría el navegador con el recurso oficial LAE.
+        try
+        {
+            await Windows.System.Launcher.LaunchUriAsync(
+                new Uri("https://www.loteriasyapuestas.es/es/la-quiniela"));
+        }
+        catch
+        {
+            // Lanzador no disponible: se ignora (equivale a no poder abrir el navegador).
+        }
     }
 }

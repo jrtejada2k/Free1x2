@@ -1,7 +1,12 @@
+using System;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Free1X2.WinUI.Services;
+using Windows.Storage.Pickers;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -82,21 +87,48 @@ public partial class FraccionadorFrmViewModel : ObservableObject
     [ObservableProperty]
     private bool _entradaCargada = false;
 
+    // Columnas leídas en memoria (legacy: string[] columnas + numcols).
+    private List<string> _columnas = new();
+
     /// <summary>
     /// Selecciona y carga el archivo de columnas (*.txt) de entrada.
     /// Legacy: bEntrada_Click -> Entrada().
     /// </summary>
     [RelayCommand]
-    private void Entrada()
+    private async Task Entrada()
     {
-        // TODO[dominio]: abrir selector (FileOpenPicker) filtro "ColumnasEntrada (*.txt)".
-        //   Legacy FraccionadorFrm.Entrada():
-        //     - NombreArchivoEntrada = Path.GetFileName(ruta)
-        //     - Leer todas las líneas a 'columnas[]' contando numcols
-        //       (legacy usa StreamReader + Application.DoEvents en bucle).
-        //     - TotalColumnas = numcols;  (legacy lcols.Text = numcols)
-        //     - EntradaCargada = true;    (habilita Fraccionar)
-        //     - Medir tiempo (time0/time9) -> TiempoTranscurrido.
+        var picker = new FileOpenPicker
+        {
+            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
+        };
+        picker.FileTypeFilter.Add(".txt");
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        var file = await picker.PickSingleFileAsync();
+        if (file == null) return;
+
+        string ruta = file.Path;
+        var time0 = DateTime.Now;
+        try
+        {
+            // Carga todas las columnas a memoria (legacy: bucle StreamReader -> columnas[]).
+            var lista = await Task.Run(() =>
+            {
+                var cols = new List<string>();
+                using var sr = new StreamReader(ruta);
+                while (sr.Peek() > 0) cols.Add(sr.ReadLine() ?? string.Empty);
+                return cols;
+            });
+            _columnas = lista;
+            NombreArchivoEntrada = Path.GetFileName(ruta);
+            TotalColumnas = _columnas.Count;
+            EntradaCargada = true;
+            TiempoTranscurrido = FormateaTiempo(DateTime.Now - time0);
+        }
+        catch (Exception ex)
+        {
+            AppServices.MostrarError("Error al leer el archivo: " + ex.Message);
+        }
     }
 
     /// <summary>
@@ -104,19 +136,102 @@ public partial class FraccionadorFrmViewModel : ObservableObject
     /// Legacy: bFraccionar_Click -> Fraccionar().
     /// </summary>
     [RelayCommand]
-    private void Fraccionar()
+    private async Task Fraccionar()
     {
-        // TODO[dominio]: abrir selector (FileSavePicker) "Nombre BASE salida (*.txt)".
-        //   Legacy FraccionadorFrm.Fraccionar():
-        //     - fileout = Path.GetFileNameWithoutExtension(ruta)
-        //     - si PorColumnas -> FracCols(): para cada cuota tbcolNN (1..20) que sea > 0,
-        //         escribir esa cantidad de columnas consecutivas en fileoutNN.txt;
-        //         parar al encontrar la primera cuota == 0.
-        //     - si !PorColumnas -> FracTrams(): part = numcols / CuantasPartes;
-        //         escribir 'CuantasPartes' archivos con 'part' columnas cada uno
-        //         (el último recibe el resto).
-        //     - Tras cada archivo: ArchivosGenerados = (numfiles+1).
-        //     - Medir tiempo (time0/time9) -> TiempoTranscurrido.
+        var picker = new FileSavePicker
+        {
+            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
+            SuggestedFileName = "BASE",
+        };
+        picker.FileTypeChoices.Add("Nombre BASE salida", new List<string> { ".txt" });
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        var file = await picker.PickSaveFileAsync();
+        if (file == null) return;
+
+        // Legacy usaba GetFileNameWithoutExtension (nombre relativo). Aquí construimos la base
+        // con el directorio + nombre sin extensión para que los archivos NN.txt vayan junto al
+        // archivo elegido por el usuario.
+        string dir = Path.GetDirectoryName(file.Path) ?? string.Empty;
+        string baseNombre = Path.GetFileNameWithoutExtension(file.Path);
+        string fileBase = Path.Combine(dir, baseNombre);
+
+        bool porColumnas = PorColumnas;
+        int cuantasPartes = (int)CuantasPartes;
+        // Captura de cuotas para usar en el hilo de fondo.
+        var cuotas = new int[20];
+        for (int i = 0; i < CuotasColumnas.Count && i < 20; i++) cuotas[i] = (int)CuotasColumnas[i].Cantidad;
+        var columnas = _columnas;
+
+        var time0 = DateTime.Now;
+        try
+        {
+            int numfiles = await Task.Run(() => porColumnas
+                ? FracCols(fileBase, columnas, cuotas)
+                : FracTrams(fileBase, columnas, cuantasPartes));
+            ArchivosGenerados = numfiles;
+            TiempoTranscurrido = FormateaTiempo(DateTime.Now - time0);
+        }
+        catch (Exception ex)
+        {
+            AppServices.MostrarError("Error al fraccionar: " + ex.Message);
+        }
+    }
+
+    /// <summary>
+    /// FracCols() legacy: una cuota por archivo (1..20); para en la primera cuota == 0.
+    /// Devuelve el nº de archivos generados.
+    /// </summary>
+    private static int FracCols(string fileBase, List<string> columnas, int[] cuotas)
+    {
+        int acum = 0;
+        int numfiles = 0;
+        int numcols = columnas.Count;
+        for (int i = 0; i < 20; i++)
+        {
+            int qnts = cuotas[i];
+            if (qnts == 0) break;
+            string sfile = string.Format(fileBase + "{0:d2}.txt", i + 1);
+            using var sw = new StreamWriter(sfile);
+            int lim = acum + qnts;
+            if (lim > numcols) lim = numcols;
+            for (int nr = acum; nr < lim; nr++) sw.WriteLine(columnas[nr]);
+            acum += qnts;
+            numfiles = i + 1;
+        }
+        return numfiles;
+    }
+
+    /// <summary>
+    /// FracTrams() legacy: 'qnts' partes iguales; el último archivo recibe el resto.
+    /// Devuelve el nº de archivos generados.
+    /// </summary>
+    private static int FracTrams(string fileBase, List<string> columnas, int qnts)
+    {
+        if (qnts <= 0) return 0;
+        int numcols = columnas.Count;
+        int part = numcols / qnts;
+        int acum = 0, lim = part;
+        int numfiles = 0;
+        for (numfiles = 0; numfiles < qnts; numfiles++)
+        {
+            string sfile = string.Format(fileBase + "{0:d2}.txt", numfiles + 1);
+            using (var sw = new StreamWriter(sfile))
+            {
+                for (int nr = acum; nr < lim; nr++) sw.WriteLine(columnas[nr]);
+            }
+            acum += part;
+            lim = acum + part;
+            if (numcols - lim < part) lim = numcols;
+        }
+        return numfiles;
+    }
+
+    /// <summary>Formatea un lapso igual que veureelmeu() legacy ("hh:mm:ss.f" recortado a 10 chars).</summary>
+    private static string FormateaTiempo(TimeSpan lapso)
+    {
+        string temp = lapso.ToString() + "0000000000";
+        return temp.Substring(0, 10);
     }
 
     /// <summary>
@@ -126,7 +241,7 @@ public partial class FraccionadorFrmViewModel : ObservableObject
     [RelayCommand]
     private void Cerrar()
     {
-        // TODO[dominio]: navegación WinUI — Frame.GoBack() o cerrar el host contenedor.
+        // Navegación WinUI (Frame.GoBack) es responsabilidad del host de la Page.
     }
 }
 

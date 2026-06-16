@@ -1,7 +1,12 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Free1X2.EntradaSalida;
+using Free1X2.SubirCategoria;
+using Free1X2.WinUI.Services;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -109,6 +114,12 @@ public partial class SubirCategoriaFrmViewModel : ObservableObject
     /// </summary>
     private int _numPartidos = 14;
 
+    // Nº de signos del archivo (legacy: noSignos), usado en Calcular.
+    private int _noSignos = 14;
+
+    // Motor de subida de categoría (legacy: Calculos SubeCat).
+    private Calculos? _subeCat;
+
     // ===== Lógica de habilitación (portada tal cual desde el WinForms) =====
 
     /// <summary>Equivale a <c>AdaptarInterfaz(noPartidos)</c>.</summary>
@@ -211,8 +222,13 @@ public partial class SubirCategoriaFrmViewModel : ObservableObject
     /// Equivale a <c>BtnCalcularClick</c> del WinForms.
     /// </summary>
     [RelayCommand]
-    private void Calcular()
+    private async Task Calcular()
     {
+        if (_subeCat is null)
+        {
+            Estado = "Selecciona un archivo de origen";
+            return;
+        }
         if (!HayAlgunNivelSeleccionado())
         {
             Estado = "No se ha seleccionado ningún nivel";
@@ -225,66 +241,128 @@ public partial class SubirCategoriaFrmViewModel : ObservableObject
             Seguidos = _numPartidos;
         }
 
+        // bool[] partidos (legacy: calcpartidos()).
+        var involucrados = new bool[Partidos.Count];
+        for (int i = 0; i < Partidos.Count; i++) involucrados[i] = Partidos[i].Marcada;
+
+        // bool[] niveles indexados 0..16 (la colección se muestra de 16 a 0).
+        var niveles = new bool[MaxNiveles];
+        for (int n = 0; n < MaxNiveles; n++)
+        {
+            CasillaSeleccionable? casilla = ObtenNivel(n);
+            niveles[n] = casilla is not null && casilla.Marcada;
+        }
+
+        int seguidos = (int)Seguidos;
+        string externas = ArchivoExternas;
+        int noSignos = _noSignos;
+        var motor = _subeCat;
+
+        PuedeCalcular = false;
+        PuedeGrabar = false;
         Estado = "Calculando...";
-
-        // TODO(dominio): portar BtnCalcularClick de Free1X2.UI.SubirCategoriaFrm.
-        //   - Free1X2.SubirCategoria.Calculos.Calcular(bool[] partidos, bool[] niveles,
-        //       int seguidos, string archivoExternas, int noSignos).
-        //   - bool[] partidos  = Partidos.Select(p => p.Marcada).
-        //   - bool[] niveles   = Niveles ordenados 0..16 .Select(n => n.Marcada).
-        //   - El resultado actualiza ConteoColumnas = "F=" + Calculos.NoColumnas.
-        //   Tipos en el proyecto WinForms (pendientes de mover a Free1X2.Domain).
-
-        ConteoColumnas = "F=...";
-        PuedeGrabar = true;
-        Estado = "Calculado (pendiente de portar dominio)";
+        try
+        {
+            // SubeCat.Calcular(...) recorre todas las columnas: ejecuta fuera del hilo de UI.
+            int noColumnas = await Task.Run(() =>
+            {
+                motor.Calcular(involucrados, niveles, seguidos, externas, noSignos);
+                return motor.NoColumnas;
+            });
+            ConteoColumnas = "F=" + noColumnas;
+            PuedeGrabar = true;
+            Estado = "Calculado";
+        }
+        catch (Exception ex)
+        {
+            Estado = "Error: " + ex.Message;
+        }
+        finally
+        {
+            PuedeCalcular = true;
+        }
     }
 
     /// <summary>
     /// Equivale a <c>BtnGrabarClick</c> del WinForms.
     /// </summary>
     [RelayCommand]
-    private void Grabar()
+    private async Task Grabar()
     {
+        if (_subeCat is null || string.IsNullOrEmpty(ArchivoSalida))
+        {
+            Estado = "Falta el archivo de salida";
+            return;
+        }
+
+        var motor = _subeCat;
+        string rutaSalida = ArchivoSalida;
+
+        PuedeGrabar = false;
+        PuedeCalcular = false;
+        ConteoColumnas = "grabando...";
         Estado = "Grabando...";
-
-        // TODO(dominio): portar BtnGrabarClick de Free1X2.UI.SubirCategoriaFrm.
-        //   - Free1X2.SubirCategoria.Calculos.Grabar(string nombreSalida).
-        //   - Tras grabar: ConteoColumnas = "G=" + Calculos.NoColumnas.
-
-        ConteoColumnas = "G=...";
-        Estado = "Grabado (pendiente de portar dominio)";
+        try
+        {
+            int noColumnas = await Task.Run(() =>
+            {
+                motor.Grabar(rutaSalida);
+                return motor.NoColumnas;
+            });
+            ConteoColumnas = "G=" + noColumnas;
+            Estado = "Grabado";
+        }
+        catch (Exception ex)
+        {
+            Estado = "Error: " + ex.Message;
+        }
+        finally
+        {
+            PuedeGrabar = true;
+            PuedeCalcular = true;
+        }
     }
 
     /// <summary>
     /// Equivale a la apertura del archivo de origen (BtnFileInClick):
-    /// detecta el nº de signos y habilita la interfaz. La lectura real del
-    /// archivo se delega al dominio.
+    /// detecta el nº de signos, carga el motor y habilita la interfaz.
     /// </summary>
-    public void OnArchivoOrigenSeleccionado(string ruta)
+    public async void OnArchivoOrigenSeleccionado(string ruta)
     {
         ArchivoOrigen = ruta;
         ConteoColumnas = "leyendo...";
-
-        // TODO(dominio): portar la lectura de BtnFileInClick de SubirCategoriaFrm.
-        //   - Free1X2.EntradaSalida.ArchivoColumnasTexto(ruta).ObtenNumSignos()
-        //     -> establece noSignos / NumPartidos.
-        //   - new Free1X2.SubirCategoria.Calculos(ruta) -> ConteoColumnas = "I=" + NoColumnas.
-        //   Por ahora se asume el valor por defecto de partidos.
-
-        AdaptarInterfaz(_numPartidos);
-        PuedeElegirSalida = true;
-        PuedeCalcular = false;
-        PuedeGrabar = false;
-        ConteoColumnas = "I=...";
-        Estado = "Archivo de origen cargado";
+        Estado = "Leyendo...";
+        try
+        {
+            var (signos, motor) = await Task.Run<(int, Calculos)>(() =>
+            {
+                IArchivoColumnas aCol = new ArchivoColumnasTexto(ruta);
+                int s = aCol.ObtenNumSignos();
+                aCol.Cerrar();
+                return (s, new Calculos(ruta));
+            });
+            _noSignos = signos;
+            _numPartidos = signos;
+            _subeCat = motor;
+            ConteoColumnas = "I=" + motor.NoColumnas;
+            AdaptarInterfaz(_numPartidos);
+            PuedeElegirSalida = true;
+            PuedeCalcular = false;
+            PuedeGrabar = false;
+            Estado = "Archivo de origen cargado";
+        }
+        catch (Exception ex)
+        {
+            AppServices.MostrarError("Error al leer el archivo: " + ex.Message);
+            Estado = "Error al leer el archivo";
+        }
     }
 
     /// <summary>Equivale a btnFileOutClick: tras elegir salida se puede calcular.</summary>
     public void OnArchivoSalidaSeleccionado(string ruta)
     {
         ArchivoSalida = ruta;
-        PuedeCalcular = true;
+        PuedeCalcular = _subeCat is not null;
         Estado = "Listo para calcular";
     }
 

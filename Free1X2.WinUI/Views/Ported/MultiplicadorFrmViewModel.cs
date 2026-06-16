@@ -1,5 +1,11 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Free1X2.WinUI.Services;
+using Windows.Storage.Pickers;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -16,11 +22,13 @@ public partial class MultiplicadorFrmViewModel : ObservableObject
     // Rutas de archivos seleccionados (legacy: filein de Entrada1/Entrada2 + fileout de Grabar).
     private string _rutaEntrada1 = string.Empty;
     private string _rutaEntrada2 = string.Empty;
-    private string _rutaResultado = string.Empty;
 
-    // Columnas cargadas en memoria (legacy: ascols1/ascols2 y sus contadores ncols1/ncols2,
-    // y el resultado ascols3 con ncols3). El dominio real las mantendría; aquí solo se exponen
-    // los contadores para la UI.
+    // Columnas cargadas en memoria (legacy: ascols1/ascols2 con contadores ncols1/ncols2,
+    // y el resultado ascols3 con ncols3). Se conservan como listas en el VM, igual que la
+    // forma legacy mantenía los arrays en memoria entre clics.
+    private readonly List<string> _ascols1 = new();
+    private readonly List<string> _ascols2 = new();
+    private List<string> _ascols3 = new();
 
     // Plantilla de 14 índices de transposición (legacy: tbcol01..tbcol14 -> indices[0..13]).
     // Cada valor debe estar en el rango 1..28 (RecuperaPantalla valida ese rango).
@@ -92,16 +100,23 @@ public partial class MultiplicadorFrmViewModel : ObservableObject
     /// Legacy: MultiplicadorFrm.Entrada1() -> OpenFileDialog (*.txt).
     /// </summary>
     [RelayCommand]
-    private void SeleccionarEntrada1()
+    private async Task SeleccionarEntrada1Async()
     {
-        // TODO[dominio]: abrir FileOpenPicker (*.txt) y cargar columnas.
-        //   Legacy MultiplicadorFrm.Entrada1():
-        //     - PuedeProcesar = false (deshabilita bEntra1/bEntra2/bMultiplica).
-        //     - Por cada línea: scol1 = (linea + "11111111111111").Substring(0,14).Trim();
-        //       ascols1[ncols1++] = scol1.
-        //     - NombreEntrada1 = Path.GetFileName(ruta);
-        //       ColumnasEntrada1Texto = ncols1.ToString();
-        //     - PuedeProcesar = true.
+        var file = await AbrirSelectorColumnasAsync();
+        if (file == null) return;
+
+        _rutaEntrada1 = file.Path;
+        PuedeProcesar = false;
+        try
+        {
+            await Task.Run(() => CargarColumnas(_rutaEntrada1, _ascols1));
+            NombreEntrada1 = Path.GetFileName(_rutaEntrada1);
+            ColumnasEntrada1Texto = _ascols1.Count.ToString();
+        }
+        finally
+        {
+            PuedeProcesar = true;
+        }
     }
 
     /// <summary>
@@ -109,16 +124,23 @@ public partial class MultiplicadorFrmViewModel : ObservableObject
     /// Legacy: MultiplicadorFrm.Entrada2() -> OpenFileDialog (*.txt).
     /// </summary>
     [RelayCommand]
-    private void SeleccionarEntrada2()
+    private async Task SeleccionarEntrada2Async()
     {
-        // TODO[dominio]: abrir FileOpenPicker (*.txt) y cargar columnas.
-        //   Legacy MultiplicadorFrm.Entrada2():
-        //     - PuedeProcesar = false.
-        //     - Por cada línea: scol2 = (linea + "11111111111111").Substring(0,14).Trim();
-        //       ascols2[ncols2++] = scol2.
-        //     - NombreEntrada2 = Path.GetFileName(ruta);
-        //       ColumnasEntrada2Texto = ncols2.ToString();
-        //     - PuedeProcesar = true.
+        var file = await AbrirSelectorColumnasAsync();
+        if (file == null) return;
+
+        _rutaEntrada2 = file.Path;
+        PuedeProcesar = false;
+        try
+        {
+            await Task.Run(() => CargarColumnas(_rutaEntrada2, _ascols2));
+            NombreEntrada2 = Path.GetFileName(_rutaEntrada2);
+            ColumnasEntrada2Texto = _ascols2.Count.ToString();
+        }
+        finally
+        {
+            PuedeProcesar = true;
+        }
     }
 
     /// <summary>
@@ -126,20 +148,58 @@ public partial class MultiplicadorFrmViewModel : ObservableObject
     /// Legacy: MultiplicadorFrm.Multiplicar() + RecuperaPantalla().
     /// </summary>
     [RelayCommand]
-    private void Multiplicar()
+    private async Task MultiplicarAsync()
     {
-        // TODO[dominio]: validar plantilla y ejecutar la multiplicación.
-        //   Legacy MultiplicadorFrm.RecuperaPantalla():
-        //     - indices[0..13] = Convert.ToInt32(Indice01..Indice14).
-        //     - Validar: cada indice en rango 1..28; si no, Mensaje = "error en plantilla" y abortar.
-        //   Legacy MultiplicadorFrm.Multiplicar():
-        //     - PuedeProcesar = false; ncols3 = 0.
-        //     - Para cada (nr1 en ncols1, nr2 en ncols2):
-        //         scol3 = ascols1[nr1] + ascols2[nr2];   // 28 cifras
-        //         para nr3 en 0..13: aux[nr3] = scol3[indices[nr3]-1];
-        //         ascols3[ncols3++] = new string(aux);
-        //     - ColumnasResultadoTexto = ncols3.ToString();
-        //     - PuedeGrabar = true; PuedeProcesar = true.
+        // RecuperaPantalla() legacy: plantilla de 14 índices con rango 1..28.
+        var indices = new[]
+        {
+            (int)Indice01, (int)Indice02, (int)Indice03, (int)Indice04, (int)Indice05,
+            (int)Indice06, (int)Indice07, (int)Indice08, (int)Indice09, (int)Indice10,
+            (int)Indice11, (int)Indice12, (int)Indice13, (int)Indice14,
+        };
+        for (int nr = 0; nr < 14; nr++)
+        {
+            if (indices[nr] < 1 || indices[nr] > 28)
+            {
+                Mensaje = "error en plantilla";
+                AppServices.MostrarError("error en plantilla");
+                return;
+            }
+        }
+
+        Mensaje = string.Empty;
+        PuedeProcesar = false;
+        try
+        {
+            // Producto cartesiano: concatena cada columna de E1 con cada una de E2 (28 cifras)
+            // y reordena según la plantilla (legacy: Multiplicar()).
+            var resultado = await Task.Run(() =>
+            {
+                var lista = new List<string>(_ascols1.Count * _ascols2.Count);
+                var aux = new char[14];
+                foreach (var scol1 in _ascols1)
+                {
+                    foreach (var scol2 in _ascols2)
+                    {
+                        string scol3 = scol1 + scol2;
+                        for (int nr3 = 0; nr3 < 14; nr3++) aux[nr3] = scol3[indices[nr3] - 1];
+                        lista.Add(new string(aux));
+                    }
+                }
+                return lista;
+            });
+            _ascols3 = resultado;
+            ColumnasResultadoTexto = _ascols3.Count.ToString();
+            PuedeGrabar = _ascols3.Count > 0;
+        }
+        catch (Exception ex)
+        {
+            Mensaje = "Error: " + ex.Message;
+        }
+        finally
+        {
+            PuedeProcesar = true;
+        }
     }
 
     /// <summary>
@@ -147,13 +207,64 @@ public partial class MultiplicadorFrmViewModel : ObservableObject
     /// Legacy: MultiplicadorFrm.Grabar() -> SaveFileDialog (*.txt).
     /// </summary>
     [RelayCommand]
-    private void Grabar()
+    private async Task GrabarAsync()
     {
-        // TODO[dominio]: abrir FileSavePicker (*.txt) y escribir el resultado.
-        //   Legacy MultiplicadorFrm.Grabar():
-        //     - PuedeGrabar = false; PuedeProcesar = false.
-        //     - fileout = Path.GetFileName(ruta);
-        //       StreamWriter sw -> por cada nr en 0..ncols3-1: sw.WriteLine(ascols3[nr]).
-        //     - PuedeGrabar = true; PuedeProcesar = true.
+        var picker = new FileSavePicker
+        {
+            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
+            SuggestedFileName = "Resultado",
+        };
+        picker.FileTypeChoices.Add("Fichero resultados", new List<string> { ".txt" });
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        var file = await picker.PickSaveFileAsync();
+        if (file == null) return;
+
+        string ruta = file.Path;
+        var copia = _ascols3;
+        PuedeGrabar = false;
+        PuedeProcesar = false;
+        try
+        {
+            await Task.Run(() =>
+            {
+                using var sw = new StreamWriter(ruta);
+                foreach (var col in copia) sw.WriteLine(col);
+            });
+            Mensaje = "Resultado grabado.";
+        }
+        catch (Exception ex)
+        {
+            Mensaje = "Error: " + ex.Message;
+        }
+        finally
+        {
+            PuedeGrabar = copia.Count > 0;
+            PuedeProcesar = true;
+        }
+    }
+
+    /// <summary>Carga columnas normalizadas a 14 cifras (legacy: (linea+"11111111111111").Substring(0,14).Trim()).</summary>
+    private static void CargarColumnas(string ruta, List<string> destino)
+    {
+        destino.Clear();
+        using var sr = new StreamReader(ruta);
+        while (sr.Peek() > 0)
+        {
+            string scol = (sr.ReadLine() + "11111111111111").Substring(0, 14);
+            destino.Add(scol.Trim());
+        }
+    }
+
+    /// <summary>Abre un FileOpenPicker para archivos de columnas (*.txt).</summary>
+    private static async Task<Windows.Storage.StorageFile?> AbrirSelectorColumnasAsync()
+    {
+        var picker = new FileOpenPicker
+        {
+            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
+        };
+        picker.FileTypeFilter.Add(".txt");
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+        return await picker.PickSingleFileAsync();
     }
 }
