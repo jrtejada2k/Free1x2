@@ -97,6 +97,13 @@ public partial class PosiblesPremiosFrmViewModel : ObservableObject
     }
 
     /// <summary>
+    /// Navegación a otra página del ContentFrame, inyectada por la Page (mismo patrón que
+    /// MainPageViewModel.Navegar). El segundo argumento es el parámetro de navegación opcional
+    /// (e.Parameter); para los handoffs estáticos basta con pasar null.
+    /// </summary>
+    public Action<Type, object?>? Navegar { get; set; }
+
+    /// <summary>
     /// Los 16 partidos con su signo ganador editable y los signos de las columnas jugadas
     /// (legacy: rejilla txt1..txt16 + lblP{n}C1..C8).
     /// </summary>
@@ -267,15 +274,19 @@ public partial class PosiblesPremiosFrmViewModel : ObservableObject
     [RelayCommand]
     private void Ver()
     {
-        // TODO[dominio]: abrir el equivalente WinUI de VisorPosiblesPremios con _resumen.
-        //   Legacy: PosiblesPremiosFrm.btnVer_Click (Free1X2/UI/PosiblesPremiosFrm.cs línea 3487)
-        //     -> new VisorPosiblesPremios(resumen).ShowDialog().
-        //   El VisorPosiblesPremiosViewModel ya existe pero la navegación/host de páginas
-        //   no está en el alcance de este lote.
+        // Legacy btnVer_Click (Free1X2/UI/PosiblesPremiosFrm.cs línea 3487):
+        //   new VisorPosiblesPremios(resumen).ShowDialog().
+        // El resumen sólo existe si se calculó con 'Generar resumen' marcado.
         if (_resumen.Count == 0)
         {
             AppServices.MostrarInfo("No hay resumen que mostrar. Marca 'Generar resumen' y calcula.");
+            return;
         }
+
+        // Handoff al visor (mismo patrón que EstucolFrmViewModel.UltimoInforme): el
+        // VisorPosiblesPremiosViewModel lee UltimoResumen en su constructor al navegar.
+        VisorPosiblesPremiosViewModel.UltimoResumen = new List<PosiblesPremiosContenedor>(_resumen);
+        Navegar?.Invoke(typeof(VisorPosiblesPremiosPage), null);
     }
 
     /// <summary>Copia el resumen al portapapeles (legacy: btnCopiar_Click).</summary>
@@ -359,15 +370,22 @@ public partial class PosiblesPremiosFrmViewModel : ObservableObject
         // Legacy btnMejoresOpciones_Click (Free1X2/UI/PosiblesPremiosFrm.cs línea 3501):
         //   ObtenGanadora(); new MejoresOpcionesFrm(chkPleno.Checked) con
         //   ArchivoColumnas = arrayColumnas y ColumnaGanadora = columnaGanadora.
-        // La parte de dominio (cálculo) ya está cableada en MejoresOpcionesFrmViewModel
-        // (EstablecerContexto). Aquí solo queda la navegación entre páginas.
+        if (_arrayColumnas.Count == 0 || _noPartidos == 0)
+        {
+            AppServices.MostrarError("Primero abre un fichero de columnas.");
+            return;
+        }
+
+        // Compone la columna ganadora a partir de los signos del usuario (legacy: ObtenGanadora()).
         ObtenGanadora();
-        // TODO[navegación]: navegar a MejoresOpcionesFrmPage y llamar a
-        //   ViewModel.EstablecerContexto(_columnaGanadora, _arrayColumnas, ConsiderarPleno).
-        //   El host de navegación no está en el alcance de este lote.
-        AppServices.MostrarInfo(
-            "Mis mejores opciones: contexto preparado (columna ganadora y " + _arrayColumnas.Count +
-            " columnas). La navegación entre páginas se cableará junto con el shell.");
+
+        // El cálculo ya está cableado en MejoresOpcionesFrmViewModel (EstablecerContexto + Calcular);
+        // aquí se pasa el contexto como parámetro de navegación (legacy: propiedades del form modal).
+        var contexto = new MejoresOpcionesContexto(
+            _columnaGanadora,
+            new List<string>(_arrayColumnas),
+            ConsiderarPleno);
+        Navegar?.Invoke(typeof(MejoresOpcionesFrmPage), contexto);
     }
 
     // ===== Lógica de escrutinio (réplica fiel del WinForms) =====
