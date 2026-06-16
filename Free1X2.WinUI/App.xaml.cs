@@ -11,14 +11,43 @@ public partial class App : Application
     public App()
     {
         this.InitializeComponent();
+        // Red de seguridad: una excepción no controlada en la UI no debe tumbar la app.
+        // Se registra y se muestra al usuario en vez de hacer fail-fast.
+        this.UnhandledException += static (s, e) =>
+        {
+            e.Handled = true;
+            Services.AppServices.MostrarError("Se produjo un error inesperado:\n\n" + e.Exception.Message);
+        };
     }
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
+        AsegurarCarpetasDeTrabajo();
         MainWindow = new MainWindow();
         AppServices.Inicializar(MainWindow);
         CablearHooksDominio();
         MainWindow.Activate();
+    }
+
+    /// <summary>
+    /// Crea junto al ejecutable las carpetas de trabajo que el motor espera al guardar
+    /// (columnas, combinaciones, condiciones, etc.). Los datos semilla (parametros.free1x2,
+    /// Idioma, Equipos, Impresion) se copian vía &lt;Content&gt; del csproj; estas carpetas de
+    /// salida se crean en runtime para no versionar directorios vacíos.
+    /// </summary>
+    private static void AsegurarCarpetasDeTrabajo()
+    {
+        try
+        {
+            string baseDir = System.AppContext.BaseDirectory;
+            foreach (var d in new[] { "Columnas", "Combinaciones", "Condiciones", "Filtros",
+                                      "Ganadoras", "Informes", "Jornadas", "Temp", "Comunicaciones",
+                                      "Documentacion" })
+            {
+                System.IO.Directory.CreateDirectory(System.IO.Path.Combine(baseDir, d));
+            }
+        }
+        catch { /* no bloquear el arranque por permisos de carpeta */ }
     }
 
     /// <summary>

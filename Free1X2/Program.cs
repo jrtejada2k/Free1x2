@@ -120,17 +120,17 @@ namespace Free1X2
                 // Create error report with original error handling logic
                 string nombreSeg = "Informe_" + DateTime.Now.ToShortDateString().Replace('/', '-') + "_" + DateTime.Now.ToLongTimeString().Replace(':', '-') + ".txt";
                 
-                var manejador = new Free1X2.Debug.ManejadorExcepciones();
-                manejador.GuardarInformeErrorATxt(exception, nombreSeg); 
+                var manejador = new global::Free1X2.Debug.ManejadorExcepciones();
+                manejador.GuardarInformeErrorATxt(exception, nombreSeg);
 
-                var infoError = new Free1X2.Debug.InfoError(nombreSeg);
+                var infoError = new global::Free1X2.Debug.InfoError(nombreSeg);
                 infoError.ShowDialog();
             }
             catch
             {
                 try
                 {
-                    var infoError = new Free1X2.Debug.InfoError("");
+                    var infoError = new global::Free1X2.Debug.InfoError("");
                     infoError.ShowDialog();
                 }
                 catch

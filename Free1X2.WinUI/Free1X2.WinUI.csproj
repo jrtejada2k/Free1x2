@@ -34,4 +34,15 @@
     <ProjectReference Include="..\Free1X2.Domain\Free1X2.Domain.csproj" />
   </ItemGroup>
 
+  <!-- Datos semilla del motor (config, idioma, equipos, impresión). Se copian junto
+       al exe preservando la estructura de carpetas; el dominio los lee con
+       System.AppContext.BaseDirectory. Sin ellos, Analizador/AConfiguracion crashea
+       al arrancar por falta de parametros.free1x2. -->
+  <ItemGroup>
+    <Content Include="Datos\**\*">
+      <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

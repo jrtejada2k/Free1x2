@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<xml>
+  <condicionesFiltros>
+    <CP>
+      <puntos fijos="6" dobles="3" triples="1" />
+    </CP>
+  </condicionesFiltros>
+  <configuracionONLAE>
+    <LAE>
+      <OrdenarApuestas PrecioApuesta="0,50" PorcentajeDestinadoAl14="12" Recaudacion="14000000" Moneda="€" />
+    </LAE>
+  </configuracionONLAE>
+  <utilidades>
+    <separadorJB valores="15,22,29,36,48,61" />
+  </utilidades>
+  <partidos>
+    <partidos numero="14" separador="5,9,12" />
+  </partidos>
+  <desplazamiento>
+    <desplazamiento valor="3" />
+  </desplazamiento>
+  <toolbars>
+    <Activadas tsFree="True" tsFiltros="False" tsCombinacion="True" tsOperaciones="False" tsArchivo="True" tsUtilidades="False" />
+  </toolbars>
+  <actualizador>
+    <Opciones actualizarAlInicio="False" />
+  </actualizador>
+  <analisis>
+    <Opciones aTodo="True" aVX2="True" aSeguidos="True" aFigurasV1X2="True" aDibujos="True" aInterrupciones="True" aSimetrias="True" aDiferencias="True" aFormatos="True" aFormatos123="True" aDistancias="True" aContactos="True" aFigurasContactos="True" aPesos="True" aFigurasPesos="True" aValoracion="True" aCPs="True" aGruposEquipos="True" aControlGrupos="True" aControlConjuntos="True" />
+  </analisis>
+  <idioma>
+    <idioma valor="es-ES" />
+  </idioma>
+  <salir>
+    <Opciones confirmacionSalir="True" />
+  </salir>
+  <notificaciones>
+    <fecha valor="03/02/2010" />
+  </notificaciones>
+</xml>

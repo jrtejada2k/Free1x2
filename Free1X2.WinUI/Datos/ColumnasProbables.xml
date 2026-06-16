@@ -1,0 +1,6 @@
+<?xml version="1.0" standalone="yes"?>
+<ColumnasProbables xmlns="http://tempuri.org/ColumnasProbables.xsd">
+  <Tipos_x0020_de_x0020_CPs d2p1:Tipo="1" d2p1:Nombre="Normal" xmlns:d2p1="http://tempuri.org/ColumnasProbables.xsd" />
+  <Configuracion_x0020_de_x0020_CPs d2p1:Desde="0" d2p1:Hasta="100" d2p1:Forzar_x0020_Fijos="true" d2p1:Num_x0020_Fijos="14" xmlns:d2p1="http://tempuri.org/ColumnasProbables.xsd" />
+  <Configuracion_x0020_de_x0020_CPs d2p1:Tipo="1" d2p1:Desde="1" d2p1:Hasta="100" d2p1:Forzar_x0020_Fijos="true" d2p1:Num_x0020_Fijos="14" xmlns:d2p1="http://tempuri.org/ColumnasProbables.xsd" />
+</ColumnasProbables>
