@@ -3,6 +3,7 @@
     x:Class="Free1X2.WinUI.Views.Ported.BancoPruebasFrmPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:Free1X2.WinUI.Controls"
     Background="{ThemeResource AppBackgroundBrush}">
 
     <Grid>
@@ -69,11 +70,29 @@
                             <StackPanel Spacing="8">
                                 <TextBlock Text="Definición de la valoración apostada y real"
                                            Style="{StaticResource CardTitleTextBlockStyle}" />
-                                <TextBlock Text="Los porcentajes apostados y reales por jornada se editan en los controles de valoración del programa (ControlPorcentajes)."
+                                <TextBlock Text="Porcentajes por partido (1 / X / 2). La rejilla apostada alimenta el cálculo y la generación; la real se obtiene del cálculo o se edita manualmente."
                                            Style="{StaticResource SecondaryTextBlockStyle}" TextWrapping="Wrap" />
-                                <!-- TODO(dominio): incrustar aquí los dos controles de porcentajes
-                                     (controlPorcentajesApostados y controlPorcentajesReales) cuando
-                                     el control WinUI equivalente esté disponible. -->
+                                <!-- Sustituyen a los dos UserControls WinForms ControlPorcentajes. -->
+                                <Grid ColumnSpacing="16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" Spacing="6">
+                                        <TextBlock Text="Porcentajes apostados"
+                                                   Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                                        <controls:PorcentajesControl
+                                            Height="300"
+                                            Filas="{x:Bind ViewModel.PorcentajesApostados, Mode=OneWay}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Spacing="6">
+                                        <TextBlock Text="Porcentajes reales"
+                                                   Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                                        <controls:PorcentajesControl
+                                            Height="300"
+                                            Filas="{x:Bind ViewModel.PorcentajesReales, Mode=OneWay}" />
+                                    </StackPanel>
+                                </Grid>
                             </StackPanel>
                         </Border>
 

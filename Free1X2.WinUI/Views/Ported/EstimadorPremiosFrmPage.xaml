@@ -4,6 +4,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:Free1X2.WinUI.Views.Ported"
+    xmlns:controls="using:Free1X2.WinUI.Controls"
     Background="{ThemeResource AppBackgroundBrush}">
 
     <ScrollViewer>
@@ -275,6 +276,63 @@
                     </StackPanel>
                 </Border>
             </Grid>
+
+            <!-- Porcentajes de la jornada + columna premiada. Sustituye al UserControl
+                 WinForms ControlPorcentajes (controlPorcentajes1) que alimenta el cálculo. -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Porcentajes y columna premiada" Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                    <TextBlock
+                        Style="{StaticResource SecondaryTextBlockStyle}"
+                        Text="Porcentajes por partido (1/X/2) de la jornada y columna premiada (14 signos). Alimentan la previsión de acertantes y premios." />
+
+                    <Grid ColumnSpacing="16" RowSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock
+                            Grid.Row="0" Grid.Column="0"
+                            Text="Columna premiada"
+                            VerticalAlignment="Center"
+                            Style="{StaticResource BodyStrongTextBlockStyle}"
+                            Foreground="{ThemeResource AppTextBrush}" />
+                        <TextBox
+                            Grid.Row="0" Grid.Column="1"
+                            Width="220"
+                            HorizontalAlignment="Left"
+                            MaxLength="14"
+                            CharacterCasing="Upper"
+                            PlaceholderText="14 signos (1 X 2)"
+                            Text="{x:Bind ViewModel.ColumnaPremiada, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            AutomationProperties.Name="Columna premiada" />
+
+                        <TextBlock
+                            Grid.Row="1" Grid.Column="0"
+                            Text="Nº apuestas"
+                            VerticalAlignment="Center"
+                            Style="{StaticResource BodyStrongTextBlockStyle}"
+                            Foreground="{ThemeResource AppTextBrush}" />
+                        <NumberBox
+                            Grid.Row="1" Grid.Column="1"
+                            Width="220"
+                            HorizontalAlignment="Left"
+                            SpinButtonPlacementMode="Hidden"
+                            Minimum="0"
+                            Value="{x:Bind ViewModel.NumApuestas, Mode=TwoWay}"
+                            AutomationProperties.Name="Número de apuestas" />
+                    </Grid>
+
+                    <controls:PorcentajesControl
+                        Height="320"
+                        Filas="{x:Bind ViewModel.Porcentajes, Mode=OneWay}" />
+                </StackPanel>
+            </Border>
 
             <!-- Calcular -->
             <Button
