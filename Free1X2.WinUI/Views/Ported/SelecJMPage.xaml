@@ -2,7 +2,8 @@
 <Page
     x:Class="Free1X2.WinUI.Views.Ported.SelecJMPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:Free1X2.WinUI.Controls">
 
     <ScrollViewer>
         <StackPanel Padding="32" Spacing="24" MaxWidth="960" HorizontalAlignment="Left">
@@ -15,15 +16,16 @@
                            TextWrapping="Wrap" />
             </StackPanel>
 
-            <!-- ===== Valoraciones por partido (control legacy 'valors') ===== -->
+            <!-- ===== Valoraciones por partido (reemplaza el UserControl 'valors') ===== -->
             <Border Style="{StaticResource AppCardStyle}">
                 <StackPanel Spacing="12">
                     <TextBlock Text="Valoraciones por partido" Style="{StaticResource CardTitleTextBlockStyle}" />
-                    <TextBlock Text="Origen de datos del control 'valors' (valoraciones 1 / X / 2 por partido). La carga y edición de la rejilla se portará por separado."
+                    <TextBlock Text="Valoraciones 1 / X / 2 por partido. Son el origen de nvals = valors1.RetVals() en el cálculo y el análisis."
                                Style="{StaticResource SecondaryTextBlockStyle}"
                                TextWrapping="Wrap" />
-                    <!-- TODO: Dominio legacy — control Free1X2.UI.Controls.valors (rejilla de valoraciones por partido).
-                         Provee nvals = valors1.RetVals() usado por SelecJM.RecuperaPantalla(). -->
+                    <controls:PorcentajesControl Height="380"
+                                                 Filas="{x:Bind ViewModel.Porcentajes, Mode=OneWay}"
+                                                 AutomationProperties.Name="Valoraciones 1 X 2 por partido" />
                 </StackPanel>
             </Border>
 
