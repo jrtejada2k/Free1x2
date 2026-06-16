@@ -223,22 +223,61 @@ public partial class MainPageViewModel : ObservableObject
 
     /// <summary>
     /// Elimina el grupo en pantalla (mEliminarGrupos → BorraGrupoEnPantalla). No permite borrar
-    /// el boleto base (grupo 0). Versión simplificada: no reindexa controles de grupos — eso
-    /// queda como TODO (ver más abajo).
+    /// el boleto base (grupo 0). Réplica fiel de <c>MainForm.BorraGrupoEnPantalla</c>
+    /// (Free1X2/UI/MainForm.cs ~1006-1052): borra el grupo y reindexa los grupos controlados de
+    /// cada control de grupos (los mayores que el borrado bajan una posición; el igual al borrado
+    /// se descarta).
     /// </summary>
     [RelayCommand]
     private void EliminarGrupo()
     {
         if (_estado.GrupoPantalla == 0) return; // no se borra el boleto base
-        var grupos = _estado.Analizador.GruposPartidos;
+        var analizador = _estado.Analizador;
+        var grupos = analizador.GruposPartidos;
         if (grupos.Count <= 1) return;
 
-        // TODO: MainForm.BorraGrupoEnPantalla() también reindexa los GruposControlados de
-        //   analizador.CtrlGrupos.ControlesGrupos cuando se borra un grupo intermedio. Esa lógica
-        //   vive en el form (no en el motor). Aquí se borra el grupo; el reajuste de controles
-        //   de grupos queda pendiente — ref: Free1X2/UI/MainForm.cs BorraGrupoEnPantalla (líneas ~1006-1052).
-        grupos.BorrarGrupo(_estado.GrupoPantalla);
-        CambiarGrupo(_estado.GrupoPantalla - 1);
+        int grupoPantalla = _estado.GrupoPantalla;
+
+        // Borrar el grupo del motor (en WinUI no hay pronosticos.grupoPronosticos: el boleto
+        // recarga desde el motor al refrescar la pantalla).
+        grupos.BorrarGrupo(grupoPantalla);
+
+        // Reindexar los grupos controlados de cada control de grupos (BorraGrupoEnPantalla):
+        // los grupos > grupoPantalla bajan una posición; el grupo == grupoPantalla se descarta.
+        char[] separadores = new char[] { ',', '-' };
+        foreach (var control in analizador.CtrlGrupos.ControlesGrupos)
+        {
+            string[] gControlados = control.ObtenGruposControlados().Split(separadores);
+            int[] gControladosInt = control.GruposControlados;
+            string temp = "";
+            for (int j = 0; j < gControlados.Length; j++)
+            {
+                if (gControladosInt[j] > grupoPantalla)
+                {
+                    temp += (gControladosInt[j] - 1);
+                    temp += ",";
+                }
+                else if (gControladosInt[j] < grupoPantalla)
+                {
+                    temp += gControladosInt[j];
+                    temp += ",";
+                }
+            }
+            if (temp.Length > 1)
+            {
+                string def = temp.Substring(0, temp.Length - 1);
+                string[] defString = def.Split(',');
+                gControladosInt = new int[defString.Length];
+                for (int j = 0; j < gControladosInt.Length; j++)
+                {
+                    gControladosInt[j] = Convert.ToInt32(defString[j]);
+                }
+                control.PonerGruposControlados(def);
+                control.GruposControlados = gControladosInt;
+            }
+        }
+
+        CambiarGrupo(grupoPantalla - 1);
     }
 
     /// <summary>
@@ -310,23 +349,25 @@ public partial class MainPageViewModel : ObservableObject
     // ============================================================
 
     /// <summary>
-    /// Calcular columnas (MCalcular → AbreCalculoColumnasFrm). Vuelca pronósticos al motor,
-    /// fija el filtro base si está activo y navega a la página de cálculo (ya cableada para correr).
+    /// Calcular columnas (MCalcular → AbreCalculoColumnasFrm). Réplica de
+    /// <c>MainForm.AbreCalculoColumnasFrm</c> (Free1X2/UI/MainForm.cs ~528-550):
+    /// vuelca pronósticos al motor (ObtenPronosticos/ObtenPartidosGrupos ya hechos por el boleto y la
+    /// navegación de grupos), fija el archivo base si el filtro está activo y válido, y navega a la
+    /// página de cálculo activando el handoff para que use el <see cref="AppState.Analizador"/>
+    /// compartido (con boleto, grupos, condiciones e If-Then ya cargados).
     /// </summary>
     [RelayCommand]
     private void Calcular()
     {
         Boleto?.VolcarPronosticosAlMotor();
         var analizador = _estado.Analizador;
-        // ObtenDatosGruposPronosticos + AbreCalculoColumnasFrm: fija el archivo base si hay filtro válido.
+        // AbreCalculoColumnasFrm: fija el archivo base si hay filtro de columnas válido (verde).
         analizador.ArchivoColumnasBase =
             (TieneFiltro && EstadoFiltro == EstadoSemaforo.Verde) ? _estado.ArchivoFiltroCols : "";
 
-        // Handoff del Analizador a la página de cálculo. NOTA: CalculaColumnasFrmPage/ViewModel
-        // actualmente construye su PROPIO Analizador (no consume uno externo). Cablear que use
-        // AppState.Analizador requiere modificar ese ViewModel (fuera del alcance de esta tarea).
-        // TODO: CalculaColumnasFrmViewModel debería leer AppState.Analizador en lugar de crear uno
-        //   nuevo — ref: Free1X2/UI/MainForm.cs AbreCalculoColumnasFrm (líneas ~528-550).
+        // Handoff: la página de cálculo usará el Analizador compartido (no uno propio), igual que
+        // MainForm pasa su analizador al constructor de CalculaColumnasFrm.
+        AppState.UsarAnalizadorCompartido = true;
         Navegar?.Invoke(typeof(CalculaColumnasFrmPage));
     }
 
