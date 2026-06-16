@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Free1X2.WinUI.Controls;
 using Free1X2.WinUI.Services;
 using Windows.Storage.Pickers;
 
@@ -18,6 +20,15 @@ namespace Free1X2.WinUI.Views.Ported;
 /// </summary>
 public partial class RentabilidadFrmViewModel : ObservableObject
 {
+    // Rejillas de porcentajes por partido (1/X/2). Sustituyen a los dos UserControls WinForms
+    // ControlPorcentajes (controlPorcentajesApostados / controlPorcentajesReales);
+    // PorcentajesHelper.AMatriz(...) equivale a ControlPorcentajes.Valores (get).
+    public ObservableCollection<FilaPorcentaje> PorcentajesApostados { get; } =
+        PorcentajesHelper.Crear(Free1X2.VariablesGlobales.NumeroPartidos);
+
+    public ObservableCollection<FilaPorcentaje> PorcentajesReales { get; } =
+        PorcentajesHelper.Crear(Free1X2.VariablesGlobales.NumeroPartidos);
+
     // --- Origen de las columnas (legacy: rb14Triples / rbFichero, txFicheroEntrada) ---
     // OrigenEsFichero=false -> 14 triples (por defecto, legacy rb14Triples.Checked=true);
     // true -> fichero de entrada. OrigenEs14Triples es el inverso para el RadioButton.
@@ -126,13 +137,52 @@ public partial class RentabilidadFrmViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(ColumnaValida))]
     private void CalcularValoracionColumna()
     {
-        // TODO: lógica en Free1X2/UI/RentabilidadFrm.cs línea 113 (CalcularValoracionColumna).
-        //   Requiere las matrices de porcentajes apostados/reales que en el WinForms provee el
-        //   UserControl Free1X2.UI.Controls.ControlPorcentajes (controlPorcentajesApostados /
-        //   controlPorcentajesReales -> Porcentajes.ValoresBase100()). Ese control aún no está
-        //   portado a WinUI (la propia Page lo señala), por lo que no hay datos de entrada que
-        //   cablear al motor sin inventar valores. Los selectores de fichero ya están cableados.
-        EstadoTexto = "Falta el control de porcentajes (ver RentabilidadFrm.cs línea 113)";
+        // Legacy: RentabilidadFrm.CalcularValoracionColumna() (línea 113). v/p = .Valores de los dos
+        // ControlPorcentajes; pa/pr = Porcentajes.ValoresBase100() (normalización a tanto-por-uno).
+        // No depende del motor de 4,7M -> totalmente cableable.
+        double precioApuesta = Free1X2.VariablesGlobales.PrecioApuesta;
+        double pctPremio14 = Free1X2.VariablesGlobales.Porcentaje14;
+        float premioDe14 = (float)precioApuesta * (float)pctPremio14 / 100;
+        float premioTope = (float)Recaudacion * (float)pctPremio14 / 100;
+
+        float[,] pa = ValoresBase100(PorcentajesHelper.AMatriz(PorcentajesApostados));
+        float[,] pr = ValoresBase100(PorcentajesHelper.AMatriz(PorcentajesReales));
+
+        string apuesta = Columna;
+        float p14Apostada = 1, p14Real = 1;
+        for (int partido = 0; partido < 14; partido++)
+        {
+            switch (apuesta[partido])
+            {
+                case '1': p14Apostada *= pa[partido, 0]; p14Real *= pr[partido, 0]; break;
+                case '2': p14Apostada *= pa[partido, 2]; p14Real *= pr[partido, 2]; break;
+                default: p14Apostada *= pa[partido, 1]; p14Real *= pr[partido, 1]; break;
+            }
+        }
+
+        float premio = premioDe14 / p14Apostada;
+        if (premio > premioTope) premio = premioTope;
+        float esperanza = premio * p14Real;
+
+        PremioEstimado14Texto = Math.Round(precioApuesta * pctPremio14 / 100 / p14Apostada, 2).ToString();
+        ProbabilidadRealTexto = p14Real.ToString();
+        EsperanzaMatematicaTexto = esperanza.ToString();
+        EstadoTexto = "Valoración calculada";
+    }
+
+    // Legacy: Free1X2.Utils.Porcentajes.ValoresBase100() (Free1X2/Utils/Porcentajes.cs línea 341).
+    // Normaliza cada fila (1/X/2) a tanto-por-uno dividiendo por la suma de la fila. Se replica aquí
+    // porque ese helper vive en el proyecto WinForms y no está en Free1X2.Domain.
+    private static float[,] ValoresBase100(double[,] valores)
+    {
+        var b100 = new float[14, 3];
+        for (int i = 0; i < 14; i++)
+        {
+            float factor = (float)(valores[i, 0] + valores[i, 1] + valores[i, 2]);
+            for (int j = 0; j < 3; j++)
+                b100[i, j] = (float)(valores[i, j] / factor);
+        }
+        return b100;
     }
 
     /// <summary>
@@ -150,11 +200,16 @@ public partial class RentabilidadFrmViewModel : ObservableObject
             return;
         }
 
-        // TODO: lógica en Free1X2/UI/RentabilidadFrm.cs línea 852 (btnOK_Click) +
-        //   EncontrarDistantes1 (línea 949), ordena() y GrabacionColumnas(). El cálculo de la
-        //   Esperanza Matemática parte de las matrices de porcentajes apostados/reales del
-        //   UserControl ControlPorcentajes, aún no portado a WinUI. Sin esos datos de entrada no
-        //   es posible alimentar el motor sin inventar valores; se cablean solo los selectores.
-        EstadoTexto = "Falta el control de porcentajes (ver RentabilidadFrm.cs línea 852)";
+        // La parte de matriz SÍ se cablea: v/p = .Valores de los dos ControlPorcentajes
+        // (RentabilidadFrm.cs 889/890) y su normalización base-100 (895/897):
+        float[,] pa = ValoresBase100(PorcentajesHelper.AMatriz(PorcentajesApostados));
+        float[,] pr = ValoresBase100(PorcentajesHelper.AMatriz(PorcentajesReales));
+        _ = (pa, pr);
+
+        // TODO[motor]: replicar btnOK_Click (RentabilidadFrm.cs 852) + EncontrarDistantes1 (949) +
+        //   ordena() + GrabacionColumnas(). Las matrices base-100 (pa/pr) ya están listas para
+        //   alimentar el recorrido, pero el motor recorre Ap14T = ApuestaProbableCentral[4782969]
+        //   (Bits, Cra/Crp, pot[]) y graba el fichero filtrado por EmMin/EmMax — no portado al dominio.
+        EstadoTexto = "Matrices listas; falta el motor de recorrido de 14 triples (RentabilidadFrm.cs 852)";
     }
 }
