@@ -15,8 +15,9 @@ namespace Free1X2.WinUI.Views.Ported;
 /// corresponde a cada franja del gráfico.
 ///
 /// Cableado al motor real (Free1X2.EntradaSalida.ArchivoColumnasTexto): se computan los datos
-/// del gráfico (mínimo/máximo/escala y las coordenadas de cada línea por apuesta). El dibujo en
-/// sí (System.Drawing/Grafico.cs) se quedó en WinForms; ver TODO de renderizado en el code-behind.
+/// del gráfico (mínimo/máximo/escala, las coordenadas de cada línea por apuesta y los rectángulos
+/// de relleno granate cuando la combinación es estrecha). El render GDI+ del legacy se sustituye por
+/// WinUI Shapes sobre el Canvas en el code-behind, a partir de LineasGrafico y RectangulosRelleno.
 /// </summary>
 public partial class GraficoColumnasFrmViewModel : ObservableObject
 {
