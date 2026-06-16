@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Free1X2;
 using Free1X2.MotorCalculo;
+using Free1X2.WinUI.Controls;
 using Free1X2.WinUI.Services;
 
 namespace Free1X2.WinUI.Views.Ported;
@@ -31,9 +32,8 @@ public partial class Formato123Item : ObservableObject
 /// <summary>
 /// ViewModel portado de Free1X2.UI.Filtros.Formatos123Frm (WinForms).
 /// Replica los campos de entrada: lista de formatos 123 (con min/max aciertos),
-/// líneas acertadas, "ignorar repeticiones" y el traductor 1X2 -> 123.
-/// La lógica de dominio (FiltroFormatos123, TransformarValoracion, persistencia,
-/// estadísticas, analizador) queda como TODO citando la clase legacy.
+/// líneas acertadas, "ignorar repeticiones", la rejilla de porcentajes/valoración
+/// y el traductor 1X2 -> 123. La persistencia/estadísticas quedan como TODO.
 /// </summary>
 public partial class Formatos123FrmViewModel : ObservableObject
 {
@@ -51,6 +51,14 @@ public partial class Formatos123FrmViewModel : ObservableObject
     /// Filas de formato (legacy: cctrl con N CtrlFormato123).
     /// </summary>
     public ObservableCollection<Formato123Item> Formatos { get; } = new();
+
+    /// <summary>
+    /// Rejilla de valoraciones 1/X/2 por partido (reemplaza el UserControl WinForms
+    /// ControlPorcentajes / controlPorcentajes1). PorcentajesHelper.AMatriz(Porcentajes)
+    /// equivale a controlPorcentajes1.Valores (matriz double[NumeroPartidos,3]).
+    /// </summary>
+    public ObservableCollection<FilaPorcentaje> Porcentajes { get; } =
+        PorcentajesHelper.Crear(VariablesGlobales.NumeroPartidos);
 
     /// <summary>
     /// Legacy: txtAciertos. Lista de líneas acertadas permitidas (ej. "10,12-14").
@@ -96,8 +104,6 @@ public partial class Formatos123FrmViewModel : ObservableObject
     /// <summary>
     /// Vuelca los formatos del FiltroFormatos123 del grupo en edición a la pantalla.
     /// Equivale a Formatos123Frm.MarcarValores() (Free1X2/UI/Filtros/Formatos123Frm.cs líneas 562-613).
-    /// NOTA: la matriz de Valoración (porcentajes) no tiene control en WinUI todavía; se preserva
-    /// la del filtro al Aceptar (no se reescribe). Ver TODO en Aceptar.
     /// </summary>
     public void CargarDesdeGrupo()
     {
@@ -106,6 +112,11 @@ public partial class Formatos123FrmViewModel : ObservableObject
 
         var filtro = (FiltroFormatos123)grupo.GetFiltro(Filtro.Formatos123.ToString());
         if (!filtro.ContieneDatos) return;
+
+        // Volcar la valoración del filtro a la rejilla de porcentajes
+        // (equivale a Formatos123Frm.MarcarValoracion(filtro.Valoracion), línea 632-635).
+        if (filtro.Valoracion is { } val && val.GetLength(0) > 0)
+            PorcentajesHelper.CargarMatriz(Porcentajes, val);
 
         Formatos.Clear();
         int n = 1;
@@ -208,14 +219,36 @@ public partial class Formatos123FrmViewModel : ObservableObject
         return aciertos;
     }
 
+    // Valida una columna 1/X/2 de NumeroPartidos signos (Formatos123Frm.CompruebaColumna, líneas 173-193).
+    private static bool CompruebaColumna(string columna)
+    {
+        if (columna.Length != VariablesGlobales.NumeroPartidos) return false;
+        foreach (char c in columna.ToUpper())
+        {
+            if (c != '1' && c != 'X' && c != '2') return false;
+        }
+        return true;
+    }
+
     [RelayCommand]
     private void Traducir()
     {
-        // TODO (dominio): legacy btnTraducir_Click.
-        // Validar con FiltroFormatos123.CompruebaColumna y llamar a
-        // FiltroFormatos123.Col1X2ToCol123(Columna1X2) usando la valoración
-        // transformada (TransformarValoracion sobre controlPorcentajes1.Valores).
-        Columna123 = string.Empty;
+        // Equivale a Formatos123Frm.btnTraducir_Click() (líneas 910-923).
+        string entrada = (Columna1X2 ?? "").ToUpper();
+        if (CompruebaColumna(entrada))
+        {
+            double[,] nvals = PorcentajesHelper.AMatriz(Porcentajes);  // == controlPorcentajes1.Valores
+            var filtroTmp = new FiltroFormatos123
+            {
+                ValoracionTranformada = TransformarValoracion(nvals),
+                Valores = nvals,
+            };
+            Columna123 = filtroTmp.Col1X2ToCol123(entrada);
+        }
+        else
+        {
+            Columna123 = "Error!!!!";
+        }
     }
 
     [RelayCommand]
@@ -236,6 +269,12 @@ public partial class Formatos123FrmViewModel : ObservableObject
 
         var filtro = (FiltroFormatos123)grupo.GetFiltro(Filtro.Formatos123.ToString());
 
+        // Volcar la valoración de la rejilla de porcentajes (equivale a
+        // Formatos123Frm.menuCondiciones1_BOk líneas 752-753).
+        double[,] nvals = PorcentajesHelper.AMatriz(Porcentajes);  // == controlPorcentajes1.Valores
+        filtro.ValoracionTranformada = TransformarValoracion(nvals);
+        filtro.Valoracion = nvals;
+
         var arrayFormatos = ConstruirFormatos();
         var arrayAciertos = ConstruirAciertos();
 
@@ -255,16 +294,66 @@ public partial class Formatos123FrmViewModel : ObservableObject
             filtro.ContieneDatos = filtro.NecesitaGuardar();
         }
 
-        // TODO[valoración]: el form legacy también vuelca la valoración de porcentajes:
-        //   filtro.Valoracion = controlPorcentajes1.Valores;
-        //   filtro.ValoracionTranformada = TransformarValoracion(controlPorcentajes1.Valores);
-        //   (Formatos123Frm.menuCondiciones1_BOk líneas 752-753 + TransformarValoracion líneas 637-690).
-        //   No hay control de porcentajes en la página WinUI todavía, así que se conserva la
-        //   valoración existente del filtro (cargada al abrir) y NO se reescribe aquí.
-
         grupo.ActivaFiltro(filtro);
         AppState.Instancia.NotificarCambio();
         Volver?.Invoke();
+    }
+
+    // Equivale a Formatos123Frm.TransformarValoracion() (líneas 637-690): a partir de la
+    // matriz de porcentajes 1/X/2 produce el byte[N,3] con el orden de signos 1/2/3.
+    private static byte[,] TransformarValoracion(double[,] valoracion)
+    {
+        var valoresTransformados = new byte[VariablesGlobales.NumeroPartidos, 3];
+        for (int i = 0; i < VariablesGlobales.NumeroPartidos; i++)
+        {
+            double[] valor = { valoracion[i, 0], valoracion[i, 1], valoracion[i, 2] };
+            if ((valor[0] >= valor[1]) && (valor[0] >= valor[2]))
+            {
+                if (valor[1] >= valor[2])
+                {
+                    valoresTransformados[i, 0] = 4; // "1"
+                    valoresTransformados[i, 1] = 2; // "2"
+                    valoresTransformados[i, 2] = 1; // "3"
+                }
+                else if (valor[2] > valor[1])
+                {
+                    valoresTransformados[i, 0] = 4; // "1"
+                    valoresTransformados[i, 1] = 1; // "3"
+                    valoresTransformados[i, 2] = 2; // "2"
+                }
+            }
+            else if ((valor[1] > valor[0]) && (valor[1] >= valor[2]))
+            {
+                if (valor[0] >= valor[2])
+                {
+                    valoresTransformados[i, 0] = 2; // "2"
+                    valoresTransformados[i, 1] = 4; // "1"
+                    valoresTransformados[i, 2] = 1; // "3"
+                }
+                else
+                {
+                    valoresTransformados[i, 0] = 1; // "3"
+                    valoresTransformados[i, 1] = 4; // "1"
+                    valoresTransformados[i, 2] = 2; // "2"
+                }
+            }
+            else if ((valor[2] > valor[0]) && (valor[2] > valor[1]))
+            {
+                if (valor[0] >= valor[1])
+                {
+                    valoresTransformados[i, 0] = 2; // "2"
+                    valoresTransformados[i, 1] = 1; // "3"
+                    valoresTransformados[i, 2] = 4; // "1"
+                }
+                else
+                {
+                    valoresTransformados[i, 0] = 1; // "3"
+                    valoresTransformados[i, 1] = 2; // "2"
+                    valoresTransformados[i, 2] = 4; // "1"
+                }
+            }
+        }
+        return valoresTransformados;
     }
 
     [RelayCommand]

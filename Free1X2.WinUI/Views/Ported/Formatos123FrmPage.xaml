@@ -3,6 +3,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:Free1X2.WinUI.Views.Ported"
+    xmlns:controls="using:Free1X2.WinUI.Controls"
     Background="{StaticResource AppBackgroundBrush}">
 
     <Grid Padding="24" RowSpacing="16">
@@ -108,7 +109,8 @@
             </Border>
 
             <!-- Columna derecha -->
-            <StackPanel Grid.Column="1" Spacing="16">
+            <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="16">
 
                 <!-- Aciertos -->
                 <Border Style="{StaticResource AppCardStyle}">
@@ -125,6 +127,17 @@
                         <ToggleSwitch
                             Header="Ignorar repeticiones"
                             IsOn="{x:Bind ViewModel.IgnorarRepeticiones, Mode=TwoWay}" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Porcentajes / valoración (reemplaza el UserControl ControlPorcentajes) -->
+                <Border Style="{StaticResource AppCardStyle}">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="Porcentajes" Style="{StaticResource CardTitleTextBlockStyle}" />
+                        <controls:PorcentajesControl
+                            Height="340"
+                            Filas="{x:Bind ViewModel.Porcentajes, Mode=OneWay}"
+                            AutomationProperties.Name="Porcentajes 1 X 2 por partido" />
                     </StackPanel>
                 </Border>
 
@@ -163,6 +176,7 @@
                     </StackPanel>
                 </Border>
             </StackPanel>
+            </ScrollViewer>
         </Grid>
 
         <!-- Barra de acciones (legacy: menuCondiciones2) -->

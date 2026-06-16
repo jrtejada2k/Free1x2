@@ -7,8 +7,8 @@ namespace Free1X2.WinUI.Views.Ported;
 /// Reparte los 14 partidos en 3 grupos (5+5+4), genera las tablas ordenadas de
 /// productos de cada grupo, aplica límites por grupo y por total, y calcula las
 /// columnas válidas por corte o por valor. Incluye análisis de columnas ganadoras
-/// leídas de fichero. La lógica de cálculo y persistencia está marcada como TODO
-/// en el ViewModel.
+/// leídas de fichero. El cálculo está portado y toma la valoración de la rejilla
+/// PorcentajesControl (== valors1.RetVals()).
 /// </summary>
 public sealed partial class SelecJMPage : Page
 {

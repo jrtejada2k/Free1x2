@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Free1X2;
 using Free1X2.EntradaSalida;
+using Free1X2.WinUI.Controls;
 using Free1X2.WinUI.Services;
 
 namespace Free1X2.WinUI.Views.Ported;
@@ -46,14 +48,21 @@ public partial class Formato123FilaViewModel : ObservableObject
 /// ("Mostrar todos"). El resultado es un informe de formato + nº de apariciones.
 ///
 /// Cableado al motor real: la carga de columnas usa Free1X2.EntradaSalida.ArchivoColumnasTexto
-/// y los algoritmos puros del form legacy (TraducirColumna/TransformarValoracion/
-/// DeterminaApariciones) se replican aquí. La valoración procede del control 'valors'
-/// (no portado); mientras tanto se usa una valoración neutra (mapeo identidad 1->1/X->2/2->3).
+/// y los algoritmos puros del form legacy (TraducirColumna/TransformarValoracion) se replican
+/// aquí. La valoración procede de la rejilla PorcentajesControl (Porcentajes), que reemplaza
+/// al UserControl WinForms 'valors': PorcentajesHelper.AMatriz(Porcentajes) == valors1.RetVals().
 /// </summary>
 public partial class AnalisisFormatos123FrmViewModel : ObservableObject
 {
     /// <summary>Columnas leídas del archivo (legacy arrayColumnas).</summary>
     public ObservableCollection<string> Columnas { get; } = new();
+
+    /// <summary>
+    /// Rejilla de valoraciones 1/X/2 por partido (reemplaza el UserControl WinForms 'valors').
+    /// PorcentajesHelper.AMatriz(Porcentajes) equivale a valors1.RetVals() (double[NumeroPartidos,3]).
+    /// </summary>
+    public ObservableCollection<FilaPorcentaje> Porcentajes { get; } =
+        PorcentajesHelper.Crear(VariablesGlobales.NumeroPartidos);
 
     /// <summary>Filas del informe de formatos (legacy contenido del ContainerControl cctrl).</summary>
     public ObservableCollection<Formato123FilaViewModel> Informe { get; } = new();
@@ -188,12 +197,11 @@ public partial class AnalisisFormatos123FrmViewModel : ObservableObject
         if (Columnas.Count == 0) return;
         string columna1x2 = ColumnaActual;
 
-        // Traducción de la columna usando la valoración (neutra mientras 'valors' no esté portado).
-        // TODO: valoración real — ver Free1X2/UI/AnalisisFormatos123Frm.cs línea 110
-        //   (TransformarValoracion(valors1.RetVals())). El control 'valors' (rejilla de
-        //   valoraciones 1/X/2 por partido) aún no está portado a WinUI; con valoración neutra
-        //   el mapeo es la identidad 1->"1", X->"2", 2->"3".
-        string[,] val = TransformarValoracion(ValoracionNeutra(columna1x2.Length));
+        // Traducción de la columna usando la valoración real de la rejilla de porcentajes.
+        // Equivale a Free1X2/UI/AnalisisFormatos123Frm.cs línea 110:
+        //   TraducirColumna(columna1x2, TransformarValoracion(valors1.RetVals())).
+        double[,] nvals = PorcentajesHelper.AMatriz(Porcentajes);  // == valors1.RetVals()
+        string[,] val = TransformarValoracion(nvals);
         string columnaFormato = TraducirColumna(columna1x2, val);
 
         var todos = new List<(string Formato, int AciertosMax)>();
@@ -274,21 +282,6 @@ public partial class AnalisisFormatos123FrmViewModel : ObservableObject
             }
         }
         return valoresTransformados;
-    }
-
-    /// <summary>Valoración neutra (todos los partidos con valores iguales 3>2>1 por orden 1/X/2).</summary>
-    private static double[,] ValoracionNeutra(int partidos)
-    {
-        // Con valores iguales por partido y orden estable, TransformarValoracion devuelve
-        // la posición natural 1/2/3 -> el signo se traduce a su posición (identidad).
-        double[,] v = new double[partidos, 3];
-        for (int i = 0; i < partidos; i++)
-        {
-            v[i, 0] = 3; // 1 -> posición 1
-            v[i, 1] = 2; // X -> posición 2
-            v[i, 2] = 1; // 2 -> posición 3
-        }
-        return v;
     }
 
     /// <summary>Helper para refrescar la cabecera tras cargar columnas (legacy MostrarContador()).</summary>
