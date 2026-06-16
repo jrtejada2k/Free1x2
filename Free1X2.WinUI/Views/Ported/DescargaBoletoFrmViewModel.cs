@@ -69,26 +69,36 @@ public partial class DescargaBoletoFrmViewModel : ObservableObject
     {
         Mensaje = string.Empty;
 
-        if (string.IsNullOrWhiteSpace(TemporadaSeleccionada) || !TemporadaSeleccionada.Contains('-'))
+        // Validación de la temporada (legacy: partes = cbbTemporada.Text.Split('-'); if length != 2 -> error).
+        string[] partes = (TemporadaSeleccionada ?? string.Empty).Split('-');
+        if (partes.Length != 2)
         {
             Mensaje = "La Temporada elegida no es correcta";
             return;
         }
 
-        if (string.IsNullOrWhiteSpace(JornadaSeleccionada))
+        if (string.IsNullOrWhiteSpace(JornadaSeleccionada) || !int.TryParse(JornadaSeleccionada, out int jornada))
         {
             Mensaje = "La Jornada elegida no es correcta";
             return;
         }
 
-        // TODO[dominio]: descargar el boleto online y publicarlo en el form principal.
-        //   Legacy: DescargaBoletoFrm.btnActualizar_Click
-        //     Free1X2WService fWS = new Free1X2WService();
-        //     string[] partes = cbbTemporada.Text.Split('-');
-        //     boleto = fWS.ObtenerBoleto(Convert.ToInt32(cbbJornada.Text), partes[0]);
-        //     if (boleto == "") -> mostrar "El Boleto elegido no está disponible";
+        // Parámetros ya validados y listos para el servicio (legacy: ObtenerBoleto(jornada, partes[0])).
+        string anioTemporada = partes[0];
+
+        // El servicio web Free1X2WService (SOAP) NO está migrado a Free1X2.Domain: en el proyecto
+        // WinForms su ObtenerBoleto(int, string) es un stub que devuelve "" (modo offline,
+        // ver Free1X2/Utils/ControlCompatibility.cs línea 738). Sin servicio real, el boleto
+        // no está disponible, igual que el camino "boleto == \"\"" del legacy.
+        // TODO[dominio]: descargar el boleto online y publicarlo en la pantalla principal.
+        //   Legacy: DescargaBoletoFrm.btnActualizar_Click (Free1X2/UI/DescargaBoletoFrm.cs línea 44):
+        //     boleto = fWS.ObtenerBoleto(jornada, anioTemporada);
+        //     if (boleto == "") -> "El Boleto elegido no está disponible";
         //     else -> MainForm.BoletoOnline = boleto; Close();
-        //   El servicio Free1X2WService aún no está migrado a Free1X2.Domain.
-        //   Al integrarlo: parsear int.Parse(JornadaSeleccionada) y TemporadaSeleccionada.Split('-')[0].
+        //   Al migrar el servicio: invocar aquí con (jornada, anioTemporada) en Task.Run y, si hay
+        //   boleto, publicarlo en el estado compartido (análogo a MainForm.BoletoOnline) y regresar.
+        _ = jornada;            // documentado: parámetros ya parseados para el servicio futuro
+        _ = anioTemporada;
+        Mensaje = "El Boleto elegido no está disponible";
     }
 }
