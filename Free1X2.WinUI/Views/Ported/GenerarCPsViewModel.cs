@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Free1X2;
 using Free1X2.EntradaSalida.GenerarCPs;
+using Free1X2.Utils;
 using Free1X2.WinUI.Services;
 using Windows.Storage;
 using Windows.Storage.Pickers;
@@ -42,12 +43,15 @@ public partial class ValoracionPartidoItem : ObservableObject
 /// (Generador de Columnas Probables).
 ///
 /// La generación (btnOK_Click) está cableada al motor real (Free1X2.EntradaSalida.GenerarCPs:
-/// DatosHelper, ColumnasProbables, CPs, IO). La importación de % depende de la clase legacy
-/// Free1X2.Utils.Porcentajes (no portada al dominio), por lo que sólo abre el selector y
-/// queda un TODO preciso.
+/// DatosHelper, ColumnasProbables, CPs, IO). La importación de % usa Free1X2.Utils.Porcentajes
+/// (ya portada al dominio: detección de formato 1/3/42/43/44 valores por fila). La navegación
+/// a ConfigCPsFrm / FiltroPorcenJB / GeneradorCPSDiferencias se cablea con la acción Navegar.
 /// </summary>
 public partial class GenerarCPsViewModel : ObservableObject
 {
+    /// <summary>Acción para navegar a otra página (la cablea la página con Frame.Navigate(tipo)).</summary>
+    public Action<Type>? Navegar { get; set; }
+
     public GenerarCPsViewModel()
     {
         Valoraciones = new ObservableCollection<ValoracionPartidoItem>();
@@ -157,12 +161,35 @@ public partial class GenerarCPsViewModel : ObservableObject
             return;
         }
 
-        // TODO: parseo de valoraciones — ver Free1X2/UI/GenerarCPs.cs línea 280
-        //   (new Porcentajes(fileName); Pct.valores[i,0..2]) y volcar a Valoraciones +
-        //   CopiarValoracion(). La clase Free1X2.Utils.Porcentajes (detección de formato
-        //   1/3/42/43/44 valores por fila) vive en el proyecto WinForms, no en el dominio,
-        //   por lo que su transcripción queda pendiente para evitar fabricar lógica.
-        Estado = $"Archivo seleccionado ({archivo.Name}). Importación de % pendiente (Porcentajes no portada).";
+        // Réplica de btnImportarVal_Click (Free1X2/UI/GenerarCPs.cs línea 271):
+        //   new Porcentajes(fileName) detecta el formato (1/3/42/43/44 valores por fila) al
+        //   leer; luego se vuelca Pct.valores[i,0..2] a la valoración por partido. La clase
+        //   Free1X2.Utils.Porcentajes vive ahora en el dominio (Free1X2.Domain/Utils).
+        try
+        {
+            double[,] leidos = await Task.Run(() =>
+            {
+                var pct = new Porcentajes(archivo.Path);
+                return pct.valores;
+            });
+
+            // Equivalente a PonerValoracionPantalla(valores) (línea 295): se vuelca a la
+            // colección que pinta la rejilla de partidos. La matriz Valoraciones se reconstruye
+            // luego en Generar() vía CopiarValoracion(), igual que el legacy CopiarValoracion().
+            for (int i = 0; i < Valoraciones.Count && i < VariablesGlobales.NumeroPartidos; i++)
+            {
+                Valoraciones[i].Valor1 = leidos[i, 0];
+                Valoraciones[i].ValorX = leidos[i, 1];
+                Valoraciones[i].Valor2 = leidos[i, 2];
+            }
+
+            Estado = $"Valoración importada de {archivo.Name}.";
+        }
+        catch (Exception ex)
+        {
+            Estado = "Error al importar la valoración: " + ex.Message;
+            AppServices.MostrarError("Error al importar la valoración: " + ex.Message);
+        }
     }
 
     /// <summary>
@@ -171,8 +198,8 @@ public partial class GenerarCPsViewModel : ObservableObject
     [RelayCommand]
     private void ConfigurarColumnas()
     {
-        // TODO (navegación): abrir el equivalente a ConfigCPsFrm (ConfigCPsFrmPage en WinUI).
-        Estado = "Configurar columnas: navegar a ConfigCPsFrmPage.";
+        // Legacy: ConfigCPsFrm f = new ConfigCPsFrm(); f.ShowDialog();
+        Navegar?.Invoke(typeof(ConfigCPsFrmPage));
     }
 
     /// <summary>
@@ -181,8 +208,8 @@ public partial class GenerarCPsViewModel : ObservableObject
     [RelayCommand]
     private void SeparadorPorcentajes()
     {
-        // TODO (navegación): abrir el equivalente a FiltroPorcenJB.
-        Estado = "Separador de porcentajes: navegar a FiltroPorcenJB.";
+        // Legacy: FiltroPorcenJB separador = new FiltroPorcenJB(); separador.ShowDialog();
+        Navegar?.Invoke(typeof(FiltroPorcenJBPage));
     }
 
     /// <summary>
@@ -191,8 +218,8 @@ public partial class GenerarCPsViewModel : ObservableObject
     [RelayCommand]
     private void CpsPorDiferencias()
     {
-        // TODO (navegación): abrir el equivalente a GeneradorCPSDiferencias (GeneradorCPSDiferenciasPage).
-        Estado = "CPs por diferencias: navegar a GeneradorCPSDiferenciasPage.";
+        // Legacy: GeneradorCPSDiferencias f = new GeneradorCPSDiferencias(); f.ShowDialog();
+        Navegar?.Invoke(typeof(GeneradorCPSDiferenciasPage));
     }
 
     // ===== Lógica de dominio replicada del WinForms GenerarCPs =====
