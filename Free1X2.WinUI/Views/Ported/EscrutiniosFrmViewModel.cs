@@ -269,7 +269,11 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
         int[] premiosGlobales = await Task.Run(() =>
         {
             int[] globales = new int[Free1X2.VariablesGlobales.NumeroPartidos + 1];
-            var resultadosDS = new DataSet();
+            // El Escrutador escribe filas en la tabla "Resultados" vía PonerPremios; hay que
+            // crear su esquema ANTES de escrutar (réplica de EscrutiniosFrm.InicializaResultadosDataSet).
+            // Sin esto, Tables["Resultados"] es null y PonerPremios lanza NullReferenceException
+            // (y PremiosTotales nunca se acumula). Bug detectado en validación de paridad.
+            var resultadosDS = CrearDataSetResultados();
 
             foreach (string archivo in archivos)
             {
@@ -307,6 +311,26 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
 
         HayResultados = true;
         PuedeVerPremiadas = verPremiadas;
+    }
+
+    /// <summary>
+    /// Crea el DataSet con la tabla "Resultados" que el Escrutador rellena (PonerPremios).
+    /// Réplica exacta de EscrutiniosFrm.InicializaResultadosDataSet del WinForms original:
+    /// columnas Seleccionado/LineaID/Columna/Archivo, P0..P(NumeroPartidos) y "Ac. Totales".
+    /// </summary>
+    private static DataSet CrearDataSetResultados()
+    {
+        var ds = new DataSet();
+        var t = new DataTable("Resultados");
+        t.Columns.Add("Seleccionado", typeof(bool));
+        t.Columns.Add("LineaID", typeof(int));
+        t.Columns.Add("Columna", typeof(string));
+        t.Columns.Add("Archivo", typeof(string));
+        for (int i = 0; i <= Free1X2.VariablesGlobales.NumeroPartidos; i++)
+            t.Columns.Add("P" + i, typeof(int));
+        t.Columns.Add("Ac. Totales", typeof(string));
+        ds.Tables.Add(t);
+        return ds;
     }
 
     /// <summary>

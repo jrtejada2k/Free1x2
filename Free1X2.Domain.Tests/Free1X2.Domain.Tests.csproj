@@ -18,4 +18,14 @@
     <ProjectReference Include="..\Free1X2.Domain\Free1X2.Domain.csproj" />
   </ItemGroup>
 
+  <!-- Datos semilla del motor (parametros.free1x2, etc.) junto al exe de pruebas:
+       los tests de flujo construyen Analizador, que lee la configuración al arrancar.
+       Reutiliza la misma semilla versionada del proyecto WinUI. -->
+  <ItemGroup>
+    <Content Include="..\Free1X2.WinUI\Datos\**\*">
+      <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>
