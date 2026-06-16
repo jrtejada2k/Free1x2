@@ -2,6 +2,7 @@
     x:Class="Free1X2.WinUI.Views.Ported.TramificarGraficasFrmPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:Free1X2.WinUI.Controls"
     Background="{StaticResource AppBackgroundBrush}">
 
     <ScrollViewer>
@@ -114,20 +115,12 @@
                 </StackPanel>
             </Border>
 
-            <!-- Lienzo de la gráfica (legacy: pictureBox1) -->
+            <!-- Lienzo de la gráfica (legacy: pictureBox1). Render nativo WinUI de las curvas. -->
             <Border Grid.Row="3" Style="{StaticResource AppCardStyle}" MinHeight="360">
-                <Grid>
-                    <Border
-                        Background="{StaticResource AppSurfaceAltBrush}"
-                        BorderBrush="{StaticResource AppBorderBrush}"
-                        BorderThickness="1"
-                        CornerRadius="4" />
-                    <TextBlock
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        Style="{StaticResource SecondaryTextBlockStyle}"
-                        Text="Área de la gráfica (pendiente: render de las curvas con la lógica de dominio Grafico)." />
-                </Grid>
+                <controls:GraficoLineasControl
+                    Curvas="{x:Bind ViewModel.Curvas, Mode=OneWay}"
+                    IntervaloGrid="{x:Bind ViewModel.TamanoGrid, Mode=OneWay}"
+                    MinHeight="320" />
             </Border>
         </Grid>
     </ScrollViewer>
