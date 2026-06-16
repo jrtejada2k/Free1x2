@@ -106,6 +106,11 @@
                             Command="{x:Bind ViewModel.CancelarCommand}"
                             AutomationProperties.Name="Detener la representación en curso" />
                         <Button
+                            Content="Copiar imagen"
+                            IsEnabled="{x:Bind ViewModel.HayCombinacion, Mode=OneWay}"
+                            Command="{x:Bind ViewModel.CopiarCommand}"
+                            AutomationProperties.Name="Copiar la imagen del gráfico al portapapeles y guardarla como PNG" />
+                        <Button
                             Content="Guía"
                             IsEnabled="{x:Bind ViewModel.HayCombinacion, Mode=OneWay}"
                             Command="{x:Bind ViewModel.MostrarGuiaCommand}"
