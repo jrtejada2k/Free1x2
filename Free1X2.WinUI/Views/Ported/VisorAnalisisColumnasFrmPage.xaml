@@ -95,7 +95,9 @@
                         Style="{StaticResource SecondaryTextBlockStyle}"
                         TextWrapping="Wrap" />
 
-                    <!-- Marcador del control de análisis legacy (Ctrl*). Aún no portado. -->
+                    <!-- Datos numéricos de la sección (vuelco de las matrices/figuras del dominio).
+                         Los UserControls de análisis del WinForms (CtrlAnalisis*) no están portados;
+                         se muestra aquí la información subyacente en una rejilla. -->
                     <Border
                         Grid.Row="2"
                         Background="{ThemeResource AppSurfaceAltBrush}"
@@ -103,13 +105,31 @@
                         BorderThickness="1"
                         CornerRadius="6"
                         MinHeight="280">
-                        <TextBlock
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
-                            TextAlignment="Center"
-                            TextWrapping="Wrap"
-                            Foreground="{ThemeResource AppTextSecondaryBrush}"
-                            Text="El control de análisis de esta sección se mostrará aquí (pendiente de portar)." />
+                        <ListView
+                            ItemsSource="{x:Bind ViewModel.FilasDetalle, Mode=OneWay}"
+                            SelectionMode="None">
+                            <ListView.ItemTemplate>
+                                <DataTemplate x:DataType="ported:FilaAnalisis">
+                                    <Grid Padding="0,4" ColumnSpacing="12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="180" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock
+                                            Grid.Column="0"
+                                            Text="{x:Bind Etiqueta}"
+                                            Foreground="{ThemeResource AppTextBrush}"
+                                            TextWrapping="Wrap" />
+                                        <TextBlock
+                                            Grid.Column="1"
+                                            Text="{x:Bind Valores}"
+                                            FontFamily="Consolas"
+                                            Foreground="{ThemeResource AppTextSecondaryBrush}"
+                                            TextWrapping="Wrap" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
                     </Border>
 
                     <Button

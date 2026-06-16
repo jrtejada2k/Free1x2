@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Free1X2.Escrutinio;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -48,13 +49,34 @@ public partial class SignoGanadorItem : ObservableObject
 /// </summary>
 public partial class VisorPosiblesPremiosViewModel : ObservableObject
 {
+    /// <summary>
+    /// Handoff estático con el resumen de premios que calcula la pantalla anterior
+    /// (PosiblesPremiosFrm). Equivale al argumento del ctor legacy
+    /// VisorPosiblesPremios(List&lt;PosiblesPremiosContenedor&gt; resumenPremios). El visor lo lee
+    /// al navegar (mismo patrón que EstucolFrmViewModel.UltimoInforme).
+    /// TODO[productor]: PosiblesPremiosFrmViewModel.Ver (stub fuera del alcance de este lote,
+    ///   Free1X2/UI/PosiblesPremiosFrm.cs línea 3489) debe fijar UltimoResumen = _resumen y navegar aquí.
+    /// </summary>
+    public static List<PosiblesPremiosContenedor>? UltimoResumen { get; set; }
+
+    // Resumen recibido por handoff (legacy: List<PosiblesPremiosContenedor> resumen).
+    private readonly List<PosiblesPremiosContenedor> _resumen;
+
     public VisorPosiblesPremiosViewModel()
     {
-        // TODO[dominio]: el constructor legacy recibe List<PosiblesPremiosContenedor> resumenPremios
-        //   (VisorPosiblesPremios(List<PosiblesPremiosContenedor>)) y arranca en el grupo 0
-        //   (VisorPosiblesPremios_Load -> MostrarGrupos(grupoMostrado)).
-        //   Aquí se deja sin datos; al integrar, inyectar el resumen y llamar a MostrarGrupo(0).
-        ActualizarContador();
+        // El constructor legacy recibe List<PosiblesPremiosContenedor> resumenPremios y arranca
+        // en el grupo 0 (VisorPosiblesPremios_Load -> MostrarGrupos(grupoMostrado)).
+        _resumen = UltimoResumen ?? new List<PosiblesPremiosContenedor>();
+        TotalGrupos = _resumen.Count;
+        IndiceGrupo = 0;
+        if (_resumen.Count > 0)
+        {
+            MostrarGrupo(0);
+        }
+        else
+        {
+            ActualizarContador();
+        }
     }
 
     // --- Estado de navegación (legacy: int grupoMostrado, List<...> resumen) ---
@@ -94,7 +116,6 @@ public partial class VisorPosiblesPremiosViewModel : ObservableObject
             IndiceGrupo++;
             MostrarGrupo(IndiceGrupo);
         }
-        // TODO[dominio]: legacy btnAdelante_Click hacía grupoMostrado++ y MostrarGrupos(grupoMostrado).
     }
 
     /// <summary>Retrocede al grupo anterior (legacy: btnAtras_Click '&lt;').</summary>
@@ -106,7 +127,6 @@ public partial class VisorPosiblesPremiosViewModel : ObservableObject
             IndiceGrupo--;
             MostrarGrupo(IndiceGrupo);
         }
-        // TODO[dominio]: legacy btnAtras_Click hacía grupoMostrado-- y MostrarGrupos(grupoMostrado).
     }
 
     /// <summary>
@@ -117,13 +137,47 @@ public partial class VisorPosiblesPremiosViewModel : ObservableObject
         ColumnaGanadora.Clear();
         ColumnasPremiadas.Clear();
 
-        // TODO[dominio]: poblar desde Resumen[noGrupo] (PosiblesPremiosContenedor).
-        //   Legacy: MostrarGrupos
-        //     - IndicarColumnaGanadora(contenedor.ColGanadora): un SignoGanadorItem por carácter.
-        //     - arrayColumnas = Col16 + Col15 + Col14 + Col13 + Col12 + Col11 + Col10
-        //       (en ese orden); por cada string crear un ColumnaPremioItem (con su Categoria).
+        if (noGrupo < 0 || noGrupo >= _resumen.Count)
+        {
+            ActualizarContador();
+            return;
+        }
+
+        PosiblesPremiosContenedor contenedor = _resumen[noGrupo];
+
+        // Columna ganadora en vertical (legacy: IndicarColumnaGanadora -> lblCG1..lblCG16).
+        string colGanadora = contenedor.ColGanadora ?? string.Empty;
+        for (int i = 0; i < colGanadora.Length; i++)
+        {
+            ColumnaGanadora.Add(new SignoGanadorItem { Signo = colGanadora[i].ToString() });
+        }
+
+        // Columnas premiadas, en el mismo orden que el legacy (Col16..Col10), conservando su categoría.
+        AgregarCategoria(contenedor.Col16, 16);
+        AgregarCategoria(contenedor.Col15, 15);
+        AgregarCategoria(contenedor.Col14, 14);
+        AgregarCategoria(contenedor.Col13, 13);
+        AgregarCategoria(contenedor.Col12, 12);
+        AgregarCategoria(contenedor.Col11, 11);
+        AgregarCategoria(contenedor.Col10, 10);
 
         ActualizarContador();
+    }
+
+    // Crea un ColumnaPremioItem por cada columna jugada de la categoría dada (legacy: arrayColumnas).
+    private void AgregarCategoria(List<string> categoria, int aciertos)
+    {
+        if (categoria == null) return;
+        for (int i = 0; i < categoria.Count; i++)
+        {
+            string columna = categoria[i] ?? string.Empty;
+            var signos = new List<string>(columna.Length);
+            for (int s = 0; s < columna.Length; s++)
+            {
+                signos.Add(columna[s].ToString());
+            }
+            ColumnasPremiadas.Add(new ColumnaPremioItem { Signos = signos, Categoria = aciertos });
+        }
     }
 
     /// <summary>Recalcula el texto del contador (legacy: lblContador.Text).</summary>
