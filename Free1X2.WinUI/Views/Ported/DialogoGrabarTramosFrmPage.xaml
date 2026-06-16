@@ -37,14 +37,14 @@
                                 Header="Columna inicial"
                                 Minimum="0"
                                 SpinButtonPlacementMode="Compact"
-                                Value="{x:Bind ViewModel.ColumnaInicial, Mode=TwoWay}" />
+                                Value="{x:Bind ViewModel.ColumnaInicialEntrada, Mode=TwoWay}" />
 
                             <NumberBox
                                 Grid.Column="1"
                                 Header="Columna final"
                                 Minimum="0"
                                 SpinButtonPlacementMode="Compact"
-                                Value="{x:Bind ViewModel.ColumnaFinal, Mode=TwoWay}" />
+                                Value="{x:Bind ViewModel.ColumnaFinalEntrada, Mode=TwoWay}" />
                         </Grid>
                     </StackPanel>
                 </Border>
@@ -71,14 +71,14 @@
                                 Header="Columnas a grabar (N)"
                                 Minimum="1"
                                 SpinButtonPlacementMode="Compact"
-                                Value="{x:Bind ViewModel.NumColsPorPaso, Mode=TwoWay}" />
+                                Value="{x:Bind ViewModel.NumColsPorPasoEntrada, Mode=TwoWay}" />
 
                             <NumberBox
                                 Grid.Column="1"
                                 Header="De cada (P) columnas"
                                 Minimum="1"
                                 SpinButtonPlacementMode="Compact"
-                                Value="{x:Bind ViewModel.Paso, Mode=TwoWay}" />
+                                Value="{x:Bind ViewModel.PasoEntrada, Mode=TwoWay}" />
                         </Grid>
                     </StackPanel>
                 </Border>
