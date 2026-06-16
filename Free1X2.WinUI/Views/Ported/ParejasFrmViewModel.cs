@@ -1,7 +1,13 @@
+using System;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
+using System.Collections;
+using System.IO;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Free1X2.WinUI.Services;
+using Windows.Storage.Pickers;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -13,14 +19,20 @@ namespace Free1X2.WinUI.Views.Ported;
 /// un nivel (1..7); luego, por nivel, se exige un número de aciertos dentro de
 /// un rango [min, max] (las "Condiciones"). Las columnas que cumplen se guardan.
 ///
-/// Datos de dominio legacy: matriz int[14,11] nivells (P1, P2 + 9 valores de
-/// pareja por fila) y matriz int[7,3] rks (min, max, recuento por nivel).
-/// Métodos legacy: LeeCondis/SalvaCondis (E/S de ficheros *.par),
-/// Calcular (lee *.txt y valida), GrabarCols (escribe resultado),
-/// Analizar (analiza una sola "Columna Ganadora"), Valida/s1n/n1s.
+/// Es una herramienta autónoma fichero→fichero (no edita un Grupo del motor): toda
+/// la lógica (Valida/s1n/n1s, lectura/escritura *.par y *.txt) vive en el propio
+/// formulario legacy y se replica aquí 1:1. Las matrices de dominio son
+/// int[14,11] nivells (P1, P2 + 9 valores de pareja por fila) e int[7,3] rks
+/// (min, max, recuento por nivel).
 /// </summary>
 public partial class ParejasFrmViewModel : ObservableObject
 {
+    // Matriz de validación de columnas (legacy: BitArray validas de 4.782.969 = 3^14).
+    private readonly BitArray _columnasValidasBits = new(4782969);
+    private int[,] _nivells = new int[14, 11];
+    private int[,] _rks = new int[7, 3];
+    private bool _salida;
+
     public ParejasFrmViewModel()
     {
         // 14 partidos (filas de "Niveles"). Legacy: nivells[0..13, 0..10].
@@ -97,10 +109,50 @@ public partial class ParejasFrmViewModel : ObservableObject
     /// niveles (P1,P2 + 9 valores) y 7 líneas de condiciones (min,max).
     /// </summary>
     [RelayCommand]
-    private void Leer()
+    private async Task LeerAsync()
     {
-        // TODO[dominio]: abrir selector de archivo (FileOpenPicker, *.par) y rellenar
-        //   Niveles y Condiciones con el contenido. Equivale a ParejasFrm.LeeCondis().
+        var picker = new FileOpenPicker
+        {
+            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
+        };
+        picker.FileTypeFilter.Add(".par");
+        picker.FileTypeFilter.Add("*");
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        var file = await picker.PickSingleFileAsync();
+        if (file == null) return;
+
+        try
+        {
+            using var sr = new StreamReader(file.Path);
+            // 14 líneas de niveles: P1, P2 + 9 valores de pareja.
+            for (int r = 0; r < 14 && r < Niveles.Count; r++)
+            {
+                string? linea = sr.ReadLine();
+                if (linea == null) break;
+                string[] aux = linea.Split(',');
+                if (aux.Length < 11) continue;
+                var fila = Niveles[r];
+                fila.P1 = aux[0]; fila.P2 = aux[1];
+                fila.V11 = aux[2]; fila.V1X = aux[3]; fila.V12 = aux[4];
+                fila.VX1 = aux[5]; fila.VXX = aux[6]; fila.VX2 = aux[7];
+                fila.V21 = aux[8]; fila.V2X = aux[9]; fila.V22 = aux[10];
+            }
+            // 7 líneas de condiciones: min, max.
+            for (int n = 0; n < 7 && n < Condiciones.Count; n++)
+            {
+                string? linea = sr.ReadLine();
+                if (linea == null) break;
+                string[] aux = linea.Split(',');
+                if (aux.Length < 2) continue;
+                Condiciones[n].Min = aux[0];
+                Condiciones[n].Max = aux[1];
+            }
+        }
+        catch (Exception ex)
+        {
+            AppServices.MostrarError("No se ha podido leer el fichero de condiciones: " + ex.Message);
+        }
     }
 
     /// <summary>
@@ -108,10 +160,41 @@ public partial class ParejasFrmViewModel : ObservableObject
     /// Legacy: ParejasFrm.SalvaCondis() — SaveFileDialog (*.par).
     /// </summary>
     [RelayCommand]
-    private void SalvarCondiciones()
+    private async Task SalvarCondicionesAsync()
     {
-        // TODO[dominio]: abrir selector de guardado (FileSavePicker, *.par) y serializar
-        //   Niveles + Condiciones en formato CSV por línea. Equivale a ParejasFrm.SalvaCondis().
+        var picker = new FileSavePicker
+        {
+            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
+            SuggestedFileName = "Pares",
+        };
+        picker.FileTypeChoices.Add("Condiciones", new List<string> { ".par" });
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        var file = await picker.PickSaveFileAsync();
+        if (file == null) return;
+
+        try
+        {
+            using var sw = new StreamWriter(file.Path);
+            // 14 líneas de niveles (legacy: P1,P2 + 9 valores por línea).
+            foreach (var fila in Niveles)
+            {
+                sw.WriteLine(string.Join(',', new[]
+                {
+                    fila.P1, fila.P2, fila.V11, fila.V1X, fila.V12,
+                    fila.VX1, fila.VXX, fila.VX2, fila.V21, fila.V2X, fila.V22,
+                }));
+            }
+            // 7 líneas de condiciones (min,max).
+            foreach (var cond in Condiciones)
+            {
+                sw.WriteLine(cond.Min + "," + cond.Max);
+            }
+        }
+        catch (Exception ex)
+        {
+            AppServices.MostrarError("No se ha podido guardar el fichero de condiciones: " + ex.Message);
+        }
     }
 
     /// <summary>
@@ -119,14 +202,62 @@ public partial class ParejasFrmViewModel : ObservableObject
     /// condiciones de parejas. Legacy: ParejasFrm.Calcular() + RecuperarPantalla() + Valida().
     /// </summary>
     [RelayCommand]
-    private void Calcular()
+    private async Task CalcularAsync()
     {
-        // TODO[dominio]: portar ParejasFrm.Calcular():
-        //   - PuedeCalcular = false; PuedeGrabar = false;
-        //   - RecuperarPantalla(): volcar Niveles/Condiciones a nivells[14,11] y rks[7,3].
-        //   - FileOpenPicker (*.txt); por cada línea: Valida(columna);
-        //     si válida -> validas[s1n(columna)] = true; actualizar Procesadas/Validas/Tiempo.
-        //   - Al terminar: PuedeCalcular = true; PuedeGrabar = true.
+        var picker = new FileOpenPicker
+        {
+            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
+        };
+        picker.FileTypeFilter.Add(".txt");
+        picker.FileTypeFilter.Add("*");
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        var file = await picker.PickSingleFileAsync();
+        if (file == null) return;
+
+        PuedeCalcular = false;
+        PuedeGrabar = false;
+        _salida = false;
+        int ctproc = 0, ctval = 0;
+        Procesadas = "0"; Validas = "0"; Tiempo = "0";
+        var time0 = DateTime.Now;
+
+        // Legacy: RecuperarPantalla() vuelca la pantalla a nivells[14,11] y rks[7,3].
+        RecuperarPantalla();
+
+        string ruta = file.Path;
+        try
+        {
+            await Task.Run(() =>
+            {
+                _columnasValidasBits.SetAll(false);
+                using var sr = new StreamReader(ruta);
+                string? columna;
+                while ((columna = sr.ReadLine()) != null)
+                {
+                    if (_salida) break;
+                    ctproc++;
+                    if (Valida(columna))
+                    {
+                        int idx = S1n(columna);
+                        _columnasValidasBits[idx] = true;
+                        ctval++;
+                    }
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            AppServices.MostrarError("Error al procesar el fichero de columnas: " + ex.Message);
+            PuedeCalcular = true;
+            return;
+        }
+
+        Procesadas = ctproc.ToString();
+        Validas = ctval.ToString();
+        Tiempo = (DateTime.Now - time0).ToString();
+        PuedeCalcular = true;
+        PuedeGrabar = true;
     }
 
     /// <summary>
@@ -135,10 +266,35 @@ public partial class ParejasFrmViewModel : ObservableObject
     /// escribe n1s(idx) por cada bit activo.
     /// </summary>
     [RelayCommand]
-    private void GrabarResultado()
+    private async Task GrabarResultadoAsync()
     {
-        // TODO[dominio]: portar ParejasFrm.GrabarCols():
-        //   - FileSavePicker (*.txt); recorrer validas; escribir n1s(idx) por cada bit activo.
+        var picker = new FileSavePicker
+        {
+            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
+            SuggestedFileName = "Resultados",
+        };
+        picker.FileTypeChoices.Add("Resultados", new List<string> { ".txt" });
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        var file = await picker.PickSaveFileAsync();
+        if (file == null) return;
+
+        string ruta = file.Path;
+        try
+        {
+            await Task.Run(() =>
+            {
+                using var sw = new StreamWriter(ruta);
+                for (int nr = 0; nr < 4782969; nr++)
+                {
+                    if (_columnasValidasBits[nr]) sw.WriteLine(N1s(nr));
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            AppServices.MostrarError("Error al grabar el resultado: " + ex.Message);
+        }
     }
 
     /// <summary>
@@ -148,20 +304,123 @@ public partial class ParejasFrmViewModel : ObservableObject
     [RelayCommand]
     private void Analizar()
     {
-        // TODO[dominio]: portar ParejasFrm.Analizar():
-        //   - RecuperarPantalla(); Valida(ColumnaGanadora);
-        //   - ResultadoNivel1..7 = rks[0..6,2].ToString();
+        RecuperarPantalla();
+        Valida(ColumnaGanadora ?? string.Empty);
+        ResultadoNivel1 = _rks[0, 2].ToString();
+        ResultadoNivel2 = _rks[1, 2].ToString();
+        ResultadoNivel3 = _rks[2, 2].ToString();
+        ResultadoNivel4 = _rks[3, 2].ToString();
+        ResultadoNivel5 = _rks[4, 2].ToString();
+        ResultadoNivel6 = _rks[5, 2].ToString();
+        ResultadoNivel7 = _rks[6, 2].ToString();
     }
 
     /// <summary>
-    /// Cierra/regresa sin guardar. Legacy: bCancelar -> Close().
+    /// Cierra/regresa sin guardar. Legacy: bCancelar -> Close(). Aquí aborta el bucle de cálculo.
     /// </summary>
     [RelayCommand]
     private void Cancelar()
     {
-        // TODO[dominio]: navegación WinUI — Frame.GoBack() o cerrar el host contenedor
-        //   (equivale a ParejasFrm.Close()).
+        // Aborta el bucle de Calcular() en curso (legacy: salida = true).
+        _salida = true;
     }
+
+    // ===== Lógica de dominio replicada 1:1 del WinForms ParejasFrm =====
+
+    /// <summary>
+    /// Vuelca las propiedades de la pantalla a las matrices nivells[14,11] y rks[7,3].
+    /// Legacy: ParejasFrm.RecuperarPantalla() (líneas 463-632). Tolerante a celdas vacías.
+    /// </summary>
+    private void RecuperarPantalla()
+    {
+        _nivells = new int[14, 11];
+        _rks = new int[7, 3];
+        for (int r = 0; r < 14 && r < Niveles.Count; r++)
+        {
+            var fila = Niveles[r];
+            _nivells[r, 0] = AInt(fila.P1);
+            _nivells[r, 1] = AInt(fila.P2);
+            _nivells[r, 2] = AInt(fila.V11);
+            _nivells[r, 3] = AInt(fila.V1X);
+            _nivells[r, 4] = AInt(fila.V12);
+            _nivells[r, 5] = AInt(fila.VX1);
+            _nivells[r, 6] = AInt(fila.VXX);
+            _nivells[r, 7] = AInt(fila.VX2);
+            _nivells[r, 8] = AInt(fila.V21);
+            _nivells[r, 9] = AInt(fila.V2X);
+            _nivells[r, 10] = AInt(fila.V22);
+        }
+        for (int n = 0; n < 7 && n < Condiciones.Count; n++)
+        {
+            _rks[n, 0] = AInt(Condiciones[n].Min);
+            _rks[n, 1] = AInt(Condiciones[n].Max);
+        }
+    }
+
+    /// <summary>Valida una columna contra las parejas/condiciones. Legacy: ParejasFrm.Valida (633-658).</summary>
+    private bool Valida(string columna)
+    {
+        int nv = 0;
+        for (int nr = 0; nr < 7; nr++) _rks[nr, 2] = 0;
+        columna = (columna ?? string.Empty).ToUpper();
+        for (int nr = 0; nr < 14; nr++)
+        {
+            int n1 = _nivells[nr, 0] - 1, n2 = _nivells[nr, 1] - 1;
+            if (n1 < 0 || n2 < 0) continue;
+            if (n1 >= columna.Length || n2 >= columna.Length) continue;
+            string par = columna.Substring(n1, 1) + columna.Substring(n2, 1);
+            switch (par)
+            {
+                case "11": nv = _nivells[nr, 2]; break;
+                case "1X": nv = _nivells[nr, 3]; break;
+                case "12": nv = _nivells[nr, 4]; break;
+                case "X1": nv = _nivells[nr, 5]; break;
+                case "XX": nv = _nivells[nr, 6]; break;
+                case "X2": nv = _nivells[nr, 7]; break;
+                case "21": nv = _nivells[nr, 8]; break;
+                case "2X": nv = _nivells[nr, 9]; break;
+                case "22": nv = _nivells[nr, 10]; break;
+                default: nv = 0; break;
+            }
+            if (nv > 0) _rks[nv - 1, 2]++;
+        }
+        for (int nr = 0; nr < 7; nr++)
+        {
+            if (_rks[nr, 2] < _rks[nr, 0] || _rks[nr, 2] > _rks[nr, 1]) return false;
+        }
+        return true;
+    }
+
+    /// <summary>Índice (0..3^14-1) -> columna de 14 signos. Legacy: ParejasFrm.n1s (659-668).</summary>
+    private static string N1s(int nx)
+    {
+        string ax = "";
+        for (int nr = 0; nr < 14; nr++)
+        {
+            int nx2 = nx % 3; nx /= 3;
+            if (nx2 == 1) ax = "1" + ax;
+            else if (nx2 == 2) ax = "2" + ax;
+            else ax = "X" + ax;
+        }
+        return ax;
+    }
+
+    /// <summary>Columna de 14 signos -> índice. Legacy: ParejasFrm.s1n (669-678).</summary>
+    private static int S1n(string ax)
+    {
+        int nx = 0;
+        for (int nr = 0; nr < 14; nr++)
+        {
+            nx *= 3;
+            string ch = ax.Substring(nr, 1);
+            if (ch == "1") nx += 1;
+            else if (ch == "2") nx += 2;
+        }
+        return nx;
+    }
+
+    // Convierte texto a entero de forma tolerante (legacy: Convert.ToInt32 sobre TextBox).
+    private static int AInt(string? s) => int.TryParse(s, out int v) ? v : 0;
 }
 
 /// <summary>
