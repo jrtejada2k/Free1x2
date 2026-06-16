@@ -2,7 +2,8 @@
 <Page
     x:Class="Free1X2.WinUI.Views.Ported.ValoracionFrmPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:Free1X2.WinUI.Controls">
 
     <ScrollViewer>
         <StackPanel Padding="32" Spacing="24" MaxWidth="900" HorizontalAlignment="Left">
@@ -15,16 +16,16 @@
                            TextWrapping="Wrap" />
             </StackPanel>
 
-            <!-- ===== Porcentajes por partido (control legacy ControlPorcentajes) ===== -->
+            <!-- ===== Porcentajes por partido (reemplaza el UserControl ControlPorcentajes) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
                 <StackPanel Spacing="12">
                     <TextBlock Text="Porcentajes" Style="{StaticResource CardTitleTextBlockStyle}" />
-                    <TextBlock Text="Rejilla de valoraciones 1 / X / 2 por partido. La carga y edición de la rejilla se portará por separado."
+                    <TextBlock Text="Rejilla de valoraciones 1 / X / 2 por partido."
                                Style="{StaticResource SecondaryTextBlockStyle}"
                                TextWrapping="Wrap" />
-                    <!-- TODO: Dominio legacy — control Free1X2.UI.Controls.ControlPorcentajes
-                         (controlPorcentajes1). Provee la matriz [NumeroPartidos,3] usada por
-                         PrepararValores() y ObtenerColsBase(). -->
+                    <controls:PorcentajesControl Height="380"
+                                                 Filas="{x:Bind ViewModel.Porcentajes, Mode=OneWay}"
+                                                 AutomationProperties.Name="Porcentajes 1 X 2 por partido" />
                 </StackPanel>
             </Border>
 
