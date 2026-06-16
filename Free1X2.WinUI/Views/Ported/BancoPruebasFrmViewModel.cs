@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Free1X2.EntradaSalida;
 using Free1X2.Utils;
+using Free1X2.WinUI.Controls;
 using Free1X2.WinUI.Services;
 using Windows.Storage.Pickers;
 
@@ -48,6 +49,19 @@ public partial class BancoPruebasFrmViewModel : ObservableObject
     // ---------------------------------------------------------------------
     // Paso 2 (valoraciones)
     // ---------------------------------------------------------------------
+
+    // Rejillas de porcentajes por jornada (1/X/2). Sustituyen a los dos UserControls
+    // WinForms ControlPorcentajes (controlPorcentajesApostados / controlPorcentajesReales).
+    // PorcentajesHelper.AMatriz(...) equivale a ControlPorcentajes.Valores (get); CargarMatriz al set.
+    public ObservableCollection<FilaPorcentaje> PorcentajesApostados { get; } =
+        PorcentajesHelper.Crear(Free1X2.VariablesGlobales.NumeroPartidos);
+
+    public ObservableCollection<FilaPorcentaje> PorcentajesReales { get; } =
+        PorcentajesHelper.Crear(Free1X2.VariablesGlobales.NumeroPartidos);
+
+    // Pesos posicionales ternarios para 14 partidos (legacy: PotDe3 / DosPotDe3 de ConvertidorDeBases).
+    private static readonly int[] PotDe3 = { 1, 3, 9, 27, 81, 243, 729, 2187, 6561, 19683, 59049, 177147, 531441, 1594323 };
+    private static readonly int[] DosPotDe3 = { 2, 6, 18, 54, 162, 486, 1458, 4374, 13122, 39366, 118098, 354294, 1062882, 3188646 };
 
     // Origen del parámetro de valoración real: true = usar LN, false = usar premio medio del 14.
     [ObservableProperty]
@@ -227,30 +241,74 @@ public partial class BancoPruebasFrmViewModel : ObservableObject
     [RelayCommand]
     private void CalcularReales()
     {
-        // TODO(dominio): replicar btCalcularReales_Click + Calcula14Triples
-        //   (Free1X2/UI/BancoPruebasFrm.cs línea 3333 y 3350).
-        //   BLOQUEADO: depende de controles/clases NO portados al dominio:
-        //     - Free1X2.UI.Controls.ControlPorcentajes (controlPorcentajesApostados/Reales): aporta
-        //       la matriz .Valores con los % por jornada. Vive en Free1X2/UI/Controls/ControlPorcentajes.cs.
-        //     - Free1X2.Utils.Porcentajes (ValoresNeperianos/ValoresBase100): helper de cálculo,
-        //       no migrado (Free1X2/Utils/Porcentajes.cs).
-        //     - ApuestaProbableCentral[4782969] + EncontrarDistantes1 + ordena (motor de probabilidades).
+        // La parte de matriz SÍ se cablea: v = controlPorcentajesApostados.Valores
+        // (Free1X2/UI/BancoPruebasFrm.cs línea 3335) equivale a:
+        double[,] v = PorcentajesHelper.AMatriz(PorcentajesApostados);
+
+        // TODO(dominio): replicar btCalcularReales_Click + Calcula14Triples (BancoPruebasFrm.cs 3333/3350).
+        //   BLOQUEADO por dependencias NO portadas al dominio que consumen 'v':
+        //     - Free1X2.Utils.Porcentajes (ValoresNeperianos/ValoresBase100): vive en el proyecto
+        //       WinForms Free1X2 (depende de System.Windows.Forms) y NO está en Free1X2.Domain, que es
+        //       el único proyecto referenciado por la WinUI. Migrar primero ese helper al dominio.
+        //     - Motor de probabilidades Ap14T = ApuestaProbableCentral[4782969] + EncontrarDistantes1 +
+        //       ordena (quicksort) — no portado. Al terminar, el resultado p[14,3] se escribe de vuelta
+        //       en la rejilla real con: PorcentajesHelper.CargarMatriz(PorcentajesReales, p)
+        //       (equivale a controlPorcentajesReales.Valores = p, línea 3388).
+        _ = v;
         AppServices.MostrarInfo(
-            "El cálculo de valoración real requiere el control de porcentajes y el motor de " +
-            "probabilidades, aún no portados al dominio.");
+            "La matriz apostada ya está disponible, pero el cálculo de la valoración real requiere el " +
+            "helper Porcentajes y el motor de probabilidades (Ap14T), aún no portados al dominio.");
     }
 
     /// <summary>Paso 3: genera columnas aleatorias de 14 aciertos (btGenerarAleatorias).</summary>
     [RelayCommand]
     private void GenerarAleatorias()
     {
-        // TODO(dominio): replicar btGenerarAleatorias_Click (Free1X2/UI/BancoPruebasFrm.cs línea 3168):
-        //   genera NumAleatorias columnas usando las matrices de % reales (p) y apostados (v) del
-        //   control ControlPorcentajes (NO portado) y actualiza DesviacionTipicaObtenidaTexto /
-        //   LnMediaObtenidaTexto. BLOQUEADO por ControlPorcentajes (Valores).
-        AppServices.MostrarInfo(
-            "La generación de columnas aleatorias requiere el control de porcentajes, " +
-            "aún no portado al dominio.");
+        // Legacy: btGenerarAleatorias_Click (BancoPruebasFrm.cs línea 3168). Genera NumAleatorias
+        // columnas usando las matrices de % reales (p) y apostados (v) de los dos ControlPorcentajes.
+        // No depende del motor de 4,7M: sólo de las dos matrices -> totalmente cableable.
+        double[,] p = PorcentajesHelper.AMatriz(PorcentajesReales);
+        double[,] v = PorcentajesHelper.AMatriz(PorcentajesApostados);
+
+        _columnasAleatorias.Clear();
+        var aleatorio = new Random(unchecked((int)DateTime.Now.Ticks));
+        int numAleatorias = (int)NumAleatorias;
+
+        double mpx = 0, lnMedia = 0, lnVariMedia = 0, lnDTmedia = 0;
+        for (int z = 0; z < numAleatorias; z++)
+        {
+            double prob = 1;
+            int b = 0;
+            for (int j = 0; j < 14; j++)
+            {
+                double num = aleatorio.NextDouble();
+                if (num < p[j, 0] / 100)
+                {
+                    prob *= v[j, 0] / 100;
+                }
+                else if (num < ((p[j, 0] + p[j, 1]) / 100))
+                {
+                    prob *= v[j, 1] / 100;
+                    b += PotDe3[j];
+                }
+                else
+                {
+                    prob *= v[j, 2] / 100;
+                    b += DosPotDe3[j];
+                }
+            }
+
+            mpx = (mpx * z + prob) / (z + 1);
+            double ln = Math.Log(prob);
+            double lnm = Math.Log(mpx);
+            lnMedia = (lnMedia * z + ln) / (z + 1);
+            lnVariMedia = (lnVariMedia * z + ((ln - lnm) * (ln - lnm))) / (z + 1);
+            lnDTmedia = Math.Sqrt(lnVariMedia);
+            _columnasAleatorias.Add(b);
+        }
+
+        DesviacionTipicaObtenidaTexto = lnDTmedia.ToString();
+        LnMediaObtenidaTexto = lnMedia.ToString();
     }
 
     /// <summary>Paso 3: guarda en fichero las columnas aleatorias generadas (btGuardarAleatorias).</summary>
