@@ -18,6 +18,15 @@ public sealed partial class BoletoFrmPage : Page
     public BoletoFrmPage()
     {
         this.InitializeComponent();
+
+        // Sincroniza el boleto visual con el boleto activo del ViewModel. Reemplaza el
+        // volcado que el WinForms hacía sobre las 8 ControlColumnaBoleto en LlenarBoleto.
+        ViewModel.BoletoCambiado += OnBoletoCambiado;
+    }
+
+    private void OnBoletoCambiado(object? sender, (string[] signos, int[] numerosColumna) e)
+    {
+        BoletoVisual.Llenar(e.signos, e.numerosColumna);
     }
 
     // Reemplaza la asignación de ArchivoCombinacion del WinForms (BoletoFrm_Load esperaba

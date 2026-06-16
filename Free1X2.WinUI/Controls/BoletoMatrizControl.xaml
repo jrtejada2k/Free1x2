@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="Free1X2.WinUI.Controls.BoletoMatrizControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:Free1X2.WinUI.Controls">
+
+    <UserControl.Resources>
+        <!-- ===== Plantilla de una apuesta (fila 1 / X / 2) ===== -->
+        <!-- Replica ControlApuestaBoleto: tres ranuras, sólo la pronosticada se ve marcada. -->
+        <DataTemplate x:Key="ApuestaTemplate" x:DataType="controls:ApuestaBoletoViewModel">
+            <Grid Margin="{x:Bind MargenInferior}"
+                  Visibility="{x:Bind VisibilidadFila, Mode=OneWay}"
+                  ColumnSpacing="2"
+                  Height="20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Ranura 1 -->
+                <Border Grid.Column="0"
+                        BorderBrush="{ThemeResource AppBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="3"
+                        Background="{ThemeResource AppSurfaceAltBrush}">
+                    <TextBlock Text="1"
+                               FontSize="11"
+                               FontWeight="Bold"
+                               Foreground="{ThemeResource AppAccentBrush}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Visibility="{x:Bind Visibilidad1, Mode=OneWay}" />
+                </Border>
+
+                <!-- Ranura X -->
+                <Border Grid.Column="1"
+                        BorderBrush="{ThemeResource AppBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="3"
+                        Background="{ThemeResource AppSurfaceAltBrush}">
+                    <TextBlock Text="X"
+                               FontSize="11"
+                               FontWeight="Bold"
+                               Foreground="{ThemeResource AppAccentBrush}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Visibility="{x:Bind VisibilidadX, Mode=OneWay}" />
+                </Border>
+
+                <!-- Ranura 2 -->
+                <Border Grid.Column="2"
+                        BorderBrush="{ThemeResource AppBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="3"
+                        Background="{ThemeResource AppSurfaceAltBrush}">
+                    <TextBlock Text="2"
+                               FontSize="11"
+                               FontWeight="Bold"
+                               Foreground="{ThemeResource AppAccentBrush}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Visibility="{x:Bind Visibilidad2, Mode=OneWay}" />
+                </Border>
+            </Grid>
+        </DataTemplate>
+
+        <!-- ===== Plantilla de una columna del boleto ===== -->
+        <!-- Replica ControlColumnaBoleto: cabecera (nº columna), 16 apuestas y pie (aciertos). -->
+        <DataTemplate x:Key="ColumnaTemplate" x:DataType="controls:ColumnaBoletoViewModel">
+            <Border BorderBrush="{ThemeResource AppBorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="6"
+                    Background="{ThemeResource AppSurfaceBrush}"
+                    Padding="4"
+                    Margin="0,0,4,0"
+                    MinWidth="64">
+                <StackPanel Spacing="3">
+                    <!-- Cabecera: número de columna en la combinación -->
+                    <Border Background="{ThemeResource AppAccentBrush}"
+                            CornerRadius="4"
+                            Height="20">
+                        <TextBlock Text="{x:Bind NumeroTexto, Mode=OneWay}"
+                                   Foreground="White"
+                                   FontSize="11"
+                                   FontWeight="SemiBold"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center" />
+                    </Border>
+
+                    <!-- 16 apuestas -->
+                    <ItemsControl ItemsSource="{x:Bind Apuestas}"
+                                  ItemTemplate="{StaticResource ApuestaTemplate}" />
+
+                    <!-- Pie: aciertos de la columna -->
+                    <TextBlock Text="{x:Bind AciertosTexto, Mode=OneWay}"
+                               FontSize="11"
+                               FontWeight="Bold"
+                               HorizontalAlignment="Center"
+                               Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <!-- Las 8 columnas del boleto en paralelo (legacy ControlBoleto). -->
+    <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                  VerticalScrollBarVisibility="Disabled"
+                  HorizontalScrollMode="Auto">
+        <ItemsControl ItemsSource="{x:Bind ViewModel.Columnas}"
+                      ItemTemplate="{StaticResource ColumnaTemplate}"
+                      AutomationProperties.Name="Boleto: 8 columnas de apuestas">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+        </ItemsControl>
+    </ScrollViewer>
+</UserControl>

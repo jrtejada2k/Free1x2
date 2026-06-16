@@ -74,6 +74,14 @@ public partial class BoletoFrmViewModel : ObservableObject
     public ObservableCollection<string> ColumnasBoletoActual { get; } = new();
 
     /// <summary>
+    /// Se dispara cada vez que cambia el boleto mostrado (<see cref="LlenarBoleto"/>).
+    /// La página host lo recibe y vuelca los datos en el <c>BoletoMatrizControl</c>
+    /// visual (control.Llenar), reemplazando lo que el WinForms hacía rellenando las 8
+    /// ControlColumnaBoleto. Args: signos por columna y nº de columna en la combinación.
+    /// </summary>
+    public event EventHandler<(string[] signos, int[] numerosColumna)>? BoletoCambiado;
+
+    /// <summary>
     /// Equivale a <c>BoletoFrm_Load</c>: lee el archivo, crea la matriz de columnas,
     /// calcula el total de boletos, ordena y muestra el primero.
     /// </summary>
@@ -192,19 +200,26 @@ public partial class BoletoFrmViewModel : ObservableObject
         if (numBol > TotalBoletos - 1) numBol = TotalBoletos - 1;
 
         // Legacy: int numColumna = (boleto*8)+1; for (i=0..7) si ((numColumna+i-1) < apuestas)
-        //   LlenarColumna(i+1, columna[numColumna+i-1], ...) else LlenarColumna(i+1, "", ...).
+        //   LlenarColumna(i+1, columna[numColumna+i-1], numColumna+i, 0) else LlenarColumna(i+1, "", 0, 0).
         ColumnasBoletoActual.Clear();
+        var signos = new string[8];
+        var numerosColumna = new int[8];
         int numColumna = (numBol * 8) + 1;
         for (int i = 0; i < 8; i++)
         {
             int idx = numColumna + i - 1;
-            ColumnasBoletoActual.Add(idx < _apuestas && idx >= 0 ? _columna[idx] : "");
+            string col = idx < _apuestas && idx >= 0 ? (_columna[idx] ?? "") : "";
+            signos[i] = col;
+            // Legacy LlenarColumna: numColumnaEnCombinacion = numColumna + i (0 si no existe).
+            numerosColumna[i] = string.IsNullOrEmpty(col) ? 0 : numColumna + i;
+            ColumnasBoletoActual.Add(col);
         }
 
-        // TODO: pintar las columnas en el BoletoControl visual — depende del UserControl no
-        //   portado Free1X2.UI.Controls.Boleto.ControlColumnaBoleto (LlenarApuesta/OcultarApuesta).
-        //   Ver Free1X2/UI/Controls/ControlBoleto.cs líneas 110-146 y BoletoControl de WinUI
-        //   (fuera de alcance: no modificar BoletoControl/BoletoBaseViewModel).
+        // Pinta el boleto visual (8 columnas × 16 apuestas) reemplazando lo que el WinForms
+        // hacía con las 8 ControlColumnaBoleto. Aciertos = 0 como en el visor legacy
+        // (ControlBoleto.LlenarColumna recibía ac=0). Ref Free1X2/UI/Controls/ControlBoleto.cs
+        // líneas 129-146. La página host vuelca esto en el BoletoMatrizControl.
+        BoletoCambiado?.Invoke(this, (signos, numerosColumna));
 
         BoletoActual = numBol + 1;
         IrABoleto = BoletoActual;
