@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="Free1X2.WinUI.Controls.PorcentajesControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:Free1X2.WinUI.Controls"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls">
+
+    <Grid RowSpacing="4">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Cabecera de columnas -->
+        <Grid Grid.Row="0" ColumnSpacing="8" Padding="4,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="56" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="Part." FontWeight="SemiBold" />
+            <TextBlock Grid.Column="1" Text="1" FontWeight="SemiBold" HorizontalAlignment="Center" />
+            <TextBlock Grid.Column="2" Text="X" FontWeight="SemiBold" HorizontalAlignment="Center" />
+            <TextBlock Grid.Column="3" Text="2" FontWeight="SemiBold" HorizontalAlignment="Center" />
+        </Grid>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <muxc:ItemsRepeater ItemsSource="{x:Bind Filas, Mode=OneWay}">
+                <muxc:ItemsRepeater.Layout>
+                    <muxc:StackLayout Spacing="4" />
+                </muxc:ItemsRepeater.Layout>
+                <muxc:ItemsRepeater.ItemTemplate>
+                    <DataTemplate x:DataType="controls:FilaPorcentaje">
+                        <Grid ColumnSpacing="8" Padding="4,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="56" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="{x:Bind Partido}" VerticalAlignment="Center" />
+                            <muxc:NumberBox Grid.Column="1" Value="{x:Bind Uno, Mode=TwoWay}"
+                                            SpinButtonPlacementMode="Hidden" SmallChange="1" Minimum="0" />
+                            <muxc:NumberBox Grid.Column="2" Value="{x:Bind Equis, Mode=TwoWay}"
+                                            SpinButtonPlacementMode="Hidden" SmallChange="1" Minimum="0" />
+                            <muxc:NumberBox Grid.Column="3" Value="{x:Bind Dos, Mode=TwoWay}"
+                                            SpinButtonPlacementMode="Hidden" SmallChange="1" Minimum="0" />
+                        </Grid>
+                    </DataTemplate>
+                </muxc:ItemsRepeater.ItemTemplate>
+            </muxc:ItemsRepeater>
+        </ScrollViewer>
+    </Grid>
+</UserControl>
