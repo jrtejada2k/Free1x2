@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -10,6 +11,23 @@ using Free1X2.WinUI.Services;
 using Windows.Storage.Pickers;
 
 namespace Free1X2.WinUI.Views.Ported;
+
+/// <summary>
+/// Descriptor de un boleto a representar: encabezado (fichero + nº de boleto) y la lista de
+/// marcas (rectángulos 1/X/2 + pleno) en coordenadas relativas al origen del boleto. La Page lo
+/// dibuja sobre un Canvas. Réplica de lo que el legacy pintaba por página en Imprimir(PrintPageEventArgs).
+/// </summary>
+public sealed class BoletoRender
+{
+    public BoletoRender(string encabezado, IReadOnlyList<(double X, double Y, double W, double H)> marcas)
+    {
+        Encabezado = encabezado;
+        Marcas = marcas;
+    }
+
+    public string Encabezado { get; }
+    public IReadOnlyList<(double X, double Y, double W, double H)> Marcas { get; }
+}
 
 // ViewModel para ImprimirBoletoFrmPage.
 // Replica los inputs del WinForms legacy Free1X2.UI.ImprimirBoletoFrm (UI/imprimirBoleto.cs):
@@ -60,6 +78,41 @@ public partial class ImprimirBoletoFrmViewModel : ObservableObject
     // --- Impresora seleccionada ---
     [ObservableProperty]
     private string _impresora = "(ninguna)";
+
+    /// <summary>
+    /// Boletos ya computados, listos para que la Page los dibuje sobre el Canvas (réplica del
+    /// dibujo por página del legacy Imprimir(PrintPageEventArgs)). Se rellena al pulsar "Imprimir".
+    /// </summary>
+    public ObservableCollection<BoletoRender> BoletosARenderizar { get; } = new();
+
+    /// <summary>
+    /// Se solicita exportar/guardar como imagen el boleto ya computado. Lo escucha el code-behind
+    /// de la Page, que dibuja BoletosARenderizar en un Canvas, lo captura con RenderTargetBitmap y
+    /// ofrece guardarlo como PNG / copiarlo al portapapeles. El VM no referencia controles (MVVM).
+    /// </summary>
+    public event EventHandler? ExportacionSolicitada;
+
+    /// <summary>
+    /// Se solicita elegir una impresora conocida. Lo escucha el code-behind de la Page, que muestra
+    /// un selector (ContentDialog) con los modelos soportados y llama a <see cref="AplicarImpresora"/>
+    /// con el elegido. Réplica del btnVerImpresoras_Click del legacy (que abría el diálogo
+    /// ListaImpresoras y copiaba la config del controlador a los campos del form).
+    /// </summary>
+    public event EventHandler? SeleccionImpresoraSolicitada;
+
+    /// <summary>
+    /// Aplica la configuración de una impresora conocida (modelo + margenes + girar) a los campos
+    /// del formulario. Equivale a la copia que hacía btnVerImpresoras_Click tras cerrar el diálogo
+    /// (controlador.MargenSuperior/MargenIzquierda/Modelo/Rotar -> tbmgsup/tbmgizq/lblImpresora/picture).
+    /// </summary>
+    public void AplicarImpresora(string modelo, int margenSuperior, int margenIzquierdo, bool girar)
+    {
+        Impresora = modelo;
+        MargenSuperior = margenSuperior;
+        MargenIzquierdo = margenIzquierdo;
+        GirarBoleto = girar;
+        _controlador.Rotar = girar;
+    }
 
     // Ruta del fichero de configuracion (legacy: StartupPath + "/Impresion/imprebol.cfg").
     private static string RutaConfig =>
@@ -144,13 +197,84 @@ public partial class ImprimirBoletoFrmViewModel : ObservableObject
             return;
         }
 
-        // TODO: impresión — Free1X2/UI/imprimirBoleto.cs Preparar() (línea 152) + Imprimir(PrintPageEventArgs) (línea 519).
-        //   El dibujo de las marcas 1/X/2 sobre el boleto usa System.Drawing.Printing (PrintDocument +
-        //   Graphics.FillRectangle/DrawString) y es específico de WinForms. En WinUI debe portarse con
-        //   Windows.Graphics.Printing / PrintManager + un PrintDocument de la app.
-        //   Datos ya disponibles para el render: _cols (columnas leídas), MargenSuperior/MargenIzquierdo,
-        //   rango DesdeBoleto..HastaBoleto y GirarBoleto.
-        AppServices.MostrarInfo("La impresión del boleto se portará con el sistema de impresión de WinUI (pendiente).");
+        // Equivalente funcional WinUI de Preparar() + Imprimir(PrintPageEventArgs)
+        // (Free1X2/UI/imprimirBoleto.cs líneas 152 y 519): el legacy usaba System.Drawing.Printing
+        // (PrintDocument + Graphics.FillRectangle/DrawString). Aquí se computan las MISMAS marcas
+        // 1/X/2 (con idéntica geometría) y la Page las dibuja sobre un Canvas, lo captura con
+        // RenderTargetBitmap y ofrece guardarlo como imagen PNG / copiarlo al portapapeles.
+        BoletosARenderizar.Clear();
+        foreach (var boleto in ComputarBoletos())
+        {
+            BoletosARenderizar.Add(boleto);
+        }
+
+        if (BoletosARenderizar.Count == 0)
+        {
+            AppServices.MostrarError("No hay columnas en el rango de boletos seleccionado.");
+            return;
+        }
+
+        ExportacionSolicitada?.Invoke(this, EventArgs.Empty);
+    }
+
+    /// <summary>
+    /// Computa los boletos del rango seleccionado replicando la geometría exacta del legacy
+    /// Imprimir(PrintPageEventArgs) (Free1X2/UI/imprimirBoleto.cs líneas 519-559): por cada boleto
+    /// (hasta 8 columnas) se calcula, para cada apuesta y cada uno de los 14 partidos, la posición
+    /// de la marca 1/X/2, más la marca del pleno al 15. Las marcas se dan en coordenadas relativas
+    /// al origen del boleto (la Page apila los boletos verticalmente).
+    /// </summary>
+    private IEnumerable<BoletoRender> ComputarBoletos()
+    {
+        // Margenes (legacy: mgy = tbmgsup, mgx = tbmgizq).
+        float mgy = (float)MargenSuperior;
+        float mgx = (float)MargenIzquierdo;
+
+        // Rango de boletos (legacy: minbol/maxbol; cada boleto = 8 columnas).
+        int minbol = (int)DesdeBoleto; if (minbol < 1) minbol = 1;
+        int maxbol = (int)HastaBoleto; if (maxbol < minbol) maxbol = minbol;
+        int maxcol = maxbol * 8; if (maxcol > _cols.Count) maxcol = _cols.Count;
+        int mincol = (minbol - 1) * 8; if (mincol == maxcol) mincol--;
+        if (mincol < 0) mincol = 0;
+
+        int nwcol = mincol;
+        int actubol = minbol;
+
+        while (nwcol < maxcol)
+        {
+            var marcas = new List<(double X, double Y, double W, double H)>();
+
+            // Pleno al 15 del primer column del boleto (legacy: p15 = columna[14] si len>14 si no '1').
+            string primera = _cols[nwcol];
+            char p15 = primera.Length > 14 ? primera[14] : '1';
+
+            // 8 columnas por boleto (legacy: for nw8 0..7).
+            for (int nw8 = 0; nw8 < 8; nw8++)
+            {
+                string columna = _cols[nwcol++];
+                int partidos = Math.Min(14, columna.Length);
+                for (int pa = 0; pa < partidos; pa++)
+                {
+                    char ch = columna[pa];
+                    double cx = mgx - 29 + (14 - pa) * 19.685;
+                    double inc = ch == '1' ? 0 : (ch == 'X' ? 14.764 : 29.528);
+                    double cy = mgy + 83 + nw8 * 44.291 + inc;
+                    marcas.Add((cx, cy, 6, 4));
+                }
+
+                if (nwcol == _cols.Count) break;
+                if (nwcol + 2 == _cols.Count && nw8 == 6) break;
+            }
+
+            // Marca del pleno al 15 (legacy: cx = mgx-30; cy según p15).
+            double cxp = mgx - 30;
+            double cyp = p15 == '1' ? mgy + 245 : (p15 == '2' ? mgy + 305 : mgy + 275);
+            marcas.Add((cxp, cyp, 6, 4));
+
+            string encabezado = $"{FicheroEntrada}   Boleto {actubol}";
+            yield return new BoletoRender(encabezado, marcas);
+            actubol++;
+        }
     }
 
     [RelayCommand]
@@ -215,14 +339,12 @@ public partial class ImprimirBoletoFrmViewModel : ObservableObject
     [RelayCommand]
     private void ImpresorasConocidas()
     {
-        // TODO: selección de impresora — Free1X2/UI/imprimirBoleto.cs btnVerImpresoras_Click() (línea 564).
-        //   El legacy abre el diálogo Free1X2.UI.ListaImpresoras(controlador) y, al cerrarse, copia
-        //   controlador.MargenSuperior/MargenIzquierda/Modelo/Rotar a los campos del form.
-        //   En WinUI esto requiere navegar a ListaImpresorasPage (ya portada) y recibir de vuelta el
-        //   ControladorImpresion elegido (handoff de navegación), lo cual queda fuera del cableado de
-        //   dominio de esta pantalla. La lista de impresoras soportadas se obtiene de
-        //   Free1X2.MotorCalculo.ControladoresImpresion.ObtenListaImpresorasSoportadas().
-        AppServices.MostrarInfo("La selección de impresora conocida se hará desde la lista de impresoras (pendiente de navegación).");
+        // Equivalente WinUI de btnVerImpresoras_Click (Free1X2/UI/imprimirBoleto.cs línea 564): el
+        // legacy abría ListaImpresoras(controlador) y, al cerrar, copiaba la config del controlador
+        // a los campos del form. Aquí la Page muestra un selector (ContentDialog) con los modelos
+        // soportados (Free1X2.MotorCalculo.ControladoresImpresion) y, al elegir, llama a
+        // AplicarImpresora(...) para volcar margenes/modelo/girar.
+        SeleccionImpresoraSolicitada?.Invoke(this, EventArgs.Empty);
     }
 
     // Extrae el valor (lo que sigue al primer '=') de una línea "clave=valor".
