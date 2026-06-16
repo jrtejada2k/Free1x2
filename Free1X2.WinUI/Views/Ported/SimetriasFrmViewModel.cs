@@ -1,12 +1,18 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Free1X2;
+using Free1X2.EntradaSalida;
 using Free1X2.MotorCalculo;
+using Free1X2.MotorCalculo.Estadisticas;
 using Free1X2.Utils;
 using Free1X2.WinUI.Services;
+using Windows.Storage;
+using Windows.Storage.Pickers;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -16,8 +22,8 @@ namespace Free1X2.WinUI.Views.Ported;
 /// Cada simetría es una lista de partidos separados por comas (a,b), guiones (a-b)
 /// o una mezcla (a,b-c). El filtro mantiene además un campo "Aciertos" (intervalos
 /// individuales o rangos: "1,3,5-7"). Equivale a los CtrlSimetria + txtAciertos del
-/// WinForms SimetriasFrm. La lógica de dominio (FiltroSimetrias, Simetria,
-/// ArchivoCondiciones, CalculadorEstadisticas) está marcada como TODO.
+/// WinForms SimetriasFrm. Persistencia (Guardar/Abrir/Copiar/Pegar) vía ArchivoCondiciones
+/// (.sim/.xml + Temp/tmp.sim) y Estadísticas vía CalculadorEstadisticas -> VisorEstadisticasPage.
 /// </summary>
 public partial class SimetriasFrmViewModel : ObservableObject
 {
@@ -34,6 +40,17 @@ public partial class SimetriasFrmViewModel : ObservableObject
 
     /// <summary>Acción para volver atrás (la cablea la página con Frame.GoBack()). CerrarVentana() legacy.</summary>
     public Action? Volver { get; set; }
+
+    /// <summary>Acción para navegar a otra página (la cablea la página con Frame.Navigate(tipo)).</summary>
+    public Action<Type>? Navegar { get; set; }
+
+    // Fichero temporal de copiar/pegar (legacy: StartupPath + "/Temp/tmp.sim").
+    private static string RutaTemporal =>
+        Path.Combine(AppContext.BaseDirectory, "Temp", "tmp.sim");
+
+    // Directorio de columnas ganadoras (legacy: StartupPath + "/Ganadoras/").
+    private static string DirectorioGanadoras =>
+        Path.Combine(AppContext.BaseDirectory, "Ganadoras") + Path.DirectorySeparatorChar;
 
     public SimetriasFrmViewModel()
     {
@@ -184,40 +201,156 @@ public partial class SimetriasFrmViewModel : ObservableObject
         Volver?.Invoke();
     }
 
+    /// <summary>
+    /// Construye un FiltroSimetrias temporal con los valores de pantalla.
+    /// Réplica de SimetriasFrm.ObtenerFiltroTemporal() (SimetriasFrm.cs líneas 392-412).
+    /// Devuelve null si hay alguna entrada inválida (el legacy mostraba un MessageBox).
+    /// </summary>
+    private FiltroSimetrias? ObtenerFiltroTemporal()
+    {
+        var simetrias = ObtenerSimetrias();
+        var aciertos = ObtenerAciertos();
+        if (simetrias is null || aciertos is null)
+        {
+            AppServices.MostrarError(
+                "Verifique que ha introducido una simetría correcta: (a,b) ó (a-b) ó (a,b-c), " +
+                "y que ha introducido un número válido de aciertos");
+            return null;
+        }
+
+        var filtroTemp = new FiltroSimetrias
+        {
+            ArraySimetrias = simetrias,
+            ArrayAciertos = aciertos,
+            Aciertos = string.IsNullOrWhiteSpace(Aciertos) ? "0" : Aciertos,
+        };
+        filtroTemp.IsActive = filtroTemp.ContieneDatos;
+        return filtroTemp;
+    }
+
+    // Vuelca un FiltroSimetrias a las filas y al campo Aciertos (MarcarValores(FiltroSimetrias) legacy, líneas 371-391).
+    private void MarcarValores(FiltroSimetrias filtro)
+    {
+        foreach (var fila in Simetrias) fila.Partidos = string.Empty;
+
+        while (Simetrias.Count < filtro.ArraySimetrias.Count)
+        {
+            Simetrias.Add(new FilaSimetria(Simetrias.Count + 1));
+        }
+        for (int i = 0; i < filtro.ArraySimetrias.Count; i++)
+        {
+            Simetrias[i].Partidos = filtro.ArraySimetrias[i].Partidos;
+        }
+        Aciertos = filtro.Aciertos;
+    }
+
+    // Guarda en disco el filtro temporal (SimetriasFrm.guardar(), líneas 510-515).
+    private void GuardarEn(string nombreArchivo)
+    {
+        var filtroTemp = ObtenerFiltroTemporal();
+        if (filtroTemp is null) return;
+        var archComb = new ArchivoCondiciones { NombreArchivo = nombreArchivo };
+        archComb.GuardaArchivo(filtroTemp);
+    }
+
+    // Abre la condición desde disco y vuelca sus valores (SimetriasFrm.abrir(), líneas 489-499).
+    private void AbrirDesde(string nombreArchivo)
+    {
+        var archComb = new ArchivoCondiciones();
+        if (archComb.AbrirArchivoCombinacion(nombreArchivo))
+        {
+            Grupo g = archComb.LeeCondicion();
+            var filtro = (FiltroSimetrias)g.GetFiltro("Simetrias");
+            MarcarValores(filtro);
+        }
+    }
+
     [RelayCommand]
     private void Estadisticas()
     {
-        // TODO: Dominio legacy — construir FiltroSimetrias temporal (ObtenerFiltroTemporal)
-        //   y llamar CalculadorEstadisticas.EstadisticasFiltro(filtroTemp, ".../Ganadoras/")
-        //   mostrando el VisorEstadisticas (equivale a menuCondiciones2_BEstadisticas).
+        // Equivale a SimetriasFrm.menuCondiciones2_BEstadisticas (SimetriasFrm.cs líneas 566-576).
+        var filtroTemp = ObtenerFiltroTemporal();
+        if (filtroTemp is null) return;
+
+        var calc = new CalculadorEstadisticas();
+        List<Estadistica> lista = calc.EstadisticasFiltro(filtroTemp, DirectorioGanadoras);
+
+        VisorEstadisticasViewModel.UltimasEstadisticas = lista;
+        Navegar?.Invoke(typeof(VisorEstadisticasPage));
     }
 
     [RelayCommand]
-    private void Guardar()
+    private async Task Guardar()
     {
-        // TODO: Dominio legacy — ActualizarDatos() y ArchivoCondiciones.GuardaArchivo(filtro)
-        //   a un .sim/.xml (equivale a menuCondiciones1_BGuardar -> guardar()).
+        // Equivale a SimetriasFrm.menuCondiciones1_BGuardar (SimetriasFrm.cs líneas 500-509).
+        var picker = new FileSavePicker
+        {
+            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
+            SuggestedFileName = "Simetrias",
+        };
+        picker.FileTypeChoices.Add("Simetrias", new List<string> { ".sim" });
+        picker.FileTypeChoices.Add("Simetrias (XML)", new List<string> { ".xml" });
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        StorageFile? file = await picker.PickSaveFileAsync();
+        if (file == null) return;
+
+        try
+        {
+            GuardarEn(file.Path);
+        }
+        catch (Exception ex)
+        {
+            AppServices.MostrarError("No se pudo guardar: " + ex.Message);
+        }
     }
 
     [RelayCommand]
-    private void Abrir()
+    private async Task Abrir()
     {
-        // TODO: Dominio legacy — ArchivoCondiciones.AbrirArchivoCombinacion(...) + LeeCondicion()
-        //   y volcar el FiltroSimetrias leído a estas filas (menuCondiciones1_BAbrir -> abrir()).
+        // Equivale a SimetriasFrm.menuCondiciones1_BAbrir (SimetriasFrm.cs líneas 472-488).
+        var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
+        picker.FileTypeFilter.Add(".sim");
+        picker.FileTypeFilter.Add(".xml");
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        StorageFile? file = await picker.PickSingleFileAsync();
+        if (file == null) return;
+
+        try
+        {
+            AbrirDesde(file.Path);
+        }
+        catch (Exception ex)
+        {
+            AppServices.MostrarError("No se pudo abrir: " + ex.Message);
+        }
     }
 
     [RelayCommand]
     private void Copiar()
     {
-        // TODO: Dominio legacy — ActualizarDatos() y guardar a Temp/tmp.sim; habilitar Pegar
-        //   (equivale a menuCondiciones1_BCopiar).
+        // Equivale a SimetriasFrm.menuCondiciones1_BCopiar (SimetriasFrm.cs líneas 516-523).
+        try
+        {
+            string ruta = RutaTemporal;
+            Directory.CreateDirectory(Path.GetDirectoryName(ruta)!);
+            GuardarEn(ruta);
+        }
+        catch (Exception ex)
+        {
+            AppServices.MostrarError("No se pudo copiar: " + ex.Message);
+        }
     }
 
     [RelayCommand]
     private void Pegar()
     {
-        // TODO: Dominio legacy — leer Temp/tmp.sim y volcar al filtro/pantalla
-        //   (equivale a menuCondiciones1_BPegar).
+        // Equivale a SimetriasFrm.menuCondiciones1_BPegar (SimetriasFrm.cs líneas 524-540).
+        if (File.Exists(RutaTemporal))
+        {
+            AbrirDesde(RutaTemporal);
+        }
     }
 
     [RelayCommand]

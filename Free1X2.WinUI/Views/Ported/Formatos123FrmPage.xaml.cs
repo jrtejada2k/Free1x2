@@ -18,11 +18,17 @@ public sealed partial class Formatos123FrmPage : Page
     {
         InitializeComponent();
         ViewModel.Volver = () => { if (Frame?.CanGoBack == true) Frame.GoBack(); };
+        ViewModel.Navegar = tipo => Frame?.Navigate(tipo);
     }
 
     protected override void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
-        ViewModel.CargarDesdeGrupo();
+        // Al volver del visor de estadísticas (NavigationMode.Back) no recargamos desde el grupo
+        // para no perder los formatos en edición; en la entrada normal cargamos.
+        if (e.NavigationMode != NavigationMode.Back)
+        {
+            ViewModel.CargarDesdeGrupo();
+        }
     }
 }

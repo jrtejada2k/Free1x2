@@ -1,9 +1,16 @@
 using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Free1X2;
+using Free1X2.EntradaSalida;
 using Free1X2.MotorCalculo;
+using Free1X2.MotorCalculo.Estadisticas;
 using Free1X2.WinUI.Services;
+using Windows.Storage;
+using Windows.Storage.Pickers;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -15,8 +22,8 @@ namespace Free1X2.WinUI.Views.Ported;
 ///   - Interrupciones seguidas (Global / Var / 1 / X / 2).
 /// Cada propiedad almacena la lista de valores tal como el control legacy
 /// OptionNumTol0_14 (lista separada por comas, p. ej. "0,1,2").
-/// La lógica de dominio (FiltroInterrupciones, ArchivoCondiciones, CalculadorEstadisticas)
-/// está marcada como TODO; aquí solo se replica el estado de pantalla.
+/// Persistencia (Guardar/Abrir/Copiar/Pegar) vía ArchivoCondiciones (.int/.xml + Temp/tmp.int)
+/// y Estadísticas vía CalculadorEstadisticas -> VisorEstadisticasPage.
 /// </summary>
 public partial class InterrupcionesFrmViewModel : ObservableObject
 {
@@ -72,6 +79,17 @@ public partial class InterrupcionesFrmViewModel : ObservableObject
 
     /// <summary>Acción para volver atrás (la cablea la página con Frame.GoBack()). CerrarVentana() legacy.</summary>
     public Action? Volver { get; set; }
+
+    /// <summary>Acción para navegar a otra página (la cablea la página con Frame.Navigate(tipo)).</summary>
+    public Action<Type>? Navegar { get; set; }
+
+    // Fichero temporal de copiar/pegar (legacy: StartupPath + "/Temp/tmp.int").
+    private static string RutaTemporal =>
+        Path.Combine(AppContext.BaseDirectory, "Temp", "tmp.int");
+
+    // Directorio de columnas ganadoras (legacy: StartupPath + "/Ganadoras/").
+    private static string DirectorioGanadoras =>
+        Path.Combine(AppContext.BaseDirectory, "Ganadoras") + Path.DirectorySeparatorChar;
 
     // true si hay algún valor introducido (NecesitaGuardarDatos() del form legacy).
     public bool ContieneDatos =>
@@ -167,41 +185,163 @@ public partial class InterrupcionesFrmViewModel : ObservableObject
         Seg2 = string.Empty;
     }
 
-    [RelayCommand]
-    private void Guardar()
+    /// <summary>
+    /// Construye un FiltroInterrupciones temporal con los valores de pantalla.
+    /// Réplica de InterrupcionesFrm.ObtenerFiltroTemporal() (InterrupcionesFrm.cs líneas 598-...).
+    /// </summary>
+    private FiltroInterrupciones ObtenerFiltroTemporal()
     {
-        // TODO: Dominio legacy — ActualizarDatos() + ArchivoCondiciones.GuardaArchivo(filtro)
-        //   con extensiones *.int / *.xml (equivale a menuCondiciones1_BGuardar -> guardar()).
+        var filtroTemp = new FiltroInterrupciones();
+        filtroTemp.ReinicializaValores();
+
+        if (ContieneDatos)
+        {
+            if (filtroTemp.ContieneDatos == false)
+            {
+                filtroTemp.IsActive = true;
+            }
+            filtroTemp.ContieneDatos = true;
+
+            filtroTemp.SetNoIntGlobales(!string.IsNullOrWhiteSpace(IntGlobal) ? IntGlobal : TodosValores);
+            filtroTemp.SetNoIntVar(!string.IsNullOrWhiteSpace(IntVar) ? IntVar : TodosValores);
+            filtroTemp.SetNoInt1(!string.IsNullOrWhiteSpace(Int1) ? Int1 : TodosValores);
+            filtroTemp.SetNoIntX(!string.IsNullOrWhiteSpace(IntX) ? IntX : TodosValores);
+            filtroTemp.SetNoInt2(!string.IsNullOrWhiteSpace(Int2) ? Int2 : TodosValores);
+
+            filtroTemp.SetNoIntGlobalSeg(!string.IsNullOrWhiteSpace(SegGlobal) ? SegGlobal : TodosValores);
+            filtroTemp.SetNoIntVarSeg(!string.IsNullOrWhiteSpace(SegVar) ? SegVar : TodosValores);
+            filtroTemp.SetNoInt1Seg(!string.IsNullOrWhiteSpace(Seg1) ? Seg1 : TodosValores);
+            filtroTemp.SetNoIntXSeg(!string.IsNullOrWhiteSpace(SegX) ? SegX : TodosValores);
+            filtroTemp.SetNoInt2Seg(!string.IsNullOrWhiteSpace(Seg2) ? Seg2 : TodosValores);
+        }
+        else
+        {
+            filtroTemp.IsActive = false;
+            filtroTemp.ContieneDatos = false;
+        }
+        return filtroTemp;
+    }
+
+    // Vuelca un FiltroInterrupciones a las propiedades de pantalla (MarcarValores legacy, líneas 90-103).
+    private void MarcarValores(FiltroInterrupciones filtro)
+    {
+        IntGlobal = filtro.GetIntGlobales();
+        IntVar = filtro.GetIntVar();
+        Int1 = filtro.GetInt1();
+        IntX = filtro.GetIntX();
+        Int2 = filtro.GetInt2();
+
+        SegGlobal = filtro.GetIntGlobalSeg();
+        SegVar = filtro.GetIntVarSeg();
+        Seg1 = filtro.GetInt1Seg();
+        SegX = filtro.GetIntXSeg();
+        Seg2 = filtro.GetInt2Seg();
+    }
+
+    // Guarda en disco el filtro temporal (InterrupcionesFrm.guardar(), líneas 762-766).
+    private void GuardarEn(string nombreArchivo)
+    {
+        var filtroTemp = ObtenerFiltroTemporal();
+        var archComb = new ArchivoCondiciones { NombreArchivo = nombreArchivo };
+        archComb.GuardaArchivo(filtroTemp);
+    }
+
+    // Abre la condición desde disco y vuelca sus valores (InterrupcionesFrm.abrir(), líneas 750-758).
+    private void AbrirDesde(string nombreArchivo)
+    {
+        var archComb = new ArchivoCondiciones();
+        if (archComb.AbrirArchivoCombinacion(nombreArchivo))
+        {
+            Grupo g = archComb.LeeCondicion();
+            var filtro = (FiltroInterrupciones)g.GetFiltro("NoInterrupciones");
+            MarcarValores(filtro);
+        }
     }
 
     [RelayCommand]
-    private void Abrir()
+    private async Task Guardar()
     {
-        // TODO: Dominio legacy — ArchivoCondiciones.AbrirArchivoCombinacion(...) + LeeCondicion(),
-        //   obtener filtro "NoInterrupciones" y volcar sus valores a estas propiedades (MarcarValores()).
-        //   (equivale a menuCondiciones1_BAbrir -> abrir() del InterrupcionesFrm legacy).
+        // Equivale a InterrupcionesFrm.menuCondiciones1_BGuardar (InterrupcionesFrm.cs líneas 740-748).
+        var picker = new FileSavePicker
+        {
+            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
+            SuggestedFileName = "Interrupciones",
+        };
+        picker.FileTypeChoices.Add("Interrupciones", new List<string> { ".int" });
+        picker.FileTypeChoices.Add("Interrupciones (XML)", new List<string> { ".xml" });
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        StorageFile? file = await picker.PickSaveFileAsync();
+        if (file == null) return;
+
+        try
+        {
+            GuardarEn(file.Path);
+        }
+        catch (Exception ex)
+        {
+            AppServices.MostrarError("No se pudo guardar: " + ex.Message);
+        }
+    }
+
+    [RelayCommand]
+    private async Task Abrir()
+    {
+        // Equivale a InterrupcionesFrm.menuCondiciones1_BAbrir (InterrupcionesFrm.cs líneas 729-738).
+        var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
+        picker.FileTypeFilter.Add(".int");
+        picker.FileTypeFilter.Add(".xml");
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        StorageFile? file = await picker.PickSingleFileAsync();
+        if (file == null) return;
+
+        try
+        {
+            AbrirDesde(file.Path);
+        }
+        catch (Exception ex)
+        {
+            AppServices.MostrarError("No se pudo abrir: " + ex.Message);
+        }
     }
 
     [RelayCommand]
     private void Copiar()
     {
-        // TODO: Dominio legacy — ActualizarDatos() y guardar a fichero temporal "Temp/tmp.int";
-        //   habilita el botón Pegar (equivale a menuCondiciones1_BCopiar).
+        // Equivale a InterrupcionesFrm.menuCondiciones1_BCopiar (InterrupcionesFrm.cs líneas ~785).
+        try
+        {
+            string ruta = RutaTemporal;
+            Directory.CreateDirectory(Path.GetDirectoryName(ruta)!);
+            GuardarEn(ruta);
+        }
+        catch (Exception ex)
+        {
+            AppServices.MostrarError("No se pudo copiar: " + ex.Message);
+        }
     }
 
     [RelayCommand]
     private void Pegar()
     {
-        // TODO: Dominio legacy — abrir el fichero temporal "Temp/tmp.int" y volcar valores
-        //   (equivale a menuCondiciones1_BPegar -> abrir()).
+        // Equivale a InterrupcionesFrm.menuCondiciones1_BPegar (InterrupcionesFrm.cs líneas ~798).
+        if (File.Exists(RutaTemporal))
+        {
+            AbrirDesde(RutaTemporal);
+        }
     }
 
     [RelayCommand]
     private void Estadisticas()
     {
-        // TODO: Dominio legacy — construir FiltroInterrupciones temporal (ObtenerFiltroTemporal())
-        //   y llamar CalculadorEstadisticas.EstadisticasFiltro(filtroTemp, ".../Ganadoras/")
-        //   y mostrar el VisorEstadisticas (equivale a menuCondiciones1_BEstadisticas).
+        // Equivale a InterrupcionesFrm.menuCondiciones1_BEstadisticas (InterrupcionesFrm.cs líneas 819-829).
+        var filtroTemp = ObtenerFiltroTemporal();
+        var calc = new CalculadorEstadisticas();
+        List<Estadistica> lista = calc.EstadisticasFiltro(filtroTemp, DirectorioGanadoras);
+
+        VisorEstadisticasViewModel.UltimasEstadisticas = lista;
+        Navegar?.Invoke(typeof(VisorEstadisticasPage));
     }
 
     [RelayCommand]

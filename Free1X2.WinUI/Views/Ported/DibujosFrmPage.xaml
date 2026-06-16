@@ -101,6 +101,12 @@
                 <Button Content="Guardar"
                         Command="{x:Bind ViewModel.GuardarCommand}"
                         AutomationProperties.Name="Guardar condición de dibujos" />
+                <Button Content="Copiar"
+                        Command="{x:Bind ViewModel.CopiarCommand}"
+                        AutomationProperties.Name="Copiar la condición al portapapeles interno" />
+                <Button Content="Pegar"
+                        Command="{x:Bind ViewModel.PegarCommand}"
+                        AutomationProperties.Name="Pegar la condición desde el portapapeles interno" />
                 <Button Content="Borrar"
                         Command="{x:Bind ViewModel.BorrarCommand}"
                         AutomationProperties.Name="Borrar datos del filtro" />

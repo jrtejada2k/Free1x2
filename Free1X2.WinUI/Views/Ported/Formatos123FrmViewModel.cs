@@ -1,12 +1,18 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Free1X2;
+using Free1X2.EntradaSalida;
 using Free1X2.MotorCalculo;
+using Free1X2.MotorCalculo.Estadisticas;
 using Free1X2.WinUI.Controls;
 using Free1X2.WinUI.Services;
+using Windows.Storage;
+using Windows.Storage.Pickers;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -33,7 +39,8 @@ public partial class Formato123Item : ObservableObject
 /// ViewModel portado de Free1X2.UI.Filtros.Formatos123Frm (WinForms).
 /// Replica los campos de entrada: lista de formatos 123 (con min/max aciertos),
 /// líneas acertadas, "ignorar repeticiones", la rejilla de porcentajes/valoración
-/// y el traductor 1X2 -> 123. La persistencia/estadísticas quedan como TODO.
+/// y el traductor 1X2 -> 123. Persistencia (Guardar/Abrir/Copiar/Pegar) vía
+/// ArchivoCondiciones (.123/.xml + Temp/tmp.123) y Estadísticas -> VisorEstadisticasPage.
 /// </summary>
 public partial class Formatos123FrmViewModel : ObservableObject
 {
@@ -101,6 +108,17 @@ public partial class Formatos123FrmViewModel : ObservableObject
     /// <summary>Acción para volver atrás (la cablea la página con Frame.GoBack()). CerrarVentana() legacy.</summary>
     public Action? Volver { get; set; }
 
+    /// <summary>Acción para navegar a otra página (la cablea la página con Frame.Navigate(tipo)).</summary>
+    public Action<Type>? Navegar { get; set; }
+
+    // Fichero temporal de copiar/pegar (legacy: StartupPath + "/Temp/tmp.123").
+    private static string RutaTemporal =>
+        Path.Combine(AppContext.BaseDirectory, "Temp", "tmp.123");
+
+    // Directorio de columnas ganadoras (legacy: StartupPath + "/Ganadoras/").
+    private static string DirectorioGanadoras =>
+        Path.Combine(AppContext.BaseDirectory, "Ganadoras") + Path.DirectorySeparatorChar;
+
     /// <summary>
     /// Vuelca los formatos del FiltroFormatos123 del grupo en edición a la pantalla.
     /// Equivale a Formatos123Frm.MarcarValores() (Free1X2/UI/Filtros/Formatos123Frm.cs líneas 562-613).
@@ -113,6 +131,12 @@ public partial class Formatos123FrmViewModel : ObservableObject
         var filtro = (FiltroFormatos123)grupo.GetFiltro(Filtro.Formatos123.ToString());
         if (!filtro.ContieneDatos) return;
 
+        MarcarValores(filtro);
+    }
+
+    // Vuelca un FiltroFormatos123 a la pantalla (MarcarValores(FiltroFormatos123) legacy, líneas 574-580).
+    private void MarcarValores(FiltroFormatos123 filtro)
+    {
         // Volcar la valoración del filtro a la rejilla de porcentajes
         // (equivale a Formatos123Frm.MarcarValoracion(filtro.Valoracion), línea 632-635).
         if (filtro.Valoracion is { } val && val.GetLength(0) > 0)
@@ -254,9 +278,10 @@ public partial class Formatos123FrmViewModel : ObservableObject
     [RelayCommand]
     private void Analizar()
     {
-        // TODO (dominio): legacy btnAnalisis_Click.
-        // Abre AnalisisFormatos123Frm con filtro.ArrayFormatos (requiere
-        // que el filtro tenga formatos guardados).
+        // TODO[forma-no-portada]: abrir AnalisisFormatos123Frm con filtro.ArrayFormatos
+        //   (Formatos123Frm.btnAnalisis_Click). Bloqueado: la página AnalisisFormatos123FrmPage
+        //   pertenece a otro lote y aún no acepta el handoff de formatos. Fuera del alcance de
+        //   este cableado de persistencia/estadísticas.
     }
 
     [RelayCommand]
@@ -356,32 +381,150 @@ public partial class Formatos123FrmViewModel : ObservableObject
         return valoresTransformados;
     }
 
+    /// <summary>
+    /// Construye un FiltroFormatos123 temporal con los valores de pantalla.
+    /// Réplica de Formatos123Frm.ObtenerFiltroTemporal() (Formatos123Frm.cs líneas 714-739).
+    /// </summary>
+    private FiltroFormatos123 ObtenerFiltroTemporal()
+    {
+        double[,] nvals = PorcentajesHelper.AMatriz(Porcentajes);  // == controlPorcentajes1.Valores
+        var filtroTemp = new FiltroFormatos123
+        {
+            ValoracionTranformada = TransformarValoracion(nvals),
+            Valoracion = nvals,
+        };
+
+        var arrayFormatos = ConstruirFormatos();
+        var arrayAciertos = ConstruirAciertos();
+        if (arrayAciertos.Count > 0)
+        {
+            arrayAciertos.Sort();
+            filtroTemp.AciertosMax = arrayAciertos[arrayAciertos.Count - 1];
+            filtroTemp.AciertosMin = arrayAciertos[0];
+        }
+        filtroTemp.ArrayAciertos = arrayAciertos;
+        filtroTemp.ArrayFormatos = arrayFormatos;
+        filtroTemp.PasoFijo = IgnorarRepeticiones;
+        filtroTemp.AciertosFiltro = AciertosPermitidos ?? string.Empty;
+        filtroTemp.IsActive = filtroTemp.NecesitaGuardar();
+        if (filtroTemp.ContieneDatos == false)
+        {
+            filtroTemp.ContieneDatos = filtroTemp.NecesitaGuardar();
+        }
+        return filtroTemp;
+    }
+
+    // Guarda en disco el filtro temporal (Formatos123Frm.guardar(), líneas 850-855).
+    private void GuardarEn(string nombreArchivo)
+    {
+        var filtroTemp = ObtenerFiltroTemporal();
+        var archComb = new ArchivoCondiciones { NombreArchivo = nombreArchivo };
+        archComb.GuardaArchivo(filtroTemp);
+    }
+
+    // Abre la condición desde disco y vuelca sus valores (Formatos123Frm.abrir(), líneas 856-866).
+    private void AbrirDesde(string nombreArchivo)
+    {
+        var archComb = new ArchivoCondiciones();
+        if (archComb.AbrirArchivoCombinacion(nombreArchivo))
+        {
+            Grupo g = archComb.LeeCondicion();
+            var filtro = (FiltroFormatos123)g.GetFiltro("Formatos123");
+            MarcarValores(filtro);
+        }
+    }
+
     [RelayCommand]
     private void Estadisticas()
     {
-        // TODO (dominio): legacy menuCondiciones2_BEstadisticas.
-        // ObtenerFiltroTemporal -> CalculadorEstadisticas.EstadisticasFiltro
-        // -> abrir VisorEstadisticas.
+        // Equivale a Formatos123Frm.menuCondiciones2_BEstadisticas (Formatos123Frm.cs líneas 953-963).
+        var filtroTemp = ObtenerFiltroTemporal();
+        var calc = new CalculadorEstadisticas();
+        List<Estadistica> lista = calc.EstadisticasFiltro(filtroTemp, DirectorioGanadoras);
+
+        VisorEstadisticasViewModel.UltimasEstadisticas = lista;
+        Navegar?.Invoke(typeof(VisorEstadisticasPage));
     }
 
     [RelayCommand]
-    private void Guardar()
+    private async Task Guardar()
     {
-        // TODO (dominio): legacy menuCondiciones1_BGuardar.
-        // ActualizarDatos + ArchivoCondiciones.GuardaArchivo(filtro) (*.123/*.xml).
+        // Equivale a Formatos123Frm.menuCondiciones1_BGuardar (Formatos123Frm.cs líneas 840-848).
+        var picker = new FileSavePicker
+        {
+            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
+            SuggestedFileName = "Formatos123",
+        };
+        picker.FileTypeChoices.Add("Formatos 123", new List<string> { ".123" });
+        picker.FileTypeChoices.Add("Formatos 123 (XML)", new List<string> { ".xml" });
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        StorageFile? file = await picker.PickSaveFileAsync();
+        if (file == null) return;
+
+        try
+        {
+            GuardarEn(file.Path);
+        }
+        catch (Exception ex)
+        {
+            AppServices.MostrarError("No se pudo guardar: " + ex.Message);
+        }
     }
 
     [RelayCommand]
-    private void Abrir()
+    private async Task Abrir()
     {
-        // TODO (dominio): legacy menuCondiciones1_BAbrir.
-        // ArchivoCondiciones.AbrirArchivoCombinacion + LeeCondicion -> MarcarValores.
+        // Equivale a Formatos123Frm.menuCondiciones1_BAbrir (Formatos123Frm.cs líneas 823-838).
+        var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
+        picker.FileTypeFilter.Add(".123");
+        picker.FileTypeFilter.Add(".xml");
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        StorageFile? file = await picker.PickSingleFileAsync();
+        if (file == null) return;
+
+        try
+        {
+            AbrirDesde(file.Path);
+        }
+        catch (Exception ex)
+        {
+            AppServices.MostrarError("No se pudo abrir: " + ex.Message);
+        }
+    }
+
+    [RelayCommand]
+    private void Copiar()
+    {
+        // Equivale a Formatos123Frm.menuCondiciones1_BCopiar (Formatos123Frm.cs líneas 867-876).
+        try
+        {
+            string ruta = RutaTemporal;
+            Directory.CreateDirectory(Path.GetDirectoryName(ruta)!);
+            GuardarEn(ruta);
+        }
+        catch (Exception ex)
+        {
+            AppServices.MostrarError("No se pudo copiar: " + ex.Message);
+        }
+    }
+
+    [RelayCommand]
+    private void Pegar()
+    {
+        // Equivale a Formatos123Frm.menuCondiciones1_BPegar (Formatos123Frm.cs líneas 878-...).
+        if (File.Exists(RutaTemporal))
+        {
+            AbrirDesde(RutaTemporal);
+        }
     }
 
     [RelayCommand]
     private void Borrar()
     {
-        // TODO (dominio): legacy menuCondiciones1_BBorrar (confirmación + reset filtro).
+        // Equivale a Formatos123Frm.menuCondiciones1_BBorrar: limpia la pantalla (los datos se
+        //   aplican al filtro real sólo al Aceptar).
         Formatos.Clear();
         for (int i = 1; i <= 8; i++)
         {
