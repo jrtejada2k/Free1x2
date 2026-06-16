@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:Free1X2.WinUI.Controls"
+    Background="{ThemeResource AppBackgroundBrush}">
+
+    <Grid Padding="{StaticResource AppPagePadding}" RowSpacing="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Cabecera -->
+        <StackPanel Grid.Row="0" Spacing="2">
+            <TextBlock Text="Free1X2" Style="{StaticResource PageTitleTextBlockStyle}" />
+            <TextBlock Text="Boleto base, condiciones y grupos de la combinación actual"
+                       Style="{StaticResource SecondaryTextBlockStyle}" />
+        </StackPanel>
+
+        <!-- Boleto (izquierda) + panel de condiciones/grupos/acciones (derecha) -->
+        <Grid Grid.Row="1" ColumnSpacing="16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*" MinWidth="360" />
+                <ColumnDefinition Width="3*" MinWidth="420" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Boleto base editable -->
+            <controls:BoletoBaseControl Grid.Column="0" x:Name="Boleto" />
+
+            <!-- Panel derecho: en M3 se cablea condiciones + grupos + filtro + acciones -->
+            <Border Grid.Column="1" Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Condiciones y grupos"
+                               Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                    <TextBlock Text="Pendiente de cablear (M3): rejilla de condiciones, navegación de grupos, filtro de columnas y acciones."
+                               Style="{StaticResource SecondaryTextBlockStyle}"
+                               TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</Page>

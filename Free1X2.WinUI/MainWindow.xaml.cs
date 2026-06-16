@@ -20,7 +20,7 @@ public sealed partial class MainWindow : Window
         this.Title = "Free1X2";
 
         PoblarPantallasPortadas();
-        ContentFrame.Navigate(typeof(HomePage));
+        ContentFrame.Navigate(typeof(MainPage));
     }
 
     // Puebla el NavigationView con las pantallas portadas desde WinForms (data-driven).
@@ -63,7 +63,7 @@ public sealed partial class MainWindow : Window
         {
             Type page = tag switch
             {
-                "home"         => typeof(HomePage),
+                "home"         => typeof(MainPage),
                 "boleto"       => typeof(BoletoPage),
                 "componentes"  => typeof(ComponentesPage),
                 "filtros"      => typeof(PlaceholderPage),
