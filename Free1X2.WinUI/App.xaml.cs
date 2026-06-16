@@ -64,6 +64,29 @@ public partial class App : Application
         Free1X2.Abstractions.UserDialogs.ShowError = AppServices.MostrarError;
         Free1X2.Abstractions.UserDialogs.ShowInfo = AppServices.MostrarInfo;
 
+        // Portapapeles: equivalente WinUI (DataPackage) del Clipboard de WinForms.
+        // Escribir es síncrono; leer es async en WinRT, así que se espera el resultado
+        // de forma sincrónica para respetar el contrato Func<string> del shim.
+        Free1X2.Abstractions.Clipboard.Write = static texto =>
+        {
+            var paquete = new Windows.ApplicationModel.DataTransfer.DataPackage();
+            paquete.SetText(texto ?? string.Empty);
+            Windows.ApplicationModel.DataTransfer.Clipboard.SetContent(paquete);
+        };
+        Free1X2.Abstractions.Clipboard.Read = static () =>
+        {
+            try
+            {
+                var contenido = Windows.ApplicationModel.DataTransfer.Clipboard.GetContent();
+                if (contenido.Contains(Windows.ApplicationModel.DataTransfer.StandardDataFormats.Text))
+                {
+                    return System.WindowsRuntimeSystemExtensions.AsTask(contenido.GetTextAsync()).GetAwaiter().GetResult();
+                }
+            }
+            catch { /* portapapeles inaccesible: tratar como vacío */ }
+            return string.Empty;
+        };
+
         // Visor de análisis de columnas: por ahora se guarda el payload de forma
         // estática y se navega a la página del visor en el hilo de UI. El cableado
         // completo del visor (poblar el árbol desde el contenedor) queda pendiente.

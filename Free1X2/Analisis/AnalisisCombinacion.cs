@@ -447,76 +447,12 @@ namespace Free1X2.Analisis
 
         public bool AnalizaColumna(long columna, MotorCalculo.Analizador analizador, string[] pronosticosBase)
         {
-            string[] evaluacionFiltro;
-            IFiltro filtro;
-            grupos = new bool[analizador.GruposPartidos.Count];
-
-            for (int i = 0; i < analizador.GruposPartidos.Count; i++)
-            {
-                Grupo g = analizador.GruposPartidos[i];
-                // Si es el boleto base, comprueba el pronóstico.
-                if (i == 0)
-                {
-                    string[] evaluacionPronosticos = evaluarPronosticos(columna, pronosticosBase);
-                    if (evaluacionPronosticos != null) return false;
-                }
-                // Si el grupo no contiene todos los partidos, obtiene la columna a analizar
-                long columnaAAnalizar = g.ColumnaGrupo(columna);
-                for (int f = 0; f < g.Filtros.Count; f++)
-                {
-                    filtro = g.Filtros[f];
-                    if (filtro.IsActive)
-                    {
-                        if (!filtro.Analizar(columnaAAnalizar)) return false;
-                    }
-                }
-                if (g.ControladorTolerancias.Tolerancias.Count > 0)
-                {
-                    if (!g.AnalizaToleranciasGrupo(columnaAAnalizar)) return false;
-                }
-            }
-            // Analiza el control de grupos
-            conjuntos = new bool[analizador.CtrlGrupos.ControlesGrupos.Count];
-
-            if (conjuntos.Length > 1)
-            {
-                for (int i = 1; i < conjuntos.Length; i++)
-                {
-                    ControlGrupos cg = analizador.CtrlGrupos.ControlesGrupos[i];
-                    if (!AnalizaFallosGrupos(cg)) return false;
-                }
-
-                // Comprueba el control de conjuntos
-                conjuntos2 = new bool[analizador.CtrlGrupos.ControlesConjuntos.Count];
-                if (conjuntos2.Length > 1)
-                {
-                    for (int i = 1; i < analizador.CtrlGrupos.ControlesConjuntos.Count; i++)
-                    {
-                        ControlConjuntos cc = analizador.CtrlGrupos.ControlesConjuntos[i];
-                        if (!AnalizaFallosConjuntos(cc)) return false;
-                    }
-                }
-            }
-
-            // Analiza el controlador If-Then
-            if (analizador.IfThen != null)
-            {
-                if (!analizador.IfThen.EsVacio && analizador.IfThen.EsActivo)
-                {
-                    if (analizador.IfThen.ControlesCondiciones.Count > 0)
-                    {
-                        evaluacionFiltro = analizador.IfThen.CompruebaErrores(columna);
-                        if (evaluacionFiltro.Length > 0) return false;
-                    }
-                    if (analizador.IfThen.ControlesGrupos.Count > 0)
-                    {
-                        evaluacionFiltro = analizador.IfThen.CompruebaErrores(columna, analizador.GruposPartidos);
-                        if (evaluacionFiltro.Length > 0) return false;
-                    }
-                }
-            }
-
-            return true;
+            // La lógica pura del análisis booleano de columna se movió a
+            // Free1X2.Domain (Free1X2.Analisis.AnalizadorColumnaCombinacion) para que
+            // Free1X2.Escrutinio.EscrutadorComb pueda vivir en el dominio sin WinForms.
+            // Aquí se delega para no duplicar la lógica numérica.
+            return new AnalizadorColumnaCombinacion()
+                .AnalizaColumna(columna, analizador, pronosticosBase);
         }
 
 

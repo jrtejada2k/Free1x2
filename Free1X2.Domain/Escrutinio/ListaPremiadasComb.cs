@@ -29,7 +29,7 @@ namespace Free1X2.Escrutinio
 		public ListaPremiadasComb ()
 		{
 		}
-		
+
 		public string ColumnaTexto
 		{
 			get{return columnaTexto;}

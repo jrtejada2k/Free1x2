@@ -6,18 +6,17 @@
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 using System;
 using System.IO;
-using System.Windows.Forms;
 using System.Text;
 using System.Collections;
 using Free1X2.EntradaSalida;
@@ -38,7 +37,7 @@ namespace Free1X2.Utils
 		private string[] aux;
 		private string lineatexto;
 		private ArrayList Jornadas;
-		private	string[] ValorsJornada;		
+		private	string[] ValorsJornada;
 		private string mNombreFichero;
 		private ArrayList _DescripcionValoracion;
 		private string _DescripcionBuscada="";
@@ -77,7 +76,7 @@ namespace Free1X2.Utils
 		{
 			set{_DescripcionBuscada = value;}
 		}
-		
+
 		public void Leer( )
 		{
 			StreamReader srv = new StreamReader(mNombreFichero);
@@ -95,7 +94,7 @@ namespace Free1X2.Utils
 				case 43: JornadaEncontrada=Lee43ValoresPorFila(srv);break;
 				case 47:
 				case 44: JornadaEncontrada=Lee44ValoresPorFila(srv);break;
-				default: MessageBox.Show ("Fichero Incorrecto"); break;
+				default: Free1X2.Abstractions.UserDialogs.ShowError ("Fichero Incorrecto"); break;
 			}
 
 		}
@@ -111,9 +110,9 @@ namespace Free1X2.Utils
 					valores[i,2] = Convert.ToDouble(srv.ReadLine().Replace(".",","));
 				}
 			}
-			catch 
+			catch
 			{
-				MessageBox.Show("El fichero seleccionado no es de valoraciones o está corrupto","Error fichero incorrecto",MessageBoxButtons.OK ,MessageBoxIcon.Exclamation );
+				Free1X2.Abstractions.UserDialogs.ShowError("El fichero seleccionado no es de valoraciones o está corrupto");
 			}
 			srv.Close();
 		}
@@ -137,7 +136,7 @@ namespace Free1X2.Utils
 					{
                         if (i != VariablesGlobales.NumeroPartidos)
 						{
-							MessageBox.Show("El fichero seleccionado no es de valoraciones o está corrupto","Error fichero incorrecto",MessageBoxButtons.OK ,MessageBoxIcon.Exclamation );
+							Free1X2.Abstractions.UserDialogs.ShowError("El fichero seleccionado no es de valoraciones o está corrupto");
 							break;
 						}
 					}
@@ -167,7 +166,7 @@ namespace Free1X2.Utils
 					}
 					catch
 					{
-						MessageBox.Show("El fichero seleccionado no es de valoraciones o está corrupto","Error fichero incorrecto",MessageBoxButtons.OK ,MessageBoxIcon.Exclamation );
+						Free1X2.Abstractions.UserDialogs.ShowError("El fichero seleccionado no es de valoraciones o está corrupto");
 						break;
 					}
 				}
@@ -202,7 +201,7 @@ namespace Free1X2.Utils
 					}
 					catch
 					{
-						MessageBox.Show("El fichero seleccionado no es de valoraciones o está corrupto","Error fichero incorrecto",MessageBoxButtons.OK ,MessageBoxIcon.Exclamation );
+						Free1X2.Abstractions.UserDialogs.ShowError("El fichero seleccionado no es de valoraciones o está corrupto");
 						break;
 					}
 				}
@@ -237,7 +236,7 @@ namespace Free1X2.Utils
 					}
 					catch
 					{
-						MessageBox.Show("El fichero seleccionado no es de valoraciones o está corrupto","Error fichero incorrecto",MessageBoxButtons.OK ,MessageBoxIcon.Exclamation );
+						Free1X2.Abstractions.UserDialogs.ShowError("El fichero seleccionado no es de valoraciones o está corrupto");
 						break;
 					}
 				}
@@ -248,14 +247,14 @@ namespace Free1X2.Utils
 		private short TestSeparador ()
 		{
 			aux=lineatexto.Split(sep);
-			if (aux.Length ==3) 
+			if (aux.Length ==3)
 			{
 				if (EsNumero(aux[0]) && EsNumero(aux[1]) && EsNumero(aux[2]))
 				{
 					return 3;
 				}
 			}
-			if (aux.Length ==42 || aux.Length ==45) 
+			if (aux.Length ==42 || aux.Length ==45)
 			{
 				short retorno=42;
 				for(int i=0;i<42;i++)
@@ -264,7 +263,7 @@ namespace Free1X2.Utils
 				}
 				return retorno;
 			}
-			if (aux.Length ==43 || aux.Length ==46) 
+			if (aux.Length ==43 || aux.Length ==46)
 			{
 				short retorno=43;
 				for(int i=1;i<43;i++)
@@ -273,7 +272,7 @@ namespace Free1X2.Utils
 				}
 				return retorno;
 			}
-			if (aux.Length ==44  || aux.Length ==47) 
+			if (aux.Length ==44  || aux.Length ==47)
 			{
 				short retorno=44;
 				for(int i=2;i<44;i++)
@@ -287,9 +286,9 @@ namespace Free1X2.Utils
 
 		private short TestFichero (StreamReader srv)
 		{
-			
+
 			lineatexto=LeerLinia(srv);
-			
+
 			// ---------------------------------------
 			//	Probamos con separador ","
 			// ---------------------------------------
@@ -323,7 +322,7 @@ namespace Free1X2.Utils
 
 		public bool EsNumero (string Valor)
 		{
-			try {Convert.ToDouble(Valor);return true;} 
+			try {Convert.ToDouble(Valor);return true;}
 			catch {return false;}
 		}
 		public float[,] ValoresNeperianos()
@@ -355,9 +354,9 @@ namespace Free1X2.Utils
 		{
 			int i,j;
 		    String linea;
-		
-			StreamWriter sw = File.CreateText( nombreArchivo );				
-			
+
+			StreamWriter sw = File.CreateText( nombreArchivo );
+
 			switch (FormatoFichero)
 			{
 				case 3:
@@ -365,7 +364,7 @@ namespace Free1X2.Utils
 					{
 						linea="";
 						for (j=0;j<3;j++)
-						{	
+						{
 							linea += valores[i,j].ToString().Replace (",",".") ;
 							if(j<2) linea += sep;
 						}
@@ -376,7 +375,7 @@ namespace Free1X2.Utils
                     for (i = 0; i < VariablesGlobales.NumeroPartidos; i++)
 					{
 						for (j=0;j<3;j++)
-						{	
+						{
 							sw.WriteLine(valores[i,j].ToString());
 						}
 					}
@@ -386,7 +385,7 @@ namespace Free1X2.Utils
                     for (i = 0; i < VariablesGlobales.NumeroPartidos; i++)
 					{
 						for (j=0;j<3;j++)
-						{	
+						{
 							linea += valores[i,j].ToString().Replace (",",".") + sep ;
 						}
 					}
@@ -398,7 +397,7 @@ namespace Free1X2.Utils
 			}
 			sw.Close ();
 		}
-		public void GuardarValoraciones(string nombreArchivo,short formato3valoresPorFila, char separador, double[] valores1, double[] valoresX, double[] valores2) 
+		public void GuardarValoraciones(string nombreArchivo,short formato3valoresPorFila, char separador, double[] valores1, double[] valoresX, double[] valores2)
 		{
 			int i;
 
@@ -412,14 +411,14 @@ namespace Free1X2.Utils
 			FormatoFichero=formato3valoresPorFila;
 			Guardar (nombreArchivo);
 		}
-		public void GuardarValoraciones(string nombreArchivo,short formato3valoresPorFila, char separador, double[,] valores1X2) 
+		public void GuardarValoraciones(string nombreArchivo,short formato3valoresPorFila, char separador, double[,] valores1X2)
 		{
 			valores = valores1X2;
 			sep=separador;
 			FormatoFichero=formato3valoresPorFila;
 			Guardar (nombreArchivo);
 		}
-		public void GuardarValoraciones(string nombreArchivo,char separador, double[,] valores1X2, string pTemporada, string pJornada) 
+		public void GuardarValoraciones(string nombreArchivo,char separador, double[,] valores1X2, string pTemporada, string pJornada)
 		{
 			valores = valores1X2;
 			_Temporada=pTemporada;
@@ -439,7 +438,7 @@ namespace Free1X2.Utils
 			{
 				//---Guardar datos del L.A.E. de la Jornada ------
 				Jornadas =new ArrayList();
-		
+
 				bool JornadaYaExiste =false;
 
                 IArchivoColumnas comBaseCols = new ArchivoColumnasTexto(nombreArchivo);
@@ -451,7 +450,7 @@ namespace Free1X2.Utils
 						linea.Remove (0,linea.Length );
 						linea.Append (comBaseCols.LeeColumnaSinComas());
 						ValorsJornada=  linea.ToString ().Split (sep);
-						if(ValorsJornada[0]==_Temporada  && ValorsJornada[1]==_Jornada) 
+						if(ValorsJornada[0]==_Temporada  && ValorsJornada[1]==_Jornada)
 						{
 							JornadaYaExiste=true;
 							linea.Remove (0,linea.Length );
@@ -472,11 +471,11 @@ namespace Free1X2.Utils
 				{
 					comCols.GuardarColsComa(str);
 				}
-				comCols.Cerrar();	
+				comCols.Cerrar();
 			}
 			else
 			{
-				MessageBox.Show ("El fichero no es un fichero de Valoraciones históricas");
+				Free1X2.Abstractions.UserDialogs.ShowError ("El fichero no es un fichero de Valoraciones históricas");
 			}
 		}
 		private string MontaLinea(double[,]valores1X2, char separador)
@@ -493,10 +492,16 @@ namespace Free1X2.Utils
 					linea.Append( separador);
 					linea.Append( valores1X2[i,x].ToString ().Replace (".",","));
 				}
-			}	
+			}
 			return linea.ToString ();
 		}
-		public void PonerPorcentajesEnElPortapapeles()
+
+		/// <summary>
+		/// Formatea la matriz de porcentajes a texto tabulado (TAB entre valores, CR+LF
+		/// entre partidos). Lógica pura, sin tocar el portapapeles: extraída de
+		/// <see cref="PonerPorcentajesEnElPortapapeles"/> para poder reutilizarla sin UI.
+		/// </summary>
+		public string FormatearParaPortapapeles()
 		{
 			const char separador = (char) 9;
 			const char LF = (char) 10;
@@ -507,34 +512,37 @@ namespace Free1X2.Utils
 			{
 				cadena = cadena + NL+LF + valores[i,0]+ separador + valores[i,1]+ separador + valores[i,2];
 			}
+			return cadena;
+		}
 
-			Clipboard.SetDataObject (cadena, true);
+		/// <summary>
+		/// Carga los porcentajes a partir de una cadena de texto (la que normalmente vendría
+		/// del portapapeles). Lógica pura, sin tocar el portapapeles: extraída de
+		/// <see cref="RecuperarPorcentajesDelPortapapeles"/>. Devuelve <c>false</c> si la
+		/// cadena está vacía.
+		/// </summary>
+		public bool CargarDesdeCadena(string cadena)
+		{
+			if (string.IsNullOrEmpty(cadena)) return false;
+
+			mNombreFichero = Path.GetTempFileName();
+
+			StreamWriter sw = File.CreateText(mNombreFichero);
+
+			sw.Write(cadena);
+			sw.Close();
+			Leer();
+			return true;
+		}
+
+		public void PonerPorcentajesEnElPortapapeles()
+		{
+			Free1X2.Abstractions.Clipboard.Write(FormatearParaPortapapeles());
 		}
 		public bool RecuperarPorcentajesDelPortapapeles()
 		{
-		    bool ret =false;
-
-			// Declares an IDataObject to hold the data returned from the clipboard.
-			// Retrieves the data from the clipboard.
-			IDataObject iData = Clipboard.GetDataObject();
- 
-			// Determines whether the data is in a format you can use.
-		    if (iData != null)
-		        if (iData.GetDataPresent(DataFormats.Text))
-		        {
-		            // Yes it is, so display it in a text box.
-		            string cadena = (String) iData.GetData(DataFormats.Text);
-		            mNombreFichero = Path.GetTempFileName();
-
-		            StreamWriter sw = File.CreateText(mNombreFichero);
-
-		            sw.Write(cadena);
-		            sw.Close();
-		            Leer();
-		            ret = true;
-		        }
-		    return ret;
+			string cadena = Free1X2.Abstractions.Clipboard.Read();
+			return CargarDesdeCadena(cadena);
 		}
 	}
 }
-
