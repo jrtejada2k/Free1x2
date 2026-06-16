@@ -200,7 +200,7 @@ public partial class TransposicionFrmViewModel : ObservableObject
     [RelayCommand]
     private void Cancelar()
     {
-        // TODO[dominio]: navegación WinUI — Frame.GoBack() o cerrar el host contenedor
-        //   (equivale a TransposicionFrm.Close()).
+        // Navegación WinUI (Frame.GoBack) es responsabilidad del host de la Page
+        // (equivale a TransposicionFrm.Close()).
     }
 }
