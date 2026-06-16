@@ -1,4 +1,5 @@
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Navigation;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -10,9 +11,9 @@ namespace Free1X2.WinUI.Views.Ported;
 ///  - Condiciones sencillas: relaciona condiciones de filtro (genérica + específica + valor + negación).
 ///  - Grupos: relaciona grupos de partidos entre sí.
 ///
-/// La lógica de dominio (ControladorIfThen / CondicionIfThen / GrupoIfThen, persistencia
-/// con ArchivoCondiciones, y la integración con el Analizador) está marcada como TODO
-/// en el ViewModel; aún no existe en el dominio portado.
+/// Opera sobre el Analizador compartido (AppState.Instancia.Analizador): Aceptar
+/// construye un ControladorIfThen y lo asigna a analizador.IfThen; Guardar/Abrir/Copiar/Pegar
+/// usan ArchivoCondiciones (.if/.xml).
 /// </summary>
 public sealed partial class IfThenFrmPage : Page
 {
@@ -21,5 +22,12 @@ public sealed partial class IfThenFrmPage : Page
     public IfThenFrmPage()
     {
         this.InitializeComponent();
+        ViewModel.Volver = () => { if (Frame?.CanGoBack == true) Frame.GoBack(); };
+    }
+
+    protected override void OnNavigatedTo(NavigationEventArgs e)
+    {
+        base.OnNavigatedTo(e);
+        ViewModel.CargarDesdeMotor();
     }
 }
