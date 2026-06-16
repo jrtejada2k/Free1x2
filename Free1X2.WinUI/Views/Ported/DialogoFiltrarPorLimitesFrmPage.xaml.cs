@@ -18,17 +18,17 @@ public sealed partial class DialogoFiltrarPorLimitesFrmPage : Page
 
     private void OnAceptarClick(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
+        // Legacy btAceptar_Click: PonerTextoEnVariables(); CoherenciarExtremos();
+        // ValoresAceptados = true; Close(). El comando hace lo primero; aquí cerramos/regresamos.
+        // El caller lee ViewModel.Extremos y ViewModel.ValoresAceptados tras el regreso.
         ViewModel.AceptarCommand.Execute(null);
-
-        // TODO[dominio]: tras aceptar, devolver la matriz 'extremos' al caller y cerrar/regresar.
-        //   Legacy: DialogoFiltrarPorLimitesFrm.btAceptar_Click ->
-        //     PonerTextoEnVariables(); CoherenciarExtremos(); ValoresAceptados = true; Close();
-        //   En navegación WinUI, decidir aquí Frame.GoBack() o cerrar el host contenedor.
+        if (Frame?.CanGoBack == true) Frame.GoBack();
     }
 
     private void OnCancelarClick(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
-        // TODO[dominio]: descartar y cerrar/regresar (legacy: button1_Click -> Close() sin marcar ValoresAceptados).
-        //   En navegación WinUI, invocar Frame.GoBack() o cerrar el host contenedor.
+        // Legacy button1_Click: Close() sin marcar ValoresAceptados.
+        ViewModel.CancelarCommand.Execute(null);
+        if (Frame?.CanGoBack == true) Frame.GoBack();
     }
 }
