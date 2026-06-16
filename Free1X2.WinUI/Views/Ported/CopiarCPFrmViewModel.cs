@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -70,20 +71,93 @@ public partial class CopiarCPFrmViewModel : ObservableObject
             return;
         }
 
-        // TODO(dominio): portar CopiarCPFrm.CopiarColumnas().
-        //   - Parsear Columnas con la lógica de ObtenCP/EncuentraSeparador:
-        //       "," -> lista de índices; "-" -> rango [min..max]; si no, índice único.
-        //   - Validar con IndicesValidos contra el tamaño de grupoCP.
-        //   - Para cada grupo seleccionado (ObtenGrupo), obtener su
-        //     FiltroColProbables (Filtro.ColProbables) y, por cada índice, clonar la
-        //     ColumnaProbable (Pronosticos, aciertos/seguidos/fallos y, si
-        //     ToleranciaLocalActiva, las tolerancias) y añadirla:
+        // Parseo de los índices con la lógica autocontenida del legacy (ObtenCP/EncuentraSeparador).
+        int[] indices;
+        try
+        {
+            indices = ObtenCP(Columnas);
+        }
+        catch
+        {
+            Estado = "Expresión de columnas no válida (usa \"5\", \"1,3,5\" o \"1-5\").";
+            return;
+        }
+
+        // TODO(dominio): completar CopiarCPFrm.CopiarColumnas() — la copia real necesita el
+        //   motor que no existe en esta capa aislada. Ver Free1X2/UI/Filtros/CopiarCPFrm.cs línea 91:
+        //   - Validar con IndicesValidos contra el tamaño de grupoCP (la lista de CPs de origen).
+        //   - Para cada grupo seleccionado (ObtenGrupo, MainForm.MotorCalculo.GruposPartidos),
+        //     obtener su FiltroColProbables (Filtro.ColProbables) y, por cada índice, clonar la
+        //     ColumnaProbable (Pronosticos, aciertos/seguidos/fallos y, si ToleranciaLocalActiva,
+        //     las tolerancias) y añadirla:
         //       * si el grupo es el de pantalla -> grupoCP.Add(copia);
-        //       * en otro caso -> filtroCP.ColProbables.Add(copia),
-        //         ContieneDatos = true, IsActive = true.
+        //       * en otro caso -> filtroCP.ColProbables.Add(copia); ContieneDatos = true; IsActive = true.
         //   - Llamar a parentForm.CambiaCPSelecionado() y cerrar (Close()).
 
-        Estado = $"Copiar \"{Columnas}\" a {GruposSeleccionados.Count} grupo(s) (pendiente de portar dominio).";
+        Estado = $"Columnas válidas ({indices.Length}); copia a {GruposSeleccionados.Count} grupo(s) pendiente del motor (sin form padre).";
+    }
+
+    // ===== Helpers de parseo autocontenidos copiados de CopiarCPFrm =====
+
+    // CopiarCPFrm.ObtenCP
+    private static int[] ObtenCP(string valores)
+    {
+        string separador = EncuentraSeparador(valores);
+
+        int[] indexCP;
+
+        if (separador == ",")
+        {
+            string[] strIndexCP = valores.Split(',');
+            indexCP = new int[strIndexCP.Length];
+            for (int i = 0; i < strIndexCP.Length; i++)
+            {
+                indexCP[i] = Convert.ToInt32(strIndexCP[i]);
+            }
+        }
+        else if (separador == "-")
+        {
+            string[] tempIndex = valores.Split('-');
+            int indexMin = Convert.ToInt32(tempIndex[0]);
+            int indexMax = Convert.ToInt32(tempIndex[1]);
+            int noIndexes = (indexMax - indexMin) + 1;
+            indexCP = new int[noIndexes];
+            for (int i = 0; i < indexCP.Length; i++)
+            {
+                indexCP[i] = indexMin + i;
+            }
+        }
+        else
+        {
+            indexCP = new int[1];
+            indexCP[0] = Convert.ToInt32(valores);
+        }
+
+        return indexCP;
+    }
+
+    // CopiarCPFrm.EncuentraSeparador
+    private static string EncuentraSeparador(string values)
+    {
+        string separador = "";
+        foreach (char c in values)
+        {
+            switch (c)
+            {
+                case ',':
+                    separador = ",";
+                    break;
+                case '-':
+                    separador = "-";
+                    break;
+            }
+
+            if (separador != "")
+            {
+                break;
+            }
+        }
+        return separador;
     }
 
     /// <summary>

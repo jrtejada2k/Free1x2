@@ -12,10 +12,6 @@ namespace Free1X2.WinUI.Views.Ported;
 /// </summary>
 public partial class CopiarDatosCPFrmViewModel : ObservableObject
 {
-    // Límites absolutos del rango (equivalen a udMin.Minimum / udMax.Maximum del form).
-    private double _limiteInferior = 1;
-    private double _limiteSuperior = 1;
-
     // ===== Desde (udMin) =====
     // NumberBox.Value es double; la propiedad del VM debe ser double (regla anti-crash 7).
     [ObservableProperty]
@@ -24,6 +20,10 @@ public partial class CopiarDatosCPFrmViewModel : ObservableObject
     // ===== Hasta (udMax) =====
     [ObservableProperty]
     private double _hasta = 1;
+
+    // Máximo absoluto de "Hasta" (udMax.Maximum = max), fijado al inicializar.
+    [ObservableProperty]
+    private double _hastaMaximo = 1;
 
     // Mínimo dinámico de "Hasta": no puede ser menor que "Desde" (udMax.Minimum = udMin.Value).
     [ObservableProperty]
@@ -47,11 +47,9 @@ public partial class CopiarDatosCPFrmViewModel : ObservableObject
     /// </summary>
     public void Inicializar(double desde, double max)
     {
-        _limiteInferior = 1;
-        _limiteSuperior = max;
-
         Desde = desde;
         Hasta = max;
+        HastaMaximo = max;
         HastaMinimo = desde;
         DesdeMaximo = max;
     }
