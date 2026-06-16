@@ -1,7 +1,11 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Free1X2.MotorCalculo;
+using Free1X2.Utils;
+using Free1X2.WinUI.Services;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -37,8 +41,9 @@ public partial class PartidoEquipos : ObservableObject
 
 /// <summary>
 /// ViewModel para la pantalla "Grupos de Equipos".
-/// Replica las entradas del WinForms <c>GruposEquiposFrm</c>, que define
-/// agrupaciones de equipos para el filtro <c>FiltroGruposEquipos</c>:
+/// Replica las entradas y la lógica del WinForms <c>GruposEquiposFrm</c>
+/// (Free1X2/UI/Filtros/GruposEquiposFrm.cs), que define agrupaciones de equipos
+/// para el filtro <c>FiltroGruposEquipos</c>:
 ///
 /// - Pestaña "Grupos Equipos": una rejilla de 14 partidos donde se marcan los
 ///   equipos elegidos (casa/fuera) y se fijan Victorias / Empates / Derrotas /
@@ -48,16 +53,17 @@ public partial class PartidoEquipos : ObservableObject
 ///   ("Grupos Equipos") y suman Victorias / Empates / Derrotas / Puntos.
 ///   Se navega entre varias relaciones.
 ///
-/// La lógica de cálculo, validación numérica y persistencia queda como TODO
-/// citando las clases legacy; aquí solo se modela el estado de la UI.
+/// Cableado al motor real: el grupo a editar llega vía <c>AppState.GrupoEnEdicion</c>;
+/// se trabaja sobre copias de <see cref="GrupoEquipos"/> / <see cref="RelacionGE1"/>
+/// y al Aceptar se vuelcan al <see cref="FiltroGruposEquipos"/> del grupo, se activa la
+/// condición y se notifica el cambio (equivale a <c>menuCondiciones1_BOk</c>).
+/// La selección casa/fuera por partido se codifica como en <c>ObtenEquiposSeleccionados</c>
+/// del WinForms: '0'=ninguno, '1'=casa, '2'=fuera, '3'=ambos (X).
 /// </summary>
 public partial class GruposEquiposFrmViewModel : ObservableObject
 {
     public GruposEquiposFrmViewModel()
     {
-        // TODO(dominio): rellenar nombres reales de equipos desde
-        //   FormPadre.pronosticos.BuscarControl(n).EquipoCasa / EquipoFuera
-        //   (WinForms GruposEquiposFrm.LlenaEquipos / getEquipo).
         for (int i = 1; i <= NumeroPartidos; i++)
         {
             Partidos.Add(new PartidoEquipos
@@ -67,6 +73,8 @@ public partial class GruposEquiposFrmViewModel : ObservableObject
                 EquipoFuera = "Equipo fuera " + i,
             });
         }
+
+        CargarDesdeGrupo();
     }
 
     // VariablesGlobales.NumeroPartidos del proyecto legacy (quiniela de 14 + P15).
@@ -77,6 +85,29 @@ public partial class GruposEquiposFrmViewModel : ObservableObject
     /// Equivale a las casillas creadas en <c>AñadirCasillas()</c>.
     /// </summary>
     public ObservableCollection<PartidoEquipos> Partidos { get; } = new();
+
+    // ===== Estado del motor (legacy: grupo / filtroGE / arrayGE / arrayRelaciones1) =====
+
+    // Grupo en edición entregado por la MainPage (legacy: parámetro Grupo grupo del ctor).
+    private Grupo? _grupo;
+
+    // Filtro de grupos de equipos del grupo en edición (legacy: filtroGE).
+    private FiltroGruposEquipos? _filtroGE;
+
+    // Copia de trabajo de los grupos de equipos (legacy: List<GrupoEquipos> arrayGE).
+    private List<GrupoEquipos> _arrayGE = new();
+
+    // Copia de trabajo de las relaciones (legacy: List<RelacionGE1> arrayRelaciones1).
+    private List<RelacionGE1> _arrayRelaciones1 = new();
+
+    // Índice 0-based del grupo en pantalla (legacy: int noGEPantalla).
+    private int _noGEPantalla;
+
+    // Índice 0-based de la relación en pantalla (legacy: int relGE1Pantalla).
+    private int _relGE1Pantalla;
+
+    /// <summary>Acción de cierre/volver (la cablea la página con Frame.GoBack()). Legacy: CerrarVentana().</summary>
+    public Action? Volver { get; set; }
 
     // ===== Pestaña "Grupos Equipos": datos del grupo actual =====
     // Cadenas para permitir vacío y replicar SonTodosNumeros() del legacy.
@@ -140,39 +171,576 @@ public partial class GruposEquiposFrmViewModel : ObservableObject
     [ObservableProperty]
     private string _estado = "Preparado";
 
+    // ================= Carga / guardado contra el motor =================
+
+    /// <summary>
+    /// Carga la copia de trabajo de grupos de equipos y relaciones del grupo en edición.
+    /// Equivale a GruposEquiposFrm.InicializaDatos() + InicializaDatosRelacionesGE()
+    /// (Free1X2/UI/Filtros/GruposEquiposFrm.cs líneas 152-158, 684-708).
+    /// </summary>
+    public void CargarDesdeGrupo()
+    {
+        _grupo = AppState.GrupoEnEdicion;
+
+        if (_grupo is null)
+        {
+            _filtroGE = null;
+            _arrayGE = new List<GrupoEquipos>();
+            _arrayRelaciones1 = new List<RelacionGE1>();
+            _noGEPantalla = 0;
+            _relGE1Pantalla = 0;
+            ActualizaDatosPantalla(0);
+            ActualizaDatosPantRel1(0);
+            LlenaEquipos();
+            return;
+        }
+
+        // Legacy InicializaDatos: filtroGE = (FiltroGruposEquipos)grupo.GetFiltro("GruposEquipos").
+        _filtroGE = (FiltroGruposEquipos)_grupo.GetFiltro(Filtro.GruposEquipos.ToString());
+        _arrayGE = ObtenCopiaArrayGE(_filtroGE);
+        _noGEPantalla = 0;
+        ActualizaDatosPantalla(_noGEPantalla);
+
+        // Legacy InicializaDatosRelacionesGE.
+        InicializaDatosRelacionesGE();
+
+        // Legacy LlenaEquipos (rellena los nombres de equipo desde el boleto).
+        LlenaEquipos();
+    }
+
+    /// <summary>
+    /// Réplica de GruposEquiposFrm.ObtenCopiaArrayGE (líneas 203-221): clona cada
+    /// <see cref="GrupoEquipos"/> del filtro a una copia de trabajo editable.
+    /// </summary>
+    private static List<GrupoEquipos> ObtenCopiaArrayGE(FiltroGruposEquipos filtro)
+    {
+        var copia = new List<GrupoEquipos>();
+        foreach (GrupoEquipos ge in filtro.GruposEquipos)
+        {
+            var geCopia = new GrupoEquipos
+            {
+                Pronosticos = ge.Pronosticos,
+                SumaPuntos = ge.SumaPuntos,
+                Victorias = ge.Victorias,
+                Empates = ge.Empates,
+                Derrotas = ge.Derrotas,
+            };
+            copia.Add(geCopia);
+        }
+        return copia;
+    }
+
+    /// <summary>
+    /// Rellena los nombres de los equipos de cada partido.
+    /// </summary>
+    private void LlenaEquipos()
+    {
+        // TODO[dominio]: GruposEquiposFrm.LlenaEquipos + getEquipo (líneas 177-201) leían los
+        //   nombres reales desde FormPadre.pronosticos.BuscarControl(n).EquipoCasa / EquipoFuera,
+        //   es decir, del control de boleto de WinForms (Free1X2/UI/Controls/Pronosticos.cs +
+        //   PartidoBoleto.cs). El motor (Free1X2.Domain: Grupo / GrupoPartidos / Analizador) NO
+        //   almacena los nombres de equipo por partido — son un dato exclusivo de la capa de UI
+        //   del boleto, aún no portada a WinUI. Mientras no exista un boleto WinUI que exponga
+        //   los nombres por partido (p. ej. AppState.Instancia.Analizador.GruposPartidos[0] + un
+        //   modelo de boleto con EquipoCasa/EquipoFuera), se mantienen los textos por defecto
+        //   "Equipo casa N" / "Equipo fuera N". La selección casa/fuera (la parte funcional del
+        //   filtro) sí está cableada al motor.
+    }
+
+    // ---- Pestaña "Grupos Equipos": pantalla <-> modelo ----
+
+    /// <summary>
+    /// Vuelca el grupo de equipos indicado a la pantalla (selección + objetivos).
+    /// Equivale a GruposEquiposFrm.ActualizaDatosPantalla (líneas 223-241).
+    /// </summary>
+    private void ActualizaDatosPantalla(int noGE)
+    {
+        GrupoEquipos ge;
+        if (_arrayGE.Count > 0 && noGE >= 0 && noGE < _arrayGE.Count)
+        {
+            ge = _arrayGE[noGE];
+            GrupoActual = noGE + 1;
+            TotalGrupos = _arrayGE.Count;
+        }
+        else
+        {
+            ge = new GrupoEquipos();
+            GrupoActual = 1;
+            TotalGrupos = 1;
+        }
+
+        PonerEquiposSeleccionados(ge.Pronosticos);
+        SumaPuntos = ge.SumaPuntos;
+        Victorias = ge.Victorias;
+        Empates = ge.Empates;
+        Derrotas = ge.Derrotas;
+
+        OnPropertyChanged(nameof(PuedeRetrocederGrupo));
+    }
+
+    /// <summary>
+    /// Marca las casillas casa/fuera según el pronóstico del grupo.
+    /// Equivale a GruposEquiposFrm.PonerEquiposSeleccionados (líneas 542-595):
+    /// '1'=casa, '2'=fuera, '3'=ambos (X).
+    /// </summary>
+    private void PonerEquiposSeleccionados(char[] c)
+    {
+        for (int i = 0; i < Partidos.Count; i++)
+        {
+            PartidoEquipos partido = Partidos[i];
+            char signo = (c is not null && i < c.Length) ? c[i] : '\0';
+
+            partido.CasaSeleccionado = signo == '1' || signo == '3';
+            partido.FueraSeleccionado = signo == '2' || signo == '3';
+        }
+    }
+
+    /// <summary>
+    /// Construye el pronóstico (char[14]) a partir de la selección de pantalla.
+    /// Equivale a GruposEquiposFrm.ObtenEquiposSeleccionados (líneas 597-619):
+    /// código = 48 (+1 si casa, +2 si fuera) -> '0'/'1'/'2'/'3'.
+    /// </summary>
+    private char[] ObtenEquiposSeleccionados()
+    {
+        var c = new char[NumeroPartidos];
+        for (int i = 0; i < NumeroPartidos; i++)
+        {
+            int n = 48;
+            if (i < Partidos.Count)
+            {
+                if (Partidos[i].CasaSeleccionado) n += 1;
+                if (Partidos[i].FueraSeleccionado) n += 2;
+            }
+            c[i] = Convert.ToChar(n);
+        }
+        return c;
+    }
+
+    /// <summary>
+    /// True si hay alguna casilla casa/fuera marcada en pantalla.
+    /// Equivale a GruposEquiposFrm.TieneGEDatos (líneas 621-635).
+    /// </summary>
+    private bool TieneGEDatos()
+    {
+        foreach (PartidoEquipos partido in Partidos)
+        {
+            if (partido.CasaSeleccionado || partido.FueraSeleccionado)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// Las entradas Victorias/Empates/Derrotas/SumaPuntos deben ser numéricas o vacías,
+    /// pero no todas vacías. Equivale a GruposEquiposFrm.SonEntradasValidas (líneas 294-310).
+    /// </summary>
+    private bool SonEntradasValidas()
+    {
+        if (Victorias != "" || Empates != "" || Derrotas != "" || SumaPuntos != "")
+        {
+            if (UtilidadesEntradasValores.SonTodosNumeros(Victorias) &&
+                UtilidadesEntradasValores.SonTodosNumeros(Empates) &&
+                UtilidadesEntradasValores.SonTodosNumeros(Derrotas) &&
+                UtilidadesEntradasValores.SonTodosNumeros(SumaPuntos))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// True si el grupo tiene algún pronóstico activo.
+    /// Equivale a GruposEquiposFrm.HayPronosticosActivos (líneas 327-339).
+    /// </summary>
+    private static bool HayPronosticosActivos(GrupoEquipos ge)
+    {
+        for (int i = 0; i < ge.Pronosticos.Length; i++)
+        {
+            if (ge.Pronosticos[i] != '\0' && ge.Pronosticos[i] != '0')
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// Vuelca la pantalla al GrupoEquipos indicado.
+    /// Equivale a GruposEquiposFrm.GuardaDatosGE (líneas 340-358). Sólo persiste los
+    /// objetivos si las entradas son válidas; si no, deja un aviso en Estado en vez del
+    /// MessageBox del WinForms (regla anti-bloqueo de WinUI).
+    /// </summary>
+    private void GuardaDatosGE(GrupoEquipos ge)
+    {
+        ge.Pronosticos = ObtenEquiposSeleccionados();
+        ge.CalcularLongPronosticos();
+        if (HayPronosticosActivos(ge))
+        {
+            if (SonEntradasValidas())
+            {
+                ge.Victorias = Victorias;
+                ge.Empates = Empates;
+                ge.Derrotas = Derrotas;
+                ge.SumaPuntos = SumaPuntos;
+            }
+            else
+            {
+                Estado = "Hay errores en la entrada de datos del grupo";
+            }
+        }
+    }
+
+    /// <summary>
+    /// Guarda el grupo en pantalla en la copia de trabajo (creándolo si hace falta).
+    /// Equivale a GruposEquiposFrm.GuardarGEActual (líneas 276-293).
+    /// </summary>
+    private void GuardarGEActual()
+    {
+        GrupoEquipos ge;
+        if (_noGEPantalla < _arrayGE.Count)
+        {
+            ge = _arrayGE[_noGEPantalla];
+            GuardaDatosGE(ge);
+        }
+        else if (TieneGEDatos())
+        {
+            ge = new GrupoEquipos();
+            _arrayGE.Add(ge);
+            GuardaDatosGE(ge);
+        }
+    }
+
+    /// <summary>
+    /// Cambia el grupo seleccionado: guarda el actual, mueve el índice y crea el grupo si falta.
+    /// Equivale a GruposEquiposFrm.CambiaGESelecionado (líneas 248-274).
+    /// </summary>
+    private void CambiaGESelecionado(int noGE)
+    {
+        GuardarGEActual();
+
+        _noGEPantalla = noGE;
+
+        if (_arrayGE.Count < noGE + 1)
+        {
+            _arrayGE.Add(new GrupoEquipos());
+        }
+
+        ActualizaDatosPantalla(noGE);
+    }
+
+    /// <summary>
+    /// True si la última copia de trabajo no tiene ningún pronóstico (a borrar).
+    /// Equivale a GruposEquiposFrm.NecesitaBorrarUltimoGE (líneas 637-654).
+    /// </summary>
+    private bool NecesitaBorrarUltimoGE()
+    {
+        GrupoEquipos ge = _arrayGE[_arrayGE.Count - 1];
+        char[] c = ge.Pronosticos;
+        for (int i = 0; i < c.Length; i++)
+        {
+            if (c[i] == '1' || c[i] == '2' || c[i] == '3')
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /// <summary>
+    /// Vuelca la copia de trabajo al filtro y activa la condición.
+    /// Equivale a GruposEquiposFrm.GuardarDatos (líneas 360-405).
+    /// </summary>
+    private void GuardarDatos()
+    {
+        if (_filtroGE is null) return;
+
+        GuardarGEActual();
+
+        if (_arrayGE.Count > 0)
+        {
+            // Borrar el último GE si quedó vacío.
+            if (NecesitaBorrarUltimoGE())
+            {
+                _arrayGE.RemoveAt(_arrayGE.Count - 1);
+            }
+        }
+        else
+        {
+            _filtroGE.IsActive = false;
+        }
+
+        if (!_filtroGE.ContieneDatos)
+        {
+            // Primera vez guardando datos: activar la condición si hay grupos.
+            if (_arrayGE.Count > 0)
+            {
+                _filtroGE.ContieneDatos = true;
+                _filtroGE.IsActive = true;
+            }
+            else
+            {
+                _filtroGE.IsActive = false;
+            }
+        }
+        else
+        {
+            _filtroGE.ContieneDatos = true;
+            _filtroGE.IsActive = true;
+        }
+
+        for (int i = 0; i < _arrayGE.Count; i++)
+        {
+            _arrayGE[i].CalcularLongPronosticos();
+        }
+        _filtroGE.GruposEquipos = _arrayGE;
+    }
+
+    // ---- Pestaña "Relaciones": pantalla <-> modelo ----
+
+    /// <summary>
+    /// Carga la copia de trabajo de relaciones del filtro y muestra la primera.
+    /// Equivale a GruposEquiposFrm.InicializaDatosRelacionesGE (líneas 684-708).
+    /// </summary>
+    private void InicializaDatosRelacionesGE()
+    {
+        _arrayRelaciones1 = new List<RelacionGE1>();
+
+        if (_filtroGE is not null)
+        {
+            List<RelacionGE1> relacionesGE = _filtroGE.RelacionesGE1.Relaciones;
+            for (int i = 0; i < relacionesGE.Count; i++)
+            {
+                RelacionGE1 relGuardada = relacionesGE[i];
+                var rel = new RelacionGE1
+                {
+                    GruposEquipos = relGuardada.GruposEquipos,
+                    SumaVictorias = relGuardada.SumaVictorias,
+                    SumaEmpates = relGuardada.SumaEmpates,
+                    SumaDerrotas = relGuardada.SumaDerrotas,
+                    SumaPuntos = relGuardada.SumaPuntos,
+                };
+                _arrayRelaciones1.Add(rel);
+            }
+        }
+
+        _relGE1Pantalla = 0;
+        ActualizaDatosPantRel1(_relGE1Pantalla);
+    }
+
+    /// <summary>
+    /// Vuelca la relación indicada a la pantalla.
+    /// Equivale a GruposEquiposFrm.ActualizaDatosPantRel1 (líneas 710-728).
+    /// </summary>
+    private void ActualizaDatosPantRel1(int relGE1)
+    {
+        RelacionGE1 rel;
+        if (_arrayRelaciones1.Count > 0 && relGE1 >= 0 && relGE1 < _arrayRelaciones1.Count)
+        {
+            rel = _arrayRelaciones1[relGE1];
+            RelacionActual = relGE1 + 1;
+            TotalRelaciones = _arrayRelaciones1.Count;
+        }
+        else
+        {
+            rel = new RelacionGE1();
+            RelacionActual = 1;
+            TotalRelaciones = 1;
+        }
+
+        GruposEquiposRel = rel.GruposEquipos;
+        SumaVictoriasRel = rel.SumaVictorias;
+        SumaEmpatesRel = rel.SumaEmpates;
+        SumaDerrotasRel = rel.SumaDerrotas;
+        SumaPuntosRel = rel.SumaPuntos;
+
+        OnPropertyChanged(nameof(PuedeRetrocederRelacion));
+    }
+
+    /// <summary>
+    /// True si la pantalla de relación contiene datos válidos.
+    /// Equivale a GruposEquiposFrm.TieneRelacion1Datos (líneas 730-747).
+    /// </summary>
+    private bool TieneRelacion1Datos()
+    {
+        if (GruposEquiposRel == "")
+        {
+            return false;
+        }
+        if (SumaVictoriasRel == "" && SumaEmpatesRel == "" &&
+            SumaDerrotasRel == "" && SumaPuntosRel == "")
+        {
+            return false;
+        }
+        return true;
+    }
+
+    /// <summary>
+    /// Las sumas de la relación deben ser numéricas o vacías, pero no todas vacías.
+    /// Equivale a GruposEquiposFrm.SonEntradasValidasRelaciones (líneas 311-326).
+    /// </summary>
+    private bool SonEntradasValidasRelaciones()
+    {
+        if (SumaVictoriasRel != "" || SumaEmpatesRel != "" || SumaDerrotasRel != "" || SumaPuntosRel != "")
+        {
+            if (UtilidadesEntradasValores.SonTodosNumeros(SumaVictoriasRel) &&
+                UtilidadesEntradasValores.SonTodosNumeros(SumaEmpatesRel) &&
+                UtilidadesEntradasValores.SonTodosNumeros(SumaDerrotasRel) &&
+                UtilidadesEntradasValores.SonTodosNumeros(SumaPuntosRel))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// Vuelca la pantalla a la relación indicada (si es válida).
+    /// Equivale a GruposEquiposFrm.GuardaDatosRel1 (líneas 796-806).
+    /// </summary>
+    private void GuardaDatosRel1(RelacionGE1 rel)
+    {
+        if (TieneRelacion1Datos() && SonEntradasValidasRelaciones())
+        {
+            rel.GruposEquipos = GruposEquiposRel;
+            rel.SumaVictorias = SumaVictoriasRel;
+            rel.SumaEmpates = SumaEmpatesRel;
+            rel.SumaDerrotas = SumaDerrotasRel;
+            rel.SumaPuntos = SumaPuntosRel;
+        }
+    }
+
+    /// <summary>
+    /// Guarda la relación en pantalla en la copia de trabajo (creándola si hace falta).
+    /// Equivale a GruposEquiposFrm.GuardarRelGE1Actual (líneas 777-794).
+    /// </summary>
+    private void GuardarRelGE1Actual()
+    {
+        RelacionGE1 rel;
+        if (_relGE1Pantalla < _arrayRelaciones1.Count)
+        {
+            rel = _arrayRelaciones1[_relGE1Pantalla];
+            GuardaDatosRel1(rel);
+        }
+        else if (TieneRelacion1Datos() && SonEntradasValidasRelaciones())
+        {
+            rel = new RelacionGE1();
+            _arrayRelaciones1.Add(rel);
+            GuardaDatosRel1(rel);
+        }
+    }
+
+    /// <summary>
+    /// Cambia la relación seleccionada: guarda la actual, mueve el índice y crea si falta.
+    /// Equivale a GruposEquiposFrm.CambiaRelGE1Selecionado (líneas 749-775).
+    /// </summary>
+    private void CambiaRelGE1Selecionado(int relGE1)
+    {
+        GuardarRelGE1Actual();
+        _relGE1Pantalla = relGE1;
+
+        if (_arrayRelaciones1.Count < relGE1 + 1)
+        {
+            _arrayRelaciones1.Add(new RelacionGE1());
+        }
+
+        ActualizaDatosPantRel1(_relGE1Pantalla);
+    }
+
+    /// <summary>
+    /// True si la última relación no contiene datos (a borrar).
+    /// Equivale a GruposEquiposFrm.NecesitaBorrarUltimaRel1 (líneas 837-856).
+    /// </summary>
+    private bool NecesitaBorrarUltimaRel1()
+    {
+        RelacionGE1 rel = _arrayRelaciones1[_arrayRelaciones1.Count - 1];
+        if (rel.GruposEquipos == "")
+        {
+            return true;
+        }
+        if (rel.SumaVictorias == "" && rel.SumaEmpates == "" &&
+            rel.SumaDerrotas == "" && rel.SumaPuntos == "")
+        {
+            return true;
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// Vuelca la copia de trabajo de relaciones al filtro (conservando sólo las que tienen grupos).
+    /// Equivale a GruposEquiposFrm.GuardarDatosRelacionesGE1 (líneas 808-835).
+    /// </summary>
+    private void GuardarDatosRelacionesGE1()
+    {
+        if (_filtroGE is null) return;
+
+        GuardarRelGE1Actual();
+
+        if (_arrayRelaciones1.Count > 0 && NecesitaBorrarUltimaRel1())
+        {
+            _arrayRelaciones1.RemoveAt(_arrayRelaciones1.Count - 1);
+        }
+
+        var relacionesGEFinal = new List<RelacionGE1>();
+        for (int i = 0; i < _arrayRelaciones1.Count; i++)
+        {
+            RelacionGE1 rel = _arrayRelaciones1[i];
+            if (rel.GruposEquipos != "")
+            {
+                relacionesGEFinal.Add(rel);
+            }
+        }
+
+        _filtroGE.RelacionesGE1.Relaciones = relacionesGEFinal;
+    }
+
     // ----- Navegación de grupos -----
 
     [RelayCommand]
     private void GrupoAnterior()
     {
-        // TODO(dominio): GruposEquiposFrm.btnPrev_Click -> CambiaGESelecionado(noGEPantalla-1):
-        //   guardar el grupo actual y cargar el anterior desde arrayGE (List<GrupoEquipos>).
-        if (GrupoActual > 1)
+        // Legacy GruposEquiposFrm.btnPrev_Click (líneas 1411-1414).
+        if (_noGEPantalla > 0)
         {
-            GrupoActual--;
-            OnPropertyChanged(nameof(PuedeRetrocederGrupo));
+            CambiaGESelecionado(_noGEPantalla - 1);
         }
     }
 
     [RelayCommand]
     private void GrupoSiguiente()
     {
-        // TODO(dominio): GruposEquiposFrm.btnNext_Click -> si TieneGEDatos() CambiaGESelecionado(noGEPantalla+1):
-        //   crea un GrupoEquipos nuevo si no existe y avanza.
-        GrupoActual++;
-        if (GrupoActual > TotalGrupos)
+        // Legacy GruposEquiposFrm.btnNext_Click (líneas 1416-1422): sólo avanza si hay datos.
+        if (TieneGEDatos())
         {
-            TotalGrupos = GrupoActual;
+            CambiaGESelecionado(_noGEPantalla + 1);
         }
-        OnPropertyChanged(nameof(PuedeRetrocederGrupo));
     }
 
     [RelayCommand]
     private void EliminarGrupo()
     {
-        // TODO(dominio): GruposEquiposFrm.btnEliminarGrupo_Click -> BorrarGE(noGEPantalla)
-        //   sobre arrayGE; reajustar índice y recargar pantalla.
-        Estado = "Eliminar grupo (pendiente de portar dominio)";
+        // Legacy GruposEquiposFrm.btnEliminarGrupo_Click (líneas 1424-1451).
+        if (_noGEPantalla == 0)
+        {
+            if (_arrayGE.Count > 0)
+            {
+                _arrayGE.RemoveAt(_noGEPantalla);
+            }
+        }
+        else
+        {
+            _arrayGE.RemoveAt(_noGEPantalla);
+            _noGEPantalla = _noGEPantalla - 1;
+        }
+
+        if (_arrayGE.Count == 0)
+        {
+            _arrayGE.Add(new GrupoEquipos());
+        }
+
+        ActualizaDatosPantalla(_noGEPantalla);
     }
 
     // ----- Navegación de relaciones -----
@@ -180,32 +748,46 @@ public partial class GruposEquiposFrmViewModel : ObservableObject
     [RelayCommand]
     private void RelacionAnterior()
     {
-        // TODO(dominio): GruposEquiposFrm.btnPrevRel_Click -> CambiaRelGE1Selecionado(relGE1Pantalla-1).
-        if (RelacionActual > 1)
+        // Legacy GruposEquiposFrm.btnPrevRel_Click (líneas 1453-1456).
+        if (_relGE1Pantalla > 0)
         {
-            RelacionActual--;
-            OnPropertyChanged(nameof(PuedeRetrocederRelacion));
+            CambiaRelGE1Selecionado(_relGE1Pantalla - 1);
         }
     }
 
     [RelayCommand]
     private void RelacionSiguiente()
     {
-        // TODO(dominio): GruposEquiposFrm.btnNexRel_Click -> si TieneRelacion1Datos() CambiaRelGE1Selecionado(relGE1Pantalla+1).
-        RelacionActual++;
-        if (RelacionActual > TotalRelaciones)
+        // Legacy GruposEquiposFrm.btnNexRel_Click (líneas 1458-1464): sólo avanza si hay datos.
+        if (TieneRelacion1Datos())
         {
-            TotalRelaciones = RelacionActual;
+            CambiaRelGE1Selecionado(_relGE1Pantalla + 1);
         }
-        OnPropertyChanged(nameof(PuedeRetrocederRelacion));
     }
 
     [RelayCommand]
     private void EliminarRelacion()
     {
-        // TODO(dominio): GruposEquiposFrm.btnEliminaGERel_Click -> BorrarRel1(relGE1Pantalla)
-        //   sobre arrayRelaciones1 (List<RelacionGE1>); reajustar índice.
-        Estado = "Eliminar relación (pendiente de portar dominio)";
+        // Legacy GruposEquiposFrm.btnEliminaGERel_Click (líneas 1466-1493).
+        if (_relGE1Pantalla == 0)
+        {
+            if (_arrayRelaciones1.Count > 0)
+            {
+                _arrayRelaciones1.RemoveAt(_relGE1Pantalla);
+            }
+        }
+        else
+        {
+            _arrayRelaciones1.RemoveAt(_relGE1Pantalla);
+            _relGE1Pantalla = _relGE1Pantalla - 1;
+        }
+
+        if (_arrayRelaciones1.Count == 0)
+        {
+            _arrayRelaciones1.Add(new RelacionGE1());
+        }
+
+        ActualizaDatosPantRel1(_relGE1Pantalla);
     }
 
     // ----- Barra de comandos (menuCondiciones del WinForms) -----
@@ -213,62 +795,103 @@ public partial class GruposEquiposFrmViewModel : ObservableObject
     [RelayCommand]
     private void Aceptar()
     {
-        // TODO(dominio): GruposEquiposFrm.menuCondiciones1_BOk -> GuardarDatos() + GuardarDatosRelacionesGE1()
-        //   + analizador.GruposPartidos[...].ActivaFiltro(filtroGE) y cerrar la ventana.
-        Estado = "Aceptar (pendiente de portar dominio)";
-    }
+        // Legacy GruposEquiposFrm.menuCondiciones1_BOk (líneas 1507-1513):
+        //   GuardarDatos() + GuardarDatosRelacionesGE1() + grupo.ActivaFiltro(filtroGE) + cerrar.
+        if (_grupo is null || _filtroGE is null)
+        {
+            Volver?.Invoke();
+            return;
+        }
 
-    [RelayCommand]
-    private void Guardar()
-    {
-        // TODO(dominio): GruposEquiposFrm.menuCondiciones1_BGuardar -> SaveFileDialog (*.geq/*.xml)
-        //   + ArchivoCondiciones.GuardaArchivo(filtroGE). Usar FileSavePicker en el code-behind.
-        Estado = "Guardar (pendiente de portar dominio)";
-    }
+        GuardarDatos();
+        GuardarDatosRelacionesGE1();
 
-    [RelayCommand]
-    private void Abrir()
-    {
-        // TODO(dominio): GruposEquiposFrm.menuCondiciones1_BAbrir -> OpenFileDialog (*.geq/*.xml)
-        //   + ArchivoCondiciones.AbrirArchivoCombinacion/LeeCondicion. Usar FileOpenPicker.
-        Estado = "Abrir (pendiente de portar dominio)";
+        // Legacy: FormPadre.analizador.GruposPartidos[GrupoPantalla].ActivaFiltro(filtroGE).
+        // Aquí GrupoEnEdicion ES ese grupo del analizador compartido (AppState).
+        _grupo.ActivaFiltro(_filtroGE);
+
+        AppState.Instancia.NotificarCambio();
+        Volver?.Invoke();
     }
 
     [RelayCommand]
     private void Borrar()
     {
-        // TODO(dominio): GruposEquiposFrm.menuCondiciones1_BBorrar -> reinicia filtroGE = new FiltroGruposEquipos()
-        //   tras confirmación.
-        Estado = "Borrar (pendiente de portar dominio)";
-    }
+        // Legacy GruposEquiposFrm.menuCondiciones1_BBorrar (líneas 1574-1587): tras confirmación
+        //   reinicia filtroGE = new FiltroGruposEquipos() y recarga la pantalla. El MessageBox de
+        //   confirmación del WinForms se omite en WinUI (la página puede añadir un ContentDialog).
+        if (_grupo is null) return;
 
-    [RelayCommand]
-    private void Copiar()
-    {
-        // TODO(dominio): GruposEquiposFrm.menuCondiciones1_BCopiar -> guarda un .geq temporal en Temp/
-        //   y habilita Pegar.
-        Estado = "Copiar (pendiente de portar dominio)";
-    }
+        GuardarDatos();
 
-    [RelayCommand]
-    private void Pegar()
-    {
-        // TODO(dominio): GruposEquiposFrm.menuCondiciones1_BPegar -> abre el .geq temporal de Temp/.
-        Estado = "Pegar (pendiente de portar dominio)";
-    }
-
-    [RelayCommand]
-    private void Estadisticas()
-    {
-        // TODO(dominio): GruposEquiposFrm.menuCondiciones1_BEstadisticas -> ObtenerFiltroTemporal()
-        //   + CalculadorEstadisticas.EstadisticasFiltro(...) y abrir VisorEstadisticas.
-        Estado = "Estadísticas (pendiente de portar dominio)";
+        _filtroGE = new FiltroGruposEquipos();
+        _arrayGE = ObtenCopiaArrayGE(_filtroGE);
+        _noGEPantalla = 0;
+        _relGE1Pantalla = 0;
+        ActualizaDatosPantalla(0);
+        InicializaDatosRelacionesGE();
+        ActualizaDatosPantRel1(0);
+        Estado = "Datos del filtro borrados";
     }
 
     [RelayCommand]
     private void Cancelar()
     {
-        // TODO(dominio): GruposEquiposFrm.menuCondiciones1_BCancelar -> cerrar la ventana sin guardar.
-        Estado = "Cancelar (pendiente de portar dominio)";
+        // Legacy GruposEquiposFrm.menuCondiciones1_BCancelar (líneas 1515-1518): cerrar sin guardar.
+        Volver?.Invoke();
+    }
+
+    [RelayCommand]
+    private void Guardar()
+    {
+        // Bloqueado: requiere selector de archivo + serialización.
+        // TODO[navegación/IO]: GruposEquiposFrm.menuCondiciones1_BGuardar + guardar (líneas 1535-1544,
+        //   1562-1572) hacía GuardarDatos() + SaveFileDialog (*.geq/*.xml) +
+        //   ArchivoCondiciones.GuardaArchivo(filtroGE). En WinUI: usar FileSavePicker en el code-behind
+        //   y portar Free1X2.EntradaSalida.ArchivoCondiciones (aún no disponible en Free1X2.Domain).
+        GuardarDatos();
+        Estado = "Guardar en archivo: pendiente (FileSavePicker + ArchivoCondiciones)";
+    }
+
+    [RelayCommand]
+    private void Abrir()
+    {
+        // Bloqueado: requiere selector de archivo + deserialización.
+        // TODO[navegación/IO]: GruposEquiposFrm.menuCondiciones1_BAbrir + abrir (líneas 1520-1533,
+        //   1546-1560) hacía GuardarDatos() + OpenFileDialog (*.geq/*.xml) +
+        //   ArchivoCondiciones.AbrirArchivoCombinacion / LeeCondicion, recargando grupo/filtroGE.
+        //   En WinUI: usar FileOpenPicker en el code-behind y portar ArchivoCondiciones.
+        Estado = "Abrir desde archivo: pendiente (FileOpenPicker + ArchivoCondiciones)";
+    }
+
+    [RelayCommand]
+    private void Copiar()
+    {
+        // Bloqueado: requiere escribir un .geq temporal en disco.
+        // TODO[IO]: GruposEquiposFrm.menuCondiciones1_BCopiar (líneas 1589-1597) hacía GuardarDatos()
+        //   + guardar(StartupPath + "/Temp/tmp.geq") y habilitaba Pegar. Depende de ArchivoCondiciones
+        //   (no portado a Free1X2.Domain).
+        GuardarDatos();
+        Estado = "Copiar condición: pendiente (ArchivoCondiciones + Temp/tmp.geq)";
+    }
+
+    [RelayCommand]
+    private void Pegar()
+    {
+        // Bloqueado: requiere leer el .geq temporal de disco.
+        // TODO[IO]: GruposEquiposFrm.menuCondiciones1_BPegar (líneas 1599-1609) hacía GuardarDatos()
+        //   + abrir(StartupPath + "/Temp/tmp.geq"). Depende de ArchivoCondiciones (no portado).
+        Estado = "Pegar condición: pendiente (ArchivoCondiciones + Temp/tmp.geq)";
+    }
+
+    [RelayCommand]
+    private void Estadisticas()
+    {
+        // Bloqueado: requiere el cálculo de estadísticas + visor.
+        // TODO[navegación/dominio]: GruposEquiposFrm.menuCondiciones1_BEstadisticas (líneas 1624-1634)
+        //   construía un FiltroGruposEquipos temporal (ObtenerFiltroTemporal, líneas 407-496) y llamaba
+        //   a CalculadorEstadisticas.EstadisticasFiltro(...) + abría VisorEstadisticas. En WinUI: portar
+        //   ese cálculo y navegar a VisorEstadisticasPage cuando esté disponible.
+        Estado = "Estadísticas: pendiente (CalculadorEstadisticas + VisorEstadisticas)";
     }
 }
