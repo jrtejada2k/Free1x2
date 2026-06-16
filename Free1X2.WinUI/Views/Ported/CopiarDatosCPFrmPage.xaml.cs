@@ -16,6 +16,7 @@ public sealed partial class CopiarDatosCPFrmPage : Page
     public CopiarDatosCPFrmPage()
     {
         this.InitializeComponent();
+        ViewModel.Volver = () => { if (Frame?.CanGoBack == true) Frame.GoBack(); };
     }
 
     /// <summary>

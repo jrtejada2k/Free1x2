@@ -2,6 +2,7 @@
     x:Class="Free1X2.WinUI.Views.Ported.GuardarValoracionFrmPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:Free1X2.WinUI.Controls"
     Background="{StaticResource AppBackgroundBrush}">
 
     <ScrollViewer Padding="24">
@@ -15,6 +16,19 @@
                 Text="Exporta las valoraciones a un fichero de texto eligiendo el formato y el separador de campos."
                 Style="{StaticResource SecondaryTextBlockStyle}"
                 TextWrapping="Wrap" />
+
+            <!-- Valoraciones a exportar (en el WinForms llegaban por constructor;
+                 aquí se editan en la rejilla 14x3) -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="12">
+                    <TextBlock
+                        Text="Valoraciones (1 / X / 2)"
+                        Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <controls:PorcentajesControl
+                        Filas="{x:Bind ViewModel.Filas}"
+                        Height="420" />
+                </StackPanel>
+            </Border>
 
             <!-- Formato del fichero -->
             <Border Style="{StaticResource AppCardStyle}">
@@ -62,6 +76,11 @@
                     Content="Cancelar"
                     Command="{x:Bind ViewModel.CancelarCommand}" />
             </StackPanel>
+
+            <TextBlock
+                Text="{x:Bind ViewModel.Estado, Mode=OneWay}"
+                Style="{StaticResource SecondaryTextBlockStyle}"
+                TextWrapping="Wrap" />
 
         </StackPanel>
     </ScrollViewer>

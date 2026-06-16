@@ -1,3 +1,4 @@
+using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -42,6 +43,20 @@ public partial class CopiarDatosCPFrmViewModel : ObservableObject
     private string _estado = "Preparado";
 
     /// <summary>
+    /// Resultado del diálogo (legacy: el llamador leía Desde/Hasta tras el ShowDialog).
+    /// Es true si el usuario pulsó Copiar; false si canceló (en cuyo caso Desde = -1,
+    /// la bandera de cancelación del WinForms).
+    /// </summary>
+    public bool ResultadoConfirmado { get; private set; }
+
+    /// <summary>
+    /// Acción de cierre/volver (la cablea la página con Frame.GoBack()). Legacy: Hide()/Close().
+    /// El consumidor lee <see cref="Desde"/>/<see cref="Hasta"/> y
+    /// <see cref="ResultadoConfirmado"/> tras invocarse.
+    /// </summary>
+    public Action? Volver { get; set; }
+
+    /// <summary>
     /// Inicializa el rango. Equivale al constructor <c>CopiarDatosCPFrm(long desde, long max)</c>:
     /// udMin va de 1..max con valor inicial = desde; udMax va de desde..max con valor inicial = max.
     /// </summary>
@@ -73,11 +88,12 @@ public partial class CopiarDatosCPFrmViewModel : ObservableObject
     [RelayCommand]
     private void Copiar()
     {
-        // TODO(dominio): el WinForms ocultaba el diálogo (Hide()) y el form llamador leía
-        //   las propiedades Desde/Hasta (Convert.ToInt16(udMin/udMax.Value)) para copiar el
-        //   rango de columnas. Conectar aquí con quien consuma este rango (p. ej. el flujo de
-        //   copia de columnas/contraprueba que abría Free1X2.UI.Filtros.CopiarDatosCPFrm).
+        // Legacy btnCopiar_Click: Hide() y el llamador leía Desde/Hasta. Aquí marcamos el
+        // resultado y devolvemos el control: el consumidor (p. ej. ColProbablesFrm.CopiaValoresCP,
+        // Free1X2/UI/Filtros/ColProbablesFrm.cs línea 785) lee Desde/Hasta + ResultadoConfirmado.
+        ResultadoConfirmado = true;
         Estado = $"Copiar columnas {(int)Desde} a {(int)Hasta}";
+        Volver?.Invoke();
     }
 
     /// <summary>
@@ -87,10 +103,11 @@ public partial class CopiarDatosCPFrmViewModel : ObservableObject
     [RelayCommand]
     private void Cancelar()
     {
-        // TODO(dominio): el WinForms marcaba Desde = -1 como señal de cancelación y cerraba
-        //   el diálogo (Close()). Conectar con la navegación/cierre de la Page anfitriona.
+        // Legacy btnCancelar_Click: udMin.Minimum = -1; Desde = -1 (bandera de cancelación) + Close().
+        ResultadoConfirmado = false;
         DesdeMinimo = -1;
         Desde = -1;
         Estado = "Cancelado";
+        Volver?.Invoke();
     }
 }
