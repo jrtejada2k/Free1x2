@@ -603,6 +603,20 @@ namespace Free1X2.WinUI.Views.Ported
 
         // ===== Acciones de la pestaña Columnas pendientes de portar UserControls/diálogos =====
 
+        // Valores AC/ACS/FS capturados de la pantalla al abrir el diálogo de copia (legacy
+        // CopiaValoresCP, líneas 764-783): se capturan ANTES de mostrar el diálogo y se aplican al
+        // volver. Se guardan aquí porque la página del diálogo se navega aparte (handoff de vuelta).
+        private string _copiaValoresAC = "";
+        private string _copiaValoresACS = "";
+        private string _copiaValoresFS = "";
+        private bool _copiaPendiente;
+
+        /// <summary>
+        /// True entre que se lanza el diálogo "Copiar Datos" y se regresa de él. La página lo consulta
+        /// en OnNavigatedTo para distinguir el retorno del diálogo (aplicar copia) de una recarga normal.
+        /// </summary>
+        public bool CopiaDatosPendiente => _copiaPendiente;
+
         [RelayCommand]
         private void CopiarDatos()
         {
@@ -611,13 +625,64 @@ namespace Free1X2.WinUI.Views.Ported
             // El rango inicial se pasa como parámetro de navegación, igual que el constructor legacy;
             // CopiarDatosCPFrmPage.OnNavigatedTo lo consume vía ValueTuple<double,double>.
             if (_grupoCP.Count == 0) return; // legacy: if (grupoCP.Count == 0) return;
+
+            // Captura los valores AC/ACS/FS de la pantalla (legacy líneas 764-783); "" -> todos.
+            string todosValores = UtilidadesEntradasValores.ObtenerTodosValores();
+            _copiaValoresAC = Aciertos != "" ? Aciertos : todosValores;
+            _copiaValoresACS = AciertosSeguidos != "" ? AciertosSeguidos : todosValores;
+            _copiaValoresFS = FallosSeguidos != "" ? FallosSeguidos : todosValores;
+            _copiaPendiente = true;
+
+            // Limpia un resultado previo y navega al diálogo; al volver, OnNavigatedTo de la página
+            // invoca AplicarCopiaDatos con CopiarDatosCPFrmViewModel.Resultado (handoff estático).
+            CopiarDatosCPFrmViewModel.Resultado = null;
             Navegar?.Invoke(
                 typeof(CopiarDatosCPFrmPage),
                 ((double)(_cpPantalla + 1), (double)_grupoCP.Count));
-            // NOTA: tras elegir el rango, el legacy aplicaba sobre _grupoCP el bucle de copia de los
-            //   rangos AC/ACS/FS (líneas 791-809) leyendo el resultado del diálogo (Desde/Hasta +
-            //   ResultadoConfirmado). Ese paso requiere recuperar el resultado al volver de la página
-            //   (callback de navegación), no cableado en este patrón Navegar; queda fuera de alcance aquí.
+        }
+
+        /// <summary>
+        /// Aplica el resultado del diálogo "Copiar Datos" sobre la copia de trabajo de columnas.
+        /// Réplica de la segunda mitad de ColProbablesFrm.CopiaValoresCP (líneas 787-809): copia los
+        /// rangos AC/ACS/FS capturados a las CPs del rango [Desde-1, Hasta) y a la columna actual.
+        /// La cablea ColProbablesFrmPage.OnNavigatedTo al regresar del diálogo.
+        /// </summary>
+        public void AplicarCopiaDatos()
+        {
+            // Sólo procede si esta pantalla había lanzado el diálogo (evita aplicar resultados ajenos).
+            if (!_copiaPendiente) return;
+            _copiaPendiente = false;
+
+            var resultado = CopiarDatosCPFrmViewModel.Resultado;
+            CopiarDatosCPFrmViewModel.Resultado = null;
+            if (resultado is null) return; // El usuario volvió sin confirmar ni cancelar explícitamente.
+
+            // legacy: int min = f.Desde - 1; if (min < 0) return; (cancelar deja Desde = -1).
+            int min = resultado.Value.Desde - 1;
+            if (min < 0) return;
+            int max = resultado.Value.Hasta;
+
+            ColumnaProbable cp;
+            for (int i = min; i < max && i < _grupoCP.Count; i++)
+            {
+                cp = _grupoCP[i];
+                cp.ReinicializaValores();
+                cp.SetNoAciertos(_copiaValoresAC);
+                cp.SetNoAciertosSeguidos(_copiaValoresACS);
+                cp.SetNoFallosSeguidos(_copiaValoresFS);
+            }
+
+            // Repite la operación para la columna actual si no quedó dentro del rango (legacy 800-807).
+            if ((_cpPantalla < min || _cpPantalla > max) && _cpPantalla < _grupoCP.Count)
+            {
+                cp = _grupoCP[_cpPantalla];
+                cp.ReinicializaValores();
+                cp.SetNoAciertos(_copiaValoresAC);
+                cp.SetNoAciertosSeguidos(_copiaValoresACS);
+                cp.SetNoFallosSeguidos(_copiaValoresFS);
+            }
+
+            ActualizaDatosPantalla(_cpPantalla); // legacy: refresca la pantalla con la CP actual.
         }
 
         [RelayCommand]
