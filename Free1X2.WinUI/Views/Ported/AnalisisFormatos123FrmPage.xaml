@@ -3,7 +3,8 @@
     x:Class="Free1X2.WinUI.Views.Ported.AnalisisFormatos123FrmPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:ported="using:Free1X2.WinUI.Views.Ported">
+    xmlns:ported="using:Free1X2.WinUI.Views.Ported"
+    xmlns:controls="using:Free1X2.WinUI.Controls">
 
     <ScrollViewer>
         <StackPanel Padding="32" Spacing="24" MaxWidth="900" HorizontalAlignment="Left">
@@ -69,7 +70,7 @@
                 </StackPanel>
             </Border>
 
-            <!-- ===== Valoración de los partidos (legacy control valors) ===== -->
+            <!-- ===== Valoración de los partidos (reemplaza el UserControl 'valors') ===== -->
             <Border Style="{StaticResource AppCardStyle}">
                 <StackPanel Spacing="16">
                     <TextBlock Text="Valoración de los partidos"
@@ -77,17 +78,9 @@
                     <TextBlock Text="Define la valoración 1/X/2 de cada partido. El orden de estos valores determina cómo se traduce cada signo a 1, 2 o 3 al construir el formato."
                                Style="{StaticResource SecondaryTextBlockStyle}"
                                TextWrapping="Wrap" />
-                    <!-- TODO (dominio/UI): aquí va el equivalente del UserControl
-                         Free1X2.UI.Controls.valors (rejilla de valoraciones 1/X/2 por partido).
-                         Su salida (RetVals()) alimenta TransformarValoracion(...). Se portará
-                         como control propio aparte; placeholder mientras tanto. -->
-                    <Border Background="{ThemeResource AppSurfaceAltBrush}"
-                            BorderBrush="{ThemeResource AppBorderBrush}"
-                            BorderThickness="1" CornerRadius="4" Padding="16">
-                        <TextBlock Text="Rejilla de valoraciones (pendiente de portar el control 'valors')."
-                                   Style="{StaticResource SecondaryTextBlockStyle}"
-                                   TextWrapping="Wrap" />
-                    </Border>
+                    <controls:PorcentajesControl Height="380"
+                                                 Filas="{x:Bind ViewModel.Porcentajes, Mode=OneWay}"
+                                                 AutomationProperties.Name="Valoraciones 1 X 2 por partido" />
                 </StackPanel>
             </Border>
 
