@@ -1,5 +1,11 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Free1X2.WinUI.Services;
+using Windows.Storage.Pickers;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -82,10 +88,15 @@ public partial class RentabilidadFrmViewModel : ObservableObject
     /// Legacy: RentabilidadFrm.btOpenFicheroEntrada_Click (OpenFileDialog *.txt).
     /// </summary>
     [RelayCommand]
-    private void SeleccionarFicheroEntrada()
+    private async Task SeleccionarFicheroEntrada()
     {
-        // TODO: portar OpenFileDialog -> FileOpenPicker (filtro "*.txt").
-        //       Legacy: RentabilidadFrm.btOpenFicheroEntrada_Click asigna FicheroEntrada.
+        var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
+        picker.FileTypeFilter.Add(".txt");
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        var file = await picker.PickSingleFileAsync();
+        if (file == null) return;
+        FicheroEntrada = file.Path;
     }
 
     /// <summary>
@@ -93,10 +104,19 @@ public partial class RentabilidadFrmViewModel : ObservableObject
     /// Legacy: RentabilidadFrm.button4_Click (SaveFileDialog *.txt; FilterIndex==2 -> salidaBinaria).
     /// </summary>
     [RelayCommand]
-    private void SeleccionarFicheroSalida()
+    private async Task SeleccionarFicheroSalida()
     {
-        // TODO: portar SaveFileDialog -> FileSavePicker.
-        //       Legacy: RentabilidadFrm.button4_Click asigna FicheroSalida (+ flag salidaBinaria).
+        var picker = new FileSavePicker
+        {
+            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
+            SuggestedFileName = "Rentabilidad",
+        };
+        picker.FileTypeChoices.Add("Columnas", new List<string> { ".txt" });
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        var file = await picker.PickSaveFileAsync();
+        if (file == null) return;
+        FicheroSalida = file.Path;
     }
 
     /// <summary>
@@ -106,12 +126,13 @@ public partial class RentabilidadFrmViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(ColumnaValida))]
     private void CalcularValoracionColumna()
     {
-        // TODO: portar RentabilidadFrm.CalcularValoracionColumna():
-        //       - cargar %apostados/reales (ControlPorcentajes -> Porcentajes.ValoresBase100)
-        //       - calcular p14 apostada/real signo a signo de la columna
-        //       - Premio = PremioDe14 / p14apostada (acotado por PremioTope)
-        //       - Esperanza = Premio * p14real
-        //       y volcar a PremioEstimado14Texto / ProbabilidadRealTexto / EsperanzaMatematicaTexto.
+        // TODO: lógica en Free1X2/UI/RentabilidadFrm.cs línea 113 (CalcularValoracionColumna).
+        //   Requiere las matrices de porcentajes apostados/reales que en el WinForms provee el
+        //   UserControl Free1X2.UI.Controls.ControlPorcentajes (controlPorcentajesApostados /
+        //   controlPorcentajesReales -> Porcentajes.ValoresBase100()). Ese control aún no está
+        //   portado a WinUI (la propia Page lo señala), por lo que no hay datos de entrada que
+        //   cablear al motor sin inventar valores. Los selectores de fichero ya están cableados.
+        EstadoTexto = "Falta el control de porcentajes (ver RentabilidadFrm.cs línea 113)";
     }
 
     /// <summary>
@@ -121,12 +142,19 @@ public partial class RentabilidadFrmViewModel : ObservableObject
     [RelayCommand]
     private void Calcular()
     {
-        // TODO: portar RentabilidadFrm.btnOK_Click:
-        //       - origen: 14 triples (Bits.SetAll(true)) o fichero (LeerColumnas -> ArchivoColumnasTexto)
-        //       - recorrer apuestas con EncontrarDistantes1 calculando EM
-        //       - si OrdenarPorEm -> ordena() (quicksort por EM)
-        //       - GrabacionColumnas(): filtrar por EMmin/EMmax, opcional AnadirEmAlFichero,
-        //         ConvertidorDeBases + ArchivoColumnasTexto.GuardarCols.
-        //       Actualizar EstadoTexto con el número de columnas grabadas.
+        // Validación de ficheros (origen fichero requiere FicheroEntrada; salida siempre).
+        if (string.IsNullOrEmpty(FicheroSalida) ||
+            (OrigenEsFichero && string.IsNullOrEmpty(FicheroEntrada)))
+        {
+            EstadoTexto = "Faltan datos";
+            return;
+        }
+
+        // TODO: lógica en Free1X2/UI/RentabilidadFrm.cs línea 852 (btnOK_Click) +
+        //   EncontrarDistantes1 (línea 949), ordena() y GrabacionColumnas(). El cálculo de la
+        //   Esperanza Matemática parte de las matrices de porcentajes apostados/reales del
+        //   UserControl ControlPorcentajes, aún no portado a WinUI. Sin esos datos de entrada no
+        //   es posible alimentar el motor sin inventar valores; se cablean solo los selectores.
+        EstadoTexto = "Falta el control de porcentajes (ver RentabilidadFrm.cs línea 852)";
     }
 }
