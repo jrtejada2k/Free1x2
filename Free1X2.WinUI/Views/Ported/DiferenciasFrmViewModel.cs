@@ -1,7 +1,12 @@
+using System;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Free1X2;
+using Free1X2.MotorCalculo;
+using Free1X2.Utils;
+using Free1X2.WinUI.Services;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -45,6 +50,12 @@ public partial class DiferenciasFrmViewModel : ObservableObject
 {
     private const int LineasIniciales = 20;
 
+    // Índice 0-based de la Diferencia (conjunto) actualmente en pantalla (DiferenciasFrm.indice).
+    private int _indice;
+
+    /// <summary>Acción para volver atrás (la cablea la página con Frame.GoBack()). CerrarVentana() legacy.</summary>
+    public Action? Volver { get; set; }
+
     public DiferenciasFrmViewModel()
     {
         Lineas = new ObservableCollection<SimetriaLinea>();
@@ -58,6 +69,142 @@ public partial class DiferenciasFrmViewModel : ObservableObject
             "Sextetos", "Septetos", "Octetos"
         };
         _atajoSeleccionado = AtajosDisponibles[0];
+    }
+
+    private FiltroDiferencias? ObtenerFiltro()
+    {
+        var grupo = AppState.GrupoEnEdicion;
+        if (grupo is null) return null;
+        return (FiltroDiferencias)grupo.GetFiltro(Filtro.Diferencias.ToString());
+    }
+
+    /// <summary>
+    /// Vuelca la primera Diferencia del FiltroDiferencias del grupo en edición a la pantalla.
+    /// Equivale a DiferenciasFrm.MarcarValores() (Free1X2/UI/Filtros/DiferenciasFrm.cs líneas 112-151).
+    /// </summary>
+    public void CargarDesdeGrupo()
+    {
+        var filtro = ObtenerFiltro();
+        if (filtro is null) return;
+
+        _indice = 0;
+        ConjuntoActual = 1;
+        ConjuntosGuardados = filtro.Diferencias.Count;
+
+        if (filtro.ContieneDatos && filtro.Diferencias.Count > 0)
+        {
+            MarcarValores(filtro.Diferencias[0]);
+        }
+        else
+        {
+            LimpiarPantalla();
+        }
+    }
+
+    // Vuelca una Diferencia del dominio a la pantalla (MarcarValores(Diferencia), líneas 127-151).
+    private void MarcarValores(Diferencia rep)
+    {
+        LimpiarPantalla();
+
+        // Asegurar suficientes líneas en pantalla.
+        while (Lineas.Count < rep.PartidosSimetricos.Count)
+        {
+            Lineas.Add(new SimetriaLinea(Lineas.Count + 1));
+        }
+        for (int i = 0; i < rep.PartidosSimetricos.Count; i++)
+        {
+            Lineas[i].Valor = UtilidadesEntradasValores.ObtenerTextoFromBool(rep.PartidosSimetricos[i]);
+        }
+        if (rep.AnalizaVX2Dib)
+        {
+            Variantes = UtilidadesEntradasValores.ObtenerTextoFromBool(rep.AcV);
+            Equis = UtilidadesEntradasValores.ObtenerTextoFromBool(rep.AcX);
+            Doses = UtilidadesEntradasValores.ObtenerTextoFromBool(rep.AcDoses);
+            Dibujos = UtilidadesEntradasValores.ObtenerTextoFromBool(rep.AcDib);
+        }
+        if (rep.AnalizaInterrupciones)
+        {
+            Interrupciones = UtilidadesEntradasValores.ObtenerTextoFromBool(rep.AcInt);
+        }
+        if (rep.AnalizaFormatos)
+        {
+            Formatos = UtilidadesEntradasValores.ObtenerTextoFromBool(rep.AcFormatos);
+        }
+    }
+
+    private static bool[] ActivarTodos(int longitud)
+    {
+        bool[] array = new bool[longitud];
+        for (int i = 1; i < array.Length; i++) array[i] = true;
+        return array;
+    }
+
+    // Construye una Diferencia a partir de la pantalla (DiferenciasFrm.CreaDiferencia, líneas 176-257).
+    private Diferencia? CreaDiferencia()
+    {
+        try
+        {
+            var rep = new Diferencia();
+            foreach (var linea in Lineas)
+            {
+                if (!string.IsNullOrWhiteSpace(linea.Valor))
+                {
+                    bool[] partidos = UtilidadesEntradasValores.ObtenerBoolArrayFromTxt(
+                        linea.Valor, VariablesGlobales.NumeroPartidos + 1);
+                    rep.AñadirPartidosSimetricos(partidos);
+                }
+            }
+            int n = rep.PartidosSimetricos.Count + 1;
+            rep.AcV = UtilidadesEntradasValores.ObtenerBoolArrayFromTxt(Variantes, n);
+            rep.AcX = UtilidadesEntradasValores.ObtenerBoolArrayFromTxt(Equis, n);
+            rep.AcDoses = UtilidadesEntradasValores.ObtenerBoolArrayFromTxt(Doses, n);
+            rep.AcDib = UtilidadesEntradasValores.ObtenerBoolArrayFromTxt(Dibujos, n);
+            rep.AcInt = UtilidadesEntradasValores.ObtenerBoolArrayFromTxt(Interrupciones, n);
+            rep.AcFormatos = UtilidadesEntradasValores.ObtenerBoolArrayFromTxt(Formatos, n);
+
+            if (rep.PartidosSimetricos.Count > 0)
+            {
+                rep.AnalizaVX2Dib = !(rep.AcV == null && rep.AcX == null && rep.AcDoses == null && rep.AcDib == null);
+                if (rep.AcV == null) rep.AcV = ActivarTodos(n);
+                if (rep.AcX == null) rep.AcX = ActivarTodos(n);
+                if (rep.AcDoses == null) rep.AcDoses = ActivarTodos(n);
+                if (rep.AcDib == null) rep.AcDib = ActivarTodos(n);
+                if (rep.AcInt == null) { rep.AcInt = ActivarTodos(n); rep.AnalizaInterrupciones = false; }
+                else rep.AnalizaInterrupciones = true;
+                if (rep.AcFormatos == null) { rep.AcFormatos = ActivarTodos(n); rep.AnalizaFormatos = false; }
+                else rep.AnalizaFormatos = true;
+            }
+            else
+            {
+                return null;
+            }
+            return rep;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    // Guarda/actualiza la Diferencia de pantalla en el filtro (DiferenciasFrm.ActualizarDatos, líneas 258-279).
+    private void ActualizarDatos(FiltroDiferencias filtro)
+    {
+        if (filtro.Diferencias.Count > _indice)
+        {
+            var s = CreaDiferencia();
+            if (s != null) filtro.Diferencias[_indice] = s;
+        }
+        else
+        {
+            var s = CreaDiferencia();
+            if (s != null) filtro.Diferencias.Add(s);
+        }
+    }
+
+    private void RefrescarContador(FiltroDiferencias filtro)
+    {
+        ConjuntoActual = _indice + 1;
+        ConjuntosGuardados = filtro.Diferencias.Count;
     }
 
     // Líneas de grupos de partidos (los CtrlSimetria del contenedor "cctrl" legacy).
@@ -135,66 +282,144 @@ public partial class DiferenciasFrmViewModel : ObservableObject
     [RelayCommand]
     private void GenerarAtajos()
     {
-        // btnOK_Click del form legacy.
-        // TODO: Dominio legacy — UtilidadesEntradasValores.ObtenerGruposDeValores(n, PasoFijo)
-        //   según AtajoSeleccionado (Dúos=2 ... Octetos=8) y volcar las cadenas a las
-        //   líneas vacías (AñadirFromList).
+        // Equivale a DiferenciasFrm.btnOK_Click (líneas 526-556): genera grupos de valores
+        //   según el atajo seleccionado y los vuelca a las líneas vacías (AñadirFromList).
+        int cantidad = AtajoSeleccionado switch
+        {
+            "Dúos" => 2,
+            "Tríos" => 3,
+            "Cuartetos" => 4,
+            "Quintetos" => 5,
+            "Sextetos" => 6,
+            "Septetos" => 7,
+            "Octetos" => 8,
+            _ => 0,
+        };
+        if (cantidad == 0) return;
+
+        List<string> cadenas = UtilidadesEntradasValores.ObtenerGruposDeValores(cantidad, PasoFijo);
+        // AñadirFromList: rellena las líneas vacías en orden (líneas 73-89).
+        int index = 0;
+        foreach (var linea in Lineas)
+        {
+            if (string.IsNullOrWhiteSpace(linea.Valor) && index < cadenas.Count)
+            {
+                linea.Valor = cadenas[index];
+                index++;
+            }
+        }
     }
 
     [RelayCommand]
     private void ConjuntoSiguiente()
     {
-        // btnNextCP_Click del form legacy: guarda la Diferencia en pantalla y avanza,
-        // creando una nueva si se llega al final.
-        // TODO: Dominio legacy — CreaDiferencia() y filtro.Diferencias[indice]/.Add(...).
-        ConjuntoActual++;
-        if (ConjuntoActual > ConjuntosGuardados)
+        // Equivale a DiferenciasFrm.btnNextCP_Click (líneas 317-359): guarda el conjunto en
+        //   pantalla y avanza, creando uno nuevo si se llega al final.
+        var filtro = ObtenerFiltro();
+        if (filtro is null) return;
+
+        if (filtro.Diferencias.Count > _indice)
         {
-            ConjuntosGuardados = ConjuntoActual;
+            var s = CreaDiferencia();
+            if (s != null) filtro.Diferencias[_indice] = s;
+            _indice++;
+            if (filtro.Diferencias.Count > _indice)
+            {
+                MarcarValores(filtro.Diferencias[_indice]);
+            }
+            else
+            {
+                LimpiarPantalla();
+            }
         }
-        LimpiarPantalla();
+        else
+        {
+            var s = CreaDiferencia();
+            if (s != null)
+            {
+                filtro.Diferencias.Add(s);
+                _indice++;
+                LimpiarPantalla();
+            }
+        }
+        RefrescarContador(filtro);
     }
 
     [RelayCommand]
     private void ConjuntoAnterior()
     {
-        // btnPrevCP_Click del form legacy: guarda y retrocede al conjunto previo.
-        // TODO: Dominio legacy — CreaDiferencia() + MarcarValores(filtro.Diferencias[indice]).
-        if (ConjuntoActual > 1)
+        // Equivale a DiferenciasFrm.btnPrevCP_Click (líneas 361-390): guarda y retrocede.
+        var filtro = ObtenerFiltro();
+        if (filtro is null) return;
+        if (_indice <= 0) return;
+
+        if (filtro.Diferencias.Count > _indice)
         {
-            ConjuntoActual--;
+            var s = CreaDiferencia();
+            if (s != null)
+            {
+                filtro.Diferencias[_indice] = s;
+                _indice--;
+            }
+            MarcarValores(filtro.Diferencias[_indice]);
         }
+        else
+        {
+            _indice--;
+            MarcarValores(filtro.Diferencias[_indice]);
+        }
+        RefrescarContador(filtro);
     }
 
     [RelayCommand]
     private void EliminarActual()
     {
-        // btnEliminaActual_Click del form legacy: elimina la Diferencia actual.
-        // TODO: Dominio legacy — filtro.Diferencias.RemoveAt(indice) + MarcarValores().
-        if (ConjuntosGuardados > 0)
+        // Equivale a DiferenciasFrm.btnEliminaActual_Click (líneas 508-524).
+        var filtro = ObtenerFiltro();
+        if (filtro is null) return;
+
+        if (filtro.Diferencias.Count > _indice)
         {
-            ConjuntosGuardados--;
+            filtro.Diferencias.RemoveAt(_indice);
+            if (_indice > 0) _indice--;
         }
-        if (ConjuntoActual > 1 && ConjuntoActual > ConjuntosGuardados)
+        else
         {
-            ConjuntoActual--;
+            LimpiarPantalla();
         }
-        LimpiarPantalla();
+        // MarcarValores() reposiciona en el conjunto 0.
+        _indice = 0;
+        if (filtro.ContieneDatos && filtro.Diferencias.Count > 0)
+        {
+            MarcarValores(filtro.Diferencias[0]);
+        }
+        else
+        {
+            LimpiarPantalla();
+        }
+        RefrescarContador(filtro);
     }
 
     [RelayCommand]
     private void Aceptar()
     {
-        // menuCondiciones1_BOk del form legacy.
-        // TODO: Dominio legacy — ActualizarDatos(); filtro.IsActive = filtro.ContieneDatos;
-        //   FormPadre...ActivaFiltro(filtro); CerrarVentana().
+        // Equivale a DiferenciasFrm.menuCondiciones1_BOk (líneas 280-292).
+        var grupo = AppState.GrupoEnEdicion;
+        if (grupo is null) { Volver?.Invoke(); return; }
+
+        var filtro = (FiltroDiferencias)grupo.GetFiltro(Filtro.Diferencias.ToString());
+        ActualizarDatos(filtro);
+        filtro.IsActive = filtro.ContieneDatos;
+        grupo.ActivaFiltro(filtro);
+        AppState.Instancia.NotificarCambio();
+        Volver?.Invoke();
     }
 
     [RelayCommand]
     private void Cancelar()
     {
-        // menuCondiciones1_BCancelar del form legacy — cerrar sin aplicar.
-        // TODO: Dominio legacy — CerrarVentana().
+        // Equivale a menuCondiciones1_BCancelar -> CerrarVentana() (sin aplicar cambios).
+        Volver?.Invoke();
     }
 
     [RelayCommand]
@@ -240,8 +465,10 @@ public partial class DiferenciasFrmViewModel : ObservableObject
     [RelayCommand]
     private void Borrar()
     {
-        // menuCondiciones1_BBorrar del form legacy: borra todos los datos del filtro.
-        // TODO: Dominio legacy — filtro.Diferencias.Clear().
+        // Equivale a DiferenciasFrm.menuCondiciones1_BBorrar (líneas 460-473).
+        var filtro = ObtenerFiltro();
+        filtro?.Diferencias.Clear();
+        _indice = 0;
         LimpiarPantalla();
         ConjuntoActual = 1;
         ConjuntosGuardados = 0;

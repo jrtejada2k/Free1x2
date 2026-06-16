@@ -1,4 +1,5 @@
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Navigation;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -8,9 +9,9 @@ namespace Free1X2.WinUI.Views.Ported;
 /// "," o "-") y, por concepto (Variantes / Equis / Doses / Dibujos / Interrupciones /
 /// Formatos), la cantidad o intervalo de valores DISTINTOS entre los grupos. Permite
 /// guardar varios conjuntos (Diferencias) y navegar entre ellos, generar grupos por
-/// atajos (Dúos..Octetos) y las acciones de menú (Aceptar, Estadísticas, Guardar,
-/// Abrir, Copiar, Pegar, Borrar, Cancelar). La lógica de dominio (FiltroDiferencias,
-/// Diferencia, ArchivoCondiciones, CalculadorEstadisticas) está marcada como TODO en el ViewModel.
+/// atajos (Dúos..Octetos). Recibe el Grupo a editar vía AppState.GrupoEnEdicion y escribe
+/// los cambios de vuelta al <c>FiltroDiferencias</c> al Aceptar. La persistencia en disco
+/// queda como TODO en el ViewModel.
 /// </summary>
 public sealed partial class DiferenciasFrmPage : Page
 {
@@ -19,5 +20,12 @@ public sealed partial class DiferenciasFrmPage : Page
     public DiferenciasFrmPage()
     {
         this.InitializeComponent();
+        ViewModel.Volver = () => { if (Frame?.CanGoBack == true) Frame.GoBack(); };
+    }
+
+    protected override void OnNavigatedTo(NavigationEventArgs e)
+    {
+        base.OnNavigatedTo(e);
+        ViewModel.CargarDesdeGrupo();
     }
 }
