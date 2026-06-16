@@ -13,8 +13,9 @@ namespace Free1X2.WinUI.Views.Ported;
 /// posibles ("Mostrar todos"); el resultado se muestra como un informe Formato/Apariciones.
 ///
 /// La UI y el estado en memoria viven en <see cref="AnalisisFormatos123FrmViewModel"/>.
-/// La lógica de dominio (lectura de archivos, traducción, conteo binario) está marcada
-/// con TODO referenciando los tipos y métodos legacy a invocar.
+/// La lectura de archivos, la traducción (con la valoración de la rejilla
+/// PorcentajesControl == valors1.RetVals()) y el conteo están portados; solo "Analizar"
+/// queda pendiente de ArrayFormatos (lista inyectada externamente, no relacionada con valors).
 /// </summary>
 public sealed partial class AnalisisFormatos123FrmPage : Page
 {
@@ -24,10 +25,4 @@ public sealed partial class AnalisisFormatos123FrmPage : Page
     {
         this.InitializeComponent();
     }
-
-    // Toda la lógica de dominio (EntradaFichero, TraducirColumna, TransformarValoracion,
-    // ConvStrToLong, DeterminaApariciones, ObtenerFormatos, ObtenerTodosFormatos del
-    // legacy AnalisisFormatos123Frm, más Free1X2.MotorCalculo.Formato123 y
-    // Free1X2.EntradaSalida.ArchivoColumnasTexto) se invocará desde los RelayCommand del
-    // ViewModel; ver los TODO en AnalisisFormatos123FrmViewModel.cs.
 }

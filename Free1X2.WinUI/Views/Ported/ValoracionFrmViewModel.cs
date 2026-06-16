@@ -14,10 +14,11 @@ namespace Free1X2.WinUI.Views.Ported;
 /// <summary>
 /// ViewModel del filtro "Valoración" (WinForms <c>ValoracionFrm</c> /
 /// <c>FiltroValoracionSignos</c>). Asigna a cada partido unas valoraciones 1/X/2
-/// (control de porcentajes) y filtra columnas cuya valoración Global, de Unos,
+/// (rejilla PorcentajesControl) y filtra columnas cuya valoración Global, de Unos,
 /// Equis y Doses caiga en los rangos indicados, en modo "suma" o "multiplo".
-/// Toda la lógica de cálculo y persistencia está marcada como TODO citando la
-/// clase legacy correspondiente.
+/// El cálculo (PrepararValores/Calcular/columnas base/Aceptar) está portado; la
+/// persistencia (Guardar/Abrir/Copiar/Pegar/Estadísticas) queda como TODO citando
+/// la clase legacy correspondiente.
 /// </summary>
 public partial class ValoracionFrmViewModel : ObservableObject
 {
@@ -49,7 +50,8 @@ public partial class ValoracionFrmViewModel : ObservableObject
         ValorUnos = string.Empty;
         ValorEquis = string.Empty;
         ValorDoses = string.Empty;
-        // TODO: Dominio legacy — radTipoVal_Clicked actualiza tipoValoracion.
+        // tipoValoracion del dominio se deriva dinámicamente en TipoValoracionDominio,
+        // así que no hace falta replicar radTipoVal_Clicked.
     }
 
     // --- Mín-Máx informativos (readonly): TxMinMaxSumas / TxMinMaxProductos ---

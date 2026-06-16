@@ -7,9 +7,9 @@ namespace Free1X2.WinUI.Views.Ported;
 /// Port WinUI 3 del WinForms <c>ValoracionFrm</c> (filtro "Valoración" /
 /// <c>FiltroValoracionSignos</c>). Permite elegir el tipo (suma / productos x 3E7) y
 /// acotar los rangos de valoración Global, de Unos, Equis y Doses. Recibe el Grupo a editar
-/// vía AppState.GrupoEnEdicion y escribe tipo + rangos de vuelta al filtro al Aceptar,
-/// conservando la matriz de porcentajes existente. El control de porcentajes y el cálculo
-/// de valoración quedan como TODO en el ViewModel.
+/// vía AppState.GrupoEnEdicion y escribe tipo + rangos + matriz de porcentajes (de la
+/// rejilla PorcentajesControl) de vuelta al filtro al Aceptar. La persistencia
+/// (Guardar/Abrir/Copiar/Pegar/Estadísticas) queda como TODO en el ViewModel.
 /// </summary>
 public sealed partial class ValoracionFrmPage : Page
 {
