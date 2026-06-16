@@ -4,6 +4,8 @@ using System.Text;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
+using Free1X2;
+
 namespace Free1X2.WinUI.Views.Ported
 {
     /// <summary>
@@ -55,14 +57,25 @@ namespace Free1X2.WinUI.Views.Ported
 
                 sb.Append(salto + linea);
 
+                // Legacy: VariablesGlobales.Separador[0..2] marca los puntos de separación
+                // (jornadas/pleno) donde se inserta una línea en blanco extra. Separador se
+                // inicializa en el arranque de la app (por defecto ["1","X","2"]); se protege
+                // por si aún no estuviera poblado.
+                string[]? separador = VariablesGlobales.Separador;
+
                 for (int z = 0; z < columnasB.GetLength(1); z++)
                 {
                     sb.Append(salto);
 
-                    // TODO Legacy: VerBoletosEnEditorFrm usa VariablesGlobales.Separador[0..2]
-                    // para insertar líneas en blanco en los puntos de separación (jornadas/pleno).
-                    // Reemplazar por el origen real de configuración cuando se porte el dominio.
-                    // if (Convert.ToString(z + 1) == VariablesGlobales.Separador[k]) sb.Append(salto);
+                    // Legacy: if (Convert.ToString(z+1) == Separador[0|1|2]) sb.Append(salto).
+                    if (separador is { Length: >= 3 })
+                    {
+                        string zStr = Convert.ToString(z + 1);
+                        if (zStr == separador[0] || zStr == separador[1] || zStr == separador[2])
+                        {
+                            sb.Append(salto);
+                        }
+                    }
 
                     for (int j = (i * 8); j < (noBol * 8); j++)
                     {
@@ -99,9 +112,12 @@ namespace Free1X2.WinUI.Views.Ported
         [RelayCommand]
         private void Imprimir()
         {
-            // TODO Legacy: VerBoletosEnEditorFrm.ImprimirBoletos() usaba System.Drawing.Printing.PrintDocument
-            // y dibujaba txtBoletos.Lines línea a línea (DrawString). En WinUI la impresión se hace con
-            // Windows.Graphics.Printing.PrintManager / PrintDocument de WinUI. Implementar al portar el dominio.
+            // TODO: impresión — ver Free1X2/UI/VerBoletosEnEditorFrm.cs líneas 80-97
+            //   (ImprimirBoletos/Imprimir): el legacy usa System.Drawing.Printing.PrintDocument
+            //   y dibuja txtBoletos.Lines línea a línea con DrawString. En WinUI esto requiere
+            //   Windows.Graphics.Printing.PrintManager + Microsoft.UI.Xaml.Printing.PrintDocument,
+            //   que es infraestructura de UI, no del motor. No es lógica de dominio: pendiente de
+            //   cablear la canalización de impresión de WinUI.
         }
     }
 }

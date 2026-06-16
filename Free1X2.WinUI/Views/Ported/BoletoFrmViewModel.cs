@@ -1,5 +1,13 @@
+using System;
+using System.Collections.ObjectModel;
+using System.Threading.Tasks;
+
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+
+using Free1X2;
+using Free1X2.EntradaSalida;
+using Free1X2.MotorCalculo;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -7,16 +15,31 @@ namespace Free1X2.WinUI.Views.Ported;
 /// ViewModel para la pantalla "Boleto" (visor/navegador de boletos).
 /// Replica el WinForms <c>BoletoFrm</c>: abre un archivo de columnas, calcula cuántos
 /// boletos imprimibles contiene y permite navegar entre ellos (primero / anterior /
-/// ir a nº / siguiente / último), mostrando cada boleto en el <c>BoletoControl</c>.
+/// ir a nº / siguiente / último).
+///
+/// La carga de columnas (Free1X2.EntradaSalida.ArchivoColumnasTexto), el cálculo de
+/// boletos/apuestas (ControlBoleto.CreaMatriz) y la ordenación de la matriz
+/// (ControlBoleto.OrdenarMatrizColumnas, que usa FiltroNoVariantes/FiltroInterrupciones)
+/// SÍ están cableadas al motor real. La pintura de cada columna del boleto en el
+/// <c>BoletoControl</c> visual depende del UserControl no portado
+/// <c>Free1X2.UI.Controls.Boleto.ControlColumnaBoleto</c>; aquí se expone el contenido
+/// crudo de las 8 columnas del boleto actual y se deja la sincronización visual como TODO.
 /// </summary>
 public partial class BoletoFrmViewModel : ObservableObject
 {
+    // ===== Matriz de columnas cargada (legacy: ControlBoleto.columna[] / apuestas) =====
+    private string[] _columna = Array.Empty<string>();
+    private int _apuestas;
+
+    // Criterio/sentido de ordenación (legacy: BoletoFrm.ordenarPor / tipoOrden, fijados por VerBoletos).
+    public OrdenarMatriz OrdenarPor { get; set; } = OrdenarMatriz.Signo;
+    public TipoOrden TipoOrden { get; set; } = TipoOrden.asc;
+
     // Ruta del archivo de combinación de entrada (WinForms: ArchivoCombinacion).
     [ObservableProperty]
     private string _archivoCombinacion = "";
 
     // Total de boletos imprimibles del archivo (WinForms: campo 'boletos' / totalBoletos.Text).
-    // NotifyPropertyChangedFor mantiene la proyección en cadena y la disponibilidad de navegación.
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(TotalBoletosTexto))]
     private int _totalBoletos = 1;
@@ -40,12 +63,22 @@ public partial class BoletoFrmViewModel : ObservableObject
     [ObservableProperty]
     private string _estado = "Selecciona un archivo de combinación para ver sus boletos.";
 
+    [ObservableProperty]
+    private bool _cargando;
+
+    /// <summary>
+    /// Columnas (signos crudos) del boleto actualmente mostrado: hasta 8 columnas,
+    /// equivalentes a las 8 ControlColumnaBoleto que el WinForms rellenaba en LlenarBoleto.
+    /// Vacío en posiciones sin columna (boleto incompleto), igual que el legacy.
+    /// </summary>
+    public ObservableCollection<string> ColumnasBoletoActual { get; } = new();
+
     /// <summary>
     /// Equivale a <c>BoletoFrm_Load</c>: lee el archivo, crea la matriz de columnas,
-    /// calcula el total de boletos y muestra el primero.
+    /// calcula el total de boletos, ordena y muestra el primero.
     /// </summary>
     [RelayCommand]
-    private void Cargar()
+    private async Task CargarAsync()
     {
         if (string.IsNullOrEmpty(ArchivoCombinacion))
         {
@@ -53,16 +86,70 @@ public partial class BoletoFrmViewModel : ObservableObject
             return;
         }
 
-        // TODO(dominio): portar la carga de Free1X2.UI.BoletoFrm.BoletoFrm_Load.
-        //   - Free1X2.EntradaSalida.ArchivoColumnasTexto (IArchivoColumnas):
-        //       ObtenNumCols / SiguienteColumna / LeeColumnaSinComas / Cerrar.
-        //   - Free1X2.UI.Controls.ControlBoleto: CreaMatriz(numCols), campo 'boletos',
-        //       'apuestas', matriz 'columna[]', OrdenarMatrizColumnas(ordenarPor, tipoOrden),
-        //       LlenarBoleto(numBol).
-        //   - Aplicar OrdenarMatriz/TipoOrden (campos ordenarPor / tipoOrden del WinForms).
-        //   Al terminar: TotalBoletos = nº calculado e invocar LlenarBoleto(0).
+        Cargando = true;
+        Estado = "Cargando boletos...";
 
-        Estado = "Carga pendiente de portar dominio.";
+        try
+        {
+            string archivoEntrada = ArchivoCombinacion;
+            OrdenarMatriz orden = OrdenarPor;
+            TipoOrden tipo = TipoOrden;
+
+            // Lectura + cálculo + ordenación en hilo de fondo (legacy lo hacía con WaitCursor).
+            var (columnas, apuestas, boletos) = await Task.Run(() =>
+            {
+                // Legacy: IArchivoColumnas archComb = new ArchivoColumnasTexto(archivoEntrada);
+                IArchivoColumnas archComb = new ArchivoColumnasTexto(archivoEntrada);
+
+                // Legacy: controlBoleto1.CreaMatriz(Convert.ToInt32(archComb.ObtenNumCols()));
+                int capacidad = Convert.ToInt32(archComb.ObtenNumCols());
+                string[] cols = new string[capacidad];
+
+                // Legacy: ControlBoleto.CreaMatriz -> boletos = ceil(capacidad/8); apuestas = capacidad.
+                int nBoletos = (capacidad % 8) == 0
+                    ? capacidad / 8
+                    : Convert.ToInt32((capacidad / 8) + 0.5000001);
+
+                // Legacy: for (i=0; i<apuestas; i++) if (SiguienteColumna()) columna[i] = LeeColumnaSinComas();
+                for (int i = 0; i < capacidad; i++)
+                {
+                    if (archComb.SiguienteColumna())
+                    {
+                        cols[i] = archComb.LeeColumnaSinComas();
+                    }
+                    else
+                    {
+                        cols[i] = "";
+                    }
+                }
+                archComb.Cerrar();
+
+                // Legacy: controlBoleto1.OrdenarMatrizColumnas(ordenarPor, tipoOrden).
+                OrdenarMatrizColumnas(cols, orden, tipo);
+
+                return (cols, capacidad, nBoletos);
+            });
+
+            _columna = columnas;
+            _apuestas = apuestas;
+            TotalBoletos = boletos <= 0 ? 1 : boletos;
+
+            // Legacy: Text = Path.GetFileName(archivoEntrada).
+            string nombre = System.IO.Path.GetFileName(archivoEntrada);
+
+            // Legacy: LlenarBoleto(0).
+            LlenarBoleto(0);
+            Estado = $"{nombre}: {TotalBoletos} boleto(s).";
+        }
+        catch (Exception ex)
+        {
+            Estado = $"Error al cargar el boleto: {ex.Message}";
+            Services.AppServices.MostrarError($"No se pudo cargar el boleto: {ex.Message}");
+        }
+        finally
+        {
+            Cargando = false;
+        }
     }
 
     /// <summary>Equivale a <c>btnPrimero_Click</c>: muestra el primer boleto.</summary>
@@ -88,6 +175,7 @@ public partial class BoletoFrmViewModel : ObservableObject
         int destino = (int)IrABoleto;
         if (destino < 1 || destino > TotalBoletos)
         {
+            // Legacy: MessageBox.Show("El número de boleto está fuera de rango").
             Estado = "El número de boleto está fuera de rango.";
             return;
         }
@@ -95,25 +183,111 @@ public partial class BoletoFrmViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Equivale a <c>LlenarBoleto(int)</c> del WinForms: fija el boleto mostrado (0-based)
-    /// y actualiza el contador 1-based. La pintura real del boleto la hará el dominio.
+    /// Equivale a <c>ControlBoleto.LlenarBoleto(int)</c>: vuelca las 8 columnas del boleto
+    /// (0-based) en <see cref="ColumnasBoletoActual"/> y actualiza el contador 1-based.
     /// </summary>
     private void LlenarBoleto(int numBol)
     {
-        if (numBol < 0)
+        if (numBol < 0) numBol = 0;
+        if (numBol > TotalBoletos - 1) numBol = TotalBoletos - 1;
+
+        // Legacy: int numColumna = (boleto*8)+1; for (i=0..7) si ((numColumna+i-1) < apuestas)
+        //   LlenarColumna(i+1, columna[numColumna+i-1], ...) else LlenarColumna(i+1, "", ...).
+        ColumnasBoletoActual.Clear();
+        int numColumna = (numBol * 8) + 1;
+        for (int i = 0; i < 8; i++)
         {
-            numBol = 0;
-        }
-        if (numBol > TotalBoletos - 1)
-        {
-            numBol = TotalBoletos - 1;
+            int idx = numColumna + i - 1;
+            ColumnasBoletoActual.Add(idx < _apuestas && idx >= 0 ? _columna[idx] : "");
         }
 
-        // TODO(dominio): controlBoleto1.LlenarBoleto(numBol) -> volcar la columna numBol
-        //   en el BoletoControl (ViewModel.Partidos) para reflejar los signos del boleto.
+        // TODO: pintar las columnas en el BoletoControl visual — depende del UserControl no
+        //   portado Free1X2.UI.Controls.Boleto.ControlColumnaBoleto (LlenarApuesta/OcultarApuesta).
+        //   Ver Free1X2/UI/Controls/ControlBoleto.cs líneas 110-146 y BoletoControl de WinUI
+        //   (fuera de alcance: no modificar BoletoControl/BoletoBaseViewModel).
 
         BoletoActual = numBol + 1;
         IrABoleto = BoletoActual;
-        Estado = $"Mostrando boleto {BoletoActual} de {TotalBoletos}.";
+    }
+
+    /// <summary>
+    /// Porta <c>ControlBoleto.OrdenarMatrizColumnas</c> (Free1X2/UI/Controls/ControlBoleto.cs
+    /// líneas 163-250). Ordena la matriz de columnas según el criterio/sentido usando los
+    /// filtros reales del motor (FiltroNoVariantes / FiltroInterrupciones).
+    /// </summary>
+    private static void OrdenarMatrizColumnas(string[] columna, OrdenarMatriz orden, TipoOrden tipo)
+    {
+        if (columna.Length == 0) return;
+
+        // Legacy: OrdenarMatriz.Signo -> Array.Sort (y Reverse si desc).
+        if (orden == OrdenarMatriz.Signo)
+        {
+            Array.Sort(columna);
+            if (tipo == TipoOrden.desc)
+            {
+                Array.Reverse(columna);
+            }
+            return;
+        }
+
+        var fVar = new FiltroNoVariantes();
+        var fInt = new FiltroInterrupciones();
+        int[] matrizTmp = new int[columna.Length];
+        string[] matrizSalida = new string[columna.Length];
+
+        for (int i = 0; i < columna.Length; i++)
+        {
+            switch (orden)
+            {
+                case OrdenarMatriz.Variantes:
+                    fVar.AnalizaColumna(columna[i]);
+                    matrizTmp[i] = fVar.NoVariantes;
+                    break;
+                case OrdenarMatriz.Equis:
+                    fVar.AnalizaColumna(columna[i]);
+                    matrizTmp[i] = fVar.NoEquis;
+                    break;
+                case OrdenarMatriz.Doses:
+                    fVar.AnalizaColumna(columna[i]);
+                    matrizTmp[i] = fVar.NoDoses;
+                    break;
+                case OrdenarMatriz.SignosSeguidos:
+                    // Legacy: deshabilitado (el cálculo estaba comentado en ControlBoleto).
+                    break;
+                case OrdenarMatriz.Interrupciones:
+                    fInt.AnalizaColumna(columna[i]);
+                    matrizTmp[i] = fInt.NoInterrupciones;
+                    break;
+            }
+        }
+
+        int j = 0;
+        if (tipo == TipoOrden.asc)
+        {
+            for (int i = 0; i <= columna[0].Length; i++)
+            {
+                int pos = Array.IndexOf(matrizTmp, i);
+                while (pos >= 0)
+                {
+                    matrizSalida[j] = columna[pos];
+                    j++;
+                    pos = Array.IndexOf(matrizTmp, i, pos + 1);
+                }
+            }
+        }
+        else
+        {
+            for (int i = 0; i <= columna[0].Length; i++)
+            {
+                int pos = Array.IndexOf(matrizTmp, columna[0].Length - i);
+                while (pos >= 0)
+                {
+                    matrizSalida[j] = columna[pos];
+                    j++;
+                    pos = Array.IndexOf(matrizTmp, columna[0].Length - i, pos + 1);
+                }
+            }
+        }
+        Array.Copy(matrizSalida, columna, matrizSalida.Length);
     }
 }
