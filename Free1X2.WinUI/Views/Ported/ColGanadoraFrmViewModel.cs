@@ -10,6 +10,19 @@ using Windows.Storage.Pickers;
 namespace Free1X2.WinUI.Views.Ported;
 
 /// <summary>
+/// Contexto del flujo legacy ColGanadoraFrm, que en WinForms se inyectaba por el constructor
+/// ColGanadoraFrm(nPartidos, nombreCombi, analizador, listaPronosticos) desde la pantalla que
+/// mostraba una combinación en pantalla. Aquí viaja como parámetro de navegación
+/// (e.Parameter) a ColGanadoraFrmPage y se reenvía al ViewModel con EstablecerContexto
+/// (mismo patrón que MejoresOpcionesContexto -> MejoresOpcionesFrmPage.OnNavigatedTo).
+/// </summary>
+public sealed record ColGanadoraContexto(
+    int NumPartidos,
+    string NombreComb,
+    Analizador Analizador,
+    string[] ListaPronosticos);
+
+/// <summary>
 /// ViewModel para la pantalla "Análisis de fallos en combinación" (legacy: ColGanadoraFrm).
 /// El usuario introduce la columna ganadora y elige si analizar la combinación que está
 /// en pantalla o abrir otra desde archivo, para detectar los fallos frente a esa columna.
@@ -105,9 +118,10 @@ public partial class ColGanadoraFrmViewModel : ObservableObject
             // inyectado por la pantalla llamante.
             if (_analizadorBase is null || _listaPronosticos is null)
             {
-                // El contexto de la combinación en pantalla aún no está conectado en WinUI.
-                // TODO[navegación]: pasar nombreComb/analizador/listaPronosticos a EstablecerContexto
-                //   desde la página que abre esta pantalla (legacy ctor ColGanadoraFrm).
+                // El receptor del contexto ya está cableado (ColGanadoraFrmPage.OnNavigatedTo lee un
+                // ColGanadoraContexto de e.Parameter -> EstablecerContexto). Si llega aquí es porque
+                // la pantalla llamante no pasó la combinación en pantalla por navegación; en ese caso
+                // el flujo válido es "Abrir combinación para analizar" (legacy ctor ColGanadoraFrm).
                 AppServices.MostrarError(
                     "No hay una combinación en pantalla disponible para analizar. " +
                     "Selecciona \"Abrir combinación para analizar\".");
