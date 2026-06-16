@@ -18,5 +18,7 @@ public sealed partial class TramificarFormPage : Page
     public TramificarFormPage()
     {
         this.InitializeComponent();
+        ViewModel.Navegar = tipo => Frame?.Navigate(tipo);
+        ViewModel.Volver = () => { if (Frame?.CanGoBack == true) Frame.GoBack(); };
     }
 }
