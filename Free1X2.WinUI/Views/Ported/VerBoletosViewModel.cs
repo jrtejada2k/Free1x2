@@ -1,5 +1,13 @@
+using System;
+using System.Threading.Tasks;
+
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+
+using Free1X2;
+
+using Windows.Storage;
+using Windows.Storage.Pickers;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -11,14 +19,11 @@ namespace Free1X2.WinUI.Views.Ported;
 /// X / 2 / Interrupciones / Signos seguidos) y un sentido (groupBox2 "Tipo de ordenamiento":
 /// ascendente / descendente), y al pulsar "Ok" se abre el boleto con esos parámetros.
 ///
-/// En el form legacy el criterio se mapea al enum <c>OrdenarMatriz</c>:
-///   No ordenar -> Signo, Variantes -> Variantes, X -> Equis, 2 -> Doses,
-///   Interrupciones -> Interrupciones, Signos seguidos -> SignosSeguidos.
-/// El sentido se mapea al enum <c>TipoOrden</c> (asc / desc).
-///
-/// Lógica de dominio (selección de fichero y apertura del boleto) NO portada:
-/// ver clase legacy <c>Free1X2.UI.VerBoletos</c> y el control de boleto
-/// <c>Free1X2.UI.BoletoFrm</c> (propiedades ArchivoCombinacion, ordenarPor, tipoOrden).
+/// El criterio se mapea al enum <c>OrdenarMatriz</c> y el sentido a <c>TipoOrden</c>,
+/// exactamente como hacía el WinForms (oN_CheckedChanged / tN_CheckedChanged). La apertura
+/// del boleto se publica vía <see cref="AbrirBoletoSolicitado"/> para que la página host
+/// navegue a BoletoFrmPage con el fichero y los enums ya resueltos (el BoletoFrmViewModel
+/// está cableado al motor: ArchivoColumnasTexto + ordenación real).
 /// </summary>
 public partial class VerBoletosViewModel : ObservableObject
 {
@@ -67,38 +72,89 @@ public partial class VerBoletosViewModel : ObservableObject
     [ObservableProperty]
     private string _estado = "Seleccione un fichero de columnas";
 
+    /// <summary>
+    /// Solicitud de apertura del boleto (legacy: btnOk_Click -> boleto.ShowDialog()).
+    /// Argumentos: ruta del fichero, criterio (OrdenarMatriz) y sentido (TipoOrden) ya resueltos.
+    /// La página host navega a BoletoFrmPage con estos parámetros.
+    /// </summary>
+    public event EventHandler<(string fichero, OrdenarMatriz orden, TipoOrden tipo)>? AbrirBoletoSolicitado;
+
+    /// <summary>Criterio de ordenación resuelto a partir de los radios (legacy: campo ordenarPor).</summary>
+    public OrdenarMatriz OrdenSeleccionado
+    {
+        get
+        {
+            // Legacy oN_CheckedChanged: cada radio fija ordenarPor.
+            if (OrdenarVariantes) return OrdenarMatriz.Variantes;
+            if (OrdenarEquis) return OrdenarMatriz.Equis;
+            if (OrdenarDoses) return OrdenarMatriz.Doses;
+            if (OrdenarInterrupciones) return OrdenarMatriz.Interrupciones;
+            if (OrdenarSignosSeguidos) return OrdenarMatriz.SignosSeguidos;
+            return OrdenarMatriz.Signo; // o0 "No ordenar" por defecto.
+        }
+    }
+
+    /// <summary>Sentido resuelto a partir de los radios (legacy: campo tipoOrden).</summary>
+    public TipoOrden TipoSeleccionado =>
+        SentidoDescendente ? TipoOrden.desc : TipoOrden.asc; // t1 asc por defecto.
+
     /// <summary>Selecciona el fichero de columnas (Button 'abrir' del form legacy).</summary>
     [RelayCommand]
-    private void SeleccionarFichero()
+    private async Task SeleccionarFicheroAsync()
     {
-        // TODO(dominio): replicar abrir_Click de Free1X2.UI.VerBoletos:
-        //   abrir un FileOpenPicker (filtro *.txt / *.cols / *.*), fijar Fichero con la ruta,
-        //   habilitar Ok y preparar el BoletoFrm:
-        //     boleto = new BoletoFrm();
-        //     boleto.ArchivoCombinacion = Fichero;
-        //     boleto.ordenarPor = <OrdenarMatriz según radio>;
-        //     boleto.tipoOrden  = <TipoOrden según radio>;
-        // El dominio no está disponible aquí; sólo se simula la habilitación de Ok.
-        OkHabilitado = true;
-        Estado = "Fichero seleccionado";
+        // Legacy abrir_Click: OpenFileDialog filtro
+        //   "Columnas(*.txt)|*.txt|Columnas(*.cols)|*.cols|Todos (*.*)|*.*",
+        //   InitialDirectory "Columnas\".
+        try
+        {
+            var picker = new FileOpenPicker
+            {
+                SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
+            };
+            picker.FileTypeFilter.Add(".txt");
+            picker.FileTypeFilter.Add(".cols");
+            picker.FileTypeFilter.Add("*");
+
+            WinRT.Interop.InitializeWithWindow.Initialize(picker, Services.AppServices.WindowHandle);
+            StorageFile? file = await picker.PickSingleFileAsync();
+            if (file is null)
+            {
+                return;
+            }
+
+            // Legacy: fichero.Text = archivoEntrada; btnOk.Enabled = true; preparar BoletoFrm.
+            Fichero = file.Path;
+            OkHabilitado = true;
+            Estado = "Fichero seleccionado";
+        }
+        catch (Exception ex)
+        {
+            Estado = $"Error al seleccionar el fichero: {ex.Message}";
+            Services.AppServices.MostrarError($"No se pudo seleccionar el fichero: {ex.Message}");
+        }
     }
 
     /// <summary>Muestra el boleto (btnOk_Click del form legacy).</summary>
     [RelayCommand]
     private void MostrarBoleto()
     {
-        // TODO(dominio): replicar btnOk_Click de Free1X2.UI.VerBoletos:
-        //   crear/abrir BoletoFrm con ArchivoCombinacion = Fichero y los enums
-        //   ordenarPor (OrdenarMatriz) y tipoOrden (TipoOrden) según los radios marcados,
-        //   y llamar boleto.ShowDialog(). En WinUI sería navegar a BoletoFrmPage / BoletoControl.
+        if (!OkHabilitado || string.IsNullOrEmpty(Fichero) || Fichero == "(falta selección)")
+        {
+            Estado = "Seleccione un fichero de columnas";
+            return;
+        }
+
+        // Legacy btnOk_Click: boleto.ArchivoCombinacion = fichero.Text;
+        //   boleto.ordenarPor = ordenarPor; boleto.tipoOrden = tipoOrden; boleto.ShowDialog().
         Estado = "Mostrando boleto";
+        AbrirBoletoSolicitado?.Invoke(this, (Fichero, OrdenSeleccionado, TipoSeleccionado));
     }
 
     /// <summary>Cancela / cierra (btnCancel_Click del form legacy).</summary>
     [RelayCommand]
     private void Cancelar()
     {
-        // TODO(dominio): el form legacy cerraba la ventana. La navegación la resuelve el code-behind.
+        // El form legacy cerraba la ventana; la navegación la resuelve el code-behind.
         Estado = "Cancelado";
     }
 }

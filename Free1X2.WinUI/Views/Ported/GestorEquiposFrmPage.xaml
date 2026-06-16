@@ -16,11 +16,26 @@
                            TextWrapping="Wrap" MaxWidth="760" />
             </StackPanel>
 
-            <!-- ===== Acciones globales (btnNuevoEquipo / btnGuardar) ===== -->
-            <StackPanel Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
+            <!-- ===== Alta de equipo en línea (legacy: AgregarEquipoFrm) ===== -->
+            <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Bottom">
+                <TextBox Header="Nombre"
+                         PlaceholderText="Nombre del equipo"
+                         MinWidth="240"
+                         Text="{x:Bind ViewModel.NuevoNombre, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         AutomationProperties.Name="Nombre del nuevo equipo" />
+                <ComboBox Header="Categoría"
+                          MinWidth="120"
+                          ItemsSource="{x:Bind ViewModel.Categorias}"
+                          SelectedItem="{x:Bind ViewModel.NuevaCategoria, Mode=TwoWay}"
+                          AutomationProperties.Name="Categoría del nuevo equipo" />
                 <Button Content="Nuevo equipo"
+                        VerticalAlignment="Bottom"
                         Command="{x:Bind ViewModel.NuevoEquipoCommand}"
                         AutomationProperties.Name="Dar de alta un equipo nuevo" />
+            </StackPanel>
+
+            <!-- ===== Acciones globales (btnGuardar) ===== -->
+            <StackPanel Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
                 <Button Content="Guardar archivos"
                         Style="{StaticResource AccentButtonStyle}"
                         Command="{x:Bind ViewModel.GuardarCommand}"

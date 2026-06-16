@@ -1,7 +1,14 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
+using System.Threading.Tasks;
+
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+
+using Windows.Storage;
+using Windows.Storage.Pickers;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -34,7 +41,8 @@ public sealed class ColumnaPremiadaItem
 /// <summary>
 /// ViewModel para la pantalla "Columnas Premiadas" (legacy: ColumnasPremiadasFrm).
 /// Mantiene el listado de columnas premiadas y expone las acciones de exportación
-/// a fichero (todas / seleccionadas).
+/// a fichero (todas / seleccionadas). La exportación replica el legacy: por cada fila
+/// se escribe el texto de la columna (SubItems[2], aquí <see cref="ColumnaPremiadaItem.Columna"/>).
 /// </summary>
 public partial class ColumnasPremiadasFrmViewModel : ObservableObject
 {
@@ -49,17 +57,9 @@ public partial class ColumnasPremiadasFrmViewModel : ObservableObject
     /// (legacy: btnGuardarTodas_Click).
     /// </summary>
     [RelayCommand]
-    private void GuardarTodas()
+    private async Task GuardarTodasAsync()
     {
-        // TODO[dominio]: exportar todas las filas a un fichero de texto.
-        //   Legacy: ColumnasPremiadasFrm.btnGuardarTodas_Click
-        //     - SaveFileDialog filtro "Columnas(*.txt)|*.txt|Todos los archivos (*.*)|*.*".
-        //       En WinUI usar Windows.Storage.Pickers.FileSavePicker.
-        //     - StreamWriter writer = new StreamWriter(nombre);
-        //       for (i=0..listaResumen.Items.Count)
-        //         writer.WriteLine(listaResumen.Items[i].SubItems[2].Text);  // columna (índice 2)
-        //       writer.Close();
-        //   Aquí equivale a escribir item.Columna por cada elemento de Columnas.
+        await GuardarAsync(Columnas);
     }
 
     /// <summary>
@@ -67,16 +67,56 @@ public partial class ColumnasPremiadasFrmViewModel : ObservableObject
     /// (legacy: btnGuardarSeleccionadas_Click). La selección se obtiene desde el
     /// code-behind porque vive en el control de UI.
     /// </summary>
-    public void GuardarSeleccionadas(IReadOnlyList<ColumnaPremiadaItem> seleccionadas)
+    public async void GuardarSeleccionadas(IReadOnlyList<ColumnaPremiadaItem> seleccionadas)
     {
-        // TODO[dominio]: exportar solo las filas seleccionadas a un fichero de texto.
-        //   Legacy: ColumnasPremiadasFrm.btnGuardarSeleccionadas_Click
-        //     - SaveFileDialog filtro "Columnas(*.txt)|*.txt|Todos los archivos (*.*)|*.*".
-        //       En WinUI usar Windows.Storage.Pickers.FileSavePicker.
-        //     - StreamWriter writer = new StreamWriter(nombre);
-        //       for (i=0..Count) if (listaResumen.Items[i].Selected)
-        //         writer.WriteLine(listaResumen.Items[i].SubItems[2].Text);  // columna (índice 2)
-        //       writer.Close();
-        //   Aquí 'seleccionadas' ya son los ColumnaPremiadaItem marcados; escribir item.Columna.
+        await GuardarAsync(seleccionadas);
+    }
+
+    /// <summary>
+    /// Escribe el texto de cada columna a un fichero elegido con FileSavePicker.
+    /// Legacy: SaveFileDialog filtro "Columnas(*.txt)|*.txt|Todos los archivos (*.*)|*.*",
+    /// StreamWriter -> writer.WriteLine(item.SubItems[2].Text) por fila.
+    /// </summary>
+    private static async Task GuardarAsync(IReadOnlyList<ColumnaPremiadaItem> filas)
+    {
+        if (filas is null || filas.Count == 0)
+        {
+            Services.AppServices.MostrarInfo("No hay columnas que guardar.");
+            return;
+        }
+
+        try
+        {
+            var picker = new FileSavePicker
+            {
+                SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
+                SuggestedFileName = "columnas",
+            };
+            // Legacy: "Columnas(*.txt)|*.txt|Todos los archivos (*.*)|*.*".
+            picker.FileTypeChoices.Add("Columnas", new List<string> { ".txt" });
+
+            WinRT.Interop.InitializeWithWindow.Initialize(picker, Services.AppServices.WindowHandle);
+            StorageFile? file = await picker.PickSaveFileAsync();
+            if (file is null)
+            {
+                return;
+            }
+
+            // Legacy: StreamWriter writer = new StreamWriter(nombre); por fila WriteLine(columna).
+            await Task.Run(() =>
+            {
+                using var writer = new StreamWriter(file.Path);
+                foreach (var fila in filas)
+                {
+                    writer.WriteLine(fila.Columna);
+                }
+            });
+
+            Services.AppServices.MostrarInfo($"Guardadas {filas.Count} columna(s) en {file.Name}.");
+        }
+        catch (Exception ex)
+        {
+            Services.AppServices.MostrarError($"No se pudieron guardar las columnas: {ex.Message}");
+        }
     }
 }
