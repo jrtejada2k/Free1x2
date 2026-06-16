@@ -19,6 +19,10 @@ public sealed partial class EscrutarCombinacionesFrmPage : Page
     public EscrutarCombinacionesFrmPage()
     {
         this.InitializeComponent();
+
+        // La VM navega a través del Frame de la página (mismo patrón que MainPage/PosiblesPremios):
+        //   PosiblesPremios -> PosiblesPremiosFrmPage. El form legacy se abría sin estado.
+        ViewModel.Navegar = (tipo, parametro) => Frame?.Navigate(tipo, parametro);
     }
 
     /// <summary>
