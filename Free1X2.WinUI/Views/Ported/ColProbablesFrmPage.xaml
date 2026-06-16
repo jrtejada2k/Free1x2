@@ -2,6 +2,8 @@
     x:Class="Free1X2.WinUI.Views.Ported.ColProbablesFrmPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ported="using:Free1X2.WinUI.Views.Ported"
+    x:Name="PageRoot"
     Background="{StaticResource AppBackgroundBrush}">
 
     <Grid Padding="24" RowSpacing="16">
@@ -366,24 +368,83 @@
             <!-- ===================== Control Fallos ===================== -->
             <PivotItem Header="Control Fallos">
                 <ScrollViewer>
-                    <StackPanel Spacing="16" MaxWidth="640" HorizontalAlignment="Left">
+                    <StackPanel Spacing="16" MaxWidth="720" HorizontalAlignment="Left">
                         <Border Style="{StaticResource AppCardStyle}">
                             <StackPanel Spacing="12">
                                 <TextBlock
                                     Style="{StaticResource SectionHeaderTextBlockStyle}"
                                     Text="Control de fallos" />
                                 <TextBox
-                                    Header="Número de Fallos de Controles"
+                                    Header="Número de Fallos de Controles permitidos"
+                                    PlaceholderText="Ej. 0-2 ó 1,2"
                                     Text="{x:Bind ViewModel.NumeroFallosControles, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                                <TextBox
-                                    Header="Puntos"
-                                    Text="{x:Bind ViewModel.PuntosControl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
+                        </Border>
 
-                                <!-- Tabla de controles de fallo (legacy dgControlFallos: Columnas / Tolerancias / Aciertos).
-                                     TODO: portar arrayControlesFallo (CPControlFallos) con un ListView/DataGrid editable. -->
+                        <!-- Tabla de controles de fallo (legacy dgControlFallos: Columnas / Tolerancias / Aciertos) -->
+                        <Border Style="{StaticResource AppCardStyle}">
+                            <StackPanel Spacing="12">
+                                <TextBlock
+                                    Style="{StaticResource SectionHeaderTextBlockStyle}"
+                                    Text="Controles (Columnas / Tolerancias / Aciertos)" />
                                 <TextBlock
                                     Style="{StaticResource SecondaryTextBlockStyle}"
-                                    Text="Tabla de controles (Columnas / Tolerancias / Aciertos): pendiente de portar." />
+                                    TextWrapping="Wrap"
+                                    Text="Cada control comprueba, sobre las columnas indicadas, el nº de aciertos de las tolerancias dadas." />
+
+                                <!-- Cabecera de columnas -->
+                                <Grid ColumnSpacing="8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Columnas" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                    <TextBlock Grid.Column="1" Text="Tolerancias" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                    <TextBlock Grid.Column="2" Text="Aciertos" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                </Grid>
+
+                                <ItemsControl ItemsSource="{x:Bind ViewModel.ControlesFallo}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="ported:ControlFallosFila">
+                                            <Grid ColumnSpacing="8" Margin="0,4">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBox
+                                                    Grid.Column="0"
+                                                    PlaceholderText="1-3 ó 1,2"
+                                                    Text="{x:Bind Columnas, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                    AutomationProperties.Name="Columnas del control" />
+                                                <TextBox
+                                                    Grid.Column="1"
+                                                    PlaceholderText="AC, ACS, FS"
+                                                    Text="{x:Bind Tolerancias, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                    AutomationProperties.Name="Tolerancias del control" />
+                                                <TextBox
+                                                    Grid.Column="2"
+                                                    PlaceholderText="0-2 ó 1"
+                                                    Text="{x:Bind Aciertos, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                    AutomationProperties.Name="Aciertos del control" />
+                                                <Button
+                                                    Grid.Column="3"
+                                                    Content="Eliminar"
+                                                    VerticalAlignment="Bottom"
+                                                    Command="{Binding ViewModel.EliminarControlFalloCommand, ElementName=PageRoot}"
+                                                    CommandParameter="{Binding}" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                                <Button
+                                    Content="Añadir control"
+                                    HorizontalAlignment="Left"
+                                    Command="{x:Bind ViewModel.AnadirControlFalloCommand}" />
                             </StackPanel>
                         </Border>
                     </StackPanel>

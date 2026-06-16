@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Free1X2;
@@ -26,9 +27,23 @@ namespace Free1X2.WinUI.Views.Ported
     /// se edita columna a columna (navegación) y se vuelca de vuelta al filtro al Aceptar
     /// (GuardarDatos). Se usan ColumnaProbable / FiltroColProbables / Grupo / Filtro del dominio.
     ///
-    /// Las pestañas Relaciones I/II/III y Control Fallos dependen de controladores y rejillas
-    /// (RelacionCP1/2/3, CPControlFallos, DataSet/grids) y UserControls no portados; sus comandos
-    /// quedan con TODO preciso a la línea del WinForms.
+    /// Pestañas Relaciones I/II/III y Control Fallos: cableadas al motor real replicando los
+    /// manejadores del WinForms (Free1X2/UI/Filtros/ColProbablesFrm.cs):
+    ///   - Relaciones I  -> ControladorRelacionesCP1 / RelacionCP1 (Columnas, SumaAciertos,
+    ///     Recorridos, CantidadCP, CuantosAC). Edición registro a registro con navegación
+    ///     anterior/siguiente y borrado, igual que el form (InicializaDatosRelacionesCP +
+    ///     GuardarDatosRelacionesCP1, líneas 920-1111).
+    ///   - Relaciones II -> ControladorRelacionesCP2 / RelacionCP2 (bloques Globales e
+    ///     Individuales). Navegación 1-based (indiceNavRel2) replicando MostrarRelacion2 +
+    ///     GuardarRelacion2EnPantalla (líneas 3573-3865).
+    ///   - Relaciones III -> ControladorRelacionesCP3 / RelacionCP3 (Concepto, Columnas
+    ///     implicadas, Escaleras Total/Asc/Desc, Sándwichs). Navegación 1-based (indiceNavRel3)
+    ///     replicando MostrarRelacion3 + GuardarRelacion3EnPantalla (líneas 3651-3828). Las
+    ///     rejillas de Agrupaciones Paso Fijo / Solapadas (DataSet) se conservan en round-trip
+    ///     vía sus *String pero no se editan aquí (ver TODO).
+    ///   - Control Fallos -> ControladorCPControlFallos / CPControlFallos: tabla editable
+    ///     (Columnas / Tolerancias / Aciertos) + FallosPermitidos, replicando
+    ///     InicializaDatosControlFallos + GuardarDatosControlFallos (líneas 1150-1275).
     /// </summary>
     public partial class ColProbablesFrmViewModel : ObservableObject
     {
@@ -50,6 +65,21 @@ namespace Free1X2.WinUI.Views.Ported
 
         // Evita que la sincronización pantalla<->modelo se dispare mientras cargamos una columna.
         private bool _cargando;
+
+        // ===== Estado del motor (pestañas Relaciones / Control Fallos) =====
+
+        // Relaciones I: copia de trabajo (legacy List<RelacionCP1> arrayRelaciones1) e índice 0-based
+        // (legacy relCP1Pantalla).
+        private List<RelacionCP1> _arrayRelaciones1 = new();
+        private int _relCP1Pantalla;
+
+        // Relaciones II: copia de trabajo (legacy arrayRelaciones2) e índice 1-based (legacy indiceNavRel2).
+        private List<RelacionCP2> _arrayRelaciones2 = new();
+        private int _indiceNavRel2 = 1;
+
+        // Relaciones III: copia de trabajo (legacy arrayRelaciones3) e índice 1-based (legacy indiceNavRel3).
+        private List<RelacionCP3> _arrayRelaciones3 = new();
+        private int _indiceNavRel3 = 1;
 
         // ---------------- Pestaña Columnas ----------------
 
@@ -187,12 +217,13 @@ namespace Free1X2.WinUI.Views.Ported
 
         // ---------------- Pestaña Control Fallos ----------------
 
-        // Legacy: txtFallosCtrl ("Número de Fallos de Controles") y txtPuntos del bloque puntuación.
+        // Legacy: txtFallosCtrl ("Número de Fallos de Controles" = ControladorCPControlFallos.FallosPermitidos).
         [ObservableProperty]
         private string _numeroFallosControles = "";
 
-        [ObservableProperty]
-        private string _puntosControl = "";
+        // Tabla de controles de fallo (legacy dgControlFallos: Columnas / Tolerancias / Aciertos).
+        // Bindeada a un DataGrid/ListView editable en la página.
+        public ObservableCollection<ControlFallosFila> ControlesFallo { get; } = new();
 
         /// <summary>Acción de cierre/volver (la cablea la página con Frame.GoBack()). Legacy: cerrar diálogo.</summary>
         public Action? Volver { get; set; }
@@ -217,6 +248,21 @@ namespace Free1X2.WinUI.Views.Ported
                 _grupoCP = new List<ColumnaProbable>();
                 _cpPantalla = 0;
                 ActualizaDatosPantalla(0);
+
+                _arrayRelaciones1 = new List<RelacionCP1>();
+                _relCP1Pantalla = 0;
+                ActualizaDatosPantRel1(_relCP1Pantalla);
+
+                _arrayRelaciones2 = new List<RelacionCP2>();
+                _indiceNavRel2 = 1;
+                ReinicializarValoresRelaciones2();
+
+                _arrayRelaciones3 = new List<RelacionCP3>();
+                _indiceNavRel3 = 1;
+                ReinicializarValoresRelaciones3();
+
+                NumeroFallosControles = "";
+                ControlesFallo.Clear();
                 return;
             }
 
@@ -224,6 +270,11 @@ namespace Free1X2.WinUI.Views.Ported
             _grupoCP = ObtenCopiaCP(_filtroCP);
             _cpPantalla = 0;
             ActualizaDatosPantalla(_cpPantalla);
+
+            // Pestañas de relaciones y control de fallos (legacy InicializaDatosRelacionesCP +
+            // InicializaDatosControlFallos, ColProbablesFrm.cs líneas 920-949, 1150-1189).
+            InicializaDatosRelacionesCP();
+            InicializaDatosControlFallos();
         }
 
         /// <summary>Réplica de ColProbablesFrm.ObtenCopiaCP (clona cada ColumnaProbable del filtro).</summary>
@@ -533,6 +584,13 @@ namespace Free1X2.WinUI.Views.Ported
             // Vuelca la copia actualizada al filtro (legacy filtroCP.ColProbables = grupoCP).
             _filtroCP.ColProbables = _grupoCP;
 
+            // Vuelca las demás pestañas (legacy GuardarFiltro, líneas 3150-3157:
+            // GuardarDatos + GuardarDatosRelacionesCP1/2/3 + GuardarDatosControlFallos).
+            GuardarDatosRelacionesCP1();
+            GuardarDatosRelacionesCP2();
+            GuardarDatosRelacionesCP3();
+            GuardarDatosControlFallos();
+
             AppState.Instancia.NotificarCambio();
             Volver?.Invoke();
         }
@@ -580,63 +638,670 @@ namespace Free1X2.WinUI.Views.Ported
             //   pasando una copia de _grupoCP.
         }
 
-        // ===== Pestañas Relaciones I/II/III (controladores no portados) =====
+        // ================= Pestaña Relaciones I (RelacionCP1) =================
 
+        // Legacy InicializaDatosRelacionesCP (líneas 920-949): clona las RelacionCP1 guardadas a la
+        // copia de trabajo y muestra la primera. También inicializa las pestañas II y III.
+        private void InicializaDatosRelacionesCP()
+        {
+            _arrayRelaciones1 = new List<RelacionCP1>();
+            _indiceNavRel2 = 1;
+            _indiceNavRel3 = 1;
+
+            // Pestañas II y III (legacy MostrarPrimeraRelacion2 / MostrarPrimeraRelacion3).
+            MostrarPrimeraRelacion2();
+            MostrarPrimeraRelacion3();
+
+            if (_filtroCP is not null)
+            {
+                List<RelacionCP1> relacionesCP = _filtroCP.RelacionesCP1.Relaciones;
+                for (int i = 0; i < relacionesCP.Count; i++)
+                {
+                    RelacionCP1 relGuardada = relacionesCP[i];
+                    var rel = new RelacionCP1
+                    {
+                        Columnas = relGuardada.Columnas,
+                        SumaAciertos = relGuardada.SumaAciertos,
+                        Recorridos = relGuardada.Recorridos,
+                        CantidadCP = relGuardada.CantidadCP,
+                        CuantosAC = relGuardada.CuantosAC,
+                    };
+                    _arrayRelaciones1.Add(rel);
+                }
+            }
+
+            _relCP1Pantalla = 0;
+            ActualizaDatosPantRel1(_relCP1Pantalla);
+        }
+
+        // Legacy ActualizaDatosPantRel1 (líneas 951-974).
+        private void ActualizaDatosPantRel1(int relCP1)
+        {
+            if (_arrayRelaciones1.Count > 0 && relCP1 >= 0 && relCP1 < _arrayRelaciones1.Count)
+            {
+                RelacionCP1 rel = _arrayRelaciones1[relCP1];
+                Rel1Columnas = rel.Columnas;
+                Rel1Recorrido = rel.Recorridos;
+                Rel1SumaAciertos = rel.SumaAciertos;
+                Rel1CuantasCP = rel.CantidadCP;
+                Rel1NumeroAciertos = rel.CuantosAC;
+                PaginacionRel1 = (relCP1 + 1) + "/" + _arrayRelaciones1.Count;
+            }
+            else
+            {
+                Rel1Columnas = "";
+                Rel1Recorrido = "";
+                Rel1SumaAciertos = "";
+                Rel1CuantasCP = "";
+                Rel1NumeroAciertos = "";
+                PaginacionRel1 = "1/1";
+            }
+        }
+
+        // Legacy TieneRelacion1Datos (líneas 976-992).
+        private bool TieneRelacion1Datos()
+        {
+            if (Rel1Columnas == "")
+            {
+                return false;
+            }
+            if (Rel1SumaAciertos == "" && Rel1Recorrido == "" && Rel1CuantasCP == "")
+            {
+                return false;
+            }
+            return true;
+        }
+
+        // Legacy CambiaRelCP1Selecionado (líneas 999-1025).
+        private void CambiaRelCP1Selecionado(int relCP1)
+        {
+            GuardarRelCP1Actual();
+            _relCP1Pantalla = relCP1;
+
+            if (_arrayRelaciones1.Count < relCP1 + 1)
+            {
+                _arrayRelaciones1.Add(new RelacionCP1());
+            }
+
+            ActualizaDatosPantRel1(_relCP1Pantalla);
+        }
+
+        // Legacy GuardarRelCP1Actual (líneas 1027-1044).
+        private void GuardarRelCP1Actual()
+        {
+            RelacionCP1 rel;
+            if (_relCP1Pantalla < _arrayRelaciones1.Count)
+            {
+                rel = _arrayRelaciones1[_relCP1Pantalla];
+                GuardaDatosRel1(rel);
+            }
+            else if (TieneRelacion1Datos())
+            {
+                rel = new RelacionCP1();
+                _arrayRelaciones1.Add(rel);
+                GuardaDatosRel1(rel);
+            }
+        }
+
+        // Legacy GuardaDatosRel1 (líneas 1075-1085).
+        private void GuardaDatosRel1(RelacionCP1 rel)
+        {
+            if (TieneRelacion1Datos())
+            {
+                rel.Columnas = Rel1Columnas;
+                rel.SumaAciertos = Rel1SumaAciertos;
+                rel.Recorridos = Rel1Recorrido;
+                rel.CantidadCP = Rel1CuantasCP;
+                rel.CuantosAC = Rel1NumeroAciertos;
+            }
+        }
+
+        // Legacy NecesitaBorrarUltimaRel1 (líneas 1093-1111).
+        private bool NecesitaBorrarUltimaRel1()
+        {
+            RelacionCP1 rel = _arrayRelaciones1[_arrayRelaciones1.Count - 1];
+            if (rel.Columnas == "")
+            {
+                return true;
+            }
+            if (rel.SumaAciertos == "" && rel.Recorridos == "" && rel.CantidadCP == "")
+            {
+                return true;
+            }
+            return false;
+        }
+
+        // Legacy GuardarDatosRelacionesCP1 (líneas 1047-1074).
+        private void GuardarDatosRelacionesCP1()
+        {
+            if (_filtroCP is null) return;
+
+            GuardarRelCP1Actual();
+
+            if (_arrayRelaciones1.Count > 0 && NecesitaBorrarUltimaRel1())
+            {
+                _arrayRelaciones1.RemoveAt(_arrayRelaciones1.Count - 1);
+            }
+
+            var relacionesCPFinal = new List<RelacionCP1>();
+            for (int i = 0; i < _arrayRelaciones1.Count; i++)
+            {
+                RelacionCP1 rel = _arrayRelaciones1[i];
+                if (rel.Columnas != "")
+                {
+                    relacionesCPFinal.Add(rel);
+                }
+            }
+
+            _filtroCP.RelacionesCP1.Relaciones = relacionesCPFinal;
+        }
+
+        // Legacy btnPrevRel1_Click (línea 3098).
         [RelayCommand]
         private void Rel1Anterior()
         {
-            // TODO[dominio]: ColProbablesFrm btnPrevRel1 -> CambiaRelCP1Selecionado(relCP1Pantalla-1).
-            //   Requiere portar RelacionCP1 / ControladorRelacionesCP1 a la pantalla (no portado).
+            CambiaRelCP1Selecionado(_relCP1Pantalla - 1);
         }
 
+        // Legacy btnNextRel1_Click (líneas 3103-3109): sólo avanza si la pantalla tiene datos.
         [RelayCommand]
         private void Rel1Siguiente()
         {
-            // TODO[dominio]: ColProbablesFrm btnNextRel1 -> CambiaRelCP1Selecionado(relCP1Pantalla+1).
+            if (TieneRelacion1Datos())
+            {
+                CambiaRelCP1Selecionado(_relCP1Pantalla + 1);
+            }
         }
 
+        // Legacy btnEliminarRel1_Click (líneas 3111-3138).
         [RelayCommand]
         private void Rel1Eliminar()
         {
-            // TODO[dominio]: ColProbablesFrm btnEliminarRel1 (BorrarRel1) sobre ControladorRelacionesCP1.
+            if (_relCP1Pantalla == 0)
+            {
+                if (_arrayRelaciones1.Count > 0)
+                {
+                    _arrayRelaciones1.RemoveAt(_relCP1Pantalla);
+                }
+            }
+            else
+            {
+                _arrayRelaciones1.RemoveAt(_relCP1Pantalla);
+                _relCP1Pantalla = _relCP1Pantalla - 1;
+            }
+
+            if (_arrayRelaciones1.Count == 0)
+            {
+                _arrayRelaciones1.Add(new RelacionCP1());
+            }
+
+            ActualizaDatosPantRel1(_relCP1Pantalla);
         }
 
+        // ================= Pestaña Relaciones II (RelacionCP2) =================
+
+        // Legacy ReinicializarValoresRelaciones2 (líneas 3541-3556).
+        private void ReinicializarValoresRelaciones2()
+        {
+            Rel2SumaColsA = "";
+            Rel2SumaColsB = "";
+            Rel2SumaNumAciertos = "";
+            Rel2SumaConcepto = "AC";
+            Rel2SumaMasMenos = "Más";
+
+            Rel2IndColsA = "";
+            Rel2IndColsB = "";
+            Rel2IndNumAciertos = "";
+            Rel2IndConcepto = "AC";
+            Rel2IndMasMenos = "Más";
+
+            AdaptarControlesDesplazamientoRelaciones2();
+        }
+
+        // Legacy MostrarPrimeraRelacion2 (líneas 3627-3649): la copia de trabajo es la lista del filtro.
+        private void MostrarPrimeraRelacion2()
+        {
+            _arrayRelaciones2 = _filtroCP is not null
+                ? _filtroCP.RelacionesCP2.Relaciones2
+                : new List<RelacionCP2>();
+
+            if (_arrayRelaciones2.Count > 0)
+            {
+                CargarRelacion2EnPantalla(_arrayRelaciones2[0]);
+            }
+            else
+            {
+                ReinicializarValoresRelaciones2();
+            }
+        }
+
+        // Legacy MostrarRelacion2 (líneas 3605-3626).
+        private void MostrarRelacion2()
+        {
+            if (_arrayRelaciones2.Count >= _indiceNavRel2)
+            {
+                CargarRelacion2EnPantalla(_arrayRelaciones2[_indiceNavRel2 - 1]);
+            }
+            else
+            {
+                ReinicializarValoresRelaciones2();
+            }
+        }
+
+        private void CargarRelacion2EnPantalla(RelacionCP2 rel)
+        {
+            Rel2SumaColsA = rel.StrColsA;
+            Rel2SumaColsB = rel.StrColsB;
+            Rel2SumaNumAciertos = rel.StrAciertos;
+            Rel2SumaConcepto = rel.Concepto;
+            Rel2SumaMasMenos = rel.Cantidad;
+
+            Rel2IndColsA = rel.StrColsA2;
+            Rel2IndColsB = rel.StrColsB2;
+            Rel2IndNumAciertos = rel.StrAciertos2;
+            Rel2IndConcepto = rel.Concepto2;
+            Rel2IndMasMenos = rel.Cantidad2;
+        }
+
+        // Legacy ComprobarRelacion2 (líneas 3733-3744).
+        private static bool ComprobarRelacion2(RelacionCP2 rel)
+        {
+            if ((rel.ColumnasA.Count == 0 || rel.ColumnasB.Count == 0 || rel.Aciertos.Count == 0) &&
+                (rel.ColumnasA2.Count == 0 || rel.ColumnasB2.Count == 0 || rel.Aciertos2.Count == 0))
+            {
+                return false;
+            }
+            return true;
+        }
+
+        // Legacy GuardarRelacion2 (líneas 3709-3719): sustituye la actual o añade al final.
+        private void GuardarRelacion2(RelacionCP2 rel)
+        {
+            if (_arrayRelaciones2.Count >= _indiceNavRel2)
+            {
+                _arrayRelaciones2[_indiceNavRel2 - 1] = rel;
+            }
+            else
+            {
+                _arrayRelaciones2.Add(rel);
+            }
+        }
+
+        // Legacy GuardarRelacion2EnPantalla (líneas 3757-3784).
+        private void GuardarRelacion2EnPantalla()
+        {
+            var rel = new RelacionCP2
+            {
+                Aciertos = UtilidadesEntradasValores.ObtenerListaFromTxtAciertos(Rel2SumaNumAciertos),
+                ColumnasA = UtilidadesEntradasValores.ObtenerListaFromTxt(Rel2SumaColsA),
+                ColumnasB = UtilidadesEntradasValores.ObtenerListaFromTxt(Rel2SumaColsB),
+                Concepto = Rel2SumaConcepto,
+                Cantidad = Rel2SumaMasMenos,
+                StrAciertos = Rel2SumaNumAciertos,
+                StrColsA = Rel2SumaColsA,
+                StrColsB = Rel2SumaColsB,
+
+                Aciertos2 = UtilidadesEntradasValores.ObtenerListaFromTxtAciertos(Rel2IndNumAciertos),
+                ColumnasA2 = UtilidadesEntradasValores.ObtenerListaFromTxt(Rel2IndColsA),
+                ColumnasB2 = UtilidadesEntradasValores.ObtenerListaFromTxt(Rel2IndColsB),
+                Concepto2 = Rel2IndConcepto,
+                Cantidad2 = Rel2IndMasMenos,
+                StrAciertos2 = Rel2IndNumAciertos,
+                StrColsA2 = Rel2IndColsA,
+                StrColsB2 = Rel2IndColsB,
+
+                ColumnasProbables = _grupoCP,
+            };
+
+            if (ComprobarRelacion2(rel))
+            {
+                GuardarRelacion2(rel);
+            }
+        }
+
+        // Legacy AdaptarControlesDesplazamientoRelaciones2 (líneas 3850-3865): sólo refresca la paginación.
+        private void AdaptarControlesDesplazamientoRelaciones2()
+        {
+            PaginacionRel2 = _indiceNavRel2 + " / " + _arrayRelaciones2.Count;
+        }
+
+        // Legacy GuardarDatosRelacionesCP2 (líneas 3695-3701).
+        private void GuardarDatosRelacionesCP2()
+        {
+            if (_filtroCP is null) return;
+
+            GuardarRelacion2EnPantalla();
+
+            _filtroCP.RelacionesCP2.ColumnasProbables = _grupoCP;
+            _filtroCP.RelacionesCP2.Relaciones2 = _arrayRelaciones2;
+        }
+
+        // Legacy btnRel2Atras_Click (líneas 3840-3848).
         [RelayCommand]
         private void Rel2Anterior()
         {
-            // TODO[dominio]: ColProbablesFrm btnRel2Atras (AdaptarControlesDesplazamientoRelaciones2),
-            //   sobre ControladorRelacionesCP2 / RelacionCP2 (no portado).
+            if (_indiceNavRel2 <= 1) return; // legacy: botón "atrás" deshabilitado en la 1ª.
+
+            GuardarRelacion2EnPantalla();
+            _indiceNavRel2--;
+            AdaptarControlesDesplazamientoRelaciones2();
+            MostrarRelacion2();
         }
 
+        // Legacy btnRel2Adelante_Click (líneas 3830-3838).
         [RelayCommand]
         private void Rel2Siguiente()
         {
-            // TODO[dominio]: ColProbablesFrm btnRel2Adelante.
+            GuardarRelacion2EnPantalla();
+            _indiceNavRel2 += 1;
+            MostrarRelacion2();
+            AdaptarControlesDesplazamientoRelaciones2();
         }
 
+        // Legacy btnEliminaRel2_Click + EliminaRelacion2EnPantalla (líneas 3883-3887, 3573-3587).
         [RelayCommand]
         private void Rel2Eliminar()
         {
-            // TODO[dominio]: ColProbablesFrm btnEliminaRel2.
+            if (_arrayRelaciones2.Count > 0)
+            {
+                if (_arrayRelaciones2.Count >= _indiceNavRel2)
+                {
+                    _arrayRelaciones2.RemoveAt(_indiceNavRel2 - 1);
+                    MostrarRelacion2();
+                }
+            }
+            else
+            {
+                ReinicializarValoresRelaciones2();
+            }
+            AdaptarControlesDesplazamientoRelaciones2();
         }
 
+        // ================= Pestaña Relaciones III (RelacionCP3) =================
+
+        // Legacy ReinicializarValoresRelaciones3 (líneas 3557-3571). Las rejillas de agrupaciones
+        // (paso fijo / solapadas) no se editan aquí; ver TODO en GuardarRelacion3EnPantalla.
+        private void ReinicializarValoresRelaciones3()
+        {
+            Rel3Columnas = "";
+            Rel3Sandwichs = "";
+            Rel3EscalerasTotal = "";
+            Rel3EscalerasAsc = "";
+            Rel3EscalerasDesc = "";
+            Rel3Concepto = "AC";
+
+            AdaptarControlesDesplazamientoRelaciones3();
+        }
+
+        // Legacy MostrarPrimeraRelacion3 (líneas 3672-3693).
+        private void MostrarPrimeraRelacion3()
+        {
+            _arrayRelaciones3 = _filtroCP is not null
+                ? _filtroCP.RelacionesCP3.Relaciones
+                : new List<RelacionCP3>();
+
+            if (_arrayRelaciones3.Count > 0)
+            {
+                CargarRelacion3EnPantalla(_arrayRelaciones3[0]);
+            }
+            else
+            {
+                ReinicializarValoresRelaciones3();
+            }
+        }
+
+        // Legacy MostrarRelacion3 (líneas 3651-3671).
+        private void MostrarRelacion3()
+        {
+            if (_arrayRelaciones3.Count >= _indiceNavRel3)
+            {
+                CargarRelacion3EnPantalla(_arrayRelaciones3[_indiceNavRel3 - 1]);
+            }
+            else
+            {
+                ReinicializarValoresRelaciones3();
+            }
+        }
+
+        private void CargarRelacion3EnPantalla(RelacionCP3 rel)
+        {
+            Rel3Columnas = rel.ColumnasImplicadasString;
+            Rel3Sandwichs = rel.NumeroSandwichsPermitidosString;
+            Rel3EscalerasTotal = rel.NumeroEscalerasTotalesPermitidasString;
+            Rel3EscalerasAsc = rel.NumeroEscalerasASCPermitidasString;
+            Rel3EscalerasDesc = rel.NumeroEscalerasDESCPermitidasString;
+            Rel3Concepto = rel.ConceptoString;
+            // TODO[grids]: las rejillas dgAgrupacionesPasoFijo / dgAgrpacionesSolapadas
+            //   (ColProbablesFrm.cs líneas 3663-3665, InicializaDatosAgrupaciones*) no se editan
+            //   en WinUI; sus datos se conservan en el round-trip vía las cadenas
+            //   AgrupacionesPasoFijoPermitidasString / AgrupacionesSolapadasPermitidasString.
+        }
+
+        // Legacy ObtenerColumnasImplicadasRelCP3 (líneas 4098-4107). NOTA: replica el bucle exacto
+        // del WinForms, que añade grupoCP[i] (índice posicional, no el valor de la lista de índices).
+        private List<ColumnaProbable> ObtenerColumnasImplicadasRelCP3()
+        {
+            var lista = new List<ColumnaProbable>();
+            List<int> indices = UtilidadesEntradasValores.ObtenerListaFromTxt(Rel3Columnas);
+            for (int i = 0; i < indices.Count; i++)
+            {
+                if (i < _grupoCP.Count)
+                {
+                    lista.Add(_grupoCP[i]);
+                }
+            }
+            return lista;
+        }
+
+        // Legacy ComprobarRelacion3 (líneas 3745-3754).
+        private static bool ComprobarRelacion3(RelacionCP3 rel)
+        {
+            if (rel.AgrupacionesPasoFijoPermitidas == null && rel.AgrupacionesSolapadasPermitidas == null &&
+                rel.ColumnasImplicadasString == "" && rel.NumeroEscalerasASCPermitidas == null &&
+                rel.NumeroEscalerasDESCPermitidas == null && rel.NumeroEscalerasTotalesPermitidas == null &&
+                rel.NumeroSandwichsPermitidos == null)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        // Legacy GuardarRelacion3 (líneas 3720-3730).
+        private void GuardarRelacion3(RelacionCP3 rel)
+        {
+            if (_arrayRelaciones3.Count >= _indiceNavRel3)
+            {
+                _arrayRelaciones3[_indiceNavRel3 - 1] = rel;
+            }
+            else
+            {
+                _arrayRelaciones3.Add(rel);
+            }
+        }
+
+        // Legacy GuardarRelacion3EnPantalla (líneas 3785-3828). Sin edición de las rejillas de
+        // agrupaciones; las cadenas de agrupaciones quedan nulas (no se editan en WinUI).
+        private void GuardarRelacion3EnPantalla()
+        {
+            List<ColumnaProbable> lista = ObtenerColumnasImplicadasRelCP3();
+            var rel = new RelacionCP3
+            {
+                Concepto = Rel3Concepto,
+                ConceptoString = Rel3Concepto,
+                Columnas = lista,
+            };
+
+            int longitudEscaleras = lista.Count / 3;
+            int longitudSandwichs = lista.Count / 4;
+
+            rel.ColumnasImplicadasString = Rel3Columnas;
+
+            rel.NumeroEscalerasASCPermitidas = UtilidadesEntradasValores.ObtenerBoolArrayFromTxt(Rel3EscalerasAsc, longitudEscaleras);
+            rel.NumeroEscalerasASCPermitidasString = Rel3EscalerasAsc;
+
+            rel.NumeroEscalerasDESCPermitidas = UtilidadesEntradasValores.ObtenerBoolArrayFromTxt(Rel3EscalerasDesc, longitudEscaleras);
+            rel.NumeroEscalerasDESCPermitidasString = Rel3EscalerasDesc;
+
+            rel.NumeroEscalerasTotalesPermitidas = UtilidadesEntradasValores.ObtenerBoolArrayFromTxt(Rel3EscalerasTotal, longitudEscaleras);
+            rel.NumeroEscalerasTotalesPermitidasString = Rel3EscalerasTotal;
+
+            rel.NumeroSandwichsPermitidos = UtilidadesEntradasValores.ObtenerBoolArrayFromTxt(Rel3Sandwichs, longitudSandwichs);
+            rel.NumeroSandwichsPermitidosString = Rel3Sandwichs;
+
+            // TODO[grids]: ColProbablesFrm.cs líneas 3812-3820 leían las rejillas de Agrupaciones
+            //   Paso Fijo / Solapadas (DataSet) y rellenaban AgrupacionesPasoFijoPermitidas(String)
+            //   y AgrupacionesSolapadasPermitidas(String). Esas rejillas no están portadas; aquí
+            //   quedan nulas. Portar dos DataGrid editables (Número / Elementos / Aciertos) para
+            //   replicar ObtenArrayAgrupaciones* (líneas 4110-4205).
+
+            if (ComprobarRelacion3(rel))
+            {
+                GuardarRelacion3(rel);
+            }
+        }
+
+        // Legacy AdaptarControlesDesplazamientoRelaciones3 (líneas 3866-3881).
+        private void AdaptarControlesDesplazamientoRelaciones3()
+        {
+            PaginacionRel3 = _indiceNavRel3 + " / " + _arrayRelaciones3.Count;
+        }
+
+        // Legacy GuardarDatosRelacionesCP3 (líneas 3702-3707).
+        private void GuardarDatosRelacionesCP3()
+        {
+            if (_filtroCP is null) return;
+
+            GuardarRelacion3EnPantalla();
+            _filtroCP.RelacionesCP3.Relaciones = _arrayRelaciones3;
+        }
+
+        // Legacy btnAtrasRelacion3_Click (líneas 4207-4215).
         [RelayCommand]
         private void Rel3Anterior()
         {
-            // TODO[dominio]: ColProbablesFrm btnAtrasRelacion3 (AdaptarControlesDesplazamientoRelaciones3),
-            //   sobre ControladorRelacionesCP3 / RelacionCP3 (no portado).
+            if (_indiceNavRel3 <= 1) return; // legacy: botón "atrás" deshabilitado en la 1ª.
+
+            GuardarRelacion3EnPantalla();
+            _indiceNavRel3--;
+            AdaptarControlesDesplazamientoRelaciones3();
+            MostrarRelacion3();
         }
 
+        // Legacy btnAdelanteRelacion3_Click (líneas 4217-4225).
         [RelayCommand]
         private void Rel3Siguiente()
         {
-            // TODO[dominio]: ColProbablesFrm btnAdelanteRelacion3.
+            GuardarRelacion3EnPantalla();
+            _indiceNavRel3++;
+            MostrarRelacion3();
+            AdaptarControlesDesplazamientoRelaciones3();
         }
 
+        // Legacy btnEliminaRel3_Click + EliminaRelacion3EnPantalla (líneas 4227-4231, 3588-3603).
         [RelayCommand]
         private void Rel3Eliminar()
         {
-            // TODO[dominio]: ColProbablesFrm btnEliminaRel3.
+            if (_arrayRelaciones3.Count > 0)
+            {
+                if (_arrayRelaciones3.Count >= _indiceNavRel3)
+                {
+                    _arrayRelaciones3.RemoveAt(_indiceNavRel3 - 1);
+                    MostrarRelacion3();
+                }
+            }
+            else
+            {
+                ReinicializarValoresRelaciones3();
+            }
+            AdaptarControlesDesplazamientoRelaciones3();
         }
+
+        // ================= Pestaña Control Fallos (CPControlFallos) =================
+
+        // Legacy InicializaDatosControlFallos (líneas 1150-1189). El WinForms rellenaba 50 filas en
+        // blanco en una rejilla fija; en WinUI se usa una colección con filas reales + botón "añadir".
+        private void InicializaDatosControlFallos()
+        {
+            ControlesFallo.Clear();
+
+            if (_filtroCP is null)
+            {
+                NumeroFallosControles = "";
+                return;
+            }
+
+            NumeroFallosControles = _filtroCP.ControlFallosCP.FallosPermitidos;
+            List<CPControlFallos> controlesFallo = _filtroCP.ControlFallosCP.ControlesFallos;
+
+            for (int i = 0; i < controlesFallo.Count; i++)
+            {
+                CPControlFallos guardada = controlesFallo[i];
+                ControlesFallo.Add(new ControlFallosFila
+                {
+                    Columnas = guardada.Columnas,
+                    Tolerancias = guardada.Tolerancias,
+                    Aciertos = guardada.Aciertos,
+                });
+            }
+        }
+
+        // Legacy GuardarDatosControlFallos (líneas 1255-1275): conserva sólo las filas con Columnas.
+        private void GuardarDatosControlFallos()
+        {
+            if (_filtroCP is null) return;
+
+            var arrayControlesFalloFinal = new List<CPControlFallos>();
+            foreach (ControlFallosFila fila in ControlesFallo)
+            {
+                if (!string.IsNullOrEmpty(fila.Columnas))
+                {
+                    var ctrFallos = new CPControlFallos
+                    {
+                        Columnas = fila.Columnas ?? "",
+                        Tolerancias = fila.Tolerancias ?? "",
+                        Aciertos = fila.Aciertos ?? "",
+                    };
+                    arrayControlesFalloFinal.Add(ctrFallos);
+                }
+            }
+
+            _filtroCP.ControlFallosCP.ControlesFallos = arrayControlesFalloFinal;
+            _filtroCP.ControlFallosCP.FallosPermitidos = NumeroFallosControles ?? "";
+        }
+
+        // Añade una fila vacía a la tabla de controles de fallo (no existe en el WinForms, donde la
+        // rejilla traía 50 filas en blanco; en WinUI se crean bajo demanda).
+        [RelayCommand]
+        private void AnadirControlFallo()
+        {
+            ControlesFallo.Add(new ControlFallosFila());
+        }
+
+        // Elimina una fila concreta de la tabla de controles de fallo.
+        [RelayCommand]
+        private void EliminarControlFallo(ControlFallosFila? fila)
+        {
+            if (fila is not null)
+            {
+                ControlesFallo.Remove(fila);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Fila editable de la tabla de Control de Fallos (legacy dgControlFallos: columnas
+    /// Columnas / Tolerancias / Aciertos del DataSet "CPControlFallos"). Se mapea de/ hacia
+    /// <see cref="CPControlFallos"/> en InicializaDatosControlFallos / GuardarDatosControlFallos.
+    /// </summary>
+    public partial class ControlFallosFila : ObservableObject
+    {
+        [ObservableProperty]
+        private string _columnas = "";
+
+        [ObservableProperty]
+        private string _tolerancias = "";
+
+        [ObservableProperty]
+        private string _aciertos = "";
     }
 }
