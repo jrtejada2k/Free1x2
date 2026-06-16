@@ -1,5 +1,12 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Free1X2.WinUI.Services;
+using Windows.Storage.Pickers;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -75,12 +82,19 @@ public partial class TransposicionFrmViewModel : ObservableObject
     /// Legacy: SeleccionarFicheros() -> OpenFileDialog (filtro ColumnasEntrada *.txt).
     /// </summary>
     [RelayCommand]
-    private void SeleccionarEntrada()
+    private async Task SeleccionarEntradaAsync()
     {
-        // TODO[dominio]: abrir FileOpenPicker (*.txt) y asignar:
-        //   _rutaEntrada = ruta seleccionada;
-        //   NombreEntrada = Path.GetFileName(ruta);
-        //   Legacy TransposicionFrm.SeleccionarFicheros() (rama del OpenFileDialog).
+        var picker = new FileOpenPicker
+        {
+            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
+        };
+        picker.FileTypeFilter.Add(".txt");
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        var file = await picker.PickSingleFileAsync();
+        if (file == null) return;
+        _rutaEntrada = file.Path;
+        NombreEntrada = Path.GetFileName(_rutaEntrada);
     }
 
     /// <summary>
@@ -88,12 +102,20 @@ public partial class TransposicionFrmViewModel : ObservableObject
     /// Legacy: SeleccionarFicheros() -> SaveFileDialog (filtro ColumnasSalida *.txt).
     /// </summary>
     [RelayCommand]
-    private void SeleccionarSalida()
+    private async Task SeleccionarSalidaAsync()
     {
-        // TODO[dominio]: abrir FileSavePicker (*.txt) y asignar:
-        //   _rutaSalida = ruta seleccionada;
-        //   NombreSalida = Path.GetFileName(ruta);
-        //   Legacy TransposicionFrm.SeleccionarFicheros() (rama del SaveFileDialog).
+        var picker = new FileSavePicker
+        {
+            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
+            SuggestedFileName = "ColumnasTranspuestas",
+        };
+        picker.FileTypeChoices.Add("Columnas", new List<string> { ".txt" });
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        var file = await picker.PickSaveFileAsync();
+        if (file == null) return;
+        _rutaSalida = file.Path;
+        NombreSalida = Path.GetFileName(_rutaSalida);
     }
 
     /// <summary>
@@ -102,26 +124,74 @@ public partial class TransposicionFrmViewModel : ObservableObject
     /// Legacy: BTransponerClick -> Transponer() (con Verificar()).
     /// </summary>
     [RelayCommand]
-    private void Transponer()
+    private async Task TransponerAsync()
     {
-        // TODO[dominio]: validar y procesar.
-        //   Legacy TransposicionFrm.Verificar():
-        //     int[] orde = new int[14]; orde[i] = (int)Pos{i+1} - 1;  // base 0
-        //     Validar con BitArray(14): cada índice 0..13 debe quedar marcado exactamente
-        //     una vez y estar en rango; si no -> Estado = "Error en condiciones" y abortar.
-        //   Legacy TransposicionFrm.Transponer():
-        //     PuedeTransponer = false; Estado = "Procesando...";
-        //     using var sr = new StreamReader(_rutaEntrada);
-        //     using var sw = new StreamWriter(_rutaSalida);
-        //     while (sr.Peek() > 0) {
-        //         string columna = sr.ReadLine();
-        //         var aux = new char[14];
-        //         for (int nr = 0; nr < 14; nr++) aux[nr] = columna[orde[nr]];
-        //         sw.WriteLine(new string(aux));
-        //     }
-        //     PuedeTransponer = true; Estado = "Transposición completada.";
-        //   Nota: en el acceso externo legacy (constructor con int[] s, FileIn, FileOut)
-        //   se cerraba la ventana al terminar (if (AccesoExterno) Close();).
+        // Verificar() legacy: las 14 posiciones deben formar una permutación 1..14.
+        var orde = new int[14];
+        var verif = new BitArray(14);
+        var pos = new[]
+        {
+            Pos1, Pos2, Pos3, Pos4, Pos5, Pos6, Pos7,
+            Pos8, Pos9, Pos10, Pos11, Pos12, Pos13, Pos14,
+        };
+        bool valido = true;
+        for (int i = 0; i < 14 && valido; i++)
+        {
+            int nx = (int)pos[i] - 1; // base 0 (legacy: Convert.ToInt32(tbcN)-1)
+            if (nx < 0 || nx > 13) { valido = false; break; }
+            verif[nx] = true;
+            orde[i] = nx;
+        }
+        if (valido)
+        {
+            for (int nr = 0; nr < 14; nr++)
+            {
+                if (!verif[nr]) { valido = false; break; }
+            }
+        }
+        if (!valido)
+        {
+            Estado = "Error en condiciones";
+            AppServices.MostrarError("Error en condiciones");
+            return;
+        }
+
+        if (string.IsNullOrEmpty(_rutaEntrada) || string.IsNullOrEmpty(_rutaSalida))
+        {
+            Estado = "Seleccione los archivos de entrada y salida.";
+            return;
+        }
+
+        string rutaEntrada = _rutaEntrada;
+        string rutaSalida = _rutaSalida;
+
+        PuedeTransponer = false;
+        Estado = "Procesando...";
+        try
+        {
+            // Transponer() legacy: reordena los signos de cada columna (aux[nr] = columna[orde[nr]]).
+            await Task.Run(() =>
+            {
+                using var sr = new StreamReader(rutaEntrada);
+                using var sw = new StreamWriter(rutaSalida);
+                while (sr.Peek() > 0)
+                {
+                    string columna = sr.ReadLine() ?? string.Empty;
+                    var aux = new char[14];
+                    for (int nr = 0; nr < 14; nr++) aux[nr] = columna[orde[nr]];
+                    sw.WriteLine(new string(aux));
+                }
+            });
+            Estado = "Transposición completada.";
+        }
+        catch (Exception ex)
+        {
+            Estado = "Error: " + ex.Message;
+        }
+        finally
+        {
+            PuedeTransponer = true;
+        }
     }
 
     /// <summary>
