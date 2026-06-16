@@ -13,6 +13,15 @@ namespace Free1X2.WinUI.Views.Ported;
 /// </summary>
 public partial class CopiarDatosCPFrmViewModel : ObservableObject
 {
+    /// <summary>
+    /// Resultado del diálogo para el llamador, vía handoff estático (mismo patrón que
+    /// VisorPosiblesPremiosViewModel.UltimoResumen): como la página se destruye al volver con
+    /// Frame.GoBack(), las propiedades de instancia no sobreviven; el consumidor
+    /// (ColProbablesFrm.CopiaValoresCP) lo lee en su OnNavigatedTo al regresar.
+    /// Confirmado=false equivale a la bandera de cancelación del WinForms (Desde = -1).
+    /// </summary>
+    public static (bool Confirmado, int Desde, int Hasta)? Resultado { get; set; }
+
     // ===== Desde (udMin) =====
     // NumberBox.Value es double; la propiedad del VM debe ser double (regla anti-crash 7).
     [ObservableProperty]
@@ -92,6 +101,8 @@ public partial class CopiarDatosCPFrmViewModel : ObservableObject
         // resultado y devolvemos el control: el consumidor (p. ej. ColProbablesFrm.CopiaValoresCP,
         // Free1X2/UI/Filtros/ColProbablesFrm.cs línea 785) lee Desde/Hasta + ResultadoConfirmado.
         ResultadoConfirmado = true;
+        // Handoff estático para el llamador (la instancia no sobrevive a Frame.GoBack).
+        Resultado = (true, (int)Desde, (int)Hasta);
         Estado = $"Copiar columnas {(int)Desde} a {(int)Hasta}";
         Volver?.Invoke();
     }
@@ -105,6 +116,8 @@ public partial class CopiarDatosCPFrmViewModel : ObservableObject
     {
         // Legacy btnCancelar_Click: udMin.Minimum = -1; Desde = -1 (bandera de cancelación) + Close().
         ResultadoConfirmado = false;
+        // Handoff estático: cancelado (legacy Desde = -1; el llamador comprueba min < 0 y no copia).
+        Resultado = (false, -1, (int)Hasta);
         DesdeMinimo = -1;
         Desde = -1;
         Estado = "Cancelado";

@@ -58,6 +58,21 @@ public partial class ResultadoEscrutinioItem : ObservableObject
 /// </summary>
 public partial class EscrutiniosFrmViewModel : ObservableObject
 {
+    /// <summary>
+    /// Navegación a otra página del Frame, inyectada por la Page (mismo patrón que
+    /// PosiblesPremiosFrmViewModel.Navegar). El form legacy abría PosiblesPremiosFrm sin estado.
+    /// </summary>
+    public Action<Type, object?>? Navegar { get; set; }
+
+    /// <summary>
+    /// Navegación atrás (Frame.GoBack), inyectada por la Page (legacy BtnCancelarClick -> Close()).
+    /// </summary>
+    public Action? Volver { get; set; }
+
+    // Escrutador en curso (legacy: campo escrutador, reasignado por cada fichero). Se conserva
+    // para que Detener/Cancelar puedan llamar a PararEscrutinio() sobre el que está corriendo.
+    private Escrutador? _escrutadorActual;
+
     // Tipo de escrutinio según la pestaña activa (legacy: tipoEscrutinio; 1=simple, 2=fichero, 3=jornadas).
     // Se deriva de TabSeleccionada para mantener el binding en un solo sitio.
     public int TipoEscrutinio => TabSeleccionada + 1;
@@ -438,6 +453,9 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
                         ArchivoColumnas = archivo,
                         AñadirAGanadoras = verPremiadas,
                     };
+                    // Publica el escrutador en curso para que Detener/Cancelar puedan pararlo
+                    // (legacy: campo escrutador reasignado por cada fichero).
+                    _escrutadorActual = escrutador;
 
                     if (tipo == 1)
                         escrutador.EscrutaCombConColumna(colGan, resultadosDS, Path.GetFileName(archivo));
@@ -572,6 +590,8 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
                 ArchivoColumnas = rutaArchivo,
                 AñadirAGanadoras = verPremiadas,
             };
+            // Publica el escrutador en curso para Detener/Cancelar (legacy: campo escrutador).
+            _escrutadorActual = escrutador;
             escrutador.EscrutaCombConColumna(colGanJornada, resultadosDS, Path.GetFileName(archivo));
 
             if (verPremiadas)
@@ -651,7 +671,10 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
     [RelayCommand]
     private void Detener()
     {
-        // TODO[dominio]: escrutador?.PararEscrutinio(). (legacy)
+        // Legacy BtnComienzoClick (rama "Parar escrutinio!", EscrutiniosFrm.cs:1187):
+        //   escrutador.PararEscrutinio(). El bucle de EscrutaComb... comprueba la bandera
+        //   pararEscrutinio entre columnas y corta. _escrutadorActual apunta al que corre ahora.
+        _escrutadorActual?.PararEscrutinio();
     }
 
     /// <summary>
@@ -756,7 +779,9 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
     [RelayCommand]
     private void PosiblesPremios()
     {
-        // TODO[dominio]: navegar/abrir el equivalente WinUI de PosiblesPremiosFrm. (legacy btnPosiblesPremios_Click)
+        // Legacy btnPosiblesPremios_Click -> new PosiblesPremiosFrm().Show(). En WinUI navega a
+        // PosiblesPremiosFrmPage (su ViewModel ya está cableado), sin parámetro (se abría sin estado).
+        Navegar?.Invoke(typeof(PosiblesPremiosFrmPage), null);
     }
 
     /// <summary>
@@ -765,8 +790,10 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
     [RelayCommand]
     private void Cancelar()
     {
-        // TODO[dominio]: detener escrutinio en curso y navegar atrás (Frame.GoBack)
-        //   o cerrar el host contenedor. (legacy BtnCancelarClick)
+        // Legacy BtnCancelarClick (EscrutiniosFrm.cs:1156): si hay escrutador, PararEscrutinio();
+        //   luego Close(). En WinUI se detiene el escrutinio en curso y se navega atrás (Frame.GoBack).
+        _escrutadorActual?.PararEscrutinio();
+        Volver?.Invoke();
     }
 }
 

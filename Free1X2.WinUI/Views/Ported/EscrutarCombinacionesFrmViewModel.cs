@@ -83,6 +83,13 @@ public partial class SignoGanadorViewModel : ObservableObject
 /// </summary>
 public partial class EscrutarCombinacionesFrmViewModel : ObservableObject
 {
+    /// <summary>
+    /// Navegación a otra página del Frame, inyectada por la Page (mismo patrón que
+    /// PosiblesPremiosFrmViewModel.Navegar). El segundo argumento es el parámetro de
+    /// navegación opcional (e.Parameter); aquí no se necesita, así que se pasa null.
+    /// </summary>
+    public Action<Type, object?>? Navegar { get; set; }
+
     public EscrutarCombinacionesFrmViewModel()
     {
         for (int i = 1; i <= 14; i++)
@@ -639,9 +646,10 @@ public partial class EscrutarCombinacionesFrmViewModel : ObservableObject
     {
         // Legacy btnPosiblesPremios_Click (Free1X2/UI/EscrutarCombinacionesFrm.cs línea 2014):
         //   new PosiblesPremiosFrm().Show().
-        // TODO[navegación]: navegar a PosiblesPremiosFrmPage (su ViewModel ya está cableado).
-        //   El host de navegación entre páginas no está en el alcance de este lote.
-        AppServices.MostrarInfo("Posibles premios: la navegación entre páginas se cableará con el shell.");
+        // En WinUI navega a PosiblesPremiosFrmPage (su ViewModel ya está cableado), igual que el
+        // resto del shell (Frame.Navigate). El form legacy se abría sin estado, así que no hay
+        // parámetro de navegación que pasar.
+        Navegar?.Invoke(typeof(PosiblesPremiosFrmPage), null);
     }
 
     [RelayCommand]

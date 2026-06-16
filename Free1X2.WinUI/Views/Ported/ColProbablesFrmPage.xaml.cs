@@ -23,6 +23,17 @@ namespace Free1X2.WinUI.Views.Ported
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
+
+            // Al volver del diálogo "Copiar Datos" (Frame.GoBack), aplicar el rango elegido sobre la
+            // copia de trabajo en memoria — NO recargar desde el grupo, que descartaría la edición en
+            // curso (réplica de la 2ª mitad de ColProbablesFrm.CopiaValoresCP). AplicarCopiaDatos sólo
+            // actúa si esta pantalla había lanzado el diálogo; si no, recarga normal del grupo en edición.
+            if (ViewModel.CopiaDatosPendiente)
+            {
+                ViewModel.AplicarCopiaDatos();
+                return;
+            }
+
             ViewModel.CargarDesdeGrupo();
         }
     }

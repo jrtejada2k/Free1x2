@@ -1,4 +1,5 @@
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Navigation;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -18,13 +19,23 @@ public sealed partial class ColGanadoraFrmPage : Page
         // La VM navega al visor del árbol de fallos a través del ContentFrame (mismo patrón
         // que MainPage): Analizar -> AnalizarCombinacionFrmPage (handoff estático UltimoAnalisis).
         ViewModel.Navegar = tipo => Frame?.Navigate(tipo);
+    }
 
-        // TODO[contexto-en-pantalla]: la rama "Analizar combinación en pantalla" requiere el
-        //   contexto del flujo legacy (constructor ColGanadoraFrm): nPartidos, nombreCombi,
-        //   analizador (Free1X2.MotorCalculo.Analizador) y listaPronosticos (string[]). Cuando
-        //   la pantalla llamante pase estos datos por navegación (e.Parameter), reenviarlos en
-        //   OnNavigatedTo a ViewModel.EstablecerContexto(...). La rama "Abrir combinación" ya
-        //   funciona de forma autónoma (carga el .comb desde el picker).
+    /// <summary>
+    /// Recibe el contexto del flujo legacy (constructor ColGanadoraFrm): nº de partidos, nombre de
+    /// la combinación en pantalla, su Analizador y la lista de pronósticos. El form legacy lo
+    /// inyectaba por el constructor antes de mostrarse; aquí llega como parámetro de navegación
+    /// (mismo patrón que MejoresOpcionesFrmPage.OnNavigatedTo con e.Parameter). Sin él, la rama
+    /// "Analizar combinación en pantalla" avisa y "Abrir combinación" funciona de forma autónoma.
+    /// </summary>
+    protected override void OnNavigatedTo(NavigationEventArgs e)
+    {
+        base.OnNavigatedTo(e);
+
+        if (e.Parameter is ColGanadoraContexto ctx)
+        {
+            ViewModel.EstablecerContexto(ctx.NumPartidos, ctx.NombreComb, ctx.Analizador, ctx.ListaPronosticos);
+        }
     }
 
     private void OnAnalizarClick(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)

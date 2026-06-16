@@ -16,6 +16,11 @@ public sealed partial class EscrutiniosFrmPage : Page
     public EscrutiniosFrmPage()
     {
         InitializeComponent();
+
+        // La VM navega a través del Frame de la página (mismo patrón que MainPage/PosiblesPremios):
+        //   PosiblesPremios -> PosiblesPremiosFrmPage; Cancelar -> GoBack (legacy Close()).
+        ViewModel.Navegar = (tipo, parametro) => Frame?.Navigate(tipo, parametro);
+        ViewModel.Volver = () => { if (Frame?.CanGoBack == true) Frame.GoBack(); };
     }
 
     /// <summary>
