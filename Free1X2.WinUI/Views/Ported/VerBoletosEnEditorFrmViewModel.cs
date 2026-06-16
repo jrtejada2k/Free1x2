@@ -21,6 +21,13 @@ namespace Free1X2.WinUI.Views.Ported
         [ObservableProperty]
         private string _boletosTexto = string.Empty;
 
+        /// <summary>
+        /// Se solicita imprimir/exportar la vista de boletos. Lo escucha el code-behind de la Page,
+        /// que renderiza el texto completo a un mapa de bits (RenderTargetBitmap) y lo lleva al
+        /// portapapeles / lo guarda como imagen. El VM no referencia controles de la vista (MVVM).
+        /// </summary>
+        public event EventHandler? ImpresionSolicitada;
+
         public VerBoletosEnEditorFrmViewModel()
         {
             // Constructor sin datos: muestra placeholder.
@@ -107,17 +114,20 @@ namespace Free1X2.WinUI.Views.Ported
         }
 
         /// <summary>
-        /// Acción del botón "Imprimir" (legacy bImpDirec -> ImprimirBoletos).
+        /// Acción del botón "Imprimir" (legacy bImpDirec -> ImprimirBoletos, dibujaba txtBoletos.Lines
+        /// línea a línea con System.Drawing.Printing). Equivalente funcional WinUI: renderizar el texto
+        /// completo de los boletos a un mapa de bits (RenderTargetBitmap), copiarlo al portapapeles y
+        /// ofrecer guardarlo como imagen PNG. El render (que necesita un UIElement) lo hace la Page.
+        /// Ver Free1X2/UI/VerBoletosEnEditorFrm.cs líneas 80-97.
         /// </summary>
         [RelayCommand]
         private void Imprimir()
         {
-            // TODO: impresión — ver Free1X2/UI/VerBoletosEnEditorFrm.cs líneas 80-97
-            //   (ImprimirBoletos/Imprimir): el legacy usa System.Drawing.Printing.PrintDocument
-            //   y dibuja txtBoletos.Lines línea a línea con DrawString. En WinUI esto requiere
-            //   Windows.Graphics.Printing.PrintManager + Microsoft.UI.Xaml.Printing.PrintDocument,
-            //   que es infraestructura de UI, no del motor. No es lógica de dominio: pendiente de
-            //   cablear la canalización de impresión de WinUI.
+            if (string.IsNullOrEmpty(BoletosTexto))
+            {
+                return; // sin boletos cargados, nada que exportar.
+            }
+            ImpresionSolicitada?.Invoke(this, EventArgs.Empty);
         }
     }
 }

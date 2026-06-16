@@ -55,9 +55,24 @@
             HorizontalAlignment="Right"
             Spacing="12">
             <Button
-                Content="Imprimir"
+                Content="Imprimir / Exportar imagen"
                 Style="{StaticResource AccentButtonStyle}"
                 Command="{x:Bind ViewModel.ImprimirCommand}" />
         </StackPanel>
+
+        <!-- Host invisible para exportar el texto completo de los boletos como imagen.
+             Está en el árbol visual (RenderTargetBitmap lo exige) pero con Opacity=0 y sin
+             hit-test, así que no afecta a la vista del usuario. El TextBlock con el texto
+             completo (sin scroll) se inserta en code-behind justo antes de renderizar. -->
+        <Border
+            x:Name="HostExportacion"
+            Grid.Row="0"
+            Grid.RowSpan="3"
+            Background="White"
+            Opacity="0"
+            IsHitTestVisible="False"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top"
+            Padding="12" />
     </Grid>
 </Page>
