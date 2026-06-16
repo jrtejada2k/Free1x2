@@ -1,5 +1,9 @@
+using System;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Free1X2.EntradaSalida;
+using Free1X2.WinUI.Services;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -7,9 +11,15 @@ namespace Free1X2.WinUI.Views.Ported;
 /// ViewModel para la pantalla "Analizar fichero de columnas" (legacy: AnalizarFicheroFrm).
 /// Permite seleccionar un fichero de columnas (.txt/.cols), leer cuántas columnas
 /// contiene y lanzar el análisis de la combinación, con opción de incluir el pleno al 15.
+/// Cableado al motor real (Free1X2.EntradaSalida.ArchivoColumnasTexto y
+/// Free1X2.MotorCalculo.Analizador); el visor de resultados lo gestiona el hook
+/// Free1X2.Abstractions.AnalisisUi.MostrarVisor a nivel de app.
 /// </summary>
 public partial class AnalizarFicheroFrmViewModel : ObservableObject
 {
+    // Columnas leídas del fichero (legacy: campo string[] columnas).
+    private string[] _columnas = Array.Empty<string>();
+
     /// <summary>Ruta del fichero de columnas de entrada (legacy: txFicheroEntrada).</summary>
     [ObservableProperty]
     private string _ficheroEntrada = string.Empty;
@@ -38,38 +48,97 @@ public partial class AnalizarFicheroFrmViewModel : ObservableObject
 
     /// <summary>
     /// Selecciona el fichero de columnas y lee cuántas columnas contiene.
+    /// Equivale a AnalizarFicheroFrm.btnAbrirEntrada_Click.
     /// </summary>
     [RelayCommand]
-    private void AbrirFichero()
+    private async Task AbrirFicheroAsync()
     {
-        // TODO[dominio]: abrir diálogo de fichero y leer las columnas.
-        //   Legacy: AnalizarFicheroFrm.btnAbrirEntrada_Click
-        //     - abreFiltroDialog (OpenFileDialog) filtro "*.txt|*.cols|*.*",
-        //       directorio inicial Application.StartupPath + "/Columnas/".
-        //       En WinUI usar Windows.Storage.Pickers.FileOpenPicker.
-        //     - cols = new Free1X2.EntradaSalida.ArchivoColumnasTexto(ruta);
-        //       columnas = cols.LeerTodasCols(false); cols.Cerrar();
-        //     - ResumenColumnas = columnas.Length + " columnas.";
-        //     - PuedeAnalizar = columnas.Length > 0;
-        //     - PuedeIncluirPleno = columnas.Length > 0 && columnas[0].Length == 15;
-        //   El dominio (Free1X2.EntradaSalida.IArchivoColumnas) aún no está migrado.
+        // Diálogo de fichero (legacy: abreFiltroDialog, OpenFileDialog *.txt/*.cols/*.*).
+        var picker = new Windows.Storage.Pickers.FileOpenPicker
+        {
+            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
+        };
+        picker.FileTypeFilter.Add(".txt");
+        picker.FileTypeFilter.Add(".cols");
+        picker.FileTypeFilter.Add("*");
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        var file = await picker.PickSingleFileAsync();
+        if (file == null) return;
+
+        FicheroEntrada = file.Path;
+
+        // Lectura de columnas (legacy: cols = new ArchivoColumnasTexto(ruta);
+        //                              columnas = cols.LeerTodasCols(false); cols.Cerrar();).
+        try
+        {
+            IArchivoColumnas cols = new ArchivoColumnasTexto(FicheroEntrada);
+            _columnas = cols.LeerTodasCols(false);
+            cols.Cerrar();
+            ResumenColumnas = _columnas.Length + " columnas.";
+        }
+        catch
+        {
+            _columnas = Array.Empty<string>();
+            ResumenColumnas = string.Empty;
+            AppServices.MostrarError("No se ha podido leer el fichero de columnas.");
+            return;
+        }
+
+        // Habilitación de botones (legacy: btnOk.Enabled / chkPleno.Enabled).
+        if (_columnas.Length > 0)
+        {
+            PuedeAnalizar = true;
+            PuedeIncluirPleno = _columnas[0].Length == 15;
+        }
+        else
+        {
+            PuedeAnalizar = false;
+            IncluirPleno = false;
+            PuedeIncluirPleno = false;
+        }
     }
 
     /// <summary>
     /// Lanza el análisis de la combinación del fichero seleccionado.
+    /// Equivale a AnalizarFicheroFrm.btnOk_Click.
     /// </summary>
     [RelayCommand]
-    private void Analizar()
+    private async Task AnalizarAsync()
     {
-        // TODO[dominio]: ejecutar el análisis del fichero de columnas.
-        //   Legacy: AnalizarFicheroFrm.btnOk_Click
-        //     - IArchivoColumnas aCol = new ArchivoColumnasTexto(FicheroEntrada);
-        //       int partidos = aCol.ObtenNumSignos(); aCol.Cerrar();
-        //     - var analizador = new Free1X2.MotorCalculo.Analizador(partidos);
-        //       analizador.ArchivoColumnasBase = FicheroEntrada;
-        //       for (i=0..partidos) analizador.SetPronostico(i, "1,X,2");
-        //       analizador.AnalizaCombinacion(true, true);
-        //     - El flag IncluirPleno (chkPleno) condiciona el tratamiento del pleno al 15.
-        //   Free1X2.MotorCalculo.Analizador aún no está migrado a Free1X2.Domain.
+        if (FicheroEntrada.Length == 0) return;
+        if (_columnas.Length == 0)
+        {
+            AppServices.MostrarError("No se ha cargado el fichero de entrada o no tiene columnas.");
+            return;
+        }
+
+        string ruta = FicheroEntrada;
+
+        try
+        {
+            await Task.Run(() =>
+            {
+                // Legacy: número de signos del fichero -> dimensiona el Analizador.
+                IArchivoColumnas aCol = new ArchivoColumnasTexto(ruta);
+                int partidos = aCol.ObtenNumSignos();
+                aCol.Cerrar();
+
+                var analizador = new Free1X2.MotorCalculo.Analizador(partidos);
+                analizador.ArchivoColumnasBase = ruta;
+                // Inicializa los pronósticos a "1,X,2" (combinación abierta).
+                for (int i = 0; i < partidos; i++)
+                {
+                    analizador.SetPronostico(i, "1,X,2");
+                }
+                // esAnalisisExterno = (true, true): análisis de fichero externo. El visor de
+                // resultados lo dispara Free1X2.Abstractions.AnalisisUi.MostrarVisor.
+                analizador.AnalizaCombinacion(true, true);
+            });
+        }
+        catch (Exception ex)
+        {
+            AppServices.MostrarError("Error al analizar el fichero: " + ex.Message);
+        }
     }
 }
