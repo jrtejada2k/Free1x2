@@ -34,6 +34,16 @@ public sealed class AppState
     private AppState() { }
 
     /// <summary>
+    /// Grupo que una página de filtro está editando, entregado por la MainPage al navegar.
+    /// Sigue el patrón de "handoff" estático de la app (cf.
+    /// <c>VisorAnalisisColumnasFrmViewModel.UltimoGrupo</c>): la página de filtro lo lee en
+    /// su constructor/OnNavigatedTo para operar sobre el <see cref="Grupo"/> real del motor.
+    /// Es el análogo del <c>analizador.GruposPartidos[grupoPantalla]</c> que MainForm pasa al
+    /// constructor de cada Frm de condición.
+    /// </summary>
+    public static Grupo? GrupoEnEdicion { get; set; }
+
+    /// <summary>
     /// Se dispara cuando cambia algo del estado del motor (combinación nueva/abierta,
     /// cambio de grupo, edición de filtros, filtro de columnas). La MainPage se suscribe
     /// para refrescar el boleto y los semáforos de condiciones.

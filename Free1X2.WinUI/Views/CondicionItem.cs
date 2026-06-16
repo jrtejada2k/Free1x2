@@ -1,0 +1,64 @@
+using System;
+using CommunityToolkit.Mvvm.ComponentModel;
+using Free1X2.MotorCalculo;
+using Free1X2.WinUI.Controls;
+
+namespace Free1X2.WinUI.Views;
+
+/// <summary>
+/// Una condición (filtro) de la rejilla de la MainPage: equivale a un botón + semáforo del
+/// MainForm WinForms. Mantiene el nombre del filtro (clave del enum <c>Filtro</c>), la página
+/// portada a la que navega y el estado de semáforo calculado desde el <see cref="Grupo"/>.
+/// </summary>
+public partial class CondicionItem : ObservableObject
+{
+    /// <summary>
+    /// </summary>
+    /// <param name="titulo">Texto visible del botón.</param>
+    /// <param name="claveFiltro">
+    /// Clave del filtro (p. ej. <c>Filtro.NoVariantes.ToString()</c>) usada en
+    /// <c>grupo.GetFiltro(clave)</c>. <c>null</c> para condiciones especiales sin IFiltro
+    /// (If-Then y Control de grupos), cuyo semáforo se gestiona aparte.
+    /// </param>
+    /// <param name="pagina">Página portada a la que navega al pulsar.</param>
+    public CondicionItem(string titulo, string? claveFiltro, Type pagina)
+    {
+        Titulo = titulo;
+        ClaveFiltro = claveFiltro;
+        Pagina = pagina;
+    }
+
+    public string Titulo { get; }
+    public string? ClaveFiltro { get; }
+    public Type Pagina { get; }
+
+    /// <summary>Estado del semáforo del filtro (gris/verde/rojo). Réplica de PonerColorBotonCondicion.</summary>
+    [ObservableProperty]
+    private EstadoSemaforo _estado = EstadoSemaforo.Neutro;
+
+    /// <summary>
+    /// Recalcula el semáforo desde el grupo, igual que <c>PonerColorBotonCondicion</c> (MainForm):
+    /// IsActive → Verde; en su defecto ContieneDatos → Rojo; en su defecto → Neutro (gris).
+    /// </summary>
+    public void RefrescarDesdeGrupo(Grupo grupo)
+    {
+        if (ClaveFiltro is null) return; // condiciones especiales: ver MainPageViewModel
+        IFiltro filtro = grupo.GetFiltro(ClaveFiltro);
+        if (filtro is null)
+        {
+            Estado = EstadoSemaforo.Neutro;
+        }
+        else if (filtro.IsActive)
+        {
+            Estado = EstadoSemaforo.Verde;
+        }
+        else if (filtro.ContieneDatos)
+        {
+            Estado = EstadoSemaforo.Rojo;
+        }
+        else
+        {
+            Estado = EstadoSemaforo.Neutro;
+        }
+    }
+}

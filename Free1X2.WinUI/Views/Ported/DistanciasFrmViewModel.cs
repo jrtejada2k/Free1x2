@@ -39,10 +39,15 @@ public partial class DistanciasFrmViewModel : ObservableObject
     private void Aceptar()
     {
         // TODO: Dominio legacy — guardar valores en FiltroDistancias y activar la condición.
-        //   FiltroDistancias.ReinicializaValores();
-        //   FiltroDistancias.SetNoIntVar/SetNoInt1/SetNoIntX/SetNoInt2(...) con los valores de pantalla.
-        //   FiltroDistancias.IsActive = ContieneDatos; FiltroDistancias.ContieneDatos = ContieneDatos;
-        //   Grupo.ActivaFiltro(filtro); (equivale a menuCondiciones1_BOk del DistanciasFrm legacy).
+        //   El Grupo a editar llega de la MainPage por el handoff estático
+        //   AppState.GrupoEnEdicion (análogo a new DistanciasFrm(analizador.GruposPartidos[grupoPantalla])).
+        //   Pasos:
+        //     var grupo = Free1X2.WinUI.Services.AppState.GrupoEnEdicion;
+        //     var filtro = (FiltroDistancias)grupo.GetFiltro(Filtro.Distancias.ToString());
+        //     FiltroDistancias.SetNoIntVar/SetNoInt1/SetNoIntX/SetNoInt2(...) con los valores de pantalla.
+        //     filtro.IsActive = ContieneDatos; filtro.ContieneDatos = ContieneDatos;
+        //     grupo.ActivaFiltro(filtro); AppState.Instancia.NotificarCambio();
+        //   (equivale a menuCondiciones1_BOk del DistanciasFrm legacy + ActualizaGrupoPantalla).
     }
 
     [RelayCommand]

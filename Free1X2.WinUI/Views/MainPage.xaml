@@ -4,6 +4,8 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="using:Free1X2.WinUI.Controls"
+    xmlns:views="using:Free1X2.WinUI.Views"
+    x:Name="Raiz"
     Background="{ThemeResource AppBackgroundBrush}">
 
     <Grid Padding="{StaticResource AppPagePadding}" RowSpacing="16">
@@ -19,7 +21,7 @@
                        Style="{StaticResource SecondaryTextBlockStyle}" />
         </StackPanel>
 
-        <!-- Boleto (izquierda) + panel de condiciones/grupos/acciones (derecha) -->
+        <!-- Boleto (izquierda) + condiciones/grupos/filtro/acciones (derecha) -->
         <Grid Grid.Row="1" ColumnSpacing="16">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="2*" MinWidth="360" />
@@ -29,16 +31,181 @@
             <!-- Boleto base editable -->
             <controls:BoletoBaseControl Grid.Column="0" x:Name="Boleto" />
 
-            <!-- Panel derecho: en M3 se cablea condiciones + grupos + filtro + acciones -->
-            <Border Grid.Column="1" Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="8">
-                    <TextBlock Text="Condiciones y grupos"
-                               Style="{StaticResource SectionHeaderTextBlockStyle}" />
-                    <TextBlock Text="Pendiente de cablear (M3): rejilla de condiciones, navegación de grupos, filtro de columnas y acciones."
-                               Style="{StaticResource SecondaryTextBlockStyle}"
-                               TextWrapping="Wrap" />
+            <!-- Panel derecho -->
+            <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
+                <StackPanel Spacing="16">
+
+                    <!-- ===== Navegación de grupos ===== -->
+                    <Border Style="{StaticResource AppCardStyle}" Padding="16">
+                        <StackPanel Spacing="10">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" Spacing="2">
+                                    <TextBlock Text="{x:Bind ViewModel.TituloGrupo, Mode=OneWay}"
+                                               Style="{StaticResource CardTitleTextBlockStyle}" />
+                                    <TextBlock Text="{x:Bind ViewModel.InfoGrupos, Mode=OneWay}"
+                                               Style="{StaticResource SecondaryTextBlockStyle}" />
+                                </StackPanel>
+                            </Grid>
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <Button Content="&#xE892;" FontFamily="Segoe MDL2 Assets"
+                                        Command="{x:Bind ViewModel.GrupoInicioCommand}"
+                                        ToolTipService.ToolTip="Primer grupo (boleto base)"
+                                        AutomationProperties.Name="Ir al primer grupo" />
+                                <Button Content="&#xE76B;" FontFamily="Segoe MDL2 Assets"
+                                        Command="{x:Bind ViewModel.GrupoAnteriorCommand}"
+                                        ToolTipService.ToolTip="Grupo anterior"
+                                        AutomationProperties.Name="Grupo anterior" />
+                                <Button Content="&#xE76C;" FontFamily="Segoe MDL2 Assets"
+                                        Command="{x:Bind ViewModel.GrupoSiguienteCommand}"
+                                        ToolTipService.ToolTip="Grupo siguiente (crea si no existe)"
+                                        AutomationProperties.Name="Grupo siguiente" />
+                                <Button Content="&#xE893;" FontFamily="Segoe MDL2 Assets"
+                                        Command="{x:Bind ViewModel.GrupoFinCommand}"
+                                        ToolTipService.ToolTip="Último grupo"
+                                        AutomationProperties.Name="Ir al último grupo" />
+                                <Button Content="&#xE74D;" FontFamily="Segoe MDL2 Assets"
+                                        Command="{x:Bind ViewModel.EliminarGrupoCommand}"
+                                        ToolTipService.ToolTip="Eliminar el grupo actual"
+                                        AutomationProperties.Name="Eliminar el grupo actual" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- ===== Rejilla de condiciones ===== -->
+                    <Border Style="{StaticResource AppCardStyle}" Padding="16">
+                        <StackPanel Spacing="10">
+                            <TextBlock Text="Condiciones del grupo"
+                                       Style="{StaticResource CardTitleTextBlockStyle}" />
+                            <GridView ItemsSource="{x:Bind ViewModel.Condiciones}"
+                                      SelectionMode="None"
+                                      IsItemClickEnabled="False"
+                                      AutomationProperties.Name="Condiciones del grupo">
+                                <GridView.ItemTemplate>
+                                    <DataTemplate x:DataType="views:CondicionItem">
+                                        <Button Width="170" Margin="0,0,8,8"
+                                                HorizontalContentAlignment="Stretch"
+                                                Command="{Binding ElementName=Raiz, Path=ViewModel.AbrirCondicionCommand}"
+                                                CommandParameter="{x:Bind}"
+                                                AutomationProperties.Name="{x:Bind Titulo}">
+                                            <Grid ColumnSpacing="8">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <controls:SemaforoControl Grid.Column="0"
+                                                                          Estado="{x:Bind Estado, Mode=OneWay}"
+                                                                          VerticalAlignment="Center" />
+                                                <TextBlock Grid.Column="1"
+                                                           Text="{x:Bind Titulo}"
+                                                           VerticalAlignment="Center"
+                                                           TextTrimming="CharacterEllipsis" />
+                                            </Grid>
+                                        </Button>
+                                    </DataTemplate>
+                                </GridView.ItemTemplate>
+                            </GridView>
+
+                            <!-- Condiciones especiales: If-Then y Control de grupos -->
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Button Width="170" HorizontalContentAlignment="Stretch"
+                                        Command="{x:Bind ViewModel.AbrirIfThenCommand}"
+                                        AutomationProperties.Name="If-Then">
+                                    <Grid ColumnSpacing="8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <controls:SemaforoControl Grid.Column="0"
+                                                                  Estado="{x:Bind ViewModel.EstadoIfThen, Mode=OneWay}"
+                                                                  VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="1" Text="If-Then" VerticalAlignment="Center" />
+                                    </Grid>
+                                </Button>
+                                <Button Width="190" HorizontalContentAlignment="Stretch"
+                                        Command="{x:Bind ViewModel.AbrirControlGruposCommand}"
+                                        AutomationProperties.Name="Control de grupos">
+                                    <Grid ColumnSpacing="8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <controls:SemaforoControl Grid.Column="0"
+                                                                  Estado="{x:Bind ViewModel.EstadoControlGrupos, Mode=OneWay}"
+                                                                  VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="1" Text="Control de grupos" VerticalAlignment="Center" />
+                                    </Grid>
+                                </Button>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- ===== Filtro de columnas general ===== -->
+                    <Border Style="{StaticResource AppCardStyle}" Padding="16">
+                        <StackPanel Spacing="10">
+                            <TextBlock Text="Filtro de columnas"
+                                       Style="{StaticResource CardTitleTextBlockStyle}" />
+                            <Grid ColumnSpacing="10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <controls:SemaforoControl Grid.Column="0"
+                                                          Estado="{x:Bind ViewModel.EstadoFiltro, Mode=OneWay}"
+                                                          VerticalAlignment="Center" />
+                                <TextBlock Grid.Column="1"
+                                           Text="{x:Bind ViewModel.NombreFiltro, Mode=OneWay}"
+                                           VerticalAlignment="Center"
+                                           TextTrimming="CharacterEllipsis" />
+                                <Button Grid.Column="2"
+                                        Content="Filtro…"
+                                        Command="{x:Bind ViewModel.FiltroColumnasCommand}"
+                                        AutomationProperties.Name="Seleccionar o quitar el filtro de columnas" />
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- ===== Acciones de combinación ===== -->
+                    <Border Style="{StaticResource AppCardStyle}" Padding="16">
+                        <StackPanel Spacing="10">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Combinación"
+                                           Style="{StaticResource CardTitleTextBlockStyle}" />
+                                <TextBlock Grid.Column="1"
+                                           Text="{x:Bind ViewModel.NombreCombinacion, Mode=OneWay}"
+                                           Style="{StaticResource SecondaryTextBlockStyle}"
+                                           VerticalAlignment="Center" />
+                            </Grid>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Button Content="Calcular" Style="{StaticResource AccentButtonStyle}"
+                                        Command="{x:Bind ViewModel.CalcularCommand}"
+                                        AutomationProperties.Name="Calcular columnas" />
+                                <Button Content="Reducir"
+                                        Command="{x:Bind ViewModel.ReducirCommand}"
+                                        AutomationProperties.Name="Reducir columnas" />
+                                <Button Content="Nueva"
+                                        Command="{x:Bind ViewModel.NuevaCombinacionCommand}"
+                                        AutomationProperties.Name="Nueva combinación" />
+                                <Button Content="Abrir…"
+                                        Command="{x:Bind ViewModel.AbrirCombinacionCommand}"
+                                        AutomationProperties.Name="Abrir combinación" />
+                                <Button Content="Guardar…"
+                                        Command="{x:Bind ViewModel.GuardarCombinacionCommand}"
+                                        AutomationProperties.Name="Guardar combinación" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
                 </StackPanel>
-            </Border>
+            </ScrollViewer>
         </Grid>
     </Grid>
 </Page>

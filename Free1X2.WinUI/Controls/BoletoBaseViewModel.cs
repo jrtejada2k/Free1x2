@@ -211,7 +211,13 @@ public partial class BoletoBaseViewModel : ObservableObject
 
     /// <summary>Pone todos los partidos a triple (1,X,2). Equivale a Reiniciar14Triples().</summary>
     [RelayCommand]
-    private void Reiniciar()
+    private void Reiniciar() => ReiniciarTriples();
+
+    /// <summary>
+    /// Reinicia el boleto a 14 triples (todos 1,X,2) y vuelca al motor. Público para que la
+    /// MainPage lo invoque al crear una combinación nueva (MNuevaComb → Reiniciar14Triples).
+    /// </summary>
+    public void ReiniciarTriples()
     {
         _cargando = true;
         try
@@ -229,5 +235,22 @@ public partial class BoletoBaseViewModel : ObservableObject
         }
         VolcarPronosticosAlMotor();
         RecalcularResumen();
+    }
+
+    /// <summary>Vacía los nombres de equipos del boleto (Pronosticos.SetEquiposVacio()).</summary>
+    public void VaciarEquipos()
+    {
+        _cargando = true;
+        try
+        {
+            foreach (var p in Partidos)
+            {
+                p.Equipos = "? - ?";
+            }
+        }
+        finally
+        {
+            _cargando = false;
+        }
     }
 }
