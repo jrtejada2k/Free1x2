@@ -1,9 +1,11 @@
 using System;
+using System.Collections;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Free1X2.Analisis;
 using Free1X2.EntradaSalida;
 using Free1X2.Utils;
 using Free1X2.WinUI.Controls;
@@ -238,26 +240,40 @@ public partial class BancoPruebasFrmViewModel : ObservableObject
     }
 
     /// <summary>Paso 2: calcula la valoración real a partir de la apostada (btCalcularReales).</summary>
-    [RelayCommand]
-    private void CalcularReales()
+    [RelayCommand(CanExecute = nameof(NoOcupado))]
+    private async Task CalcularReales()
     {
-        // La parte de matriz SÍ se cablea: v = controlPorcentajesApostados.Valores
-        // (Free1X2/UI/BancoPruebasFrm.cs línea 3335) equivale a:
-        double[,] v = PorcentajesHelper.AMatriz(PorcentajesApostados);
+        // btCalcularReales_Click (BancoPruebasFrm.cs 3333): v = controlPorcentajesApostados.Valores;
+        // ValoresNeperianos() y cálculo de complementarios; luego Calcula14Triples.
+        v = PorcentajesHelper.AMatriz(PorcentajesApostados);
+        float[,] va = new Porcentajes(v).ValoresNeperianos();
+        float Prob = 0;
+        for (int Partido = 0; Partido < 14; Partido++)
+        {
+            Prob += va[Partido, 0];
+            Cra[Partido, 1] = (float)(va[Partido, 1] - va[Partido, 0]);
+            Cra[Partido, 2] = (float)(va[Partido, 2] - va[Partido, 0]);
+        }
 
-        // TODO(dominio): replicar btCalcularReales_Click + Calcula14Triples (BancoPruebasFrm.cs 3333/3350).
-        //   BLOQUEADO por dependencias NO portadas al dominio que consumen 'v':
-        //     - Free1X2.Utils.Porcentajes (ValoresNeperianos/ValoresBase100): vive en el proyecto
-        //       WinForms Free1X2 (depende de System.Windows.Forms) y NO está en Free1X2.Domain, que es
-        //       el único proyecto referenciado por la WinUI. Migrar primero ese helper al dominio.
-        //     - Motor de probabilidades Ap14T = ApuestaProbableCentral[4782969] + EncontrarDistantes1 +
-        //       ordena (quicksort) — no portado. Al terminar, el resultado p[14,3] se escribe de vuelta
-        //       en la rejilla real con: PorcentajesHelper.CargarMatriz(PorcentajesReales, p)
-        //       (equivale a controlPorcentajesReales.Valores = p, línea 3388).
-        _ = v;
-        AppServices.MostrarInfo(
-            "La matriz apostada ya está disponible, pero el cálculo de la valoración real requiere el " +
-            "helper Porcentajes y el motor de probabilidades (Ap14T), aún no portados al dominio.");
+        // Snapshot de los parámetros de UI (txLN / txNumCol legacy).
+        double lnTxt = LnProbMedia14;
+        int numCol = (int)NumColumnasAConsiderar;
+
+        Ocupado = true;
+        try
+        {
+            double[,] pResultado = await Task.Run(() => Calcula14Triples(Prob, lnTxt, numCol));
+            // controlPorcentajesReales.Valores = p (BancoPruebasFrm.cs 3388).
+            PorcentajesHelper.CargarMatriz(PorcentajesReales, pResultado);
+        }
+        catch (Exception ex)
+        {
+            AppServices.MostrarError("Error calculando la valoración real: " + ex.Message);
+        }
+        finally
+        {
+            Ocupado = false;
+        }
     }
 
     /// <summary>Paso 3: genera columnas aleatorias de 14 aciertos (btGenerarAleatorias).</summary>
@@ -344,20 +360,54 @@ public partial class BancoPruebasFrmViewModel : ObservableObject
     }
 
     /// <summary>Paso 4: ejecuta el escrutinio / análisis seleccionado (btnOK "Analizar").</summary>
-    [RelayCommand]
-    private void Analizar()
+    [RelayCommand(CanExecute = nameof(NoOcupado))]
+    private async Task Analizar()
     {
-        // TODO(dominio): replicar btnOK_Click (Free1X2/UI/BancoPruebasFrm.cs línea 2732) y sus ramas
-        //   EscrutarCombinacion / EscrutarColumnas / EscrutarColumnasAutoEscrutinio /
-        //   EscrutarCombinacionPorJornadas. BLOQUEADO: dependen de CalcularPremios (que usa la matriz
-        //   .Valores de ControlPorcentajes, NO portado) y, en la rama de jornadas, de EscrutadorComb
-        //   (NO portado, Free1X2/Escrutinio/EscrutadorComb.cs). Las clases de resultado Resultados /
-        //   ResultadosJornada son privadas del formulario y no están en el dominio.
-        //   Al portar, rellenar FilasResultado y los totales (GastoTotalTexto, PremioTotalTexto,
-        //   PorcentajeRecuperadoTexto, VecesPremiadaTexto, VecesBeneficioTexto).
-        AppServices.MostrarInfo(
-            "El análisis del banco de pruebas requiere el control de porcentajes y el motor de " +
-            "escrutinio de combinaciones, aún no portados al dominio.");
+        // btnOK_Click (BancoPruebasFrm.cs 2732): según el tipo de análisis seleccionado.
+        // De las 4 ramas legacy (Combinación / Columnas / Autoescrutinio / Jornadas) sólo la rama
+        // "Combinación" se mapea limpiamente a FilasResultado + totales del VM; las otras tres
+        // dependen del DataGrid WinForms (ResCol/ResultadoPorJornadas) — ver TODO al final.
+        if (TipoAnalisisSeleccionado != "Combinación")
+        {
+            // TODO[grid]: replicar EscrutarColumnas (BancoPruebasFrm.cs 3600) /
+            //   EscrutarColumnasAutoEscrutinio (3772) / EscrutarCombinacionPorJornadas (2809).
+            //   BLOQUEADO: producen ResultadosPorColumna[] / ResultadosJornada[] que el form enlaza a
+            //   la rejilla custom dgResultadoEscrutinio (MyDataGrid) con columnas/selección propias;
+            //   el VM sólo expone FilasResultado (ObservableCollection<string>) y no modela esas
+            //   clases ni la selección de la rejilla. Requiere un modelo de resultado por columnas.
+            AppServices.MostrarInfo(
+                "Sólo el análisis por 'Combinación' está portado. Los modos por columnas, autoescrutinio " +
+                "y jornadas requieren la rejilla de resultados del formulario original.");
+            return;
+        }
+
+        if (string.IsNullOrEmpty(FicheroEntrada))
+        {
+            AppServices.MostrarInfo("Selecciona primero el fichero de columnas (paso 1).");
+            return;
+        }
+        if (_columnasAleatorias.Count == 0)
+        {
+            AppServices.MostrarInfo("Genera primero las columnas aleatorias (paso 3).");
+            return;
+        }
+
+        string archivoEntrada = FicheroEntrada;
+        double[,] vApostados = PorcentajesHelper.AMatriz(PorcentajesApostados);
+
+        Ocupado = true;
+        try
+        {
+            await Task.Run(() => EscrutarCombinacion(archivoEntrada, vApostados));
+        }
+        catch (Exception ex)
+        {
+            AppServices.MostrarError("Error en el escrutinio: " + ex.Message);
+        }
+        finally
+        {
+            Ocupado = false;
+        }
     }
 
     /// <summary>Paso 4: graba los resultados del escrutinio (btGrabar).</summary>
@@ -373,17 +423,315 @@ public partial class BancoPruebasFrmViewModel : ObservableObject
     [RelayCommand]
     private void Simplificar()
     {
-        // TODO(dominio): replicar btEliminarFilas_Click (Free1X2/UI/BancoPruebasFrm.cs línea 4399):
-        //   elimina apuestas con menos de DiferenciasMinimas diferencias, respecto de cada fila
-        //   seleccionada o sólo de la fila actual (SimplificarParaCadaFila). BLOQUEADO: opera sobre las
-        //   filas de resultado del escrutinio (no disponibles sin ControlPorcentajes / EscrutadorComb).
+        // TODO[grid]: replicar btEliminarFilas_Click (Free1X2/UI/BancoPruebasFrm.cs línea 4399) +
+        //   DeseleccionaColumnasPorDiferencias (4427). BLOQUEADO de raíz: la simplificación opera sobre
+        //   ResCol[] (ResultadosPorColumna del análisis "Columnas") y sobre la SELECCIÓN de filas de la
+        //   rejilla custom dgResultadoEscrutinio (Select/IsSelected/UnSelect de MyDataGrid). El VM sólo
+        //   expone FilasResultado (ObservableCollection<string>) sin estado de selección por columna ni
+        //   el modelo ResCol, así que no hay nada equivalente que deseleccionar. Requiere portar antes
+        //   el análisis por columnas con un modelo de resultado seleccionable.
+        AppServices.MostrarInfo(
+            "La simplificación de filas opera sobre el resultado del análisis por columnas y la selección " +
+            "de la rejilla del formulario original, aún no portados.");
     }
 
     /// <summary>Paso 4: abre la selección de jornadas (btSeleccionJornadas).</summary>
     [RelayCommand]
     private void SeleccionarJornadas()
     {
-        // TODO(dominio): abrir el equivalente WinUI del formulario legacy de selección de jornadas.
-        //   BLOQUEADO por el host de navegación (fuera del alcance de este lote).
+        // El botón legacy btSeleccionJornadas (BancoPruebasFrm.cs línea 148) está oculto
+        // (Visible=false) y NO tiene handler Click cableado en el formulario original, por lo que no
+        // hay comportamiento que transcribir. Si en el futuro se reactiva, abriría el equivalente WinUI
+        // del formulario de selección de jornadas (requiere el host de navegación, fuera de alcance).
+    }
+
+    // =====================================================================
+    // Motor del Banco de Pruebas (transcrito literalmente de BancoPruebasFrm.cs).
+    // =====================================================================
+
+    private const int NumColumnas14T = 4782969; // 3^14
+
+    // Bloquea reentradas mientras corre un cálculo pesado y habilita/inhabilita los comandos.
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(CalcularRealesCommand))]
+    [NotifyCanExecuteChangedFor(nameof(AnalizarCommand))]
+    private bool _ocupado;
+
+    private bool NoOcupado() => !Ocupado;
+
+    // Campos de instancia equivalentes a los del formulario legacy (BancoPruebasFrm.cs 45-75).
+    private double[,] v = new double[14, 3];
+    private double[,] p = new double[14, 3];
+    private readonly float[] Cr = new float[14];
+    private float[,] pa = new float[14, 3];
+    private float[,] Cra = new float[14, 3];
+    private ApuestaProbableCentral[] Ap14T = Array.Empty<ApuestaProbableCentral>();
+    private BitArray Bits = new BitArray(NumColumnas14T, false);
+    private int Profundidad = 0;
+    private double _LN = -14.7;
+
+    // Parámetros L.A.E. hardcodeados en el formulario legacy (BancoPruebasFrm.cs 55-56 + ctor 544-548).
+    private const double Recaudacion = 14000000;
+    private const double PrecioApuesta = 0.5;
+    private readonly double[] PctDestinadoAPremiosCategoria = new double[5] { 0.12, 0.08, 0.08, 0.08, 0.09 };
+    private readonly double[] DestinadoAPremiosCategoria = new double[5];
+    private double ProbabilidadCategoria14 = 1;
+    private readonly double[] SumaProbabilidades = new double[5];
+    private readonly double[] Premios = new double[5];
+
+    public BancoPruebasFrmViewModel()
+    {
+        // ctor legacy (BancoPruebasFrm.cs 544-546): DestinadoAPremiosCategoria = Recaudacion * Pct.
+        for (int i = 0; i < 5; i++)
+            DestinadoAPremiosCategoria[i] = Recaudacion * PctDestinadoAPremiosCategoria[i];
+    }
+
+    // statusBarPanel*.Text legacy -> propiedades de estado marshaladas al hilo de UI.
+    private void EnUi(Action accion)
+    {
+        var disp = AppServices.UiDispatcher;
+        if (disp is null) { accion(); return; }
+        disp.TryEnqueue(() => accion());
+    }
+
+    // BancoPruebasFrm.cs 3350-3389. Devuelve la matriz p[14,3] de la valoración real obtenida.
+    private double[,] Calcula14Triples(float Prob, double lnTxt, int NumCol)
+    {
+        Ap14T = new ApuestaProbableCentral[NumColumnas14T];
+        Bits = new BitArray(NumColumnas14T, true);
+        _LN = lnTxt;
+        Profundidad = 0;
+        EncontrarDistantes1(Prob, 0, 0, 14);
+        Ap14T[0].ProbabilidadDiferencial = Math.Abs(Prob - (float)_LN);
+        Ap14T[0].Probabilidad = Prob;
+        Ap14T[0].Columna = 0;
+
+        ordena(0, 4782968);
+        Array.Clear(p, 0, 42);
+        for (int i = 0; i < NumCol; i++)
+        {
+            for (byte partido = 0; partido < 14; partido++)
+            {
+                p[partido, (Ap14T[i].Columna / PotDe3[partido]) % 3]++;
+            }
+        }
+        for (byte partido = 0; partido < 14; partido++)
+        {
+            p[partido, 0] /= (NumCol / 100);
+            p[partido, 1] /= (NumCol / 100);
+            p[partido, 2] /= (NumCol / 100);
+        }
+        return p;
+    }
+
+    // BancoPruebasFrm.cs 3390-3426.
+    private void EncontrarDistantes1(float pProb, int IndiceInicial, int PosicionInicial, int pProfundidad)
+    {
+        int Partido;
+        int z;
+        int Indice;
+        float Prob;
+        Profundidad++;
+
+        //'--encontramos las apuestas que se diferencian en un solo signo ----
+        for (Partido = PosicionInicial; Partido < 14; Partido++)
+        {
+            for (z = 1; z < 3; z++)
+            {
+                Indice = IndiceInicial + PotDe3[Partido] * z;
+                Prob = pProb + Cra[Partido, z];
+
+                if (Bits[Indice])
+                {
+                    Ap14T[Indice].Columna = Indice;
+                    Ap14T[Indice].ProbabilidadDiferencial = Math.Abs(Prob - (float)_LN);
+                    Ap14T[Indice].Probabilidad = Prob;
+                }
+                else
+                {
+                    Ap14T[Indice].ProbabilidadDiferencial = (float)3E+7;
+                    Ap14T[Indice].Probabilidad = Prob;
+                }
+
+                if (Profundidad < pProfundidad)
+                {
+                    EncontrarDistantes1(Prob, Indice, Partido + 1, pProfundidad);
+                }
+            }
+        }
+        Profundidad--;
+    }
+
+    // BancoPruebasFrm.cs 3427-3448.
+    private void ordena(int izq, int der)
+    {
+        int i = 0, j = 0;
+        ApuestaProbableCentral x = new ApuestaProbableCentral();
+        ApuestaProbableCentral aux = new ApuestaProbableCentral();
+        i = izq; j = der;
+        x = Ap14T[(izq + der) / 2];
+        do
+        {
+            while (Ap14T[i].ProbabilidadDiferencial < x.ProbabilidadDiferencial && j <= der) i++;
+            while (x.ProbabilidadDiferencial < Ap14T[j].ProbabilidadDiferencial && j > izq) j--;
+            if (i <= j)
+            {
+                aux = Ap14T[i];
+                Ap14T[i] = Ap14T[j];
+                Ap14T[j] = aux;
+                i++; j--;
+            }
+        } while (i <= j);
+        if (izq < j) ordena(izq, j);
+        if (i < der) ordena(i, der);
+    }
+
+    // BancoPruebasFrm.cs 3237-3249.
+    private static void CargarFicheroDeColumnas(string archivoEntrada, List<int> columnas)
+    {
+        IArchivoColumnas comBaseCols = new ArchivoColumnasTexto(archivoEntrada);
+        ConvertidorDeBases col = new ConvertidorDeBases();
+        columnas.Clear();
+        while (comBaseCols.SiguienteColumna())
+        {
+            columnas.Add(col.ConvColumnaANumero(comBaseCols.LeeColumnaSinComas()));
+        }
+        comBaseCols.Cerrar();
+    }
+
+    // BancoPruebasFrm.cs 3271-3279.
+    private static byte Aciertos(int col1, int col2)
+    {
+        byte a = 0;
+        for (int Partido = 0; Partido < 14; Partido++)
+        {
+            if (((col1 / PotDe3[Partido]) % 3) == ((col2 / PotDe3[Partido]) % 3)) a++;
+        }
+        return a;
+    }
+
+    // BancoPruebasFrm.cs 3280-3307.
+    private void CalcularPremios(int ColumnaGanadora)
+    {
+        int Partido;
+        int i;
+        int signo;
+
+        ProbabilidadCategoria14 = 1;
+        for (i = 0; i < 5; i++) SumaProbabilidades[i] = 0;
+
+        for (Partido = 0; Partido < 14; Partido++)
+        {
+            signo = (ColumnaGanadora / PotDe3[Partido]) % 3;
+            ProbabilidadCategoria14 *= pa[Partido, signo];
+            Cr[Partido] = (float)((1 - pa[Partido, signo]) / pa[Partido, signo]);
+        }
+        Premios[0] = Math.Round(PctDestinadoAPremiosCategoria[0] * PrecioApuesta / ProbabilidadCategoria14, 2);
+
+        CalcularSumaProbabilidades(ProbabilidadCategoria14, 0, 4);
+
+        for (i = 1; i < 5; i++)
+        {
+            Premios[i] = Math.Round(PctDestinadoAPremiosCategoria[i] * PrecioApuesta / SumaProbabilidades[i], 2);
+        }
+        CorreccionesDeCalculo();
+    }
+
+    // BancoPruebasFrm.cs 3308-3323.
+    private void CalcularSumaProbabilidades(double pProb, int PosicionInicial, int pProfundidad)
+    {
+        double Prob = 0;
+        Profundidad++;
+
+        for (int Partido = PosicionInicial; Partido < 14; Partido++)
+        {
+            Prob = pProb * Cr[Partido];
+            SumaProbabilidades[Profundidad] += Prob;
+            if (Profundidad < pProfundidad)
+            {
+                CalcularSumaProbabilidades(Prob, Partido + 1, pProfundidad);
+            }
+        }
+        Profundidad--;
+    }
+
+    // BancoPruebasFrm.cs 3324-3331.
+    private void CorreccionesDeCalculo()
+    {
+        for (byte i = 0; i < 5; i++)
+        {
+            if (Premios[i] > DestinadoAPremiosCategoria[i]) Premios[i] = DestinadoAPremiosCategoria[i];
+        }
+        if (Premios[4] < 1) Premios[4] = 0;
+    }
+
+    // BancoPruebasFrm.cs 2740-2808 (rama EscrutarCombinacion). Rellena FilasResultado + totales del VM.
+    private void EscrutarCombinacion(string archivoEntrada, double[,] vApostados)
+    {
+        int[] aciertos = new int[15];
+        double[] ingresos = new double[5] { 0, 0, 0, 0, 0 };
+        var columnas = new List<int>();
+        int numAleatorias = _columnasAleatorias.Count; // legacy: NumAleatorias
+        int VecesPremiada = 0;
+        int VecesBeneficio = 0;
+        double PremioTotal = 0;
+
+        CargarFicheroDeColumnas(archivoEntrada, columnas);
+        double CosteCombinacion = columnas.Count * PrecioApuesta;
+        EnUi(() => NumColumnasResultadoTexto = columnas.Count.ToString());
+        double GastoTotal = CosteCombinacion * numAleatorias;
+        double PremioCombinacion;
+        EnUi(() => GastoTotalTexto = GastoTotal.ToString());
+
+        //---Leer Porcentajes --------------
+        v = vApostados;
+        pa = new Porcentajes(v).ValoresBase100();
+        bool premiada;
+        double beneficio;
+        foreach (int i in _columnasAleatorias)
+        {
+            CalcularPremios(i);
+            PremioCombinacion = 0;
+            premiada = false;
+            beneficio = -CosteCombinacion;
+            foreach (int j in columnas)
+            {
+                byte NumAciertos = Aciertos(i, j);
+                aciertos[NumAciertos]++;
+                if (NumAciertos > 9)
+                {
+                    ingresos[14 - NumAciertos] += Premios[14 - NumAciertos];
+                    premiada = true;
+                    PremioCombinacion += ingresos[14 - NumAciertos];
+                    beneficio += Premios[14 - NumAciertos];
+                }
+            }
+            if (premiada == true) VecesPremiada++;
+            if (beneficio > 0) VecesBeneficio++;
+        }
+
+        // Res[] legacy -> filas de texto (Concepto/Valor/Premios) para FilasResultado.
+        var filas = new List<string>();
+        for (int i = 0; i < 15; i++)
+        {
+            double premiosCat = 0;
+            if (i >= 10) premiosCat = Math.Round(ingresos[14 - i], 0);
+            double mediaCat = aciertos[i] > 0 ? Math.Round(premiosCat / aciertos[i], 2) : 0;
+            filas.Add($"{i} aciertos\tveces: {aciertos[i]}\tpremios: {premiosCat}\tmedia: {mediaCat}");
+        }
+        for (int i = 10; i < 15; i++) PremioTotal += ingresos[14 - i];
+        PremioTotal = Math.Round(PremioTotal, 0);
+
+        double Recuperacion = Math.Round(100 * PremioTotal / GastoTotal, 0);
+
+        EnUi(() =>
+        {
+            FilasResultado.Clear();
+            foreach (var f in filas) FilasResultado.Add(f);
+            PremioTotalTexto = PremioTotal.ToString();
+            VecesBeneficioTexto = VecesBeneficio.ToString();
+            VecesPremiadaTexto = VecesPremiada.ToString();
+            PorcentajeRecuperadoTexto = Recuperacion.ToString() + "%";
+        });
     }
 }
