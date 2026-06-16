@@ -1,7 +1,10 @@
+using System;
+using System.Collections;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Free1X2.Utils;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -38,35 +41,63 @@ public partial class DialogoSeleccionBancoPruebasFrmViewModel : ObservableObject
     [ObservableProperty]
     private bool _cancelado;
 
+    /// <summary>True si el usuario pulsó "Aceptar" (equivale a Cancelado == false del legacy).</summary>
+    public bool Aceptado { get; private set; }
+
+    /// <summary>
+    /// Resultado leído por el llamador (BancoPruebasFrm): los 18 tripletes concepto/min/max ya
+    /// editados, como ArrayList de Free1X2.Utils.TablaDeSeleccion (legacy: ValoresMinimosyMaximos).
+    /// Se rellena al pulsar "Aceptar".
+    /// </summary>
+    public ArrayList ValoresMinimosyMaximos { get; } = new();
+
+    /// <summary>Etiquetas de los 18 conceptos, en el mismo orden que el ctor legacy (pMinMax 0..17).</summary>
+    private static readonly string[] _etiquetasConceptos =
+    {
+        "Nº de veces 14 aciertos",
+        "Nº de veces 13 aciertos",
+        "Nº de veces 12 aciertos",
+        "Nº de veces 11 aciertos",
+        "Nº de veces 10 aciertos",
+        "Nº de veces con premio",
+        "Premio total de 14",
+        "Premio total de 13",
+        "Premio total de 12",
+        "Premio total de 11",
+        "Premio total de 10",
+        "Premio acumulado",
+        "Premio medio de 14",
+        "Premio medio de 13",
+        "Premio medio de 12",
+        "Premio medio de 11",
+        "Premio medio de 10",
+        "% de recuperación",
+    };
+
     public DialogoSeleccionBancoPruebasFrmViewModel()
     {
-        // Los 18 conceptos del diálogo legacy (InicializaGrid + carga de pMinMax).
-        // TODO(dominio): los mínimos/máximos reales provienen del array double[,] pMinMax
-        //                que el form legacy recibe en su constructor. Aquí se inicializan a 0.
-        string[] conceptos =
+        // Pobla los 18 conceptos (legacy InicializaGrid). Los mínimos/máximos quedan a 0 hasta
+        // que el llamador invoque Inicializar(pMinMax).
+        foreach (var c in _etiquetasConceptos)
         {
-            "Nº de veces 14 aciertos",
-            "Nº de veces 13 aciertos",
-            "Nº de veces 12 aciertos",
-            "Nº de veces 11 aciertos",
-            "Nº de veces 10 aciertos",
-            "Nº de veces con premio",
-            "Premio total de 14",
-            "Premio total de 13",
-            "Premio total de 12",
-            "Premio total de 11",
-            "Premio total de 10",
-            "Premio acumulado",
-            "Premio medio de 14",
-            "Premio medio de 13",
-            "Premio medio de 12",
-            "Premio medio de 11",
-            "Premio medio de 10",
-            "% de recuperación",
-        };
-
-        foreach (var c in conceptos)
             Conceptos.Add(new ConceptoSeleccionItem(c));
+        }
+    }
+
+    /// <summary>
+    /// Carga los mínimos/máximos por concepto (legacy: ctor DialogoSeleccionBancoPruebasFrm(double[,] pMinMax)).
+    /// pMinMax es un array [18,2] con [concepto, 0] = mínimo y [concepto, 1] = máximo.
+    /// </summary>
+    public void Inicializar(double[,] pMinMax)
+    {
+        if (pMinMax == null) return;
+        int filas = Math.Min(Conceptos.Count, pMinMax.GetLength(0));
+        for (int i = 0; i < filas; i++)
+        {
+            // Asignar directamente los campos para no marcar "Incluido" en la carga inicial
+            // (en el legacy el ctor crea TablaDeSeleccion(concepto, min, max) sin marcar Checked).
+            Conceptos[i].EstablecerRango(pMinMax[i, 0], pMinMax[i, 1]);
+        }
     }
 
     // Aceptar (legacy: button1_Click -> Cancelado = false; this.Close()).
@@ -74,9 +105,21 @@ public partial class DialogoSeleccionBancoPruebasFrmViewModel : ObservableObject
     private void Aceptar()
     {
         Cancelado = false;
-        // TODO(dominio): el form legacy devolvía ValoresMinimosyMaximos (los rangos editados)
-        //                al llamador y cerraba el diálogo. Reconectar al flujo de navegación /
-        //                al consumidor de BancoPruebasFrm cuando exista el equivalente WinUI.
+        Aceptado = true;
+
+        // Construye el resultado equivalente a ValoresMinimosyMaximos del legacy:
+        // un TablaDeSeleccion por concepto con su Checked/Minimo/Maximo editados.
+        ValoresMinimosyMaximos.Clear();
+        foreach (var c in Conceptos)
+        {
+            var fila = new TablaDeSeleccion(c.Concepto, c.Minimo, c.Maximo)
+            {
+                // El ctor de TablaDeSeleccion no toca Checked; lo fijamos según la casilla.
+                Checked = c.Incluido,
+            };
+            ValoresMinimosyMaximos.Add(fila);
+        }
+        // El cierre/navegación lo gestiona el code-behind de la página (Frame.GoBack).
     }
 
     // Cancelar (legacy: btCancelar_Click -> Cancelado = true; this.Close()).
@@ -84,7 +127,8 @@ public partial class DialogoSeleccionBancoPruebasFrmViewModel : ObservableObject
     private void Cancelar()
     {
         Cancelado = true;
-        // TODO(dominio): el form legacy cerraba el diálogo descartando los cambios.
+        Aceptado = false;
+        // El form legacy cerraba el diálogo descartando los cambios (lo hace el code-behind).
     }
 }
 
@@ -112,8 +156,30 @@ public partial class ConceptoSeleccionItem : ObservableObject
     [ObservableProperty]
     private double _maximo;
 
-    // Legacy: el setter de Minimo/Maximo marcaba Checked = true al editarse.
-    partial void OnMinimoChanged(double value) => Incluido = true;
+    // Evita marcar "Incluido" durante la carga inicial de rangos (legacy: el ctor de
+    // TablaDeSeleccion asigna min/max sin tocar Checked; solo los setters lo marcan).
+    private bool _cargando;
 
-    partial void OnMaximoChanged(double value) => Incluido = true;
+    // Legacy: el setter de Minimo/Maximo marcaba Checked = true al editarse por el usuario.
+    partial void OnMinimoChanged(double value)
+    {
+        if (!_cargando) Incluido = true;
+    }
+
+    partial void OnMaximoChanged(double value)
+    {
+        if (!_cargando) Incluido = true;
+    }
+
+    /// <summary>
+    /// Establece el rango (mínimo/máximo) sin marcar "Incluido", para la carga inicial desde
+    /// el array pMinMax del llamador (legacy: ctor TablaDeSeleccion(concepto, min, max)).
+    /// </summary>
+    public void EstablecerRango(double minimo, double maximo)
+    {
+        _cargando = true;
+        Minimo = minimo;
+        Maximo = maximo;
+        _cargando = false;
+    }
 }

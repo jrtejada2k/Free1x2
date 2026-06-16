@@ -22,11 +22,27 @@ public partial class FilaLimite : ObservableObject
         _difMax = difMax;
     }
 
+    public FilaLimite(string etiquetaRango, int posInicial, int posFinal, double difMin, double difMax)
+    {
+        EtiquetaRango = etiquetaRango;
+        PosInicial = posInicial;
+        PosFinal = posFinal;
+        RangoTexto = posInicial + " a " + posFinal;
+        _difMin = difMin;
+        _difMax = difMax;
+    }
+
     /// <summary>Descripción del tramo de aciertos (legacy: label6/7/8/11/14/17/20/23/26 + label1/2 cabecera).</summary>
     public string EtiquetaRango { get; }
 
     /// <summary>Rango de posiciones "X a Y" como texto (legacy: lblextremoN / lblextremoNd, solo lectura).</summary>
     public string RangoTexto { get; }
+
+    /// <summary>Posición inicial del rango de aciertos (legacy: extremos[fila,0], mostrado por lblextremoN).</summary>
+    public int PosInicial { get; }
+
+    /// <summary>Posición final del rango de aciertos (legacy: extremos[fila,1], mostrado por lblextremoNd).</summary>
+    public int PosFinal { get; }
 
     // Límite inferior de diferencias a eliminar (legacy: txdifN -> extremos[fila,2]).
     [ObservableProperty]

@@ -45,6 +45,7 @@
             <TabView IsAddTabButtonVisible="False"
                      CanReorderTabs="False"
                      CanDragTabs="False"
+                     SelectedIndex="{x:Bind ViewModel.PestanaActiva, Mode=TwoWay}"
                      AutomationProperties.Name="Modo de definición de combinaciones">
                 <TabView.TabItems>
 
@@ -244,7 +245,8 @@
                                         </Grid>
 
                                         <ListView ItemsSource="{x:Bind ViewModel.Combinaciones, Mode=OneWay}"
-                                                  SelectionMode="Extended"
+                                                  SelectedItem="{x:Bind ViewModel.CombinacionSeleccionada, Mode=TwoWay}"
+                                                  SelectionMode="Single"
                                                   MaxHeight="320"
                                                   AutomationProperties.Name="Lista de combinaciones por jornada">
                                             <ListView.ItemContainerStyle>

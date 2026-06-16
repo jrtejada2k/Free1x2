@@ -42,9 +42,18 @@ public partial class ResultadosCalculoMultipleFrmViewModel : ObservableObject
     /// </summary>
     public ObservableCollection<ResultadoCalculoMultipleItem> Resultados { get; } = new();
 
-    // TODO[dominio]: poblar 'Resultados' con las filas del proceso de generación múltiple.
-    //   Legacy: el formulario que abría ResultadosCalculoMultipleFrm añadía cada fila vía
-    //   listaResumen.Items.Add(new ListViewItem(new[]{ archCombinacion, archColumnas,
-    //   colsAnalizadas, colsAceptadas, tiempo })).
-    //   No implementar aquí el cálculo; solo enlazar el resultado ya calculado.
+    /// <summary>
+    /// Carga las filas ya calculadas del proceso de generación múltiple.
+    /// Equivale a cómo el formulario padre legacy poblaba listaResumen.Items antes de
+    /// ResultadosCalculoMultipleFrm.ShowDialog() (Free1X2/UI/CalculaColumnasMultipleFrm.cs
+    /// línea 240). Aquí solo se enlaza el resultado ya calculado: no se ejecuta el motor.
+    /// </summary>
+    public void Cargar(IEnumerable<ResultadoCalculoMultipleItem> resultados)
+    {
+        Resultados.Clear();
+        foreach (var fila in resultados)
+        {
+            Resultados.Add(fila);
+        }
+    }
 }
