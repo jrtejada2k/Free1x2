@@ -1,5 +1,10 @@
-using System.Collections.ObjectModel;
+using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.IO;
+using System.Linq;
+using System.Text;
+
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -13,7 +18,11 @@ namespace Free1X2.WinUI.Views.Ported
     /// </summary>
     public partial class ListaEquiposFrmViewModel : ObservableObject
     {
+        // Origen completo cargado de disco (antes de aplicar el filtro de búsqueda).
+        private readonly List<string> _fuenteCompleta = new();
+
         // Categoría recibida en el ctor del form legacy (ListaEquiposFrm(TextBox, string categoria)).
+        // Es el sufijo del fichero: "1", "2", "2b", "Int".
         [ObservableProperty]
         private string _categoria = string.Empty;
 
@@ -29,15 +38,38 @@ namespace Free1X2.WinUI.Views.Ported
         [ObservableProperty]
         private string _mensajeEstado = string.Empty;
 
-        // Lista completa de equipos cargada desde disco (legacy: contenido del .dat, Sorted=true).
+        // Lista (posiblemente filtrada) mostrada en pantalla (legacy: contenido del .dat, Sorted=true).
         public ObservableCollection<string> Equipos { get; } = new();
 
         // Indica si hay una selección válida para confirmar.
         public bool HaySeleccion => !string.IsNullOrEmpty(EquipoSeleccionado);
 
+        /// <summary>
+        /// Resultado confirmado por el usuario (legacy: txt.Text = listBox1.SelectedItem).
+        /// La página host lo consume para volcarlo al control destino y cerrar/ocultar.
+        /// </summary>
+        public string? ResultadoSeleccionado { get; private set; }
+
+        /// <summary>
+        /// Se dispara al confirmar una selección (legacy: this.Hide() tras volcar el texto).
+        /// El argumento es el nombre del equipo elegido.
+        /// </summary>
+        public event EventHandler<string>? EquipoConfirmado;
+
         partial void OnEquipoSeleccionadoChanged(string? value) => OnPropertyChanged(nameof(HaySeleccion));
 
         partial void OnTextoBusquedaChanged(string value) => AplicarFiltro();
+
+        partial void OnCategoriaChanged(string value) => Cargar();
+
+        /// <summary>
+        /// Ruta del fichero de equipos de la categoría actual.
+        /// Legacy: Application.StartupPath + "/Equipos/equipos" + cat + ".dat".
+        /// En WinUI el directorio de inicio equivale a AppContext.BaseDirectory.
+        /// </summary>
+        private string ArchivoCategoria =>
+            AppContext.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+            + "/Equipos/equipos" + Categoria + ".dat";
 
         /// <summary>
         /// Carga los equipos de la categoría actual.
@@ -47,14 +79,40 @@ namespace Free1X2.WinUI.Views.Ported
         [RelayCommand]
         private void Cargar()
         {
+            _fuenteCompleta.Clear();
             Equipos.Clear();
             MensajeEstado = string.Empty;
 
-            // TODO [dominio]: portar ListaEquiposFrm.ListaEquiposFrm_Load / HaySiguiente / LeeEquipos.
-            // 1. Resolver ruta del fichero "Equipos/equipos{Categoria}.dat" (legacy usaba Application.StartupPath).
-            // 2. Si no existe -> MensajeEstado = "No se encuentra el archivo ...".
-            // 3. Leer líneas (Encoding.Default), Trim, añadir a Equipos y ordenar alfabéticamente.
-            // No se implementa aquí: acceso a disco / persistencia es lógica de dominio.
+            string fichero = ArchivoCategoria;
+
+            // Legacy: if (File.Exists(...)) { leer } else { MessageBox "No se encuentra el archivo" }.
+            if (!File.Exists(fichero))
+            {
+                MensajeEstado = "No se encuentra el archivo " + fichero;
+                return;
+            }
+
+            try
+            {
+                // Legacy HaySiguiente/LeeEquipos: StreamReader(fichero, Encoding.Default), Trim por línea.
+                // Encoding.Latin1 ≡ Encoding.Default de WinForms en el Windows español.
+                using var sr = new StreamReader(fichero, Encoding.Latin1);
+                while (sr.Peek() >= 0)
+                {
+                    string? linea = sr.ReadLine();
+                    if (linea is not null)
+                    {
+                        _fuenteCompleta.Add(linea.Trim());
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MensajeEstado = "Error al leer " + fichero + ": " + ex.Message;
+                return;
+            }
+
+            AplicarFiltro();
         }
 
         /// <summary>
@@ -67,15 +125,36 @@ namespace Free1X2.WinUI.Views.Ported
             if (!HaySeleccion)
                 return;
 
-            // TODO [dominio]: portar ListaEquiposFrm.listBox1_DoubleClick.
-            // El form legacy volcaba EquipoSeleccionado en el TextBox padre (campo 'txt') y ocultaba la ventana.
-            // En WinUI esto debe devolverse al llamante (p. ej. navegación/diálogo) — no se implementa aquí.
+            // Legacy: volcaba el nombre al TextBox padre y ocultaba la ventana. En WinUI lo
+            // publicamos para que la página host lo entregue al control destino y cierre/oculte.
+            ResultadoSeleccionado = EquipoSeleccionado;
+            EquipoConfirmado?.Invoke(this, EquipoSeleccionado!);
         }
 
+        /// <summary>
+        /// Reaplica el filtro de búsqueda sobre la fuente completa y mantiene el orden
+        /// alfabético (legacy: ListBox.Sorted = true).
+        /// </summary>
         private void AplicarFiltro()
         {
-            // TODO [dominio]: re-aplicar el filtro TextoBusqueda sobre la fuente completa de equipos
-            // tras portar la carga real desde disco. Aquí solo se conserva la intención del filtro.
+            IEnumerable<string> resultado = _fuenteCompleta;
+
+            if (!string.IsNullOrWhiteSpace(TextoBusqueda))
+            {
+                resultado = resultado.Where(e =>
+                    e.Contains(TextoBusqueda, StringComparison.CurrentCultureIgnoreCase));
+            }
+
+            // Legacy: listBox1.Sorted = true.
+            var ordenados = resultado
+                .OrderBy(e => e, StringComparer.CurrentCulture)
+                .ToList();
+
+            Equipos.Clear();
+            foreach (string equipo in ordenados)
+            {
+                Equipos.Add(equipo);
+            }
         }
     }
 }
