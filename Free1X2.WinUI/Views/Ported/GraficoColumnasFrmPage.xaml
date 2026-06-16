@@ -136,9 +136,9 @@
                         Text="Representación de las columnas"
                         Style="{StaticResource SectionHeaderTextBlockStyle}" />
 
-                    <!-- Lienzo del gráfico (10 franjas).
-                         TODO[dominio]: dibujar aquí las líneas verticales por apuesta
-                         (legacy: GraficoColumnasFrm_Paint, e.Graphics.DrawLine sobre 10 rectángulos). -->
+                    <!-- Lienzo del gráfico (10 franjas). El render (marcos + líneas verticales
+                         por apuesta) lo hace el code-behind a partir de ViewModel.LineasGrafico,
+                         réplica WinUI de GraficoColumnasFrm_Paint (e.Graphics.DrawRectangle/DrawLine). -->
                     <Border
                         Grid.Row="1"
                         Background="{ThemeResource AppSurfaceAltBrush}"
@@ -146,7 +146,14 @@
                         BorderThickness="1"
                         CornerRadius="6"
                         MinHeight="280">
-                        <Canvas x:Name="LienzoGrafico" />
+                        <ScrollViewer
+                            HorizontalScrollBarVisibility="Auto"
+                            HorizontalScrollMode="Auto"
+                            VerticalScrollBarVisibility="Auto"
+                            ZoomMode="Disabled"
+                            Padding="8">
+                            <Canvas x:Name="LienzoGrafico" />
+                        </ScrollViewer>
                     </Border>
 
                     <!-- Guía: filas de la quiniela representadas por cada franja -->

@@ -1,7 +1,10 @@
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Free1X2.Utils;
+using Free1X2.WinUI.Controls;
+using Windows.UI;
 
 namespace Free1X2.WinUI.Views.Ported
 {
@@ -46,6 +49,31 @@ namespace Free1X2.WinUI.Views.Ported
         public IReadOnlyList<(int X, int Y)> Puntos => _puntos;
 
         /// <summary>
+        /// Curvas ya dibujadas sobre el lienzo (las consume GraficoLineasControl). El legacy
+        /// SUPERPONE curvas sobre el mismo PictureBox hasta pulsar "Limpiar"; aquí cada Dibujar
+        /// añade (o reemplaza si se repite el tipo) su curva con el color del Pen original.
+        /// </summary>
+        public ObservableCollection<CurvaGrafico> Curvas { get; } = new();
+
+        /// <summary>
+        /// Color del trazo de cada curva, idéntico al Pen del legacy (Dibuja*() en
+        /// Free1X2/UI/TramificarGraficasFrm.cs) y a la leyenda de panel2..panel10.
+        /// </summary>
+        private static Color ColorDeCurva(string curva) => curva switch
+        {
+            "Probabilidad acumulada" => Color.FromArgb(0xFF, 0x00, 0x00, 0x00),           // Black (DibujaProbabilidad)
+            "14 aciertos" => Color.FromArgb(0xFF, 0x1E, 0x90, 0xFF),                       // DodgerBlue (panel3) / Pen Blue legacy DibujaP14
+            "13 aciertos" => Color.FromArgb(0xFF, 0xA5, 0x2A, 0x2A),                       // Brown (DibujaP13)
+            "12 aciertos" => Color.FromArgb(0xFF, 0x00, 0xFF, 0xFF),                       // Cyan (DibujaP12)
+            "11 aciertos" => Color.FromArgb(0xFF, 0x00, 0x80, 0x00),                       // Green (DibujaP11)
+            "10 aciertos" => Color.FromArgb(0xFF, 0xFF, 0x00, 0x00),                       // Red (DibujaP10)
+            "Nº de aciertos / columnas premiadas" => Color.FromArgb(0xFF, 0x5F, 0x9E, 0xA0), // CadetBlue (DibujaColumnasPremiadas)
+            "Importe de premios" => Color.FromArgb(0xFF, 0x22, 0x8B, 0x22),               // ForestGreen (DibujaTotalImportePremios)
+            "Balance (ingresos - gastos)" => Color.FromArgb(0xFF, 0xFF, 0xA5, 0x00),      // Orange (DibujaBalance)
+            _ => Color.FromArgb(0xFF, 0x00, 0x00, 0x00),
+        };
+
+        /// <summary>
         /// Tipos de curva disponibles (legacy: botones del toolBarGraficas).
         /// </summary>
         public IReadOnlyList<string> CurvasDisponibles { get; } = new List<string>
@@ -79,6 +107,7 @@ namespace Free1X2.WinUI.Views.Ported
             //   importe de premios -> TotalImportePremios
             //   balance -> Balance
             _puntos.Clear();
+            var puntos = new List<(double X, double Y)>();
             foreach (var tr in tramos)
             {
                 int x = tr.NumeroDeTramo - 1;
@@ -96,24 +125,30 @@ namespace Free1X2.WinUI.Views.Ported
                     _ => 0,
                 };
                 _puntos.Add((x, y));
+                puntos.Add((x, y));
             }
             OnPropertyChanged(nameof(Puntos));
 
-            // TODO: render del lienzo — Free1X2/UI/TramificarGraficasFrm.cs (Dibuja*() + clase Grafico).
-            //   El dibujo usa System.Drawing (Grafico(Puntos, pictureBox1).DibujaCurva(new Pen(color)))
-            //   sobre un PictureBox, y en la primera vez DibujaGrid(TamanoGrid) + DibujarEjes() y guarda
-            //   EscalaX/EscalaY. La clase Grafico permanece en WinForms; el render WinUI (p. ej. con
-            //   Microsoft.UI.Xaml.Shapes.Polyline o un CanvasControl de Win2D) está pendiente.
-            //   Los datos (Puntos) ya están calculados y disponibles aquí.
-            EstadoTexto = $"Curva '{CurvaSeleccionada}': {_puntos.Count} puntos calculados (render pendiente).";
+            // Render del lienzo (legacy: Grafico(Puntos, pictureBox1).DibujaCurva(new Pen(color))).
+            //   El legacy SUPERPONE curvas hasta "Limpiar"; aquí se reemplaza la curva del mismo tipo
+            //   (re-dibujar la misma curva no la duplica) y se añaden las nuevas. GraficoLineasControl
+            //   calcula la escala común, los ejes y la cuadrícula (DibujarEjes/DibujaGrid) y traza una
+            //   polilínea por curva con el color original del Pen.
+            for (int i = Curvas.Count - 1; i >= 0; i--)
+                if (Curvas[i].Nombre == CurvaSeleccionada) Curvas.RemoveAt(i);
+            Curvas.Add(new CurvaGrafico(CurvaSeleccionada, ColorDeCurva(CurvaSeleccionada), puntos));
+
+            EstadoTexto = $"Curva '{CurvaSeleccionada}': {_puntos.Count} puntos dibujados.";
         }
 
         [RelayCommand]
         private void Limpiar()
         {
             // Legacy LimpiarImagen(): limpia el lienzo, primeraVez=true, escalaX=escalaY=0.
-            // Aquí se limpian los datos calculados; el borrado del lienzo es parte del render (TODO Dibujar).
+            // Aquí se vacían los datos calculados y las curvas; GraficoLineasControl se redibuja
+            // (queda el lienzo con sólo la cuadrícula, como el PictureBox Beige vacío del legacy).
             _puntos.Clear();
+            Curvas.Clear();
             OnPropertyChanged(nameof(Puntos));
             EstadoTexto = "Imagen limpiada. Selecciona una curva para volver a dibujar.";
         }
@@ -121,11 +156,11 @@ namespace Free1X2.WinUI.Views.Ported
         [RelayCommand]
         private void Copiar()
         {
-            // TODO: portapapeles — Free1X2/UI/TramificarGraficasFrm.cs CopiarImagenEnClipboard():
-            //   Clipboard.SetDataObject(pictureBox1.Image, true). Depende del render del lienzo
-            //   (System.Drawing), aún pendiente; en WinUI usar Windows.ApplicationModel.DataTransfer
-            //   con el bitmap resultante del render.
-            EstadoTexto = "(Pendiente) Copiaría la imagen al portapapeles tras portar el render.";
+            // TODO[portapapeles]: Free1X2/UI/TramificarGraficasFrm.cs CopiarImagenEnClipboard()
+            //   hacía Clipboard.SetDataObject(pictureBox1.Image, true). Copiar el lienzo WinUI a una
+            //   imagen requiere RenderTargetBitmap (acceso al UIElement del lienzo) + DataTransfer, lo
+            //   que pertenece a la capa de vista; queda pendiente. Las curvas ya se dibujan en pantalla.
+            EstadoTexto = "(Pendiente) Copiaría la imagen al portapapeles; el render ya está en pantalla.";
         }
     }
 }
