@@ -8,6 +8,7 @@ using Microsoft.UI.Xaml.Media;
 using Free1X2.WinUI.Views;
 using Free1X2.WinUI.Views.Ported;
 using Free1X2.WinUI.Navigation;
+using Free1X2.EntradaSalida;
 
 namespace Free1X2.WinUI;
 
@@ -27,9 +28,16 @@ public sealed partial class MainWindow : Window
         this.Title = "Free1X2";
         AjustarTamanoVentana();
 
-        ConstruirMenus();
         ConstruirToolbar();
+        ConstruirMenus();
         ContentFrame.Navigate(typeof(MainPage));
+
+        // Persiste la visibilidad de las barras al cerrar, igual que el MainForm
+        // WinForms original (Salir() -> AConfiguracion.GuardarToolBarsVisibles,
+        // MainForm.cs:178). El motor lazy-carga los flags MostrarTs* desde
+        // parametros.free1x2 al primer acceso, por lo que aquí solo se vuelven a
+        // escribir los valores vivos (mismo orden de argumentos que el original).
+        this.Closed += (_, _) => GuardarBarrasHerramientas();
 
         if (Environment.GetEnvironmentVariable("FREE1X2_SMOKE") == "1")
             IniciarSmokeTest();
@@ -76,13 +84,19 @@ public sealed partial class MainWindow : Window
             ("E8B5", "Importar / exportar columnas…", typeof(ImportExportFrmPage))));
 
         // Menú "Ver" en 3ª posición (tras Archivo), como en el MainForm original.
-        BarraMenu.Items.Add(Menu("Ver",
+        // Incluye el submenú "Barras de Herramientas" (personalizarToolStripMenuItem
+        // en MainForm.Designer.cs:1475) con un item conmutable por cada uno de los 6
+        // ToolStrips, igual que el original.
+        var menuVer = Menu("Ver",
             ("E80F", "Inicio", typeof(MainPage)),
             ("E8A1", "Ver boletos…", typeof(VerBoletosPage)),
             ("E9D9", "Gráfico de columnas…", typeof(GraficoColumnasFrmPage)),
             ("E9D9", "Estadísticas…", typeof(AnastaticsPage)),
             null,
-            ("E713", "Configuración…", typeof(ConfiguracionFrmPage))));
+            ("E713", "Configuración…", typeof(ConfiguracionFrmPage)));
+        menuVer.Items.Add(new MenuFlyoutSeparator());
+        menuVer.Items.Add(ConstruirSubmenuBarrasHerramientas());
+        BarraMenu.Items.Add(menuVer);
 
         BarraMenu.Items.Add(Menu("Combinación",
             ("E950", "Calcular…", typeof(CalculaColumnasFrmPage)),
@@ -178,12 +192,28 @@ public sealed partial class MainWindow : Window
     // y MainForm.resx (imagen embebida por botón, extraída a Assets/Toolbar/<botón>.png).
     // No se inventan botones ni se reutiliza ningún icono.
     //
+    // Mostrar/ocultar por grupo (feature "Ver -> Barras de Herramientas"): cada grupo
+    // registra TODOS sus elementos (botones + separador final) en _gruposBarra para
+    // poder mostrarlos/ocultarlos como una unidad, igual que tsX.Visible en WinForms.
+    // La visibilidad inicial se siembra desde VariablesGlobales.MostrarTs* (réplica de
+    // InicializarBarrasHerramientas, MainForm.cs:63-71).
+    //
     // Acciones que en WinForms operan sobre 'pronosticos' (ficheros del boleto base) se
     // enrutan a la pantalla Inicio (MainPage), donde vive el boleto, igual que ya hacía
     // el menú: misma navegación/flujo que el original, solo cambia la capa visual.
+
+    // Identificadores de grupo en el MISMO orden visual que ObtenerPosicionBarraHerramientas.
+    private enum GrupoBarra { Free, Archivo, Operaciones, Combinacion, Filtros, Utilidades }
+
+    // Elementos (botones + separador) de cada grupo, para mostrarlos/ocultarlos en bloque.
+    private readonly Dictionary<GrupoBarra, List<FrameworkElement>> _gruposBarra = new();
+    // Grupo en construcción: Herramienta()/Separador() añaden a su lista.
+    private List<FrameworkElement>? _grupoActual;
+
     private void ConstruirToolbar()
     {
         // --- tsFree ---
+        Grupo(GrupoBarra.Free);
         Herramienta("bSalir", "Salir", null);                                         // null => cierra la ventana
         Herramienta("bConfig", "Configuración", typeof(ConfiguracionFrmPage));
         Herramienta("bConfAnalisis", "Configurar Análisis", typeof(ConfiguracionAnalisisFrmPage));
@@ -192,6 +222,7 @@ public sealed partial class MainWindow : Window
         Separador();
 
         // --- tsArchivo ---
+        Grupo(GrupoBarra.Archivo);
         Herramienta("bGuardarEquipos", "Guardar equipos", typeof(MainPage));
         Herramienta("bNuevo", "Nueva combinación", typeof(MainPage));
         Herramienta("bObtenerBoletos", "Obtener Boletos Online", typeof(DescargaBoletoFrmPage));
@@ -205,6 +236,7 @@ public sealed partial class MainWindow : Window
         Separador();
 
         // --- tsOperaciones ---
+        Grupo(GrupoBarra.Operaciones);
         Herramienta("bAlgebra", "Algebra", typeof(AlgebraColumnasFrmPage));
         Herramienta("bTransposicion", "Transposición", typeof(TransposicionFrmPage));
         Herramienta("bMultiplicacion", "Multiplicación", typeof(MultiplicadorFrmPage));
@@ -213,6 +245,7 @@ public sealed partial class MainWindow : Window
         Separador();
 
         // --- tsCombinacion ---
+        Grupo(GrupoBarra.Combinacion);
         Herramienta("bCalcular", "Calcular combinación", typeof(CalculaColumnasFrmPage));
         Herramienta("bCalcularM", "Calcular múltiples combinaciones", typeof(CalculaColumnasMultipleFrmPage));
         Herramienta("bVerBoletos", "Ver boletos", typeof(VerBoletosPage));
@@ -231,6 +264,7 @@ public sealed partial class MainWindow : Window
         Separador();
 
         // --- tsFiltros ---
+        Grupo(GrupoBarra.Filtros);
         Herramienta("bCombinarFiltros", "Combinar filtros", typeof(CombinarFiltrosPage));
         Herramienta("bDiferenciasFiltros", "Diferencias de filtros", typeof(DiFiltrosPage));
         Herramienta("bFiltroCoincidencias", "Filtro de coincidencias", typeof(CoincidenciasPage));
@@ -239,6 +273,7 @@ public sealed partial class MainWindow : Window
         Separador();
 
         // --- tsUtilidades ---
+        Grupo(GrupoBarra.Utilidades);
         Herramienta("bSubeCategoria", "Subir categoría", typeof(SubirCategoriaFrmPage));
         Herramienta("bModificadorPct", "Modificador de porcentajes", typeof(ModificadorFrmPage));
         Herramienta("bGeneradorCPs", "Generador de CPs", typeof(GenerarCPsPage));
@@ -256,6 +291,18 @@ public sealed partial class MainWindow : Window
         Herramienta("bAnalisisGrupos", "Análisis de grupos", typeof(AnaCombiPage));
         Herramienta("bRedPerfectas", "Reducciones perfectas", typeof(FrmReducidasPerfectasPage));
         Herramienta("bDependenciaLineal", "Dependencia lineal", typeof(FrmDependenciaLinealPage));
+
+        // Réplica de InicializarBarrasHerramientas (MainForm.cs:63-71): la visibilidad
+        // inicial de cada grupo proviene del flag MostrarTs* cargado de parametros.free1x2.
+        foreach (var g in _gruposBarra.Keys)
+            AplicarVisibilidadGrupo(g, MostrarGrupo(g));
+    }
+
+    // Marca el inicio de un grupo; los siguientes Herramienta()/Separador() le pertenecen.
+    private void Grupo(GrupoBarra grupo)
+    {
+        _grupoActual = new List<FrameworkElement>();
+        _gruposBarra[grupo] = _grupoActual;
     }
 
     // Añade un botón icono-only compacto a la barra usando el icono ORIGINAL extraído del
@@ -292,16 +339,112 @@ public sealed partial class MainWindow : Window
                 btn.Click += (_, _) => Navegar(page);
         }
         ToolbarPanel.Children.Add(btn);
+        _grupoActual?.Add(btn);
     }
 
-    private void Separador() => ToolbarPanel.Children.Add(new Border
+    private void Separador()
     {
-        Width = 1,
-        Height = 18,
-        Margin = new Thickness(4, 0, 4, 0),
-        Background = (Brush)Application.Current.Resources["AppBorderBrush"],
-        VerticalAlignment = VerticalAlignment.Center,
-    });
+        var sep = new Border
+        {
+            Width = 1,
+            Height = 18,
+            Margin = new Thickness(4, 0, 4, 0),
+            Background = (Brush)Application.Current.Resources["AppBorderBrush"],
+            VerticalAlignment = VerticalAlignment.Center,
+        };
+        ToolbarPanel.Children.Add(sep);
+        _grupoActual?.Add(sep);
+    }
+
+    // Muestra/oculta todos los elementos de un grupo, equivalente a tsX.Visible en WinForms.
+    private void AplicarVisibilidadGrupo(GrupoBarra grupo, bool visible)
+    {
+        if (!_gruposBarra.TryGetValue(grupo, out var elementos)) return;
+        var v = visible ? Visibility.Visible : Visibility.Collapsed;
+        foreach (var e in elementos)
+            e.Visibility = v;
+    }
+
+    // ===== Ver -> Barras de Herramientas (mostrar/ocultar cada grupo) =====
+    // Réplica del submenú "Barras de Herramientas" (personalizarToolStripMenuItem,
+    // MainForm.Designer.cs:1475) con un item conmutable por grupo. Las etiquetas y el
+    // orden de los items son los del original (DropDownItems.AddRange, Designer.cs:1465):
+    //   Filtros, Free1X2, Operaciones, Utilidades, Combinación, Archivo.
+    // Cada item arranca marcado/desmarcado según MostrarTs* (= visibilidad inicial del
+    // grupo) y al pulsarlo muestra/oculta el grupo en vivo, igual que ToolStripMenuItemClick
+    // (MainForm.cs:489-503). La persistencia se hace al cerrar (GuardarBarrasHerramientas).
+
+    // Estado vivo de visibilidad por grupo (lo que se persistirá al cerrar). Se siembra
+    // de MostrarTs* y se actualiza en cada toggle, igual que tsX.Visible en WinForms.
+    private readonly Dictionary<GrupoBarra, bool> _visibleGrupo = new();
+
+    // Valor de partida de cada grupo desde VariablesGlobales.MostrarTs* (parametros.free1x2).
+    private static bool MostrarGrupo(GrupoBarra grupo) => grupo switch
+    {
+        GrupoBarra.Free        => VariablesGlobales.MostrarTsFree,
+        GrupoBarra.Archivo     => VariablesGlobales.MostrarTsArchivo,
+        GrupoBarra.Operaciones => VariablesGlobales.MostrarTsOperaciones,
+        GrupoBarra.Combinacion => VariablesGlobales.MostrarTsCombinacion,
+        GrupoBarra.Filtros     => VariablesGlobales.MostrarTsFiltros,
+        GrupoBarra.Utilidades  => VariablesGlobales.MostrarTsUtilidades,
+        _ => true,
+    };
+
+    private MenuFlyoutSubItem ConstruirSubmenuBarrasHerramientas()
+    {
+        var sub = new MenuFlyoutSubItem
+        {
+            Text = "Barras de Herramientas",
+            Icon = new FontIcon { Glyph = Glifo("E700"), FontFamily = IconFont },
+        };
+
+        // Mismo orden de items que el original (Designer.cs:1465-1471).
+        (GrupoBarra grupo, string label)[] items =
+        {
+            (GrupoBarra.Filtros,     "Filtros"),
+            (GrupoBarra.Free,        "Free1X2"),
+            (GrupoBarra.Operaciones, "Operaciones"),
+            (GrupoBarra.Utilidades,  "Utilidades"),
+            (GrupoBarra.Combinacion, "Combinación"),
+            (GrupoBarra.Archivo,     "Archivo"),
+        };
+
+        foreach (var (grupo, label) in items)
+        {
+            bool inicial = MostrarGrupo(grupo);
+            _visibleGrupo[grupo] = inicial;
+
+            var item = new ToggleMenuFlyoutItem { Text = label, IsChecked = inicial };
+            item.Click += (s, _) =>
+            {
+                // ToggleMenuFlyoutItem ya ha invertido IsChecked al llegar aquí.
+                bool visible = ((ToggleMenuFlyoutItem)s).IsChecked;
+                _visibleGrupo[grupo] = visible;
+                AplicarVisibilidadGrupo(grupo, visible);   // muestra/oculta en vivo
+            };
+            sub.Items.Add(item);
+        }
+        return sub;
+    }
+
+    // Persiste la visibilidad de las barras al cerrar, mirror exacto de
+    // AConfiguracion.GuardarToolBarsVisibles (MainForm.cs:178). Orden de argumentos del
+    // original: tsFree, tsFiltros, tsCombinacion, tsOperaciones, tsArchivo, tsUtilidades.
+    private void GuardarBarrasHerramientas()
+    {
+        try
+        {
+            bool Vis(GrupoBarra g) => _visibleGrupo.TryGetValue(g, out var v) ? v : MostrarGrupo(g);
+            new AConfiguracion().GuardarToolBarsVisibles(
+                Vis(GrupoBarra.Free),
+                Vis(GrupoBarra.Filtros),
+                Vis(GrupoBarra.Combinacion),
+                Vis(GrupoBarra.Operaciones),
+                Vis(GrupoBarra.Archivo),
+                Vis(GrupoBarra.Utilidades));
+        }
+        catch { /* no bloquear el cierre por error de E/S al guardar preferencias */ }
+    }
 
     private void Navegar(Type page)
     {
