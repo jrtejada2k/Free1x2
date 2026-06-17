@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
@@ -12,6 +13,18 @@ using Windows.Storage.Pickers;
 namespace Free1X2.WinUI.Views.Ported;
 
 /// <summary>
+/// Una casilla editable de la columna ganadora (legacy: TextBox tb01..tb16 -> part[i]).
+/// Guarda el nº de partido y su signo (1 / X / 2 / -). "-" (o vacío) significa comodín.
+/// </summary>
+public partial class CasillaColumnaGanadora : ObservableObject
+{
+    [ObservableProperty] private int _partido;
+    [ObservableProperty] private string _signo = "-";
+
+    public CasillaColumnaGanadora(int partido) => _partido = partido;
+}
+
+/// <summary>
 /// ViewModel para la pantalla "Análisis de signos" (legacy: VSignosFrm).
 /// Procesa un fichero de columnas y contabiliza, partido a partido, cuántas veces
 /// aparece cada signo (1/X/2). Permite elegir el formato de presentación
@@ -21,18 +34,22 @@ namespace Free1X2.WinUI.Views.Ported;
 /// Herramienta autónoma fichero→fichero. Usa el motor real
 /// Free1X2.EntradaSalida.ArchivoColumnasTexto para dimensionar el nº de partidos.
 ///
-/// LIMITACIÓN: la fila editable de "columna ganadora" (legacy: txts[] -> part[]) y la
-/// rejilla de recuentos por partido NO están portadas en VSignosFrmPage.xaml (la propia
-/// Page indica que la rejilla se mostrará "tras migrar el motor"). Como part[] no tiene
-/// entrada de UI, queda en blanco (comodín), de modo que AcCB() puntúa todas las columnas
-/// como válidas y se contabiliza el recuento global de signos — comportamiento equivalente
-/// al legacy con columna ganadora vacía. Los recuentos se conservan internamente para
-/// poder grabarlos (Grabar) aunque la rejilla aún no se muestre.
+/// La columna ganadora editable (legacy: txts[] -> part[]) está portada como
+/// <see cref="ColumnaGanadora"/> (una casilla por partido, "-" = comodín); AcCb() cuenta
+/// los aciertos de cada columna del fichero frente a ella, igual que el legacy.
+/// La rejilla de recuentos por partido (1/X/2) aún no se muestra, pero los recuentos se
+/// conservan internamente para poder grabarlos (Grabar).
 /// </summary>
 public partial class VSignosFrmViewModel : ObservableObject
 {
     // Nº de partidos del fichero (legacy: noPartidos). Por defecto 15 hasta abrir fichero.
     private int _noPartidos = 15;
+
+    /// <summary>
+    /// Columna ganadora editable (legacy: txts[] -> part[]). Una casilla por partido,
+    /// con "-" como comodín. Se redimensiona al abrir fichero (AdaptarVistaAPartidos).
+    /// </summary>
+    public ObservableCollection<CasillaColumnaGanadora> ColumnaGanadora { get; } = new();
 
     // Recuento por partido y signo (legacy: int[noPartidos,3] vals; 0=1, 1=X, 2=2).
     private int[,] _vals = new int[15, 3];
@@ -80,6 +97,25 @@ public partial class VSignosFrmViewModel : ObservableObject
     /// <summary>Número de partidos en juego (legacy: noPartidos / lbasp tope).</summary>
     [ObservableProperty]
     private double _numeroPartidos = 15;
+
+    public VSignosFrmViewModel()
+    {
+        // Legacy: VSignosFrm ctor -> AdaptarVistaAPartidos() crea las casillas para noPartidos.
+        AdaptarColumnaGanadora();
+    }
+
+    /// <summary>
+    /// Redimensiona la columna ganadora a <see cref="_noPartidos"/> casillas, todas en "-".
+    /// Equivale a la parte de VSignosFrm.AdaptarVistaAPartidos() que muestra/oculta los txts[].
+    /// </summary>
+    private void AdaptarColumnaGanadora()
+    {
+        ColumnaGanadora.Clear();
+        for (int i = 1; i <= _noPartidos; i++)
+        {
+            ColumnaGanadora.Add(new CasillaColumnaGanadora(i));
+        }
+    }
 
     // --- Resultados / estado del proceso (solo lectura para la vista) ---
 
@@ -134,6 +170,8 @@ public partial class VSignosFrmViewModel : ObservableObject
         NumeroPartidos = _noPartidos;
         // Legacy: AdaptarVariables() -> vals = new int[noPartidos,3].
         _vals = new int[_noPartidos, 3];
+        // Legacy: AdaptarVistaAPartidos() redimensiona la columna ganadora editable.
+        AdaptarColumnaGanadora();
 
         // Legacy: EntradaFichero() llama a Calcular() automáticamente tras abrir.
         await CalcularAsync();
@@ -161,6 +199,9 @@ public partial class VSignosFrmViewModel : ObservableObject
         int noPartidos = _noPartidos;
         string ruta = FicheroEntrada;
 
+        // Legacy: RecuperaPantalla() vuelca txts[i].Text a part[] ('-' = comodín si vacío).
+        char[] part = RecuperaColumnaGanadora(noPartidos);
+
         try
         {
             await Task.Run(() =>
@@ -173,9 +214,8 @@ public partial class VSignosFrmViewModel : ObservableObject
                     if (columna.Length < noPartidos) continue;
                     ctproc++;
 
-                    // Legacy: AcCB() — sin columna ganadora (part[] en blanco), todos los
-                    // partidos cuentan como acierto (rama "else rsl++").
-                    int aciertos = AcCb(columna, noPartidos, considerarPleno);
+                    // Legacy: AcCB() — cuenta aciertos frente a la columna ganadora part[].
+                    int aciertos = AcCb(columna, part, noPartidos, considerarPleno);
                     if (aciertos >= limac)
                     {
                         // Legacy: Contabiliza().
@@ -282,10 +322,10 @@ public partial class VSignosFrmViewModel : ObservableObject
     private void LimpiarColumnaGanadora()
     {
         // Legacy: VSignosFrm.ReinicializaColumnaGanadora() -> txts[i].Text = "-".
-        // La fila editable de columna ganadora no está portada en la Page; al no haber
-        // estado de columna ganadora aquí, no hay nada que reiniciar por ahora.
-        // TODO[dominio]: cuando se porte la fila editable de "columna ganadora" (txts[]),
-        //   reiniciar sus 14/15 signos a "-" (Free1X2/UI/VSignosFrm.cs línea 381).
+        foreach (var casilla in ColumnaGanadora)
+        {
+            casilla.Signo = "-";
+        }
     }
 
     /// <summary>Sube en 1 el nivel de aspiración (legacy: BMasClick -> AspMas).</summary>
@@ -311,23 +351,55 @@ public partial class VSignosFrmViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Cuenta los aciertos de una columna frente a la columna ganadora (legacy: VSignosFrm.AcCB).
-    /// Como part[] (la columna ganadora) no tiene UI portada, todas las posiciones se tratan
-    /// como comodín, sumando un acierto en cada partido (ramas "else rsl++" del legacy).
+    /// Vuelca la columna ganadora editable a un char[] (legacy: RecuperaPantalla() -> part[]).
+    /// Casilla vacía o "-" => comodín ('-'); en otro caso, su primer carácter (1/X/2).
     /// </summary>
-    private static int AcCb(string columna, int noPartidos, bool considerarPleno)
+    private char[] RecuperaColumnaGanadora(int noPartidos)
     {
-        // part[] no informado -> cada posición es comodín -> rsl++ en todos los partidos
-        // salvo el último, que sigue la misma rama comodín (con/sin pleno da el mismo resultado).
-        int rsl = noPartidos - 1; // los primeros noPartidos-1 partidos.
-        // Último partido (pleno): rama comodín -> +1 en ambos casos (con o sin pleno).
+        var part = new char[noPartidos];
+        for (int i = 0; i < noPartidos; i++)
+        {
+            string txt = i < ColumnaGanadora.Count ? (ColumnaGanadora[i].Signo ?? string.Empty) : string.Empty;
+            part[i] = string.IsNullOrEmpty(txt) ? '-' : txt[0];
+        }
+        return part;
+    }
+
+    /// <summary>
+    /// Cuenta los aciertos de una columna frente a la columna ganadora part[]
+    /// (legacy: VSignosFrm.AcCB, líneas 269-316). Una posición cuenta como acierto si su signo
+    /// coincide con el de part[] o si part[] es comodín ('-' u otro carácter distinto de 1/X/2).
+    /// </summary>
+    private static int AcCb(string columna, char[] part, int noPartidos, bool considerarPleno)
+    {
+        int rsl = 0;
+        // Primeros noPartidos-1 partidos.
+        for (int nr = 0; nr < noPartidos - 1; nr++)
+        {
+            char ch = part[nr];
+            if (ch == columna[nr]) rsl++;
+            else if (ch == '1' || ch == 'X' || ch == '2') { /* signo fijado que no acierta */ }
+            else rsl++; // comodín
+        }
+
+        // Último partido (pleno).
+        char chUlt = part[part.Length - 1];
         if (considerarPleno)
         {
-            if (rsl == noPartidos - 1) rsl++;
+            // Solo se evalúa el pleno si los demás partidos han acertado todos (legacy).
+            if (rsl == noPartidos - 1)
+            {
+                if (chUlt == columna[columna.Length - 1]) rsl++;
+                else if (chUlt == '1' || chUlt == 'X' || chUlt == '2') { }
+                else rsl++;
+            }
         }
         else
         {
-            rsl++;
+            // Ignora la condición de pleno: el último partido cuenta como uno más.
+            if (chUlt == columna[columna.Length - 1]) rsl++;
+            else if (chUlt == '1' || chUlt == 'X' || chUlt == '2') { }
+            else rsl++;
         }
         return rsl;
     }
