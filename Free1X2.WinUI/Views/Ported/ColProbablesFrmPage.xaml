@@ -340,8 +340,140 @@
                             </StackPanel>
                         </Border>
 
-                        <!-- Agrupaciones de Aciertos (Solapadas / Paso Fijo): legacy DataGrid de solo lectura.
-                             TODO: portar dgAgrpacionesSolapadas / dgAgrupacionesPasoFijo con un ListView/DataGrid. -->
+                        <!-- Agrupaciones de Aciertos: Paso Fijo (legacy dgAgrupacionesPasoFijo, DataSet
+                             con columnas Número / Elementos / Aciertos). Rejilla editable. -->
+                        <Border Style="{StaticResource AppCardStyle}">
+                            <StackPanel Spacing="12">
+                                <TextBlock
+                                    Style="{StaticResource SectionHeaderTextBlockStyle}"
+                                    Text="Agrupaciones Paso Fijo" />
+                                <TextBlock
+                                    Style="{StaticResource SecondaryTextBlockStyle}"
+                                    TextWrapping="Wrap"
+                                    Text="Número de agrupaciones permitidas, nº de elementos de la agrupación y aciertos." />
+
+                                <!-- Cabecera de columnas -->
+                                <Grid ColumnSpacing="8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Número" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                    <TextBlock Grid.Column="1" Text="Elementos" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                    <TextBlock Grid.Column="2" Text="Aciertos" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                </Grid>
+
+                                <ItemsControl ItemsSource="{x:Bind ViewModel.AgrupacionesPasoFijo}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="ported:AgrupacionFila">
+                                            <Grid ColumnSpacing="8" Margin="0,4">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBox
+                                                    Grid.Column="0"
+                                                    PlaceholderText="0-2 ó 1,3"
+                                                    Text="{x:Bind Numero, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                    AutomationProperties.Name="Número de la agrupación paso fijo" />
+                                                <TextBox
+                                                    Grid.Column="1"
+                                                    PlaceholderText="2"
+                                                    Text="{x:Bind Elementos, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                    AutomationProperties.Name="Elementos de la agrupación paso fijo" />
+                                                <TextBox
+                                                    Grid.Column="2"
+                                                    PlaceholderText="0-14 ó 3,5"
+                                                    Text="{x:Bind Aciertos, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                    AutomationProperties.Name="Aciertos de la agrupación paso fijo" />
+                                                <Button
+                                                    Grid.Column="3"
+                                                    Content="Eliminar"
+                                                    VerticalAlignment="Bottom"
+                                                    Command="{Binding ViewModel.EliminarAgrupacionPasoFijoCommand, ElementName=PageRoot}"
+                                                    CommandParameter="{Binding}" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                                <Button
+                                    Content="Añadir agrupación"
+                                    HorizontalAlignment="Left"
+                                    Command="{x:Bind ViewModel.AnadirAgrupacionPasoFijoCommand}" />
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Agrupaciones de Aciertos: Solapadas (legacy dgAgrpacionesSolapadas). -->
+                        <Border Style="{StaticResource AppCardStyle}">
+                            <StackPanel Spacing="12">
+                                <TextBlock
+                                    Style="{StaticResource SectionHeaderTextBlockStyle}"
+                                    Text="Agrupaciones Solapadas" />
+                                <TextBlock
+                                    Style="{StaticResource SecondaryTextBlockStyle}"
+                                    TextWrapping="Wrap"
+                                    Text="Número de agrupaciones permitidas, nº de elementos de la agrupación y aciertos." />
+
+                                <!-- Cabecera de columnas -->
+                                <Grid ColumnSpacing="8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Número" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                    <TextBlock Grid.Column="1" Text="Elementos" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                    <TextBlock Grid.Column="2" Text="Aciertos" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                                </Grid>
+
+                                <ItemsControl ItemsSource="{x:Bind ViewModel.AgrupacionesSolapadas}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="ported:AgrupacionFila">
+                                            <Grid ColumnSpacing="8" Margin="0,4">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBox
+                                                    Grid.Column="0"
+                                                    PlaceholderText="0-2 ó 1,3"
+                                                    Text="{x:Bind Numero, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                    AutomationProperties.Name="Número de la agrupación solapada" />
+                                                <TextBox
+                                                    Grid.Column="1"
+                                                    PlaceholderText="2"
+                                                    Text="{x:Bind Elementos, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                    AutomationProperties.Name="Elementos de la agrupación solapada" />
+                                                <TextBox
+                                                    Grid.Column="2"
+                                                    PlaceholderText="0-14 ó 3,5"
+                                                    Text="{x:Bind Aciertos, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                    AutomationProperties.Name="Aciertos de la agrupación solapada" />
+                                                <Button
+                                                    Grid.Column="3"
+                                                    Content="Eliminar"
+                                                    VerticalAlignment="Bottom"
+                                                    Command="{Binding ViewModel.EliminarAgrupacionSolapadaCommand, ElementName=PageRoot}"
+                                                    CommandParameter="{Binding}" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                                <Button
+                                    Content="Añadir agrupación"
+                                    HorizontalAlignment="Left"
+                                    Command="{x:Bind ViewModel.AnadirAgrupacionSolapadaCommand}" />
+                            </StackPanel>
+                        </Border>
 
                         <Border Style="{StaticResource AppCardStyle}">
                             <StackPanel Spacing="12">

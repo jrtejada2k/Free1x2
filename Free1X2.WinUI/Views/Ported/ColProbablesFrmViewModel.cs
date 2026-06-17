@@ -39,8 +39,10 @@ namespace Free1X2.WinUI.Views.Ported
     ///   - Relaciones III -> ControladorRelacionesCP3 / RelacionCP3 (Concepto, Columnas
     ///     implicadas, Escaleras Total/Asc/Desc, Sándwichs). Navegación 1-based (indiceNavRel3)
     ///     replicando MostrarRelacion3 + GuardarRelacion3EnPantalla (líneas 3651-3828). Las
-    ///     rejillas de Agrupaciones Paso Fijo / Solapadas (DataSet) se conservan en round-trip
-    ///     vía sus *String pero no se editan aquí (ver TODO).
+    ///     rejillas de Agrupaciones Paso Fijo / Solapadas (legacy DataSet) se portan a dos
+    ///     ObservableCollection<AgrupacionFila> editables (Número/Elementos/Aciertos); el round-trip
+    ///     replica InicializaDatosAgrupaciones* (carga) y ObtenArrayAgrupaciones*/ObtenTexto-
+    ///     Agrupaciones* (guardado), líneas 3890-4096 y 4110-4205.
     ///   - Control Fallos -> ControladorCPControlFallos / CPControlFallos: tabla editable
     ///     (Columnas / Tolerancias / Aciertos) + FallosPermitidos, replicando
     ///     InicializaDatosControlFallos + GuardarDatosControlFallos (líneas 1150-1275).
@@ -214,6 +216,11 @@ namespace Free1X2.WinUI.Views.Ported
         // Legacy: lblRel3Paginacion "1 / 1".
         [ObservableProperty]
         private string _paginacionRel3 = "1 / 1";
+
+        // Rejillas de Agrupaciones de Aciertos (legacy dgAgrupacionesPasoFijo / dgAgrpacionesSolapadas).
+        // Cada fila tiene Número / Elementos / Aciertos. Bindeadas a ItemsControl editables en la página.
+        public ObservableCollection<AgrupacionFila> AgrupacionesPasoFijo { get; } = new();
+        public ObservableCollection<AgrupacionFila> AgrupacionesSolapadas { get; } = new();
 
         // ---------------- Pestaña Control Fallos ----------------
 
@@ -701,20 +708,171 @@ namespace Free1X2.WinUI.Views.Ported
             Navegar?.Invoke(typeof(CambioPuntosFrmPage), null);
         }
 
+        // True entre que se lanza el diálogo "Importador CPs" y se regresa de él. La página lo
+        // consulta en OnNavigatedTo para distinguir el retorno del importador (fusionar columnas)
+        // de una recarga normal. Réplica del flujo ShowDialog/lectura de grupoCPtmp del WinForms.
+        private bool _importPendiente;
+
+        /// <summary>True si esta pantalla había lanzado el diálogo "Importador CPs" (handoff de vuelta).</summary>
+        public bool ImportacionPendiente => _importPendiente;
+
+        // Legacy NecesitaGuardarDatos (ColProbablesFrm.cs líneas 569-579): hay valores AC/ACS/FS en
+        // pantalla que persistir antes de exportar.
+        private bool NecesitaGuardarDatos() =>
+            Aciertos != "" || AciertosSeguidos != "" || FallosSeguidos != "";
+
         [RelayCommand]
         private void ImportarCPs()
         {
-            // TODO[navegación]: ColProbablesFrm.ImportaColumnas (línea 675) abría ImportadorCPsFrm y
-            //   fusionaba/sustituía las columnas importadas. En WinUI existe ImportadorCPsFrmPage:
-            //   navegar a ella y volcar el resultado en _grupoCP (sustituir/añadir según el caso).
+            // Réplica de la 1ª mitad de ColProbablesFrm.ImportaColumnas (Free1X2/UI/Filtros/
+            //   ColProbablesFrm.cs líneas 675-691): si hay columnas y la última está vacía, se
+            //   borra antes de importar; luego se abre el importador. El resto del legacy (fusión
+            //   con prompts Sí/No) se ejecuta al volver, en AplicarImportacion* (lo orquesta la
+            //   página, que sí tiene XamlRoot para los ContentDialog de confirmación).
+            if (_grupoCP.Count > 0)
+            {
+                // borrar última CP si no contiene datos (legacy if (NecesitaBorrarUltimaCP()) BorrarCP(...)).
+                if (NecesitaBorrarUltimaCP())
+                {
+                    _grupoCP.RemoveAt(_grupoCP.Count - 1);
+                }
+            }
+
+            _importPendiente = true;
+
+            // Limpia un resultado previo y navega; al volver, la página lee
+            // ImportadorCPsFrmViewModel.Resultado (handoff estático = legacy grupoCPtmp).
+            ImportadorCPsFrmViewModel.Resultado = null;
+            Navegar?.Invoke(typeof(ImportadorCPsFrmPage), null);
+        }
+
+        /// <summary>
+        /// ¿La importación de vuelta requiere preguntar al usuario si SUSTITUIR las columnas
+        /// existentes (manteniendo rangos)? Réplica de la condición legacy: el nº de columnas
+        /// importadas coincide con las existentes y hay existentes (ColProbablesFrm.cs línea 699).
+        /// </summary>
+        public bool ImportacionRequiereConfirmarSustituir
+        {
+            get
+            {
+                var importadas = ImportadorCPsFrmViewModel.Resultado;
+                if (importadas is null || importadas.Count == 0) return false;
+                return importadas.Count == _grupoCP.Count && _grupoCP.Count > 0;
+            }
+        }
+
+        /// <summary>
+        /// ¿La importación de vuelta requiere preguntar si AÑADIR al final (si no se sustituye)?
+        /// Réplica de la condición legacy: hay columnas existentes (ColProbablesFrm.cs línea 721).
+        /// </summary>
+        public bool ImportacionRequiereConfirmarAgregar
+        {
+            get
+            {
+                var importadas = ImportadorCPsFrmViewModel.Resultado;
+                if (importadas is null || importadas.Count == 0) return false;
+                return _grupoCP.Count > 0;
+            }
+        }
+
+        /// <summary>
+        /// Cierra el flujo de importación cuando no hubo columnas importadas (cancelado) o cuando ya
+        /// se aplicó la decisión. Réplica del final de ImportaColumnas: refresca pantalla + paginación.
+        /// </summary>
+        public void FinalizarImportacion()
+        {
+            _importPendiente = false;
+            ImportadorCPsFrmViewModel.Resultado = null;
+            ActualizaDatosPantalla(_cpPantalla);
+        }
+
+        /// <summary>
+        /// Aplica la importación SUSTITUYENDO los pronósticos de las columnas existentes, manteniendo
+        /// sus rangos de aciertos/tolerancias. Réplica exacta de ColProbablesFrm.ImportaColumnas
+        /// (líneas 704-718, rama sustituirCPs). grupoCP2 parte de la copia del filtro original
+        /// (ObtenCopiaCP) y, sobre esos clones (que conservan los rangos), se sobreescriben los
+        /// pronósticos importados.
+        /// </summary>
+        public void AplicarImportacionSustituir()
+        {
+            var grupoCPtmp = ImportadorCPsFrmViewModel.Resultado;
+            if (grupoCPtmp is null || grupoCPtmp.Count == 0) { FinalizarImportacion(); return; }
+
+            List<ColumnaProbable> grupoCP2 = _filtroCP is not null
+                ? ObtenCopiaCP(_filtroCP)
+                : new List<ColumnaProbable>();
+
+            // grupoCP2 = copia del filtro + columnas actuales (legacy líneas 706-709).
+            for (int ncol = 0; ncol < _grupoCP.Count; ncol++)
+            {
+                grupoCP2.Add(_grupoCP[ncol]);
+            }
+            _grupoCP.Clear();
+            // Por cada CP importada, toma el clon (con rangos) de grupoCP2 y le pone el pronóstico
+            // importado (legacy líneas 711-717).
+            for (int ncol = 0; ncol < grupoCPtmp.Count && ncol < grupoCP2.Count; ncol++)
+            {
+                ColumnaProbable cp = grupoCP2[ncol];
+                ColumnaProbable cpTmp = grupoCPtmp[ncol];
+                cp.Pronosticos = cpTmp.Pronosticos;
+                _grupoCP.Add(cp);
+            }
+
+            FinalizarImportacion();
+        }
+
+        /// <summary>
+        /// Aplica la importación AÑADIENDO las columnas importadas al final de las existentes.
+        /// Réplica de ColProbablesFrm.ImportaColumnas (líneas 726-732, rama AgregarCPs).
+        /// </summary>
+        public void AplicarImportacionAgregar()
+        {
+            var grupoCPtmp = ImportadorCPsFrmViewModel.Resultado;
+            if (grupoCPtmp is null || grupoCPtmp.Count == 0) { FinalizarImportacion(); return; }
+
+            for (int ncol = 0; ncol < grupoCPtmp.Count; ncol++)
+            {
+                _grupoCP.Add(grupoCPtmp[ncol]);
+            }
+
+            FinalizarImportacion();
+        }
+
+        /// <summary>
+        /// Aplica la importación REEMPLAZANDO todas las columnas (y sus rangos) por las importadas.
+        /// Réplica de ColProbablesFrm.ImportaColumnas (líneas 733-740, rama else).
+        /// </summary>
+        public void AplicarImportacionReemplazar()
+        {
+            var grupoCPtmp = ImportadorCPsFrmViewModel.Resultado;
+            if (grupoCPtmp is null || grupoCPtmp.Count == 0) { FinalizarImportacion(); return; }
+
+            _grupoCP.Clear();
+            for (int ncol = 0; ncol < grupoCPtmp.Count; ncol++)
+            {
+                _grupoCP.Add(grupoCPtmp[ncol]);
+            }
+
+            FinalizarImportacion();
         }
 
         [RelayCommand]
         private void ExportarCPs()
         {
-            // TODO[navegación]: ColProbablesFrm.ExportaColumnas (línea 748) abría ExportadorCPsFrm con
-            //   un FiltroColProbables temporal. En WinUI existe ExportadorCPsFrmPage: navegar a ella
-            //   pasando una copia de _grupoCP.
+            // Réplica de ColProbablesFrm.ExportaColumnas (Free1X2/UI/Filtros/ColProbablesFrm.cs
+            //   líneas 748-760): guarda la CP en pantalla si tiene datos, construye un
+            //   FiltroColProbables temporal con la copia de trabajo y abre el exportador con su lista.
+            if (NecesitaGuardarDatos())
+            {
+                GuardarCPActual();
+            }
+
+            var filtroTemp = new FiltroColProbables { ColProbables = _grupoCP };
+            List<ColumnaProbable> grupoCP2 = filtroTemp.ColProbables;
+
+            // Handoff estático: el exportador consume la lista en su constructor (la página crea su VM).
+            ExportadorCPsFrmViewModel.ListaParaExportar = grupoCP2;
+            Navegar?.Invoke(typeof(ExportadorCPsFrmPage), null);
         }
 
         // ================= Pestaña Relaciones I (RelacionCP1) =================
@@ -1098,8 +1256,8 @@ namespace Free1X2.WinUI.Views.Ported
 
         // ================= Pestaña Relaciones III (RelacionCP3) =================
 
-        // Legacy ReinicializarValoresRelaciones3 (líneas 3557-3571). Las rejillas de agrupaciones
-        // (paso fijo / solapadas) no se editan aquí; ver TODO en GuardarRelacion3EnPantalla.
+        // Legacy ReinicializarValoresRelaciones3 (líneas 3557-3571). Vacía también las rejillas de
+        // agrupaciones (legacy InicializaDatosAgrupaciones*(new string[1]) -> sin filas reales).
         private void ReinicializarValoresRelaciones3()
         {
             Rel3Columnas = "";
@@ -1108,6 +1266,11 @@ namespace Free1X2.WinUI.Views.Ported
             Rel3EscalerasAsc = "";
             Rel3EscalerasDesc = "";
             Rel3Concepto = "AC";
+
+            // legacy InicializaDatosAgrupacionesPasoFijo(new string[1]) /
+            //        InicializaDatosAgrupacionesSolapadas(new string[1]): sin entradas válidas.
+            AgrupacionesPasoFijo.Clear();
+            AgrupacionesSolapadas.Clear();
 
             AdaptarControlesDesplazamientoRelaciones3();
         }
@@ -1150,10 +1313,37 @@ namespace Free1X2.WinUI.Views.Ported
             Rel3EscalerasAsc = rel.NumeroEscalerasASCPermitidasString;
             Rel3EscalerasDesc = rel.NumeroEscalerasDESCPermitidasString;
             Rel3Concepto = rel.ConceptoString;
-            // TODO[grids]: las rejillas dgAgrupacionesPasoFijo / dgAgrpacionesSolapadas
-            //   (ColProbablesFrm.cs líneas 3663-3665, InicializaDatosAgrupaciones*) no se editan
-            //   en WinUI; sus datos se conservan en el round-trip vía las cadenas
-            //   AgrupacionesPasoFijoPermitidasString / AgrupacionesSolapadasPermitidasString.
+
+            // Rejillas de agrupaciones (legacy InicializaDatosAgrupacionesPasoFijo /
+            //   InicializaDatosAgrupacionesSolapadas, ColProbablesFrm.cs líneas 3663-3665).
+            CargarAgrupaciones(AgrupacionesPasoFijo, rel.AgrupacionesPasoFijoPermitidasString);
+            CargarAgrupaciones(AgrupacionesSolapadas, rel.AgrupacionesSolapadasPermitidasString);
+        }
+
+        // Réplica de la lectura de ObtenDataSetAgrupaciones* (ColProbablesFrm.cs líneas 3990-4010 /
+        //   4058-4077): cada entrada "Número+Elementos+Aciertos" (split por '+', RemoveEmptyEntries)
+        //   con exactamente 3 partes se convierte en una fila. El padding a 50 filas en blanco del
+        //   WinForms no se replica (en WinUI las filas se añaden bajo demanda con botón "Añadir").
+        private static void CargarAgrupaciones(ObservableCollection<AgrupacionFila> destino, string[]? entradas)
+        {
+            destino.Clear();
+            if (entradas is null) return;
+            for (int i = 0; i < entradas.Length; i++)
+            {
+                if (entradas[i] != null)
+                {
+                    string[] partes = entradas[i].Split(new char[] { '+' }, StringSplitOptions.RemoveEmptyEntries);
+                    if (partes.Length == 3)
+                    {
+                        destino.Add(new AgrupacionFila
+                        {
+                            Numero = partes[0],
+                            Elementos = partes[1],
+                            Aciertos = partes[2],
+                        });
+                    }
+                }
+            }
         }
 
         // Legacy ObtenerColumnasImplicadasRelCP3 (líneas 4098-4107). NOTA: replica el bucle exacto
@@ -1227,15 +1417,104 @@ namespace Free1X2.WinUI.Views.Ported
             rel.NumeroSandwichsPermitidos = UtilidadesEntradasValores.ObtenerBoolArrayFromTxt(Rel3Sandwichs, longitudSandwichs);
             rel.NumeroSandwichsPermitidosString = Rel3Sandwichs;
 
-            // TODO[grids]: ColProbablesFrm.cs líneas 3812-3820 leían las rejillas de Agrupaciones
-            //   Paso Fijo / Solapadas (DataSet) y rellenaban AgrupacionesPasoFijoPermitidas(String)
-            //   y AgrupacionesSolapadasPermitidas(String). Esas rejillas no están portadas; aquí
-            //   quedan nulas. Portar dos DataGrid editables (Número / Elementos / Aciertos) para
-            //   replicar ObtenArrayAgrupaciones* (líneas 4110-4205).
+            // Rejillas de Agrupaciones Paso Fijo / Solapadas (legacy ColProbablesFrm.cs líneas
+            //   3812-3820): se leen las filas editables y se vuelcan a array (con filtro) + cadenas.
+            rel.AgrupacionesPasoFijoPermitidas = ObtenArrayAgrupaciones(AgrupacionesPasoFijo);
+            rel.AgrupacionesPasoFijoPermitidasString = ObtenTextoAgrupaciones(AgrupacionesPasoFijo);
+
+            rel.AgrupacionesSolapadasPermitidas = ObtenArrayAgrupaciones(AgrupacionesSolapadas);
+            rel.AgrupacionesSolapadasPermitidasString = ObtenTextoAgrupaciones(AgrupacionesSolapadas);
 
             if (ComprobarRelacion3(rel))
             {
                 GuardarRelacion3(rel);
+            }
+        }
+
+        // Réplica exacta de ObtenArrayAgrupacionesPasoFijo / ObtenArrayAgrupacionesSolapadas
+        //   (ColProbablesFrm.cs líneas 4110-4168): por cada fila con Número/Elementos/Aciertos no
+        //   vacíos, construye una AgrupacionColumnas(valores, elementos, ac) si
+        //   elementos < grupoCP.Count+1 y ac.Count <= 15. Devuelve null si no hay ninguna.
+        private List<AgrupacionColumnas>? ObtenArrayAgrupaciones(ObservableCollection<AgrupacionFila> filas)
+        {
+            int maximoAgrupaciones = _grupoCP.Count + 1;
+
+            List<AgrupacionColumnas>? agrupaciones = new List<AgrupacionColumnas>();
+            // elementos, aciertos, numero
+            foreach (AgrupacionFila row in filas)
+            {
+                if (row.Numero != "" && row.Elementos != "" && row.Aciertos != "")
+                {
+                    List<int> valores = UtilidadesEntradasValores.ObtenerListaFromTxtAciertos(row.Numero);
+                    int elementos = Convert.ToInt32(row.Elementos);
+                    List<int> ac = UtilidadesEntradasValores.ObtenerListaFromTxtAciertos(row.Aciertos);
+
+                    if (elementos < maximoAgrupaciones && ac.Count <= 15)
+                    {
+                        var agrup = new AgrupacionColumnas(valores, elementos, ac);
+                        agrupaciones.Add(agrup);
+                    }
+                }
+            }
+            if (agrupaciones.Count == 0)
+            {
+                agrupaciones = null;
+            }
+            return agrupaciones;
+        }
+
+        // Réplica exacta de ObtenTextoAgrupacionesSolapadas / ObtenTextoAgrupacionesPasoFijo
+        //   (ColProbablesFrm.cs líneas 4170-4205): cadena "Número+Elementos+Aciertos" por cada fila
+        //   con Número no vacío; null si no hay ninguna. El array se dimensiona a Count (como el
+        //   WinForms) y sólo se rellenan las posiciones de filas con Número (el resto quedan null).
+        private static string[]? ObtenTextoAgrupaciones(ObservableCollection<AgrupacionFila> filas)
+        {
+            string[]? datos = new string[filas.Count];
+            int contador = 0;
+            foreach (AgrupacionFila row in filas)
+            {
+                if (row.Numero != "")
+                {
+                    datos[contador] = row.Numero + "+" + row.Elementos + "+" + row.Aciertos;
+                    contador++;
+                }
+            }
+            if (contador == 0)
+            {
+                datos = null;
+            }
+            return datos;
+        }
+
+        // Comandos de las rejillas de agrupaciones (no existen en el WinForms, donde la rejilla
+        // traía 50 filas en blanco; en WinUI se crean/borran bajo demanda, igual que Control Fallos).
+        [RelayCommand]
+        private void AnadirAgrupacionPasoFijo()
+        {
+            AgrupacionesPasoFijo.Add(new AgrupacionFila());
+        }
+
+        [RelayCommand]
+        private void EliminarAgrupacionPasoFijo(AgrupacionFila? fila)
+        {
+            if (fila is not null)
+            {
+                AgrupacionesPasoFijo.Remove(fila);
+            }
+        }
+
+        [RelayCommand]
+        private void AnadirAgrupacionSolapada()
+        {
+            AgrupacionesSolapadas.Add(new AgrupacionFila());
+        }
+
+        [RelayCommand]
+        private void EliminarAgrupacionSolapada(AgrupacionFila? fila)
+        {
+            if (fila is not null)
+            {
+                AgrupacionesSolapadas.Remove(fila);
             }
         }
 
@@ -1380,6 +1659,29 @@ namespace Free1X2.WinUI.Views.Ported
         [ObservableProperty]
         private string _tolerancias = "";
 
+        [ObservableProperty]
+        private string _aciertos = "";
+    }
+
+    /// <summary>
+    /// Fila editable de las rejillas de Agrupaciones de Aciertos de Relaciones III (legacy
+    /// dgAgrupacionesPasoFijo / dgAgrpacionesSolapadas, DataSet con columnas
+    /// "Número" / "Elementos" / "Aciertos"; ColProbablesFrm.cs líneas 3962-4096). Se mapea
+    /// de/ hacia <see cref="AgrupacionColumnas"/> y las cadenas "Número+Elementos+Aciertos"
+    /// de <see cref="RelacionCP3"/> en CargarAgrupaciones* / ObtenArrayAgrupaciones* /
+    /// ObtenTextoAgrupaciones*. Todos son string (regla anti-crash: no bindear int a Text).
+    /// </summary>
+    public partial class AgrupacionFila : ObservableObject
+    {
+        // Legacy columna "Número" (lista de cantidades permitidas, p. ej. "0-2" ó "1,3").
+        [ObservableProperty]
+        private string _numero = "";
+
+        // Legacy columna "Elementos" (nº de columnas que forman la agrupación).
+        [ObservableProperty]
+        private string _elementos = "";
+
+        // Legacy columna "Aciertos" (lista de aciertos, p. ej. "0-14" ó "3,5").
         [ObservableProperty]
         private string _aciertos = "";
     }

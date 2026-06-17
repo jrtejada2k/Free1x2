@@ -27,6 +27,16 @@ namespace Free1X2.WinUI.Views.Ported
         // Grupo temporal de CPs importadas (legacy: grupoCPtmp pasado por el llamador).
         public List<ColumnaProbable> ColumnasImportadas { get; private set; } = new();
 
+        /// <summary>
+        /// Handoff estático para el llamador (ColProbablesFrmViewModel). El WinForms recibía
+        /// la <c>List&lt;ColumnaProbable&gt; grupoCPtmp</c> por el constructor y la leía tras
+        /// ShowDialog (Free1X2/UI/Filtros/ColProbablesFrm.cs línea 690-692). En WinUI la página
+        /// se destruye al volver con Frame.GoBack(), así que el resultado se publica aquí y el
+        /// consumidor lo lee en su OnNavigatedTo (mismo patrón que CopiarDatosCPFrmViewModel.Resultado).
+        /// null = el usuario canceló o no completó ninguna importación.
+        /// </summary>
+        public static List<ColumnaProbable>? Resultado { get; set; }
+
         // Estado / feedback mostrado al usuario tras una acción.
         [ObservableProperty]
         private string _estadoTexto = "Sin importaciones realizadas.";
@@ -98,6 +108,7 @@ namespace Free1X2.WinUI.Views.Ported
             }
 
             ColumnasImportadas = importadas;
+            Resultado = importadas; // handoff estático para el llamador (legacy grupoCPtmp).
             ActualizarResumen();
             EstadoTexto = $"Importadas {importadas.Count} columnas simples desde {Path.GetFileName(ruta)}.";
         }
@@ -164,6 +175,7 @@ namespace Free1X2.WinUI.Views.Ported
             }
 
             ColumnasImportadas = importadas;
+            Resultado = importadas; // handoff estático para el llamador (legacy grupoCPtmp).
             ActualizarResumen();
             EstadoTexto = $"Importadas {importadas.Count} columnas con aciertos desde {Path.GetFileName(ruta)}.";
         }
@@ -176,6 +188,7 @@ namespace Free1X2.WinUI.Views.Ported
         private void Cancelar()
         {
             ColumnasImportadas = new List<ColumnaProbable>();
+            Resultado = null; // handoff estático: cancelado (legacy grupoCPtmp queda vacío).
             ActualizarResumen();
             EstadoTexto = "Importación cancelada.";
             // TODO (navegación): el WinForms hacía Close(); el llamador (ColProbablesFrm.ImportaColumnas,

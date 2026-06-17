@@ -27,6 +27,14 @@ public partial class ExportadorCPsFrmViewModel : ObservableObject
     // Lista de CPs a exportar (legacy: constructor ExportadorCPsFrm(List<ColumnaProbable> lista)).
     private List<ColumnaProbable> _lista = new();
 
+    /// <summary>
+    /// Handoff estático del llamador (ColProbablesFrmViewModel.ExportarCPs). El WinForms pasaba
+    /// la lista por el constructor; en WinUI la página construye su propio ViewModel, así que el
+    /// llamador deposita aquí la lista a exportar antes de navegar y el constructor la consume
+    /// (mismo patrón que CopiarDatosCPFrmViewModel.Resultado). Se limpia tras consumirla.
+    /// </summary>
+    public static List<ColumnaProbable>? ListaParaExportar { get; set; }
+
     // ===== Estado / feedback (sustituye al cierre del diálogo) =====
     [ObservableProperty]
     private string _estado = "Elige el formato de exportación de las columnas probables.";
@@ -36,6 +44,12 @@ public partial class ExportadorCPsFrmViewModel : ObservableObject
 
     public ExportadorCPsFrmViewModel()
     {
+        // Consume el handoff estático si el llamador depositó una lista antes de navegar.
+        if (ListaParaExportar is not null)
+        {
+            EstablecerColumnas(ListaParaExportar);
+            ListaParaExportar = null;
+        }
     }
 
     /// <summary>
