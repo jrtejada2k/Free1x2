@@ -21,16 +21,20 @@ public partial class CondicionItem : ObservableObject
     /// (If-Then y Control de grupos), cuyo semáforo se gestiona aparte.
     /// </param>
     /// <param name="pagina">Página portada a la que navega al pulsar.</param>
-    public CondicionItem(string titulo, string? claveFiltro, Type pagina)
+    public CondicionItem(string titulo, string? claveFiltro, Type pagina, string glifo = "")
     {
         Titulo = titulo;
         ClaveFiltro = claveFiltro;
         Pagina = pagina;
+        Glifo = glifo;
     }
 
     public string Titulo { get; }
     public string? ClaveFiltro { get; }
     public Type Pagina { get; }
+
+    /// <summary>Glifo (Segoe Fluent/MDL2) del icono de la condición, como en las imágenes del original.</summary>
+    public string Glifo { get; }
 
     /// <summary>Estado del semáforo del filtro (gris/verde/rojo). Réplica de PonerColorBotonCondicion.</summary>
     [ObservableProperty]

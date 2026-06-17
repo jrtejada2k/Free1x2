@@ -9,6 +9,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
@@ -24,7 +25,17 @@
         <!-- Barra de menús (organización del programa original) -->
         <muxc:MenuBar x:Name="BarraMenu" Grid.Row="1" />
 
+        <!-- Barra de herramientas (acciones más usadas, como el toolbar del original) -->
+        <Border x:Name="BarraHerramientas" Grid.Row="2"
+                Height="40"
+                Background="{ThemeResource AppSurfaceAltBrush}"
+                BorderBrush="{ThemeResource AppBorderBrush}"
+                BorderThickness="0,1,0,1">
+            <StackPanel x:Name="ToolbarPanel" Orientation="Horizontal"
+                        VerticalAlignment="Center" Margin="8,0" Spacing="2" />
+        </Border>
+
         <!-- Contenido -->
-        <Frame x:Name="ContentFrame" Grid.Row="2" />
+        <Frame x:Name="ContentFrame" Grid.Row="3" />
     </Grid>
 </Window>
