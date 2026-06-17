@@ -3,6 +3,7 @@
     x:Class="Free1X2.WinUI.Views.Ported.TramificarFormPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:Free1X2.WinUI.Controls"
     xmlns:ported="using:Free1X2.WinUI.Views.Ported">
 
     <ScrollViewer>
@@ -184,6 +185,17 @@
                     <Button Content="Guardar jornada L.A.E."
                             Command="{x:Bind ViewModel.GuardarJornadaLaeCommand}"
                             AutomationProperties.Name="Guardar los datos de premios de la jornada" />
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Valoración por partido (UserControl controlPorcentajes1) ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Valoración por partido" Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <TextBlock Text="Porcentajes / valoraciones (1 / X / 2) por partido que alimentan el cálculo de los tramos. Sustituye al control controlPorcentajes1 del formulario original."
+                               Style="{StaticResource SecondaryTextBlockStyle}" TextWrapping="Wrap" />
+                    <controls:PorcentajesControl Height="300"
+                                                 Filas="{x:Bind ViewModel.Porcentajes, Mode=OneWay}" />
                 </StackPanel>
             </Border>
 
@@ -370,6 +382,10 @@
                                  Text="{x:Bind ViewModel.LnCentral, Mode=TwoWay}"
                                  AutomationProperties.Name="LN central" />
                     </Grid>
+
+                    <ToggleSwitch OffContent="Ordenar por sumas" OnContent="Ordenar por productos (logaritmos neperianos)"
+                                  IsOn="{x:Bind ViewModel.OrdenarPorProductos, Mode=TwoWay}"
+                                  AutomationProperties.Name="Criterio de ordenación: por productos o por sumas" />
 
                     <ToggleSwitch OffContent="No acumular" OnContent="Acumular resultados de jornadas distintas"
                                   IsOn="{x:Bind ViewModel.Acumular, Mode=TwoWay}"
