@@ -42,7 +42,6 @@ Free1X2.WinUI/
 └── Views/
     ├── HomePage             ← landing + showcase del design system
     ├── BoletoPage           ← slice de prueba (14 partidos)
-    ├── PlaceholderPage       ← secciones pendientes de migrar
     └── SettingsPage          ← tema claro/oscuro/sistema
 ```
 
