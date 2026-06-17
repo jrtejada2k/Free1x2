@@ -3,6 +3,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="using:Free1X2.WinUI.Controls"
+    xmlns:local="using:Free1X2.WinUI.Views.Ported"
     Background="{StaticResource AppBackgroundBrush}">
 
     <Grid Padding="10,7" RowSpacing="6">
@@ -57,8 +58,8 @@
                 </Border>
 
                 <!-- Columnas generadas (legacy: groupBox2 "Columnas Probables").
-                     6 columnas x 14 partidos de etiquetas de solo lectura (l011..l146) con signos -/1/2/12/X/1X/X2/1X2.
-                     TODO: portar la rejilla de resultados desde cps[14,6] (Cambia()). -->
+                     Rejilla de solo lectura 14x6 de etiquetas (l0PR: fila=partido 1..14, columna=1..6)
+                     con signos -/1/2/12/X/1X/X2/1X2, rellenada en PintaPantalla desde cps[14,6] (Cambia()). -->
                 <Border Style="{StaticResource AppCardStyle}">
                     <StackPanel Spacing="5">
                         <TextBlock
@@ -67,12 +68,79 @@
                         <TextBlock
                             Style="{StaticResource SecondaryTextBlockStyle}"
                             TextWrapping="Wrap"
-                            Text="6 columnas generadas (14 partidos cada una) que se rellenan al calcular. Pendiente de portar como rejilla de solo lectura (legacy: PintaPantalla / cps[14,6])." />
-                        <ListView
-                            SelectionMode="None"
-                            MaxHeight="220"
-                            BorderThickness="0"
-                            ItemsSource="{x:Bind ViewModel.ColumnasGeneradas, Mode=OneWay}" />
+                            Text="6 columnas generadas (14 partidos cada una) que se rellenan al calcular (legacy: PintaPantalla / cps[14,6])." />
+
+                        <ScrollViewer HorizontalScrollBarVisibility="Auto" HorizontalScrollMode="Auto"
+                                      VerticalScrollBarVisibility="Auto" VerticalScrollMode="Auto"
+                                      MaxHeight="440">
+                            <StackPanel Spacing="2">
+
+                                <!-- Cabecera de columnas: partido + Col 1..Col 6 -->
+                                <StackPanel Orientation="Horizontal" Spacing="2">
+                                    <Border Width="56" Height="26"
+                                            Background="{ThemeResource AppSurfaceAltBrush}"
+                                            BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1" CornerRadius="3">
+                                        <TextBlock Text="Part." HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                                   Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                                    </Border>
+                                    <Border Width="56" Height="26" Background="{ThemeResource AppSurfaceAltBrush}" BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1" CornerRadius="3">
+                                        <TextBlock Text="Col 1" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                                    </Border>
+                                    <Border Width="56" Height="26" Background="{ThemeResource AppSurfaceAltBrush}" BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1" CornerRadius="3">
+                                        <TextBlock Text="Col 2" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                                    </Border>
+                                    <Border Width="56" Height="26" Background="{ThemeResource AppSurfaceAltBrush}" BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1" CornerRadius="3">
+                                        <TextBlock Text="Col 3" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                                    </Border>
+                                    <Border Width="56" Height="26" Background="{ThemeResource AppSurfaceAltBrush}" BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1" CornerRadius="3">
+                                        <TextBlock Text="Col 4" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                                    </Border>
+                                    <Border Width="56" Height="26" Background="{ThemeResource AppSurfaceAltBrush}" BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1" CornerRadius="3">
+                                        <TextBlock Text="Col 5" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                                    </Border>
+                                    <Border Width="56" Height="26" Background="{ThemeResource AppSurfaceAltBrush}" BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1" CornerRadius="3">
+                                        <TextBlock Text="Col 6" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                                    </Border>
+                                </StackPanel>
+
+                                <!-- 14 filas (una por partido) con cabecera + 6 celdas de signos -->
+                                <ItemsControl ItemsSource="{x:Bind ViewModel.ColumnasProbables, Mode=OneWay}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="local:FilaColumnasProbables">
+                                            <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,1,0,0">
+                                                <Border Width="56" Height="26"
+                                                        Background="{ThemeResource AppSurfaceAltBrush}"
+                                                        BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1" CornerRadius="3">
+                                                    <TextBlock Text="{x:Bind Partido}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                               Style="{StaticResource CaptionTextBlockStyle}"
+                                                               Foreground="{ThemeResource AppTextBrush}" />
+                                                </Border>
+                                                <ItemsControl ItemsSource="{x:Bind Signos}">
+                                                    <ItemsControl.ItemsPanel>
+                                                        <ItemsPanelTemplate>
+                                                            <StackPanel Orientation="Horizontal" Spacing="2" />
+                                                        </ItemsPanelTemplate>
+                                                    </ItemsControl.ItemsPanel>
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate x:DataType="x:String">
+                                                            <Border Width="56" Height="26"
+                                                                    Background="{ThemeResource AppSurfaceBrush}"
+                                                                    BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1" CornerRadius="3">
+                                                                <TextBlock Text="{x:Bind}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                                                           Foreground="{ThemeResource AppTextBrush}" />
+                                                            </Border>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                            </StackPanel>
+                        </ScrollViewer>
                     </StackPanel>
                 </Border>
 
