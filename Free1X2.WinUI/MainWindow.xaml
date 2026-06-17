@@ -5,37 +5,32 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls">
 
+    <!-- Sin barra de título custom: se usa la barra de Windows estándar
+         (minimizar / maximizar / cerrar) como el MainForm WinForms original. -->
     <Grid Background="{ThemeResource AppBackgroundBrush}">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <!-- Barra de título custom (drag region) -->
-        <Border x:Name="AppTitleBar" Grid.Row="0" Height="36">
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="14,0,0,0" Spacing="8">
-                <FontIcon Glyph="&#xE9D9;" FontSize="14" Foreground="{ThemeResource AppAccentBrush}" />
-                <TextBlock Text="Free1X2" VerticalAlignment="Center"
-                           Style="{StaticResource CaptionTextBlockStyle}" />
-            </StackPanel>
-        </Border>
-
         <!-- Barra de menús (organización del programa original) -->
-        <muxc:MenuBar x:Name="BarraMenu" Grid.Row="1" />
+        <muxc:MenuBar x:Name="BarraMenu" Grid.Row="0" />
 
-        <!-- Barra de herramientas (acciones más usadas, como el toolbar del original) -->
-        <Border x:Name="BarraHerramientas" Grid.Row="2"
-                Height="40"
+        <!-- Barra de herramientas (réplica de los 6 ToolStrips del MainForm) -->
+        <Border x:Name="BarraHerramientas" Grid.Row="1"
                 Background="{ThemeResource AppSurfaceAltBrush}"
                 BorderBrush="{ThemeResource AppBorderBrush}"
                 BorderThickness="0,1,0,1">
-            <StackPanel x:Name="ToolbarPanel" Orientation="Horizontal"
-                        VerticalAlignment="Center" Margin="8,0" Spacing="2" />
+            <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                          VerticalScrollBarVisibility="Disabled"
+                          HorizontalScrollMode="Auto">
+                <StackPanel x:Name="ToolbarPanel" Orientation="Horizontal"
+                            VerticalAlignment="Center" Margin="6,2" Spacing="1" />
+            </ScrollViewer>
         </Border>
 
         <!-- Contenido -->
-        <Frame x:Name="ContentFrame" Grid.Row="3" />
+        <Frame x:Name="ContentFrame" Grid.Row="2" />
     </Grid>
 </Window>
