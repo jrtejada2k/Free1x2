@@ -5,8 +5,8 @@
     xmlns:local="using:Free1X2.WinUI.Views.Ported"
     Background="{ThemeResource AppBackgroundBrush}">
 
-    <ScrollViewer Padding="24" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-        <StackPanel Spacing="16">
+    <ScrollViewer Padding="10,7" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+        <StackPanel Spacing="6">
 
             <!-- Encabezado: titulo real del form legacy (this.Text = "coincidencias") -->
             <TextBlock
@@ -19,13 +19,13 @@
 
             <!-- Resumen + control de modo (GroupBox "mostrar" del form legacy) -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
 
                     <TextBlock
                         Text="Mostrar"
                         Style="{StaticResource SectionHeaderTextBlockStyle}" />
 
-                    <StackPanel Orientation="Horizontal" Spacing="16">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
                         <TextBlock
                             Text="Columnas totales:"
                             VerticalAlignment="Center"
@@ -47,7 +47,7 @@
 
             <!-- Tabla de coincidencias: 15 columnas (posiciones 0..14) x filas de categoria -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
 
                     <TextBlock
                         Text="Posiciones"

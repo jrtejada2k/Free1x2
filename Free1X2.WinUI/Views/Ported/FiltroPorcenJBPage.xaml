@@ -5,8 +5,8 @@
     xmlns:controls="using:Free1X2.WinUI.Controls"
     Background="{StaticResource AppBackgroundBrush}">
 
-    <ScrollViewer Padding="24">
-        <StackPanel Spacing="16" MaxWidth="900">
+    <ScrollViewer Padding="10,7">
+        <StackPanel Spacing="6" MaxWidth="900">
 
             <!-- Encabezado -->
             <StackPanel Spacing="4">
@@ -20,14 +20,14 @@
 
             <!-- Limites de banda -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock
                         Style="{StaticResource CardTitleTextBlockStyle}"
                         Text="Limites de banda (&lt;=)" />
                     <TextBlock
                         Style="{StaticResource SecondaryTextBlockStyle}"
                         Text="Umbrales crecientes que definen las 7 bandas de porcentaje." />
-                    <Grid ColumnSpacing="12" RowSpacing="12">
+                    <Grid ColumnSpacing="12" RowSpacing="6">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="*" />
@@ -74,14 +74,14 @@
 
             <!-- Rangos por banda -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock
                         Style="{StaticResource CardTitleTextBlockStyle}"
                         Text="Rangos por banda (min-max)" />
                     <TextBlock
                         Style="{StaticResource SecondaryTextBlockStyle}"
                         Text="Aciertos permitidos por banda. Formato 'min-max', p. ej. 0-3." />
-                    <Grid ColumnSpacing="12" RowSpacing="12">
+                    <Grid ColumnSpacing="12" RowSpacing="6">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="*" />
@@ -144,7 +144,7 @@
 
             <!-- Calculo de columnas admitidas -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock
                         Style="{StaticResource CardTitleTextBlockStyle}"
                         Text="Filtrado de columnas" />
@@ -176,7 +176,7 @@
                             Command="{x:Bind ViewModel.CancelarCommand}" />
                     </StackPanel>
 
-                    <Grid ColumnSpacing="16" RowSpacing="8">
+                    <Grid ColumnSpacing="10" RowSpacing="8">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
@@ -217,7 +217,7 @@
 
             <!-- Analisis de resultados -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock
                         Style="{StaticResource CardTitleTextBlockStyle}"
                         Text="Analisis resultados" />

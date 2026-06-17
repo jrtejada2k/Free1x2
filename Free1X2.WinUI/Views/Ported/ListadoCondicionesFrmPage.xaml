@@ -5,7 +5,7 @@
     xmlns:ported="using:Free1X2.WinUI.Views.Ported"
     Background="{StaticResource AppBackgroundBrush}">
 
-    <Grid Margin="24">
+    <Grid Margin="12">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />

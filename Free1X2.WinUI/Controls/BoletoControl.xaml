@@ -5,7 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="using:Free1X2.WinUI.Controls">
 
-    <Grid RowSpacing="12">
+    <Grid RowSpacing="6">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -35,19 +35,19 @@
         <!-- Lista de los 14 partidos -->
         <Border Grid.Row="1"
                 Style="{StaticResource AppCardStyle}"
-                Padding="8">
+                Padding="6">
             <ListView ItemsSource="{x:Bind ViewModel.Partidos}"
                       SelectionMode="None"
                       IsItemClickEnabled="False"
                       AutomationProperties.Name="Lista de partidos del boleto">
                 <ListView.Header>
-                    <Grid Padding="8,4" ColumnSpacing="6">
+                    <Grid Padding="6,2" ColumnSpacing="4">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="32" />
+                            <ColumnDefinition Width="22" />
                             <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="44" />
-                            <ColumnDefinition Width="44" />
-                            <ColumnDefinition Width="44" />
+                            <ColumnDefinition Width="28" />
+                            <ColumnDefinition Width="28" />
+                            <ColumnDefinition Width="28" />
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="#"
                                    Foreground="{ThemeResource AppTextSecondaryBrush}"
@@ -70,34 +70,37 @@
                 <ListView.ItemContainerStyle>
                     <Style TargetType="ListViewItem">
                         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                        <Setter Property="Padding" Value="4,2" />
+                        <Setter Property="Padding" Value="0" />
                         <Setter Property="MinHeight" Value="0" />
                     </Style>
                 </ListView.ItemContainerStyle>
 
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="controls:PartidoViewModel">
-                        <Grid ColumnSpacing="6" Padding="4,2">
+                        <Grid ColumnSpacing="4" Padding="2,0" Height="26">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="32" />
+                                <ColumnDefinition Width="22" />
                                 <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="44" />
-                                <ColumnDefinition Width="44" />
-                                <ColumnDefinition Width="44" />
+                                <ColumnDefinition Width="28" />
+                                <ColumnDefinition Width="28" />
+                                <ColumnDefinition Width="28" />
                             </Grid.ColumnDefinitions>
 
                             <TextBlock Grid.Column="0"
                                        Text="{x:Bind NumeroTexto}"
                                        VerticalAlignment="Center"
+                                       FontSize="11"
                                        Foreground="{ThemeResource AppTextSecondaryBrush}" />
 
                             <TextBlock Grid.Column="1"
                                        Text="{x:Bind Equipos}"
                                        VerticalAlignment="Center"
+                                       FontSize="11"
                                        TextTrimming="CharacterEllipsis" />
 
                             <ToggleButton Grid.Column="2"
                                           Content="1"
+                                          Height="22" FontSize="11"
                                           IsChecked="{x:Bind Signo1, Mode=TwoWay}"
                                           Style="{StaticResource SignoToggleButtonStyle}"
                                           AutomationProperties.Name="{x:Bind Equipos}"
@@ -105,6 +108,7 @@
 
                             <ToggleButton Grid.Column="3"
                                           Content="X"
+                                          Height="22" FontSize="11"
                                           IsChecked="{x:Bind SignoX, Mode=TwoWay}"
                                           Style="{StaticResource SignoToggleButtonStyle}"
                                           AutomationProperties.Name="{x:Bind Equipos}"
@@ -112,6 +116,7 @@
 
                             <ToggleButton Grid.Column="4"
                                           Content="2"
+                                          Height="22" FontSize="11"
                                           IsChecked="{x:Bind Signo2, Mode=TwoWay}"
                                           Style="{StaticResource SignoToggleButtonStyle}"
                                           AutomationProperties.Name="{x:Bind Equipos}"

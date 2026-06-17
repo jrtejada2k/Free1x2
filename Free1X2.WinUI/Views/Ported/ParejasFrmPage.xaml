@@ -7,7 +7,7 @@
     Background="{ThemeResource AppBackgroundBrush}">
 
     <ScrollViewer>
-        <StackPanel Padding="24" Spacing="16" MaxWidth="1040" HorizontalAlignment="Left">
+        <StackPanel Padding="10,7" Spacing="6" MaxWidth="1040" HorizontalAlignment="Left">
 
             <!-- Encabezado -->
             <StackPanel Spacing="4" Margin="0,0,0,4">
@@ -22,7 +22,7 @@
 
             <!-- Tarjeta: Niveles (14 partidos x 9 combinaciones de pareja) -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock
                         Text="Niveles"
                         Style="{StaticResource SectionHeaderTextBlockStyle}" />
@@ -112,7 +112,7 @@
 
             <!-- Tarjeta: Condiciones (rango de aciertos por nivel 1..7) -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock
                         Text="Condiciones"
                         Style="{StaticResource SectionHeaderTextBlockStyle}" />
@@ -157,7 +157,7 @@
 
             <!-- Tarjeta: Análisis de la Columna Ganadora -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock
                         Text="Análisis Resultados"
                         Style="{StaticResource SectionHeaderTextBlockStyle}" />
@@ -215,7 +215,7 @@
 
             <!-- Tarjeta: Progreso del cálculo -->
             <Border Style="{StaticResource AppCardStyle}">
-                <Grid ColumnSpacing="24" HorizontalAlignment="Left">
+                <Grid ColumnSpacing="12" HorizontalAlignment="Left">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
@@ -239,7 +239,7 @@
             <!-- Acciones -->
             <StackPanel
                 Orientation="Horizontal"
-                Spacing="12"
+                Spacing="5"
                 HorizontalAlignment="Left">
                 <Button
                     Content="Leer condiciones"

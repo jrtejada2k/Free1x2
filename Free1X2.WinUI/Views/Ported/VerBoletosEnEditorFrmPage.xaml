@@ -4,7 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Background="{StaticResource AppBackgroundBrush}">
 
-    <Grid Padding="24" RowSpacing="16">
+    <Grid Padding="10,7" RowSpacing="6">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -53,7 +53,7 @@
             Grid.Row="2"
             Orientation="Horizontal"
             HorizontalAlignment="Right"
-            Spacing="12">
+            Spacing="5">
             <Button
                 Content="Imprimir / Exportar imagen"
                 Style="{StaticResource AccentButtonStyle}"

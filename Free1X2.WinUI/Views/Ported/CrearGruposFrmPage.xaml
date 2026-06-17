@@ -4,7 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Background="{ThemeResource AppBackgroundBrush}">
 
-    <Grid Padding="24" RowSpacing="16">
+    <Grid Padding="10,7" RowSpacing="6">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -18,7 +18,7 @@
 
         <!-- Sección de entrada -->
         <Border Grid.Row="1" Style="{StaticResource AppCardStyle}">
-            <StackPanel Spacing="16">
+            <StackPanel Spacing="6">
                 <TextBlock
                     Style="{StaticResource SectionHeaderTextBlockStyle}"
                     Text="¿Cuántos grupos nuevos?" />
@@ -35,7 +35,7 @@
 
                 <StackPanel
                     Orientation="Horizontal"
-                    Spacing="12">
+                    Spacing="5">
                     <!-- Legacy: btnCrear (habilitado sólo si valor > 0) -->
                     <Button
                         Style="{StaticResource AccentButtonStyle}"

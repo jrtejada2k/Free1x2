@@ -5,7 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <ScrollViewer>
-        <StackPanel Padding="32" Spacing="24" MaxWidth="640" HorizontalAlignment="Left">
+        <StackPanel Padding="12,8" Spacing="8" MaxWidth="640" HorizontalAlignment="Left">
 
             <!-- ===== Encabezado ===== -->
             <StackPanel Spacing="6">
@@ -18,7 +18,7 @@
 
             <!-- ===== Columnas a copiar (label1 + txtCP) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Columnas a copiar" Style="{StaticResource CardTitleTextBlockStyle}" />
 
                     <TextBox Header="Columnas"
@@ -31,7 +31,7 @@
 
             <!-- ===== Grupos destino (label2 + cmbGrupo MultiExtended) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Grupos destino" Style="{StaticResource CardTitleTextBlockStyle}" />
                     <TextBlock Text="Selecciona uno o varios grupos a los que copiar las columnas."
                                Style="{StaticResource SecondaryTextBlockStyle}"
@@ -50,7 +50,7 @@
             </Border>
 
             <!-- ===== Acciones (btnCopiar / btnCancelar / btnCrearGrupos) ===== -->
-            <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+            <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
                 <Button Content="Copiar"
                         Style="{StaticResource AccentButtonStyle}"
                         Command="{x:Bind ViewModel.CopiarCommand}"

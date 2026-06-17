@@ -7,7 +7,7 @@
     Background="{ThemeResource AppBackgroundBrush}">
 
     <ScrollViewer>
-        <Grid Padding="24" RowSpacing="20" MaxWidth="900" HorizontalAlignment="Left">
+        <Grid Padding="10,7" RowSpacing="8" MaxWidth="900" HorizontalAlignment="Left">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -28,7 +28,7 @@
 
             <!-- Fichero de entrada -->
             <Border Grid.Row="1" Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock
                         Text="Fichero a procesar"
                         Style="{StaticResource SectionHeaderTextBlockStyle}"
@@ -58,7 +58,7 @@
 
             <!-- Parámetros de análisis -->
             <Border Grid.Row="2" Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock
                         Text="Ver"
                         Style="{StaticResource SectionHeaderTextBlockStyle}"
@@ -112,7 +112,7 @@
                         TextWrapping="Wrap" />
 
                     <!-- Acciones -->
-                    <StackPanel Orientation="Horizontal" Spacing="12">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
                         <Button
                             Content="Calcular"
                             Style="{StaticResource AccentButtonStyle}"

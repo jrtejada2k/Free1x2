@@ -6,7 +6,7 @@
     Background="{StaticResource AppBackgroundBrush}">
 
     <ScrollViewer>
-        <Grid Padding="24" RowSpacing="16">
+        <Grid Padding="10,7" RowSpacing="6">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -26,7 +26,7 @@
 
             <!-- Controles de curva -->
             <Border Grid.Row="1" Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock
                         Style="{StaticResource SectionHeaderTextBlockStyle}"
                         Text="Curva a representar" />
@@ -47,7 +47,7 @@
                         Maximum="200"
                         Value="{x:Bind ViewModel.TamanoGrid, Mode=TwoWay}" />
 
-                    <StackPanel Orientation="Horizontal" Spacing="12">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
                         <Button
                             Style="{StaticResource AccentButtonStyle}"
                             Content="Dibujar curva"
@@ -69,12 +69,12 @@
 
             <!-- Leyenda de colores (legacy: panel2..panel10) -->
             <Border Grid.Row="2" Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock
                         Style="{StaticResource SectionHeaderTextBlockStyle}"
                         Text="Leyenda de curvas" />
 
-                    <StackPanel Orientation="Horizontal" Spacing="20">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
                         <StackPanel Orientation="Horizontal" Spacing="6">
                             <Border Width="20" Height="12" CornerRadius="2" Background="Black" />
                             <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="Probabilidad" VerticalAlignment="Center" />

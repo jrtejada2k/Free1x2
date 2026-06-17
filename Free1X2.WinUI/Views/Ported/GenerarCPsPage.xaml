@@ -5,8 +5,8 @@
     xmlns:local="using:Free1X2.WinUI.Views.Ported"
     Background="{StaticResource AppBackgroundBrush}">
 
-    <ScrollViewer Padding="24">
-        <StackPanel Spacing="16" MaxWidth="900">
+    <ScrollViewer Padding="10,7">
+        <StackPanel Spacing="6" MaxWidth="900">
 
             <!-- Encabezado -->
             <TextBlock
@@ -18,7 +18,7 @@
 
             <!-- Valoración por partido -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock
                         Text="Valoración"
                         Style="{StaticResource SectionHeaderTextBlockStyle}" />
@@ -92,7 +92,7 @@
 
             <!-- Jornada y generación -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock
                         Text="Generar columnas"
                         Style="{StaticResource SectionHeaderTextBlockStyle}" />
@@ -116,7 +116,7 @@
 
             <!-- Herramientas adicionales -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock
                         Text="Herramientas"
                         Style="{StaticResource SectionHeaderTextBlockStyle}" />

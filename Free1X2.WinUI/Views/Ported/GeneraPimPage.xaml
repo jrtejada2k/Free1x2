@@ -6,8 +6,8 @@
     Background="{StaticResource AppBackgroundBrush}">
 
     <Grid>
-        <ScrollViewer Padding="24" HorizontalScrollMode="Disabled">
-            <StackPanel Spacing="16" MaxWidth="1100">
+        <ScrollViewer Padding="10,7" HorizontalScrollMode="Disabled">
+            <StackPanel Spacing="6" MaxWidth="1100">
 
                 <!-- Encabezado -->
                 <StackPanel Spacing="4">
@@ -18,7 +18,7 @@
                 </StackPanel>
 
                 <!-- Valores por partido + Rangos -->
-                <Grid ColumnSpacing="16">
+                <Grid ColumnSpacing="10">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="*" />
@@ -72,7 +72,7 @@
 
                     <!-- Rangos por ranking + recorrido -->
                     <Border Grid.Column="1" Style="{StaticResource AppCardStyle}">
-                        <StackPanel Spacing="10">
+                        <StackPanel Spacing="6">
                             <TextBlock Text="Rangos de aciertos" Style="{StaticResource CardTitleTextBlockStyle}" />
                             <TextBlock
                                 Text="Mínimo-máximo de aciertos admitidos por cada ranking (formato min-max)."
@@ -133,7 +133,7 @@
 
                 <!-- Cálculo / reducción -->
                 <Border Style="{StaticResource AppCardStyle}">
-                    <StackPanel Spacing="10">
+                    <StackPanel Spacing="6">
                         <TextBlock Text="Cálculo de columnas" Style="{StaticResource CardTitleTextBlockStyle}" />
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <Button Content="Calcular" Style="{StaticResource AccentButtonStyle}"
@@ -142,7 +142,7 @@
                             <Button Content="Exportar columnas" Command="{x:Bind ViewModel.ExportarColumnasCommand}" />
                         </StackPanel>
 
-                        <Grid ColumnSpacing="24" Margin="0,4,0,0">
+                        <Grid ColumnSpacing="12" Margin="0,4,0,0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="Auto" />
@@ -176,7 +176,7 @@
 
                 <!-- Análisis de resultados -->
                 <Border Style="{StaticResource AppCardStyle}">
-                    <StackPanel Spacing="10">
+                    <StackPanel Spacing="6">
                         <TextBlock Text="Análisis Resultados" Style="{StaticResource CardTitleTextBlockStyle}" />
                         <TextBlock
                             Text="Cuenta aciertos por ranking de una columna ganadora cargada desde fichero."
@@ -196,7 +196,7 @@
 
                         <TextBox Header="Columna ganadora" Text="{x:Bind ViewModel.ColumnaGanadora, Mode=TwoWay}" />
 
-                        <Grid ColumnSpacing="16" Margin="0,4,0,0">
+                        <Grid ColumnSpacing="10" Margin="0,4,0,0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="Auto" />

@@ -6,7 +6,7 @@
     xmlns:controls="using:Free1X2.WinUI.Controls"
     Background="{StaticResource AppBackgroundBrush}">
 
-    <Grid Padding="24" RowSpacing="16">
+    <Grid Padding="10,7" RowSpacing="6">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -23,7 +23,7 @@
         </StackPanel>
 
         <!-- Cuerpo -->
-        <Grid Grid.Row="1" ColumnSpacing="16">
+        <Grid Grid.Row="1" ColumnSpacing="10">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="320" />
@@ -31,7 +31,7 @@
 
             <!-- Columna izquierda: lista de formatos -->
             <Border Grid.Column="0" Style="{StaticResource AppCardStyle}">
-                <Grid RowSpacing="12">
+                <Grid RowSpacing="6">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
@@ -110,11 +110,11 @@
 
             <!-- Columna derecha -->
             <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
-            <StackPanel Spacing="16">
+            <StackPanel Spacing="6">
 
                 <!-- Aciertos -->
                 <Border Style="{StaticResource AppCardStyle}">
-                    <StackPanel Spacing="12">
+                    <StackPanel Spacing="5">
                         <TextBlock Text="Aciertos" Style="{StaticResource CardTitleTextBlockStyle}" />
                         <StackPanel Spacing="4">
                             <TextBlock
@@ -132,7 +132,7 @@
 
                 <!-- Porcentajes / valoración (reemplaza el UserControl ControlPorcentajes) -->
                 <Border Style="{StaticResource AppCardStyle}">
-                    <StackPanel Spacing="12">
+                    <StackPanel Spacing="5">
                         <TextBlock Text="Porcentajes" Style="{StaticResource CardTitleTextBlockStyle}" />
                         <controls:PorcentajesControl
                             Height="340"
@@ -143,7 +143,7 @@
 
                 <!-- Utilidades -->
                 <Border Style="{StaticResource AppCardStyle}">
-                    <StackPanel Spacing="12">
+                    <StackPanel Spacing="5">
                         <TextBlock Text="Utilidades" Style="{StaticResource CardTitleTextBlockStyle}" />
                         <TextBlock
                             Style="{StaticResource SecondaryTextBlockStyle}"

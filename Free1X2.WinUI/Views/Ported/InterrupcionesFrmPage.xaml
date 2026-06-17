@@ -5,7 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <ScrollViewer>
-        <StackPanel Padding="32" Spacing="24" MaxWidth="820" HorizontalAlignment="Left">
+        <StackPanel Padding="12,8" Spacing="8" MaxWidth="820" HorizontalAlignment="Left">
 
             <!-- ===== Encabezado ===== -->
             <StackPanel Spacing="6">
@@ -17,7 +17,7 @@
 
             <!-- ===== Interrupciones ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Interrupciones" Style="{StaticResource CardTitleTextBlockStyle}" />
                     <TextBlock Text="Número de interrupciones admitidas (0–14) por tipo. Separa varios valores con comas, p. ej. 0,1,2."
                                Style="{StaticResource SecondaryTextBlockStyle}"
@@ -102,7 +102,7 @@
 
             <!-- ===== Interrupciones seguidas ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Seguidas" Style="{StaticResource CardTitleTextBlockStyle}" />
                     <TextBlock Text="Número de interrupciones seguidas admitidas (0–14) por tipo. Separa varios valores con comas, p. ej. 0,1,2."
                                Style="{StaticResource SecondaryTextBlockStyle}"
@@ -187,9 +187,9 @@
 
             <!-- ===== Acciones (menuCondiciones del form legacy) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Acciones" Style="{StaticResource CardTitleTextBlockStyle}" />
-                    <StackPanel Orientation="Horizontal" Spacing="12">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
                         <Button Content="Aceptar"
                                 Style="{StaticResource AccentButtonStyle}"
                                 Command="{x:Bind ViewModel.AceptarCommand}"

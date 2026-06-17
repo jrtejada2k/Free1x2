@@ -6,7 +6,7 @@
     xmlns:vm="using:Free1X2.WinUI.Views.Ported">
 
     <ScrollViewer>
-        <StackPanel Padding="32" Spacing="24" MaxWidth="820" HorizontalAlignment="Left">
+        <StackPanel Padding="12,8" Spacing="8" MaxWidth="820" HorizontalAlignment="Left">
 
             <!-- ===== Encabezado ===== -->
             <StackPanel Spacing="6">
@@ -18,7 +18,7 @@
 
             <!-- ===== Simetrías (CtrlSimetria del form legacy) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Simetrías" Style="{StaticResource CardTitleTextBlockStyle}" />
                     <TextBlock Text="Introduce en cada fila los partidos que deben compartir el mismo signo."
                                Style="{StaticResource SecondaryTextBlockStyle}"
@@ -56,7 +56,7 @@
 
             <!-- ===== Aciertos (txtAciertos del form legacy) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Aciertos" Style="{StaticResource CardTitleTextBlockStyle}" />
                     <TextBlock Text="Número(s) de aciertos a considerar. Admite valores individuales y rangos separados por comas (p. ej. 1,3,5-7)."
                                Style="{StaticResource SecondaryTextBlockStyle}"
@@ -69,9 +69,9 @@
 
             <!-- ===== Acciones (menuCondiciones del form legacy) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Acciones" Style="{StaticResource CardTitleTextBlockStyle}" />
-                    <StackPanel Orientation="Horizontal" Spacing="12">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
                         <Button Content="Aceptar"
                                 Style="{StaticResource AccentButtonStyle}"
                                 Command="{x:Bind ViewModel.AceptarCommand}"

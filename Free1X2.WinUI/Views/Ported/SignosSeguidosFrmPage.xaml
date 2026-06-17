@@ -5,7 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <ScrollViewer>
-        <StackPanel Padding="32" Spacing="24" MaxWidth="820" HorizontalAlignment="Left">
+        <StackPanel Padding="12,8" Spacing="8" MaxWidth="820" HorizontalAlignment="Left">
 
             <!-- ===== Encabezado ===== -->
             <StackPanel Spacing="6">
@@ -16,7 +16,7 @@
 
             <!-- ===== Cantidades admitidas por tipo de signo seguido ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Cantidades admitidas (0–15)" Style="{StaticResource CardTitleTextBlockStyle}" />
                     <TextBlock Text="Introduce las cantidades permitidas para cada concepto. Separa varios valores con comas o espacios."
                                Style="{StaticResource SecondaryTextBlockStyle}"
@@ -86,7 +86,7 @@
 
             <!-- ===== Figuras por tipo de signo (btnFigurasV/1/X/2 del form legacy) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Figuras" Style="{StaticResource CardTitleTextBlockStyle}" />
                     <TextBlock Text="Define las figuras asociadas a cada concepto. Cuando un concepto tiene figuras definidas se muestra como activo."
                                Style="{StaticResource SecondaryTextBlockStyle}"
@@ -164,9 +164,9 @@
 
             <!-- ===== Acciones (menuCondiciones del form legacy) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Acciones" Style="{StaticResource CardTitleTextBlockStyle}" />
-                    <StackPanel Orientation="Horizontal" Spacing="12">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
                         <Button Content="Aceptar"
                                 Style="{StaticResource AccentButtonStyle}"
                                 Command="{x:Bind ViewModel.AceptarCommand}"

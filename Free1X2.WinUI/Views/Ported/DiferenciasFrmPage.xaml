@@ -6,7 +6,7 @@
     xmlns:ported="using:Free1X2.WinUI.Views.Ported">
 
     <ScrollViewer>
-        <StackPanel Padding="32" Spacing="24" MaxWidth="980" HorizontalAlignment="Left">
+        <StackPanel Padding="12,8" Spacing="8" MaxWidth="980" HorizontalAlignment="Left">
 
             <!-- ===== Encabezado ===== -->
             <StackPanel Spacing="6">
@@ -18,9 +18,9 @@
 
             <!-- ===== Navegación de conjuntos (groupBox legacy) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock Text="Conjuntos — actual / guardados" Style="{StaticResource CardTitleTextBlockStyle}" />
-                    <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
                         <Button Content="◀"
                                 Command="{x:Bind ViewModel.ConjuntoAnteriorCommand}"
                                 IsEnabled="{x:Bind ViewModel.PuedeIrAnterior, Mode=OneWay}"
@@ -40,7 +40,7 @@
                 </StackPanel>
             </Border>
 
-            <Grid ColumnSpacing="24">
+            <Grid ColumnSpacing="12">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
@@ -48,7 +48,7 @@
 
                 <!-- ===== Grupos de partidos (contenedor cctrl legacy) ===== -->
                 <Border Grid.Column="0" Style="{StaticResource AppCardStyle}">
-                    <StackPanel Spacing="12">
+                    <StackPanel Spacing="5">
                         <TextBlock Text="Grupos de partidos" Style="{StaticResource CardTitleTextBlockStyle}" />
                         <TextBlock Text="Una línea por grupo. Partidos separados por &quot;,&quot; o &quot;-&quot;."
                                    Style="{StaticResource SecondaryTextBlockStyle}"
@@ -81,7 +81,7 @@
 
                 <!-- ===== Conceptos analizados (TextBox de la derecha legacy) ===== -->
                 <Border Grid.Column="1" Style="{StaticResource AppCardStyle}">
-                    <StackPanel Spacing="16">
+                    <StackPanel Spacing="6">
                         <TextBlock Text="Valores distintos por concepto" Style="{StaticResource CardTitleTextBlockStyle}" />
                         <TextBlock Text="Cantidad o intervalo de valores distintos entre los grupos."
                                    Style="{StaticResource SecondaryTextBlockStyle}"
@@ -170,12 +170,12 @@
 
             <!-- ===== Atajos (cbbAtajos + chkPasoFijo + btnOK legacy) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Atajos" Style="{StaticResource CardTitleTextBlockStyle}" />
                     <TextBlock Text="Genera automáticamente los grupos de partidos por agrupación."
                                Style="{StaticResource SecondaryTextBlockStyle}"
                                TextWrapping="Wrap" />
-                    <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
                         <ComboBox Width="160"
                                   Header="Agrupación"
                                   ItemsSource="{x:Bind ViewModel.AtajosDisponibles}"
@@ -194,9 +194,9 @@
 
             <!-- ===== Acciones (menuCondiciones legacy) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Acciones" Style="{StaticResource CardTitleTextBlockStyle}" />
-                    <StackPanel Orientation="Horizontal" Spacing="12">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
                         <Button Content="Aceptar"
                                 Style="{StaticResource AccentButtonStyle}"
                                 Command="{x:Bind ViewModel.AceptarCommand}"

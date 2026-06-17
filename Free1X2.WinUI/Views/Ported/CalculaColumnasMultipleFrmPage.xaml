@@ -5,7 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <ScrollViewer>
-        <StackPanel Padding="32" Spacing="24" MaxWidth="900" HorizontalAlignment="Left">
+        <StackPanel Padding="12,8" Spacing="8" MaxWidth="900" HorizontalAlignment="Left">
 
             <!-- ===== Encabezado ===== -->
             <StackPanel Spacing="6">
@@ -18,7 +18,7 @@
 
             <!-- ===== Archivos de combinaciones (listaFicheros + btnSelArch) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Archivos a procesar"
                                Style="{StaticResource CardTitleTextBlockStyle}" />
                     <TextBlock Text="Selecciona uno o varios archivos de combinaciones. Se procesarán en orden alfabético."
@@ -42,12 +42,12 @@
 
             <!-- ===== Estadísticas del cálculo (labels del form legacy) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Estadísticas del cálculo"
                                Style="{StaticResource CardTitleTextBlockStyle}" />
 
                     <!-- Cabecera de columnas: Columnas / Coste -->
-                    <Grid ColumnSpacing="16">
+                    <Grid ColumnSpacing="10">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="140" />
                             <ColumnDefinition Width="*" />
@@ -64,7 +64,7 @@
                     </Grid>
 
                     <!-- Procesadas (label3 / lblColsProcesadas / colProcesadaCoste) -->
-                    <Grid ColumnSpacing="16">
+                    <Grid ColumnSpacing="10">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="140" />
                             <ColumnDefinition Width="*" />
@@ -82,7 +82,7 @@
                     </Grid>
 
                     <!-- Aceptadas (label4 / lblColsAdmitidas / colAceptadaCoste) -->
-                    <Grid ColumnSpacing="16">
+                    <Grid ColumnSpacing="10">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="140" />
                             <ColumnDefinition Width="*" />
@@ -100,7 +100,7 @@
                     </Grid>
 
                     <!-- Porcentaje (label8 / lblPorcentaje) -->
-                    <Grid ColumnSpacing="16">
+                    <Grid ColumnSpacing="10">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="140" />
                             <ColumnDefinition Width="*" />
@@ -117,7 +117,7 @@
                     </Grid>
 
                     <!-- Estimadas (label7 / lblColsEstimadas / colEstimadasCoste) -->
-                    <Grid ColumnSpacing="16">
+                    <Grid ColumnSpacing="10">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="140" />
                             <ColumnDefinition Width="*" />
@@ -135,7 +135,7 @@
                     </Grid>
 
                     <!-- Máximo (label1 / lblColsMaximo / colMaximoCoste) -->
-                    <Grid ColumnSpacing="16">
+                    <Grid ColumnSpacing="10">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="140" />
                             <ColumnDefinition Width="*" />
@@ -156,11 +156,11 @@
 
             <!-- ===== Tiempos (label / label2 / lblSeg) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Tiempos"
                                Style="{StaticResource CardTitleTextBlockStyle}" />
 
-                    <Grid ColumnSpacing="16" RowSpacing="8">
+                    <Grid ColumnSpacing="10" RowSpacing="8">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="140" />
                             <ColumnDefinition Width="*" />
@@ -194,7 +194,7 @@
 
             <!-- ===== Progreso (progressBarArchivos / progressBar) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Progreso"
                                Style="{StaticResource CardTitleTextBlockStyle}" />
 
@@ -215,7 +215,7 @@
             </Border>
 
             <!-- ===== Acciones (btnCalcular / btnCancelar) ===== -->
-            <StackPanel Orientation="Horizontal" Spacing="12">
+            <StackPanel Orientation="Horizontal" Spacing="5">
                 <Button Content="Calcular"
                         Style="{StaticResource AccentButtonStyle}"
                         IsEnabled="{x:Bind ViewModel.PuedeCalcular, Mode=OneWay}"

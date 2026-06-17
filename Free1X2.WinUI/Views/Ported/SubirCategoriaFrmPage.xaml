@@ -26,7 +26,7 @@
     </Page.Resources>
 
     <ScrollViewer>
-        <StackPanel Padding="32" Spacing="24" MaxWidth="980" HorizontalAlignment="Left">
+        <StackPanel Padding="12,8" Spacing="8" MaxWidth="980" HorizontalAlignment="Left">
 
             <!-- ===== Encabezado ===== -->
             <StackPanel Spacing="6">
@@ -39,10 +39,10 @@
 
             <!-- ===== Archivos ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Archivos" Style="{StaticResource CardTitleTextBlockStyle}" />
 
-                    <Grid ColumnSpacing="12" RowSpacing="12">
+                    <Grid ColumnSpacing="12" RowSpacing="6">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
@@ -80,7 +80,7 @@
                 </StackPanel>
             </Border>
 
-            <Grid ColumnSpacing="24">
+            <Grid ColumnSpacing="12">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
@@ -88,7 +88,7 @@
 
                 <!-- ===== Partidos involucrados ===== -->
                 <Border Grid.Column="0" Style="{StaticResource AppCardStyle}" VerticalAlignment="Top">
-                    <StackPanel Spacing="14">
+                    <StackPanel Spacing="6">
                         <TextBlock Text="Partidos involucrados"
                                    Style="{StaticResource CardTitleTextBlockStyle}" />
                         <TextBlock Text="(desmarcando alguno, se arriesga la garantía)"
@@ -106,7 +106,7 @@
                             </ItemsControl.ItemsPanel>
                         </ItemsControl>
 
-                        <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
                             <TextBlock Text="Seguidos:" VerticalAlignment="Center"
                                        Style="{StaticResource SecondaryTextBlockStyle}" />
                             <NumberBox Value="{x:Bind ViewModel.Seguidos, Mode=TwoWay}"
@@ -147,8 +147,8 @@
             </Grid>
 
             <!-- ===== Acciones + estado ===== -->
-            <StackPanel Spacing="12">
-                <StackPanel Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
+            <StackPanel Spacing="5">
+                <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
                     <Button Content="Calcular"
                             Style="{StaticResource AccentButtonStyle}"
                             Command="{x:Bind ViewModel.CalcularCommand}"

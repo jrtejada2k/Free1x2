@@ -7,7 +7,7 @@
     Background="{ThemeResource AppBackgroundBrush}">
 
     <ScrollViewer>
-        <Grid Padding="24" MaxWidth="640" HorizontalAlignment="Left">
+        <Grid Padding="10,7" MaxWidth="640" HorizontalAlignment="Left">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -17,7 +17,7 @@
             </Grid.RowDefinitions>
 
             <!-- Encabezado -->
-            <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,20">
+            <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,10">
                 <TextBlock
                     Text="Álgebra"
                     Style="{StaticResource PageTitleTextBlockStyle}" />
@@ -27,8 +27,8 @@
             </StackPanel>
 
             <!-- Tarjeta: archivos de combinaciones -->
-            <Border Grid.Row="1" Style="{StaticResource AppCardStyle}" Margin="0,0,0,16">
-                <StackPanel Spacing="16">
+            <Border Grid.Row="1" Style="{StaticResource AppCardStyle}" Margin="0,0,0,8">
+                <StackPanel Spacing="6">
                     <TextBlock
                         Text="Combinaciones"
                         Style="{StaticResource SectionHeaderTextBlockStyle}" />
@@ -114,8 +114,8 @@
             </Border>
 
             <!-- Tarjeta: operación -->
-            <Border Grid.Row="2" Style="{StaticResource AppCardStyle}" Margin="0,0,0,16">
-                <StackPanel Spacing="12">
+            <Border Grid.Row="2" Style="{StaticResource AppCardStyle}" Margin="0,0,0,8">
+                <StackPanel Spacing="5">
                     <TextBlock
                         Text="Operaciones"
                         Style="{StaticResource SectionHeaderTextBlockStyle}" />
@@ -129,7 +129,7 @@
             </Border>
 
             <!-- Tarjeta: resultado del cálculo -->
-            <Border Grid.Row="3" Style="{StaticResource AppCardStyle}" Margin="0,0,0,16">
+            <Border Grid.Row="3" Style="{StaticResource AppCardStyle}" Margin="0,0,0,8">
                 <StackPanel Spacing="8">
                     <TextBlock
                         Text="Detalle"
@@ -153,7 +153,7 @@
             <StackPanel
                 Grid.Row="4"
                 Orientation="Horizontal"
-                Spacing="12"
+                Spacing="5"
                 HorizontalAlignment="Right">
                 <Button
                     Content="Cancelar"

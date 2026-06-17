@@ -5,7 +5,7 @@
     xmlns:local="using:Free1X2.WinUI.Views.Ported"
     Background="{ThemeResource AppBackgroundBrush}">
 
-    <Grid Padding="24" RowSpacing="20">
+    <Grid Padding="10,7" RowSpacing="8">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -38,7 +38,7 @@
 
         <!-- Tabla de tolerancias -->
         <Border Grid.Row="2" Style="{StaticResource AppCardStyle}">
-            <Grid RowSpacing="12">
+            <Grid RowSpacing="6">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
@@ -97,7 +97,7 @@
             Grid.Row="3"
             Orientation="Horizontal"
             HorizontalAlignment="Right"
-            Spacing="12">
+            Spacing="5">
             <Button
                 Content="Cancelar"
                 Command="{x:Bind ViewModel.CancelarCommand}" />

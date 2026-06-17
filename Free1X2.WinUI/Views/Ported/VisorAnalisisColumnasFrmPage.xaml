@@ -6,7 +6,7 @@
     xmlns:analisis="using:Free1X2.WinUI.Controls.Analisis"
     Background="{ThemeResource AppBackgroundBrush}">
 
-    <Grid Padding="24" RowSpacing="16">
+    <Grid Padding="10,7" RowSpacing="6">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -21,7 +21,7 @@
         </StackPanel>
 
         <!-- Contenido: lista de secciones + detalle -->
-        <Grid Grid.Row="1" ColumnSpacing="16">
+        <Grid Grid.Row="1" ColumnSpacing="10">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="320" />
                 <ColumnDefinition Width="*" />
@@ -29,7 +29,7 @@
 
             <!-- Lista de secciones de análisis (legacy: pestañas del TabControl) -->
             <Border Grid.Column="0" Style="{StaticResource AppCardStyle}">
-                <Grid RowSpacing="12">
+                <Grid RowSpacing="6">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
@@ -77,7 +77,7 @@
 
             <!-- Detalle de la sección seleccionada -->
             <Border Grid.Column="1" Style="{StaticResource AppCardStyle}">
-                <Grid RowSpacing="12">
+                <Grid RowSpacing="6">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
@@ -101,7 +101,7 @@
                         Grid.Row="2"
                         VerticalScrollBarVisibility="Auto"
                         HorizontalScrollBarVisibility="Disabled">
-                        <StackPanel Spacing="16">
+                        <StackPanel Spacing="6">
 
                             <!-- Presentador de matrices (VX2/Seguidos/Contactos/Pesos/Distancias/
                                  Interrupciones/Dibujos/Control*/Simetrías/Diferencias/CPs/Formatos) -->
@@ -128,7 +128,7 @@
                                 Visibility="{x:Bind ViewModel.VisibilidadValoracion, Mode=OneWay}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
-                                        <StackPanel Orientation="Horizontal" Spacing="16" />
+                                        <StackPanel Orientation="Horizontal" Spacing="6" />
                                     </ItemsPanelTemplate>
                                 </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>

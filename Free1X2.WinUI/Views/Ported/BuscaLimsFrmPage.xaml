@@ -6,7 +6,7 @@
     xmlns:controls="using:Free1X2.WinUI.Controls">
 
     <ScrollViewer>
-        <StackPanel Padding="32" Spacing="24" MaxWidth="820" HorizontalAlignment="Left">
+        <StackPanel Padding="12,8" Spacing="8" MaxWidth="820" HorizontalAlignment="Left">
 
             <!-- ===== Encabezado ===== -->
             <StackPanel Spacing="6">
@@ -18,7 +18,7 @@
 
             <!-- ===== Tabla de valoraciones (reemplaza el UserControl 'valors') ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock Text="Valoraciones por partido" Style="{StaticResource CardTitleTextBlockStyle}" />
                     <TextBlock Text="Valoraciones 1 / X / 2 por partido. Son el origen de dv = valors1.RetVals() en el cálculo de límites."
                                Style="{StaticResource SecondaryTextBlockStyle}"
@@ -31,7 +31,7 @@
 
             <!-- ===== Parámetros de búsqueda ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Parámetros" Style="{StaticResource CardTitleTextBlockStyle}" />
 
                     <Grid ColumnSpacing="12">
@@ -71,10 +71,10 @@
 
             <!-- ===== Resultados (GroupBox 'Resultados' legacy) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Resultados" Style="{StaticResource CardTitleTextBlockStyle}" />
 
-                    <Grid ColumnSpacing="16" RowSpacing="12">
+                    <Grid ColumnSpacing="10" RowSpacing="6">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="120" />
                             <ColumnDefinition Width="*" />
@@ -129,9 +129,9 @@
 
             <!-- ===== Estado del proceso (lColProc / lColAdm / lTime) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Proceso" Style="{StaticResource CardTitleTextBlockStyle}" />
-                    <Grid ColumnSpacing="16">
+                    <Grid ColumnSpacing="10">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="*" />

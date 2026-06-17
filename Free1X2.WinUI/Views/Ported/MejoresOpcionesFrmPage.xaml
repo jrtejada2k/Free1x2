@@ -6,7 +6,7 @@
     xmlns:local="using:Free1X2.WinUI.Views.Ported"
     Background="{ThemeResource AppBackgroundBrush}">
 
-    <Grid Padding="24">
+    <Grid Padding="10,7">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -14,7 +14,7 @@
         </Grid.RowDefinitions>
 
         <!-- Encabezado (legacy: Text del form + label2 explicativo) -->
-        <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,20">
+        <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,10">
             <TextBlock
                 Text="Mis Mejores Opciones"
                 Style="{StaticResource PageTitleTextBlockStyle}" />
@@ -26,8 +26,8 @@
         </StackPanel>
 
         <!-- Configuracion: partidos involucrados + limite de resultados -->
-        <Border Grid.Row="1" Style="{StaticResource AppCardStyle}" Margin="0,0,0,20">
-            <StackPanel Spacing="16">
+        <Border Grid.Row="1" Style="{StaticResource AppCardStyle}" Margin="0,0,0,10">
+            <StackPanel Spacing="6">
 
                 <!-- Partidos involucrados (legacy: label1 + ckb1..ckb16) -->
                 <StackPanel Spacing="8">
@@ -64,7 +64,7 @@
                 </StackPanel>
 
                 <!-- Limite de resultados (legacy: label3 "Mostrar los" + txtLimite + label4) -->
-                <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
                     <TextBlock
                         Text="Mostrar los"
                         VerticalAlignment="Center"

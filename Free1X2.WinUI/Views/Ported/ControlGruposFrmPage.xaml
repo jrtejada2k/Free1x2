@@ -5,7 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <ScrollViewer>
-        <StackPanel Padding="32" Spacing="24" MaxWidth="720" HorizontalAlignment="Left">
+        <StackPanel Padding="12,8" Spacing="8" MaxWidth="720" HorizontalAlignment="Left">
 
             <!-- ===== Encabezado (Text del Form: "Control de Grupos") ===== -->
             <StackPanel Spacing="6">
@@ -18,11 +18,11 @@
 
             <!-- ===== Sección Control Grupos (groupBox "Control Grupos") ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Control Grupos" Style="{StaticResource CardTitleTextBlockStyle}" />
 
                     <!-- Navegación (btnPrev / lblControlNo / btnNext) + eliminar (btnEliminarControl) -->
-                    <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
                         <Button Content="Anterior"
                                 Command="{x:Bind ViewModel.GruposAnteriorCommand}"
                                 AutomationProperties.Name="Control de grupos anterior" />
@@ -57,11 +57,11 @@
 
             <!-- ===== Sección Control Conjuntos (groupBox1 "Control Conjuntos") ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Control Conjuntos" Style="{StaticResource CardTitleTextBlockStyle}" />
 
                     <!-- Navegación (btnPrevConj / lblConjuntoNo / btnNextConj) + eliminar (btnEliminarCtrlConjunto) -->
-                    <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
                         <Button Content="Anterior"
                                 Command="{x:Bind ViewModel.ConjuntosAnteriorCommand}"
                                 AutomationProperties.Name="Control de conjuntos anterior" />
@@ -95,7 +95,7 @@
             </Border>
 
             <!-- ===== Acciones globales (btnOK / btnCancelar) + estado ===== -->
-            <StackPanel Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
+            <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
                 <Button Content="OK"
                         Style="{StaticResource AccentButtonStyle}"
                         Command="{x:Bind ViewModel.AceptarCommand}"

@@ -6,7 +6,7 @@
     xmlns:ported="using:Free1X2.WinUI.Views.Ported">
 
     <ScrollViewer>
-        <StackPanel Padding="32" Spacing="24" MaxWidth="1000" HorizontalAlignment="Left">
+        <StackPanel Padding="12,8" Spacing="8" MaxWidth="1000" HorizontalAlignment="Left">
 
             <!-- ===== Encabezado ===== -->
             <StackPanel Spacing="6">
@@ -24,13 +24,13 @@
                 <!-- ===== Pestaña 1: Condiciones sencillas ===================== -->
                 <!-- ============================================================ -->
                 <PivotItem Header="Condiciones sencillas">
-                    <StackPanel Spacing="24" Margin="0,12,0,0">
+                    <StackPanel Spacing="8" Margin="0,6,0,0">
 
                         <!-- ===== Bloque "Si ..." ===== -->
                         <Border Style="{StaticResource AppCardStyle}">
-                            <StackPanel Spacing="12">
+                            <StackPanel Spacing="5">
                                 <TextBlock Text="Si ..." Style="{StaticResource CardTitleTextBlockStyle}" />
-                                <Grid ColumnSpacing="16" RowSpacing="8">
+                                <Grid ColumnSpacing="10" RowSpacing="8">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="*" />
@@ -68,9 +68,9 @@
 
                         <!-- ===== Bloque "Entonces ..." ===== -->
                         <Border Style="{StaticResource AppCardStyle}">
-                            <StackPanel Spacing="12">
+                            <StackPanel Spacing="5">
                                 <TextBlock Text="Entonces ..." Style="{StaticResource CardTitleTextBlockStyle}" />
-                                <Grid ColumnSpacing="16" RowSpacing="8">
+                                <Grid ColumnSpacing="10" RowSpacing="8">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="*" />
@@ -104,7 +104,7 @@
                                                   IsOn="{x:Bind ViewModel.NegadoThen, Mode=TwoWay}" />
                                 </Grid>
 
-                                <StackPanel Orientation="Horizontal" Spacing="12">
+                                <StackPanel Orientation="Horizontal" Spacing="5">
                                     <Button Content="Añadir"
                                             Style="{StaticResource AccentButtonStyle}"
                                             Command="{x:Bind ViewModel.AnadirCondicionCommand}"
@@ -118,7 +118,7 @@
 
                         <!-- ===== Lista de relaciones ===== -->
                         <Border Style="{StaticResource AppCardStyle}">
-                            <StackPanel Spacing="12">
+                            <StackPanel Spacing="5">
                                 <TextBlock Text="Relaciones" Style="{StaticResource CardTitleTextBlockStyle}" />
 
                                 <Grid ColumnSpacing="12">
@@ -160,7 +160,7 @@
                                     </ListView.ItemTemplate>
                                 </ListView>
 
-                                <Grid ColumnSpacing="16">
+                                <Grid ColumnSpacing="10">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition Width="Auto" />
@@ -191,10 +191,10 @@
                 <!-- ===== Pestaña 2: Grupos =================================== -->
                 <!-- ============================================================ -->
                 <PivotItem Header="Grupos">
-                    <StackPanel Spacing="24" Margin="0,12,0,0">
+                    <StackPanel Spacing="8" Margin="0,6,0,0">
 
                         <Border Style="{StaticResource AppCardStyle}">
-                            <StackPanel Spacing="12">
+                            <StackPanel Spacing="5">
                                 <TextBlock Text="Relación entre grupos de partidos"
                                            Style="{StaticResource CardTitleTextBlockStyle}" />
                                 <TextBlock
@@ -202,7 +202,7 @@
                                     Style="{StaticResource SecondaryTextBlockStyle}"
                                     TextWrapping="Wrap" />
 
-                                <Grid ColumnSpacing="16">
+                                <Grid ColumnSpacing="10">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="*" />
@@ -227,7 +227,7 @@
                                     </StackPanel>
                                 </Grid>
 
-                                <StackPanel Orientation="Horizontal" Spacing="12">
+                                <StackPanel Orientation="Horizontal" Spacing="5">
                                     <Button Content="Añadir"
                                             Style="{StaticResource AccentButtonStyle}"
                                             Command="{x:Bind ViewModel.AnadirGrupoCommand}"
@@ -240,7 +240,7 @@
                         </Border>
 
                         <Border Style="{StaticResource AppCardStyle}">
-                            <StackPanel Spacing="12">
+                            <StackPanel Spacing="5">
                                 <TextBlock Text="Relaciones de grupos" Style="{StaticResource CardTitleTextBlockStyle}" />
 
                                 <Grid ColumnSpacing="12">
@@ -282,7 +282,7 @@
                                     </ListView.ItemTemplate>
                                 </ListView>
 
-                                <Grid ColumnSpacing="16">
+                                <Grid ColumnSpacing="10">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition Width="Auto" />
@@ -312,7 +312,7 @@
             </Pivot>
 
             <!-- ===== Acciones (equivale a MenuCondiciones del form legacy) ===== -->
-            <StackPanel Orientation="Horizontal" Spacing="12">
+            <StackPanel Orientation="Horizontal" Spacing="5">
                 <Button Content="Aceptar"
                         Style="{StaticResource AccentButtonStyle}"
                         Command="{x:Bind ViewModel.AceptarCommand}"

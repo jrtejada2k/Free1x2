@@ -4,7 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Background="{StaticResource AppBackgroundBrush}">
 
-    <Grid Padding="24" RowSpacing="20">
+    <Grid Padding="10,7" RowSpacing="8">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -23,11 +23,11 @@
 
         <!-- Contenido -->
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-            <StackPanel Spacing="20">
+            <StackPanel Spacing="8">
 
                 <!-- Columnas de entrada -->
                 <Border Style="{StaticResource AppCardStyle}">
-                    <StackPanel Spacing="12">
+                    <StackPanel Spacing="5">
                         <TextBlock
                             Style="{StaticResource CardTitleTextBlockStyle}"
                             Text="Columnas" />
@@ -58,12 +58,12 @@
 
                 <!-- Opciones de generación -->
                 <Border Style="{StaticResource AppCardStyle}">
-                    <StackPanel Spacing="16">
+                    <StackPanel Spacing="6">
                         <TextBlock
                             Style="{StaticResource CardTitleTextBlockStyle}"
                             Text="Opciones" />
 
-                        <Grid ColumnSpacing="24">
+                        <Grid ColumnSpacing="12">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="*" />
@@ -94,7 +94,7 @@
 
                 <!-- Archivo destino -->
                 <Border Style="{StaticResource AppCardStyle}">
-                    <StackPanel Spacing="12">
+                    <StackPanel Spacing="5">
                         <TextBlock
                             Style="{StaticResource CardTitleTextBlockStyle}"
                             Text="Archivo destino" />

@@ -6,7 +6,7 @@
     xmlns:local="using:Free1X2.WinUI.Views.Ported"
     Background="{ThemeResource AppBackgroundBrush}">
 
-    <Grid Padding="24">
+    <Grid Padding="10,7">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -14,7 +14,7 @@
         </Grid.RowDefinitions>
 
         <!-- Encabezado (legacy: this.Text = "Análisis Premiadas") -->
-        <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,20">
+        <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,10">
             <TextBlock
                 Text="Análisis Premiadas"
                 Style="{StaticResource PageTitleTextBlockStyle}" />
@@ -25,8 +25,8 @@
         </StackPanel>
 
         <!-- Tarjeta de configuración: fichero, premio a estudiar y cálculo -->
-        <Border Grid.Row="1" Style="{StaticResource AppCardStyle}" Margin="0,0,0,16">
-            <StackPanel Spacing="16">
+        <Border Grid.Row="1" Style="{StaticResource AppCardStyle}" Margin="0,0,0,8">
+            <StackPanel Spacing="6">
                 <TextBlock
                     Text="Configuración"
                     Style="{StaticResource SectionHeaderTextBlockStyle}" />
@@ -69,7 +69,7 @@
                 </StackPanel>
 
                 <!-- Acción de cálculo + métricas (legacy: bCalcular, lProc, lTime) -->
-                <Grid ColumnSpacing="16">
+                <Grid ColumnSpacing="10">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
@@ -108,7 +108,7 @@
 
         <!-- Tarjeta de resultados: frecuencias y jornadas -->
         <Border Grid.Row="2" Style="{StaticResource AppCardStyle}">
-            <Grid ColumnSpacing="24">
+            <Grid ColumnSpacing="12">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
@@ -166,8 +166,8 @@
                 <StackPanel
                     Grid.Row="2" Grid.Column="0"
                     Orientation="Horizontal"
-                    Spacing="12"
-                    Margin="0,16,0,0">
+                    Spacing="5"
+                    Margin="0,8,0,0">
                     <Button
                         Content="Grabar Selección"
                         Command="{x:Bind ViewModel.GrabarCommand}"

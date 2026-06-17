@@ -9,7 +9,7 @@
     <ScrollViewer Padding="{StaticResource AppPagePadding}"
                   VerticalScrollBarVisibility="Auto"
                   HorizontalScrollBarVisibility="Disabled">
-        <Grid HorizontalAlignment="Center" MaxWidth="560" RowSpacing="20">
+        <Grid HorizontalAlignment="Center" MaxWidth="560" RowSpacing="8">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -31,7 +31,7 @@
 
             <!-- Card con la lista de colaboradores -->
             <Border Grid.Row="1" Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="14">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Colaboradores"
                                Style="{StaticResource SectionHeaderTextBlockStyle}" />
 

@@ -5,7 +5,7 @@
     xmlns:controls="using:Free1X2.WinUI.Controls"
     Background="{StaticResource AppBackgroundBrush}">
 
-    <Grid Padding="24" RowSpacing="16">
+    <Grid Padding="10,7" RowSpacing="6">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -23,7 +23,7 @@
         </StackPanel>
 
         <ScrollViewer Grid.Row="1">
-            <StackPanel Spacing="16" MaxWidth="900" HorizontalAlignment="Left">
+            <StackPanel Spacing="6" MaxWidth="900" HorizontalAlignment="Left">
 
                 <!-- Nota legacy (lNota): condiciones de generación en aidomnou.cfg -->
                 <Border Style="{StaticResource AppCardStyle}">
@@ -42,7 +42,7 @@
                      Matriz 14x3 con la valoración de cada signo (1 / X / 2) por partido;
                      PorcentajesHelper.AMatriz(Valoraciones) equivale a valors1.RetVals(). -->
                 <Border Style="{StaticResource AppCardStyle}">
-                    <StackPanel Spacing="12">
+                    <StackPanel Spacing="5">
                         <TextBlock
                             Style="{StaticResource SectionHeaderTextBlockStyle}"
                             Text="Valoraciones (14 partidos · 1 / X / 2)" />
@@ -60,7 +60,7 @@
                      6 columnas x 14 partidos de etiquetas de solo lectura (l011..l146) con signos -/1/2/12/X/1X/X2/1X2.
                      TODO: portar la rejilla de resultados desde cps[14,6] (Cambia()). -->
                 <Border Style="{StaticResource AppCardStyle}">
-                    <StackPanel Spacing="12">
+                    <StackPanel Spacing="5">
                         <TextBlock
                             Style="{StaticResource SectionHeaderTextBlockStyle}"
                             Text="Columnas Probables (resultado)" />
@@ -79,11 +79,11 @@
                 <!-- Límites por columna + suma + recorrido (legacy: tbmg1..tbmg6, tbmgsuma, tbmgreco).
                      Cada límite es un rango "min-max". -->
                 <Border Style="{StaticResource AppCardStyle}">
-                    <StackPanel Spacing="12">
+                    <StackPanel Spacing="5">
                         <TextBlock
                             Style="{StaticResource SectionHeaderTextBlockStyle}"
                             Text="Límites de aciertos (rango min-max)" />
-                        <Grid ColumnSpacing="12" RowSpacing="12">
+                        <Grid ColumnSpacing="12" RowSpacing="6">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="*" />
@@ -159,7 +159,7 @@
 
                 <!-- Cálculo / filtrado del fichero de columnas (legacy: bCalcular / bGrabaCols) -->
                 <Border Style="{StaticResource AppCardStyle}">
-                    <StackPanel Spacing="12">
+                    <StackPanel Spacing="5">
                         <TextBlock
                             Style="{StaticResource SectionHeaderTextBlockStyle}"
                             Text="Cálculo del filtro" />
@@ -199,7 +199,7 @@
 
                 <!-- Análisis de columnas ganadoras (legacy: groupBox3 "Análisis Resultados") -->
                 <Border Style="{StaticResource AppCardStyle}">
-                    <StackPanel Spacing="12">
+                    <StackPanel Spacing="5">
                         <TextBlock
                             Style="{StaticResource SectionHeaderTextBlockStyle}"
                             Text="Análisis Resultados" />

@@ -5,7 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <ScrollViewer>
-        <StackPanel Padding="32" Spacing="24" MaxWidth="640" HorizontalAlignment="Left">
+        <StackPanel Padding="12,8" Spacing="8" MaxWidth="640" HorizontalAlignment="Left">
 
             <!-- ===== Encabezado (Text del Form) ===== -->
             <StackPanel Spacing="6">
@@ -21,7 +21,7 @@
 
             <!-- ===== Exportación simple (btnExportarSimples) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock Text="Exportar simples (*.txt)" Style="{StaticResource CardTitleTextBlockStyle}" />
                     <TextBlock Text="Guarda únicamente los pronósticos de cada columna probable en un fichero de texto."
                                Style="{StaticResource SecondaryTextBlockStyle}"
@@ -36,7 +36,7 @@
 
             <!-- ===== Exportación con aciertos (btnExportarClm) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock Text="Exportar con aciertos (*.clm)" Style="{StaticResource CardTitleTextBlockStyle}" />
                     <TextBlock Text="Guarda cada columna con sus aciertos (Ac), aciertos seguidos (Acs) y fallos seguidos (Fs)."
                                Style="{StaticResource SecondaryTextBlockStyle}"
@@ -49,7 +49,7 @@
             </Border>
 
             <!-- ===== Acciones (btnCancelar) ===== -->
-            <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+            <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
                 <Button Content="Cancelar"
                         Command="{x:Bind ViewModel.CancelarCommand}"
                         AutomationProperties.Name="Cancelar y cerrar" />

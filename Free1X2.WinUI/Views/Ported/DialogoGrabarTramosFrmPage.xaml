@@ -4,7 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Background="{StaticResource AppBackgroundBrush}">
 
-    <Grid Padding="24">
+    <Grid Padding="10,7">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -16,12 +16,12 @@
             Style="{StaticResource PageTitleTextBlockStyle}"
             Text="Grabar Tramos" />
 
-        <ScrollViewer Grid.Row="1" Margin="0,16,0,0">
-            <StackPanel Spacing="16" MaxWidth="520" HorizontalAlignment="Left">
+        <ScrollViewer Grid.Row="1" Margin="0,8,0,0">
+            <StackPanel Spacing="6" MaxWidth="520" HorizontalAlignment="Left">
 
                 <!-- Rango de columnas -->
                 <Border Style="{StaticResource AppCardStyle}">
-                    <StackPanel Spacing="12">
+                    <StackPanel Spacing="5">
                         <TextBlock
                             Style="{StaticResource SectionHeaderTextBlockStyle}"
                             Text="Rango de columnas" />
@@ -51,7 +51,7 @@
 
                 <!-- Patrón de grabado: "grabar N columnas de cada P columnas" -->
                 <Border Style="{StaticResource AppCardStyle}">
-                    <StackPanel Spacing="12">
+                    <StackPanel Spacing="5">
                         <TextBlock
                             Style="{StaticResource SectionHeaderTextBlockStyle}"
                             Text="Grabar" />

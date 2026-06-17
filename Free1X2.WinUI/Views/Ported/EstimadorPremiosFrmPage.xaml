@@ -8,7 +8,7 @@
     Background="{ThemeResource AppBackgroundBrush}">
 
     <ScrollViewer>
-        <StackPanel Padding="24" Spacing="20" MaxWidth="1000" HorizontalAlignment="Left">
+        <StackPanel Padding="10,7" Spacing="8" MaxWidth="1000" HorizontalAlignment="Left">
 
             <!-- Encabezado -->
             <StackPanel Spacing="4">
@@ -22,10 +22,10 @@
 
             <!-- Jornada -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Jornada" Style="{StaticResource SectionHeaderTextBlockStyle}" />
 
-                    <Grid ColumnSpacing="16" RowSpacing="12">
+                    <Grid ColumnSpacing="10" RowSpacing="6">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
@@ -81,7 +81,7 @@
             </Border>
 
             <!-- Parámetros económicos y reparto -->
-            <Grid ColumnSpacing="20">
+            <Grid ColumnSpacing="12">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
@@ -89,10 +89,10 @@
 
                 <!-- Datos económicos -->
                 <Border Grid.Column="0" Style="{StaticResource AppCardStyle}" VerticalAlignment="Top">
-                    <StackPanel Spacing="16">
+                    <StackPanel Spacing="6">
                         <TextBlock Text="Datos económicos" Style="{StaticResource SectionHeaderTextBlockStyle}" />
 
-                        <Grid ColumnSpacing="16" RowSpacing="12">
+                        <Grid ColumnSpacing="10" RowSpacing="6">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
@@ -166,10 +166,10 @@
 
                 <!-- Reparto de premios -->
                 <Border Grid.Column="1" Style="{StaticResource AppCardStyle}" VerticalAlignment="Top">
-                    <StackPanel Spacing="16">
+                    <StackPanel Spacing="6">
                         <TextBlock Text="Reparto de premios (%)" Style="{StaticResource SectionHeaderTextBlockStyle}" />
 
-                        <Grid ColumnSpacing="16" RowSpacing="12">
+                        <Grid ColumnSpacing="10" RowSpacing="6">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
@@ -280,13 +280,13 @@
             <!-- Porcentajes de la jornada + columna premiada. Sustituye al UserControl
                  WinForms ControlPorcentajes (controlPorcentajes1) que alimenta el cálculo. -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock Text="Porcentajes y columna premiada" Style="{StaticResource SectionHeaderTextBlockStyle}" />
                     <TextBlock
                         Style="{StaticResource SecondaryTextBlockStyle}"
                         Text="Porcentajes por partido (1/X/2) de la jornada y columna premiada (14 signos). Alimentan la previsión de acertantes y premios." />
 
-                    <Grid ColumnSpacing="16" RowSpacing="12">
+                    <Grid ColumnSpacing="10" RowSpacing="6">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
@@ -344,7 +344,7 @@
 
             <!-- Previsión de premios -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock Text="Previsión de premios" Style="{StaticResource SectionHeaderTextBlockStyle}" />
 
                     <!-- Cabecera de columnas -->
@@ -389,7 +389,7 @@
 
             <!-- Escrutinio real -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock Text="Escrutinio real" Style="{StaticResource SectionHeaderTextBlockStyle}" />
 
                     <HyperlinkButton

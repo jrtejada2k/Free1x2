@@ -6,14 +6,14 @@
     xmlns:local="using:Free1X2.WinUI.Views.Ported"
     Background="{ThemeResource AppBackgroundBrush}">
 
-    <Grid Padding="24">
+    <Grid Padding="10,7">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <!-- Encabezado -->
-        <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,20">
+        <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,10">
             <TextBlock
                 Text="Representación gráfica de la combinación"
                 Style="{StaticResource PageTitleTextBlockStyle}" />
@@ -23,7 +23,7 @@
                 Foreground="{ThemeResource AppTextSecondaryBrush}" />
         </StackPanel>
 
-        <Grid Grid.Row="1" ColumnSpacing="20">
+        <Grid Grid.Row="1" ColumnSpacing="12">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
@@ -36,7 +36,7 @@
                 VerticalAlignment="Top"
                 MinWidth="360"
                 MaxWidth="420">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
 
                     <TextBlock
                         Text="Combinación"
@@ -98,7 +98,7 @@
                     <!-- Acciones -->
                     <StackPanel
                         Orientation="Horizontal"
-                        Spacing="12"
+                        Spacing="5"
                         HorizontalAlignment="Right"
                         Margin="0,4,0,0">
                         <Button
@@ -129,7 +129,7 @@
             <Border
                 Grid.Column="1"
                 Style="{StaticResource AppCardStyle}">
-                <Grid RowSpacing="12">
+                <Grid RowSpacing="6">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />

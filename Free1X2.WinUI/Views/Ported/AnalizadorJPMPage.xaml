@@ -7,7 +7,7 @@
     Background="{ThemeResource AppBackgroundBrush}">
 
     <ScrollViewer>
-        <Grid Padding="24" RowSpacing="20">
+        <Grid Padding="10,7" RowSpacing="8">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -25,7 +25,7 @@
             </StackPanel>
 
             <!-- Cuerpo: dos columnas -->
-            <Grid Grid.Row="1" ColumnSpacing="20" RowSpacing="20">
+            <Grid Grid.Row="1" ColumnSpacing="12" RowSpacing="8">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
@@ -37,7 +37,7 @@
 
                 <!-- Valores a usar (max. 5) -->
                 <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource AppCardStyle}">
-                    <StackPanel Spacing="12">
+                    <StackPanel Spacing="5">
                         <TextBlock
                             Text="Valores a usar (máx. 5)"
                             Style="{StaticResource CardTitleTextBlockStyle}" />
@@ -46,7 +46,7 @@
                             Style="{StaticResource SecondaryTextBlockStyle}"
                             TextWrapping="Wrap" />
 
-                        <Grid ColumnSpacing="16" RowSpacing="10">
+                        <Grid ColumnSpacing="10" RowSpacing="6">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="*" />
@@ -111,12 +111,12 @@
 
                 <!-- Proceso (Iniciar / Grabar / estado) -->
                 <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource AppCardStyle}">
-                    <StackPanel Spacing="12">
+                    <StackPanel Spacing="5">
                         <TextBlock
                             Text="Proceso de columnas"
                             Style="{StaticResource CardTitleTextBlockStyle}" />
 
-                        <StackPanel Orientation="Horizontal" Spacing="12">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
                             <Button Content="Iniciar"
                                 Style="{StaticResource AccentButtonStyle}"
                                 Command="{x:Bind ViewModel.IniciarCommand}"
@@ -170,7 +170,7 @@
 
                 <!-- Casillas de suma (0..35) -->
                 <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource AppCardStyle}">
-                    <StackPanel Spacing="12">
+                    <StackPanel Spacing="5">
                         <TextBlock
                             Text="Casillas de suma (0..35)"
                             Style="{StaticResource CardTitleTextBlockStyle}" />
@@ -233,7 +233,7 @@
 
                 <!-- Análisis de resultados + premios -->
                 <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource AppCardStyle}">
-                    <StackPanel Spacing="12">
+                    <StackPanel Spacing="5">
                         <TextBlock
                             Text="Análisis de resultados"
                             Style="{StaticResource CardTitleTextBlockStyle}" />

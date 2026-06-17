@@ -15,7 +15,7 @@
         </Grid.RowDefinitions>
 
         <!-- Encabezado -->
-        <StackPanel Grid.Row="0" Padding="32,32,32,8" Spacing="4">
+        <StackPanel Grid.Row="0" Padding="12,8" Spacing="4">
             <TextBlock Text="Simulador de escrutinios (Banco de Pruebas)"
                        Style="{StaticResource PageTitleTextBlockStyle}" />
             <TextBlock Text="Asistente de 4 pasos para generar, valorar y escrutar columnas de quiniela."
@@ -23,16 +23,16 @@
         </StackPanel>
 
         <!-- Asistente de 4 pasos (TabControl legacy: tabPaso1..tabPaso4) -->
-        <Pivot Grid.Row="1" Margin="24,8,24,8">
+        <Pivot Grid.Row="1" Margin="12,6">
 
             <!-- ============================================================ -->
             <!-- Paso 1 (Ficheros) -->
             <!-- ============================================================ -->
             <PivotItem Header="Paso 1 · Ficheros">
                 <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="8">
-                    <StackPanel Spacing="16" MaxWidth="760" HorizontalAlignment="Left">
+                    <StackPanel Spacing="6" MaxWidth="760" HorizontalAlignment="Left">
                         <Border Style="{StaticResource AppCardStyle}">
-                            <StackPanel Spacing="12">
+                            <StackPanel Spacing="5">
                                 <TextBlock Text="Selección del fichero de columnas a analizar"
                                            Style="{StaticResource CardTitleTextBlockStyle}" />
                                 <TextBlock Text="Nombre del fichero (ruta completa incluida)"
@@ -65,7 +65,7 @@
             <!-- ============================================================ -->
             <PivotItem Header="Paso 2 · Valoraciones">
                 <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="8">
-                    <StackPanel Spacing="16" MaxWidth="760" HorizontalAlignment="Left">
+                    <StackPanel Spacing="6" MaxWidth="760" HorizontalAlignment="Left">
 
                         <Border Style="{StaticResource AppCardStyle}">
                             <StackPanel Spacing="8">
@@ -74,7 +74,7 @@
                                 <TextBlock Text="Porcentajes por partido (1 / X / 2). La rejilla apostada alimenta el cálculo y la generación; la real se obtiene del cálculo o se edita manualmente."
                                            Style="{StaticResource SecondaryTextBlockStyle}" TextWrapping="Wrap" />
                                 <!-- Sustituyen a los dos UserControls WinForms ControlPorcentajes. -->
-                                <Grid ColumnSpacing="16">
+                                <Grid ColumnSpacing="10">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="*" />
@@ -98,7 +98,7 @@
                         </Border>
 
                         <Border Style="{StaticResource AppCardStyle}">
-                            <StackPanel Spacing="12">
+                            <StackPanel Spacing="5">
                                 <TextBlock Text="Obtención de la valoración real a partir de la apostada"
                                            Style="{StaticResource CardTitleTextBlockStyle}" />
 
@@ -109,7 +109,7 @@
                                              GroupName="OrigenValoracion"
                                              IsChecked="{x:Bind ViewModel.UsarLN, Mode=TwoWay}"
                                              AutomationProperties.Name="Usar LN de la probabilidad media del 14" />
-                                <NumberBox Header="LN de la Prob. media del 14" Margin="28,0,0,0"
+                                <NumberBox Header="LN de la Prob. media del 14" Margin="16,0,0,0"
                                            Value="{x:Bind ViewModel.LnProbMedia14, Mode=TwoWay}"
                                            IsEnabled="{x:Bind ViewModel.UsarLN, Mode=OneWay}"
                                            SpinButtonPlacementMode="Compact"
@@ -120,7 +120,7 @@
                                              GroupName="OrigenValoracion"
                                              IsChecked="{x:Bind ViewModel.UsarPremio, Mode=OneWay}"
                                              AutomationProperties.Name="Usar premio medio del 14" />
-                                <NumberBox Header="Premio medio de 14" Margin="28,0,0,0"
+                                <NumberBox Header="Premio medio de 14" Margin="16,0,0,0"
                                            Value="{x:Bind ViewModel.PremioMedio14, Mode=TwoWay}"
                                            IsEnabled="{x:Bind ViewModel.UsarPremio, Mode=OneWay}"
                                            SpinButtonPlacementMode="Compact"
@@ -147,10 +147,10 @@
             <!-- ============================================================ -->
             <PivotItem Header="Paso 3 · Simular 14's">
                 <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="8">
-                    <StackPanel Spacing="16" MaxWidth="760" HorizontalAlignment="Left">
+                    <StackPanel Spacing="6" MaxWidth="760" HorizontalAlignment="Left">
 
                         <Border Style="{StaticResource AppCardStyle}">
-                            <StackPanel Spacing="12">
+                            <StackPanel Spacing="5">
                                 <TextBlock Text="Simulación de columnas de 14 aciertos"
                                            Style="{StaticResource CardTitleTextBlockStyle}" />
 
@@ -164,7 +164,7 @@
                                              IsChecked="{x:Bind ViewModel.OrigenFichero, Mode=OneWay}"
                                              AutomationProperties.Name="Leer columnas desde fichero" />
 
-                                <TextBox Header="Fichero de columnas aleatorias" Margin="28,0,0,0"
+                                <TextBox Header="Fichero de columnas aleatorias" Margin="16,0,0,0"
                                          PlaceholderText="C:\ruta\aleatorias.txt"
                                          Text="{x:Bind ViewModel.FicheroAleatorias, Mode=TwoWay}"
                                          IsEnabled="{x:Bind ViewModel.OrigenFichero, Mode=OneWay}"
@@ -173,7 +173,7 @@
                         </Border>
 
                         <Border Style="{StaticResource AppCardStyle}">
-                            <StackPanel Spacing="12">
+                            <StackPanel Spacing="5">
                                 <TextBlock Text="Parámetros de generación"
                                            Style="{StaticResource CardTitleTextBlockStyle}" />
 
@@ -193,7 +193,7 @@
                                            SpinButtonPlacementMode="Compact"
                                            AutomationProperties.Name="LN mínimo" />
 
-                                <StackPanel Orientation="Horizontal" Spacing="12">
+                                <StackPanel Orientation="Horizontal" Spacing="5">
                                     <Button Content="Generar columnas"
                                             Style="{StaticResource AccentButtonStyle}"
                                             Command="{x:Bind ViewModel.GenerarAleatoriasCommand}"
@@ -229,10 +229,10 @@
             <!-- ============================================================ -->
             <PivotItem Header="Paso 4 · Escrutinios">
                 <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="8">
-                    <StackPanel Spacing="16" MaxWidth="900" HorizontalAlignment="Left">
+                    <StackPanel Spacing="6" MaxWidth="900" HorizontalAlignment="Left">
 
                         <Border Style="{StaticResource AppCardStyle}">
-                            <StackPanel Spacing="12">
+                            <StackPanel Spacing="5">
                                 <TextBlock Text="Configuración del análisis"
                                            Style="{StaticResource CardTitleTextBlockStyle}" />
 
@@ -243,7 +243,7 @@
 
                                 <TextBlock Text="Premios acumulados que se consideran"
                                            Style="{StaticResource SectionHeaderTextBlockStyle}" />
-                                <StackPanel Orientation="Horizontal" Spacing="16">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
                                     <CheckBox Content="10" IsChecked="{x:Bind ViewModel.Acumula10, Mode=TwoWay}"
                                               AutomationProperties.Name="Acumular premios de 10" />
                                     <CheckBox Content="11" IsChecked="{x:Bind ViewModel.Acumula11, Mode=TwoWay}"
@@ -256,7 +256,7 @@
                                               AutomationProperties.Name="Acumular premios de 14" />
                                 </StackPanel>
 
-                                <StackPanel Orientation="Horizontal" Spacing="12">
+                                <StackPanel Orientation="Horizontal" Spacing="5">
                                     <Button Content="Analizar"
                                             Style="{StaticResource AccentButtonStyle}"
                                             Command="{x:Bind ViewModel.AnalizarCommand}"
@@ -275,7 +275,7 @@
                             <StackPanel Spacing="8">
                                 <TextBlock Text="Resultados globales"
                                            Style="{StaticResource CardTitleTextBlockStyle}" />
-                                <Grid ColumnSpacing="24" RowSpacing="6">
+                                <Grid ColumnSpacing="12" RowSpacing="6">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition Width="Auto" />
@@ -379,7 +379,7 @@
                         </Border>
 
                         <Border Style="{StaticResource AppCardStyle}">
-                            <StackPanel Spacing="12">
+                            <StackPanel Spacing="5">
                                 <TextBlock Text="Eliminación de filas"
                                            Style="{StaticResource CardTitleTextBlockStyle}" />
 
@@ -420,10 +420,10 @@
         </Pivot>
 
         <!-- Barra de acciones -->
-        <Border Grid.Row="2" Padding="32,16"
+        <Border Grid.Row="2" Padding="12,8"
                 Background="{ThemeResource AppSurfaceBrush}"
                 BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="0,1,0,0">
-            <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right">
+            <StackPanel Orientation="Horizontal" Spacing="5" HorizontalAlignment="Right">
                 <Button Content="Cancelar" Click="BtnCancelar_Click"
                         AutomationProperties.Name="Cerrar el simulador" />
             </StackPanel>

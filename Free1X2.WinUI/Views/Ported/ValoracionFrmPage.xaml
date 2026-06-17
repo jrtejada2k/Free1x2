@@ -6,7 +6,7 @@
     xmlns:controls="using:Free1X2.WinUI.Controls">
 
     <ScrollViewer>
-        <StackPanel Padding="32" Spacing="24" MaxWidth="900" HorizontalAlignment="Left">
+        <StackPanel Padding="12,8" Spacing="8" MaxWidth="900" HorizontalAlignment="Left">
 
             <!-- ===== Encabezado ===== -->
             <StackPanel Spacing="6">
@@ -18,7 +18,7 @@
 
             <!-- ===== Porcentajes por partido (reemplaza el UserControl ControlPorcentajes) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock Text="Porcentajes" Style="{StaticResource CardTitleTextBlockStyle}" />
                     <TextBlock Text="Rejilla de valoraciones 1 / X / 2 por partido."
                                Style="{StaticResource SecondaryTextBlockStyle}"
@@ -31,7 +31,7 @@
 
             <!-- ===== Tipo de valoración + Mín-Máx informativos ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Tipo de valoración" Style="{StaticResource CardTitleTextBlockStyle}" />
 
                     <ComboBox MinWidth="220"
@@ -40,7 +40,7 @@
                               SelectedItem="{x:Bind ViewModel.TipoValoracionSeleccionado, Mode=TwoWay}"
                               AutomationProperties.Name="Tipo de valoración: por sumas o por productos" />
 
-                    <Grid ColumnSpacing="16" RowSpacing="12">
+                    <Grid ColumnSpacing="10" RowSpacing="6">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="140" />
                             <ColumnDefinition Width="*" />
@@ -71,13 +71,13 @@
 
             <!-- ===== Rangos de filtrado (Global / 1 / X / 2) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Rangos de filtrado" Style="{StaticResource CardTitleTextBlockStyle}" />
                     <TextBlock Text="Use # como separador de rangos (ejemplo: 100-200#200-600)."
                                Style="{StaticResource SecondaryTextBlockStyle}"
                                TextWrapping="Wrap" />
 
-                    <Grid ColumnSpacing="16" RowSpacing="12">
+                    <Grid ColumnSpacing="10" RowSpacing="6">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="80" />
                             <ColumnDefinition Width="*" />
@@ -126,7 +126,7 @@
 
             <!-- ===== Calcular valoración de una columna ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Calcular valoración" Style="{StaticResource CardTitleTextBlockStyle}" />
 
                     <Grid ColumnSpacing="12">
@@ -168,10 +168,10 @@
 
             <!-- ===== Utilidades ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Utilidades" Style="{StaticResource CardTitleTextBlockStyle}" />
 
-                    <StackPanel Orientation="Horizontal" Spacing="12">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
                         <Button Content="Buscar límite"
                                 Command="{x:Bind ViewModel.BuscarLimiteCommand}"
                                 AutomationProperties.Name="Abrir el buscador de límites" />
@@ -191,9 +191,9 @@
 
             <!-- ===== Barra de condiciones (control legacy MenuCondiciones) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Condición" Style="{StaticResource CardTitleTextBlockStyle}" />
-                    <StackPanel Orientation="Horizontal" Spacing="12">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
                         <Button Content="Aceptar"
                                 Style="{StaticResource AccentButtonStyle}"
                                 Command="{x:Bind ViewModel.AceptarCommand}"

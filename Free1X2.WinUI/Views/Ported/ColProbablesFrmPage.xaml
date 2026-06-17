@@ -6,7 +6,7 @@
     x:Name="PageRoot"
     Background="{StaticResource AppBackgroundBrush}">
 
-    <Grid Padding="24" RowSpacing="16">
+    <Grid Padding="10,7" RowSpacing="6">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -29,11 +29,11 @@
             <!-- ===================== Columnas ===================== -->
             <PivotItem Header="Columnas">
                 <ScrollViewer>
-                    <StackPanel Spacing="16" MaxWidth="720" HorizontalAlignment="Left">
+                    <StackPanel Spacing="6" MaxWidth="720" HorizontalAlignment="Left">
 
                         <!-- Pronóstico de la columna -->
                         <Border Style="{StaticResource AppCardStyle}">
-                            <StackPanel Spacing="12">
+                            <StackPanel Spacing="5">
                                 <TextBlock
                                     Style="{StaticResource SectionHeaderTextBlockStyle}"
                                     Text="Columna probable" />
@@ -51,7 +51,7 @@
 
                         <!-- Rangos de aciertos -->
                         <Border Style="{StaticResource AppCardStyle}">
-                            <StackPanel Spacing="12">
+                            <StackPanel Spacing="5">
                                 <TextBlock
                                     Style="{StaticResource SectionHeaderTextBlockStyle}"
                                     Text="Rangos (valores 0..14)" />
@@ -70,7 +70,7 @@
 
                         <!-- Tolerancias locales -->
                         <Border Style="{StaticResource AppCardStyle}">
-                            <StackPanel Spacing="12">
+                            <StackPanel Spacing="5">
                                 <TextBlock
                                     Style="{StaticResource SectionHeaderTextBlockStyle}"
                                     Text="Tolerancias locales" />
@@ -86,7 +86,7 @@
                                 <TextBlock
                                     Style="{StaticResource SecondaryTextBlockStyle}"
                                     Text="Núm Tolerancias" />
-                                <StackPanel Orientation="Horizontal" Spacing="12">
+                                <StackPanel Orientation="Horizontal" Spacing="5">
                                     <ToggleButton
                                         Style="{StaticResource SignoToggleButtonStyle}"
                                         Content="0"
@@ -109,7 +109,7 @@
 
                         <!-- Navegación entre columnas probables -->
                         <Border Style="{StaticResource AppCardStyle}">
-                            <StackPanel Spacing="12">
+                            <StackPanel Spacing="5">
                                 <TextBlock
                                     Style="{StaticResource SectionHeaderTextBlockStyle}"
                                     Text="Navegación" />
@@ -132,7 +132,7 @@
 
                         <!-- Acciones sobre columnas -->
                         <Border Style="{StaticResource AppCardStyle}">
-                            <StackPanel Spacing="12">
+                            <StackPanel Spacing="5">
                                 <TextBlock
                                     Style="{StaticResource SectionHeaderTextBlockStyle}"
                                     Text="Acciones" />
@@ -160,9 +160,9 @@
             <!-- ===================== Relaciones I ===================== -->
             <PivotItem Header="Relaciones I">
                 <ScrollViewer>
-                    <StackPanel Spacing="16" MaxWidth="640" HorizontalAlignment="Left">
+                    <StackPanel Spacing="6" MaxWidth="640" HorizontalAlignment="Left">
                         <Border Style="{StaticResource AppCardStyle}">
-                            <StackPanel Spacing="12">
+                            <StackPanel Spacing="5">
                                 <TextBlock
                                     Style="{StaticResource SectionHeaderTextBlockStyle}"
                                     Text="Relaciones" />
@@ -188,7 +188,7 @@
                         </Border>
 
                         <Border Style="{StaticResource AppCardStyle}">
-                            <StackPanel Spacing="12">
+                            <StackPanel Spacing="5">
                                 <TextBlock
                                     Style="{StaticResource SectionHeaderTextBlockStyle}"
                                     Text="Actual / Guardadas" />
@@ -212,10 +212,10 @@
             <!-- ===================== Relaciones II ===================== -->
             <PivotItem Header="Relaciones II">
                 <ScrollViewer>
-                    <StackPanel Spacing="16" MaxWidth="720" HorizontalAlignment="Left">
+                    <StackPanel Spacing="6" MaxWidth="720" HorizontalAlignment="Left">
 
                         <Border Style="{StaticResource AppCardStyle}">
-                            <StackPanel Spacing="12">
+                            <StackPanel Spacing="5">
                                 <TextBlock
                                     Style="{StaticResource SectionHeaderTextBlockStyle}"
                                     Text="Sumas de AC/ACS/FS" />
@@ -243,7 +243,7 @@
                         </Border>
 
                         <Border Style="{StaticResource AppCardStyle}">
-                            <StackPanel Spacing="12">
+                            <StackPanel Spacing="5">
                                 <TextBlock
                                     Style="{StaticResource SectionHeaderTextBlockStyle}"
                                     Text="AC/ACS/FS individuales" />
@@ -271,7 +271,7 @@
                         </Border>
 
                         <Border Style="{StaticResource AppCardStyle}">
-                            <StackPanel Spacing="12">
+                            <StackPanel Spacing="5">
                                 <TextBlock
                                     Style="{StaticResource SectionHeaderTextBlockStyle}"
                                     Text="Actual / Guardadas" />
@@ -295,10 +295,10 @@
             <!-- ===================== Relaciones III ===================== -->
             <PivotItem Header="Relaciones III">
                 <ScrollViewer>
-                    <StackPanel Spacing="16" MaxWidth="640" HorizontalAlignment="Left">
+                    <StackPanel Spacing="6" MaxWidth="640" HorizontalAlignment="Left">
 
                         <Border Style="{StaticResource AppCardStyle}">
-                            <StackPanel Spacing="12">
+                            <StackPanel Spacing="5">
                                 <TextBlock
                                     Style="{StaticResource SectionHeaderTextBlockStyle}"
                                     Text="Columnas" />
@@ -313,7 +313,7 @@
                         </Border>
 
                         <Border Style="{StaticResource AppCardStyle}">
-                            <StackPanel Spacing="12">
+                            <StackPanel Spacing="5">
                                 <TextBlock
                                     Style="{StaticResource SectionHeaderTextBlockStyle}"
                                     Text="Escaleras" />
@@ -330,7 +330,7 @@
                         </Border>
 
                         <Border Style="{StaticResource AppCardStyle}">
-                            <StackPanel Spacing="12">
+                            <StackPanel Spacing="5">
                                 <TextBlock
                                     Style="{StaticResource SectionHeaderTextBlockStyle}"
                                     Text="Sándwichs" />
@@ -343,7 +343,7 @@
                         <!-- Agrupaciones de Aciertos: Paso Fijo (legacy dgAgrupacionesPasoFijo, DataSet
                              con columnas Número / Elementos / Aciertos). Rejilla editable. -->
                         <Border Style="{StaticResource AppCardStyle}">
-                            <StackPanel Spacing="12">
+                            <StackPanel Spacing="5">
                                 <TextBlock
                                     Style="{StaticResource SectionHeaderTextBlockStyle}"
                                     Text="Agrupaciones Paso Fijo" />
@@ -410,7 +410,7 @@
 
                         <!-- Agrupaciones de Aciertos: Solapadas (legacy dgAgrpacionesSolapadas). -->
                         <Border Style="{StaticResource AppCardStyle}">
-                            <StackPanel Spacing="12">
+                            <StackPanel Spacing="5">
                                 <TextBlock
                                     Style="{StaticResource SectionHeaderTextBlockStyle}"
                                     Text="Agrupaciones Solapadas" />
@@ -476,7 +476,7 @@
                         </Border>
 
                         <Border Style="{StaticResource AppCardStyle}">
-                            <StackPanel Spacing="12">
+                            <StackPanel Spacing="5">
                                 <TextBlock
                                     Style="{StaticResource SectionHeaderTextBlockStyle}"
                                     Text="Actual / Guardadas" />
@@ -500,9 +500,9 @@
             <!-- ===================== Control Fallos ===================== -->
             <PivotItem Header="Control Fallos">
                 <ScrollViewer>
-                    <StackPanel Spacing="16" MaxWidth="720" HorizontalAlignment="Left">
+                    <StackPanel Spacing="6" MaxWidth="720" HorizontalAlignment="Left">
                         <Border Style="{StaticResource AppCardStyle}">
-                            <StackPanel Spacing="12">
+                            <StackPanel Spacing="5">
                                 <TextBlock
                                     Style="{StaticResource SectionHeaderTextBlockStyle}"
                                     Text="Control de fallos" />
@@ -515,7 +515,7 @@
 
                         <!-- Tabla de controles de fallo (legacy dgControlFallos: Columnas / Tolerancias / Aciertos) -->
                         <Border Style="{StaticResource AppCardStyle}">
-                            <StackPanel Spacing="12">
+                            <StackPanel Spacing="5">
                                 <TextBlock
                                     Style="{StaticResource SectionHeaderTextBlockStyle}"
                                     Text="Controles (Columnas / Tolerancias / Aciertos)" />
@@ -586,7 +586,7 @@
         </Pivot>
 
         <!-- Acción global del filtro (legacy MenuCondiciones1: aceptar / cancelar / copiar / pegar) -->
-        <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right">
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="5" HorizontalAlignment="Right">
             <Button
                 Style="{StaticResource AccentButtonStyle}"
                 Content="Aceptar"

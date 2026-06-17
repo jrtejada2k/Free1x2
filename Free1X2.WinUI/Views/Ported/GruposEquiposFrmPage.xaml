@@ -12,7 +12,7 @@
         </Grid.RowDefinitions>
 
         <ScrollViewer Grid.Row="0">
-            <StackPanel Padding="32" Spacing="24" MaxWidth="900" HorizontalAlignment="Left">
+            <StackPanel Padding="12,8" Spacing="8" MaxWidth="900" HorizontalAlignment="Left">
 
                 <!-- ===== Encabezado ===== -->
                 <StackPanel Spacing="6">
@@ -29,13 +29,13 @@
                          Pestaña 1: Grupos Equipos (tabPage1 del WinForms)
                          ============================================================ -->
                     <PivotItem Header="Grupos Equipos">
-                        <StackPanel Spacing="24">
+                        <StackPanel Spacing="8">
 
                             <!-- Navegación de grupos (groupBox1: btnPrev / lblNoGruposEq / btnNext) -->
                             <Border Style="{StaticResource AppCardStyle}">
-                                <StackPanel Spacing="16">
+                                <StackPanel Spacing="6">
                                     <TextBlock Text="Grupo" Style="{StaticResource CardTitleTextBlockStyle}" />
-                                    <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                                    <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
                                         <Button Content="◄ Anterior"
                                                 Command="{x:Bind ViewModel.GrupoAnteriorCommand}"
                                                 IsEnabled="{x:Bind ViewModel.PuedeRetrocederGrupo, Mode=OneWay}"
@@ -57,7 +57,7 @@
 
                             <!-- Rejilla de 14 partidos: casillas Casa / Fuera -->
                             <Border Style="{StaticResource AppCardStyle}">
-                                <StackPanel Spacing="12">
+                                <StackPanel Spacing="5">
                                     <TextBlock Text="Equipos del grupo"
                                                Style="{StaticResource CardTitleTextBlockStyle}" />
                                     <TextBlock Text="Pulsa el equipo de casa (1) o de fuera (2) de cada partido. Marcar ambos equivale al empate (X)."
@@ -104,10 +104,10 @@
 
                             <!-- Datos esperados del grupo (label43..46 + txt*) -->
                             <Border Style="{StaticResource AppCardStyle}">
-                                <StackPanel Spacing="12">
+                                <StackPanel Spacing="5">
                                     <TextBlock Text="Objetivos del grupo"
                                                Style="{StaticResource CardTitleTextBlockStyle}" />
-                                    <Grid ColumnSpacing="12" RowSpacing="12">
+                                    <Grid ColumnSpacing="12" RowSpacing="6">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto" />
                                             <ColumnDefinition Width="*" />
@@ -161,13 +161,13 @@
                          Pestaña 2: Relaciones (tabPage2 del WinForms)
                          ============================================================ -->
                     <PivotItem Header="Relaciones">
-                        <StackPanel Spacing="24">
+                        <StackPanel Spacing="8">
 
                             <!-- Navegación de relaciones (groupBox2) -->
                             <Border Style="{StaticResource AppCardStyle}">
-                                <StackPanel Spacing="16">
+                                <StackPanel Spacing="6">
                                     <TextBlock Text="Relación" Style="{StaticResource CardTitleTextBlockStyle}" />
-                                    <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                                    <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
                                         <Button Content="◄ Anterior"
                                                 Command="{x:Bind ViewModel.RelacionAnteriorCommand}"
                                                 IsEnabled="{x:Bind ViewModel.PuedeRetrocederRelacion, Mode=OneWay}"
@@ -189,10 +189,10 @@
 
                             <!-- Datos de la relación (label16..20 + txt*Rel) -->
                             <Border Style="{StaticResource AppCardStyle}">
-                                <StackPanel Spacing="12">
+                                <StackPanel Spacing="5">
                                     <TextBlock Text="Datos de la relación"
                                                Style="{StaticResource CardTitleTextBlockStyle}" />
-                                    <Grid ColumnSpacing="12" RowSpacing="12">
+                                    <Grid ColumnSpacing="12" RowSpacing="6">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto" />
                                             <ColumnDefinition Width="*" />
@@ -264,8 +264,8 @@
                 Background="{StaticResource AppSurfaceBrush}"
                 BorderBrush="{StaticResource AppBorderBrush}"
                 BorderThickness="0,1,0,0"
-                Padding="24,12">
-            <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right">
+                Padding="10,7">
+            <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Right">
                 <Button Content="Estadísticas"
                         Command="{x:Bind ViewModel.EstadisticasCommand}"
                         AutomationProperties.Name="Ver estadísticas" />

@@ -7,7 +7,7 @@
     xmlns:local="using:Free1X2.WinUI.Views.Ported"
     Background="{ThemeResource AppBackgroundBrush}">
 
-    <Grid Padding="24" RowSpacing="16">
+    <Grid Padding="10,7" RowSpacing="6">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -24,14 +24,14 @@
         </StackPanel>
 
         <!-- ===== Ayuda + acciones de selección ===== -->
-        <Grid Grid.Row="1" ColumnSpacing="16">
+        <Grid Grid.Row="1" ColumnSpacing="10">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <Border Grid.Column="0" Style="{StaticResource AppCardStyle}" Padding="12,10">
-                <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+            <Border Grid.Column="0" Style="{StaticResource AppCardStyle}" Padding="10,7">
+                <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
                     <FontIcon Glyph="&#xE946;" FontSize="18"
                               Foreground="{ThemeResource AppAccentBrush}" />
                     <TextBlock TextWrapping="Wrap" VerticalAlignment="Center"
@@ -78,7 +78,7 @@
         </Border>
 
         <!-- ===== Barra de condición (equivale a MenuCondiciones) ===== -->
-        <Grid Grid.Row="3" ColumnSpacing="16">
+        <Grid Grid.Row="3" ColumnSpacing="10">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />

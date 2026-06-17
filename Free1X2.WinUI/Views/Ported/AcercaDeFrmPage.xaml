@@ -5,7 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <ScrollViewer Background="{ThemeResource AppBackgroundBrush}">
-        <Grid Padding="32" RowSpacing="16" MaxWidth="640" HorizontalAlignment="Stretch">
+        <Grid Padding="12,8" RowSpacing="6" MaxWidth="640" HorizontalAlignment="Stretch">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -22,7 +22,7 @@
 
             <!-- Tarjeta de identidad: logo + nombre + versión -->
             <Border Grid.Row="1" Style="{StaticResource AppCardStyle}">
-                <Grid ColumnSpacing="20">
+                <Grid ColumnSpacing="12">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />

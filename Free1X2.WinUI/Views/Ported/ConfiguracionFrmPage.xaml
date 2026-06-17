@@ -5,7 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <ScrollViewer>
-        <StackPanel Padding="32" Spacing="20" MaxWidth="720" HorizontalAlignment="Left">
+        <StackPanel Padding="12,8" Spacing="8" MaxWidth="720" HorizontalAlignment="Left">
 
             <TextBlock Text="Configuración" Style="{StaticResource TitleTextBlockStyle}" />
             <TextBlock Text="Ajusta los parámetros del boleto, la puntuación y las preferencias del programa."
@@ -13,10 +13,10 @@
 
             <!-- ===== Configuración del boleto ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock Text="Configuración del boleto" Style="{StaticResource SubtitleTextBlockStyle}" />
 
-                    <Grid ColumnSpacing="16" RowSpacing="12">
+                    <Grid ColumnSpacing="10" RowSpacing="6">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
@@ -44,7 +44,7 @@
 
             <!-- ===== Desplazamiento de grupo/condición ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <Grid ColumnSpacing="16">
+                <Grid ColumnSpacing="10">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
@@ -62,9 +62,9 @@
 
             <!-- ===== Puntuación en CPs ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock Text="Puntuación en CPs" Style="{StaticResource SubtitleTextBlockStyle}" />
-                    <StackPanel Orientation="Horizontal" Spacing="16">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
                         <NumberBox Header="Fijos" MinWidth="100"
                                    Value="{x:Bind ViewModel.ValorFijos, Mode=TwoWay}"
                                    SpinButtonPlacementMode="Compact"
@@ -83,12 +83,12 @@
 
             <!-- ===== Separador de porcentajes JB ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock Text="Separador de porcentajes JB" Style="{StaticResource SubtitleTextBlockStyle}" />
                     <TextBlock Text="Seis límites en orden estrictamente creciente."
                                Foreground="{ThemeResource AppTextSecondaryBrush}"
                                Style="{StaticResource CaptionTextBlockStyle}" />
-                    <StackPanel Orientation="Horizontal" Spacing="12">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
                         <NumberBox MinWidth="72" Value="{x:Bind ViewModel.Jb1, Mode=TwoWay}"
                                    AutomationProperties.Name="Límite JB 1" />
                         <NumberBox MinWidth="72" Value="{x:Bind ViewModel.Jb2, Mode=TwoWay}"
@@ -107,9 +107,9 @@
 
             <!-- ===== Parámetros LAE ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock Text="Parámetros LAE" Style="{StaticResource SubtitleTextBlockStyle}" />
-                    <Grid ColumnSpacing="16" RowSpacing="12">
+                    <Grid ColumnSpacing="10" RowSpacing="6">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="*" />
@@ -140,10 +140,10 @@
 
             <!-- ===== Preferencias generales ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Preferencias" Style="{StaticResource SubtitleTextBlockStyle}" />
 
-                    <Grid ColumnSpacing="16">
+                    <Grid ColumnSpacing="10">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
@@ -160,7 +160,7 @@
                                       AutomationProperties.Name="Comprobar actualizaciones al inicio" />
                     </Grid>
 
-                    <Grid ColumnSpacing="16">
+                    <Grid ColumnSpacing="10">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
@@ -188,7 +188,7 @@
             </Border>
 
             <!-- ===== Acciones ===== -->
-            <StackPanel Orientation="Horizontal" Spacing="12">
+            <StackPanel Orientation="Horizontal" Spacing="5">
                 <Button Content="Guardar" Style="{StaticResource AccentButtonStyle}"
                         Command="{x:Bind ViewModel.GuardarCommand}"
                         AutomationProperties.Name="Guardar configuración" />

@@ -14,7 +14,7 @@
         </Grid.RowDefinitions>
 
         <!-- Encabezado (legacy: Text del form = "Selección de columnas") -->
-        <StackPanel Grid.Row="0" Padding="32,32,32,8" Spacing="4">
+        <StackPanel Grid.Row="0" Padding="12,8" Spacing="4">
             <TextBlock Text="Selección de columnas"
                        Style="{StaticResource PageTitleTextBlockStyle}" />
             <!-- legacy: label1 (color Maroon) -->
@@ -24,7 +24,7 @@
         </StackPanel>
 
         <!-- Tabla de conceptos (legacy: dataGrid1, columnas Concepto/Checked/Mínimo/Máximo) -->
-        <Border Grid.Row="1" Style="{StaticResource AppCardStyle}" Margin="24,8,24,8">
+        <Border Grid.Row="1" Style="{StaticResource AppCardStyle}" Margin="12,6">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -97,10 +97,10 @@
         </Border>
 
         <!-- Barra de acciones (legacy: button1 "Aceptar" / btCancelar "Cancelar") -->
-        <Border Grid.Row="2" Padding="32,16"
+        <Border Grid.Row="2" Padding="12,8"
                 Background="{ThemeResource AppSurfaceBrush}"
                 BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="0,1,0,0">
-            <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right">
+            <StackPanel Orientation="Horizontal" Spacing="5" HorizontalAlignment="Right">
                 <Button Content="Aceptar"
                         Style="{StaticResource AccentButtonStyle}"
                         Command="{x:Bind ViewModel.AceptarCommand}"

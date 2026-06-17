@@ -7,7 +7,7 @@
     Background="{ThemeResource AppBackgroundBrush}">
 
     <ScrollViewer>
-        <Grid Padding="24" MaxWidth="720" HorizontalAlignment="Left">
+        <Grid Padding="10,7" MaxWidth="720" HorizontalAlignment="Left">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -18,7 +18,7 @@
             </Grid.RowDefinitions>
 
             <!-- Encabezado -->
-            <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,20">
+            <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,10">
                 <TextBlock
                     Text="Multiplicador"
                     Style="{StaticResource PageTitleTextBlockStyle}" />
@@ -28,8 +28,8 @@
             </StackPanel>
 
             <!-- Tarjeta: Entrada Comb-1 (columnas numeradas de 1 a 14) -->
-            <Border Grid.Row="1" Style="{StaticResource AppCardStyle}" Margin="0,0,0,16">
-                <StackPanel Spacing="12">
+            <Border Grid.Row="1" Style="{StaticResource AppCardStyle}" Margin="0,0,0,8">
+                <StackPanel Spacing="5">
                     <TextBlock
                         Text="Entrada Comb-1"
                         Style="{StaticResource SectionHeaderTextBlockStyle}" />
@@ -70,8 +70,8 @@
             </Border>
 
             <!-- Tarjeta: Entrada Comb-2 (columnas numeradas de 15 a 28) -->
-            <Border Grid.Row="2" Style="{StaticResource AppCardStyle}" Margin="0,0,0,16">
-                <StackPanel Spacing="12">
+            <Border Grid.Row="2" Style="{StaticResource AppCardStyle}" Margin="0,0,0,8">
+                <StackPanel Spacing="5">
                     <TextBlock
                         Text="Entrada Comb-2"
                         Style="{StaticResource SectionHeaderTextBlockStyle}" />
@@ -112,8 +112,8 @@
             </Border>
 
             <!-- Tarjeta: Plantilla de estructura de las columnas resultantes -->
-            <Border Grid.Row="3" Style="{StaticResource AppCardStyle}" Margin="0,0,0,16">
-                <StackPanel Spacing="12">
+            <Border Grid.Row="3" Style="{StaticResource AppCardStyle}" Margin="0,0,0,8">
+                <StackPanel Spacing="5">
                     <TextBlock
                         Text="Plantilla de estructura"
                         Style="{StaticResource SectionHeaderTextBlockStyle}" />
@@ -123,7 +123,7 @@
                         TextWrapping="Wrap" />
 
                     <!-- 14 índices de la plantilla (1..28). NumberBox.Value es double. -->
-                    <Grid ColumnSpacing="10" RowSpacing="10">
+                    <Grid ColumnSpacing="10" RowSpacing="6">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="*" />
@@ -200,7 +200,7 @@
             </Border>
 
             <!-- Tarjeta: Resultado -->
-            <Border Grid.Row="4" Style="{StaticResource AppCardStyle}" Margin="0,0,0,16">
+            <Border Grid.Row="4" Style="{StaticResource AppCardStyle}" Margin="0,0,0,8">
                 <StackPanel Spacing="8">
                     <TextBlock
                         Text="Resultado"
@@ -227,7 +227,7 @@
             <StackPanel
                 Grid.Row="5"
                 Orientation="Horizontal"
-                Spacing="12"
+                Spacing="5"
                 HorizontalAlignment="Right">
                 <Button
                     Content="Grabar resultado"
