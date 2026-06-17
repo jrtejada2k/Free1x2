@@ -701,20 +701,171 @@ namespace Free1X2.WinUI.Views.Ported
             Navegar?.Invoke(typeof(CambioPuntosFrmPage), null);
         }
 
+        // True entre que se lanza el diálogo "Importador CPs" y se regresa de él. La página lo
+        // consulta en OnNavigatedTo para distinguir el retorno del importador (fusionar columnas)
+        // de una recarga normal. Réplica del flujo ShowDialog/lectura de grupoCPtmp del WinForms.
+        private bool _importPendiente;
+
+        /// <summary>True si esta pantalla había lanzado el diálogo "Importador CPs" (handoff de vuelta).</summary>
+        public bool ImportacionPendiente => _importPendiente;
+
+        // Legacy NecesitaGuardarDatos (ColProbablesFrm.cs líneas 569-579): hay valores AC/ACS/FS en
+        // pantalla que persistir antes de exportar.
+        private bool NecesitaGuardarDatos() =>
+            Aciertos != "" || AciertosSeguidos != "" || FallosSeguidos != "";
+
         [RelayCommand]
         private void ImportarCPs()
         {
-            // TODO[navegación]: ColProbablesFrm.ImportaColumnas (línea 675) abría ImportadorCPsFrm y
-            //   fusionaba/sustituía las columnas importadas. En WinUI existe ImportadorCPsFrmPage:
-            //   navegar a ella y volcar el resultado en _grupoCP (sustituir/añadir según el caso).
+            // Réplica de la 1ª mitad de ColProbablesFrm.ImportaColumnas (Free1X2/UI/Filtros/
+            //   ColProbablesFrm.cs líneas 675-691): si hay columnas y la última está vacía, se
+            //   borra antes de importar; luego se abre el importador. El resto del legacy (fusión
+            //   con prompts Sí/No) se ejecuta al volver, en AplicarImportacion* (lo orquesta la
+            //   página, que sí tiene XamlRoot para los ContentDialog de confirmación).
+            if (_grupoCP.Count > 0)
+            {
+                // borrar última CP si no contiene datos (legacy if (NecesitaBorrarUltimaCP()) BorrarCP(...)).
+                if (NecesitaBorrarUltimaCP())
+                {
+                    _grupoCP.RemoveAt(_grupoCP.Count - 1);
+                }
+            }
+
+            _importPendiente = true;
+
+            // Limpia un resultado previo y navega; al volver, la página lee
+            // ImportadorCPsFrmViewModel.Resultado (handoff estático = legacy grupoCPtmp).
+            ImportadorCPsFrmViewModel.Resultado = null;
+            Navegar?.Invoke(typeof(ImportadorCPsFrmPage), null);
+        }
+
+        /// <summary>
+        /// ¿La importación de vuelta requiere preguntar al usuario si SUSTITUIR las columnas
+        /// existentes (manteniendo rangos)? Réplica de la condición legacy: el nº de columnas
+        /// importadas coincide con las existentes y hay existentes (ColProbablesFrm.cs línea 699).
+        /// </summary>
+        public bool ImportacionRequiereConfirmarSustituir
+        {
+            get
+            {
+                var importadas = ImportadorCPsFrmViewModel.Resultado;
+                if (importadas is null || importadas.Count == 0) return false;
+                return importadas.Count == _grupoCP.Count && _grupoCP.Count > 0;
+            }
+        }
+
+        /// <summary>
+        /// ¿La importación de vuelta requiere preguntar si AÑADIR al final (si no se sustituye)?
+        /// Réplica de la condición legacy: hay columnas existentes (ColProbablesFrm.cs línea 721).
+        /// </summary>
+        public bool ImportacionRequiereConfirmarAgregar
+        {
+            get
+            {
+                var importadas = ImportadorCPsFrmViewModel.Resultado;
+                if (importadas is null || importadas.Count == 0) return false;
+                return _grupoCP.Count > 0;
+            }
+        }
+
+        /// <summary>
+        /// Cierra el flujo de importación cuando no hubo columnas importadas (cancelado) o cuando ya
+        /// se aplicó la decisión. Réplica del final de ImportaColumnas: refresca pantalla + paginación.
+        /// </summary>
+        public void FinalizarImportacion()
+        {
+            _importPendiente = false;
+            ImportadorCPsFrmViewModel.Resultado = null;
+            ActualizaDatosPantalla(_cpPantalla);
+        }
+
+        /// <summary>
+        /// Aplica la importación SUSTITUYENDO los pronósticos de las columnas existentes, manteniendo
+        /// sus rangos de aciertos/tolerancias. Réplica exacta de ColProbablesFrm.ImportaColumnas
+        /// (líneas 704-718, rama sustituirCPs). grupoCP2 parte de la copia del filtro original
+        /// (ObtenCopiaCP) y, sobre esos clones (que conservan los rangos), se sobreescriben los
+        /// pronósticos importados.
+        /// </summary>
+        public void AplicarImportacionSustituir()
+        {
+            var grupoCPtmp = ImportadorCPsFrmViewModel.Resultado;
+            if (grupoCPtmp is null || grupoCPtmp.Count == 0) { FinalizarImportacion(); return; }
+
+            List<ColumnaProbable> grupoCP2 = _filtroCP is not null
+                ? ObtenCopiaCP(_filtroCP)
+                : new List<ColumnaProbable>();
+
+            // grupoCP2 = copia del filtro + columnas actuales (legacy líneas 706-709).
+            for (int ncol = 0; ncol < _grupoCP.Count; ncol++)
+            {
+                grupoCP2.Add(_grupoCP[ncol]);
+            }
+            _grupoCP.Clear();
+            // Por cada CP importada, toma el clon (con rangos) de grupoCP2 y le pone el pronóstico
+            // importado (legacy líneas 711-717).
+            for (int ncol = 0; ncol < grupoCPtmp.Count && ncol < grupoCP2.Count; ncol++)
+            {
+                ColumnaProbable cp = grupoCP2[ncol];
+                ColumnaProbable cpTmp = grupoCPtmp[ncol];
+                cp.Pronosticos = cpTmp.Pronosticos;
+                _grupoCP.Add(cp);
+            }
+
+            FinalizarImportacion();
+        }
+
+        /// <summary>
+        /// Aplica la importación AÑADIENDO las columnas importadas al final de las existentes.
+        /// Réplica de ColProbablesFrm.ImportaColumnas (líneas 726-732, rama AgregarCPs).
+        /// </summary>
+        public void AplicarImportacionAgregar()
+        {
+            var grupoCPtmp = ImportadorCPsFrmViewModel.Resultado;
+            if (grupoCPtmp is null || grupoCPtmp.Count == 0) { FinalizarImportacion(); return; }
+
+            for (int ncol = 0; ncol < grupoCPtmp.Count; ncol++)
+            {
+                _grupoCP.Add(grupoCPtmp[ncol]);
+            }
+
+            FinalizarImportacion();
+        }
+
+        /// <summary>
+        /// Aplica la importación REEMPLAZANDO todas las columnas (y sus rangos) por las importadas.
+        /// Réplica de ColProbablesFrm.ImportaColumnas (líneas 733-740, rama else).
+        /// </summary>
+        public void AplicarImportacionReemplazar()
+        {
+            var grupoCPtmp = ImportadorCPsFrmViewModel.Resultado;
+            if (grupoCPtmp is null || grupoCPtmp.Count == 0) { FinalizarImportacion(); return; }
+
+            _grupoCP.Clear();
+            for (int ncol = 0; ncol < grupoCPtmp.Count; ncol++)
+            {
+                _grupoCP.Add(grupoCPtmp[ncol]);
+            }
+
+            FinalizarImportacion();
         }
 
         [RelayCommand]
         private void ExportarCPs()
         {
-            // TODO[navegación]: ColProbablesFrm.ExportaColumnas (línea 748) abría ExportadorCPsFrm con
-            //   un FiltroColProbables temporal. En WinUI existe ExportadorCPsFrmPage: navegar a ella
-            //   pasando una copia de _grupoCP.
+            // Réplica de ColProbablesFrm.ExportaColumnas (Free1X2/UI/Filtros/ColProbablesFrm.cs
+            //   líneas 748-760): guarda la CP en pantalla si tiene datos, construye un
+            //   FiltroColProbables temporal con la copia de trabajo y abre el exportador con su lista.
+            if (NecesitaGuardarDatos())
+            {
+                GuardarCPActual();
+            }
+
+            var filtroTemp = new FiltroColProbables { ColProbables = _grupoCP };
+            List<ColumnaProbable> grupoCP2 = filtroTemp.ColProbables;
+
+            // Handoff estático: el exportador consume la lista en su constructor (la página crea su VM).
+            ExportadorCPsFrmViewModel.ListaParaExportar = grupoCP2;
+            Navegar?.Invoke(typeof(ExportadorCPsFrmPage), null);
         }
 
         // ================= Pestaña Relaciones I (RelacionCP1) =================
