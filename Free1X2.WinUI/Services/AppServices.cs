@@ -32,6 +32,29 @@ public static class AppServices
         UiDispatcher = mainWindow.DispatcherQueue;
     }
 
+    /// <summary>
+    /// Pregunta Sí/No al usuario (réplica de los <c>MessageBox.Show(..., YesNo, Question)</c> del
+    /// MainForm original: Nueva/Abrir combinación, Borrar temporales, Borrar informes). Devuelve
+    /// true si el usuario confirma. Debe invocarse desde el hilo de UI. En modo headless (sin
+    /// XamlRoot) devuelve false para no realizar acciones destructivas sin confirmación.
+    /// </summary>
+    public static async System.Threading.Tasks.Task<bool> ConfirmarAsync(string mensaje, string titulo = "Free1X2")
+    {
+        var root = MainWindow?.Content?.XamlRoot;
+        if (root is null) return false;
+
+        var dlg = new ContentDialog
+        {
+            Title = titulo,
+            Content = mensaje,
+            PrimaryButtonText = "Sí",
+            CloseButtonText = "No",
+            DefaultButton = ContentDialogButton.Close,
+            XamlRoot = root,
+        };
+        return await dlg.ShowAsync() == ContentDialogResult.Primary;
+    }
+
     /// <summary>Muestra un mensaje de error (marshalado al hilo de UI).</summary>
     public static void MostrarError(string mensaje) => EncolarDialogo("Error", mensaje);
 

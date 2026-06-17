@@ -31,5 +31,14 @@ public sealed partial class MainPage : Page
         // Al volver de una página de filtro, refresca los semáforos de condiciones
         // (equivale a MainForm.MainFormActivated → ActualizaGrupoPantalla).
         ViewModel.RefrescarPantalla();
+
+        // Acción solicitada por un botón de la barra de herramientas (Nueva/Abrir/Guardar
+        // combinación, Guardar/Abrir equipos, Borrar temporales/informes). MainWindow navega
+        // aquí con el token y la página invoca el comando equivalente del MainForm original.
+        if (e.Parameter is AccionInicio accion && accion != AccionInicio.Ninguna)
+        {
+            // Fire-and-forget: los comandos hacen su propio await y muestran sus diálogos.
+            _ = ViewModel.EjecutarAccionAsync(accion);
+        }
     }
 }

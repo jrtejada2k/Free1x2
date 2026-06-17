@@ -15,6 +15,26 @@ using Free1X2.WinUI.Views.Ported;
 namespace Free1X2.WinUI.Views;
 
 /// <summary>
+/// Acción de la barra de herramientas que se ejecuta sobre la pantalla principal. La barra de
+/// herramientas (MainWindow) enruta a <see cref="MainPage"/> con uno de estos tokens y la página
+/// invoca el comando correspondiente en su ViewModel (réplica de los handlers del menú "Archivo"
+/// del MainForm original: MNuevaComb / MAbrirCombClick / MGuardarComb / MGuardarCombComo /
+/// MGuardarPartidosClick / MAbreBoleto / MBorrarCombsTemp / borrarInformesDeError…).
+/// </summary>
+public enum AccionInicio
+{
+    Ninguna,
+    NuevaCombinacion,
+    AbrirCombinacion,
+    GuardarCombinacion,
+    GuardarCombinacionComo,
+    GuardarEquipos,
+    AbrirEquipos,
+    BorrarTemporales,
+    BorrarInformes,
+}
+
+/// <summary>
 /// ViewModel de la pantalla principal (réplica de <c>Free1X2.UI.MainForm</c>):
 /// boleto base + rejilla de condiciones (con semáforos), navegación de grupos,
 /// filtro de columnas general y acciones de combinación (Calcular / Reducir /
@@ -623,4 +643,190 @@ public partial class MainPageViewModel : ObservableObject
             Free1X2.Abstractions.UserDialogs.ShowError("No se pudo guardar la combinación: " + ex.Message);
         }
     }
+
+    /// <summary>
+    /// Guardar combinación como… (MainForm.MGuardarCombComo, Free1X2/UI/MainForm.cs:401-415):
+    /// SIEMPRE pide un archivo nuevo (SaveFileDialog) y, si se confirma, guarda en él. A diferencia
+    /// de <see cref="GuardarCombinacionAsync"/>, no reutiliza el nombre actual.
+    /// </summary>
+    [RelayCommand]
+    private async Task GuardarCombinacionComoAsync()
+    {
+        var picker = new Windows.Storage.Pickers.FileSavePicker
+        {
+            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
+            SuggestedFileName = "Combinacion",
+        };
+        picker.FileTypeChoices.Add("Combinación", new List<string> { ".comb" });
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        var file = await picker.PickSaveFileAsync();
+        if (file == null) return;
+
+        _estado.NombreArchivoComb = file.Path;   // fija el destino y reutiliza el guardado normal
+        await GuardarCombinacionAsync();
+    }
+
+    // ============================================================
+    //  Equipos del boleto base (menú Archivo: Guardar / Abrir equipos).
+    // ============================================================
+
+    /// <summary>
+    /// Guardar equipos (MainForm.MGuardarPartidosClick → Pronosticos.CrearArchivoBoleto,
+    /// Free1X2/UI/MainForm.cs:247-254, Free1X2/UI/Controls/Pronosticos.cs:548-570):
+    /// SaveFileDialog (.txt) y escribe una línea por partido con los nombres de equipos
+    /// (<c>DevolverEquipos()</c>), igual que el StreamWriter del original.
+    /// </summary>
+    [RelayCommand]
+    private async Task GuardarEquiposAsync()
+    {
+        if (Boleto is null) return;
+        string[] equipos = Boleto.DevolverEquipos();
+
+        var picker = new Windows.Storage.Pickers.FileSavePicker
+        {
+            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
+            SuggestedFileName = "Equipos",
+        };
+        picker.FileTypeChoices.Add("Equipos", new List<string> { ".txt" });
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        var file = await picker.PickSaveFileAsync();
+        if (file == null) return;
+
+        try
+        {
+            // Una línea por partido (igual que CrearArchivoBoleto: foreach equipos -> WriteLine).
+            File.WriteAllLines(file.Path, equipos, System.Text.Encoding.UTF8);
+        }
+        catch (Exception ex)
+        {
+            Free1X2.Abstractions.UserDialogs.ShowError("No se pudieron guardar los equipos: " + ex.Message);
+        }
+    }
+
+    /// <summary>
+    /// Abrir equipos (MainForm.MAbreBoleto → Pronosticos.LeerBoletoBase,
+    /// Free1X2/UI/MainForm.cs:238-245, Free1X2/UI/Controls/Pronosticos.cs:501-521):
+    /// OpenFileDialog (.txt), lee <c>NumeroPartidos</c> líneas (las que falten -> "? - ?") y las
+    /// vuelca al boleto con <c>SetEquipos()</c>, igual que el StreamReader del original.
+    /// </summary>
+    [RelayCommand]
+    private async Task AbrirEquiposAsync()
+    {
+        if (Boleto is null) return;
+
+        var picker = new Windows.Storage.Pickers.FileOpenPicker
+        {
+            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
+        };
+        picker.FileTypeFilter.Add(".txt");
+        picker.FileTypeFilter.Add("*");
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        var file = await picker.PickSingleFileAsync();
+        if (file == null) return;
+
+        try
+        {
+            int numPartidos = VariablesGlobales.NumeroPartidos;
+            string[] lineas = File.ReadAllLines(file.Path);
+            var partBol = new string[numPartidos];
+            for (int i = 0; i < numPartidos; i++)
+            {
+                // Igual que LeerBoletoBase: si no hay línea para el partido, "? - ?".
+                partBol[i] = (i < lineas.Length && lineas[i] != null) ? lineas[i] : "? - ?";
+            }
+            Boleto.SetEquipos(partBol);
+        }
+        catch (Exception ex)
+        {
+            Free1X2.Abstractions.UserDialogs.ShowError("No se pudieron abrir los equipos: " + ex.Message);
+        }
+    }
+
+    // ============================================================
+    //  Borrado de archivos (menú/barra Archivo: temporales e informes de error).
+    // ============================================================
+
+    /// <summary>
+    /// Borrar archivos temporales (MainForm.MBorrarCombsTemp, Free1X2/UI/MainForm.cs:417-428):
+    /// confirma y borra los ficheros <c>*_tmp.comb</c> de la carpeta <c>Temp/</c> (legacy:
+    /// <c>Application.StartupPath + "/Temp/"</c> → aquí <c>AppContext.BaseDirectory/Temp</c>).
+    /// </summary>
+    [RelayCommand]
+    private async Task BorrarTemporalesAsync()
+    {
+        if (!await AppServices.ConfirmarAsync("¿Borrar las combinaciones temporales?")) return;
+        try
+        {
+            string dir = Path.Combine(AppContext.BaseDirectory, "Temp");
+            if (!Directory.Exists(dir)) return;
+            foreach (string f in Directory.GetFiles(dir))
+            {
+                if (Path.GetFileName(f).IndexOf("_tmp.comb", StringComparison.Ordinal) >= 0)
+                    File.Delete(f);
+            }
+        }
+        catch (Exception ex)
+        {
+            Free1X2.Abstractions.UserDialogs.ShowError("No se pudieron borrar los temporales: " + ex.Message);
+        }
+    }
+
+    /// <summary>
+    /// Borrar Informes de Error (MainForm.borrarInformesDeErrorToolStripMenuItem_Click,
+    /// Free1X2/UI/MainForm.cs:430-447): confirma y borra los ficheros cuyo nombre empieza por
+    /// "Informe" de la carpeta <c>Informes/</c> (legacy: <c>Application.StartupPath + "/Informes/"</c>
+    /// → aquí <c>AppContext.BaseDirectory/Informes</c>).
+    /// </summary>
+    [RelayCommand]
+    private async Task BorrarInformesAsync()
+    {
+        if (!await AppServices.ConfirmarAsync("¿Borrar todos los Informes generados?")) return;
+        try
+        {
+            string dir = Path.Combine(AppContext.BaseDirectory, "Informes");
+            if (!Directory.Exists(dir)) return;
+            foreach (string f in Directory.GetFiles(dir))
+            {
+                string nombre = Path.GetFileName(f);
+                if (nombre.Length > 7 && nombre.Substring(0, 7) == "Informe")
+                    File.Delete(f);
+            }
+        }
+        catch (Exception ex)
+        {
+            Free1X2.Abstractions.UserDialogs.ShowError("No se pudieron borrar los informes: " + ex.Message);
+        }
+    }
+
+    /// <summary>
+    /// Ejecuta la acción solicitada por un botón de la barra de herramientas (la MainPage la recibe
+    /// como parámetro de navegación y la delega aquí). Cada token mapea a su comando, que replica el
+    /// handler equivalente del menú "Archivo" del MainForm original.
+    /// </summary>
+    public Task EjecutarAccionAsync(AccionInicio accion)
+    {
+        switch (accion)
+        {
+            case AccionInicio.NuevaCombinacion:
+                NuevaCombinacion();   // comando síncrono (réplica de MNuevaComb)
+                return Task.CompletedTask;
+            default:
+                return EjecutarAccionAsyncCore(accion);
+        }
+    }
+
+    private Task EjecutarAccionAsyncCore(AccionInicio accion) => accion switch
+    {
+        AccionInicio.AbrirCombinacion       => AbrirCombinacionCommand.ExecuteAsync(null),
+        AccionInicio.GuardarCombinacion     => GuardarCombinacionCommand.ExecuteAsync(null),
+        AccionInicio.GuardarCombinacionComo => GuardarCombinacionComoCommand.ExecuteAsync(null),
+        AccionInicio.GuardarEquipos         => GuardarEquiposCommand.ExecuteAsync(null),
+        AccionInicio.AbrirEquipos           => AbrirEquiposCommand.ExecuteAsync(null),
+        AccionInicio.BorrarTemporales       => BorrarTemporalesCommand.ExecuteAsync(null),
+        AccionInicio.BorrarInformes         => BorrarInformesCommand.ExecuteAsync(null),
+        _ => Task.CompletedTask,
+    };
 }
