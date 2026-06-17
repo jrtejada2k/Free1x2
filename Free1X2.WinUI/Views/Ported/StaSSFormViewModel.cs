@@ -45,6 +45,18 @@ public partial class StaSSFormViewModel : ObservableObject
 
     private static readonly string[] EtiquetasFila = { "cant. 1", "cant. X", "cant. 2", "cant. V" };
 
+    /// <summary>
+    /// Matriz int[15,15] entregada por el productor (AnastaticsViewModel modo "Signos seguidos")
+    /// antes de navegar a StaSSFormPage. Handoff estático de proceso (mismo patrón que
+    /// VisorEstadisticas.UltimasEstadisticas / AppState.GrupoEnEdicion). El ctor la lee y, si
+    /// existe, vuelca sus filas 0..3 a la rejilla. Equivale al ctor legacy
+    /// StaSSForm(int[,] ofparent, int ncol).
+    /// </summary>
+    public static int[,]? MatrizEntrada { get; set; }
+
+    /// <summary>Total de columnas analizadas (legacy: numcol). Handoff estático.</summary>
+    public static int NumColEntrada { get; set; }
+
     // Datos crudos en memoria (rsl[4,15] del legacy) y nº de columnas.
     private readonly int[,] _rsl = new int[NumFilas, NumColumnasRejilla];
     private int _numCol;
@@ -62,7 +74,13 @@ public partial class StaSSFormViewModel : ObservableObject
 
         // Filas placeholder vacías hasta que el dominio rellene rsl/numcol.
         Filas = new ObservableCollection<FilaSSViewModel>();
-        Recalcular();
+
+        // Si el productor dejó una matriz en el handoff estático, vuélcala (ctor legacy
+        // StaSSForm(int[,] ofparent, int ncol)). Si no, queda a 0 (rejilla vacía).
+        if (MatrizEntrada != null)
+            CargarDatos(MatrizEntrada, NumColEntrada);
+        else
+            Recalcular();
     }
 
     // Cabecera de columnas 0..14 (fila de labels superior del legacy).

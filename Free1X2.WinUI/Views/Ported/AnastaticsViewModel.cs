@@ -16,13 +16,22 @@ namespace Free1X2.WinUI.Views.Ported;
 /// los resultados en una ventana específica por modo.
 ///
 /// Cableado al motor real: lectura con Free1X2.EntradaSalida.ArchivoColumnasTexto y cálculo
-/// con Free1X2.MotorCalculo.Estadisticas.{Dibujos,DibRepes,StaInter,StaSigSeg}. Los modos
-/// "Interrupciones" y "Signos seguidos" rellenan los ViewModels de resultados
-/// (StaInterFrmViewModel / StaSSFormViewModel). Los modos "Variantes,X,2" y "Sus coincidencias"
-/// (legacy DibForm / DibRepFrm) no están en el alcance de este port — ver TODO en MostrarResultados.
+/// con Free1X2.MotorCalculo.Estadisticas.{Dibujos,DibRepes,StaInter,StaSigSeg}. Cada modo abre
+/// su ventana de resultados igual que el legacy Mostrar() (dib.Show()/dibrep.Show()/...): los
+/// modos "Variantes,X,2" y "Sus coincidencias" navegan a DibFormPage / DibRepFrmPage (legacy
+/// DibForm / DibRepFrm) entregando la matriz por el handoff estático
+/// DibFormViewModel.MatrizEntrada / DibRepFrmViewModel.MatrizEntrada; los modos "Interrupciones"
+/// y "Signos seguidos" rellenan StaInterFrmViewModel / StaSSFormViewModel.
 /// </summary>
 public partial class AnastaticsViewModel : ObservableObject
 {
+    /// <summary>
+    /// Callback de navegación inyectado por la Page (AnastaticsPage cablea Frame.Navigate),
+    /// igual que MainPageViewModel.Navegar. Equivale a dib.Show()/dibrep.Show() del legacy
+    /// Mostrar(): abrir la ventana de resultados del modo seleccionado.
+    /// </summary>
+    public Action<Type>? Navegar { get; set; }
+
     // Matriz de resultados (legacy: int[,] rsl = new int[15,15]) y nº de columnas leídas.
     private readonly int[,] _rsl = new int[15, 15];
     private string[] _columnas = Array.Empty<string>();
@@ -159,28 +168,57 @@ public partial class AnastaticsViewModel : ObservableObject
     [RelayCommand]
     private void MostrarResultados()
     {
-        // Equivale a Mostrar() del Anastatics legacy.
+        // Equivale a Mostrar() del Anastatics legacy: según el RadioButton marcado, abre la
+        // ventana de resultados del modo (dib.Show()/dibrep.Show()/interrup.Show()/ss.Show()).
+        // En WinUI cada ventana es una Page: se siembra su handoff estático con la matriz
+        // calculada y se navega a ella (mismo patrón que VisorEstadisticas.UltimasEstadisticas).
         if (!ResultadosListos) return;
 
         switch (ModoSeleccionado)
         {
+            case 0: // rdib -> DibForm(rsl, numcol)
+                DibFormViewModel.MatrizEntrada = ClonarMatriz(_rsl);
+                DibFormViewModel.NumColEntrada = _numcol;
+                Navegar?.Invoke(typeof(DibFormPage));
+                break;
+            case 1: // rdibrep -> DibRepFrm(rsl, numcol)
+                // DibRepFrm sólo usa las 5 primeras filas (rsl[0..4, 0..14]); legacy: rsl es
+                // int[5,15]. Aquí se entrega esa porción de la matriz [15,15] calculada.
+                DibRepFrmViewModel.MatrizEntrada = ExtraerFilas(_rsl, 5);
+                DibRepFrmViewModel.NumColEntrada = _numcol;
+                Navegar?.Invoke(typeof(DibRepFrmPage));
+                break;
             case 2: // rinter -> StaInterFrm(rsl, numcol)
+                StaInterFrmViewModel.MatrizEntrada = ClonarMatriz(_rsl);
+                StaInterFrmViewModel.NumColEntrada = _numcol;
                 var inter = new StaInterFrmViewModel();
                 inter.CargarDatos(_rsl, _numcol);
                 ResultadoInter = inter;
+                Navegar?.Invoke(typeof(StaInterFrmPage));
                 break;
             case 3: // rsigseg -> StaSSForm(rsl, numcol)
+                StaSSFormViewModel.MatrizEntrada = ClonarMatriz(_rsl);
+                StaSSFormViewModel.NumColEntrada = _numcol;
                 var ss = new StaSSFormViewModel();
                 ss.CargarDatos(_rsl, _numcol);
                 ResultadoSigSeg = ss;
-                break;
-            default:
-                // TODO: modos 0/1 — ver Free1X2/UI/Estadisticas/statistics.cs líneas 53-60
-                //   0 (rdib) -> DibForm(rsl, numcol); 1 (rdibrep) -> DibRepFrm(rsl, numcol).
-                //   DibForm/DibRepFrm no están en el alcance de este port (no portados a WinUI).
-                AppServices.MostrarInfo("La vista de resultados para este modo aún no está portada.");
+                Navegar?.Invoke(typeof(StaSSFormPage));
                 break;
         }
+    }
+
+    /// <summary>Copia defensiva de la matriz para el handoff (evita aliasing con _rsl).</summary>
+    private static int[,] ClonarMatriz(int[,] origen) => (int[,])origen.Clone();
+
+    /// <summary>Extrae las primeras <paramref name="nfilas"/> filas de la matriz [15,15].</summary>
+    private static int[,] ExtraerFilas(int[,] origen, int nfilas)
+    {
+        int cols = origen.GetLength(1);
+        var destino = new int[nfilas, cols];
+        for (int f = 0; f < nfilas; f++)
+            for (int c = 0; c < cols; c++)
+                destino[f, c] = origen[f, c];
+        return destino;
     }
 
     /// <summary>

@@ -52,11 +52,15 @@ namespace Free1X2.WinUI.Views.Ported
             "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14"
         };
 
-        // Etiquetas de fila del form legacy (label85/label153/label119/label136 + posiciones).
-        // El orden refleja las 5 filas de la matriz rsl[0..4, *].
+        // Etiquetas de fila del form legacy, en el orden visual (por coordenada Y) de los
+        // labels del DibRepFrm: label34 "posiciones" (rsl[0]), label85 "cant. 1" (rsl[1]),
+        // label153 "cant. X" (rsl[2]), label119 "cant. 2" (rsl[3]), label136 "cant. V" (rsl[4]).
+        // Coincide con Proceso() modo "Sus coincidencias": rsl[0]=ind[0] (posiciones de la
+        // 1ª variante), rsl[1]=cant.1 repetida, rsl[2]=cant.X repetida, rsl[3]=cant.2 repetida,
+        // rsl[4]=cant.V repetida (statistics.cs líneas 84-96).
         public IReadOnlyList<string> EtiquetasFilas { get; } = new List<string>
         {
-            "cant. 1", "cant. X", "cant. 2", "cant. V", "posiciones"
+            "posiciones", "cant. 1", "cant. X", "cant. 2", "cant. V"
         };
 
         // Filas de la tabla. Cada fila contiene 15 celdas string ya formateadas.

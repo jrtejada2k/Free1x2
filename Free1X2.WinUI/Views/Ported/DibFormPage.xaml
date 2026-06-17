@@ -18,7 +18,7 @@
             <TextBlock Text="Dibujos" Style="{StaticResource PageTitleTextBlockStyle}" />
             <TextBlock Style="{StaticResource SecondaryTextBlockStyle}"
                        Foreground="{ThemeResource AppTextSecondaryBrush}"
-                       Text="Distribución de la estadística sobre las columnas analizadas: tabla 15x15 con totales por fila, por columna y por diagonal. Elige ver porcentajes o número de columnas." />
+                       Text="Distribución por nº de X (filas) y nº de 2 (columnas): tabla triangular con totales por fila, por columna y por nº de variantes (X+2). Elige ver porcentajes o número de columnas." />
         </StackPanel>
 
         <!-- ===== Opciones de visualización (GroupBox "mostrar" + RadioButtons legacy) ===== -->
@@ -49,7 +49,7 @@
             </StackPanel>
         </Border>
 
-        <!-- ===== Tabla de distribución (matriz de labels lt####/lx##/ld##/lv## legacy) ===== -->
+        <!-- ===== Tabla de distribución (matriz triangular lt####/lx##/ld##/lv## legacy) ===== -->
         <Border Grid.Row="2" Style="{StaticResource AppCardStyle}" Padding="10,7">
             <Grid RowSpacing="6">
                 <Grid.RowDefinitions>
@@ -58,46 +58,176 @@
                 </Grid.RowDefinitions>
 
                 <TextBlock Grid.Row="0"
-                           Text="Distribución"
+                           Text="Distribución (filas = nº de X, columnas = nº de 2)"
                            Style="{StaticResource CardTitleTextBlockStyle}" />
 
-                <!-- Cada fila legacy: cabecera de signo + celdas de la matriz (Celdas) +
-                     total de fila (lx##). Sólo se bindean propiedades string (anti-crash). -->
-                <ListView Grid.Row="1"
-                          ItemsSource="{x:Bind ViewModel.Filas, Mode=OneWay}"
-                          SelectionMode="None"
-                          AutomationProperties.Name="Tabla de distribución de la estadística">
-                    <ListView.ItemTemplate>
-                        <DataTemplate x:DataType="local:DibFila">
-                            <Grid ColumnSpacing="8" Padding="0,4">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="48" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
+                <ScrollViewer Grid.Row="1"
+                              HorizontalScrollBarVisibility="Auto" HorizontalScrollMode="Auto"
+                              VerticalScrollBarVisibility="Auto" VerticalScrollMode="Auto">
+                    <StackPanel Spacing="2">
 
-                                <TextBlock Grid.Column="0"
-                                           Text="{x:Bind Cabecera}"
-                                           VerticalAlignment="Center"
-                                           Foreground="{ThemeResource AppTextSecondaryBrush}"
-                                           Style="{StaticResource BodyStrongTextBlockStyle}" />
+                        <!-- Fila de encabezados de columna (nº de 2, 0..14) + col del total de fila -->
+                        <StackPanel Orientation="Horizontal" Spacing="2">
+                            <Border Width="64" Height="26"
+                                    Background="{ThemeResource AppSurfaceAltBrush}"
+                                    BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1" CornerRadius="3">
+                                <TextBlock Text="X \ 2" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                           Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                            </Border>
+                            <ItemsControl ItemsSource="{x:Bind ViewModel.CabecerasColumna}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Horizontal" Spacing="2" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="x:String">
+                                        <Border Width="44" Height="26"
+                                                Background="{ThemeResource AppSurfaceAltBrush}"
+                                                BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1" CornerRadius="3">
+                                            <TextBlock Text="{x:Bind}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                                       Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <Border Width="56" Height="26"
+                                    Background="{ThemeResource AppSurfaceAltBrush}"
+                                    BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1" CornerRadius="3">
+                                <TextBlock Text="Σ fila" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                           Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                            </Border>
+                        </StackPanel>
 
-                                <TextBlock Grid.Column="1"
-                                           Text="{x:Bind Celdas}"
-                                           VerticalAlignment="Center"
-                                           TextTrimming="CharacterEllipsis"
-                                           Foreground="{ThemeResource AppTextBrush}"
-                                           Style="{StaticResource CaptionTextBlockStyle}" />
+                        <!-- Filas de datos (cabecera de fila + celdas triangulares + total de fila lx##) -->
+                        <ItemsControl ItemsSource="{x:Bind ViewModel.Filas, Mode=OneWay}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="local:DibFila">
+                                    <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,1,0,0">
 
-                                <TextBlock Grid.Column="2"
-                                           Text="{x:Bind TotalFila}"
-                                           VerticalAlignment="Center"
-                                           Foreground="{ThemeResource AppAccentBrush}"
-                                           Style="{StaticResource BodyStrongTextBlockStyle}" />
-                            </Grid>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                </ListView>
+                                        <!-- Cabecera de fila (nº de X) -->
+                                        <Border Width="64" Height="26"
+                                                Background="{ThemeResource AppSurfaceAltBrush}"
+                                                BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1" CornerRadius="3">
+                                            <TextBlock Text="{x:Bind Cabecera}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                                       Foreground="{ThemeResource AppTextBrush}" />
+                                        </Border>
+
+                                        <!-- Celdas lt#### de la fila (triangular: Visible == false => hueco) -->
+                                        <ItemsControl ItemsSource="{x:Bind Celdas}">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <StackPanel Orientation="Horizontal" Spacing="2" />
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate x:DataType="local:DibCelda">
+                                                    <Grid Width="44" Height="26">
+                                                        <Border Background="{ThemeResource AppSurfaceBrush}"
+                                                                BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1" CornerRadius="3"
+                                                                Visibility="{x:Bind Visibilidad}">
+                                                            <TextBlock Text="{x:Bind Texto}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                                                       Foreground="{ThemeResource AppTextBrush}" />
+                                                        </Border>
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+
+                                        <!-- Total de fila (lx##) -->
+                                        <Border Width="56" Height="26"
+                                                Background="{ThemeResource AppSurfaceAltBrush}"
+                                                BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1" CornerRadius="3">
+                                            <TextBlock Text="{x:Bind TotalFila}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                                       Foreground="{ThemeResource AppAccentBrush}" />
+                                        </Border>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <!-- Fila de totales por columna (ld##) -->
+                        <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,4,0,0">
+                            <Border Width="64" Height="26"
+                                    Background="{ThemeResource AppSurfaceAltBrush}"
+                                    BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1" CornerRadius="3">
+                                <TextBlock Text="Σ col" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                           Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                            </Border>
+                            <ItemsControl ItemsSource="{x:Bind ViewModel.TotalesColumna, Mode=OneWay}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Horizontal" Spacing="2" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="x:String">
+                                        <Border Width="44" Height="26"
+                                                Background="{ThemeResource AppSurfaceAltBrush}"
+                                                BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1" CornerRadius="3">
+                                            <TextBlock Text="{x:Bind}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                                       Foreground="{ThemeResource AppAccentBrush}" />
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+
+                        <!-- Totales por nº de variantes (lv## = suma de celdas con X+2 == v) -->
+                        <TextBlock Text="Variantes (X + 2)" Margin="0,8,0,0"
+                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                   Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                        <StackPanel Orientation="Horizontal" Spacing="2">
+                            <ItemsControl ItemsSource="{x:Bind ViewModel.CabecerasColumna}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Horizontal" Spacing="2" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="x:String">
+                                        <Border Width="44" Height="26"
+                                                Background="{ThemeResource AppSurfaceAltBrush}"
+                                                BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1" CornerRadius="3">
+                                            <TextBlock Text="{x:Bind}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                                       Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="2">
+                            <ItemsControl ItemsSource="{x:Bind ViewModel.TotalesVariantes, Mode=OneWay}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Horizontal" Spacing="2" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="x:String">
+                                        <Border Width="44" Height="26"
+                                                Background="{ThemeResource AppSurfaceBrush}"
+                                                BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1" CornerRadius="3">
+                                            <TextBlock Text="{x:Bind}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                                       Foreground="{ThemeResource AppTextBrush}" />
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+
+                    </StackPanel>
+                </ScrollViewer>
             </Grid>
         </Border>
     </Grid>
