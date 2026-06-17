@@ -42,6 +42,14 @@ public partial class CalculaColumnasMultipleFrmViewModel : ObservableObject
 
     private CancellationTokenSource? _cts;
 
+    /// <summary>
+    /// Navegación a la pantalla de resultados a través del ContentFrame, inyectada por la Page
+    /// (mismo patrón que ColGanadoraFrmViewModel.Navegar). El resumen viaja por el handoff
+    /// estático ResultadosCalculoMultipleFrmViewModel.UltimosResultados, así que basta navegar
+    /// al tipo de página. Equivale a form.ShowDialog() del legacy CalculaColumnasMultipleFrm.
+    /// </summary>
+    public Action<Type>? Navegar { get; set; }
+
     // Archivos de combinaciones seleccionados (ListBox listaFicheros del form legacy).
     public ObservableCollection<string> Ficheros { get; } = new();
 
@@ -260,11 +268,12 @@ public partial class CalculaColumnasMultipleFrmViewModel : ObservableObject
             ProgresoVisible = false;
         }
 
-        // Legacy: form.ShowDialog() abre ResultadosCalculoMultipleFrm con el resumen ya cargado.
-        // La navegación/modal a ResultadosCalculoMultipleFrmPage la decide el host (MainPage),
-        // que está fuera del alcance de este ViewModel; los resultados quedan en 'Resultados'.
-        // TODO: navegar a ResultadosCalculoMultipleFrmPage pasándole 'Resultados' —
-        //       ver Free1X2/UI/CalculaColumnasMultipleFrm.cs línea 255 (form.ShowDialog()).
+        // Legacy: form.ShowDialog() abre ResultadosCalculoMultipleFrm con el resumen ya cargado
+        // (Free1X2/UI/CalculaColumnasMultipleFrm.cs línea 255). Se deja el resumen en el handoff
+        // estático y se navega a la pantalla de resultados, que lo consume al construirse.
+        ResultadosCalculoMultipleFrmViewModel.UltimosResultados =
+            new List<ResultadoCalculoMultipleItem>(Resultados);
+        Navegar?.Invoke(typeof(ResultadosCalculoMultipleFrmPage));
     }
 
     [RelayCommand]

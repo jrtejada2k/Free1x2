@@ -106,7 +106,11 @@ namespace Free1X2.WinUI.Views.Ported
 
         public VisorAnalisisColumnasFrmViewModel()
         {
+            // Se consume y se limpia el handoff: abrir el visor directamente desde el menú (sin que
+            // un análisis previo lo haya producido) muestra el estado vacío en lugar de datos viejos.
             _contenedor = UltimoContenedor as ContenedorAnalisisGlobal;
+            UltimoContenedor = null;
+            UltimoGrupo = null;
 
             Secciones = new ObservableCollection<SeccionAnalisisItem>();
             ConstruirSecciones();

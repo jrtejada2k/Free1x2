@@ -15,5 +15,11 @@ public sealed partial class EstucolFrmPage : Page
     public EstucolFrmPage()
     {
         InitializeComponent();
+
+        // Tras generar el informe, la VM abre el visor ABDON a través del ContentFrame
+        // (mismo patrón que ColGanadoraFrmPage.Navegar). El informe viaja por el handoff
+        // estático EstucolFrmViewModel.UltimoInforme, que VisorAnalisisColumnasAbdonFrmViewModel
+        // consume al construirse. Equivale a new VisorAnalisisColumnasAbdonFrm(...).Show() del legacy.
+        ViewModel.AbrirVisor = () => Frame?.Navigate(typeof(VisorAnalisisColumnasAbdonFrmPage));
     }
 }

@@ -36,11 +36,34 @@ public sealed class ResultadoCalculoMultipleItem
 public partial class ResultadosCalculoMultipleFrmViewModel : ObservableObject
 {
     /// <summary>
+    /// Handoff estático con las filas de resumen calculadas por el lote. Equivale a los
+    /// ListViewItem que CalculaColumnasMultipleFrm volcaba en form.listaResumen antes de
+    /// form.ShowDialog() (Free1X2/UI/CalculaColumnasMultipleFrm.cs líneas 240-255). El productor
+    /// (CalculaColumnasMultipleFrmViewModel) lo fija y navega aquí; la página lo consume al
+    /// construirse (mismo patrón que AnalizarCombinacionFrmViewModel.UltimoAnalisis /
+    /// EstucolFrmViewModel.UltimoInforme).
+    /// </summary>
+    public static IReadOnlyList<ResultadoCalculoMultipleItem>? UltimosResultados { get; set; }
+
+    /// <summary>
     /// Colección de resultados a mostrar en la rejilla
     /// (legacy: listaResumen.Items, alimentado por el formulario que abría este diálogo
     /// tras ejecutar la generación múltiple).
     /// </summary>
     public ObservableCollection<ResultadoCalculoMultipleItem> Resultados { get; } = new();
+
+    public ResultadosCalculoMultipleFrmViewModel()
+    {
+        // Consume y limpia el handoff dejado por el productor (la página se reconstruye en cada
+        // navegación, así que basta leerlo aquí). Sin handoff, la rejilla queda vacía (apertura
+        // directa desde el menú sin haber ejecutado un cálculo en lote).
+        var resultados = UltimosResultados;
+        UltimosResultados = null;
+        if (resultados != null)
+        {
+            Cargar(resultados);
+        }
+    }
 
     /// <summary>
     /// Carga las filas ya calculadas del proceso de generación múltiple.
