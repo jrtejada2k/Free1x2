@@ -40,23 +40,27 @@ public sealed partial class FormatosFrmPage : Page
 
     private void OnSacaFormatos(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
-        // TODO (dominio/UI): abrir el equivalente de Free1X2.UI.Filtros.CalculoFormatosFrm
-        // (ShowDialog en el legacy) para extraer formatos.
+        // Legacy btnSacaFormatos_Click: new CalculoFormatosFrm().ShowDialog().
+        // Mismo patrón que EstucolFrmPage.AbrirVisor: navega por el ContentFrame.
+        ViewModel.Navegar?.Invoke(typeof(CalculoFormatosFrmPage));
     }
 
     private void OnPares(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
-        // TODO (dominio/UI): abrir el equivalente de Free1X2.UI.Filtros.ParejasFrm.
+        // Legacy btnPares_Click: new ParejasFrm().ShowDialog().
+        ViewModel.Navegar?.Invoke(typeof(ParejasFrmPage));
     }
 
     private void OnTrios(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
-        // TODO (dominio/UI): abrir el equivalente de Free1X2.UI.Filtros.TriosFrm.
+        // Legacy btnTrios_Click: new TriosFrm().ShowDialog().
+        ViewModel.Navegar?.Invoke(typeof(TriosFrmPage));
     }
 
     private void OnSumasPares(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
-        // TODO (dominio/UI): abrir el equivalente de Free1X2.MotorCalculo.Estadisticas.AnalizadorJPM.
+        // Legacy btnSumapares_Click: new AnalizadorJPM().ShowDialog().
+        ViewModel.Navegar?.Invoke(typeof(AnalizadorJPMPage));
     }
 
     // ===== Acciones de la condición (legacy MenuCondiciones) =====

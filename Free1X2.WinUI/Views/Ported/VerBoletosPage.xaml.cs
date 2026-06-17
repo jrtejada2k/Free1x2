@@ -20,6 +20,19 @@ public sealed partial class VerBoletosPage : Page
         // Sincroniza el visor embebido con el BoletoFrmViewModel reutilizado: cada vez que
         // cambia el boleto (carga / navegación) se vuelca en el BoletoMatrizControl.
         ViewModel.Boleto.BoletoCambiado += OnBoletoCambiado;
+
+        // Legacy btnOk_Click: new BoletoFrm{...}.ShowDialog() abría el boleto como ventana
+        // separada. Aquí se navega a BoletoFrmPage (mismo patrón static-handoff que EstucolFrm
+        // -> VisorAnalisisColumnasAbdonFrm): VerBoletosViewModel publica AbrirBoletoSolicitado
+        // con (fichero, orden, tipo) y la página los deja en BoletoFrmPage.ParametrosBoleto
+        // antes de Frame.Navigate, igual que el legacy fijaba ArchivoCombinacion/ordenarPor/tipoOrden.
+        ViewModel.AbrirBoletoSolicitado += OnAbrirBoletoSolicitado;
+    }
+
+    private void OnAbrirBoletoSolicitado(object? sender, (string fichero, Free1X2.OrdenarMatriz orden, Free1X2.TipoOrden tipo) e)
+    {
+        BoletoFrmPage.ParametrosBoleto = (e.fichero, e.orden, e.tipo);
+        Frame?.Navigate(typeof(BoletoFrmPage));
     }
 
     private void OnBoletoCambiado(object? sender, (string[] signos, int[] numerosColumna) e)

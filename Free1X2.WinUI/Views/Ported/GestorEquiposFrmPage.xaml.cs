@@ -16,5 +16,8 @@ public sealed partial class GestorEquiposFrmPage : Page
     public GestorEquiposFrmPage()
     {
         this.InitializeComponent();
+        // Legacy btnNuevoEquipo_Click: new AgregarEquipoFrm(...).ShowDialog(). El VM navega a
+        // AgregarEquipoFrmPage (form de alta de equipo).
+        ViewModel.Navegar = tipo => Frame?.Navigate(tipo);
     }
 }

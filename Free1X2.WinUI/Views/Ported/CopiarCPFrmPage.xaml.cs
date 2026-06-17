@@ -18,6 +18,9 @@ public sealed partial class CopiarCPFrmPage : Page
     {
         this.InitializeComponent();
         ViewModel.Volver = () => { if (Frame?.CanGoBack == true) Frame.GoBack(); };
+        // Legacy btnCrearGrupos_Click: new CrearGruposFrm().ShowDialog(). El VM navega a
+        // CrearGruposFrmPage; al volver, CargarDesdeGrupo (en OnNavigatedTo) refresca los grupos.
+        ViewModel.Navegar = tipo => Frame?.Navigate(tipo);
     }
 
     protected override void OnNavigatedTo(NavigationEventArgs e)

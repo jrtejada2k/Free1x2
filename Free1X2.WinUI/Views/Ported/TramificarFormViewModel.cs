@@ -691,18 +691,44 @@ public partial class TramificarFormViewModel : ObservableObject
         Navegar?.Invoke(typeof(DialogoGrabarTramosFrmPage));
     }
 
+    /// <summary>
+    /// Solicitud de apertura del diálogo de filtrado por límites (legacy: btFiltrar_Click ->
+    /// new DialogoFiltrarPorLimitesFrm(extremos).ShowDialog()). La página la cablea para
+    /// navegar a DialogoFiltrarPorLimitesFrmPage pasando los extremos calculados; al volver
+    /// con ValoresAceptados, la página llama a <see cref="AplicarFiltroConExtremos"/>.
+    /// </summary>
+    public Action<int[,]>? AbrirDialogoFiltrarPorLimites { get; set; }
+
     [RelayCommand]
-    private async Task Filtrar()
+    private void Filtrar()
     {
         // Legacy btFiltrar_Click (línea 3015): marca en Bits las columnas presentes en Ap14T,
-        //   obtiene los extremos de posición con ObtenerExtremos() a partir de Min14/Max14..Min10/Max10
-        //   y elimina columnas por diferencias con EliminarColumnas(), contando las que quedan.
-        //
-        // El form legacy abre además DialogoFiltrarPorLimitesFrm para revisar/editar los extremos y la
-        // profundidad de diferencias por categoría. En la página portada se aplican los valores por
-        // defecto del Designer de ese diálogo (los mismos que usa DialogoFiltrarPorLimitesFrmViewModel),
-        // que es lo que el usuario obtenía aceptando el diálogo sin cambios. El cálculo del filtro
-        // (EliminarColumnas sobre Ap14T/Bits) es idéntico al legacy.
+        //   obtiene los extremos de posición con ObtenerExtremos() y abre
+        //   DialogoFiltrarPorLimitesFrm(extremos) para que el usuario revise/edite las
+        //   diferencias por categoría. Sólo si ValoresAceptados elimina columnas y cuenta.
+        if (Ap14T.Length != NoColumnasIniciales)
+        {
+            Estado = "Primero hay que tramificar para escrutar las columnas.";
+            return;
+        }
+
+        // Legacy: Bits.SetAll(true); marcar a false las columnas de Ap14T; extremos = ObtenerExtremos();
+        Bits.SetAll(true);
+        for (int x = 0; x < noColumnasIniciales; x++) { Bits[Ap14T[x].Columna] = false; }
+        int[,] extremos = ObtenerExtremos();
+
+        // Legacy: new DialogoFiltrarPorLimitesFrm(extremos).ShowDialog(). La página navega a
+        // DialogoFiltrarPorLimitesFrmPage; al aceptar vuelve por AplicarFiltroConExtremos.
+        AbrirDialogoFiltrarPorLimites?.Invoke(extremos);
+    }
+
+    /// <summary>
+    /// Aplica el filtro con los extremos devueltos por DialogoFiltrarPorLimitesFrm cuando el
+    /// usuario acepta (legacy: if (DialogoFiltrar.ValoresAceptados) { ... extremos = DialogoFiltrar.extremos; ... }).
+    /// La página la invoca al volver del diálogo con ValoresAceptados = true.
+    /// </summary>
+    public async Task AplicarFiltroConExtremos(int[,] extremos)
+    {
         if (Ap14T.Length != NoColumnasIniciales)
         {
             Estado = "Primero hay que tramificar para escrutar las columnas.";
@@ -712,7 +738,7 @@ public partial class TramificarFormViewModel : ObservableObject
         Estado = "Eliminando columnas ...";
         try
         {
-            int total = await Task.Run(() => EjecutarFiltro());
+            int total = await Task.Run(() => EjecutarFiltro(extremos));
             ColumnasFiltro = total.ToString(CultureInfo.CurrentCulture);
             Estado = "Finalizado";
         }
@@ -723,18 +749,11 @@ public partial class TramificarFormViewModel : ObservableObject
         }
     }
 
-    // Núcleo de btFiltrar_Click (legacy línea 3015) + aplicación de extremos.
-    private int EjecutarFiltro()
+    // Núcleo de btFiltrar_Click (legacy línea 3027-3047): elimina columnas usando los extremos
+    // (con sus diferencias) devueltos por el diálogo y cuenta las que quedan.
+    private int EjecutarFiltro(int[,] extremos)
     {
         int total = 0;
-
-        Bits.SetAll(true);
-        for (int x = 0; x < noColumnasIniciales; x++) { Bits[Ap14T[x].Columna] = false; }
-        int[,] extremos = ObtenerExtremos();
-
-        // Profundidad de diferencias por defecto (Designer de DialogoFiltrarPorLimitesFrm):
-        // extremos[i,2] = eliminar-rango (0 = no), extremos[i,3] = profundidad de diferencias.
-        AplicarDiferenciasPorDefecto(extremos);
 
         for (int i = 0; i < 10; i++)
         {
@@ -748,22 +767,6 @@ public partial class TramificarFormViewModel : ObservableObject
 
         for (int nr = 0; nr < 4782969; nr++) { if (Bits[nr] == false) total++; }
         return total;
-    }
-
-    // Valores por defecto de la columna de diferencias del Designer de DialogoFiltrarPorLimitesFrm
-    // (idénticos a DialogoFiltrarPorLimitesFrmViewModel.difsPorDefecto): difMin en [,2], difMax en [,3].
-    private static void AplicarDiferenciasPorDefecto(int[,] extremos)
-    {
-        int[,] difsPorDefecto =
-        {
-            { 0, 4 }, { 1, 3 }, { 1, 2 }, { 1, 1 }, { 1, 0 },
-            { 1, 0 }, { 1, 1 }, { 1, 2 }, { 0, 0 }, { 0, 0 },
-        };
-        for (int i = 0; i < 10; i++)
-        {
-            extremos[i, 2] = difsPorDefecto[i, 0];
-            extremos[i, 3] = difsPorDefecto[i, 1];
-        }
     }
 
     // ObtenerExtremos() (legacy línea 3055).
@@ -1031,6 +1034,23 @@ public partial class TramificarFormViewModel : ObservableObject
         {
             AppServices.MostrarError("No se pudieron leer los límites: " + ex.Message);
         }
+    }
+
+    [RelayCommand]
+    private void GuardarEnHistorico()
+    {
+        // Legacy mnuGuardarEnHistorico_Click -> AfegirAlHistoric (Free1X2/UI/TramificarForm.cs
+        //   líneas 3199-3204, 3281-3284):
+        //     new HistoriaValoracionesFrm(v, Convert.ToInt32(txTemporada.Text), (int)numJornada.Value,
+        //                                 ArchivoHistoricoDeValoraciones).ShowDialog().
+        // v = controlPorcentajes1.Valores (aquí PorcentajesHelper.AMatriz(Porcentajes)). El port WinUI
+        // navega a HistoriaValoracionesFrmPage con el handoff estático (mismo patrón que VerBoletos
+        // -> BoletoFrmPage). El fichero histórico de partida queda en blanco (el legacy lo inicializaba
+        // a "" y el usuario lo elegía dentro del diálogo).
+        int temporada = int.TryParse(Temporada, out int t) ? t : 0;
+        double[,] valores = PorcentajesHelper.AMatriz(Porcentajes);
+        HistoriaValoracionesFrmPage.Contexto = (valores, temporada, (int)Jornada, null);
+        Navegar?.Invoke(typeof(HistoriaValoracionesFrmPage));
     }
 
     [RelayCommand]

@@ -65,6 +65,21 @@ public partial class GestorEquiposFrmViewModel : ObservableObject
     [ObservableProperty]
     private string _estado = "Preparado";
 
+    /// <summary>Acción para navegar a otra página (la cablea la página con Frame.Navigate(tipo)).</summary>
+    public Action<Type>? Navegar { get; set; }
+
+    /// <summary>
+    /// Equivale a <c>btnNuevoEquipo_Click</c> del WinForms (GestorEquiposFrm.cs líneas 120-124):
+    /// <c>new AgregarEquipoFrm(...).ShowDialog()</c>. Abre el formulario de alta de equipo como
+    /// página independiente (AgregarEquipoFrmPage), que persiste el equipo al .dat de su categoría.
+    /// El alta rápida en línea (<see cref="NuevoEquipo"/>) sigue disponible.
+    /// </summary>
+    [RelayCommand]
+    private void NuevoEquipoFormulario()
+    {
+        Navegar?.Invoke(typeof(AgregarEquipoFrmPage));
+    }
+
     public GestorEquiposFrmViewModel()
     {
         // Legacy: ctor -> CargaEquipos(lbEquiposX, archivoEquiposX) para cada categoría.

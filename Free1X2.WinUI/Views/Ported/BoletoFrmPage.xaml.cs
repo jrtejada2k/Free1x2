@@ -1,7 +1,10 @@
 using System;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Navigation;
 using Windows.Storage;
 using Windows.Storage.Pickers;
+
+using Free1X2;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -13,6 +16,15 @@ namespace Free1X2.WinUI.Views.Ported;
 /// </summary>
 public sealed partial class BoletoFrmPage : Page
 {
+    /// <summary>
+    /// Handoff estático con los parámetros del boleto a abrir (legacy: VerBoletos fijaba
+    /// <c>boleto.ArchivoCombinacion</c>, <c>boleto.ordenarPor</c> y <c>boleto.tipoOrden</c>
+    /// antes de <c>boleto.ShowDialog()</c>). Lo deja el productor (VerBoletosViewModel) antes
+    /// de navegar y lo consume <see cref="OnNavigatedTo"/>. Mismo patrón que
+    /// EstucolFrmViewModel.UltimoInforme. Null = apertura autónoma (selección manual de fichero).
+    /// </summary>
+    public static (string fichero, OrdenarMatriz orden, TipoOrden tipo)? ParametrosBoleto { get; set; }
+
     public BoletoFrmViewModel ViewModel { get; } = new();
 
     public BoletoFrmPage()
@@ -22,6 +34,26 @@ public sealed partial class BoletoFrmPage : Page
         // Sincroniza el boleto visual con el boleto activo del ViewModel. Reemplaza el
         // volcado que el WinForms hacía sobre las 8 ControlColumnaBoleto en LlenarBoleto.
         ViewModel.BoletoCambiado += OnBoletoCambiado;
+    }
+
+    /// <summary>
+    /// Recibe el handoff de VerBoletos (legacy: boleto.ArchivoCombinacion/ordenarPor/tipoOrden
+    /// antes de ShowDialog). Si está presente, fija los parámetros y carga el boleto, igual que
+    /// hacía el BoletoFrm legacy en su Load. Sin él, la página funciona de forma autónoma
+    /// (selección manual con OnSeleccionarCombinacion).
+    /// </summary>
+    protected override async void OnNavigatedTo(NavigationEventArgs e)
+    {
+        base.OnNavigatedTo(e);
+
+        if (ParametrosBoleto is { } p)
+        {
+            ParametrosBoleto = null; // se consume una sola vez
+            ViewModel.ArchivoCombinacion = p.fichero;
+            ViewModel.OrdenarPor = p.orden;
+            ViewModel.TipoOrden = p.tipo;
+            await ViewModel.CargarCommand.ExecuteAsync(null);
+        }
     }
 
     private void OnBoletoCambiado(object? sender, (string[] signos, int[] numerosColumna) e)

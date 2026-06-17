@@ -278,10 +278,21 @@ public partial class Formatos123FrmViewModel : ObservableObject
     [RelayCommand]
     private void Analizar()
     {
-        // TODO[forma-no-portada]: abrir AnalisisFormatos123Frm con filtro.ArrayFormatos
-        //   (Formatos123Frm.btnAnalisis_Click). Bloqueado: la página AnalisisFormatos123FrmPage
-        //   pertenece a otro lote y aún no acepta el handoff de formatos. Fuera del alcance de
-        //   este cableado de persistencia/estadísticas.
+        // Equivale a Formatos123Frm.btnAnalisis_Click (Free1X2/UI/Filtros/Formatos123Frm.cs
+        //   líneas 925-937): si el filtro tiene formatos, abre AnalisisFormatos123Frm con
+        //   analisisff.ArrayFormatos = this.filtro.ArrayFormatos; si no, avisa.
+        var arrayFormatos = ConstruirFormatos();
+        if (arrayFormatos.Count == 0)
+        {
+            // Legacy: MessageBox.Show("Guarde el Filtro Primero!!!").
+            AppServices.MostrarInfo("Guarde el Filtro Primero!!!");
+            return;
+        }
+
+        // Handoff estático de los formatos (mismo patrón que VerBoletos -> BoletoFrmPage) y
+        // navegación a la página portada del analizador.
+        AnalisisFormatos123FrmPage.FormatosEntrada = arrayFormatos;
+        Navegar?.Invoke(typeof(AnalisisFormatos123FrmPage));
     }
 
     [RelayCommand]

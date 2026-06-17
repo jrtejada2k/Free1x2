@@ -1100,9 +1100,17 @@ public partial class BancoPruebasFrmViewModel : ObservableObject
     // y la selección de las filas (ColumnasResultado[i].Seleccionado).
     // =====================================================================
 
-    // BancoPruebasFrm.cs 3978-4039 (btGrabar_Click). Versión portada sin el diálogo de rango
-    // (DialogoGrabarBancoPruebasFrm): graba las columnas seleccionadas o, si no hay ninguna marcada,
-    // todas las del resultado, vía ArchivoColumnasTexto + FileSavePicker.
+    /// <summary>
+    /// Solicita al host (la página) el diálogo de rango de grabación (legacy:
+    /// new DialogoGrabarBancoPruebasFrm(c1, c2, c).ShowDialog()). La página lo muestra como
+    /// ContentDialog hospedando DialogoGrabarBancoPruebasFrmPage y devuelve el resultado
+    /// (Cancelado + FilaInicial/FilaFinal/NumMaxColumnas/SoloSeleccionadas). Argumentos: c1, c2, c.
+    /// </summary>
+    public Func<int, int, int, Task<(bool aceptado, int filaInicial, int filaFinal, int numMaxColumnas, bool soloSeleccionadas)>>? SolicitarRangoGrabacion { get; set; }
+
+    // BancoPruebasFrm.cs 3978-4039 (btGrabar_Click). Calcula el rango de la selección, abre el
+    // diálogo de rango (DialogoGrabarBancoPruebasFrm) y graba [c1..c2) respetando el nº máximo y la
+    // opción "sólo seleccionadas", vía ArchivoColumnasTexto + FileSavePicker.
     private async Task GrabarAsync()
     {
         if (_resCol is null || _numApuestas == 0 || ColumnasResultado.Count == 0)
@@ -1112,24 +1120,51 @@ public partial class BancoPruebasFrmViewModel : ObservableObject
             return;
         }
 
-        // Legacy btGrabar_Click: recorre las filas seleccionadas (dgResultadoEscrutinio.IsSelected).
-        // El diálogo de rango sólo restringía [c1..c2] y el nº máximo; aquí, sin ese diálogo, se
-        // graba la selección completa (o todas si no hay selección, equivalente a SoloSeleccionadas=false).
-        bool haySeleccion = false;
-        foreach (var item in ColumnasResultado)
-            if (item.Seleccionado) { haySeleccion = true; break; }
-
-        var columnasAGrabar = new List<string>();
-        foreach (var item in ColumnasResultado)
+        // Legacy: calcula c1 (primera seleccionada), c2 (última seleccionada), c (nº seleccionadas).
+        int numApuestas = ColumnasResultado.Count;
+        int c1 = 0, c2 = 0, c = 0;
+        bool primera = true;
+        for (int i = 0; i < numApuestas; i++)
         {
-            if (haySeleccion && !item.Seleccionado) continue;
-            columnasAGrabar.Add(item.Columna);
+            if (ColumnasResultado[i].Seleccionado)
+            {
+                if (primera) { c1 = i; primera = false; }
+                c2 = i;
+                c++;
+            }
         }
+        c1++;
+        c2++;
 
-        if (columnasAGrabar.Count == 0)
+        // Legacy: new DialogoGrabarBancoPruebasFrm(c1, c2, c).ShowDialog(). La página lo muestra
+        // como ContentDialog; sin host disponible se mantiene el comportamiento anterior (grabar
+        // la selección o todas) para no perder la funcionalidad.
+        bool soloSeleccionadas;
+        if (SolicitarRangoGrabacion is not null)
         {
-            AppServices.MostrarInfo("No hay columnas que grabar.");
-            return;
+            var (aceptado, filaInicial, filaFinal, numMax, soloSel) =
+                await SolicitarRangoGrabacion(c1, c2, c);
+            if (!aceptado) return; // Cancelado
+
+            // Legacy: c1 = FilaInicial; c2 = FilaFinal + 1; if (c2 > NumApuestas - c1) c2 = NumApuestas - c1;
+            //   c = NumMaxColumnas; c1--; c2--;
+            c1 = filaInicial;
+            c2 = filaFinal + 1;
+            if (c2 > numApuestas - c1) c2 = numApuestas - c1;
+            c = numMax;
+            c1--;
+            c2--;
+            soloSeleccionadas = soloSel;
+        }
+        else
+        {
+            // Sin host de diálogo: rango completo, sin tope, según haya selección (compatibilidad).
+            c1 = 0;
+            c2 = numApuestas - 1;
+            bool hay = false;
+            for (int i = 0; i < numApuestas; i++) if (ColumnasResultado[i].Seleccionado) { hay = true; break; }
+            soloSeleccionadas = hay;
+            c = 0;
         }
 
         // Legacy: SaveFileDialog (carpeta Columnas, filtro "Columnas(*.txt)|*.txt|...").
@@ -1144,27 +1179,34 @@ public partial class BancoPruebasFrmViewModel : ObservableObject
         var file = await picker.PickSaveFileAsync();
         if (file == null) return;
 
+        // Snapshot de las columnas + selección para el hilo de fondo (legacy: ResCol[i] / IsSelected(i)).
+        int ini = Math.Max(0, c1);
+        int fin = Math.Min(numApuestas, c2 + 1);
+        int maxCols = c;
+        var filas = new List<(string columna, bool seleccionada)>();
+        for (int i = ini; i < fin; i++)
+        {
+            filas.Add((ColumnasResultado[i].Columna, ColumnasResultado[i].Seleccionado));
+        }
+
         int conta = 0;
         await Task.Run(() =>
         {
             // Legacy: IArchivoColumnas comCols = new ArchivoColumnasTexto(archivoSalida);
-            //   por cada fila -> comCols.GuardarCols(col.ConvNumAColumna(ResCol[i].Columna)); Cerrar();
+            //   for (i=c1; i<c2; i++) { si SoloSeleccionadas-> sólo IsSelected; GuardarCols(...); if (conta==c) break; }
             IArchivoColumnas comCols = new ArchivoColumnasTexto(file.Path);
-            foreach (string columna in columnasAGrabar)
+            foreach (var (columna, seleccionada) in filas)
             {
+                if (soloSeleccionadas && !seleccionada) continue;
                 comCols.GuardarCols(columna);
                 conta++;
+                if (maxCols > 0 && conta == maxCols) break;
             }
             comCols.Cerrar();
         });
 
         // Legacy: statusBarPanel3.Text = "Grabadas N columnas".
         AppServices.MostrarInfo($"Grabadas {conta} columna(s) en {file.Name}.");
-
-        // TODO: portar el diálogo de rango DialogoGrabarBancoPruebasFrm (FilaInicial/FilaFinal/
-        //   NumMaxColumnas/SoloSeleccionadas) que restringe [c1..c2] y el nº máximo de columnas.
-        //   Requiere mostrar DialogoGrabarBancoPruebasFrmPage como ContentDialog (fuera del scope
-        //   de este ViewModel/Page). Free1X2/UI/BancoPruebasFrm.cs línea 3996.
     }
 
     // BancoPruebasFrm.cs 4399-4440 (btEliminarFilas_Click + DeseleccionaColumnasPorDiferencias).

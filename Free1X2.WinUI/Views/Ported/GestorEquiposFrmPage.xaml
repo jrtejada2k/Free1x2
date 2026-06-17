@@ -32,6 +32,11 @@
                         VerticalAlignment="Bottom"
                         Command="{x:Bind ViewModel.NuevoEquipoCommand}"
                         AutomationProperties.Name="Dar de alta un equipo nuevo" />
+                <!-- Legacy btnNuevoEquipo: abría AgregarEquipoFrm (form de alta). -->
+                <Button Content="Formulario de alta..."
+                        VerticalAlignment="Bottom"
+                        Command="{x:Bind ViewModel.NuevoEquipoFormularioCommand}"
+                        AutomationProperties.Name="Abrir el formulario de alta de equipo" />
             </StackPanel>
 
             <!-- ===== Acciones globales (btnGuardar) ===== -->
