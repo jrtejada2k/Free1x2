@@ -7,7 +7,7 @@
     Background="{ThemeResource AppBackgroundBrush}">
 
     <ScrollViewer>
-        <StackPanel Padding="24" Spacing="20" MaxWidth="900" HorizontalAlignment="Left">
+        <StackPanel Padding="10,7" Spacing="8" MaxWidth="900" HorizontalAlignment="Left">
 
             <!-- Encabezado -->
             <StackPanel Spacing="4">
@@ -21,10 +21,10 @@
 
             <!-- Selección de columnas -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Columnas a comparar" Style="{StaticResource SectionHeaderTextBlockStyle}" />
 
-                    <Grid ColumnSpacing="16" RowSpacing="12">
+                    <Grid ColumnSpacing="10" RowSpacing="6">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
@@ -76,10 +76,10 @@
 
             <!-- Rango de premios -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Rango de premios" Style="{StaticResource SectionHeaderTextBlockStyle}" />
 
-                    <StackPanel Orientation="Horizontal" Spacing="12">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
                         <TextBlock
                             Text="Rango de aciertos"
                             VerticalAlignment="Center"
@@ -110,7 +110,7 @@
 
             <!-- Resultados -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock Text="Probabilidades por categoría" Style="{StaticResource SectionHeaderTextBlockStyle}" />
 
                     <Grid ColumnSpacing="12">

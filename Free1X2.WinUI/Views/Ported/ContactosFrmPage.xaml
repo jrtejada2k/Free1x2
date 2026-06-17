@@ -7,7 +7,7 @@
     xmlns:ported="using:Free1X2.WinUI.Views.Ported">
 
     <ScrollViewer>
-        <StackPanel Padding="32" Spacing="24" MaxWidth="900" HorizontalAlignment="Left">
+        <StackPanel Padding="12,8" Spacing="8" MaxWidth="900" HorizontalAlignment="Left">
 
             <!-- ===== Encabezado ===== -->
             <StackPanel Spacing="6">
@@ -20,7 +20,7 @@
 
             <!-- ===== Condición: nº de contactos admitidos por pareja de signos ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Número de contactos por pareja de signos"
                                Style="{StaticResource CardTitleTextBlockStyle}" />
                     <TextBlock
@@ -60,12 +60,12 @@
 
             <!-- ===== Figuras ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock Text="Figuras" Style="{StaticResource CardTitleTextBlockStyle}" />
                     <TextBlock Text="Condición adicional de figuras asociada a este filtro."
                                Style="{StaticResource SecondaryTextBlockStyle}"
                                TextWrapping="Wrap" />
-                    <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
                         <Button Content="Editar figuras…"
                                 Command="{x:Bind ViewModel.EditarFigurasCommand}"
                                 AutomationProperties.Name="Editar figuras" />
@@ -77,7 +77,7 @@
             </Border>
 
             <!-- ===== Acciones (equivale a MenuCondiciones del form legacy) ===== -->
-            <StackPanel Orientation="Horizontal" Spacing="12">
+            <StackPanel Orientation="Horizontal" Spacing="5">
                 <Button Content="Aceptar"
                         Style="{StaticResource AccentButtonStyle}"
                         Command="{x:Bind ViewModel.AceptarCommand}"

@@ -5,7 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <ScrollViewer>
-        <StackPanel Padding="32" Spacing="24" MaxWidth="900" HorizontalAlignment="Left">
+        <StackPanel Padding="12,8" Spacing="8" MaxWidth="900" HorizontalAlignment="Left">
 
             <!-- Título real del form: this.Text = "Reductor" -->
             <StackPanel Spacing="6">
@@ -16,10 +16,10 @@
 
             <!-- ===== Datos de Entrada (groupBox) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Datos de Entrada" Style="{StaticResource CardTitleTextBlockStyle}" />
 
-                    <Grid ColumnSpacing="12" RowSpacing="12">
+                    <Grid ColumnSpacing="12" RowSpacing="6">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
@@ -54,10 +54,10 @@
 
             <!-- ===== Nivel y Método (grNivelReduccion + groupBox1) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Nivel y Método de Reducción" Style="{StaticResource CardTitleTextBlockStyle}" />
 
-                    <Grid ColumnSpacing="24">
+                    <Grid ColumnSpacing="12">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
@@ -88,10 +88,10 @@
 
             <!-- ===== Opciones (groupBox2) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Opciones" Style="{StaticResource CardTitleTextBlockStyle}" />
 
-                    <Grid ColumnSpacing="24">
+                    <Grid ColumnSpacing="12">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
@@ -118,7 +118,7 @@
 
             <!-- ===== Resultados (labels lblColsIni/Proc/Adm/Percent/Tempo) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock Text="Resultados" Style="{StaticResource CardTitleTextBlockStyle}" />
 
                     <Grid ColumnSpacing="12" RowSpacing="8">
@@ -163,7 +163,7 @@
             </Border>
 
             <!-- ===== Acciones (btnReducir / btnCancel) ===== -->
-            <StackPanel Orientation="Horizontal" Spacing="12">
+            <StackPanel Orientation="Horizontal" Spacing="5">
                 <Button Content="Reducir"
                         Style="{StaticResource AccentButtonStyle}"
                         IsEnabled="{x:Bind ViewModel.PuedeReducir, Mode=OneWay}"

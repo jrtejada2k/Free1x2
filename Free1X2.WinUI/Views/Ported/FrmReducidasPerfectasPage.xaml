@@ -14,7 +14,7 @@
         </Grid.RowDefinitions>
 
         <!-- Encabezado. Título real del form legacy: "Reducciones Perfectas" -->
-        <StackPanel Grid.Row="0" Padding="32,32,32,8" Spacing="4">
+        <StackPanel Grid.Row="0" Padding="12,8" Spacing="4">
             <TextBlock Text="Reducciones Perfectas" Style="{StaticResource PageTitleTextBlockStyle}" />
             <TextBlock
                 Text="Genera reducciones perfectas a partir de una columna base y un pronóstico, grabándolas en un archivo de columnas."
@@ -22,15 +22,15 @@
         </StackPanel>
 
         <!-- Contenido desplazable -->
-        <ScrollViewer Grid.Row="1" Padding="32,8,32,8" VerticalScrollBarVisibility="Auto">
-            <StackPanel Spacing="16" MaxWidth="780" HorizontalAlignment="Left">
+        <ScrollViewer Grid.Row="1" Padding="12,8" VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="6" MaxWidth="780" HorizontalAlignment="Left">
 
                 <!-- Tarjeta: reducciones contempladas (lblSeContemplan + txtReduccionesContempladas) -->
                 <Border Style="{StaticResource AppCardStyle}">
                     <StackPanel Spacing="8">
                         <TextBlock Text="Se contemplan las siguientes reducciones"
                                    Style="{StaticResource CardTitleTextBlockStyle}" />
-                        <Grid ColumnSpacing="24" RowSpacing="4">
+                        <Grid ColumnSpacing="12" RowSpacing="4">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="*" />
@@ -63,7 +63,7 @@
 
                 <!-- Tarjeta: pronóstico y columna base (grid de 15 labels del form legacy) -->
                 <Border Style="{StaticResource AppCardStyle}">
-                    <StackPanel Spacing="12">
+                    <StackPanel Spacing="5">
                         <TextBlock Text="Pronóstico y columna base"
                                    Style="{StaticResource CardTitleTextBlockStyle}" />
                         <TextBlock
@@ -130,7 +130,7 @@
 
                 <!-- Tarjeta: parámetros de salida -->
                 <Border Style="{StaticResource AppCardStyle}">
-                    <StackPanel Spacing="12">
+                    <StackPanel Spacing="5">
                         <TextBlock Text="Salida" Style="{StaticResource CardTitleTextBlockStyle}" />
 
                         <NumberBox Header="Número de partidos"
@@ -139,7 +139,7 @@
                                    SpinButtonPlacementMode="Inline"
                                    AutomationProperties.Name="Número de partidos de la columna" />
 
-                        <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
                             <Button Content="Seleccionar archivo..."
                                     Command="{x:Bind ViewModel.SeleccionarArchivoCommand}"
                                     AutomationProperties.Name="Seleccionar archivo de salida" />
@@ -168,7 +168,7 @@
         </ScrollViewer>
 
         <!-- Barra de acciones + estado (statusBarPanel1 / statusBarPanel2 + btGenerar) -->
-        <Border Grid.Row="2" Padding="32,16"
+        <Border Grid.Row="2" Padding="12,8"
                 Background="{ThemeResource AppSurfaceBrush}"
                 BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="0,1,0,0">
             <Grid>

@@ -5,8 +5,8 @@
     xmlns:controls="using:Free1X2.WinUI.Controls"
     Background="{StaticResource AppBackgroundBrush}">
 
-    <ScrollViewer Padding="24">
-        <StackPanel Spacing="20" MaxWidth="640" HorizontalAlignment="Left">
+    <ScrollViewer Padding="10,7">
+        <StackPanel Spacing="8" MaxWidth="640" HorizontalAlignment="Left">
 
             <TextBlock
                 Text="Guardar Valoración"
@@ -20,7 +20,7 @@
             <!-- Valoraciones a exportar (en el WinForms llegaban por constructor;
                  aquí se editan en la rejilla 14x3) -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock
                         Text="Valoraciones (1 / X / 2)"
                         Style="{StaticResource CardTitleTextBlockStyle}" />
@@ -32,7 +32,7 @@
 
             <!-- Formato del fichero -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock
                         Text="Formato del fichero"
                         Style="{StaticResource CardTitleTextBlockStyle}" />
@@ -47,7 +47,7 @@
 
             <!-- Separador de campos -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock
                         Text="Separador de campos"
                         Style="{StaticResource CardTitleTextBlockStyle}" />
@@ -67,7 +67,7 @@
             </Border>
 
             <!-- Acciones -->
-            <StackPanel Orientation="Horizontal" Spacing="12">
+            <StackPanel Orientation="Horizontal" Spacing="5">
                 <Button
                     Content="Aceptar"
                     Style="{StaticResource AccentButtonStyle}"

@@ -7,7 +7,7 @@
     xmlns:controls="using:Free1X2.WinUI.Controls">
 
     <ScrollViewer>
-        <StackPanel Padding="32" Spacing="24" MaxWidth="900" HorizontalAlignment="Left">
+        <StackPanel Padding="12,8" Spacing="8" MaxWidth="900" HorizontalAlignment="Left">
 
             <!-- ===== Encabezado ===== -->
             <StackPanel Spacing="6">
@@ -20,7 +20,7 @@
 
             <!-- ===== Archivo de columnas + navegación ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Columnas a analizar"
                                Style="{StaticResource CardTitleTextBlockStyle}" />
                     <TextBlock Text="Carga un archivo de columnas y navega por ellas; cada columna se analiza por separado."
@@ -34,7 +34,7 @@
                             AutomationProperties.Name="Cargar archivo de columnas" />
 
                     <!-- Navegación entre columnas (legacy bMenos / bMas / lblNumCol) -->
-                    <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
                         <Button Content="&#xE76B;"
                                 FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                 Command="{x:Bind ViewModel.RetrocederCommand}"
@@ -72,7 +72,7 @@
 
             <!-- ===== Valoración de los partidos (reemplaza el UserControl 'valors') ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Valoración de los partidos"
                                Style="{StaticResource CardTitleTextBlockStyle}" />
                     <TextBlock Text="Define la valoración 1/X/2 de cada partido. El orden de estos valores determina cómo se traduce cada signo a 1, 2 o 3 al construir el formato."
@@ -85,7 +85,7 @@
             </Border>
 
             <!-- ===== Acciones de análisis (legacy btnAnalisis / button1) ===== -->
-            <StackPanel Orientation="Horizontal" Spacing="12">
+            <StackPanel Orientation="Horizontal" Spacing="5">
                 <Button Content="Analizar"
                         Style="{StaticResource AccentButtonStyle}"
                         Command="{x:Bind ViewModel.AnalizarCommand}"
@@ -97,7 +97,7 @@
 
             <!-- ===== Informe de formatos (legacy label1 'Informe' + cctrl) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Informe"
                                Style="{StaticResource CardTitleTextBlockStyle}" />
 

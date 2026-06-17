@@ -6,7 +6,7 @@
 
     <Grid>
     <ScrollViewer>
-        <StackPanel Margin="24" Spacing="20" MaxWidth="760" HorizontalAlignment="Left">
+        <StackPanel Margin="12" Spacing="8" MaxWidth="760" HorizontalAlignment="Left">
 
             <TextBlock
                 Text="Impresión de boletos"
@@ -14,12 +14,12 @@
 
             <!-- Posición de impresión -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock
                         Text="Posición de impresión"
                         Style="{StaticResource SectionHeaderTextBlockStyle}" />
 
-                    <Grid ColumnSpacing="16" RowSpacing="12">
+                    <Grid ColumnSpacing="10" RowSpacing="6">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="*" />
@@ -65,7 +65,7 @@
 
             <!-- Selección de columnas y rango de boletos -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock
                         Text="Seleccionar"
                         Style="{StaticResource SectionHeaderTextBlockStyle}" />
@@ -74,7 +74,7 @@
                         Content="Leer columnas"
                         Command="{x:Bind ViewModel.LeerColumnasCommand}" />
 
-                    <Grid ColumnSpacing="16" RowSpacing="4">
+                    <Grid ColumnSpacing="10" RowSpacing="4">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
@@ -90,7 +90,7 @@
                             Style="{StaticResource SecondaryTextBlockStyle}" />
                     </Grid>
 
-                    <Grid ColumnSpacing="16">
+                    <Grid ColumnSpacing="10">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
@@ -106,7 +106,7 @@
                             Style="{StaticResource SecondaryTextBlockStyle}" />
                     </Grid>
 
-                    <Grid ColumnSpacing="16" RowSpacing="12">
+                    <Grid ColumnSpacing="10" RowSpacing="6">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="*" />

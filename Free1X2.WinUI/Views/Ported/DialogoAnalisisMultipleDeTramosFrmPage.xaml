@@ -6,7 +6,7 @@
     xmlns:ported="using:Free1X2.WinUI.Views.Ported">
 
     <ScrollViewer>
-        <StackPanel Padding="32" Spacing="24" MaxWidth="980" HorizontalAlignment="Left">
+        <StackPanel Padding="12,8" Spacing="8" MaxWidth="980" HorizontalAlignment="Left">
 
             <!-- ===== Encabezado ===== -->
             <StackPanel Spacing="6">
@@ -19,7 +19,7 @@
 
             <!-- ===== Fichero de valoraciones históricas (legacy label1 + txNombreFicheroValoraciones + btSeleccionarFichero) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Fichero de valoraciones históricas"
                                Style="{StaticResource CardTitleTextBlockStyle}" />
                     <Grid ColumnSpacing="12">
@@ -52,11 +52,11 @@
                     <!-- ===== Pestaña: Combinación única (legacy tab14T) ===== -->
                     <TabViewItem Header="Combinación única" IsClosable="False">
                         <ScrollViewer>
-                            <StackPanel Spacing="24" Padding="4,16,4,4">
+                            <StackPanel Spacing="8" Padding="4,8,4,4">
 
                                 <!-- Origen de la combinación (legacy rb14Triples / rbFichero + txFichero + btSeleccionarCombi) -->
                                 <Border Style="{StaticResource AppCardStyle}">
-                                    <StackPanel Spacing="16">
+                                    <StackPanel Spacing="6">
                                         <TextBlock Text="Origen de la combinación"
                                                    Style="{StaticResource CardTitleTextBlockStyle}" />
                                         <ToggleSwitch IsOn="{x:Bind ViewModel.Usar14Triples, Mode=TwoWay}"
@@ -85,13 +85,13 @@
 
                                 <!-- Temporadas (legacy label2 + chkTemporadas + btTodas + btNinguna) -->
                                 <Border Style="{StaticResource AppCardStyle}">
-                                    <StackPanel Spacing="16">
+                                    <StackPanel Spacing="6">
                                         <TextBlock Text="Temporadas"
                                                    Style="{StaticResource CardTitleTextBlockStyle}" />
                                         <TextBlock Text="Marca las temporadas leídas del fichero de valoraciones sobre las que aplicar la combinación."
                                                    Style="{StaticResource SecondaryTextBlockStyle}"
                                                    TextWrapping="Wrap" />
-                                        <StackPanel Orientation="Horizontal" Spacing="12">
+                                        <StackPanel Orientation="Horizontal" Spacing="5">
                                             <Button Content="Todas"
                                                     Command="{x:Bind ViewModel.MarcarTodasTemporadasCommand}"
                                                     AutomationProperties.Name="Marcar todas las temporadas" />
@@ -128,15 +128,15 @@
                     <!-- ===== Pestaña: Una combinación por jornada (legacy tabFicheros) ===== -->
                     <TabViewItem Header="Una combinación por jornada" IsClosable="False">
                         <ScrollViewer>
-                            <StackPanel Spacing="24" Padding="4,16,4,4">
+                            <StackPanel Spacing="8" Padding="4,8,4,4">
 
                                 <!-- Selección de temporada y jornada (legacy txTemporada/txTemporada2/txJornada + botones) -->
                                 <Border Style="{StaticResource AppCardStyle}">
-                                    <StackPanel Spacing="16">
+                                    <StackPanel Spacing="6">
                                         <TextBlock Text="Temporada y jornada"
                                                    Style="{StaticResource CardTitleTextBlockStyle}" />
 
-                                        <Grid ColumnSpacing="12" RowSpacing="12">
+                                        <Grid ColumnSpacing="12" RowSpacing="6">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto" />
                                                 <ColumnDefinition Width="Auto" />
@@ -198,7 +198,7 @@
                                                    Style="{StaticResource SecondaryTextBlockStyle}"
                                                    AutomationProperties.Name="Temporada en formato AAAA/AAAA" />
 
-                                        <StackPanel Orientation="Horizontal" Spacing="12">
+                                        <StackPanel Orientation="Horizontal" Spacing="5">
                                             <Button Content="&#xE710;  Añadir"
                                                     FontFamily="{ThemeResource SymbolThemeFontFamily}"
                                                     Command="{x:Bind ViewModel.AnadirCombinacionCommand}"
@@ -225,7 +225,7 @@
 
                                 <!-- Lista de combinaciones (legacy dgListaFicheros) -->
                                 <Border Style="{StaticResource AppCardStyle}">
-                                    <StackPanel Spacing="16">
+                                    <StackPanel Spacing="6">
                                         <TextBlock Text="Combinaciones por jornada"
                                                    Style="{StaticResource CardTitleTextBlockStyle}" />
 
@@ -290,14 +290,14 @@
 
             <!-- ===== Criterio de selección de jornadas (legacy grSeleccionJornada) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Criterio de selección de jornadas"
                                Style="{StaticResource CardTitleTextBlockStyle}" />
                     <TextBlock Text="Las jornadas se filtran por el rango de recaudación y por el importe (mínimo y máximo) de los premios de 14, 13, 12, 11 y 10 aciertos."
                                Style="{StaticResource SecondaryTextBlockStyle}"
                                TextWrapping="Wrap" />
 
-                    <Grid ColumnSpacing="16" RowSpacing="12">
+                    <Grid ColumnSpacing="10" RowSpacing="6">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
@@ -401,7 +401,7 @@
             </Border>
 
             <!-- ===== Acciones del diálogo (legacy btAceptar / btCancelar) ===== -->
-            <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right">
+            <StackPanel Orientation="Horizontal" Spacing="5" HorizontalAlignment="Right">
                 <Button Content="Cancelar"
                         Command="{x:Bind ViewModel.CancelarCommand}"
                         AutomationProperties.Name="Cancelar" />

@@ -6,7 +6,7 @@
     xmlns:ported="using:Free1X2.WinUI.Views.Ported">
 
     <ScrollViewer>
-        <StackPanel Padding="32" Spacing="24" MaxWidth="980" HorizontalAlignment="Left">
+        <StackPanel Padding="12,8" Spacing="8" MaxWidth="980" HorizontalAlignment="Left">
 
             <!-- ===== Encabezado (Text del Form: "Escrutar combinaciones") ===== -->
             <StackPanel Spacing="6">
@@ -20,11 +20,11 @@
 
             <!-- ===== Ficheros a escrutar + rango de aciertos (comunes) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Ficheros y aciertos"
                                Style="{StaticResource CardTitleTextBlockStyle}" />
 
-                    <StackPanel Orientation="Horizontal" Spacing="12">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
                         <Button Content="Fichero a escrutar"
                                 Command="{x:Bind ViewModel.SeleccionarFicherosCommand}" />
                         <TextBox Header="No Aciertos"
@@ -50,7 +50,7 @@
 
             <!-- ===== Selector de modo (TabControl tpSimple / tbFichero / tbTemporada) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Modo de escrutinio"
                                Style="{StaticResource CardTitleTextBlockStyle}" />
 
@@ -67,7 +67,7 @@
                                   Visibility="{x:Bind ViewModel.ModoSimpleVisibility, Mode=OneWay}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <StackPanel Orientation="Horizontal" Spacing="10" />
+                                <StackPanel Orientation="Horizontal" Spacing="6" />
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
@@ -128,7 +128,7 @@
                                 Visibility="{x:Bind ViewModel.ModoJornadasVisibility, Mode=OneWay}" />
                     </StackPanel>
 
-                    <StackPanel Orientation="Horizontal" Spacing="24">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
                         <StackPanel Spacing="6">
                             <TextBlock Text="Dígitos temporadas"
                                        Style="{StaticResource SecondaryTextBlockStyle}"
@@ -177,10 +177,10 @@
 
             <!-- ===== Acciones de escrutinio ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Escrutinio"
                                Style="{StaticResource CardTitleTextBlockStyle}" />
-                    <StackPanel Orientation="Horizontal" Spacing="12">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
                         <Button Content="Escrutar!"
                                 Style="{StaticResource AccentButtonStyle}"
                                 Command="{x:Bind ViewModel.EscrutarCommand}" />
@@ -195,7 +195,7 @@
 
             <!-- ===== Resumen de premios por categoría (premiosTotales) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Premios por categoría"
                                Style="{StaticResource CardTitleTextBlockStyle}" />
                     <ListView ItemsSource="{x:Bind ViewModel.Histograma}"
@@ -218,7 +218,7 @@
 
             <!-- ===== Resultados (dgResultados): columnas premiadas seleccionables ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Resultados"
                                Style="{StaticResource CardTitleTextBlockStyle}" />
 
@@ -255,7 +255,7 @@
                         TextWrapping="Wrap"
                         Visibility="{x:Bind ViewModel.MensajeVacioVisibility, Mode=OneWay}" />
 
-                    <StackPanel Orientation="Horizontal" Spacing="12">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
                         <Button Content="Seleccionar Todas"
                                 Command="{x:Bind ViewModel.SeleccionarTodasCommand}" />
                         <Button Content="Deseleccionar Todas"
@@ -271,7 +271,7 @@
             <!-- ===== Columnas premiadas (legacy ColumnasPremiadasFrm) ===== -->
             <Border Style="{StaticResource AppCardStyle}"
                     Visibility="{x:Bind ViewModel.MostrarPremiadas, Mode=OneWay}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Columnas premiadas"
                                Style="{StaticResource CardTitleTextBlockStyle}" />
                     <ListView ItemsSource="{x:Bind ViewModel.Premiadas}"

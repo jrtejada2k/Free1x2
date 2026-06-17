@@ -14,19 +14,19 @@
         </Grid.RowDefinitions>
 
         <!-- Encabezado -->
-        <StackPanel Grid.Row="0" Padding="32,32,32,8" Spacing="4">
+        <StackPanel Grid.Row="0" Padding="12,8" Spacing="4">
             <TextBlock Text="Ordenación de columnas por probabilidad" Style="{StaticResource PageTitleTextBlockStyle}" />
             <TextBlock Text="Ordena o filtra las columnas de la quiniela en torno a un valor central y las escribe a un fichero de salida."
                        Style="{StaticResource SecondaryTextBlockStyle}" TextWrapping="Wrap" />
         </StackPanel>
 
         <!-- Contenido desplazable -->
-        <ScrollViewer Grid.Row="1" Padding="32,8,32,8" VerticalScrollBarVisibility="Auto">
-            <StackPanel Spacing="16" MaxWidth="820" HorizontalAlignment="Left">
+        <ScrollViewer Grid.Row="1" Padding="12,8" VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="6" MaxWidth="820" HorizontalAlignment="Left">
 
                 <!-- Tarjeta: origen de las columnas (groupBox1 del form legacy) -->
                 <Border Style="{StaticResource AppCardStyle}">
-                    <StackPanel Spacing="10">
+                    <StackPanel Spacing="6">
                         <TextBlock Text="Origen de las columnas a ordenar" Style="{StaticResource CardTitleTextBlockStyle}" />
 
                         <RadioButton Content="14 Triples"
@@ -39,7 +39,7 @@
                                      IsChecked="{x:Bind ViewModel.OrigenFichero, Mode=TwoWay}"
                                      AutomationProperties.Name="Origen: fichero" />
 
-                        <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center" Margin="24,0,0,0">
+                        <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center" Margin="16,0,0,0">
                             <Button Content="Seleccionar archivo..."
                                     Command="{x:Bind ViewModel.SeleccionarFicheroEntradaCommand}"
                                     IsEnabled="{x:Bind ViewModel.FicheroEntradaHabilitado, Mode=OneWay}"
@@ -53,10 +53,10 @@
 
                 <!-- Tarjeta: fichero de salida (groupSalida del form legacy) -->
                 <Border Style="{StaticResource AppCardStyle}">
-                    <StackPanel Spacing="10">
+                    <StackPanel Spacing="6">
                         <TextBlock Text="Fichero de salida" Style="{StaticResource CardTitleTextBlockStyle}" />
 
-                        <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
                             <Button Content="Seleccionar archivo..."
                                     Command="{x:Bind ViewModel.SeleccionarFicheroSalidaCommand}"
                                     AutomationProperties.Name="Seleccionar fichero de salida" />
@@ -101,19 +101,19 @@
 
                 <!-- Tarjeta: criterio de ordenación (tabControl1 del form legacy) -->
                 <Border Style="{StaticResource AppCardStyle}">
-                    <StackPanel Spacing="12">
+                    <StackPanel Spacing="5">
                         <TextBlock Text="Criterio de ordenación" Style="{StaticResource CardTitleTextBlockStyle}" />
 
                         <Pivot SelectedIndex="{x:Bind ViewModel.PestanaSeleccionada, Mode=TwoWay}">
 
                             <!-- Tab: Por productos -->
                             <PivotItem Header="Por productos">
-                                <StackPanel Spacing="16" Margin="0,8,0,0">
+                                <StackPanel Spacing="6" Margin="0,8,0,0">
 
                                     <!-- groupBox2: valor central de ordenación -->
                                     <TextBlock Text="Valor central de ordenación" Style="{StaticResource SectionHeaderTextBlockStyle}" />
 
-                                    <Grid ColumnSpacing="12" RowSpacing="10">
+                                    <Grid ColumnSpacing="12" RowSpacing="6">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto" />
                                             <ColumnDefinition Width="*" />
@@ -153,7 +153,7 @@
                                         <RadioButton Grid.Row="3" Grid.Column="0" Content="Log. neperiano" GroupName="Central"
                                                      VerticalAlignment="Center"
                                                      IsChecked="{x:Bind ViewModel.ModoLN, Mode=TwoWay}" />
-                                        <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Spacing="12">
+                                        <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Spacing="5">
                                             <TextBox Width="180"
                                                      Text="{x:Bind ViewModel.Ln, Mode=TwoWay}"
                                                      IsEnabled="{x:Bind ViewModel.LnHabilitado, Mode=OneWay}"
@@ -177,7 +177,7 @@
 
                                     <!-- grLAE: configuración L.A.E. -->
                                     <TextBlock Text="Configuración L.A.E." Style="{StaticResource SectionHeaderTextBlockStyle}" />
-                                    <StackPanel Spacing="10" MaxWidth="360" HorizontalAlignment="Left">
+                                    <StackPanel Spacing="6" MaxWidth="360" HorizontalAlignment="Left">
                                         <TextBox Header="Recaudación"
                                                  Text="{x:Bind ViewModel.Recaudacion, Mode=TwoWay}"
                                                  AutomationProperties.Name="Recaudación" />
@@ -193,7 +193,7 @@
 
                             <!-- Tab: Por Sumas -->
                             <PivotItem Header="Por Sumas">
-                                <StackPanel Spacing="12" Margin="0,8,0,0">
+                                <StackPanel Spacing="5" Margin="0,8,0,0">
                                     <NumberBox Header="Valor central de ordenación"
                                                Value="{x:Bind ViewModel.ValorCentralSumas, Mode=TwoWay}"
                                                SpinButtonPlacementMode="Inline"
@@ -204,13 +204,13 @@
 
                             <!-- Tab: Multiple -->
                             <PivotItem Header="Multiple">
-                                <StackPanel Spacing="16" Margin="0,8,0,0">
+                                <StackPanel Spacing="6" Margin="0,8,0,0">
                                     <TextBlock Text="Ordenación por múltiples puntos" Style="{StaticResource SectionHeaderTextBlockStyle}" />
 
                                     <!-- groupBox3: tipo de valoración -->
                                     <StackPanel Spacing="8">
                                         <TextBlock Text="Tipo de valoración" Style="{StaticResource SecondaryTextBlockStyle}" />
-                                        <StackPanel Orientation="Horizontal" Spacing="24">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
                                             <RadioButton Content="Por probabilidad (LN)" GroupName="Valoracion"
                                                          IsChecked="{x:Bind ViewModel.MultiplePorProbabilidad, Mode=TwoWay}" />
                                             <RadioButton Content="Por sumas" GroupName="Valoracion"
@@ -218,7 +218,7 @@
                                         </StackPanel>
                                     </StackPanel>
 
-                                    <Grid ColumnSpacing="16" RowSpacing="12" MaxWidth="520" HorizontalAlignment="Left">
+                                    <Grid ColumnSpacing="10" RowSpacing="6" MaxWidth="520" HorizontalAlignment="Left">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*" />
                                             <ColumnDefinition Width="*" />
@@ -256,7 +256,7 @@
         </ScrollViewer>
 
         <!-- Barra de acciones (btCalcular / button3 del form legacy) -->
-        <Border Grid.Row="2" Padding="32,16"
+        <Border Grid.Row="2" Padding="12,8"
                 Background="{ThemeResource AppSurfaceBrush}"
                 BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="0,1,0,0">
             <Grid>
@@ -269,7 +269,7 @@
                            Text="{x:Bind ViewModel.Estado, Mode=OneWay}"
                            Style="{StaticResource SecondaryTextBlockStyle}" />
 
-                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right">
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="5" HorizontalAlignment="Right">
                     <Button Content="Cancelar"
                             Command="{x:Bind ViewModel.CancelarCommand}"
                             Click="BtnCancelar_Click"

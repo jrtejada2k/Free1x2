@@ -8,7 +8,7 @@
     Background="{ThemeResource AppBackgroundBrush}">
 
     <ScrollViewer>
-        <StackPanel Padding="32" Spacing="24" MaxWidth="980" HorizontalAlignment="Left">
+        <StackPanel Padding="12,8" Spacing="8" MaxWidth="980" HorizontalAlignment="Left">
 
             <!-- ===== Encabezado ===== -->
             <StackPanel Spacing="6">
@@ -23,7 +23,7 @@
 
             <!-- ===== Tipo de columna (tabla legacy "Tipos de CPs") ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock
                         Text="Tipo de columna"
                         Style="{StaticResource CardTitleTextBlockStyle}" />
@@ -38,7 +38,7 @@
 
             <!-- ===== Configuración de CPs (tabla legacy "Configuracion de CPs") ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock
                         Text="Configuración de CPs"
                         Style="{StaticResource CardTitleTextBlockStyle}" />
@@ -53,12 +53,12 @@
                                 <Border
                                     Background="{ThemeResource AppSurfaceAltBrush}"
                                     CornerRadius="{StaticResource AppCornerRadius}"
-                                    Padding="16"
+                                    Padding="10,7"
                                     Margin="0,4">
-                                    <StackPanel Spacing="12">
+                                    <StackPanel Spacing="5">
 
                                         <!-- Rango de puntuación -->
-                                        <StackPanel Orientation="Horizontal" Spacing="16">
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
                                             <NumberBox
                                                 Header="Desde"
                                                 Width="120"
@@ -78,7 +78,7 @@
                                         </StackPanel>
 
                                         <!-- Fijos -->
-                                        <StackPanel Orientation="Horizontal" Spacing="16" VerticalAlignment="Bottom">
+                                        <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Bottom">
                                             <ToggleSwitch
                                                 Header="Forzar Fijos"
                                                 OnContent="Sí"
@@ -96,7 +96,7 @@
                                         </StackPanel>
 
                                         <!-- Dobles -->
-                                        <StackPanel Orientation="Horizontal" Spacing="16" VerticalAlignment="Bottom">
+                                        <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Bottom">
                                             <ToggleSwitch
                                                 Header="Forzar Dobles"
                                                 OnContent="Sí"
@@ -153,7 +153,7 @@
             </Border>
 
             <!-- ===== Acciones (legacy: Guardar / Volver) ===== -->
-            <StackPanel Orientation="Horizontal" Spacing="12">
+            <StackPanel Orientation="Horizontal" Spacing="5">
                 <Button
                     Content="Guardar"
                     Style="{StaticResource AccentButtonStyle}"

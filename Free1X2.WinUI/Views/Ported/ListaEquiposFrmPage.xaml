@@ -4,7 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Background="{StaticResource AppBackgroundBrush}">
 
-    <Grid Padding="24" RowSpacing="16">
+    <Grid Padding="10,7" RowSpacing="6">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -24,7 +24,7 @@
 
         <!-- Búsqueda / filtro -->
         <Border Grid.Row="1" Style="{StaticResource AppCardStyle}">
-            <StackPanel Spacing="12">
+            <StackPanel Spacing="5">
                 <TextBlock
                     Style="{StaticResource SectionHeaderTextBlockStyle}"
                     Text="Buscar" />
@@ -66,7 +66,7 @@
             Grid.Row="3"
             HorizontalAlignment="Right"
             Orientation="Horizontal"
-            Spacing="12">
+            Spacing="5">
             <Button
                 Command="{x:Bind ViewModel.CargarCommand}"
                 Content="Recargar" />

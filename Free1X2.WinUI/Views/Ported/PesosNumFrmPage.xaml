@@ -6,7 +6,7 @@
     xmlns:ported="using:Free1X2.WinUI.Views.Ported">
 
     <ScrollViewer>
-        <StackPanel Padding="32" Spacing="24" MaxWidth="900" HorizontalAlignment="Left">
+        <StackPanel Padding="12,8" Spacing="8" MaxWidth="900" HorizontalAlignment="Left">
 
             <!-- ===== Encabezado (legacy: Text = "Pesos Numéricos") ===== -->
             <StackPanel Spacing="6">
@@ -19,7 +19,7 @@
 
             <!-- ===== Pesos Numéricos (legacy: stdGlobal/stdVariantes/stdUnos/stdEquis/stdDoses) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Pesos Numéricos"
                                Style="{StaticResource CardTitleTextBlockStyle}" />
                     <TextBlock Text="Dígitos admitidos por cada conjunto: 0 a 9 (separados por comas)."
@@ -51,7 +51,7 @@
 
             <!-- ===== Tolerancias por conjunto (legacy: stdGlobalTol/...Tol) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Tolerancias"
                                Style="{StaticResource CardTitleTextBlockStyle}" />
 
@@ -80,7 +80,7 @@
 
             <!-- ===== Núm. Tolerancias (legacy: opt0..opt5) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Núm. Tolerancias"
                                Style="{StaticResource CardTitleTextBlockStyle}" />
                     <TextBlock Text="Selecciona las tolerancias numéricas a aplicar (0 a 5)."
@@ -108,7 +108,7 @@
 
             <!-- ===== Figuras (legacy: lblFig32/lblFig311/lblFig221/lblFig2111/lblFig11111) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Figuras"
                                Style="{StaticResource CardTitleTextBlockStyle}" />
                     <TextBlock Text="{x:Bind ViewModel.NotaFiguras}"
@@ -135,7 +135,7 @@
             </Border>
 
             <!-- ===== Acciones (legacy: menuCondiciones1: Ok/Estadisticas/Guardar/Abrir/Copiar/Pegar/Borrar/Cancelar) ===== -->
-            <StackPanel Orientation="Horizontal" Spacing="12">
+            <StackPanel Orientation="Horizontal" Spacing="5">
                 <Button Content="Aceptar"
                         Style="{StaticResource AccentButtonStyle}"
                         Command="{x:Bind ViewModel.AceptarCommand}"

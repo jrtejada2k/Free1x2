@@ -7,7 +7,7 @@
     Background="{ThemeResource AppBackgroundBrush}">
 
     <ScrollViewer>
-        <Grid Padding="24" MaxWidth="720" HorizontalAlignment="Left">
+        <Grid Padding="10,7" MaxWidth="720" HorizontalAlignment="Left">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -17,7 +17,7 @@
             </Grid.RowDefinitions>
 
             <!-- Encabezado -->
-            <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,20">
+            <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,10">
                 <TextBlock
                     Text="Fraccionador"
                     Style="{StaticResource PageTitleTextBlockStyle}" />
@@ -27,8 +27,8 @@
             </StackPanel>
 
             <!-- Tarjeta: Entrada -->
-            <Border Grid.Row="1" Style="{StaticResource AppCardStyle}" Margin="0,0,0,16">
-                <StackPanel Spacing="16">
+            <Border Grid.Row="1" Style="{StaticResource AppCardStyle}" Margin="0,0,0,8">
+                <StackPanel Spacing="6">
                     <TextBlock
                         Text="Archivo de entrada"
                         Style="{StaticResource SectionHeaderTextBlockStyle}" />
@@ -57,14 +57,14 @@
             </Border>
 
             <!-- Tarjeta: Modo de fraccionado -->
-            <Border Grid.Row="2" Style="{StaticResource AppCardStyle}" Margin="0,0,0,16">
-                <StackPanel Spacing="16">
+            <Border Grid.Row="2" Style="{StaticResource AppCardStyle}" Margin="0,0,0,8">
+                <StackPanel Spacing="6">
                     <TextBlock
                         Text="Fraccionar por"
                         Style="{StaticResource SectionHeaderTextBlockStyle}" />
 
                     <!-- Selección de modo (legacy groupBox1: rbcols / radioButton2) -->
-                    <StackPanel Orientation="Horizontal" Spacing="24">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
                         <RadioButton
                             Content="Columnas"
                             GroupName="ModoFraccionado"
@@ -90,8 +90,8 @@
             </Border>
 
             <!-- Tarjeta: Por columnas (20 cuotas) -->
-            <Border Grid.Row="3" Style="{StaticResource AppCardStyle}" Margin="0,0,0,16">
-                <StackPanel Spacing="16">
+            <Border Grid.Row="3" Style="{StaticResource AppCardStyle}" Margin="0,0,0,8">
+                <StackPanel Spacing="6">
                     <TextBlock
                         Text="Por columnas"
                         Style="{StaticResource SectionHeaderTextBlockStyle}" />
@@ -132,7 +132,7 @@
             </Border>
 
             <!-- Estado + acciones -->
-            <Grid Grid.Row="4" ColumnSpacing="16">
+            <Grid Grid.Row="4" ColumnSpacing="10">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
@@ -165,7 +165,7 @@
                 </Border>
 
                 <!-- Acciones -->
-                <StackPanel Grid.Column="1" Spacing="12" VerticalAlignment="Bottom">
+                <StackPanel Grid.Column="1" Spacing="5" VerticalAlignment="Bottom">
                     <Button
                         Content="Fraccionar"
                         Style="{StaticResource AccentButtonStyle}"

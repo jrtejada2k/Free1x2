@@ -7,7 +7,7 @@
     Background="{ThemeResource AppBackgroundBrush}">
 
     <ScrollViewer>
-        <Grid Padding="24" MaxWidth="820" HorizontalAlignment="Left">
+        <Grid Padding="10,7" MaxWidth="820" HorizontalAlignment="Left">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -20,7 +20,7 @@
             </Grid.RowDefinitions>
 
             <!-- Encabezado -->
-            <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,20">
+            <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,10">
                 <TextBlock
                     Text="Escrutinios"
                     Style="{StaticResource PageTitleTextBlockStyle}" />
@@ -30,12 +30,12 @@
             </StackPanel>
 
             <!-- Tarjeta: opciones generales -->
-            <Border Grid.Row="1" Style="{StaticResource AppCardStyle}" Margin="0,0,0,16">
-                <StackPanel Spacing="16">
+            <Border Grid.Row="1" Style="{StaticResource AppCardStyle}" Margin="0,0,0,8">
+                <StackPanel Spacing="6">
                     <TextBlock
                         Text="Opciones generales"
                         Style="{StaticResource SectionHeaderTextBlockStyle}" />
-                    <Grid ColumnSpacing="24" RowSpacing="12">
+                    <Grid ColumnSpacing="12" RowSpacing="6">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
@@ -60,12 +60,12 @@
             </Border>
 
             <!-- Tarjeta: modo de escrutinio (pestañas) -->
-            <Border Grid.Row="2" Style="{StaticResource AppCardStyle}" Margin="0,0,0,16">
+            <Border Grid.Row="2" Style="{StaticResource AppCardStyle}" Margin="0,0,0,8">
                 <Pivot SelectedIndex="{x:Bind ViewModel.TabSeleccionada, Mode=TwoWay}">
 
                     <!-- Pestaña 1: Escrutinio simple -->
                     <PivotItem Header="Escrutinio simple">
-                        <StackPanel Spacing="12">
+                        <StackPanel Spacing="5">
                             <TextBlock
                                 Text="Escruta los ficheros contra una columna ganadora introducida a mano."
                                 Style="{StaticResource SecondaryTextBlockStyle}" />
@@ -97,7 +97,7 @@
 
                     <!-- Pestaña 2: Escrutinio contra fichero -->
                     <PivotItem Header="Contra fichero">
-                        <StackPanel Spacing="12">
+                        <StackPanel Spacing="5">
                             <TextBlock
                                 Text="Escruta los ficheros contra las columnas de otro fichero de referencia."
                                 Style="{StaticResource SecondaryTextBlockStyle}" />
@@ -124,7 +124,7 @@
 
                     <!-- Pestaña 3: Escrutinio contra jornadas -->
                     <PivotItem Header="Contra jornadas">
-                        <StackPanel Spacing="12">
+                        <StackPanel Spacing="5">
                             <TextBlock
                                 Text="Escruta cada fichero contra la temporada y jornada correspondiente del histórico de resultados."
                                 Style="{StaticResource SecondaryTextBlockStyle}" />
@@ -213,8 +213,8 @@
             </Border>
 
             <!-- Tarjeta: ficheros a escrutar -->
-            <Border Grid.Row="3" Style="{StaticResource AppCardStyle}" Margin="0,0,0,16">
-                <StackPanel Spacing="12">
+            <Border Grid.Row="3" Style="{StaticResource AppCardStyle}" Margin="0,0,0,8">
+                <StackPanel Spacing="5">
                     <TextBlock
                         Text="Ficheros a escrutar"
                         Style="{StaticResource SectionHeaderTextBlockStyle}" />
@@ -240,7 +240,7 @@
             </Border>
 
             <!-- Acciones principales -->
-            <Grid Grid.Row="4" Margin="0,0,0,16" ColumnSpacing="12">
+            <Grid Grid.Row="4" Margin="0,0,0,8" ColumnSpacing="12">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
@@ -266,8 +266,8 @@
             </Grid>
 
             <!-- Tarjeta: resultados -->
-            <Border Grid.Row="5" Style="{StaticResource AppCardStyle}" Margin="0,0,0,16">
-                <StackPanel Spacing="12">
+            <Border Grid.Row="5" Style="{StaticResource AppCardStyle}" Margin="0,0,0,8">
+                <StackPanel Spacing="5">
                     <TextBlock
                         Text="Resultados"
                         Style="{StaticResource SectionHeaderTextBlockStyle}" />
@@ -305,9 +305,9 @@
             </Border>
 
             <!-- Tarjeta: columnas premiadas (legacy ColumnasPremiadasFrm) -->
-            <Border Grid.Row="6" Style="{StaticResource AppCardStyle}" Margin="0,0,0,16"
+            <Border Grid.Row="6" Style="{StaticResource AppCardStyle}" Margin="0,0,0,8"
                     Visibility="{x:Bind ViewModel.MostrarPremiadas, Mode=OneWay}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock
                         Text="Columnas premiadas"
                         Style="{StaticResource SectionHeaderTextBlockStyle}" />
@@ -335,7 +335,7 @@
             <StackPanel
                 Grid.Row="7"
                 Orientation="Horizontal"
-                Spacing="12"
+                Spacing="5"
                 HorizontalAlignment="Left">
                 <Button
                     Content="Seleccionar todas"

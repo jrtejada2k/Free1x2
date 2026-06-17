@@ -36,7 +36,7 @@
         <Setter Property="BorderBrush" Value="{ThemeResource AppBorderBrush}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="CornerRadius" Value="{StaticResource AppCardCornerRadius}" />
-        <Setter Property="Padding" Value="12" />
+        <Setter Property="Padding" Value="10,7" />
     </Style>
 
     <!-- ===== Toggle de signo 1 / X / 2 del boleto ===== -->

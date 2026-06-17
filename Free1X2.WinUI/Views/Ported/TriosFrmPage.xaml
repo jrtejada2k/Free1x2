@@ -6,7 +6,7 @@
     xmlns:ported="using:Free1X2.WinUI.Views.Ported">
 
     <ScrollViewer>
-        <StackPanel Padding="32" Spacing="24" MaxWidth="900" HorizontalAlignment="Left">
+        <StackPanel Padding="12,8" Spacing="8" MaxWidth="900" HorizontalAlignment="Left">
 
             <!-- ===== Encabezado ===== -->
             <StackPanel Spacing="6">
@@ -18,13 +18,13 @@
 
             <!-- ===== Tabla de Límites (GroupBox 'Límites' legacy: c11..c52 + r1..r5) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock Text="Límites" Style="{StaticResource CardTitleTextBlockStyle}" />
                     <TextBlock Text="Mínimo y máximo de aciertos admitidos por nivel (campos legacy c11/c12 … c51/c52)."
                                Style="{StaticResource SecondaryTextBlockStyle}"
                                TextWrapping="Wrap" />
 
-                    <Grid ColumnSpacing="16" RowSpacing="10">
+                    <Grid ColumnSpacing="10" RowSpacing="6">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="60" />
                             <ColumnDefinition Width="140" />
@@ -144,7 +144,7 @@
 
             <!-- ===== Matriz de Niveles (GroupBox 'Niveles' legacy: v###/p##/va##/vb##) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock Text="Niveles" Style="{StaticResource CardTitleTextBlockStyle}" />
                     <TextBlock Text="12 tríos: las 3 primeras columnas son los partidos que forman el trío (1-based); las 27 restantes asignan el nivel (1-5) a cada combinación de signos del trío. RecuperarPantalla() vuelca esta rejilla a la matriz nivells[12,30] que usa Valida()."
                                Style="{StaticResource SecondaryTextBlockStyle}"
@@ -235,9 +235,9 @@
 
             <!-- ===== Acciones (botones bCalcular / bAnalizar / bGrabar / bLeer / bSalvar / bCancelar) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock Text="Acciones" Style="{StaticResource CardTitleTextBlockStyle}" />
-                    <StackPanel Orientation="Horizontal" Spacing="12">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
                         <Button Content="Calcular"
                                 Style="{StaticResource AccentButtonStyle}"
                                 Command="{x:Bind ViewModel.CalcularCommand}"
@@ -249,7 +249,7 @@
                                 Command="{x:Bind ViewModel.GrabarCommand}"
                                 AutomationProperties.Name="Grabar las columnas válidas a fichero" />
                     </StackPanel>
-                    <StackPanel Orientation="Horizontal" Spacing="12">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
                         <Button Content="Abrir Condiciones"
                                 Command="{x:Bind ViewModel.AbrirCondicionesCommand}"
                                 AutomationProperties.Name="Abrir condiciones desde fichero" />
@@ -265,9 +265,9 @@
 
             <!-- ===== Estado del proceso (etiquetas lproc / lval / ltime) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Proceso" Style="{StaticResource CardTitleTextBlockStyle}" />
-                    <Grid ColumnSpacing="16">
+                    <Grid ColumnSpacing="10">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="*" />

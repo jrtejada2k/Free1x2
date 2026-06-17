@@ -6,7 +6,7 @@
     xmlns:ported="using:Free1X2.WinUI.Views.Ported">
 
     <ScrollViewer>
-        <StackPanel Padding="32" Spacing="24" MaxWidth="1000" HorizontalAlignment="Left">
+        <StackPanel Padding="12,8" Spacing="8" MaxWidth="1000" HorizontalAlignment="Left">
 
             <!-- ===== Encabezado (Form.Text = "Selector MarioSan") ===== -->
             <StackPanel Spacing="6">
@@ -19,7 +19,7 @@
 
             <!-- ===== Cálculo de distribución (lbasp + bIniciar + lFileIn + lCol + lTime) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Cálculo de distribución"
                                Style="{StaticResource CardTitleTextBlockStyle}" />
 
@@ -52,7 +52,7 @@
                     </Grid>
 
                     <!-- Acciones del cálculo (bIniciar / bCancelar) -->
-                    <StackPanel Orientation="Horizontal" Spacing="12">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
                         <Button Content="Iniciar"
                                 Style="{StaticResource AccentButtonStyle}"
                                 Command="{x:Bind ViewModel.IniciarCommand}"
@@ -63,7 +63,7 @@
                     </StackPanel>
 
                     <!-- Estadísticas (lFileIn / lCol / lTime) -->
-                    <Grid ColumnSpacing="16" RowSpacing="8">
+                    <Grid ColumnSpacing="10" RowSpacing="8">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="160" />
                             <ColumnDefinition Width="*" />
@@ -100,7 +100,7 @@
 
             <!-- ===== Distribución (dataGrid1 "Distribución") ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Distribución"
                                Style="{StaticResource CardTitleTextBlockStyle}" />
 
@@ -164,7 +164,7 @@
                     </ListView>
 
                     <!-- Suma de selección + grabar (bSumar / lSumSel / bGrabarCols / lFileOut) -->
-                    <Grid ColumnSpacing="16" RowSpacing="8">
+                    <Grid ColumnSpacing="10" RowSpacing="8">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="160" />
                             <ColumnDefinition Width="*" />
@@ -189,7 +189,7 @@
                                    Style="{StaticResource CardTitleTextBlockStyle}" />
                     </Grid>
 
-                    <StackPanel Orientation="Horizontal" Spacing="12">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
                         <Button Content="Sumar"
                                 Command="{x:Bind ViewModel.SumarCommand}"
                                 AutomationProperties.Name="Sumar las columnas de los grupos seleccionados" />
@@ -202,7 +202,7 @@
 
             <!-- ===== Análisis Resultados (groupBox3) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Análisis de Resultados"
                                Style="{StaticResource CardTitleTextBlockStyle}" />
                     <TextBlock Text="Carga un fichero de columnas ganadoras y analiza la distribución frente a una de ellas. Las columnas P14..P10 muestran los premios por grupo."

@@ -5,7 +5,7 @@
     Background="{StaticResource AppBackgroundBrush}">
 
     <ScrollViewer>
-        <StackPanel Margin="32" Spacing="20" MaxWidth="720" HorizontalAlignment="Left">
+        <StackPanel Margin="12" Spacing="8" MaxWidth="720" HorizontalAlignment="Left">
 
             <TextBlock
                 Text="Importador de Columnas Probables"
@@ -18,7 +18,7 @@
 
             <!-- Importar CPs Simples (*.txt) -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock
                         Text="Columnas simples"
                         Style="{StaticResource CardTitleTextBlockStyle}" />
@@ -36,7 +36,7 @@
 
             <!-- Importar CPs con Ac, Acs, Fs (*.clm) -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock
                         Text="Columnas con aciertos"
                         Style="{StaticResource CardTitleTextBlockStyle}" />
@@ -66,7 +66,7 @@
             </Border>
 
             <!-- Acciones -->
-            <StackPanel Orientation="Horizontal" Spacing="12">
+            <StackPanel Orientation="Horizontal" Spacing="5">
                 <Button
                     Content="Cancelar"
                     Command="{x:Bind ViewModel.CancelarCommand}" />

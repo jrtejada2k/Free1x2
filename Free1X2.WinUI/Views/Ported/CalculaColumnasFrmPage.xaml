@@ -13,19 +13,19 @@
         </Grid.RowDefinitions>
 
         <!-- Encabezado -->
-        <StackPanel Grid.Row="0" Padding="32,32,32,8" Spacing="4">
+        <StackPanel Grid.Row="0" Padding="12,8" Spacing="4">
             <TextBlock Text="Calcular columnas" Style="{StaticResource PageTitleTextBlockStyle}" />
             <TextBlock Text="Genera y cuenta las columnas de la combinación actual, opcionalmente analizándolas o grabándolas a un archivo."
                        Style="{StaticResource SecondaryTextBlockStyle}" TextWrapping="Wrap" />
         </StackPanel>
 
         <!-- Contenido desplazable -->
-        <ScrollViewer Grid.Row="1" Padding="32,8,32,8" VerticalScrollBarVisibility="Auto">
-            <StackPanel Spacing="16" MaxWidth="760" HorizontalAlignment="Left">
+        <ScrollViewer Grid.Row="1" Padding="12,8" VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="6" MaxWidth="760" HorizontalAlignment="Left">
 
                 <!-- Tarjeta: modo de cálculo (groupBox1 del form legacy) -->
                 <Border Style="{StaticResource AppCardStyle}">
-                    <StackPanel Spacing="10">
+                    <StackPanel Spacing="6">
                         <TextBlock Text="Modo de cálculo" Style="{StaticResource CardTitleTextBlockStyle}" />
 
                         <RadioButton Content="Calcular"
@@ -38,7 +38,7 @@
                                      IsChecked="{x:Bind ViewModel.ModoAnalizar, Mode=TwoWay}"
                                      AutomationProperties.Name="Modo: calcular y analizar" />
 
-                        <CheckBox Content="Incluir pleno al 15" Margin="24,0,0,0"
+                        <CheckBox Content="Incluir pleno al 15" Margin="16,0,0,0"
                                   IsChecked="{x:Bind ViewModel.IncluirPleno, Mode=TwoWay}"
                                   IsEnabled="{x:Bind ViewModel.IncluirPlenoHabilitado, Mode=OneWay}"
                                   AutomationProperties.Name="Incluir pleno al 15 (requiere modo calcular y analizar)" />
@@ -48,7 +48,7 @@
                                      IsChecked="{x:Bind ViewModel.ModoGrabar, Mode=TwoWay}"
                                      AutomationProperties.Name="Modo: grabar columnas a un archivo" />
 
-                        <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center" Margin="24,0,0,0">
+                        <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center" Margin="16,0,0,0">
                             <Button Content="Seleccionar archivo..."
                                     Command="{x:Bind ViewModel.SeleccionarArchivoCommand}"
                                     IsEnabled="{x:Bind ViewModel.SeleccionArchivoHabilitado, Mode=OneWay}"
@@ -62,10 +62,10 @@
 
                 <!-- Tarjeta: estadísticas del cálculo -->
                 <Border Style="{StaticResource AppCardStyle}">
-                    <StackPanel Spacing="10">
+                    <StackPanel Spacing="6">
                         <TextBlock Text="Resultados" Style="{StaticResource CardTitleTextBlockStyle}" />
 
-                        <Grid ColumnSpacing="16" RowSpacing="8">
+                        <Grid ColumnSpacing="10" RowSpacing="8">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
@@ -106,7 +106,7 @@
                             <TextBlock Grid.Row="4" Grid.Column="2" Text="{x:Bind ViewModel.CosteMaximo, Mode=OneWay}" HorizontalAlignment="Right" />
                         </Grid>
 
-                        <Grid ColumnSpacing="16" Margin="0,8,0,0">
+                        <Grid ColumnSpacing="10" Margin="0,8,0,0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="*" />
@@ -127,7 +127,7 @@
                     <StackPanel Spacing="8">
                         <TextBlock Text="Tiempos" Style="{StaticResource CardTitleTextBlockStyle}" />
 
-                        <Grid ColumnSpacing="16">
+                        <Grid ColumnSpacing="10">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="*" />
@@ -154,7 +154,7 @@
         </ScrollViewer>
 
         <!-- Barra de acciones -->
-        <Border Grid.Row="2" Padding="32,16"
+        <Border Grid.Row="2" Padding="12,8"
                 Background="{ThemeResource AppSurfaceBrush}"
                 BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="0,1,0,0">
             <Grid>
@@ -167,7 +167,7 @@
                            Text="{x:Bind ViewModel.Estado, Mode=OneWay}"
                            Style="{StaticResource SecondaryTextBlockStyle}" />
 
-                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right">
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="5" HorizontalAlignment="Right">
                     <Button Content="Cancelar"
                             Command="{x:Bind ViewModel.CancelarCommand}"
                             Click="BtnCancelar_Click"

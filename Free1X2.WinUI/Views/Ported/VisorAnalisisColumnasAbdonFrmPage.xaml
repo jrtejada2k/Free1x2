@@ -6,8 +6,8 @@
     xmlns:local="using:Free1X2.WinUI.Views.Ported"
     Background="{ThemeResource AppBackgroundBrush}">
 
-    <ScrollViewer Padding="24">
-        <StackPanel Spacing="20" MaxWidth="980" HorizontalAlignment="Left">
+    <ScrollViewer Padding="10,7">
+        <StackPanel Spacing="8" MaxWidth="980" HorizontalAlignment="Left">
 
             <!-- Encabezado -->
             <StackPanel Spacing="4">
@@ -21,7 +21,7 @@
 
             <!-- Modo de análisis -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock
                         Text="Modo de análisis"
                         Style="{StaticResource SectionHeaderTextBlockStyle}" />
@@ -38,7 +38,7 @@
 
             <!-- Rango de aciertos de la columna generada -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock
                         Text="Rango de aciertos de la columna generada"
                         Style="{StaticResource SectionHeaderTextBlockStyle}" />
@@ -73,7 +73,7 @@
                             AutomationProperties.Name="Columna generada siguiente" />
                     </Grid>
 
-                    <Grid ColumnSpacing="24" Margin="0,4,0,0">
+                    <Grid ColumnSpacing="12" Margin="0,4,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
@@ -102,7 +102,7 @@
 
             <!-- Navegación de columnas ganadoras (sólo modo individual) -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock
                         Text="Columna ganadora (modo individual)"
                         Style="{StaticResource SectionHeaderTextBlockStyle}" />
@@ -144,7 +144,7 @@
             </Border>
 
             <!-- Agrupaciones -->
-            <Grid ColumnSpacing="20">
+            <Grid ColumnSpacing="12">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
@@ -152,7 +152,7 @@
 
                 <!-- Agrupaciones Paso Fijo -->
                 <Border Grid.Column="0" Style="{StaticResource AppCardStyle}">
-                    <StackPanel Spacing="12">
+                    <StackPanel Spacing="5">
                         <TextBlock
                             Text="Agrupaciones Paso Fijo"
                             Style="{StaticResource SectionHeaderTextBlockStyle}" />
@@ -264,7 +264,7 @@
 
                 <!-- Agrupaciones Solapadas -->
                 <Border Grid.Column="1" Style="{StaticResource AppCardStyle}">
-                    <StackPanel Spacing="12">
+                    <StackPanel Spacing="5">
                         <TextBlock
                             Text="Agrupaciones Solapadas"
                             Style="{StaticResource SectionHeaderTextBlockStyle}" />
@@ -377,7 +377,7 @@
 
             <!-- Estadísticas de la serie -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock
                         Text="Estadísticas de la serie de aciertos"
                         Style="{StaticResource SectionHeaderTextBlockStyle}" />
@@ -435,7 +435,7 @@
                             Style="{StaticResource BodyStrongTextBlockStyle}" />
                     </Grid>
 
-                    <Grid ColumnSpacing="24">
+                    <Grid ColumnSpacing="12">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />

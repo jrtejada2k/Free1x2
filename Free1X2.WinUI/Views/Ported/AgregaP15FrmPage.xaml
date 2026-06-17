@@ -5,7 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <ScrollViewer>
-        <StackPanel Padding="32" Spacing="24" MaxWidth="820" HorizontalAlignment="Left">
+        <StackPanel Padding="12,8" Spacing="8" MaxWidth="820" HorizontalAlignment="Left">
 
             <!-- ===== Encabezado ===== -->
             <StackPanel Spacing="6">
@@ -18,10 +18,10 @@
 
             <!-- ===== Archivos ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Archivos" Style="{StaticResource CardTitleTextBlockStyle}" />
 
-                    <Grid ColumnSpacing="12" RowSpacing="12">
+                    <Grid ColumnSpacing="12" RowSpacing="6">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
@@ -60,12 +60,12 @@
 
             <!-- ===== Modo 1: P15 fijo ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <ToggleSwitch Header="Partido 15 fijo a un signo"
                                   IsOn="{x:Bind ViewModel.ModoFijo, Mode=TwoWay}"
                                   AutomationProperties.Name="Activar modo Partido 15 fijo"
                                   OnContent="Activo" OffContent="Inactivo" />
-                    <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
                         <TextBlock Text="Partido 15 ="
                                    VerticalAlignment="Center"
                                    Style="{StaticResource SecondaryTextBlockStyle}" />
@@ -83,12 +83,12 @@
                  no al Grid contenedor. Un x:Bind a IsEnabled sobre un Panel (Grid) hace fallar al
                  XamlCompiler de Windows App SDK 1.6 con un crash opaco (MarkupCompilePass1). -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <ToggleSwitch Header="P15 condicional según otro partido"
                                   IsOn="{x:Bind ViewModel.ModoCondicional, Mode=TwoWay}"
                                   AutomationProperties.Name="Activar modo P15 condicional"
                                   OnContent="Activo" OffContent="Inactivo" />
-                    <Grid ColumnSpacing="10" RowSpacing="10">
+                    <Grid ColumnSpacing="10" RowSpacing="6">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
@@ -108,7 +108,7 @@
                                    Minimum="1" Maximum="14"
                                    SpinButtonPlacementMode="Compact" MinWidth="120"
                                    AutomationProperties.Name="Número de partido de la condición" />
-                        <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal" Spacing="10"
+                        <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal" Spacing="6"
                                     VerticalAlignment="Center">
                             <TextBlock Text="=" VerticalAlignment="Center"
                                        Style="{StaticResource SecondaryTextBlockStyle}" />
@@ -120,7 +120,7 @@
                         </StackPanel>
 
                         <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
-                                    Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                                    Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
                             <TextBlock Text="entonces P15 =" VerticalAlignment="Center"
                                        Style="{StaticResource SecondaryTextBlockStyle}" />
                             <ComboBox MinWidth="70"
@@ -142,12 +142,12 @@
 
             <!-- ===== Modo 3: Eliminar partido 15 / repetidas ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <ToggleSwitch Header="Elimina partido 15 (quita el P15 y descarta columnas repetidas)"
                                   IsOn="{x:Bind ViewModel.ModoEliminarRepetidas, Mode=TwoWay}"
                                   AutomationProperties.Name="Activar modo eliminar partido 15 y repetidas"
                                   OnContent="Activo" OffContent="Inactivo" />
-                    <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
                         <TextBlock Text="Nº columnas repetidas:" VerticalAlignment="Center"
                                    Style="{StaticResource SecondaryTextBlockStyle}" />
                         <TextBlock Text="{x:Bind ViewModel.ColumnasRepetidasTexto, Mode=OneWay}"
@@ -159,12 +159,12 @@
 
             <!-- ===== Modo 4: Copiar resultado de otro partido ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <ToggleSwitch Header="P15 = resultado de otro partido"
                                   IsOn="{x:Bind ViewModel.ModoCopiarPartido, Mode=TwoWay}"
                                   AutomationProperties.Name="Activar modo copiar resultado de otro partido"
                                   OnContent="Activo" OffContent="Inactivo" />
-                    <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
                         <TextBlock Text="Resultado del P15 igual que el del partido"
                                    VerticalAlignment="Center"
                                    Style="{StaticResource SecondaryTextBlockStyle}" />
@@ -178,7 +178,7 @@
             </Border>
 
             <!-- ===== Acción + estado ===== -->
-            <StackPanel Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
+            <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
                 <Button Content="Calcular"
                         Style="{StaticResource AccentButtonStyle}"
                         Command="{x:Bind ViewModel.CalcularCommand}"

@@ -13,18 +13,18 @@
         </Grid.RowDefinitions>
 
         <!-- Encabezado -->
-        <StackPanel Grid.Row="0" Padding="32,32,32,8" Spacing="4">
+        <StackPanel Grid.Row="0" Padding="12,8" Spacing="4">
             <TextBlock Text="Configurar Análisis" Style="{StaticResource TitleTextBlockStyle}" />
             <TextBlock Text="Selecciona qué tipos de análisis estadístico se ejecutarán sobre los históricos."
                        Style="{StaticResource SecondaryTextBlockStyle}" TextWrapping="Wrap" />
         </StackPanel>
 
         <!-- Contenido desplazable -->
-        <ScrollViewer Grid.Row="1" Padding="32,8,32,8" VerticalScrollBarVisibility="Auto">
-            <StackPanel Spacing="16" MaxWidth="720" HorizontalAlignment="Left">
+        <ScrollViewer Grid.Row="1" Padding="12,8" VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="6" MaxWidth="720" HorizontalAlignment="Left">
 
                 <!-- Acciones rápidas: Todo / Nada -->
-                <StackPanel Orientation="Horizontal" Spacing="12">
+                <StackPanel Orientation="Horizontal" Spacing="5">
                     <Button Content="Marcar todo"
                             Command="{x:Bind ViewModel.MarcarTodoCommand}"
                             AutomationProperties.Name="Marcar todas las opciones de análisis" />
@@ -35,7 +35,7 @@
 
                 <!-- Tarjeta: análisis de signos -->
                 <Border Style="{StaticResource AppCardStyle}">
-                    <StackPanel Spacing="10">
+                    <StackPanel Spacing="6">
                         <TextBlock Text="Signos y secuencias" Style="{StaticResource CardTitleTextBlockStyle}" />
 
                         <ToggleSwitch Header="VX2"
@@ -46,7 +46,7 @@
                                       IsOn="{x:Bind ViewModel.Seguidos, Mode=TwoWay}"
                                       AutomationProperties.Name="Analizar signos seguidos" />
 
-                        <ToggleSwitch Header="Figuras V1X2" Margin="24,0,0,0"
+                        <ToggleSwitch Header="Figuras V1X2" Margin="16,0,0,0"
                                       IsOn="{x:Bind ViewModel.FigurasV1X2, Mode=TwoWay}"
                                       IsEnabled="{x:Bind ViewModel.FigurasV1X2Habilitado, Mode=OneWay}"
                                       AutomationProperties.Name="Analizar figuras V1X2 (requiere signos seguidos)" />
@@ -71,7 +71,7 @@
 
                 <!-- Tarjeta: formatos y grupos -->
                 <Border Style="{StaticResource AppCardStyle}">
-                    <StackPanel Spacing="10">
+                    <StackPanel Spacing="6">
                         <TextBlock Text="Formatos y grupos" Style="{StaticResource CardTitleTextBlockStyle}" />
 
                         <ToggleSwitch Header="Grupos equipos"
@@ -98,14 +98,14 @@
 
                 <!-- Tarjeta: pesos y valoración -->
                 <Border Style="{StaticResource AppCardStyle}">
-                    <StackPanel Spacing="10">
+                    <StackPanel Spacing="6">
                         <TextBlock Text="Pesos y valoración" Style="{StaticResource CardTitleTextBlockStyle}" />
 
                         <ToggleSwitch Header="Pesos numéricos"
                                       IsOn="{x:Bind ViewModel.Pesos, Mode=TwoWay}"
                                       AutomationProperties.Name="Analizar pesos numéricos" />
 
-                        <ToggleSwitch Header="Figuras de pesos numéricos" Margin="24,0,0,0"
+                        <ToggleSwitch Header="Figuras de pesos numéricos" Margin="16,0,0,0"
                                       IsOn="{x:Bind ViewModel.FigurasPesos, Mode=TwoWay}"
                                       IsEnabled="{x:Bind ViewModel.FigurasPesosHabilitado, Mode=OneWay}"
                                       AutomationProperties.Name="Analizar figuras de pesos numéricos (requiere pesos numéricos)" />
@@ -126,14 +126,14 @@
 
                 <!-- Tarjeta: contactos -->
                 <Border Style="{StaticResource AppCardStyle}">
-                    <StackPanel Spacing="10">
+                    <StackPanel Spacing="6">
                         <TextBlock Text="Contactos" Style="{StaticResource CardTitleTextBlockStyle}" />
 
                         <ToggleSwitch Header="Contactos"
                                       IsOn="{x:Bind ViewModel.Contactos, Mode=TwoWay}"
                                       AutomationProperties.Name="Analizar contactos" />
 
-                        <ToggleSwitch Header="Figuras de contactos" Margin="24,0,0,0"
+                        <ToggleSwitch Header="Figuras de contactos" Margin="16,0,0,0"
                                       IsOn="{x:Bind ViewModel.FigurasContactos, Mode=TwoWay}"
                                       IsEnabled="{x:Bind ViewModel.FigurasContactosHabilitado, Mode=OneWay}"
                                       AutomationProperties.Name="Analizar figuras de contactos (requiere contactos)" />
@@ -144,10 +144,10 @@
         </ScrollViewer>
 
         <!-- Barra de acciones -->
-        <Border Grid.Row="2" Padding="32,16"
+        <Border Grid.Row="2" Padding="12,8"
                 Background="{ThemeResource AppSurfaceBrush}"
                 BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="0,1,0,0">
-            <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right">
+            <StackPanel Orientation="Horizontal" Spacing="5" HorizontalAlignment="Right">
                 <Button Content="Salir" Click="BtnSalir_Click"
                         AutomationProperties.Name="Salir sin guardar" />
                 <Button Content="Guardar" Style="{StaticResource AccentButtonStyle}"

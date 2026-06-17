@@ -7,7 +7,7 @@
     Background="{ThemeResource AppBackgroundBrush}">
 
     <ScrollViewer>
-        <Grid Padding="32" RowSpacing="16" ColumnSpacing="16">
+        <Grid Padding="12,8" RowSpacing="6" ColumnSpacing="10">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
@@ -27,7 +27,7 @@
 
             <!-- Tarjeta: lista de filtros (DataGrid legacy) -->
             <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource AppCardStyle}">
-                <Grid RowSpacing="12">
+                <Grid RowSpacing="6">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
@@ -115,11 +115,11 @@
             </Border>
 
             <!-- Columna derecha: proceso + salida -->
-            <StackPanel Grid.Row="1" Grid.Column="1" Spacing="16">
+            <StackPanel Grid.Row="1" Grid.Column="1" Spacing="6">
 
                 <!-- Tarjeta: Proceso -->
                 <Border Style="{StaticResource AppCardStyle}">
-                    <StackPanel Spacing="12">
+                    <StackPanel Spacing="5">
                         <TextBlock Text="Proceso"
                                    Style="{StaticResource SectionHeaderTextBlockStyle}" />
                         <TextBlock Text="Cualquier variación en la lista de filtros requiere repetir el proceso antes de sumar o grabar columnas."
@@ -137,7 +137,7 @@
 
                 <!-- Tarjeta: Salida (groupBox2 "Salida" legacy) -->
                 <Border Style="{StaticResource AppCardStyle}">
-                    <StackPanel Spacing="12">
+                    <StackPanel Spacing="5">
                         <TextBlock Text="Salida"
                                    Style="{StaticResource SectionHeaderTextBlockStyle}" />
 

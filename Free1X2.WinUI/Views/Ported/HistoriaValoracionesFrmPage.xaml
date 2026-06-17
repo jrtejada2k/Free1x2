@@ -5,8 +5,8 @@
     xmlns:controls="using:Free1X2.WinUI.Controls"
     Background="{ThemeResource AppBackgroundBrush}">
 
-    <ScrollViewer Padding="24">
-        <StackPanel MaxWidth="640" Spacing="20" HorizontalAlignment="Left">
+    <ScrollViewer Padding="10,7">
+        <StackPanel MaxWidth="640" Spacing="8" HorizontalAlignment="Left">
 
             <TextBlock
                 Text="Valoraciones históricas"
@@ -19,7 +19,7 @@
 
             <!-- Jornada y temporada a guardar -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock
                         Text="Jornada y temporada"
                         Style="{StaticResource CardTitleTextBlockStyle}" />
@@ -66,7 +66,7 @@
             <!-- Valoraciones a guardar (en el WinForms llegaban por constructor;
                  aquí se editan en la rejilla 14x3) -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock
                         Text="Valoraciones (1 / X / 2)"
                         Style="{StaticResource CardTitleTextBlockStyle}" />
@@ -78,7 +78,7 @@
 
             <!-- Fichero histórico de salida -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock
                         Text="Fichero histórico"
                         Style="{StaticResource CardTitleTextBlockStyle}" />
@@ -112,7 +112,7 @@
             </Border>
 
             <!-- Acciones (legacy: btGuardar / button2 Cancelar) -->
-            <StackPanel Orientation="Horizontal" Spacing="12">
+            <StackPanel Orientation="Horizontal" Spacing="5">
                 <Button
                     Content="Guardar"
                     Style="{StaticResource AccentButtonStyle}"

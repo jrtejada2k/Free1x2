@@ -87,9 +87,10 @@
     <CornerRadius x:Key="AppCornerRadius">8</CornerRadius>
     <CornerRadius x:Key="AppCardCornerRadius">12</CornerRadius>
 
-    <Thickness x:Key="AppSpacingSmall">8</Thickness>
-    <Thickness x:Key="AppSpacingMedium">12</Thickness>
-    <Thickness x:Key="AppSpacingLarge">16</Thickness>
-    <Thickness x:Key="AppPagePadding">24</Thickness>
+    <!-- Densidad compacta (alineada con MainPage: page 12,8 / card 10,7 / spacing 5-6). -->
+    <Thickness x:Key="AppSpacingSmall">6</Thickness>
+    <Thickness x:Key="AppSpacingMedium">8</Thickness>
+    <Thickness x:Key="AppSpacingLarge">10</Thickness>
+    <Thickness x:Key="AppPagePadding">12,8</Thickness>
 
 </ResourceDictionary>

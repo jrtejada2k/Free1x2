@@ -5,7 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <ScrollViewer>
-        <StackPanel Padding="32" Spacing="24" MaxWidth="900" HorizontalAlignment="Left">
+        <StackPanel Padding="12,8" Spacing="8" MaxWidth="900" HorizontalAlignment="Left">
 
             <!-- ===== Encabezado (legacy: EstucolFrm.Text) ===== -->
             <StackPanel Spacing="6">
@@ -19,7 +19,7 @@
 
             <!-- ===== Entrada Columnas Reducidas (legacy: groupBox1) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock Text="Entrada Columnas"
                                Style="{StaticResource CardTitleTextBlockStyle}" />
 
@@ -45,7 +45,7 @@
 
             <!-- ===== Entrada Columnas Ganadoras (legacy: groupBox2) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock Text="Entrada Columnas Ganadoras"
                                Style="{StaticResource CardTitleTextBlockStyle}" />
 
@@ -71,7 +71,7 @@
 
             <!-- ===== Agrupación de Columnas (legacy: groupBox3, rdbAgrupacionA/B/C) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="10">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Agrupación de Columnas"
                                Style="{StaticResource CardTitleTextBlockStyle}" />
 

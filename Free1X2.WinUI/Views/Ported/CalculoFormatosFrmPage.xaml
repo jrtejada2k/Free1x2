@@ -4,8 +4,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Background="{StaticResource AppBackgroundBrush}">
 
-    <ScrollViewer Padding="24">
-        <StackPanel MaxWidth="640" HorizontalAlignment="Left" Spacing="20">
+    <ScrollViewer Padding="10,7">
+        <StackPanel MaxWidth="640" HorizontalAlignment="Left" Spacing="8">
 
             <!-- Título real del form legacy: "Saca Formatos (Indeciso)" -->
             <TextBlock
@@ -18,12 +18,12 @@
 
             <!-- Sección: Fichero de salida -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock
                         Style="{StaticResource SectionHeaderTextBlockStyle}"
                         Text="Fichero de salida" />
 
-                    <StackPanel Orientation="Horizontal" Spacing="12">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
                         <Button
                             Content="Seleccionar fichero…"
                             Command="{x:Bind ViewModel.SeleccionarFicheroSalidaCommand}" />
@@ -37,7 +37,7 @@
 
             <!-- Sección: Columna de entrada -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock
                         Style="{StaticResource SectionHeaderTextBlockStyle}"
                         Text="Columna" />
@@ -58,7 +58,7 @@
 
             <!-- Sección: Informe (resultado) -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock
                         Style="{StaticResource SectionHeaderTextBlockStyle}"
                         Text="Informe" />

@@ -6,7 +6,7 @@
     xmlns:controls="using:Free1X2.WinUI.Controls">
 
     <ScrollViewer>
-        <StackPanel Padding="32" Spacing="24" MaxWidth="960" HorizontalAlignment="Left">
+        <StackPanel Padding="12,8" Spacing="8" MaxWidth="960" HorizontalAlignment="Left">
 
             <!-- ===== Encabezado ===== -->
             <StackPanel Spacing="6">
@@ -18,7 +18,7 @@
 
             <!-- ===== Valoraciones por partido (reemplaza el UserControl 'valors') ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock Text="Valoraciones por partido" Style="{StaticResource CardTitleTextBlockStyle}" />
                     <TextBlock Text="Valoraciones 1 / X / 2 por partido. Son el origen de nvals = valors1.RetVals() en el cálculo y el análisis."
                                Style="{StaticResource SecondaryTextBlockStyle}"
@@ -31,13 +31,13 @@
 
             <!-- ===== Grupos (g01..g14) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Grupos" Style="{StaticResource CardTitleTextBlockStyle}" />
                     <TextBlock Text="Indica el grupo (1, 2 ó 3) al que pertenece cada partido. Deben quedar 5 partidos en el grupo 1, 5 en el grupo 2 y 4 en el grupo 3."
                                Style="{StaticResource SecondaryTextBlockStyle}"
                                TextWrapping="Wrap" />
 
-                    <Grid ColumnSpacing="16" RowSpacing="10">
+                    <Grid ColumnSpacing="10" RowSpacing="6">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
@@ -74,13 +74,13 @@
 
             <!-- ===== Límites ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Límites" Style="{StaticResource CardTitleTextBlockStyle}" />
                     <TextBlock Text="Rangos de posiciones admitidas dentro de la tabla ordenada de cada grupo y del total. Formato: a-b separados por comas, p. ej. 1-50,80-120."
                                Style="{StaticResource SecondaryTextBlockStyle}"
                                TextWrapping="Wrap" />
 
-                    <Grid ColumnSpacing="12" RowSpacing="12">
+                    <Grid ColumnSpacing="12" RowSpacing="6">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="120" />
                             <ColumnDefinition Width="*" />
@@ -106,7 +106,7 @@
                     </Grid>
 
                     <!-- Porcentajes acumulados por grupo (readonly: lpc1/lpc2/lpc3) -->
-                    <Grid ColumnSpacing="16">
+                    <Grid ColumnSpacing="10">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="*" />
@@ -135,7 +135,7 @@
                               AutomationProperties.Name="Modo de examen: por corte o por valor" />
 
                     <!-- Condiciones: leer/salvar fichero .cnd -->
-                    <StackPanel Orientation="Horizontal" Spacing="12">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
                         <Button Content="Leer condiciones"
                                 Command="{x:Bind ViewModel.LeerCondicionesCommand}"
                                 AutomationProperties.Name="Leer condiciones desde fichero" />
@@ -150,10 +150,10 @@
 
             <!-- ===== Proceso (Calcular / Cancelar / Grabar + estado) ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Proceso" Style="{StaticResource CardTitleTextBlockStyle}" />
 
-                    <StackPanel Orientation="Horizontal" Spacing="12">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
                         <Button Content="Calcular"
                                 Style="{StaticResource AccentButtonStyle}"
                                 Command="{x:Bind ViewModel.CalcularCommand}"
@@ -166,7 +166,7 @@
                                 AutomationProperties.Name="Grabar las columnas válidas a fichero" />
                     </StackPanel>
 
-                    <Grid ColumnSpacing="16">
+                    <Grid ColumnSpacing="10">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="*" />
@@ -196,13 +196,13 @@
 
             <!-- ===== Análisis de resultados (GroupBox "Análisis Resultados") ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Análisis de resultados" Style="{StaticResource CardTitleTextBlockStyle}" />
                     <TextBlock Text="Carga un fichero de columnas ganadoras, navega entre ellas y ubica la columna seleccionada dentro del rango ordenado de cada grupo."
                                Style="{StaticResource SecondaryTextBlockStyle}"
                                TextWrapping="Wrap" />
 
-                    <StackPanel Orientation="Horizontal" Spacing="12">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
                         <Button Content="Cargar ganadoras"
                                 Command="{x:Bind ViewModel.CargarGanadorasCommand}"
                                 AutomationProperties.Name="Cargar fichero de columnas ganadoras" />
@@ -244,7 +244,7 @@
                             AutomationProperties.Name="Analizar la columna ganadora" />
 
                     <!-- Rangos resultantes (ang1/ang2/ang3/angt) -->
-                    <Grid ColumnSpacing="16">
+                    <Grid ColumnSpacing="10">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="*" />

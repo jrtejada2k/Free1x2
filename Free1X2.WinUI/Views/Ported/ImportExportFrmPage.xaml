@@ -4,8 +4,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Background="{StaticResource AppBackgroundBrush}">
 
-    <ScrollViewer Padding="24">
-        <StackPanel Spacing="20" MaxWidth="640" HorizontalAlignment="Left">
+    <ScrollViewer Padding="10,7">
+        <StackPanel Spacing="8" MaxWidth="640" HorizontalAlignment="Left">
 
             <TextBlock
                 Style="{StaticResource PageTitleTextBlockStyle}"
@@ -13,7 +13,7 @@
 
             <!-- Tipo de conversion (legacy: groupBox1 con rConv3 / rConv4) -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock
                         Style="{StaticResource SectionHeaderTextBlockStyle}"
                         Text="Tipo de conversión" />
@@ -26,7 +26,7 @@
 
             <!-- Fichero de entrada (legacy: lblCombinacion + txFicheroEntrada + btnAbrirEntrada) -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock
                         Style="{StaticResource SectionHeaderTextBlockStyle}"
                         Text="Fichero de entrada" />
@@ -52,7 +52,7 @@
 
             <!-- Fichero de salida (legacy: label1 + txtFicheroSalida + btnAbrirSalida) -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock
                         Style="{StaticResource SectionHeaderTextBlockStyle}"
                         Text="Fichero de salida" />
@@ -77,7 +77,7 @@
             </Border>
 
             <!-- Acciones (legacy: btnOk "Hacer" / btnCancel "Cancelar") -->
-            <StackPanel Orientation="Horizontal" Spacing="12">
+            <StackPanel Orientation="Horizontal" Spacing="5">
                 <Button
                     Style="{StaticResource AccentButtonStyle}"
                     Content="Hacer"

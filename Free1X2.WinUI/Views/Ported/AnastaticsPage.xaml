@@ -6,7 +6,7 @@
     xmlns:local="using:Free1X2.WinUI.Views.Ported"
     Background="{ThemeResource AppBackgroundBrush}">
 
-    <Grid Padding="24" RowSpacing="16">
+    <Grid Padding="10,7" RowSpacing="6">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -22,15 +22,15 @@
         </StackPanel>
 
         <!-- ===== Configuración del análisis ===== -->
-        <Grid Grid.Row="1" ColumnSpacing="16">
+        <Grid Grid.Row="1" ColumnSpacing="10">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
             <!-- Condiciones / modo de análisis (GroupBox "Condiciones" + RadioButtons legacy) -->
-            <Border Grid.Column="0" Style="{StaticResource AppCardStyle}" Padding="16">
-                <StackPanel Spacing="12">
+            <Border Grid.Column="0" Style="{StaticResource AppCardStyle}" Padding="10,7">
+                <StackPanel Spacing="5">
                     <TextBlock Text="Condiciones"
                                Style="{StaticResource CardTitleTextBlockStyle}" />
                     <TextBlock Style="{StaticResource SecondaryTextBlockStyle}"
@@ -45,8 +45,8 @@
             </Border>
 
             <!-- Origen de datos (botón "Selección origen" + labels lFileIn / lColOrg legacy) -->
-            <Border Grid.Column="1" Style="{StaticResource AppCardStyle}" Padding="16">
-                <StackPanel Spacing="12">
+            <Border Grid.Column="1" Style="{StaticResource AppCardStyle}" Padding="10,7">
+                <StackPanel Spacing="5">
                     <TextBlock Text="Origen de datos"
                                Style="{StaticResource CardTitleTextBlockStyle}" />
 
@@ -93,9 +93,9 @@
         </Grid>
 
         <!-- ===== Acciones (botones Calcular / Mostrar resultados legacy) ===== -->
-        <Border Grid.Row="2" Style="{StaticResource AppCardStyle}" Padding="16"
+        <Border Grid.Row="2" Style="{StaticResource AppCardStyle}" Padding="10,7"
                 VerticalAlignment="Top">
-            <StackPanel Spacing="12">
+            <StackPanel Spacing="5">
                 <TextBlock Text="Acciones"
                            Style="{StaticResource CardTitleTextBlockStyle}" />
                 <TextBlock Style="{StaticResource SecondaryTextBlockStyle}"

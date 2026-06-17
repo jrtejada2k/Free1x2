@@ -8,7 +8,7 @@
     Background="{ThemeResource AppBackgroundBrush}">
 
     <ScrollViewer>
-        <StackPanel Padding="24" Spacing="20" MaxWidth="1000" HorizontalAlignment="Left">
+        <StackPanel Padding="10,7" Spacing="8" MaxWidth="1000" HorizontalAlignment="Left">
 
             <!-- Encabezado -->
             <StackPanel Spacing="4">
@@ -22,7 +22,7 @@
 
             <!-- Ficheros: origen y salida -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Ficheros" Style="{StaticResource SectionHeaderTextBlockStyle}" />
 
                     <!-- Origen de las columnas (legacy: rb14Triples / rbFichero) -->
@@ -86,7 +86,7 @@
             </Border>
 
             <!-- Parámetros: recaudación y límites de EM -->
-            <Grid ColumnSpacing="20">
+            <Grid ColumnSpacing="12">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
@@ -94,7 +94,7 @@
 
                 <!-- Recaudación considerada -->
                 <Border Grid.Column="0" Style="{StaticResource AppCardStyle}" VerticalAlignment="Top">
-                    <StackPanel Spacing="16">
+                    <StackPanel Spacing="6">
                         <TextBlock Text="Recaudación considerada" Style="{StaticResource SectionHeaderTextBlockStyle}" />
                         <NumberBox
                             Width="200"
@@ -108,9 +108,9 @@
 
                 <!-- Límites Esperanza Matemática -->
                 <Border Grid.Column="1" Style="{StaticResource AppCardStyle}" VerticalAlignment="Top">
-                    <StackPanel Spacing="16">
+                    <StackPanel Spacing="6">
                         <TextBlock Text="Límites Esperanza Matemática" Style="{StaticResource SectionHeaderTextBlockStyle}" />
-                        <Grid ColumnSpacing="16" RowSpacing="12">
+                        <Grid ColumnSpacing="10" RowSpacing="6">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="*" />
@@ -156,7 +156,7 @@
 
             <!-- Opciones de salida -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="12">
+                <StackPanel Spacing="5">
                     <TextBlock Text="Opciones de salida" Style="{StaticResource SectionHeaderTextBlockStyle}" />
                     <ToggleSwitch
                         Header="Ordenar columnas por EM"
@@ -170,7 +170,7 @@
             </Border>
 
             <!-- Acción principal + estado -->
-            <StackPanel Orientation="Horizontal" Spacing="16">
+            <StackPanel Orientation="Horizontal" Spacing="6">
                 <Button
                     Content="Calcular"
                     Style="{StaticResource AccentButtonStyle}"
@@ -184,10 +184,10 @@
 
             <!-- Valoración de una columna -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Calcular Valoración de una columna" Style="{StaticResource SectionHeaderTextBlockStyle}" />
 
-                    <Grid ColumnSpacing="16" RowSpacing="12">
+                    <Grid ColumnSpacing="10" RowSpacing="6">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
@@ -267,7 +267,7 @@
                     <TextBlock
                         Style="{StaticResource SecondaryTextBlockStyle}"
                         Text="Porcentajes apostados y reales por partido (1/X/2). Alimentan el cálculo de la Esperanza Matemática." />
-                    <Grid ColumnSpacing="16">
+                    <Grid ColumnSpacing="10">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="*" />

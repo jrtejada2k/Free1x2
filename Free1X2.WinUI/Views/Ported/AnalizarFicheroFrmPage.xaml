@@ -6,14 +6,14 @@
     xmlns:local="using:Free1X2.WinUI.Views.Ported"
     Background="{ThemeResource AppBackgroundBrush}">
 
-    <Grid Padding="24">
+    <Grid Padding="10,7">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <!-- Encabezado -->
-        <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,20">
+        <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,10">
             <TextBlock
                 Text="Analizar fichero de columnas"
                 Style="{StaticResource PageTitleTextBlockStyle}" />
@@ -30,7 +30,7 @@
             VerticalAlignment="Top"
             MaxWidth="560"
             HorizontalAlignment="Left">
-            <StackPanel Spacing="16">
+            <StackPanel Spacing="6">
 
                 <!-- Fichero de entrada -->
                 <StackPanel Spacing="6">
@@ -72,7 +72,7 @@
                 <!-- Acciones -->
                 <StackPanel
                     Orientation="Horizontal"
-                    Spacing="12"
+                    Spacing="5"
                     HorizontalAlignment="Right"
                     Margin="0,8,0,0">
                     <Button

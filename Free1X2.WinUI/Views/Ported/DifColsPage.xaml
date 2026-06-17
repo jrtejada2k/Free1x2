@@ -7,7 +7,7 @@
     Background="{ThemeResource AppBackgroundBrush}">
 
     <ScrollViewer>
-        <Grid Padding="24" MaxWidth="720" HorizontalAlignment="Left">
+        <Grid Padding="10,7" MaxWidth="720" HorizontalAlignment="Left">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -18,7 +18,7 @@
             </Grid.RowDefinitions>
 
             <!-- Encabezado -->
-            <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,20">
+            <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,10">
                 <TextBlock
                     Text="Diferencias entre columnas"
                     Style="{StaticResource PageTitleTextBlockStyle}" />
@@ -28,8 +28,8 @@
             </StackPanel>
 
             <!-- Tarjeta: Generación por (legacy groupBox "Generación por") -->
-            <Border Grid.Row="1" Style="{StaticResource AppCardStyle}" Margin="0,0,0,16">
-                <StackPanel Spacing="12">
+            <Border Grid.Row="1" Style="{StaticResource AppCardStyle}" Margin="0,0,0,8">
+                <StackPanel Spacing="5">
                     <TextBlock
                         Text="Generación por"
                         Style="{StaticResource SectionHeaderTextBlockStyle}" />
@@ -64,8 +64,8 @@
             </Border>
 
             <!-- Tarjeta: Condicionada por (legacy groupBox2 "Condicionada por") -->
-            <Border Grid.Row="2" Style="{StaticResource AppCardStyle}" Margin="0,0,0,16">
-                <StackPanel Spacing="12">
+            <Border Grid.Row="2" Style="{StaticResource AppCardStyle}" Margin="0,0,0,8">
+                <StackPanel Spacing="5">
                     <TextBlock
                         Text="Condicionada por"
                         Style="{StaticResource SectionHeaderTextBlockStyle}" />
@@ -162,8 +162,8 @@
             </Border>
 
             <!-- Tarjeta: Proceso (legacy groupBox3 "Proceso") -->
-            <Border Grid.Row="3" Style="{StaticResource AppCardStyle}" Margin="0,0,0,16">
-                <StackPanel Spacing="16">
+            <Border Grid.Row="3" Style="{StaticResource AppCardStyle}" Margin="0,0,0,8">
+                <StackPanel Spacing="6">
                     <TextBlock
                         Text="Proceso"
                         Style="{StaticResource SectionHeaderTextBlockStyle}" />
@@ -217,7 +217,7 @@
                     </Grid>
 
                     <!-- legacy: bCalc / bGrab / bCancelar -->
-                    <StackPanel Orientation="Horizontal" Spacing="12">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
                         <Button
                             Content="Calcular"
                             Style="{StaticResource AccentButtonStyle}"

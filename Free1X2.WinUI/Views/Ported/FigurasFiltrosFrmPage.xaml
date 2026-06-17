@@ -6,7 +6,7 @@
     xmlns:ported="using:Free1X2.WinUI.Views.Ported">
 
     <ScrollViewer>
-        <StackPanel Padding="32" Spacing="24" MaxWidth="900" HorizontalAlignment="Left">
+        <StackPanel Padding="12,8" Spacing="8" MaxWidth="900" HorizontalAlignment="Left">
 
             <!-- ===== Encabezado ===== -->
             <StackPanel Spacing="6">
@@ -19,7 +19,7 @@
 
             <!-- ===== Rejilla de casillas de figuras ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="6">
                     <TextBlock Text="Casillas de figuras"
                                Style="{StaticResource CardTitleTextBlockStyle}" />
                     <TextBlock Text="{x:Bind ViewModel.ValoresPermitidosTexto}"
@@ -51,7 +51,7 @@
             </Border>
 
             <!-- ===== Acciones (btnOk / btnAbrir / btnBorrar / btnCancelar del form legacy) ===== -->
-            <StackPanel Orientation="Horizontal" Spacing="12">
+            <StackPanel Orientation="Horizontal" Spacing="5">
                 <Button Content="Aceptar"
                         Style="{StaticResource AccentButtonStyle}"
                         Command="{x:Bind ViewModel.AceptarCommand}"

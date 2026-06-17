@@ -6,14 +6,14 @@
     xmlns:local="using:Free1X2.WinUI.Views.Ported"
     Background="{ThemeResource AppBackgroundBrush}">
 
-    <Grid Padding="24">
+    <Grid Padding="10,7">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <!-- Encabezado -->
-        <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,20">
+        <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,10">
             <TextBlock
                 Text="Análisis de grupos en combinación"
                 Style="{StaticResource PageTitleTextBlockStyle}" />
@@ -22,18 +22,18 @@
                 Style="{StaticResource SecondaryTextBlockStyle}" />
         </StackPanel>
 
-        <Grid Grid.Row="1" ColumnSpacing="20">
+        <Grid Grid.Row="1" ColumnSpacing="12">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
             <!-- Columna izquierda: definición del grupo y acciones -->
-            <StackPanel Grid.Column="0" Spacing="16" Width="340">
+            <StackPanel Grid.Column="0" Spacing="6" Width="340">
 
                 <!-- Fichero de entrada -->
                 <Border Style="{StaticResource AppCardStyle}">
-                    <StackPanel Spacing="12">
+                    <StackPanel Spacing="5">
                         <TextBlock
                             Text="Fichero de entrada"
                             Style="{StaticResource SectionHeaderTextBlockStyle}" />
@@ -51,7 +51,7 @@
 
                 <!-- Definición del grupo -->
                 <Border Style="{StaticResource AppCardStyle}">
-                    <StackPanel Spacing="12">
+                    <StackPanel Spacing="5">
                         <TextBlock
                             Text="Patrón del grupo (14 partidos)"
                             Style="{StaticResource SectionHeaderTextBlockStyle}" />
@@ -118,8 +118,8 @@
 
                 <!-- Acciones de cálculo -->
                 <Border Style="{StaticResource AppCardStyle}">
-                    <StackPanel Spacing="12">
-                        <StackPanel Orientation="Horizontal" Spacing="12">
+                    <StackPanel Spacing="5">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
                             <Button
                                 Content="Calcular"
                                 Style="{StaticResource AccentButtonStyle}"
@@ -164,7 +164,7 @@
                 Grid.Column="1"
                 Style="{StaticResource AppCardStyle}"
                 VerticalAlignment="Stretch">
-                <Grid RowSpacing="12">
+                <Grid RowSpacing="6">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
