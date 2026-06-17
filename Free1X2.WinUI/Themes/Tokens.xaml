@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:media="using:Microsoft.UI.Xaml.Media">
 
     <!-- ============================================================
          Sistema de diseño Free1X2 — paleta Slate / Indigo
@@ -98,6 +99,15 @@
     <x:Double x:Key="AppCornerRadiusValue">8</x:Double>
     <CornerRadius x:Key="AppCornerRadius">8</CornerRadius>
     <CornerRadius x:Key="AppCardCornerRadius">12</CornerRadius>
+
+    <!-- ===== Profundidad / elevación (Fluent ThemeShadow) =====
+         Sombra de elevación compartida por todas las tarjetas (AppCardStyle).
+         ThemeShadow proyecta sobre la superficie que tiene detrás (el fondo de
+         página) cuando la tarjeta recibe una Translation con componente Z > 0.
+         El propio ThemeShadow usa el contenido de la ventana como receptor por
+         defecto, por lo que no requiere cablear receptores en cada página.
+         Sutil/profesional: Z=16 da una sombra suave de baja elevación. -->
+    <media:ThemeShadow x:Key="AppCardShadow" />
 
     <!-- Densidad compacta (alineada con MainPage: page 12,8 / card 10,7 / spacing 5-6). -->
     <Thickness x:Key="AppSpacingSmall">6</Thickness>
