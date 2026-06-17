@@ -9,25 +9,29 @@
          ============================================================ -->
     <ResourceDictionary.ThemeDictionaries>
 
-        <!-- ===== LIGHT (paleta cálida, inspirada en el Free1X2 original) ===== -->
+        <!-- ===== LIGHT (paleta "Índigo & Teal" elegida por el usuario) ===== -->
         <ResourceDictionary x:Key="Light">
-            <!-- Acento naranja/terracota (barra de herramientas del original) -->
-            <Color x:Key="SystemAccentColor">#C2541E</Color>
-            <Color x:Key="SystemAccentColorLight1">#D2691E</Color>
-            <Color x:Key="SystemAccentColorLight2">#E0884A</Color>
-            <Color x:Key="SystemAccentColorDark1">#A8460F</Color>
-            <Color x:Key="SystemAccentColorDark2">#8A3A0C</Color>
+            <!-- Acento índigo (barra de herramientas, título, botón Calcular, selección) -->
+            <Color x:Key="SystemAccentColor">#3D5A80</Color>
+            <Color x:Key="SystemAccentColorLight1">#4E6E97</Color><!-- índigo +claro (derivado) -->
+            <Color x:Key="SystemAccentColorLight2">#6B89AE</Color><!-- índigo ++claro (derivado) -->
+            <Color x:Key="SystemAccentColorDark1">#314866</Color><!-- índigo +oscuro (derivado) -->
+            <Color x:Key="SystemAccentColorDark2">#25374D</Color><!-- índigo ++oscuro (derivado) -->
 
-            <Color x:Key="AppBackground">#FBF1E7</Color><!-- crema cálida -->
+            <Color x:Key="AppBackground">#F4F6F8</Color><!-- gris azulado claro -->
             <Color x:Key="AppSurface">#FFFFFF</Color>
-            <Color x:Key="AppSurfaceAlt">#F8E2D0</Color><!-- salmón tenue (paneles/cabeceras) -->
-            <Color x:Key="AppBorder">#E3C6AE</Color>
-            <Color x:Key="AppText">#2A211C</Color>
-            <Color x:Key="AppTextSecondary">#6E574A</Color>
+            <Color x:Key="AppSurfaceAlt">#E6ECF2</Color><!-- índigo pálido (paneles/cabeceras, derivado) -->
+            <Color x:Key="AppBorder">#C9D4DF</Color><!-- índigo-gris claro (derivado) -->
+            <Color x:Key="AppText">#293241</Color>
+            <Color x:Key="AppTextSecondary">#5C6B7A</Color><!-- pizarra apagada (derivado de #293241) -->
             <Color x:Key="AppSuccess">#2E7D32</Color><!-- verde (condición/signo activo) -->
-            <Color x:Key="AppWarning">#B45309</Color>
+            <Color x:Key="AppWarning">#EE6C4D</Color><!-- coral (acento terciario / advertencia) -->
             <Color x:Key="AppOnSuccess">#FFFFFF</Color>
             <Color x:Key="AppError">#C0392B</Color>
+
+            <!-- Acentos secundario (teal) y terciario "detalle" (coral) -->
+            <Color x:Key="AppSecondary">#2A9D8F</Color><!-- teal (cabeceras de sección, resaltes) -->
+            <Color x:Key="AppTertiary">#EE6C4D</Color><!-- coral (acentos pequeños) -->
 
             <!-- Signos 1/X/2 marcados en verde, como el boleto del original -->
             <SolidColorBrush x:Key="ToggleButtonBackgroundChecked"            Color="#2E7D32" />
@@ -47,6 +51,8 @@
             <SolidColorBrush x:Key="AppWarningBrush"        Color="{StaticResource AppWarning}" />
             <SolidColorBrush x:Key="AppErrorBrush"          Color="{StaticResource AppError}" />
             <SolidColorBrush x:Key="AppAccentBrush"         Color="{StaticResource SystemAccentColor}" />
+            <SolidColorBrush x:Key="AppSecondaryBrush"      Color="{StaticResource AppSecondary}" />
+            <SolidColorBrush x:Key="AppTertiaryBrush"       Color="{StaticResource AppTertiary}" />
         </ResourceDictionary>
 
         <!-- ===== DARK ===== -->
@@ -68,6 +74,10 @@
             <Color x:Key="AppOnSuccess">#FFFFFF</Color>
             <Color x:Key="AppError">#EF4444</Color>
 
+            <!-- Acentos secundario (teal) y terciario (coral) — paralelos al Light -->
+            <Color x:Key="AppSecondary">#2DD4BF</Color>
+            <Color x:Key="AppTertiary">#FB7185</Color>
+
             <SolidColorBrush x:Key="AppBackgroundBrush"     Color="{StaticResource AppBackground}" />
             <SolidColorBrush x:Key="AppSurfaceBrush"        Color="{StaticResource AppSurface}" />
             <SolidColorBrush x:Key="AppSurfaceAltBrush"     Color="{StaticResource AppSurfaceAlt}" />
@@ -78,6 +88,8 @@
             <SolidColorBrush x:Key="AppWarningBrush"        Color="{StaticResource AppWarning}" />
             <SolidColorBrush x:Key="AppErrorBrush"          Color="{StaticResource AppError}" />
             <SolidColorBrush x:Key="AppAccentBrush"         Color="{StaticResource SystemAccentColor}" />
+            <SolidColorBrush x:Key="AppSecondaryBrush"      Color="{StaticResource AppSecondary}" />
+            <SolidColorBrush x:Key="AppTertiaryBrush"       Color="{StaticResource AppTertiary}" />
         </ResourceDictionary>
 
     </ResourceDictionary.ThemeDictionaries>

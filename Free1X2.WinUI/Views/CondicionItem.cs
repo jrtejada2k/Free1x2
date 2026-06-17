@@ -50,7 +50,7 @@ public partial class CondicionItem : ObservableObject
         EstadoSemaforo.Rojo => new Microsoft.UI.Xaml.Media.SolidColorBrush(
             Windows.UI.Color.FromArgb(0x3D, 0xC0, 0x39, 0x2B)),  // rojo (con datos, inactiva)
         _ => new Microsoft.UI.Xaml.Media.SolidColorBrush(
-            Windows.UI.Color.FromArgb(0x33, 0xD2, 0x69, 0x1E)),  // salmón cálido (vacía)
+            Windows.UI.Color.FromArgb(0x29, 0xEE, 0x6C, 0x4D)),  // coral tenue (vacía) — acento terciario de la paleta
     };
 
     /// <summary>
