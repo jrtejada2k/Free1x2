@@ -178,10 +178,8 @@ public partial class EstucolFrmViewModel : ObservableObject
         Estado = "Listo";
 
         // Navega al visor (legacy: new VisorAnalisisColumnasAbdonFrm(...).Show()).
-        // El handoff queda en UltimoInforme; el visor lo lee al navegar.
-        // TODO[navegación]: el VisorAnalisisColumnasAbdonFrmViewModel es un stub fuera del alcance
-        //   de este lote (no debe modificarse aquí). Cuando se cablee, debe leer
-        //   EstucolFrmViewModel.UltimoInforme en su OnNavigatedTo y poblar los informes.
+        // El handoff queda en UltimoInforme; VisorAnalisisColumnasAbdonFrmViewModel lo lee
+        // al navegar y puebla los informes (ya cableado).
         AbrirVisor?.Invoke();
     }
 

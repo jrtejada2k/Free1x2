@@ -9,6 +9,7 @@ namespace Free1X2.WinUI.Views.Ported
         public ImportadorCPsFrmPage()
         {
             InitializeComponent();
+            ViewModel.Volver = () => { if (Frame?.CanGoBack == true) Frame.GoBack(); };
         }
     }
 }

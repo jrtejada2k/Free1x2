@@ -37,6 +37,9 @@ namespace Free1X2.WinUI.Views.Ported
         /// </summary>
         public static List<ColumnaProbable>? Resultado { get; set; }
 
+        /// <summary>Navegación atrás (Frame.GoBack), inyectada por la Page (legacy Close()).</summary>
+        public Action? Volver { get; set; }
+
         // Estado / feedback mostrado al usuario tras una acción.
         [ObservableProperty]
         private string _estadoTexto = "Sin importaciones realizadas.";
@@ -111,6 +114,7 @@ namespace Free1X2.WinUI.Views.Ported
             Resultado = importadas; // handoff estático para el llamador (legacy grupoCPtmp).
             ActualizarResumen();
             EstadoTexto = $"Importadas {importadas.Count} columnas simples desde {Path.GetFileName(ruta)}.";
+            Volver?.Invoke(); // legacy: cerrar el diálogo; el llamador lee Resultado al volver.
         }
 
         /// <summary>
@@ -178,6 +182,7 @@ namespace Free1X2.WinUI.Views.Ported
             Resultado = importadas; // handoff estático para el llamador (legacy grupoCPtmp).
             ActualizarResumen();
             EstadoTexto = $"Importadas {importadas.Count} columnas con aciertos desde {Path.GetFileName(ruta)}.";
+            Volver?.Invoke(); // legacy: cerrar el diálogo; el llamador lee Resultado al volver.
         }
 
         /// <summary>
@@ -191,8 +196,8 @@ namespace Free1X2.WinUI.Views.Ported
             Resultado = null; // handoff estático: cancelado (legacy grupoCPtmp queda vacío).
             ActualizarResumen();
             EstadoTexto = "Importación cancelada.";
-            // TODO (navegación): el WinForms hacía Close(); el llamador (ColProbablesFrm.ImportaColumnas,
-            //   ver Free1X2/UI/Filtros/ColProbablesFrm.cs línea 690) leía grupoCPtmp tras ShowDialog.
+            Volver?.Invoke();
+            // El llamador (ColProbablesFrm) lee Resultado (null) al volver; no aplica cambios.
             //   En WinUI, quien navegue a esta Page debe leer ColumnasImportadas al volver.
         }
 

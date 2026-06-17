@@ -149,12 +149,14 @@ public partial class ExportadorCPsFrmViewModel : ObservableObject
     /// <summary>
     /// btnCancelar_Click del WinForms (Close()).
     /// </summary>
+    /// <summary>Navegación atrás (Frame.GoBack), inyectada por la Page (legacy Close()).</summary>
+    public Action? Volver { get; set; }
+
     [RelayCommand]
     private void Cancelar()
     {
         Estado = "Cancelado.";
-        // TODO (navegación): el WinForms hacía Close(); en WinUI el cierre/navegación atrás lo
-        //   gestiona el contenedor de la Page.
+        Volver?.Invoke();
     }
 
     private void ActualizarResumen()

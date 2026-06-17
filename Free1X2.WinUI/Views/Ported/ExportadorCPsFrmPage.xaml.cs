@@ -17,5 +17,6 @@ public sealed partial class ExportadorCPsFrmPage : Page
     public ExportadorCPsFrmPage()
     {
         this.InitializeComponent();
+        ViewModel.Volver = () => { if (Frame?.CanGoBack == true) Frame.GoBack(); };
     }
 }
