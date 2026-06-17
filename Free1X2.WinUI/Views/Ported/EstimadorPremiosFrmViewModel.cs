@@ -235,11 +235,11 @@ public partial class EstimadorPremiosFrmViewModel : ObservableObject
     [RelayCommand]
     private void JornadaAnterior()
     {
-        // Decrementa la jornada (legacy: btJornadaAnterior_Click). La recarga de los
-        // porcentajes persistidos depende del UserControl ControlPorcentajes (no portado).
+        // Legacy btJornadaAnterior_Click (EstimadorPremiosFrm.cs 2165): decrementa la jornada
+        // (mín. 1). El cambio de txJornada disparaba TemporadaJornada_TextChanged, que recargaba
+        // los datos de la jornada -> aquí se invoca explícitamente RecargarDatosJornada().
         if (Jornada > 1) Jornada--;
-        // TODO: recarga de datos/porcentajes en Free1X2/UI/EstimadorPremiosFrm.cs (btJornadaAnterior_Click)
-        //   — requiere ControlPorcentajes, aún no portado a WinUI.
+        RecargarDatosJornada();
     }
 
     /// <summary>
@@ -248,10 +248,113 @@ public partial class EstimadorPremiosFrmViewModel : ObservableObject
     [RelayCommand]
     private void JornadaPosterior()
     {
-        // Incrementa la jornada (legacy: btJornadaPosterior_Click).
-        Jornada++;
-        // TODO: recarga de datos/porcentajes en Free1X2/UI/EstimadorPremiosFrm.cs (btJornadaPosterior_Click)
-        //   — requiere ControlPorcentajes, aún no portado a WinUI.
+        // Legacy btJornadaPosterior_Click (EstimadorPremiosFrm.cs 2172): incrementa la jornada
+        // (máx. 44). Igual que el anterior, el TextChanged recargaba los datos de la jornada.
+        if (Jornada < 44) Jornada++;
+        RecargarDatosJornada();
+    }
+
+    /// <summary>
+    /// Recarga los datos de la jornada actual (columna premiada, recaudación, premios y acertantes
+    /// estimados) desde <c>Jornadas/InfoJornadasLAE.txt</c>. Réplica de
+    /// <c>EstimadorPremiosFrm.TemporadaJornada_TextChanged</c> (EstimadorPremiosFrm.cs 2009): el
+    /// fichero TAB-separado contiene [0]=columna premiada, [1]=temporada, [2]=jornada,
+    /// [3]=recaudación (en nº de apuestas) y [4..8]=acertantes reales por categoría (14..10).
+    /// Mismo fichero y mismo formato que usa <c>LAE.GrabarJornada</c> / <c>TramificarForm</c>.
+    /// </summary>
+    private void RecargarDatosJornada()
+    {
+        // Legacy: NombreFicheroJornadas = Application.StartupPath + "/Jornadas/InfoJornadasLAE.txt".
+        string nombreFichero = System.IO.Path.Combine(
+            AppContext.BaseDirectory, "Jornadas", "InfoJornadasLAE.txt");
+        if (!System.IO.File.Exists(nombreFichero)) return;
+
+        // DestinadoAPremiosCategoria[i] = Recaudacion * Pct[i] (legacy CalcularPremios 1908) con el
+        // bote sumado al 14 (1910). El TextChanged legacy usa el último valor calculado de este
+        // array; se recompone aquí con los parámetros actuales de la UI para reproducir su efecto.
+        double[] pct =
+        {
+            PorcentajePara14 / 100, PorcentajePara13 / 100, PorcentajePara12 / 100,
+            PorcentajePara11 / 100, PorcentajePara10 / 100,
+        };
+        var destinado = new double[5];
+        for (int i = 0; i < 5; i++) destinado[i] = Recaudacion * pct[i];
+        destinado[0] += Bote;
+
+        string jornadaBuscada = ((int)Jornada).ToString().PadLeft(2, '0');
+
+        Free1X2.EntradaSalida.IArchivoColumnas comBaseCols =
+            new Free1X2.EntradaSalida.ArchivoColumnasTexto(nombreFichero);
+        try
+        {
+            while (comBaseCols.SiguienteColumna())
+            {
+                string[] valorsJornada = comBaseCols.LeeColumnaSinComas().Split((char)9);
+                if (valorsJornada.Length < 9) continue;
+
+                // Legacy: ValorsJornada[1]==txTemporada.Text && ValorsJornada[2]==txJornada(2 díg.).
+                if (valorsJornada[1] != Temporada || valorsJornada[2] != jornadaBuscada) continue;
+
+                // Columna premiada (legacy MostrarColumna -> lblNewBaseNN1).
+                ColumnaPremiada = valorsJornada[0];
+
+                // Premios reales por categoría (legacy txPremio14..10 = PrecioApuesta * ValorsJornada[4..8]).
+                // [4]=="0,00" -> no hubo acertantes del 14: se estima lo que habría cobrado uno (legacy 2022-2027).
+                double[] premiosReales = new double[5];
+                if (valorsJornada[4] == "0,00")
+                    premiosReales[0] = PrecioApuesta * ParseEsp(valorsJornada[3]) * pct[0];
+                else
+                    premiosReales[0] = PrecioApuesta * ParseEsp(valorsJornada[4]);
+                premiosReales[1] = PrecioApuesta * ParseEsp(valorsJornada[5]);
+                premiosReales[2] = PrecioApuesta * ParseEsp(valorsJornada[6]);
+                premiosReales[3] = PrecioApuesta * ParseEsp(valorsJornada[7]);
+                premiosReales[4] = PrecioApuesta * ParseEsp(valorsJornada[8]);
+
+                // Recaudación de la jornada (legacy txRecaudacion = PrecioApuesta * ValorsJornada[3]).
+                Recaudacion = PrecioApuesta * ParseEsp(valorsJornada[3]);
+
+                // Acertantes estimados por categoría (legacy 2040-2058):
+                //   Acertantes[i,1] = round(DestinadoAPremiosCategoria[i] / ValorsJornada[i+4] / PrecioApuesta).
+                // El 14 queda en 0 si no hubo acertantes (ValorsJornada[4]==0).
+                double[] acertantes = new double[5];
+                for (int i = 0; i < 5; i++)
+                {
+                    double winners = ParseEsp(valorsJornada[i + 4]);
+                    acertantes[i] = winners != 0
+                        ? Math.Round(destinado[i] / winners / PrecioApuesta, 0)
+                        : 0;
+                }
+                if (ParseEsp(valorsJornada[4]) == 0) acertantes[0] = 0;
+
+                // Adaptación a la nueva norma: los de 10 no cobran si el premio es < 1 (legacy 2063-2066).
+                if (PrecioApuesta * ParseEsp(valorsJornada[8]) < 1) premiosReales[4] = 0;
+
+                // Volcado al escrutinio real (equivale a txAcertantesNN / txPremioNN del legacy,
+                // que en el VM portado son las filas editables de EscrutinioReal).
+                for (int i = 0; i < 5 && i < EscrutinioReal.Count; i++)
+                {
+                    EscrutinioReal[i].Acertantes = acertantes[i];
+                    EscrutinioReal[i].Premio = premiosReales[i];
+                }
+                break;
+            }
+        }
+        finally
+        {
+            comBaseCols.Cerrar();
+        }
+    }
+
+    // Convierte un número con coma decimal española (formato del fichero L.A.E.) a double, sin
+    // depender de la cultura del hilo (mismo criterio que TramificarFormViewModel.ToDouble).
+    private static double ParseEsp(string valor)
+    {
+        if (string.IsNullOrWhiteSpace(valor)) return 0;
+        var ci = System.Globalization.CultureInfo.CurrentCulture;
+        if (double.TryParse(valor, System.Globalization.NumberStyles.Any, ci, out double r)) return r;
+        if (double.TryParse(valor.Replace(',', '.'), System.Globalization.NumberStyles.Any,
+            System.Globalization.CultureInfo.InvariantCulture, out r)) return r;
+        return 0;
     }
 
     /// <summary>

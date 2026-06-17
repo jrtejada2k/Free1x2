@@ -56,6 +56,37 @@ public partial class ResultadoColumnaItem : ObservableObject
 }
 
 /// <summary>
+/// Una fila de resultados del escrutinio por jornadas (legacy: cada elemento de
+/// <c>ResultadoPorJornadas[]</c> — clase privada <c>ResultadosJornada</c> de BancoPruebasFrm —
+/// enlazado al DataGridView <c>dgResultadoEscrutinio</c> vía la tabla "ResultadosJornada[]";
+/// ver InicializaGridResultadoEscrutinioPorJornadas). Cada propiedad se proyecta a <c>string</c>
+/// para enlazar a TextBlock.Text (mismo patrón que <see cref="ResultadoColumnaItem"/>).
+/// </summary>
+public partial class ResultadoJornadaItem : ObservableObject
+{
+    /// <summary>Nº de orden de la jornada simulada (legacy: ResultadosJornada.Jornada).</summary>
+    public string Jornada { get; init; } = string.Empty;
+
+    // Nº de columnas premiadas por categoría (legacy: AciertosDe14..AciertosDe10).
+    public string AciertosDe14 { get; init; } = string.Empty;
+    public string AciertosDe13 { get; init; } = string.Empty;
+    public string AciertosDe12 { get; init; } = string.Empty;
+    public string AciertosDe11 { get; init; } = string.Empty;
+    public string AciertosDe10 { get; init; } = string.Empty;
+
+    /// <summary>Importe total de premios de la jornada (legacy: ResultadosJornada.TotalPremios).</summary>
+    public string ImportePremios { get; init; } = string.Empty;
+
+    /// <summary>Saldo acumulado tras la jornada (legacy: ResultadosJornada.Saldo).</summary>
+    public string Saldo { get; init; } = string.Empty;
+
+    /// <summary>Resumen para mostrar en una sola línea de la lista.</summary>
+    public string Resumen =>
+        $"Jornada {Jornada}    14:{AciertosDe14}  13:{AciertosDe13}  12:{AciertosDe12}  " +
+        $"11:{AciertosDe11}  10:{AciertosDe10}    premios:{ImportePremios}  saldo:{Saldo}".Trim();
+}
+
+/// <summary>
 /// ViewModel del formulario legacy WinForms "BancoPruebasFrm"
 /// (Simulador de escrutinios — Banco de Pruebas).
 ///
@@ -230,6 +261,11 @@ public partial class BancoPruebasFrmViewModel : ObservableObject
     // "Autoescrutinio"), con casilla de selección por fila. Equivale a ResCol[] enlazado al
     // DataGridView WinForms (mismo enfoque que EscrutiniosFrmViewModel.Resultados).
     public ObservableCollection<ResultadoColumnaItem> ColumnasResultado { get; } = new();
+
+    // Filas de resultado por jornadas (grid legacy dgResultadoEscrutinio en modo "Jornadas",
+    // enlazado a ResultadoPorJornadas[] vía la tabla "ResultadosJornada[]"). Una fila por columna
+    // aleatoria simulada, con su saldo acumulado.
+    public ObservableCollection<ResultadoJornadaItem> JornadasResultado { get; } = new();
 
     // ---------------------------------------------------------------------
     // Dependencias entre opciones (equivalentes a los CheckedChanged legacy)
@@ -411,26 +447,15 @@ public partial class BancoPruebasFrmViewModel : ObservableObject
     {
         // btnOK_Click (BancoPruebasFrm.cs 2732): según el tipo de análisis seleccionado se ejecuta
         //   EscrutarCombinacion / EscrutarColumnas / EscrutarColumnasAutoEscrutinio /
-        //   EscrutarCombinacionPorJornadas. "Jornadas" sigue pendiente (ver TODO al final).
-        if (TipoAnalisisSeleccionado == "Jornadas")
-        {
-            // TODO[grid]: replicar EscrutarCombinacionPorJornadas (Free1X2/UI/BancoPruebasFrm.cs línea
-            //   2809). BLOQUEADO: produce ResultadoPorJornadas[] (ResultadosJornada) con saldo por
-            //   jornada que el form enlazaba a la rejilla dgResultadoEscrutinioPorJornadas (esquema
-            //   distinto al de columnas). Requiere un modelo de resultado por jornadas adicional.
-            AppServices.MostrarInfo(
-                "El análisis por 'Jornadas' aún no está portado (requiere la rejilla por jornadas " +
-                "del formulario original).");
-            return;
-        }
-
+        //   EscrutarCombinacionPorJornadas. Los cuatro modos están cableados.
         if (string.IsNullOrEmpty(FicheroEntrada))
         {
             AppServices.MostrarInfo("Selecciona primero el fichero de columnas (paso 1).");
             return;
         }
 
-        // Combinación y Columnas requieren las aleatorias generadas (paso 3); el autoescrutinio no.
+        // Combinación, Columnas y Jornadas requieren las aleatorias generadas (paso 3); el
+        // autoescrutinio no (legacy: rbOptionEspecial habilita btnOK sin ColumnasAleatorias).
         if (TipoAnalisisSeleccionado != "Autoescrutinio" && _columnasAleatorias.Count == 0)
         {
             AppServices.MostrarInfo("Genera primero las columnas aleatorias (paso 3).");
@@ -453,6 +478,9 @@ public partial class BancoPruebasFrmViewModel : ObservableObject
                         break;
                     case "Columnas":
                         EscrutarColumnas(archivoEntrada, vApostados);
+                        break;
+                    case "Jornadas":
+                        EscrutarCombinacionPorJornadas(archivoEntrada, vApostados);
                         break;
                     case "Autoescrutinio":
                         EscrutarColumnasAutoEscrutinio(archivoEntrada, vApostados);
@@ -966,6 +994,76 @@ public partial class BancoPruebasFrmViewModel : ObservableObject
         });
     }
 
+    // BancoPruebasFrm.cs 2809-2857 (rama EscrutarCombinacionPorJornadas, tipo "Jornadas"). Trata
+    // cada columna aleatoria como una "jornada": la escruta contra todo el fichero, acumula los
+    // premios obtenidos y arrastra el saldo de una jornada a la siguiente.
+    private void EscrutarCombinacionPorJornadas(string archivoEntrada, double[,] vApostados)
+    {
+        var resultadoPorJornadas = new ResultadosJornada[_columnasAleatorias.Count];
+        double SaldoInicial = 0;
+        var columnas = new List<int>();
+        int contador = 0;
+
+        CargarFicheroDeColumnas(archivoEntrada, columnas);
+        double CosteCombinacion = columnas.Count * PrecioApuesta;
+        EnUi(() => NumColumnasResultadoTexto = columnas.Count.ToString());
+
+        //---Leer Porcentajes --------------
+        v = vApostados;
+        pa = new Porcentajes(v).ValoresBase100();
+
+        foreach (int i in _columnasAleatorias)
+        {
+            int[] aciertos = new int[5];
+            double[] ingresos = new double[5];
+            int indice = contador;
+            contador++;
+            CalcularPremios(i);
+
+            foreach (int j in columnas)
+            {
+                byte NumAciertos = Aciertos(i, j);
+                if (NumAciertos > 9)
+                {
+                    aciertos[14 - NumAciertos]++;
+                    ingresos[14 - NumAciertos] += Premios[14 - NumAciertos];
+                }
+            }
+            resultadoPorJornadas[indice] = new ResultadosJornada(contador, SaldoInicial, CosteCombinacion, ingresos, aciertos);
+            SaldoInicial = resultadoPorJornadas[indice].Saldo;
+        }
+
+        PublicarJornadasResultado(resultadoPorJornadas);
+    }
+
+    // Proyecta ResultadoPorJornadas[] a la colección observable (legacy:
+    // dgResultadoEscrutinioPorJornadasDataBind — DataSource = ResultadoPorJornadas). Marshalado a UI.
+    private void PublicarJornadasResultado(ResultadosJornada[] resultadoPorJornadas)
+    {
+        var filas = new List<ResultadoJornadaItem>();
+        foreach (var rj in resultadoPorJornadas)
+        {
+            if (rj is null) continue;
+            filas.Add(new ResultadoJornadaItem
+            {
+                Jornada = rj.Jornada.ToString(),
+                AciertosDe14 = rj.AciertosDe14.ToString(),
+                AciertosDe13 = rj.AciertosDe13.ToString(),
+                AciertosDe12 = rj.AciertosDe12.ToString(),
+                AciertosDe11 = rj.AciertosDe11.ToString(),
+                AciertosDe10 = rj.AciertosDe10.ToString(),
+                ImportePremios = Math.Round(rj.TotalPremios, 2).ToString(),
+                Saldo = Math.Round(rj.Saldo, 2).ToString(),
+            });
+        }
+
+        EnUi(() =>
+        {
+            JornadasResultado.Clear();
+            foreach (var f in filas) JornadasResultado.Add(f);
+        });
+    }
+
     // Proyecta ResCol[] (sin la fila resumen final [numApuestas]) a la colección observable
     // (legacy: dgResultadoEscrutinioDataBindPorColumnas — DataSource = ResCol). Marshalado a UI.
     private void PublicarColumnasResultado(ResultadosPorColumna[] resCol, int numApuestas)
@@ -1132,6 +1230,49 @@ public partial class BancoPruebasFrmViewModel : ObservableObject
                 }
             }
         }
+    }
+
+    // ---------------------------------------------------------------------
+    // ResultadosJornada (transcrita de la clase privada de BancoPruebasFrm.cs 254-334).
+    // Acumula los premios de una "jornada" (columna aleatoria) y arrastra el saldo.
+    // ---------------------------------------------------------------------
+    private sealed class ResultadosJornada
+    {
+        private readonly int _Jornada;
+        private readonly double _SaldoInicial;
+        private readonly double[] _Premios = new double[5];
+        private readonly int[] _Aciertos = new int[5];
+        private readonly double _Coste;
+
+        public ResultadosJornada(int pJornada, double pSaldoInicial, double pCoste, double[] pPremios, int[] pAciertos)
+        {
+            _Jornada = pJornada;
+            _SaldoInicial = pSaldoInicial;
+            _Coste = pCoste;
+            _Premios = pPremios;
+            _Aciertos = pAciertos;
+        }
+
+        public int Jornada => _Jornada;
+
+        // Saldo = SaldoInicial - Coste + TotalPremios (legacy 278-281).
+        public double Saldo => _SaldoInicial - _Coste + TotalPremios;
+
+        public double TotalPremios
+        {
+            get
+            {
+                double resultado = 0;
+                for (int i = 0; i < 5; i++) resultado += _Premios[i];
+                return resultado;
+            }
+        }
+
+        public int AciertosDe14 => _Aciertos[0];
+        public int AciertosDe13 => _Aciertos[1];
+        public int AciertosDe12 => _Aciertos[2];
+        public int AciertosDe11 => _Aciertos[3];
+        public int AciertosDe10 => _Aciertos[4];
     }
 
     // ---------------------------------------------------------------------
