@@ -57,6 +57,9 @@
                     <ColumnDefinition Width="28" />
                     <ColumnDefinition Width="28" />
                 </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="Nº" FontSize="11"
+                           HorizontalAlignment="Center"
+                           Foreground="{ThemeResource AppTextSecondaryBrush}" />
                 <TextBlock Grid.Column="1" Text="Local" FontSize="11"
                            Foreground="{ThemeResource AppTextSecondaryBrush}" />
                 <TextBlock Grid.Column="2" Text="Visitante" FontSize="11"

@@ -54,6 +54,12 @@
             <SolidColorBrush x:Key="AppAccentBrush"         Color="{StaticResource SystemAccentColor}" />
             <SolidColorBrush x:Key="AppSecondaryBrush"      Color="{StaticResource AppSecondary}" />
             <SolidColorBrush x:Key="AppTertiaryBrush"       Color="{StaticResource AppTertiary}" />
+
+            <!-- Tintes suaves (chips de icono / cabeceras de sección): el acento
+                 a baja opacidad sobre superficie blanca da un fondo coloreado
+                 sutil sin competir con el texto. Sólo visual. -->
+            <SolidColorBrush x:Key="AppAccentTintBrush"     Color="#3D5A80" Opacity="0.12" />
+            <SolidColorBrush x:Key="AppSecondaryTintBrush"  Color="#2A9D8F" Opacity="0.12" />
         </ResourceDictionary>
 
         <!-- ===== DARK ===== -->
@@ -91,6 +97,10 @@
             <SolidColorBrush x:Key="AppAccentBrush"         Color="{StaticResource SystemAccentColor}" />
             <SolidColorBrush x:Key="AppSecondaryBrush"      Color="{StaticResource AppSecondary}" />
             <SolidColorBrush x:Key="AppTertiaryBrush"       Color="{StaticResource AppTertiary}" />
+
+            <!-- Tintes suaves (paralelos al Light, sobre superficie oscura). -->
+            <SolidColorBrush x:Key="AppAccentTintBrush"     Color="#818CF8" Opacity="0.18" />
+            <SolidColorBrush x:Key="AppSecondaryTintBrush"  Color="#2DD4BF" Opacity="0.18" />
         </ResourceDictionary>
 
     </ResourceDictionary.ThemeDictionaries>

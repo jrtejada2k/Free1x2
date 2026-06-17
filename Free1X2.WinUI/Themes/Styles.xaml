@@ -56,6 +56,31 @@
         <Setter Property="LineHeight" Value="16" />
     </Style>
 
+    <!-- Título de tarjeta con acento ÍNDIGO: misma métrica que CardTitle pero el
+         color de acento da identidad a la sección (pulido PRO). Sólo color. -->
+    <Style x:Key="AccentCardTitleTextBlockStyle" TargetType="TextBlock"
+           BasedOn="{StaticResource CardTitleTextBlockStyle}">
+        <Setter Property="Foreground" Value="{ThemeResource AppAccentBrush}" />
+    </Style>
+
+    <!-- Título de tarjeta con acento TEAL: identidad secundaria para distinguir
+         secciones contiguas (p. ej. Filtro vs. Filtro Parcial). Sólo color. -->
+    <Style x:Key="SecondaryCardTitleTextBlockStyle" TargetType="TextBlock"
+           BasedOn="{StaticResource CardTitleTextBlockStyle}">
+        <Setter Property="Foreground" Value="{ThemeResource AppSecondaryBrush}" />
+    </Style>
+
+    <!-- "Chip" de icono: fondo redondeado y tintado tras un glifo, para dar
+         profundidad/color a los iconos de las secciones de filtro (pulido PRO).
+         El color de tinte se fija por instancia (Background). Sólo visual. -->
+    <Style x:Key="IconChipBorderStyle" TargetType="Border">
+        <Setter Property="Width" Value="26" />
+        <Setter Property="Height" Value="26" />
+        <Setter Property="CornerRadius" Value="7" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+    </Style>
+
     <!-- ============================================================
          Compactación de los estilos de tipografía integrados (WinUI) que
          algunas páginas portadas usan directamente como título/cabecera.

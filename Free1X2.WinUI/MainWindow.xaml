@@ -3,7 +3,8 @@
     x:Class="Free1X2.WinUI.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:muxc="using:Microsoft.UI.Xaml.Controls">
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    xmlns:controls="using:Free1X2.WinUI.Controls">
 
     <!-- Sin barra de título custom: se usa la barra de Windows estándar
          (minimizar / maximizar / cerrar) como el MainForm WinForms original. -->
@@ -17,17 +18,18 @@
         <!-- Barra de menús (organización del programa original) -->
         <muxc:MenuBar x:Name="BarraMenu" Grid.Row="0" />
 
-        <!-- Barra de herramientas (réplica de los 6 ToolStrips del MainForm) -->
+        <!-- Barra de herramientas (réplica de los 6 ToolStrips del MainForm).
+             Panel con salto de línea: cuando los ~55 botones no caben en el ancho
+             de la ventana, fluyen a una segunda fila (igual que el original, que
+             saltaba de fila en ObtenerPosicionBarraHerramientas). Así NADA se
+             recorta ni queda fuera de alcance, sin depender de scroll horizontal. -->
         <Border x:Name="BarraHerramientas" Grid.Row="1"
                 Background="{ThemeResource AppSurfaceAltBrush}"
                 BorderBrush="{ThemeResource AppBorderBrush}"
                 BorderThickness="0,1,0,1">
-            <ScrollViewer HorizontalScrollBarVisibility="Auto"
-                          VerticalScrollBarVisibility="Disabled"
-                          HorizontalScrollMode="Auto">
-                <StackPanel x:Name="ToolbarPanel" Orientation="Horizontal"
-                            VerticalAlignment="Center" Margin="6,2" Spacing="1" />
-            </ScrollViewer>
+            <controls:ToolbarWrapPanel x:Name="ToolbarPanel"
+                                       HorizontalSpacing="1" VerticalSpacing="3"
+                                       Margin="6,3" />
         </Border>
 
         <!-- Contenido -->
