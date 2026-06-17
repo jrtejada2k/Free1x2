@@ -15,6 +15,47 @@ using Windows.Storage.Pickers;
 namespace Free1X2.WinUI.Views.Ported;
 
 /// <summary>
+/// Una fila de resultados del escrutinio por columna (legacy: cada elemento de
+/// <c>ResCol[]</c> — clase privada <c>ResultadosPorColumna</c> de BancoPruebasFrm — enlazado
+/// al DataGridView <c>dgResultadoEscrutinio</c>). <see cref="Seleccionado"/> es editable
+/// (casilla de la rejilla); el resto se proyecta a <c>string</c> para enlazar a TextBlock.Text
+/// (mismo patrón que <see cref="ResultadoEscrutinioItem"/>).
+/// </summary>
+public partial class ResultadoColumnaItem : ObservableObject
+{
+    /// <summary>Casilla de selección de la fila (legacy: dgResultadoEscrutinio.IsSelected/Select/UnSelect).</summary>
+    [ObservableProperty]
+    private bool _seleccionado;
+
+    /// <summary>Nº de orden de la fila (legacy: ResCol[i].Num).</summary>
+    public string Numero { get; init; } = string.Empty;
+
+    /// <summary>Columna en formato 1/X/2 (legacy: ConvNumAColumna de ResCol[i].Columna).</summary>
+    public string Columna { get; init; } = string.Empty;
+
+    /// <summary>Valor numérico de la columna (legacy: ResCol[i].Columna, base ternaria).</summary>
+    public int ColumnaNumero { get; init; }
+
+    // Veces premiada por categoría (legacy: ResCol[i].Veces14..Veces10).
+    public string Veces14 { get; init; } = string.Empty;
+    public string Veces13 { get; init; } = string.Empty;
+    public string Veces12 { get; init; } = string.Empty;
+    public string Veces11 { get; init; } = string.Empty;
+    public string Veces10 { get; init; } = string.Empty;
+
+    /// <summary>Premio acumulado de la fila (legacy: ResCol[i].PremioAcumulado).</summary>
+    public string Premio { get; init; } = string.Empty;
+
+    /// <summary>% recuperación de la fila (legacy: ResCol[i].Recuperacion).</summary>
+    public string Recuperacion { get; init; } = string.Empty;
+
+    /// <summary>Resumen para mostrar en una sola línea de la lista (aciertos por categoría 14..10).</summary>
+    public string Resumen =>
+        $"{Columna}    14:{Veces14}  13:{Veces13}  12:{Veces12}  11:{Veces11}  10:{Veces10}    " +
+        $"premio:{Premio}  {Recuperacion}".Trim();
+}
+
+/// <summary>
 /// ViewModel del formulario legacy WinForms "BancoPruebasFrm"
 /// (Simulador de escrutinios — Banco de Pruebas).
 ///
@@ -182,8 +223,13 @@ public partial class BancoPruebasFrmViewModel : ObservableObject
     [ObservableProperty]
     private string _vecesBeneficioTexto = "0";
 
-    // Filas de resultado del escrutinio (grid legacy dgResultadoEscrutinio).
+    // Filas de resultado del escrutinio (grid legacy dgResultadoEscrutinio) en modo "Combinación".
     public ObservableCollection<string> FilasResultado { get; } = new();
+
+    // Filas de resultado por columna (grid legacy dgResultadoEscrutinio en modos "Columnas" y
+    // "Autoescrutinio"), con casilla de selección por fila. Equivale a ResCol[] enlazado al
+    // DataGridView WinForms (mismo enfoque que EscrutiniosFrmViewModel.Resultados).
+    public ObservableCollection<ResultadoColumnaItem> ColumnasResultado { get; } = new();
 
     // ---------------------------------------------------------------------
     // Dependencias entre opciones (equivalentes a los CheckedChanged legacy)
@@ -363,21 +409,18 @@ public partial class BancoPruebasFrmViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(NoOcupado))]
     private async Task Analizar()
     {
-        // btnOK_Click (BancoPruebasFrm.cs 2732): según el tipo de análisis seleccionado.
-        // De las 4 ramas legacy (Combinación / Columnas / Autoescrutinio / Jornadas) sólo la rama
-        // "Combinación" se mapea limpiamente a FilasResultado + totales del VM; las otras tres
-        // dependen del DataGrid WinForms (ResCol/ResultadoPorJornadas) — ver TODO al final.
-        if (TipoAnalisisSeleccionado != "Combinación")
+        // btnOK_Click (BancoPruebasFrm.cs 2732): según el tipo de análisis seleccionado se ejecuta
+        //   EscrutarCombinacion / EscrutarColumnas / EscrutarColumnasAutoEscrutinio /
+        //   EscrutarCombinacionPorJornadas. "Jornadas" sigue pendiente (ver TODO al final).
+        if (TipoAnalisisSeleccionado == "Jornadas")
         {
-            // TODO[grid]: replicar EscrutarColumnas (BancoPruebasFrm.cs 3600) /
-            //   EscrutarColumnasAutoEscrutinio (3772) / EscrutarCombinacionPorJornadas (2809).
-            //   BLOQUEADO: producen ResultadosPorColumna[] / ResultadosJornada[] que el form enlaza a
-            //   la rejilla custom dgResultadoEscrutinio (MyDataGrid) con columnas/selección propias;
-            //   el VM sólo expone FilasResultado (ObservableCollection<string>) y no modela esas
-            //   clases ni la selección de la rejilla. Requiere un modelo de resultado por columnas.
+            // TODO[grid]: replicar EscrutarCombinacionPorJornadas (Free1X2/UI/BancoPruebasFrm.cs línea
+            //   2809). BLOQUEADO: produce ResultadoPorJornadas[] (ResultadosJornada) con saldo por
+            //   jornada que el form enlazaba a la rejilla dgResultadoEscrutinioPorJornadas (esquema
+            //   distinto al de columnas). Requiere un modelo de resultado por jornadas adicional.
             AppServices.MostrarInfo(
-                "Sólo el análisis por 'Combinación' está portado. Los modos por columnas, autoescrutinio " +
-                "y jornadas requieren la rejilla de resultados del formulario original.");
+                "El análisis por 'Jornadas' aún no está portado (requiere la rejilla por jornadas " +
+                "del formulario original).");
             return;
         }
 
@@ -386,7 +429,9 @@ public partial class BancoPruebasFrmViewModel : ObservableObject
             AppServices.MostrarInfo("Selecciona primero el fichero de columnas (paso 1).");
             return;
         }
-        if (_columnasAleatorias.Count == 0)
+
+        // Combinación y Columnas requieren las aleatorias generadas (paso 3); el autoescrutinio no.
+        if (TipoAnalisisSeleccionado != "Autoescrutinio" && _columnasAleatorias.Count == 0)
         {
             AppServices.MostrarInfo("Genera primero las columnas aleatorias (paso 3).");
             return;
@@ -394,11 +439,26 @@ public partial class BancoPruebasFrmViewModel : ObservableObject
 
         string archivoEntrada = FicheroEntrada;
         double[,] vApostados = PorcentajesHelper.AMatriz(PorcentajesApostados);
+        string tipo = TipoAnalisisSeleccionado;
 
         Ocupado = true;
         try
         {
-            await Task.Run(() => EscrutarCombinacion(archivoEntrada, vApostados));
+            await Task.Run(() =>
+            {
+                switch (tipo)
+                {
+                    case "Combinación":
+                        EscrutarCombinacion(archivoEntrada, vApostados);
+                        break;
+                    case "Columnas":
+                        EscrutarColumnas(archivoEntrada, vApostados);
+                        break;
+                    case "Autoescrutinio":
+                        EscrutarColumnasAutoEscrutinio(archivoEntrada, vApostados);
+                        break;
+                }
+            });
         }
         catch (Exception ex)
         {
@@ -410,29 +470,22 @@ public partial class BancoPruebasFrmViewModel : ObservableObject
         }
     }
 
-    /// <summary>Paso 4: graba los resultados del escrutinio (btGrabar).</summary>
+    /// <summary>Paso 4: graba las columnas del resultado por columnas (btGrabar).</summary>
     [RelayCommand]
-    private void Grabar()
+    private async Task Grabar()
     {
-        // TODO(dominio): replicar btGrabar_Click (Free1X2/UI/BancoPruebasFrm.cs línea 3978): graba las
-        //   columnas/resultados del escrutinio. BLOQUEADO: requiere los resultados producidos por
-        //   Analizar (dependiente de ControlPorcentajes / EscrutadorComb, no portados).
+        // btGrabar_Click (Free1X2/UI/BancoPruebasFrm.cs línea 3978). Graba las columnas
+        // seleccionadas del resultado "Columnas"/"Autoescrutinio" vía ArchivoColumnasTexto.
+        await GrabarAsync();
     }
 
-    /// <summary>Paso 4: simplifica (elimina) filas según el criterio de diferencias (btEliminarFilas).</summary>
+    /// <summary>Paso 4: simplifica (deselecciona) filas según el criterio de diferencias (btEliminarFilas).</summary>
     [RelayCommand]
     private void Simplificar()
     {
-        // TODO[grid]: replicar btEliminarFilas_Click (Free1X2/UI/BancoPruebasFrm.cs línea 4399) +
-        //   DeseleccionaColumnasPorDiferencias (4427). BLOQUEADO de raíz: la simplificación opera sobre
-        //   ResCol[] (ResultadosPorColumna del análisis "Columnas") y sobre la SELECCIÓN de filas de la
-        //   rejilla custom dgResultadoEscrutinio (Select/IsSelected/UnSelect de MyDataGrid). El VM sólo
-        //   expone FilasResultado (ObservableCollection<string>) sin estado de selección por columna ni
-        //   el modelo ResCol, así que no hay nada equivalente que deseleccionar. Requiere portar antes
-        //   el análisis por columnas con un modelo de resultado seleccionable.
-        AppServices.MostrarInfo(
-            "La simplificación de filas opera sobre el resultado del análisis por columnas y la selección " +
-            "de la rejilla del formulario original, aún no portados.");
+        // btEliminarFilas_Click (Free1X2/UI/BancoPruebasFrm.cs línea 4399) +
+        // DeseleccionaColumnasPorDiferencias (4427). Opera sobre ColumnasResultado y su selección.
+        SimplificarFilas();
     }
 
     /// <summary>Paso 4: abre la selección de jornadas (btSeleccionJornadas).</summary>
@@ -478,6 +531,17 @@ public partial class BancoPruebasFrmViewModel : ObservableObject
     private double ProbabilidadCategoria14 = 1;
     private readonly double[] SumaProbabilidades = new double[5];
     private readonly double[] Premios = new double[5];
+
+    // Resultados por columna del último análisis "Columnas"/"Autoescrutinio" (legacy: ResCol[]).
+    // Se conservan para que Grabar y Simplificar operen sobre las mismas filas (sincronizado con
+    // la colección observable ColumnasResultado a través de Seleccionado).
+    private ResultadosPorColumna[]? _resCol;
+    private int _numApuestas;
+
+    // Categorías de premio a acumular para la columna del resumen (legacy: AcumularPremio[5];
+    // por defecto sólo el 14, igual que el WinForms {false,false,false,false,true}).
+    private bool[] AcumularPremioActual() =>
+        new[] { Acumula14, Acumula13, Acumula12, Acumula11, Acumula10 };
 
     public BancoPruebasFrmViewModel()
     {
@@ -733,5 +797,413 @@ public partial class BancoPruebasFrmViewModel : ObservableObject
             VecesPremiadaTexto = VecesPremiada.ToString();
             PorcentajeRecuperadoTexto = Recuperacion.ToString() + "%";
         });
+    }
+
+    // BancoPruebasFrm.cs 3600-3771 (rama EscrutarColumnas, tipo "Columnas"). Escruta cada columna
+    // del fichero contra todas las aleatorias y produce una fila de resultado por columna (ResCol[]).
+    private void EscrutarColumnas(string archivoEntrada, double[,] vApostados)
+    {
+        int[] aciertos = new int[15];
+        var columnas = new List<int>();
+        int VecesPremiada = 0;
+        int VecesBeneficio = 0;
+        double PremioTotal = 0;
+        int numAleatorias = _columnasAleatorias.Count; // legacy: NumAleatorias
+
+        CargarFicheroDeColumnas(archivoEntrada, columnas);
+        double CosteCombinacion = columnas.Count * PrecioApuesta;
+        int numApuestas = columnas.Count; // legacy: NumApuestas
+        var resCol = new ResultadosPorColumna[numApuestas + 1];
+        EnUi(() => NumColumnasResultadoTexto = numApuestas.ToString());
+        double GastoTotal = CosteCombinacion * numAleatorias;
+        EnUi(() => GastoTotalTexto = GastoTotal.ToString());
+
+        //---Leer Porcentajes --------------
+        v = vApostados;
+        pa = new Porcentajes(v).ValoresBase100();
+        bool[] acumular = AcumularPremioActual();
+
+        int contador = 0;
+        foreach (int j in columnas)
+        {
+            resCol[contador] = new ResultadosPorColumna(j, numAleatorias);
+            resCol[contador].Num = (++contador).ToString();
+        }
+
+        bool premiada;
+        double beneficio;
+        foreach (int i in _columnasAleatorias)
+        {
+            CalcularPremios(i);
+            premiada = false;
+            beneficio = -CosteCombinacion;
+            int contacolumnas = 0;
+            foreach (int j in columnas)
+            {
+                byte Ac = Aciertos(i, j);
+                aciertos[Ac]++;
+                if (Ac > 9)
+                {
+                    resCol[contacolumnas].ContarPremio(14 - Ac);
+                    resCol[contacolumnas].SumarPremio(14 - Ac, Premios[14 - Ac]);
+                    premiada = true;
+                    beneficio += Premios[14 - Ac];
+                }
+                contacolumnas++;
+            }
+            if (premiada) VecesPremiada++;
+            if (beneficio > 0) VecesBeneficio++;
+        }
+
+        Array.Clear(Premios, 0, 5);
+        for (int k = 0; k < numApuestas; k++)
+        {
+            PremioTotal += resCol[k].PremioDe14 + resCol[k].PremioDe13 + resCol[k].PremioDe12 +
+                           resCol[k].PremioDe11 + resCol[k].PremioDe10;
+            resCol[k].Acumula = acumular;
+            Premios[0] += resCol[k].PremioDe14;
+            Premios[1] += resCol[k].PremioDe13;
+            Premios[2] += resCol[k].PremioDe12;
+            Premios[3] += resCol[k].PremioDe11;
+            Premios[4] += resCol[k].PremioDe10;
+        }
+        resCol[numApuestas] = new ResultadosPorColumna(numAleatorias, aciertos, Premios, acumular);
+
+        PremioTotal = Math.Round(PremioTotal, 0);
+        double Recuperacion = GastoTotal > 0 ? Math.Round(100 * PremioTotal / GastoTotal, 0) : 0;
+
+        _resCol = resCol;
+        _numApuestas = numApuestas;
+        PublicarColumnasResultado(resCol, numApuestas);
+
+        EnUi(() =>
+        {
+            PremioTotalTexto = PremioTotal.ToString();
+            VecesBeneficioTexto = VecesBeneficio.ToString();
+            VecesPremiadaTexto = VecesPremiada.ToString();
+            PorcentajeRecuperadoTexto = Recuperacion.ToString() + "%";
+        });
+    }
+
+    // BancoPruebasFrm.cs 3772-3941 (rama EscrutarColumnasAutoEscrutinio, tipo "Autoescrutinio").
+    // Escruta cada columna del fichero contra TODAS las demás del mismo fichero (autoescrutinio).
+    private void EscrutarColumnasAutoEscrutinio(string archivoEntrada, double[,] vApostados)
+    {
+        int[] aciertos = new int[15];
+        var columnas = new List<int>();
+        int VecesPremiada = 0;
+        int VecesBeneficio = 0;
+
+        CargarFicheroDeColumnas(archivoEntrada, columnas);
+        double CosteCombinacion = columnas.Count * PrecioApuesta;
+        int numApuestas = columnas.Count; // legacy: NumApuestas
+        var resCol = new ResultadosPorColumna[numApuestas + 1];
+        EnUi(() => NumColumnasResultadoTexto = numApuestas.ToString());
+        double GastoTotal = CosteCombinacion;
+        EnUi(() => GastoTotalTexto = GastoTotal.ToString());
+
+        //---Leer Porcentajes --------------
+        v = vApostados;
+        pa = new Porcentajes(v).ValoresBase100();
+        bool[] acumular = AcumularPremioActual();
+
+        int contador = 0;
+        foreach (int j in columnas)
+        {
+            resCol[contador] = new ResultadosPorColumna(j, numApuestas);
+            resCol[contador].Num = (++contador).ToString();
+        }
+
+        bool premiada;
+        double beneficio;
+        int contacolumnas = 0;
+        foreach (int i in columnas)
+        {
+            CalcularPremios(i);
+            premiada = false;
+            beneficio = -CosteCombinacion;
+            foreach (int j in columnas)
+            {
+                byte Ac = Aciertos(i, j);
+                aciertos[Ac]++;
+                if (Ac > 9)
+                {
+                    resCol[contacolumnas].ContarPremio(14 - Ac);
+                    resCol[contacolumnas].SumarPremio(14 - Ac, Premios[14 - Ac]);
+                    premiada = true;
+                    beneficio += Premios[14 - Ac];
+                }
+            }
+            contacolumnas++;
+            if (premiada) VecesPremiada++;
+            if (beneficio > 0) VecesBeneficio++;
+        }
+
+        Array.Clear(Premios, 0, 5);
+        for (int k = 0; k < numApuestas; k++)
+        {
+            // Legacy: en autoescrutinio NO se acumula PremioTotal (línea comentada en 3838).
+            resCol[k].Acumula = acumular;
+            Premios[0] += resCol[k].PremioDe14;
+            Premios[1] += resCol[k].PremioDe13;
+            Premios[2] += resCol[k].PremioDe12;
+            Premios[3] += resCol[k].PremioDe11;
+            Premios[4] += resCol[k].PremioDe10;
+        }
+        resCol[numApuestas] = new ResultadosPorColumna(numApuestas, aciertos, Premios, acumular);
+
+        _resCol = resCol;
+        _numApuestas = numApuestas;
+        PublicarColumnasResultado(resCol, numApuestas);
+
+        EnUi(() =>
+        {
+            // Legacy: lblPremioTotal / lblVecesPremiada / lblRecuperacion quedan vacíos en autoescrutinio.
+            PremioTotalTexto = "";
+            VecesBeneficioTexto = VecesBeneficio.ToString();
+            VecesPremiadaTexto = "";
+            PorcentajeRecuperadoTexto = "";
+        });
+    }
+
+    // Proyecta ResCol[] (sin la fila resumen final [numApuestas]) a la colección observable
+    // (legacy: dgResultadoEscrutinioDataBindPorColumnas — DataSource = ResCol). Marshalado a UI.
+    private void PublicarColumnasResultado(ResultadosPorColumna[] resCol, int numApuestas)
+    {
+        var con = new ConvertidorDeBases();
+        var filas = new List<ResultadoColumnaItem>();
+        for (int i = 0; i < numApuestas; i++)
+        {
+            var rc = resCol[i];
+            filas.Add(new ResultadoColumnaItem
+            {
+                Numero = rc.Num,
+                Columna = con.ConvNumAColumna(rc.Columna),
+                ColumnaNumero = rc.Columna,
+                Veces14 = rc.Veces14.ToString(),
+                Veces13 = rc.Veces13.ToString(),
+                Veces12 = rc.Veces12.ToString(),
+                Veces11 = rc.Veces11.ToString(),
+                Veces10 = rc.Veces10.ToString(),
+                Premio = rc.PremioAcumulado.ToString(),
+                Recuperacion = rc.Recuperacion,
+            });
+        }
+
+        EnUi(() =>
+        {
+            ColumnasResultado.Clear();
+            foreach (var f in filas) ColumnasResultado.Add(f);
+        });
+    }
+
+    // =====================================================================
+    // Grabar (btGrabar_Click) y Simplificar (btEliminarFilas_Click) — operan sobre ResCol[]
+    // y la selección de las filas (ColumnasResultado[i].Seleccionado).
+    // =====================================================================
+
+    // BancoPruebasFrm.cs 3978-4039 (btGrabar_Click). Versión portada sin el diálogo de rango
+    // (DialogoGrabarBancoPruebasFrm): graba las columnas seleccionadas o, si no hay ninguna marcada,
+    // todas las del resultado, vía ArchivoColumnasTexto + FileSavePicker.
+    private async Task GrabarAsync()
+    {
+        if (_resCol is null || _numApuestas == 0 || ColumnasResultado.Count == 0)
+        {
+            AppServices.MostrarInfo("No hay resultado por columnas que grabar. Ejecuta primero un análisis " +
+                "por 'Columnas' o 'Autoescrutinio' (paso 4).");
+            return;
+        }
+
+        // Legacy btGrabar_Click: recorre las filas seleccionadas (dgResultadoEscrutinio.IsSelected).
+        // El diálogo de rango sólo restringía [c1..c2] y el nº máximo; aquí, sin ese diálogo, se
+        // graba la selección completa (o todas si no hay selección, equivalente a SoloSeleccionadas=false).
+        bool haySeleccion = false;
+        foreach (var item in ColumnasResultado)
+            if (item.Seleccionado) { haySeleccion = true; break; }
+
+        var columnasAGrabar = new List<string>();
+        foreach (var item in ColumnasResultado)
+        {
+            if (haySeleccion && !item.Seleccionado) continue;
+            columnasAGrabar.Add(item.Columna);
+        }
+
+        if (columnasAGrabar.Count == 0)
+        {
+            AppServices.MostrarInfo("No hay columnas que grabar.");
+            return;
+        }
+
+        // Legacy: SaveFileDialog (carpeta Columnas, filtro "Columnas(*.txt)|*.txt|...").
+        var picker = new FileSavePicker
+        {
+            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
+            SuggestedFileName = "columnas",
+        };
+        picker.FileTypeChoices.Add("Columnas", new List<string> { ".txt" });
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        var file = await picker.PickSaveFileAsync();
+        if (file == null) return;
+
+        int conta = 0;
+        await Task.Run(() =>
+        {
+            // Legacy: IArchivoColumnas comCols = new ArchivoColumnasTexto(archivoSalida);
+            //   por cada fila -> comCols.GuardarCols(col.ConvNumAColumna(ResCol[i].Columna)); Cerrar();
+            IArchivoColumnas comCols = new ArchivoColumnasTexto(file.Path);
+            foreach (string columna in columnasAGrabar)
+            {
+                comCols.GuardarCols(columna);
+                conta++;
+            }
+            comCols.Cerrar();
+        });
+
+        // Legacy: statusBarPanel3.Text = "Grabadas N columnas".
+        AppServices.MostrarInfo($"Grabadas {conta} columna(s) en {file.Name}.");
+
+        // TODO: portar el diálogo de rango DialogoGrabarBancoPruebasFrm (FilaInicial/FilaFinal/
+        //   NumMaxColumnas/SoloSeleccionadas) que restringe [c1..c2] y el nº máximo de columnas.
+        //   Requiere mostrar DialogoGrabarBancoPruebasFrmPage como ContentDialog (fuera del scope
+        //   de este ViewModel/Page). Free1X2/UI/BancoPruebasFrm.cs línea 3996.
+    }
+
+    // BancoPruebasFrm.cs 4399-4440 (btEliminarFilas_Click + DeseleccionaColumnasPorDiferencias).
+    // Deselecciona (simplifica) las filas demasiado parecidas a una de referencia.
+    private void SimplificarFilas()
+    {
+        if (_resCol is null || ColumnasResultado.Count == 0)
+        {
+            AppServices.MostrarInfo("No hay resultado por columnas que simplificar. Ejecuta primero un " +
+                "análisis por 'Columnas' o 'Autoescrutinio' (paso 4).");
+            return;
+        }
+
+        // Legacy: byte Dif = (byte)(14 - Convert.ToByte(txDiferencias.Text));
+        byte dif = (byte)(14 - (int)DiferenciasMinimas);
+        var con = new ConvertidorDeBases();
+
+        if (SimplificarSoloFilaActual)
+        {
+            // Legacy rama rbSoloFilaActual: c = ConvColumnaANumero(txColumna.Text);
+            //   DeseleccionaColumnasPorDiferencias(c, 0, Dif); dgResultadoEscrutinio.Select(CurrentCell).
+            // El form legacy tenía dos campos independientes (txColumna = columna de referencia,
+            // txNumFila = celda a reseleccionar). La Page sólo expone NumFila, así que la columna de
+            // referencia se toma de la fila NumFila (su Columna), equivalente al uso habitual.
+            int fila = (int)NumFila;
+            if (fila < 0 || fila >= ColumnasResultado.Count)
+            {
+                AppServices.MostrarInfo("El nº de fila está fuera de rango.");
+                return;
+            }
+            int c = con.ConvColumnaANumero(ColumnasResultado[fila].Columna);
+            DeseleccionaColumnasPorDiferencias(c, 0, dif);
+            ColumnasResultado[fila].Seleccionado = true; // legacy: dgResultadoEscrutinio.Select(CurrentCell).
+        }
+        else
+        {
+            // Legacy rama "respecto de cada fila seleccionada": por cada fila seleccionada llama a
+            // DeseleccionaColumnasPorDiferencias(c, i, Dif) con c == 0 (variable nunca reasignada en
+            // esta rama del WinForms original). Se respeta tal cual para mantener la paridad exacta.
+            int c = 0;
+            for (int i = 0; i < ColumnasResultado.Count; i++)
+            {
+                if (ColumnasResultado[i].Seleccionado)
+                {
+                    DeseleccionaColumnasPorDiferencias(c, i, dif);
+                }
+            }
+        }
+    }
+
+    // BancoPruebasFrm.cs 4427-4440. Deselecciona las filas (desde PosicionInicial) cuya columna
+    // coincide con 'c' en más de NumMinimoAciertos signos (demasiado parecidas).
+    private void DeseleccionaColumnasPorDiferencias(int c, int PosicionInicial, byte NumMinimoAciertos)
+    {
+        for (int i = PosicionInicial; i < ColumnasResultado.Count; i++)
+        {
+            if (ColumnasResultado[i].Seleccionado)
+            {
+                if (c == ColumnasResultado[i].ColumnaNumero) continue;
+                if (Aciertos(c, ColumnasResultado[i].ColumnaNumero) > NumMinimoAciertos)
+                {
+                    ColumnasResultado[i].Seleccionado = false;
+                }
+            }
+        }
+    }
+
+    // ---------------------------------------------------------------------
+    // ResultadosPorColumna (transcrita de la clase privada de BancoPruebasFrm.cs 336-534).
+    // ---------------------------------------------------------------------
+    private sealed class ResultadosPorColumna
+    {
+        private readonly int _Columna;
+        private readonly int[] _NumVeces = new int[5];
+        private double[] _Premios = new double[5];
+        private readonly double[] _PremioUnitario = new double[5];
+        private bool[] _Acumula = new bool[5];
+        private string _Num = string.Empty;
+        private double _Recuperacion;
+        private readonly int _NumEscrutinios;
+
+        public ResultadosPorColumna(int pNumEscrutinios, int[] pNumVeces, double[] pPremios, bool[] pAcumula)
+        {
+            _Num = "SUMAS ";
+            _NumEscrutinios = pNumEscrutinios;
+            for (int i = 0; i < 5; i++) { _NumVeces[i] = pNumVeces[14 - i]; }
+            _Premios = pPremios;
+            _Acumula = pAcumula;
+        }
+
+        public ResultadosPorColumna(int pColumna, int pNumEscrutinios)
+        {
+            _Columna = pColumna;
+            _NumEscrutinios = pNumEscrutinios;
+        }
+
+        public void ContarPremio(int categoria) => _NumVeces[categoria]++;
+        public void SumarPremio(int categoria, double premio) => _Premios[categoria] += premio;
+
+        public string Num { get => _Num; set => _Num = value; }
+        public bool[] Acumula { set => _Acumula = value; }
+        public int Columna => _Columna;
+
+        public double PremioDe14 => Math.Round(_Premios[0]);
+        public double PremioDe13 => Math.Round(_Premios[1]);
+        public double PremioDe12 => Math.Round(_Premios[2]);
+        public double PremioDe11 => Math.Round(_Premios[3]);
+        public double PremioDe10 => Math.Round(_Premios[4]);
+
+        public int Veces14 => _NumVeces[0];
+        public int Veces13 => _NumVeces[1];
+        public int Veces12 => _NumVeces[2];
+        public int Veces11 => _NumVeces[3];
+        public int Veces10 => _NumVeces[4];
+
+        public double PremioAcumulado
+        {
+            get
+            {
+                double Suma = 0;
+                for (byte i = 0; i < 5; i++) { if (_Acumula[i]) Suma += _Premios[i]; }
+                _Recuperacion = _NumEscrutinios > 0
+                    ? Math.Round(Suma * 100 / _NumEscrutinios / 0.5, 0)
+                    : 0;
+                return Math.Round(Suma, 1);
+            }
+        }
+
+        public string Recuperacion
+        {
+            get
+            {
+                if (_Num == "SUMAS ") return "";
+                // Legacy: la recuperación se calcula como efecto colateral de PremioAcumulado.
+                _ = PremioAcumulado;
+                return _Recuperacion.ToString() + " %";
+            }
+        }
     }
 }

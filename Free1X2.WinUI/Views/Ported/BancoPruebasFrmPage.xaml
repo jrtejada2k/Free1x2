@@ -4,6 +4,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="using:Free1X2.WinUI.Controls"
+    xmlns:local="using:Free1X2.WinUI.Views.Ported"
     Background="{ThemeResource AppBackgroundBrush}">
 
     <Grid>
@@ -325,11 +326,55 @@
                             <StackPanel Spacing="8">
                                 <TextBlock Text="Resultado del escrutinio"
                                            Style="{StaticResource CardTitleTextBlockStyle}" />
-                                <!-- Equivalente a dgResultadoEscrutinio (DataGridView legacy). -->
+
+                                <!-- Modo "Combinación": resumen por nº de aciertos (Res[] legacy). -->
+                                <TextBlock Text="Combinación (por nº de aciertos)"
+                                           Style="{StaticResource SectionHeaderTextBlockStyle}" />
                                 <ListView ItemsSource="{x:Bind ViewModel.FilasResultado}"
-                                          MaxHeight="240"
+                                          MaxHeight="200"
                                           SelectionMode="Single"
-                                          AutomationProperties.Name="Filas del resultado del escrutinio" />
+                                          BorderBrush="{ThemeResource AppBorderBrush}"
+                                          BorderThickness="1"
+                                          CornerRadius="4"
+                                          AutomationProperties.Name="Filas del resultado del escrutinio por combinación" />
+
+                                <!-- Modos "Columnas"/"Autoescrutinio": una fila por columna con casilla
+                                     de selección (legacy dgResultadoEscrutinio enlazado a ResCol[]). -->
+                                <TextBlock Text="Columnas / Autoescrutinio (por columna)"
+                                           Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                                <ListView ItemsSource="{x:Bind ViewModel.ColumnasResultado}"
+                                          MaxHeight="280"
+                                          SelectionMode="None"
+                                          BorderBrush="{ThemeResource AppBorderBrush}"
+                                          BorderThickness="1"
+                                          CornerRadius="4"
+                                          AutomationProperties.Name="Filas del resultado del escrutinio por columna">
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate x:DataType="local:ResultadoColumnaItem">
+                                            <Grid ColumnSpacing="12">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <CheckBox Grid.Column="0"
+                                                          MinWidth="0"
+                                                          IsChecked="{x:Bind Seleccionado, Mode=TwoWay}"
+                                                          AutomationProperties.Name="Seleccionar columna" />
+                                                <TextBlock Grid.Column="1"
+                                                           VerticalAlignment="Center"
+                                                           MinWidth="32"
+                                                           Foreground="{ThemeResource AppTextBrush}"
+                                                           Text="{x:Bind Numero}" />
+                                                <TextBlock Grid.Column="2"
+                                                           VerticalAlignment="Center"
+                                                           FontFamily="Consolas"
+                                                           Foreground="{ThemeResource AppTextBrush}"
+                                                           Text="{x:Bind Resumen}" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                </ListView>
                             </StackPanel>
                         </Border>
 
