@@ -76,8 +76,7 @@ public partial class VisorPosiblesPremiosViewModel : ObservableObject
     /// (PosiblesPremiosFrm). Equivale al argumento del ctor legacy
     /// VisorPosiblesPremios(List&lt;PosiblesPremiosContenedor&gt; resumenPremios). El visor lo lee
     /// al navegar (mismo patrón que EstucolFrmViewModel.UltimoInforme).
-    /// TODO[productor]: PosiblesPremiosFrmViewModel.Ver (stub fuera del alcance de este lote,
-    ///   Free1X2/UI/PosiblesPremiosFrm.cs línea 3489) debe fijar UltimoResumen = _resumen y navegar aquí.
+    /// Productor cableado: PosiblesPremiosFrmViewModel.Ver fija UltimoResumen y navega aquí.
     /// </summary>
     public static List<PosiblesPremiosContenedor>? UltimoResumen { get; set; }
 

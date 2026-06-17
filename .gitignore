@@ -51,3 +51,6 @@ Thumbs.db
 .DS_Store
 # Test results / build artifacts dir
 artifacts/
+
+# Worktrees y datos de agentes de Claude
+.claude/

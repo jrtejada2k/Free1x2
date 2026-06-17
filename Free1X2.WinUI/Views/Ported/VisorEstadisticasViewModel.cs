@@ -42,9 +42,8 @@ public partial class VisorEstadisticasViewModel : ObservableObject
     /// (CalculadorEstadisticas.EstadisticasFiltro) y deja para el visor. Equivale al argumento
     /// del ctor legacy VisorEstadisticas(List&lt;Estadistica&gt; est). El visor lo lee al navegar
     /// (mismo patrón que EstucolFrmViewModel.UltimoInforme).
-    /// TODO[productor]: los formularios de filtro (ContactosFrm.Estadisticas, etc., aún stubs y
-    ///   fuera del alcance de este lote) deben fijar UltimasEstadisticas antes de navegar aquí.
-    ///   Legacy: ContactosFrm.cs líneas 775-789 -> new VisorEstadisticas(lista).
+    /// Productores cableados: los VMs de condición (Contactos, Distancias, ...) fijan
+    /// UltimasEstadisticas en su comando Estadísticas y navegan aquí.
     /// </summary>
     public static List<Estadistica>? UltimasEstadisticas { get; set; }
 

@@ -79,9 +79,7 @@ public partial class AnalizarCombinacionFrmViewModel : ObservableObject
     /// Handoff estático con los argumentos del análisis de fallos. Equivale a los parámetros del
     /// método legacy AnalisisCombinacion.AnalizarCombinacion(nombreCombinacion, columna, analizador,
     /// pronosticosBase). La Page lo lee al navegar (mismo patrón que EstucolFrmViewModel.UltimoInforme).
-    /// TODO[productor]: ColGanadoraFrmViewModel.Analizar (stub fuera del alcance de este lote,
-    ///   Free1X2.WinUI/Views/Ported/ColGanadoraFrmViewModel.cs líneas 143-154) debe fijar este handoff
-    ///   (Nombre/Columna/Analizador/Pronosticos) y navegar aquí, en lugar de mostrar el aviso actual.
+    /// Productor cableado: ColGanadoraFrmViewModel.Analizar fija este handoff y navega aquí.
     /// </summary>
     public static (string nombre, long columna, Analizador analizador, string[] pronosticos)? UltimoAnalisis { get; set; }
 
