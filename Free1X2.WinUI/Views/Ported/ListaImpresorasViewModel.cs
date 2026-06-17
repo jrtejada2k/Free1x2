@@ -158,8 +158,25 @@ public partial class ListaImpresorasViewModel : ObservableObject
         MargenIzquierdaAplicado = controladorImp.MargenIzquierda;
         RotarAplicado = controladorImp.Rotar;
 
-        // Legacy: Close(); el cierre de la página/diálogo lo gestiona el host (code-behind).
+        // Deja el controlador elegido en el handoff estático para que la página productora
+        // (ImprimirBoletoFrmPage) copie su config al volver, igual que el btnVerImpresoras_Click
+        // legacy leía 'controlador' tras cerrar el diálogo. Luego solicita el cierre (legacy: Close()).
+        SeleccionResultado = _controladorActivo;
+        CierreSolicitado?.Invoke(this, EventArgs.Empty);
     }
+
+    /// <summary>
+    /// Handoff estático con el controlador elegido (legacy: el form recibía/escribía 'controlador'
+    /// por referencia y el productor lo leía tras ShowDialog). La página productora lo consume al
+    /// volver por Frame.GoBack. null = el usuario no seleccionó ninguna impresora.
+    /// </summary>
+    public static ControladorImpresion? SeleccionResultado { get; set; }
+
+    /// <summary>
+    /// Se solicita cerrar la página (legacy: ListaImpresoras.Close() tras listBox1_DoubleClick).
+    /// Lo escucha el code-behind de la página, que hace Frame.GoBack para volver al productor.
+    /// </summary>
+    public event EventHandler? CierreSolicitado;
 
     /// <summary>
     /// Busca un controlador por modelo dentro de la lista cargada (legacy: BuscarImpresora).

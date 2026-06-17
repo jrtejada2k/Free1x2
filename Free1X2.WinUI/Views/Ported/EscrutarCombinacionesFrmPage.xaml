@@ -264,6 +264,8 @@
                                 Command="{x:Bind ViewModel.GrabarColumnasCommand}" />
                         <Button Content="Ver Premiadas"
                                 Command="{x:Bind ViewModel.VerPremiadasAccionCommand}" />
+                        <Button Content="Ver Premiadas…"
+                                Command="{x:Bind ViewModel.VerPremiadasEnVentanaCommand}" />
                     </StackPanel>
                 </StackPanel>
             </Border>

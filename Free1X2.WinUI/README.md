@@ -40,9 +40,8 @@ Free1X2.WinUI/
 ├── MainWindow.xaml(.cs)     ← shell NavigationView + Mica
 ├── Themes/Tokens.xaml       ← sistema de diseño (paleta, tipografía, tokens)
 └── Views/
-    ├── HomePage             ← landing + showcase del design system
-    ├── BoletoPage           ← slice de prueba (14 partidos)
-    └── SettingsPage          ← tema claro/oscuro/sistema
+    ├── MainPage             ← pantalla de inicio (boleto base, 14 partidos)
+    └── Ported/              ← pantallas portadas desde WinForms (registro en Navigation/PortedPages.cs)
 ```
 
 ## Próximos pasos

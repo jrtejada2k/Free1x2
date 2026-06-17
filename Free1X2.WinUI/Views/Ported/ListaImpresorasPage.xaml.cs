@@ -13,6 +13,13 @@ public sealed partial class ListaImpresorasPage : Page
     public ListaImpresorasPage()
     {
         InitializeComponent();
+
+        // Legacy: ListaImpresoras.Close() tras seleccionar; aquí se vuelve al productor
+        // (ImprimirBoletoFrmPage), que ya tiene la selección en el handoff estático.
+        ViewModel.CierreSolicitado += (_, _) =>
+        {
+            if (Frame?.CanGoBack == true) Frame.GoBack();
+        };
     }
 
     // Legacy: listBox1_DoubleClick — selecciona la impresora y aplica su configuración.

@@ -734,4 +734,36 @@ public partial class EscrutarCombinacionesFrmViewModel : ObservableObject
         }
         MostrarPremiadas = true;
     }
+
+    /// <summary>
+    /// Abre la VENTANA de columnas premiadas (legacy fiel: btnVerPremiadas_Click ->
+    /// new ColumnasPremiadasFrm(); rellenar listaResumen; form.ShowDialog()). Proyecta
+    /// _premiadas (ColumnasPremiadasComb) a filas ColumnaPremiadaItem, las deja en el handoff
+    /// estático ColumnasPremiadasFrmPage.Entrada y navega a esa página (que además exporta todas /
+    /// seleccionadas). Coexiste con VerPremiadasAccion (tarjeta inline) como en la app.
+    /// </summary>
+    [RelayCommand]
+    private void VerPremiadasEnVentana()
+    {
+        var filas = new List<ColumnaPremiadaItem>();
+        foreach (var p in _premiadas)
+        {
+            filas.Add(new ColumnaPremiadaItem
+            {
+                ArchivoColumnas = Path.GetFileName(p.Fichero ?? ""),
+                Jornada = p.Jornada.ToString(),
+                Columna = p.ColumnaTexto,
+                Premio = p.Premio.ToString(),
+            });
+        }
+
+        if (filas.Count == 0)
+        {
+            AppServices.MostrarInfo("No hay columnas premiadas. Activa «Ver Premiadas» antes de escrutar.");
+            return;
+        }
+
+        ColumnasPremiadasFrmPage.Entrada = filas;
+        Navegar?.Invoke(typeof(ColumnasPremiadasFrmPage), null);
+    }
 }

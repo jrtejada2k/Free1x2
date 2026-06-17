@@ -190,6 +190,7 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
 
     // Habilita "Ver premiadas" si hubo escrutinio con la opción activa (legacy: btnVerPremiadas.Enabled).
     [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(VerPremiadasEnVentanaCommand))]
     private bool _puedeVerPremiadas;
 
     public EscrutiniosFrmViewModel()
@@ -782,6 +783,37 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
             });
         }
         MostrarPremiadas = true;
+    }
+
+    /// <summary>
+    /// Abre la VENTANA de columnas premiadas (legacy fiel: btnVerPremiadas_Click ->
+    /// new ColumnasPremiadasFrm(); rellenar listaResumen; form.ShowDialog()). Proyecta
+    /// _listaPremiadas a filas ColumnaPremiadaItem, las deja en el handoff estático
+    /// ColumnasPremiadasFrmPage.Entrada y navega a esa página (que ofrece además exportar
+    /// todas / seleccionadas). Coexiste con VerPremiadas (tarjeta inline) como en la app.
+    /// </summary>
+    [RelayCommand(CanExecute = nameof(PuedeVerPremiadas))]
+    private void VerPremiadasEnVentana()
+    {
+        var filas = new List<ColumnaPremiadaItem>();
+        foreach (var p in _listaPremiadas)
+        {
+            // Legacy: NoBoleto + " (" + orden + ")", con orden = NoColumna % 8 (8 si 0).
+            int orden = p.NoColumna % 8;
+            if (orden == 0) orden = 8;
+            filas.Add(new ColumnaPremiadaItem
+            {
+                ArchivoColumnas = Path.GetFileName(p.Fichero),
+                Jornada = p.Jornada.ToString(),
+                Columna = p.Columna,
+                Premio = p.Premio.ToString(),
+                NumeroColumna = p.NoColumna.ToString(),
+                NumeroBoleto = p.NoBoleto + " (" + orden + ")",
+            });
+        }
+
+        ColumnasPremiadasFrmPage.Entrada = filas;
+        Navegar?.Invoke(typeof(ColumnasPremiadasFrmPage), null);
     }
 
     /// <summary>

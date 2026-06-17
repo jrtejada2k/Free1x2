@@ -6,6 +6,7 @@ using Microsoft.UI;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
+using Microsoft.UI.Xaml.Navigation;
 using Microsoft.UI.Xaml.Shapes;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Graphics.Imaging;
@@ -38,70 +39,41 @@ public sealed partial class ImprimirBoletoFrmPage : Page
     {
         InitializeComponent();
         ViewModel.ExportacionSolicitada += async (_, _) => await ExportarBoletoAsync();
-        ViewModel.SeleccionImpresoraSolicitada += async (_, _) => await SeleccionarImpresoraAsync();
+        ViewModel.SeleccionImpresoraSolicitada += (_, _) => SeleccionarImpresora();
     }
 
     /// <summary>
-    /// Muestra un selector de impresoras conocidas (ContentDialog con ComboBox) cargado desde
-    /// Free1X2.MotorCalculo.ControladoresImpresion (los modelos soportados del XML
-    /// Impresion/impresoras.cfg), y aplica la config del modelo elegido a los campos del VM.
-    /// Equivalente WinUI del diálogo ListaImpresoras del legacy.
+    /// Abre la lista de impresoras conocidas (legacy fiel: btnVerImpresoras_Click ->
+    /// new ListaImpresoras(controlador).ShowDialog()). Navega a ListaImpresorasPage por el Frame;
+    /// al elegir una impresora, esa página deja el controlador en el handoff estático
+    /// ListaImpresorasViewModel.SeleccionResultado y vuelve (Frame.GoBack). OnNavigatedTo recoge el
+    /// resultado y copia margenes/modelo/girar al formulario (réplica de la copia que hacía
+    /// btnVerImpresoras_Click tras cerrar el diálogo).
     /// </summary>
-    private async Task SeleccionarImpresoraAsync()
+    private void SeleccionarImpresora()
     {
-        var root = XamlRoot;
-        if (root == null) return;
+        ListaImpresorasViewModel.SeleccionResultado = null; // limpiar un resultado previo.
+        Frame?.Navigate(typeof(ListaImpresorasPage));
+    }
 
-        List<ControladorImpresion> impresoras;
-        try
+    /// <summary>
+    /// Al volver de ListaImpresorasPage (Frame.GoBack), aplica el controlador elegido a los campos
+    /// del formulario, igual que el btnVerImpresoras_Click legacy copiaba controlador.* tras cerrar
+    /// el diálogo. Si no hubo selección, no toca la configuración actual.
+    /// </summary>
+    protected override void OnNavigatedTo(NavigationEventArgs e)
+    {
+        base.OnNavigatedTo(e);
+
+        if (ListaImpresorasViewModel.SeleccionResultado is { } controlador)
         {
-            impresoras = new ControladoresImpresion().Impresoras;
+            ListaImpresorasViewModel.SeleccionResultado = null;
+            ViewModel.AplicarImpresora(
+                controlador.Modelo,
+                controlador.MargenSuperior,
+                controlador.MargenIzquierda,
+                controlador.Rotar);
         }
-        catch (Exception ex)
-        {
-            AppServices.MostrarError("No se han podido cargar las impresoras conocidas: " + ex.Message);
-            return;
-        }
-
-        if (impresoras == null || impresoras.Count == 0)
-        {
-            AppServices.MostrarInfo("No hay impresoras conocidas configuradas.");
-            return;
-        }
-
-        var combo = new ComboBox
-        {
-            Header = "Impresora",
-            HorizontalAlignment = Microsoft.UI.Xaml.HorizontalAlignment.Stretch,
-        };
-        foreach (var imp in impresoras)
-        {
-            combo.Items.Add(imp.Modelo);
-        }
-        combo.SelectedIndex = 0;
-
-        var dialogo = new ContentDialog
-        {
-            Title = "Impresoras conocidas",
-            Content = combo,
-            PrimaryButtonText = "Seleccionar",
-            CloseButtonText = "Cancelar",
-            DefaultButton = ContentDialogButton.Primary,
-            XamlRoot = root,
-        };
-
-        var resultado = await dialogo.ShowAsync();
-        if (resultado != ContentDialogResult.Primary) return;
-
-        string? modelo = combo.SelectedItem as string;
-        if (string.IsNullOrEmpty(modelo)) return;
-
-        var elegido = impresoras.Find(i => i.Modelo == modelo) ?? impresoras[0];
-        ViewModel.AplicarImpresora(
-            elegido.Modelo,
-            elegido.MargenSuperior,
-            elegido.MargenIzquierda,
-            elegido.Rotar);
     }
 
     /// <summary>

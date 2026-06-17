@@ -1,10 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
 using Free1X2;
+using Free1X2.EntradaSalida;
+using Free1X2.WinUI.Services;
+using Windows.Storage.Pickers;
 
 namespace Free1X2.WinUI.Views.Ported
 {
@@ -32,6 +36,41 @@ namespace Free1X2.WinUI.Views.Ported
         {
             // Constructor sin datos: muestra placeholder.
             // El legacy recibía string[] columnas en el constructor del Form.
+        }
+
+        /// <summary>
+        /// Abre un fichero de columnas y las muestra como boletos verticales. Réplica del flujo
+        /// legacy verBoletosEnEditorDeTextoToolStripMenuItem_Click (MainForm.cs:781): OpenFileDialog
+        /// (*.txt en /Columnas), luego aCol.LeerTodasCols(false) y new VerBoletosEnEditorFrm(cols).
+        /// En el WinForms el fichero lo elegía el menú antes de abrir el form; aquí, como la página
+        /// se abre por navegación, la propia página ofrece el botón "Cargar columnas…".
+        /// </summary>
+        [RelayCommand]
+        private async Task CargarFicheroAsync()
+        {
+            var picker = new FileOpenPicker
+            {
+                SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
+            };
+            picker.FileTypeFilter.Add(".txt");
+            picker.FileTypeFilter.Add("*");
+            WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+            var file = await picker.PickSingleFileAsync();
+            if (file is null) return;
+
+            try
+            {
+                // Legacy: IArchivoColumnas aCol = new ArchivoColumnasTexto(ruta); cols = aCol.LeerTodasCols(false).
+                IArchivoColumnas aCol = new ArchivoColumnasTexto(file.Path);
+                string[] cols = aCol.LeerTodasCols(false);
+                aCol.Cerrar();
+                CargarColumnas(cols);
+            }
+            catch (Exception ex)
+            {
+                AppServices.MostrarError("No se ha podido leer el fichero de columnas: " + ex.Message);
+            }
         }
 
         /// <summary>

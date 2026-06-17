@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Navigation;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -11,11 +12,37 @@ namespace Free1X2.WinUI.Views.Ported;
 /// </summary>
 public sealed partial class ColumnasPremiadasFrmPage : Page
 {
+    /// <summary>
+    /// Handoff estático con las columnas premiadas a mostrar (legacy: el productor —
+    /// EscrutiniosFrm.btnVerPremiadas_Click / EscrutarCombinacionesFrm.btnVerPremiadas_Click —
+    /// rellenaba form.listaResumen.Items ANTES de form.ShowDialog()). El productor coloca aquí
+    /// las filas y navega a esta página; OnNavigatedTo las vuelca en el ViewModel (mismo patrón
+    /// estático que DialogoFiltrarPorLimitesFrmPage.ExtremosEntrada).
+    /// </summary>
+    public static IReadOnlyList<ColumnaPremiadaItem>? Entrada { get; set; }
+
     public ColumnasPremiadasFrmViewModel ViewModel { get; } = new();
 
     public ColumnasPremiadasFrmPage()
     {
         InitializeComponent();
+    }
+
+    protected override void OnNavigatedTo(NavigationEventArgs e)
+    {
+        base.OnNavigatedTo(e);
+
+        // Vuelca las premiadas que dejó el productor (Escrutinios / EscrutarCombinaciones) y
+        // consume el handoff para no arrastrarlo a futuras navegaciones.
+        if (Entrada is { } filas)
+        {
+            ViewModel.Columnas.Clear();
+            foreach (var f in filas)
+            {
+                ViewModel.Columnas.Add(f);
+            }
+            Entrada = null;
+        }
     }
 
     /// <summary>

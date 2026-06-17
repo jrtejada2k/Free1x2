@@ -358,6 +358,10 @@
                     Command="{x:Bind ViewModel.VerPremiadasCommand}"
                     AutomationProperties.Name="Ver columnas premiadas" />
                 <Button
+                    Content="Ver premiadas…"
+                    Command="{x:Bind ViewModel.VerPremiadasEnVentanaCommand}"
+                    AutomationProperties.Name="Ver columnas premiadas en ventana" />
+                <Button
                     Content="Cancelar"
                     Command="{x:Bind ViewModel.CancelarCommand}"
                     AutomationProperties.Name="Cancelar y cerrar" />

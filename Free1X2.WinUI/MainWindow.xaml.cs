@@ -107,6 +107,10 @@ public sealed partial class MainWindow : Window
             ("E8EF", "Calcular varias…", typeof(CalculaColumnasMultipleFrmPage)),
             null,
             ("E8A1", "Ver boletos…", typeof(VerBoletosPage)),
+            // "Ver boletos en editor de texto" — en el menú Combinación del original
+            // (verBoletosEnEditorDeTextoToolStripMenuItem, MainForm.cs:781). Navega a la página
+            // portada (handler legacy: abre fichero de columnas + VerBoletosEnEditorFrm).
+            ("E8A1", "Ver boletos en editor de texto…", typeof(VerBoletosEnEditorFrmPage)),
             ("E749", "Imprimir boletos…", typeof(ImprimirBoletoFrmPage)),
             null,
             ("E74D", "Reducir…", typeof(ReductorFrmPage)),
@@ -542,7 +546,7 @@ public sealed partial class MainWindow : Window
         _smokeLog = Path.Combine(Path.GetTempPath(), "free1x2_smoke.log");
         try { File.WriteAllText(_smokeLog, "SMOKE START\r\n"); } catch { }
 
-        _smokeRuta = new List<Type> { typeof(MainPage), typeof(HomePage) };
+        _smokeRuta = new List<Type> { typeof(MainPage) };
         foreach (var p in PortedPagesRegistry.All)
             _smokeRuta.Add(p.PageType);
 

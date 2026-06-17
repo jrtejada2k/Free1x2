@@ -55,6 +55,9 @@
             HorizontalAlignment="Right"
             Spacing="5">
             <Button
+                Content="Cargar columnas…"
+                Command="{x:Bind ViewModel.CargarFicheroCommand}" />
+            <Button
                 Content="Imprimir / Exportar imagen"
                 Style="{StaticResource AccentButtonStyle}"
                 Command="{x:Bind ViewModel.ImprimirCommand}" />

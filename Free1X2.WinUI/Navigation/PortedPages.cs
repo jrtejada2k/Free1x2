@@ -89,7 +89,6 @@ public static class PortedPagesRegistry
         new PortedPage("Compresor",                           "", typeof(CompresorPage), "Columnas y combinacion"),
         new PortedPage("Control Grupos",                      "", typeof(ControlGruposFrmPage), "Columnas y combinacion"),
         new PortedPage("Crear Grupos",                        "", typeof(CrearGruposFrmPage), "Columnas y combinacion"),
-        new PortedPage("Dialogo Seleccion Banco Pruebas",     "", typeof(DialogoSeleccionBancoPruebasFrmPage), "Columnas y combinacion"),
         new PortedPage("Dif Cols",                            "", typeof(DifColsPage), "Columnas y combinacion"),
         new PortedPage("Escrutar Combinaciones",              "", typeof(EscrutarCombinacionesFrmPage), "Columnas y combinacion"),
         new PortedPage("Escrutinios",                         "", typeof(EscrutiniosFrmPage), "Columnas y combinacion"),
@@ -108,7 +107,6 @@ public static class PortedPagesRegistry
         new PortedPage("Agregar Equipo",                      "", typeof(AgregarEquipoFrmPage), "Equipos"),
         new PortedPage("Gestor Equipos",                      "", typeof(GestorEquiposFrmPage), "Equipos"),
         new PortedPage("Grupos Equipos",                      "", typeof(GruposEquiposFrmPage), "Equipos"),
-        new PortedPage("Lista Equipos",                       "", typeof(ListaEquiposFrmPage), "Equipos"),
         // ===== Cuadros (CPs) =====
         new PortedPage("Cambio Puntos",                       "", typeof(CambioPuntosFrmPage), "Cuadros (CPs)"),
         new PortedPage("Config CPs",                          "", typeof(ConfigCPsFrmPage), "Cuadros (CPs)"),
@@ -125,7 +123,6 @@ public static class PortedPagesRegistry
         new PortedPage("Acerca De",                           "", typeof(AcercaDeFrmPage), "Ayuda"),
         new PortedPage("Ayuda",                               "", typeof(AyudaFrmPage), "Ayuda"),
         new PortedPage("Creditos",                            "", typeof(CreditosFrmPage), "Ayuda"),
-        new PortedPage("Salir",                               "", typeof(SalirFrmPage), "Ayuda"),
         // ===== Otras pantallas =====
         new PortedPage("Agrega P 15",                         "", typeof(AgregaP15FrmPage), "Otras pantallas"),
         new PortedPage("aidomnou",                            "", typeof(aidomnouPage), "Otras pantallas"),
