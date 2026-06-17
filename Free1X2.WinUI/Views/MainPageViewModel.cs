@@ -204,6 +204,23 @@ public partial class MainPageViewModel : ObservableObject
         NombreCombinacion = string.IsNullOrEmpty(_estado.NombreArchivoComb)
             ? "(combinación nueva)"
             : Path.GetFileNameWithoutExtension(_estado.NombreArchivoComb);
+
+        // Filtro parcial del grupo (réplica de la sección "Indicar Filtro" de
+        // ActualizaGrupoPantalla: ActivaFiltroColumnasParcial / DesactivarFiltroColumnasParcial).
+        // El filtro parcial es por-grupo (grupo.ArchivoFiltroGrupo) y, en el original, solo se
+        // muestra para grupos distintos del boleto base.
+        if (grupoPantalla != 0 && !string.IsNullOrEmpty(grupo.ArchivoFiltroGrupo))
+        {
+            NombreFiltroParcial = Path.GetFileNameWithoutExtension(grupo.ArchivoFiltroGrupo);
+            EstadoFiltroParcial = File.Exists(grupo.ArchivoFiltroGrupo)
+                ? EstadoSemaforo.Verde
+                : EstadoSemaforo.Rojo;
+        }
+        else
+        {
+            NombreFiltroParcial = "(Selecciona)";
+            EstadoFiltroParcial = EstadoSemaforo.Neutro;
+        }
     }
 
     // ============================================================
@@ -240,27 +257,87 @@ public partial class MainPageViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Tolerancias del grupo (MainForm.btnTolGrupo). Stub: el formulario de tolerancias del
-    /// original aún no está portado en M3.
-    /// TODO: portar TolGrupoFrm y navegar aquí pasando el Grupo vía AppState.GrupoEnEdicion.
+    /// Tolerancias del grupo (MainForm.BtnTolGrupoClick, Free1X2/UI/MainForm.cs ~1358-1363):
+    /// el original abre <c>new ControlTolFrm(analizador.GruposPartidos[grupoPantalla].ControladorTolerancias)</c>.
+    /// Aquí navegamos a la página portada <see cref="ControlTolFrmPage"/>, que ya edita el
+    /// <c>ControladorTol</c> del grupo actual (lee <c>AppState.GrupoActual.ControladorTolerancias</c>
+    /// en OnNavigatedTo). Pasamos el grupo por el handoff estático para mantener el patrón.
     /// </summary>
     [RelayCommand]
     private void AbrirTolerancias()
     {
-        Free1X2.Abstractions.UserDialogs.ShowError(
-            "Las Tolerancias del grupo aún no están disponibles en esta versión.");
+        AppState.GrupoEnEdicion = _estado.GrupoActual;
+        Navegar?.Invoke(typeof(ControlTolFrmPage));
     }
 
     /// <summary>
-    /// Filtro parcial del grupo (MainForm.btnAbreFiltroParcial / gbFiltroParcial). Stub: el
-    /// selector de filtro parcial aún no está portado en M3.
-    /// TODO: portar el selector de filtro parcial del grupo y asignar el archivo al Grupo actual.
+    /// Filtro parcial del grupo (MainForm.btnAbreFiltroParcial_Click, Free1X2/UI/MainForm.cs
+    /// ~1808-1840). El filtro elegido se aplica SOLO al grupo en pantalla
+    /// (<c>grupo.ArchivoFiltroGrupo</c>). Réplica fiel:
+    ///   - Si el botón estaba "abierto" (ya hay filtro parcial) → DesactivarFiltroColumnasParcial:
+    ///     limpia el archivo del grupo.
+    ///   - Si no → OpenFileDialog (.txt) + ActivaFiltroColumnasParcial: valida que el filtro tenga
+    ///     EXACTAMENTE <c>VariablesGlobales.NumeroPartidos</c> signos (no más, no distinto) y, si es
+    ///     válido, asigna <c>grupo.ArchivoFiltroGrupo</c>.
+    /// El filtro parcial no aplica al boleto base (grupo 0), igual que el original (la sección
+    /// "Indicar Filtro" de ActualizaGrupoPantalla se salta el grupo 0).
     /// </summary>
     [RelayCommand]
-    private void AbrirFiltroParcial()
+    private async Task AbrirFiltroParcialAsync()
     {
-        Free1X2.Abstractions.UserDialogs.ShowError(
-            "El Filtro Parcial del grupo aún no está disponible en esta versión.");
+        Grupo grupo = _estado.GrupoActual;
+
+        // El filtro parcial es por-grupo y el original no lo expone para el boleto base.
+        if (_estado.GrupoPantalla == 0)
+        {
+            Free1X2.Abstractions.UserDialogs.ShowError(
+                "El Filtro Parcial se aplica a un grupo. Selecciona o crea un grupo distinto del boleto base.");
+            return;
+        }
+
+        // Toggle: si ya hay filtro parcial, desactivarlo (DesactivarFiltroColumnasParcial).
+        if (!string.IsNullOrEmpty(grupo.ArchivoFiltroGrupo))
+        {
+            grupo.ArchivoFiltroGrupo = "";
+            grupo.ReinicializaVariablesFiltroParcial();
+            RefrescarPantalla();
+            return;
+        }
+
+        var picker = new Windows.Storage.Pickers.FileOpenPicker
+        {
+            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
+        };
+        picker.FileTypeFilter.Add(".txt");
+        picker.FileTypeFilter.Add("*");
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        var file = await picker.PickSingleFileAsync();
+        if (file == null) return;
+
+        // ActivaFiltroColumnasParcial: el filtro parcial debe tener EXACTAMENTE NumeroPartidos signos.
+        try
+        {
+            IArchivoColumnas cols = new ArchivoColumnasTexto(file.Path);
+            int signos = cols.ObtenNumSignos();
+            if (signos != VariablesGlobales.NumeroPartidos)
+            {
+                Free1X2.Abstractions.UserDialogs.ShowError(
+                    "El Filtro Parcial para los grupos debe tener " +
+                    VariablesGlobales.NumeroPartidos + " partidos.");
+                return;
+            }
+        }
+        catch
+        {
+            Free1X2.Abstractions.UserDialogs.ShowError("No se pudo leer el archivo de filtro parcial.");
+            return;
+        }
+
+        // Indicar al grupo cuál es su filtro (igual que btnAbreFiltroParcial_Click).
+        grupo.ArchivoFiltroGrupo = file.Path;
+        grupo.ReinicializaVariablesFiltroParcial();
+        RefrescarPantalla(); // actualiza nombre + semáforo de la tarjeta "Filtro Parcial del Grupo"
     }
 
     // ============================================================
