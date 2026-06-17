@@ -13,31 +13,46 @@
     <!-- ===== Tipografía / encabezados ===== -->
     <!-- Densidad compacta: títulos de página ~21px, cabeceras ~15px, descripciones ~12px,
          alineado con la densidad de MainPage (texto/controles a 12px). Sólo tamaño, sin tocar color. -->
+    <!-- Título de página: variante óptica Display (pensada para tamaños grandes),
+         peso SemiBold para jerarquía, y un tracking positivo sutil (+30) que da
+         un toque elegante sin riesgo de recorte. Sólo familia/peso/espaciado. -->
     <Style x:Key="PageTitleTextBlockStyle" TargetType="TextBlock"
            BasedOn="{StaticResource TitleLargeTextBlockStyle}">
+        <Setter Property="FontFamily" Value="{StaticResource AppFontFamilyDisplay}" />
         <Setter Property="Foreground" Value="{ThemeResource AppTextBrush}" />
         <Setter Property="FontSize" Value="21" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="CharacterSpacing" Value="30" />
         <Setter Property="LineHeight" Value="26" />
     </Style>
 
+    <!-- Cabecera de sección: variante Display + SemiBold. -->
     <Style x:Key="SectionHeaderTextBlockStyle" TargetType="TextBlock"
            BasedOn="{StaticResource SubtitleTextBlockStyle}">
+        <Setter Property="FontFamily" Value="{StaticResource AppFontFamilyDisplay}" />
         <Setter Property="Foreground" Value="{ThemeResource AppTextBrush}" />
         <Setter Property="FontSize" Value="15" />
+        <Setter Property="FontWeight" Value="SemiBold" />
         <Setter Property="LineHeight" Value="20" />
     </Style>
 
+    <!-- Título de tarjeta: variante Text + SemiBold. -->
     <Style x:Key="CardTitleTextBlockStyle" TargetType="TextBlock"
            BasedOn="{StaticResource BodyStrongTextBlockStyle}">
+        <Setter Property="FontFamily" Value="{StaticResource AppFontFamilyText}" />
         <Setter Property="Foreground" Value="{ThemeResource AppTextBrush}" />
         <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontWeight" Value="SemiBold" />
         <Setter Property="LineHeight" Value="18" />
     </Style>
 
+    <!-- Texto secundario/descripción: variante Small, peso Regular, color apagado. -->
     <Style x:Key="SecondaryTextBlockStyle" TargetType="TextBlock"
            BasedOn="{StaticResource BodyTextBlockStyle}">
+        <Setter Property="FontFamily" Value="{StaticResource AppFontFamilySmall}" />
         <Setter Property="Foreground" Value="{ThemeResource AppTextSecondaryBrush}" />
         <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontWeight" Value="Normal" />
         <Setter Property="LineHeight" Value="16" />
     </Style>
 
@@ -50,6 +65,7 @@
          ============================================================ -->
     <Style x:Key="TitleTextBlockStyle" TargetType="TextBlock"
            BasedOn="{StaticResource BaseTextBlockStyle}">
+        <Setter Property="FontFamily" Value="{StaticResource AppFontFamilyDisplay}" />
         <Setter Property="FontSize" Value="21" />
         <Setter Property="FontWeight" Value="SemiBold" />
         <Setter Property="LineHeight" Value="26" />
@@ -57,6 +73,7 @@
 
     <Style x:Key="SubtitleTextBlockStyle" TargetType="TextBlock"
            BasedOn="{StaticResource BaseTextBlockStyle}">
+        <Setter Property="FontFamily" Value="{StaticResource AppFontFamilyDisplay}" />
         <Setter Property="FontSize" Value="15" />
         <Setter Property="FontWeight" Value="SemiBold" />
         <Setter Property="LineHeight" Value="20" />

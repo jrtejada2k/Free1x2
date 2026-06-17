@@ -95,6 +95,23 @@
 
     </ResourceDictionary.ThemeDictionaries>
 
+    <!-- ===== Tipografía base (app-wide) =====
+         Segoe UI Variable es la fuente de sistema moderna de Windows 11:
+         limpia y profesional, sin nada decorativo. Se declara con fallback a
+         "Segoe UI" por si la variante variable no está disponible.
+         Al sobreescribir ContentControlThemeFontFamily (recurso del framework
+         del que heredan los estilos base de texto y la mayoría de controles),
+         toda la app adopta la fuente sin tocar cada control. Sólo cambia la
+         FAMILIA de fuente; tamaños, color y disposición se conservan. -->
+    <FontFamily x:Key="AppFontFamily">Segoe UI Variable, Segoe UI</FontFamily>
+    <FontFamily x:Key="AppFontFamilyDisplay">Segoe UI Variable Display, Segoe UI Variable, Segoe UI</FontFamily>
+    <FontFamily x:Key="AppFontFamilyText">Segoe UI Variable Text, Segoe UI Variable, Segoe UI</FontFamily>
+    <FontFamily x:Key="AppFontFamilySmall">Segoe UI Variable Small, Segoe UI Variable, Segoe UI</FontFamily>
+
+    <!-- Override del recurso de fuente del framework: hace que todos los
+         controles (y BaseTextBlockStyle) hereden Segoe UI Variable por defecto. -->
+    <FontFamily x:Key="ContentControlThemeFontFamily">Segoe UI Variable Text, Segoe UI Variable, Segoe UI</FontFamily>
+
     <!-- ===== Tokens no dependientes del tema ===== -->
     <x:Double x:Key="AppCornerRadiusValue">8</x:Double>
     <CornerRadius x:Key="AppCornerRadius">8</CornerRadius>
