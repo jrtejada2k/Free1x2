@@ -23,7 +23,7 @@
                     <TextBlock Text="Valoraciones 1 / X / 2 por partido. Son el origen de dv = valors1.RetVals() en el cálculo de límites."
                                Style="{StaticResource SecondaryTextBlockStyle}"
                                TextWrapping="Wrap" />
-                    <controls:PorcentajesControl Height="380"
+                    <controls:PorcentajesControl Height="260"
                                                  Filas="{x:Bind ViewModel.Porcentajes, Mode=OneWay}"
                                                  AutomationProperties.Name="Valoraciones 1 X 2 por partido" />
                 </StackPanel>

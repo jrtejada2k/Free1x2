@@ -94,7 +94,7 @@
                         <TextBlock Text="Valoraciones (porcentajes)" Style="{StaticResource CardTitleTextBlockStyle}" />
                         <TextBlock Style="{StaticResource SecondaryTextBlockStyle}"
                                    Text="Porcentajes por partido (1/X/2) que alimentan el cálculo de probabilidad / suma." />
-                        <controls:PorcentajesControl Height="300"
+                        <controls:PorcentajesControl Height="260"
                                                      Filas="{x:Bind ViewModel.Porcentajes, Mode=OneWay}" />
                     </StackPanel>
                 </Border>

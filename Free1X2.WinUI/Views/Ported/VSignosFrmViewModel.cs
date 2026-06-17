@@ -25,6 +25,27 @@ public partial class CasillaColumnaGanadora : ObservableObject
 }
 
 /// <summary>
+/// Una fila de la rejilla de recuentos por partido (solo lectura). Refleja una fila de
+/// <c>vals[noPartidos,3]</c>: nº de partido y cuántas veces aparece cada signo (1 / X / 2)
+/// entre las columnas contabilizadas. Es una proyección de presentación; no altera el motor.
+/// </summary>
+public sealed class RecuentoSignoFila
+{
+    public int Partido { get; }
+    public int Unos { get; }
+    public int Equis { get; }
+    public int Doses { get; }
+
+    public RecuentoSignoFila(int partido, int unos, int equis, int doses)
+    {
+        Partido = partido;
+        Unos = unos;
+        Equis = equis;
+        Doses = doses;
+    }
+}
+
+/// <summary>
 /// ViewModel para la pantalla "Análisis de signos" (legacy: VSignosFrm).
 /// Procesa un fichero de columnas y contabiliza, partido a partido, cuántas veces
 /// aparece cada signo (1/X/2). Permite elegir el formato de presentación
@@ -50,6 +71,12 @@ public partial class VSignosFrmViewModel : ObservableObject
     /// con "-" como comodín. Se redimensiona al abrir fichero (AdaptarVistaAPartidos).
     /// </summary>
     public ObservableCollection<CasillaColumnaGanadora> ColumnaGanadora { get; } = new();
+
+    /// <summary>
+    /// Proyección de presentación (solo lectura) de <see cref="_vals"/>: una fila por partido
+    /// con los recuentos de 1 / X / 2. Se rellena al calcular; alimenta la rejilla de la vista.
+    /// </summary>
+    public ObservableCollection<RecuentoSignoFila> Recuentos { get; } = new();
 
     // Recuento por partido y signo (legacy: int[noPartidos,3] vals; 0=1, 1=X, 2=2).
     private int[,] _vals = new int[15, 3];
@@ -244,6 +271,13 @@ public partial class VSignosFrmViewModel : ObservableObject
 
         _vals = vals;
         _hayResultado = true;
+
+        // Proyecta vals[noPartidos,3] a la rejilla de recuentos (solo presentación).
+        Recuentos.Clear();
+        for (int nr = 0; nr < noPartidos; nr++)
+        {
+            Recuentos.Add(new RecuentoSignoFila(nr + 1, vals[nr, 0], vals[nr, 1], vals[nr, 2]));
+        }
 
         ColumnasProcesadasTexto = "Procesadas: " + ctproc;
         string temp = (DateTime.Now - time0) + "0000000000";

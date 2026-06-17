@@ -6,7 +6,10 @@
     xmlns:controls="using:Free1X2.WinUI.Controls"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls">
 
-    <Grid RowSpacing="4">
+    <!-- MaxHeight: red de seguridad para que la rejilla nunca empuje la página por
+         encima del área visible (~620px). El ScrollViewer interno permite recorrer
+         los 14 partidos sin forzar scroll del Page que la hospeda. -->
+    <Grid RowSpacing="4" MaxHeight="260">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />

@@ -29,7 +29,7 @@
             </Grid.ColumnDefinitions>
 
             <!-- Columna izquierda: definición del grupo y acciones -->
-            <StackPanel Grid.Column="0" Spacing="6" Width="340">
+            <StackPanel Grid.Column="0" Spacing="6" Width="280">
 
                 <!-- Fichero de entrada -->
                 <Border Style="{StaticResource AppCardStyle}">

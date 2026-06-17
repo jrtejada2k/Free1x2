@@ -26,7 +26,7 @@
         <Grid Grid.Row="1" ColumnSpacing="10">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="320" />
+                <ColumnDefinition Width="280" />
             </Grid.ColumnDefinitions>
 
             <!-- Columna izquierda: lista de formatos -->
@@ -135,7 +135,7 @@
                     <StackPanel Spacing="5">
                         <TextBlock Text="Porcentajes" Style="{StaticResource CardTitleTextBlockStyle}" />
                         <controls:PorcentajesControl
-                            Height="340"
+                            Height="260"
                             Filas="{x:Bind ViewModel.Porcentajes, Mode=OneWay}"
                             AutomationProperties.Name="Porcentajes 1 X 2 por partido" />
                     </StackPanel>

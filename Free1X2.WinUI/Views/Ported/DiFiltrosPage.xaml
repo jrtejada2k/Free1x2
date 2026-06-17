@@ -14,7 +14,7 @@
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="340" />
+                <ColumnDefinition Width="280" />
             </Grid.ColumnDefinitions>
 
             <!-- Encabezado -->
@@ -47,7 +47,7 @@
 
                     <!-- DataGrid legacy -> ListView -->
                     <ListView Grid.Row="2"
-                              MinHeight="320"
+                              MinHeight="240"
                               ItemsSource="{x:Bind ViewModel.Filtros, Mode=OneWay}"
                               SelectionMode="None"
                               Background="{ThemeResource AppSurfaceAltBrush}"

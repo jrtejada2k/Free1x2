@@ -194,7 +194,7 @@
                     <TextBlock Text="Valoración por partido" Style="{StaticResource CardTitleTextBlockStyle}" />
                     <TextBlock Text="Porcentajes / valoraciones (1 / X / 2) por partido que alimentan el cálculo de los tramos. Sustituye al control controlPorcentajes1 del formulario original."
                                Style="{StaticResource SecondaryTextBlockStyle}" TextWrapping="Wrap" />
-                    <controls:PorcentajesControl Height="300"
+                    <controls:PorcentajesControl Height="260"
                                                  Filas="{x:Bind ViewModel.Porcentajes, Mode=OneWay}" />
 
                     <!-- Menú legacy "Guardar en fichero de valoraciones históricas"

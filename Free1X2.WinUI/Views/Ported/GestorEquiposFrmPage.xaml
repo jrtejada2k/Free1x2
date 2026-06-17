@@ -78,7 +78,7 @@
                                Style="{StaticResource CardTitleTextBlockStyle}" />
 
                     <!-- Lista 1ª (lbEquipos1) -->
-                    <ListView Grid.Row="1" Grid.Column="0" MinHeight="320"
+                    <ListView Grid.Row="1" Grid.Column="0" MinHeight="200"
                               ItemsSource="{x:Bind ViewModel.EquiposPrimera}"
                               SelectedItem="{x:Bind ViewModel.SeleccionPrimera, Mode=TwoWay}"
                               BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1"
@@ -98,7 +98,7 @@
                     </StackPanel>
 
                     <!-- Lista 2ª (lbEquipos2) -->
-                    <ListView Grid.Row="1" Grid.Column="2" MinHeight="320"
+                    <ListView Grid.Row="1" Grid.Column="2" MinHeight="200"
                               ItemsSource="{x:Bind ViewModel.EquiposSegunda}"
                               SelectedItem="{x:Bind ViewModel.SeleccionSegunda, Mode=TwoWay}"
                               BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1"
@@ -118,14 +118,14 @@
                     </StackPanel>
 
                     <!-- Lista 2ªB (lbEquipos2B) -->
-                    <ListView Grid.Row="1" Grid.Column="4" MinHeight="320"
+                    <ListView Grid.Row="1" Grid.Column="4" MinHeight="200"
                               ItemsSource="{x:Bind ViewModel.EquiposSegundaB}"
                               SelectedItem="{x:Bind ViewModel.SeleccionSegundaB, Mode=TwoWay}"
                               BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1"
                               AutomationProperties.Name="Equipos de Segunda B" />
 
                     <!-- Lista Internacionales (lbEquiposInt) -->
-                    <ListView Grid.Row="1" Grid.Column="5" MinHeight="320"
+                    <ListView Grid.Row="1" Grid.Column="5" MinHeight="200"
                               ItemsSource="{x:Bind ViewModel.EquiposInt}"
                               SelectedItem="{x:Bind ViewModel.SeleccionInt, Mode=TwoWay}"
                               BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1"

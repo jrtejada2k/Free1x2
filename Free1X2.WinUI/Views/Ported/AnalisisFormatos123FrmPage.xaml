@@ -78,7 +78,7 @@
                     <TextBlock Text="Define la valoración 1/X/2 de cada partido. El orden de estos valores determina cómo se traduce cada signo a 1, 2 o 3 al construir el formato."
                                Style="{StaticResource SecondaryTextBlockStyle}"
                                TextWrapping="Wrap" />
-                    <controls:PorcentajesControl Height="380"
+                    <controls:PorcentajesControl Height="260"
                                                  Filas="{x:Bind ViewModel.Porcentajes, Mode=OneWay}"
                                                  AutomationProperties.Name="Valoraciones 1 X 2 por partido" />
                 </StackPanel>

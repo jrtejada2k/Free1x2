@@ -52,7 +52,7 @@
                             TextWrapping="Wrap"
                             Text="Rejilla de valoración de cada signo por partido. A partir de ella se generan las 6 columnas probables." />
                         <controls:PorcentajesControl
-                            Height="320"
+                            Height="260"
                             Filas="{x:Bind ViewModel.Valoraciones, Mode=OneWay}" />
                     </StackPanel>
                 </Border>

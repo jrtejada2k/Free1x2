@@ -329,7 +329,7 @@
                     </Grid>
 
                     <controls:PorcentajesControl
-                        Height="320"
+                        Height="260"
                         Filas="{x:Bind ViewModel.Porcentajes, Mode=OneWay}" />
                 </StackPanel>
             </Border>

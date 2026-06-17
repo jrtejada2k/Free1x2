@@ -72,7 +72,7 @@
                         Style="{StaticResource CardTitleTextBlockStyle}" />
                     <controls:PorcentajesControl
                         Filas="{x:Bind ViewModel.Filas}"
-                        Height="420" />
+                        Height="260" />
                 </StackPanel>
             </Border>
 

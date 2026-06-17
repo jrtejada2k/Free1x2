@@ -182,7 +182,7 @@
                         <ListView
                             ItemsSource="{x:Bind ViewModel.Casillas}"
                             SelectionMode="None"
-                            Height="320"
+                            Height="260"
                             BorderBrush="{ThemeResource AppBorderBrush}"
                             BorderThickness="1"
                             Background="{ThemeResource AppSurfaceAltBrush}">

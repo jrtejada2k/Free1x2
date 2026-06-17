@@ -55,7 +55,7 @@
                                    TextWrapping="Wrap" />
                         <ListView ItemsSource="{x:Bind ViewModel.Lineas}"
                                   SelectionMode="None"
-                                  Height="360"
+                                  Height="260"
                                   AutomationProperties.Name="Grupos de partidos">
                             <ListView.ItemTemplate>
                                 <DataTemplate x:DataType="ported:SimetriaLinea">

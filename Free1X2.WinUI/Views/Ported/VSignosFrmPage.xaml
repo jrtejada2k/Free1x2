@@ -191,11 +191,56 @@
                         Text="{x:Bind ViewModel.PremiosRemanentesTexto, Mode=OneWay}"
                         Style="{StaticResource SecondaryTextBlockStyle}"
                         Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                    <!-- Rejilla de recuentos por partido (1 / X / 2). Solo lectura: proyecta
+                         vals[noPartidos,3] del ViewModel (legacy: tabla de la pantalla VSignos). -->
                     <TextBlock
-                        Text="La rejilla de recuentos por partido (1 / X / 2) se mostrará aquí tras migrar el motor de cálculo."
+                        Text="Recuento por partido: nº de columnas con cada signo (1 / X / 2)."
                         Style="{StaticResource SecondaryTextBlockStyle}"
                         Foreground="{ThemeResource AppTextSecondaryBrush}"
                         TextWrapping="Wrap" />
+
+                    <!-- Cabecera de columnas -->
+                    <Grid ColumnSpacing="8" Padding="4,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="56" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Part." Style="{StaticResource BodyStrongTextBlockStyle}" />
+                        <TextBlock Grid.Column="1" Text="1" Style="{StaticResource BodyStrongTextBlockStyle}" HorizontalAlignment="Center" />
+                        <TextBlock Grid.Column="2" Text="X" Style="{StaticResource BodyStrongTextBlockStyle}" HorizontalAlignment="Center" />
+                        <TextBlock Grid.Column="3" Text="2" Style="{StaticResource BodyStrongTextBlockStyle}" HorizontalAlignment="Center" />
+                    </Grid>
+
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="240">
+                        <ItemsControl ItemsSource="{x:Bind ViewModel.Recuentos, Mode=OneWay}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="local:RecuentoSignoFila">
+                                    <Grid ColumnSpacing="8" Padding="4,2">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="56" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{x:Bind Partido}"
+                                                   Foreground="{ThemeResource AppTextSecondaryBrush}"
+                                                   VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="1" Text="{x:Bind Unos}"
+                                                   Foreground="{ThemeResource AppTextBrush}"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="2" Text="{x:Bind Equis}"
+                                                   Foreground="{ThemeResource AppTextBrush}"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="3" Text="{x:Bind Doses}"
+                                                   Foreground="{ThemeResource AppTextBrush}"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
                 </StackPanel>
             </Border>
 

@@ -33,7 +33,7 @@
 
                     <ComboBox
                         Header="Tipo de curva"
-                        Width="320"
+                        Width="280"
                         HorizontalAlignment="Left"
                         ItemsSource="{x:Bind ViewModel.CurvasDisponibles}"
                         SelectedItem="{x:Bind ViewModel.CurvaSeleccionada, Mode=TwoWay}" />
@@ -116,12 +116,12 @@
             </Border>
 
             <!-- Lienzo de la gráfica (legacy: pictureBox1). Render nativo WinUI de las curvas. -->
-            <Border Grid.Row="3" Style="{StaticResource AppCardStyle}" MinHeight="360">
+            <Border Grid.Row="3" Style="{StaticResource AppCardStyle}" MinHeight="280">
                 <controls:GraficoLineasControl
                     x:Name="LienzoGrafica"
                     Curvas="{x:Bind ViewModel.Curvas, Mode=OneWay}"
                     IntervaloGrid="{x:Bind ViewModel.TamanoGrid, Mode=OneWay}"
-                    MinHeight="320" />
+                    MinHeight="240" />
             </Border>
         </Grid>
     </ScrollViewer>

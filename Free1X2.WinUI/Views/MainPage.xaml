@@ -58,8 +58,8 @@
           MaxWidth="1180"
           HorizontalAlignment="Left">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" MinWidth="430" />
-            <ColumnDefinition Width="*" MinWidth="420" />
+            <ColumnDefinition Width="Auto" MinWidth="360" />
+            <ColumnDefinition Width="*" MinWidth="360" />
         </Grid.ColumnDefinitions>
 
         <!-- ============ COLUMNA IZQUIERDA: Pronósticos ============ -->

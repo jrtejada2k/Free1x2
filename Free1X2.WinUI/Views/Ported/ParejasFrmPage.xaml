@@ -34,7 +34,7 @@
                         <StackPanel Spacing="4">
 
                             <!-- Cabecera de columnas: Par (P1,P2) + 9 combinaciones -->
-                            <Grid ColumnSpacing="6" MinWidth="900">
+                            <Grid ColumnSpacing="6" MinWidth="420">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="44" />
                                     <ColumnDefinition Width="120" />
@@ -64,7 +64,7 @@
                             <ItemsControl ItemsSource="{x:Bind ViewModel.Niveles}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate x:DataType="local:NivelPareja">
-                                        <Grid ColumnSpacing="6" MinWidth="900" Margin="0,2">
+                                        <Grid ColumnSpacing="6" MinWidth="420" Margin="0,2">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="44" />
                                                 <ColumnDefinition Width="120" />

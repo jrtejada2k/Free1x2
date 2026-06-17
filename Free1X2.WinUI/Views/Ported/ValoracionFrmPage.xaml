@@ -23,7 +23,7 @@
                     <TextBlock Text="Rejilla de valoraciones 1 / X / 2 por partido."
                                Style="{StaticResource SecondaryTextBlockStyle}"
                                TextWrapping="Wrap" />
-                    <controls:PorcentajesControl Height="380"
+                    <controls:PorcentajesControl Height="260"
                                                  Filas="{x:Bind ViewModel.Porcentajes, Mode=OneWay}"
                                                  AutomationProperties.Name="Porcentajes 1 X 2 por partido" />
 

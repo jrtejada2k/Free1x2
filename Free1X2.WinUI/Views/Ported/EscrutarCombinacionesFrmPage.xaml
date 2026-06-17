@@ -108,7 +108,7 @@
 
                     <!-- ===== Modo contra jornadas (plantilla + dígitos + temporadas) ===== -->
                     <TextBox Header="Plantilla de nombre de archivo"
-                             MinWidth="320"
+                             MinWidth="280"
                              HorizontalAlignment="Left"
                              PlaceholderText="quiniela_/t_/j.comb"
                              Text="{x:Bind ViewModel.PlantillaNombreArchivo, Mode=TwoWay}"

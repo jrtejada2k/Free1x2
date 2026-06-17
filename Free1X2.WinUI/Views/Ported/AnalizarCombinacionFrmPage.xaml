@@ -27,7 +27,7 @@
 
                     <TreeView ItemsSource="{x:Bind ViewModel.Nodos}"
                               SelectionMode="None"
-                              MinHeight="320">
+                              MinHeight="240">
                         <TreeView.ItemTemplate>
                             <DataTemplate x:DataType="ported:NodoAnalisisViewModel">
                                 <TreeViewItem ItemsSource="{x:Bind Hijos}"

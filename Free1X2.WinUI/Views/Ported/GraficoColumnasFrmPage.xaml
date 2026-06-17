@@ -34,7 +34,7 @@
                 Grid.Column="0"
                 Style="{StaticResource AppCardStyle}"
                 VerticalAlignment="Top"
-                MinWidth="360"
+                MinWidth="280"
                 MaxWidth="420">
                 <StackPanel Spacing="6">
 
