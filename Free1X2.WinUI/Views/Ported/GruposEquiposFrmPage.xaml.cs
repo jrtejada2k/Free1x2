@@ -20,11 +20,19 @@ public sealed partial class GruposEquiposFrmPage : Page
     {
         this.InitializeComponent();
         ViewModel.Volver = () => { if (Frame?.CanGoBack == true) Frame.GoBack(); };
+        // La VM navega al visor de estadísticas a través del Frame (comando Estadísticas).
+        ViewModel.Navegar = tipo => Frame?.Navigate(tipo);
     }
 
     protected override void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
-        ViewModel.CargarDesdeGrupo();
+        // Al volver del visor de estadísticas (NavigationMode.Back) NO recargamos: recargar desde el
+        // grupo borraría la edición en curso (incluida una condición recién abierta de disco). Sólo en
+        // la entrada normal (New / navegación hacia delante) cargamos los datos del grupo en edición.
+        if (e.NavigationMode != NavigationMode.Back)
+        {
+            ViewModel.CargarDesdeGrupo();
+        }
     }
 }
