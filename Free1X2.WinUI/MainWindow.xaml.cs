@@ -6,6 +6,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Free1X2.WinUI.Views;
+using Free1X2.WinUI.Views.Ported;
 using Free1X2.WinUI.Navigation;
 
 namespace Free1X2.WinUI;
@@ -22,22 +23,118 @@ public sealed partial class MainWindow : Window
         this.SetTitleBar(AppTitleBar);
         this.Title = "Free1X2";
 
-        PoblarPantallasPortadas();
+        ConstruirMenus();
         ContentFrame.Navigate(typeof(MainPage));
 
-        // Smoke test permanente: solo se activa con FREE1X2_SMOKE=1. En ejecucion
-        // normal es un no-op. Recorre todas las pantallas portadas (+ MainPage/HomePage),
-        // registra fallos en %TEMP%\free1x2_smoke.log y cierra la app con exit 0.
         if (Environment.GetEnvironmentVariable("FREE1X2_SMOKE") == "1")
-        {
             IniciarSmokeTest();
+    }
+
+    // ===== Barra de menús (misma organización que el programa WinForms original) =====
+    // Cada entrada navega a la pantalla real portada. Las condiciones (Variantes, Dibujos,
+    // etc.) no van aquí: se abren desde la rejilla de condiciones de la pantalla Inicio,
+    // igual que en el original (campo Condiciones del MainForm).
+    private void ConstruirMenus()
+    {
+        BarraMenu.Items.Add(Menu("Free1x2",
+            ("Inicio", typeof(MainPage)),
+            null,
+            ("Configuración…", typeof(ConfiguracionFrmPage)),
+            ("Configurar análisis…", typeof(ConfiguracionAnalisisFrmPage)),
+            null,
+            ("Acerca de…", typeof(AcercaDeFrmPage)),
+            ("Créditos…", typeof(CreditosFrmPage)),
+            null,
+            ("Salir", typeof(SalirFrmPage))));
+
+        BarraMenu.Items.Add(Menu("Archivo",
+            ("Boleto / combinación (Inicio)", typeof(MainPage)),
+            null,
+            ("Gestión de equipos…", typeof(GestorEquiposFrmPage)),
+            ("Importar / exportar columnas…", typeof(ImportExportFrmPage))));
+
+        BarraMenu.Items.Add(Menu("Combinación",
+            ("Calcular…", typeof(CalculaColumnasFrmPage)),
+            ("Calcular varias…", typeof(CalculaColumnasMultipleFrmPage)),
+            null,
+            ("Ver boletos…", typeof(VerBoletosPage)),
+            ("Imprimir boletos…", typeof(ImprimirBoletoFrmPage)),
+            null,
+            ("Reducir…", typeof(ReductorFrmPage)),
+            ("Escrutinios…", typeof(EscrutiniosFrmPage)),
+            null,
+            ("Analizar combinación…", typeof(AnalizarCombinacionFrmPage)),
+            ("Gráfico de columnas…", typeof(GraficoColumnasFrmPage)),
+            ("Probabilidades…", typeof(ProbabilidadPremiosPage)),
+            ("Estadísticas…", typeof(AnastaticsPage)),
+            null,
+            ("Añadir Pleno al 15…", typeof(AgregaP15FrmPage))));
+
+        BarraMenu.Items.Add(Menu("Filtros",
+            ("Combinar filtros…", typeof(CombinarFiltrosPage)),
+            ("Diferencias entre filtros…", typeof(DiFiltrosPage)),
+            null,
+            ("Filtro Coincidencias…", typeof(CoincidenciasPage)),
+            ("Filtro Aidomnou…", typeof(aidomnouPage)),
+            ("Filtro Pim…", typeof(GeneraPimPage))));
+
+        BarraMenu.Items.Add(Menu("Operaciones",
+            ("Álgebra de columnas…", typeof(AlgebraColumnasFrmPage)),
+            ("Transposición…", typeof(TransposicionFrmPage)),
+            ("Multiplicador…", typeof(MultiplicadorFrmPage)),
+            ("Fraccionador…", typeof(FraccionadorFrmPage)),
+            ("Rotación de signos…", typeof(RotacionDeSignosFrmPage))));
+
+        BarraMenu.Items.Add(Menu("Utilidades",
+            ("Sube categoría…", typeof(SubirCategoriaFrmPage)),
+            ("Modificador %…", typeof(ModificadorFrmPage)),
+            null,
+            ("Generador CP…", typeof(GenerarCPsPage)),
+            ("Columnas GEPT…", typeof(GEPTFrmPage)),
+            null,
+            ("Diferencias entre columnas…", typeof(DifColsPage)),
+            ("Ordenar por probabilidad…", typeof(OrdenarPorProbabilidadFrmPage)),
+            null,
+            ("Selector JuanM…", typeof(SelecJMPage)),
+            ("Selector MarioSan…", typeof(SelectorMSPage)),
+            null,
+            ("Rentabilidad…", typeof(RentabilidadFrmPage)),
+            ("Tramificar…", typeof(TramificarFormPage)),
+            ("Premiadas…", typeof(PremiadasFrmPage)),
+            ("Estimación de premios…", typeof(EstimadorPremiosFrmPage)),
+            ("Banco de pruebas…", typeof(BancoPruebasFrmPage))));
+    }
+
+    // Crea un menú superior; un elemento null inserta un separador.
+    private MenuBarItem Menu(string titulo, params (string label, Type page)?[] items)
+    {
+        var menu = new MenuBarItem { Title = titulo };
+        foreach (var item in items)
+        {
+            if (item is null)
+            {
+                menu.Items.Add(new MenuFlyoutSeparator());
+                continue;
+            }
+            var (label, page) = item.Value;
+            var mfi = new MenuFlyoutItem { Text = label };
+            var destino = page;
+            mfi.Click += (_, _) => Navegar(destino);
+            menu.Items.Add(mfi);
         }
+        return menu;
+    }
+
+    private void Navegar(Type page)
+    {
+        if (ContentFrame.CurrentSourcePageType != page)
+            ContentFrame.Navigate(page);
     }
 
     // ===== Smoke test gated por FREE1X2_SMOKE (permanente, no-op sin la env var) =====
 
-    private DispatcherQueueTimer? _smokeTimer;
-    private List<Type>? _smokeRuta;
+    private DispatcherQueueTimer _smokeTimer;
+    private List<Type> _smokeRuta;
     private int _smokeIndice;
     private int _smokeOk;
     private int _smokeFail;
@@ -48,7 +145,6 @@ public sealed partial class MainWindow : Window
         _smokeLog = Path.Combine(Path.GetTempPath(), "free1x2_smoke.log");
         try { File.WriteAllText(_smokeLog, "SMOKE START\r\n"); } catch { }
 
-        // Ruta: MainPage + HomePage + todas las pantallas portadas del registro.
         _smokeRuta = new List<Type> { typeof(MainPage), typeof(HomePage) };
         foreach (var p in PortedPagesRegistry.All)
             _smokeRuta.Add(p.PageType);
@@ -92,58 +188,5 @@ public sealed partial class MainWindow : Window
     private void SmokeAppend(string linea)
     {
         try { File.AppendAllText(_smokeLog, linea + "\r\n"); } catch { }
-    }
-
-    // Puebla el NavigationView con las pantallas portadas desde WinForms (data-driven).
-    // Cada ola de migración solo añade entradas a PortedPagesRegistry; aquí no se toca.
-    private void PoblarPantallasPortadas()
-    {
-        string categoriaActual = null;
-        Nav.MenuItems.Add(new NavigationViewItemSeparator());
-        Nav.MenuItems.Add(new NavigationViewItemHeader { Content = "Pantallas portadas (WinUI)" });
-        foreach (var p in PortedPagesRegistry.All)
-        {
-            if (p.Category != categoriaActual)
-            {
-                categoriaActual = p.Category;
-                Nav.MenuItems.Add(new NavigationViewItemHeader { Content = p.Category });
-            }
-            var nvi = new NavigationViewItem { Content = p.Title, Tag = p.PageType };
-            if (!string.IsNullOrEmpty(p.Glyph))
-                nvi.Icon = new FontIcon { Glyph = p.Glyph };
-            Nav.MenuItems.Add(nvi);
-        }
-    }
-
-    private void Nav_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
-    {
-        if (args.IsSettingsSelected)
-        {
-            ContentFrame.Navigate(typeof(SettingsPage));
-            return;
-        }
-
-        // Pantallas portadas: el Tag es el Type de la Page.
-        if (args.SelectedItem is NavigationViewItem ni && ni.Tag is Type pageType)
-        {
-            ContentFrame.Navigate(pageType);
-            return;
-        }
-
-        if (args.SelectedItem is NavigationViewItem item && item.Tag is string tag)
-        {
-            Type page = tag switch
-            {
-                "home"         => typeof(MainPage),
-                "boleto"       => typeof(BoletoPage),
-                "componentes"  => typeof(ComponentesPage),
-                "filtros"      => typeof(PlaceholderPage),
-                "operaciones"  => typeof(PlaceholderPage),
-                "estadisticas" => typeof(PlaceholderPage),
-                "escrutinio"   => typeof(PlaceholderPage),
-                _              => typeof(HomePage),
-            };
-            ContentFrame.Navigate(page, item.Content?.ToString());
-        }
     }
 }

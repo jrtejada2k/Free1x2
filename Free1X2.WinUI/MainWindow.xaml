@@ -5,52 +5,26 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls">
 
-    <Grid>
+    <Grid Background="{ThemeResource AppBackgroundBrush}">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <!-- Barra de título custom (drag region) -->
-        <Border x:Name="AppTitleBar" Grid.Row="0" Height="40">
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0" Spacing="10">
-                <FontIcon Glyph="&#xE9D9;" FontSize="16" Foreground="{ThemeResource AppAccentBrush}" />
-                <TextBlock x:Name="AppTitleText" Text="Free1X2" VerticalAlignment="Center"
+        <Border x:Name="AppTitleBar" Grid.Row="0" Height="36">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="14,0,0,0" Spacing="8">
+                <FontIcon Glyph="&#xE9D9;" FontSize="14" Foreground="{ThemeResource AppAccentBrush}" />
+                <TextBlock Text="Free1X2" VerticalAlignment="Center"
                            Style="{StaticResource CaptionTextBlockStyle}" />
             </StackPanel>
         </Border>
 
-        <muxc:NavigationView x:Name="Nav" Grid.Row="1"
-                             IsBackButtonVisible="Collapsed"
-                             PaneDisplayMode="Left"
-                             IsSettingsVisible="True"
-                             SelectionChanged="Nav_SelectionChanged">
-            <muxc:NavigationView.MenuItems>
-                <muxc:NavigationViewItem Content="Inicio" Tag="home" IsSelected="True">
-                    <muxc:NavigationViewItem.Icon><FontIcon Glyph="&#xE80F;" /></muxc:NavigationViewItem.Icon>
-                </muxc:NavigationViewItem>
-                <muxc:NavigationViewItem Content="Boleto" Tag="boleto">
-                    <muxc:NavigationViewItem.Icon><FontIcon Glyph="&#xE762;" /></muxc:NavigationViewItem.Icon>
-                </muxc:NavigationViewItem>
-                <muxc:NavigationViewItem Content="Filtros y condiciones" Tag="filtros">
-                    <muxc:NavigationViewItem.Icon><FontIcon Glyph="&#xE71C;" /></muxc:NavigationViewItem.Icon>
-                </muxc:NavigationViewItem>
-                <muxc:NavigationViewItem Content="Operaciones" Tag="operaciones">
-                    <muxc:NavigationViewItem.Icon><FontIcon Glyph="&#xE8EF;" /></muxc:NavigationViewItem.Icon>
-                </muxc:NavigationViewItem>
-                <muxc:NavigationViewItem Content="Componentes" Tag="componentes">
-                    <muxc:NavigationViewItem.Icon><FontIcon Glyph="&#xE790;" /></muxc:NavigationViewItem.Icon>
-                </muxc:NavigationViewItem>
-                <muxc:NavigationViewItemSeparator />
-                <muxc:NavigationViewItem Content="Estadísticas" Tag="estadisticas">
-                    <muxc:NavigationViewItem.Icon><FontIcon Glyph="&#xE9D2;" /></muxc:NavigationViewItem.Icon>
-                </muxc:NavigationViewItem>
-                <muxc:NavigationViewItem Content="Escrutinio" Tag="escrutinio">
-                    <muxc:NavigationViewItem.Icon><FontIcon Glyph="&#xE721;" /></muxc:NavigationViewItem.Icon>
-                </muxc:NavigationViewItem>
-            </muxc:NavigationView.MenuItems>
+        <!-- Barra de menús (organización del programa original) -->
+        <muxc:MenuBar x:Name="BarraMenu" Grid.Row="1" />
 
-            <Frame x:Name="ContentFrame" />
-        </muxc:NavigationView>
+        <!-- Contenido -->
+        <Frame x:Name="ContentFrame" Grid.Row="2" />
     </Grid>
 </Window>

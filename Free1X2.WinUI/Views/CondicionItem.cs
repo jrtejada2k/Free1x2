@@ -36,6 +36,19 @@ public partial class CondicionItem : ObservableObject
     [ObservableProperty]
     private EstadoSemaforo _estado = EstadoSemaforo.Neutro;
 
+    partial void OnEstadoChanged(EstadoSemaforo value) => OnPropertyChanged(nameof(Fondo));
+
+    /// <summary>Color de fondo del tile según el estado (tinte verde=activa, rojo=con datos, gris=vacía).</summary>
+    public Microsoft.UI.Xaml.Media.Brush Fondo => Estado switch
+    {
+        EstadoSemaforo.Verde => new Microsoft.UI.Xaml.Media.SolidColorBrush(
+            Windows.UI.Color.FromArgb(0x26, 0x15, 0x80, 0x3D)),  // verde tenue (activa)
+        EstadoSemaforo.Rojo => new Microsoft.UI.Xaml.Media.SolidColorBrush(
+            Windows.UI.Color.FromArgb(0x26, 0xDC, 0x26, 0x26)),  // rojo tenue (con datos, inactiva)
+        _ => new Microsoft.UI.Xaml.Media.SolidColorBrush(
+            Windows.UI.Color.FromArgb(0x14, 0x64, 0x74, 0x8B)),  // gris tenue (vacía)
+    };
+
     /// <summary>
     /// Recalcula el semáforo desde el grupo, igual que <c>PonerColorBotonCondicion</c> (MainForm):
     /// IsActive → Verde; en su defecto ContieneDatos → Rojo; en su defecto → Neutro (gris).

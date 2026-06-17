@@ -8,15 +8,14 @@
     x:Name="Raiz"
     Background="{ThemeResource AppBackgroundBrush}">
 
-    <Grid Padding="{StaticResource AppPagePadding}" RowSpacing="16">
+    <Grid Padding="16,12,16,12" RowSpacing="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <!-- Cabecera -->
-        <StackPanel Grid.Row="0" Spacing="2">
-            <TextBlock Text="Free1X2" Style="{StaticResource PageTitleTextBlockStyle}" />
+        <StackPanel Grid.Row="0" Spacing="0">
             <TextBlock Text="Boleto base, condiciones y grupos de la combinación actual"
                        Style="{StaticResource SecondaryTextBlockStyle}" />
         </StackPanel>
@@ -33,10 +32,10 @@
 
             <!-- Panel derecho -->
             <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
-                <StackPanel Spacing="16">
+                <StackPanel Spacing="10">
 
                     <!-- ===== Navegación de grupos ===== -->
-                    <Border Style="{StaticResource AppCardStyle}" Padding="16">
+                    <Border Style="{StaticResource AppCardStyle}" Padding="12">
                         <StackPanel Spacing="10">
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -76,7 +75,7 @@
                     </Border>
 
                     <!-- ===== Rejilla de condiciones ===== -->
-                    <Border Style="{StaticResource AppCardStyle}" Padding="16">
+                    <Border Style="{StaticResource AppCardStyle}" Padding="12">
                         <StackPanel Spacing="10">
                             <TextBlock Text="Condiciones del grupo"
                                        Style="{StaticResource CardTitleTextBlockStyle}" />
@@ -86,8 +85,9 @@
                                       AutomationProperties.Name="Condiciones del grupo">
                                 <GridView.ItemTemplate>
                                     <DataTemplate x:DataType="views:CondicionItem">
-                                        <Button Width="170" Margin="0,0,8,8"
+                                        <Button Width="158" Margin="0,0,6,6"
                                                 HorizontalContentAlignment="Stretch"
+                                                Background="{x:Bind Fondo, Mode=OneWay}"
                                                 Command="{Binding ElementName=Raiz, Path=ViewModel.AbrirCondicionCommand}"
                                                 CommandParameter="{x:Bind}"
                                                 AutomationProperties.Name="{x:Bind Titulo}">
@@ -144,7 +144,7 @@
                     </Border>
 
                     <!-- ===== Filtro de columnas general ===== -->
-                    <Border Style="{StaticResource AppCardStyle}" Padding="16">
+                    <Border Style="{StaticResource AppCardStyle}" Padding="12">
                         <StackPanel Spacing="10">
                             <TextBlock Text="Filtro de columnas"
                                        Style="{StaticResource CardTitleTextBlockStyle}" />
@@ -170,7 +170,7 @@
                     </Border>
 
                     <!-- ===== Acciones de combinación ===== -->
-                    <Border Style="{StaticResource AppCardStyle}" Padding="16">
+                    <Border Style="{StaticResource AppCardStyle}" Padding="12">
                         <StackPanel Spacing="10">
                             <Grid>
                                 <Grid.ColumnDefinitions>

@@ -44,8 +44,9 @@
         <Setter Property="HorizontalContentAlignment" Value="Center" />
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="MinWidth" Value="0" />
-        <Setter Property="Padding" Value="0,6" />
-        <Setter Property="CornerRadius" Value="6" />
+        <Setter Property="MinHeight" Value="0" />
+        <Setter Property="Padding" Value="0,3" />
+        <Setter Property="CornerRadius" Value="5" />
         <Setter Property="FontWeight" Value="SemiBold" />
     </Style>
 
