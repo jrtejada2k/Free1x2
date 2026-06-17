@@ -375,6 +375,28 @@
                                         </DataTemplate>
                                     </ListView.ItemTemplate>
                                 </ListView>
+
+                                <!-- Modo "Jornadas": una fila por columna aleatoria simulada, con su
+                                     saldo acumulado (legacy dgResultadoEscrutinio enlazado a
+                                     ResultadoPorJornadas[] vía la tabla "ResultadosJornada[]"). -->
+                                <TextBlock Text="Jornadas (por columna aleatoria)"
+                                           Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                                <ListView ItemsSource="{x:Bind ViewModel.JornadasResultado}"
+                                          MaxHeight="280"
+                                          SelectionMode="None"
+                                          BorderBrush="{ThemeResource AppBorderBrush}"
+                                          BorderThickness="1"
+                                          CornerRadius="4"
+                                          AutomationProperties.Name="Filas del resultado del escrutinio por jornadas">
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate x:DataType="local:ResultadoJornadaItem">
+                                            <TextBlock VerticalAlignment="Center"
+                                                       FontFamily="Consolas"
+                                                       Foreground="{ThemeResource AppTextBrush}"
+                                                       Text="{x:Bind Resumen}" />
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                </ListView>
                             </StackPanel>
                         </Border>
 
