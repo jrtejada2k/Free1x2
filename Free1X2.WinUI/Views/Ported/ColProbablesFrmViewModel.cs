@@ -39,8 +39,10 @@ namespace Free1X2.WinUI.Views.Ported
     ///   - Relaciones III -> ControladorRelacionesCP3 / RelacionCP3 (Concepto, Columnas
     ///     implicadas, Escaleras Total/Asc/Desc, Sándwichs). Navegación 1-based (indiceNavRel3)
     ///     replicando MostrarRelacion3 + GuardarRelacion3EnPantalla (líneas 3651-3828). Las
-    ///     rejillas de Agrupaciones Paso Fijo / Solapadas (DataSet) se conservan en round-trip
-    ///     vía sus *String pero no se editan aquí (ver TODO).
+    ///     rejillas de Agrupaciones Paso Fijo / Solapadas (legacy DataSet) se portan a dos
+    ///     ObservableCollection<AgrupacionFila> editables (Número/Elementos/Aciertos); el round-trip
+    ///     replica InicializaDatosAgrupaciones* (carga) y ObtenArrayAgrupaciones*/ObtenTexto-
+    ///     Agrupaciones* (guardado), líneas 3890-4096 y 4110-4205.
     ///   - Control Fallos -> ControladorCPControlFallos / CPControlFallos: tabla editable
     ///     (Columnas / Tolerancias / Aciertos) + FallosPermitidos, replicando
     ///     InicializaDatosControlFallos + GuardarDatosControlFallos (líneas 1150-1275).
@@ -214,6 +216,11 @@ namespace Free1X2.WinUI.Views.Ported
         // Legacy: lblRel3Paginacion "1 / 1".
         [ObservableProperty]
         private string _paginacionRel3 = "1 / 1";
+
+        // Rejillas de Agrupaciones de Aciertos (legacy dgAgrupacionesPasoFijo / dgAgrpacionesSolapadas).
+        // Cada fila tiene Número / Elementos / Aciertos. Bindeadas a ItemsControl editables en la página.
+        public ObservableCollection<AgrupacionFila> AgrupacionesPasoFijo { get; } = new();
+        public ObservableCollection<AgrupacionFila> AgrupacionesSolapadas { get; } = new();
 
         // ---------------- Pestaña Control Fallos ----------------
 
@@ -1249,8 +1256,8 @@ namespace Free1X2.WinUI.Views.Ported
 
         // ================= Pestaña Relaciones III (RelacionCP3) =================
 
-        // Legacy ReinicializarValoresRelaciones3 (líneas 3557-3571). Las rejillas de agrupaciones
-        // (paso fijo / solapadas) no se editan aquí; ver TODO en GuardarRelacion3EnPantalla.
+        // Legacy ReinicializarValoresRelaciones3 (líneas 3557-3571). Vacía también las rejillas de
+        // agrupaciones (legacy InicializaDatosAgrupaciones*(new string[1]) -> sin filas reales).
         private void ReinicializarValoresRelaciones3()
         {
             Rel3Columnas = "";
@@ -1259,6 +1266,11 @@ namespace Free1X2.WinUI.Views.Ported
             Rel3EscalerasAsc = "";
             Rel3EscalerasDesc = "";
             Rel3Concepto = "AC";
+
+            // legacy InicializaDatosAgrupacionesPasoFijo(new string[1]) /
+            //        InicializaDatosAgrupacionesSolapadas(new string[1]): sin entradas válidas.
+            AgrupacionesPasoFijo.Clear();
+            AgrupacionesSolapadas.Clear();
 
             AdaptarControlesDesplazamientoRelaciones3();
         }
@@ -1301,10 +1313,37 @@ namespace Free1X2.WinUI.Views.Ported
             Rel3EscalerasAsc = rel.NumeroEscalerasASCPermitidasString;
             Rel3EscalerasDesc = rel.NumeroEscalerasDESCPermitidasString;
             Rel3Concepto = rel.ConceptoString;
-            // TODO[grids]: las rejillas dgAgrupacionesPasoFijo / dgAgrpacionesSolapadas
-            //   (ColProbablesFrm.cs líneas 3663-3665, InicializaDatosAgrupaciones*) no se editan
-            //   en WinUI; sus datos se conservan en el round-trip vía las cadenas
-            //   AgrupacionesPasoFijoPermitidasString / AgrupacionesSolapadasPermitidasString.
+
+            // Rejillas de agrupaciones (legacy InicializaDatosAgrupacionesPasoFijo /
+            //   InicializaDatosAgrupacionesSolapadas, ColProbablesFrm.cs líneas 3663-3665).
+            CargarAgrupaciones(AgrupacionesPasoFijo, rel.AgrupacionesPasoFijoPermitidasString);
+            CargarAgrupaciones(AgrupacionesSolapadas, rel.AgrupacionesSolapadasPermitidasString);
+        }
+
+        // Réplica de la lectura de ObtenDataSetAgrupaciones* (ColProbablesFrm.cs líneas 3990-4010 /
+        //   4058-4077): cada entrada "Número+Elementos+Aciertos" (split por '+', RemoveEmptyEntries)
+        //   con exactamente 3 partes se convierte en una fila. El padding a 50 filas en blanco del
+        //   WinForms no se replica (en WinUI las filas se añaden bajo demanda con botón "Añadir").
+        private static void CargarAgrupaciones(ObservableCollection<AgrupacionFila> destino, string[]? entradas)
+        {
+            destino.Clear();
+            if (entradas is null) return;
+            for (int i = 0; i < entradas.Length; i++)
+            {
+                if (entradas[i] != null)
+                {
+                    string[] partes = entradas[i].Split(new char[] { '+' }, StringSplitOptions.RemoveEmptyEntries);
+                    if (partes.Length == 3)
+                    {
+                        destino.Add(new AgrupacionFila
+                        {
+                            Numero = partes[0],
+                            Elementos = partes[1],
+                            Aciertos = partes[2],
+                        });
+                    }
+                }
+            }
         }
 
         // Legacy ObtenerColumnasImplicadasRelCP3 (líneas 4098-4107). NOTA: replica el bucle exacto
@@ -1378,15 +1417,104 @@ namespace Free1X2.WinUI.Views.Ported
             rel.NumeroSandwichsPermitidos = UtilidadesEntradasValores.ObtenerBoolArrayFromTxt(Rel3Sandwichs, longitudSandwichs);
             rel.NumeroSandwichsPermitidosString = Rel3Sandwichs;
 
-            // TODO[grids]: ColProbablesFrm.cs líneas 3812-3820 leían las rejillas de Agrupaciones
-            //   Paso Fijo / Solapadas (DataSet) y rellenaban AgrupacionesPasoFijoPermitidas(String)
-            //   y AgrupacionesSolapadasPermitidas(String). Esas rejillas no están portadas; aquí
-            //   quedan nulas. Portar dos DataGrid editables (Número / Elementos / Aciertos) para
-            //   replicar ObtenArrayAgrupaciones* (líneas 4110-4205).
+            // Rejillas de Agrupaciones Paso Fijo / Solapadas (legacy ColProbablesFrm.cs líneas
+            //   3812-3820): se leen las filas editables y se vuelcan a array (con filtro) + cadenas.
+            rel.AgrupacionesPasoFijoPermitidas = ObtenArrayAgrupaciones(AgrupacionesPasoFijo);
+            rel.AgrupacionesPasoFijoPermitidasString = ObtenTextoAgrupaciones(AgrupacionesPasoFijo);
+
+            rel.AgrupacionesSolapadasPermitidas = ObtenArrayAgrupaciones(AgrupacionesSolapadas);
+            rel.AgrupacionesSolapadasPermitidasString = ObtenTextoAgrupaciones(AgrupacionesSolapadas);
 
             if (ComprobarRelacion3(rel))
             {
                 GuardarRelacion3(rel);
+            }
+        }
+
+        // Réplica exacta de ObtenArrayAgrupacionesPasoFijo / ObtenArrayAgrupacionesSolapadas
+        //   (ColProbablesFrm.cs líneas 4110-4168): por cada fila con Número/Elementos/Aciertos no
+        //   vacíos, construye una AgrupacionColumnas(valores, elementos, ac) si
+        //   elementos < grupoCP.Count+1 y ac.Count <= 15. Devuelve null si no hay ninguna.
+        private List<AgrupacionColumnas>? ObtenArrayAgrupaciones(ObservableCollection<AgrupacionFila> filas)
+        {
+            int maximoAgrupaciones = _grupoCP.Count + 1;
+
+            List<AgrupacionColumnas>? agrupaciones = new List<AgrupacionColumnas>();
+            // elementos, aciertos, numero
+            foreach (AgrupacionFila row in filas)
+            {
+                if (row.Numero != "" && row.Elementos != "" && row.Aciertos != "")
+                {
+                    List<int> valores = UtilidadesEntradasValores.ObtenerListaFromTxtAciertos(row.Numero);
+                    int elementos = Convert.ToInt32(row.Elementos);
+                    List<int> ac = UtilidadesEntradasValores.ObtenerListaFromTxtAciertos(row.Aciertos);
+
+                    if (elementos < maximoAgrupaciones && ac.Count <= 15)
+                    {
+                        var agrup = new AgrupacionColumnas(valores, elementos, ac);
+                        agrupaciones.Add(agrup);
+                    }
+                }
+            }
+            if (agrupaciones.Count == 0)
+            {
+                agrupaciones = null;
+            }
+            return agrupaciones;
+        }
+
+        // Réplica exacta de ObtenTextoAgrupacionesSolapadas / ObtenTextoAgrupacionesPasoFijo
+        //   (ColProbablesFrm.cs líneas 4170-4205): cadena "Número+Elementos+Aciertos" por cada fila
+        //   con Número no vacío; null si no hay ninguna. El array se dimensiona a Count (como el
+        //   WinForms) y sólo se rellenan las posiciones de filas con Número (el resto quedan null).
+        private static string[]? ObtenTextoAgrupaciones(ObservableCollection<AgrupacionFila> filas)
+        {
+            string[]? datos = new string[filas.Count];
+            int contador = 0;
+            foreach (AgrupacionFila row in filas)
+            {
+                if (row.Numero != "")
+                {
+                    datos[contador] = row.Numero + "+" + row.Elementos + "+" + row.Aciertos;
+                    contador++;
+                }
+            }
+            if (contador == 0)
+            {
+                datos = null;
+            }
+            return datos;
+        }
+
+        // Comandos de las rejillas de agrupaciones (no existen en el WinForms, donde la rejilla
+        // traía 50 filas en blanco; en WinUI se crean/borran bajo demanda, igual que Control Fallos).
+        [RelayCommand]
+        private void AnadirAgrupacionPasoFijo()
+        {
+            AgrupacionesPasoFijo.Add(new AgrupacionFila());
+        }
+
+        [RelayCommand]
+        private void EliminarAgrupacionPasoFijo(AgrupacionFila? fila)
+        {
+            if (fila is not null)
+            {
+                AgrupacionesPasoFijo.Remove(fila);
+            }
+        }
+
+        [RelayCommand]
+        private void AnadirAgrupacionSolapada()
+        {
+            AgrupacionesSolapadas.Add(new AgrupacionFila());
+        }
+
+        [RelayCommand]
+        private void EliminarAgrupacionSolapada(AgrupacionFila? fila)
+        {
+            if (fila is not null)
+            {
+                AgrupacionesSolapadas.Remove(fila);
             }
         }
 
@@ -1531,6 +1659,29 @@ namespace Free1X2.WinUI.Views.Ported
         [ObservableProperty]
         private string _tolerancias = "";
 
+        [ObservableProperty]
+        private string _aciertos = "";
+    }
+
+    /// <summary>
+    /// Fila editable de las rejillas de Agrupaciones de Aciertos de Relaciones III (legacy
+    /// dgAgrupacionesPasoFijo / dgAgrpacionesSolapadas, DataSet con columnas
+    /// "Número" / "Elementos" / "Aciertos"; ColProbablesFrm.cs líneas 3962-4096). Se mapea
+    /// de/ hacia <see cref="AgrupacionColumnas"/> y las cadenas "Número+Elementos+Aciertos"
+    /// de <see cref="RelacionCP3"/> en CargarAgrupaciones* / ObtenArrayAgrupaciones* /
+    /// ObtenTextoAgrupaciones*. Todos son string (regla anti-crash: no bindear int a Text).
+    /// </summary>
+    public partial class AgrupacionFila : ObservableObject
+    {
+        // Legacy columna "Número" (lista de cantidades permitidas, p. ej. "0-2" ó "1,3").
+        [ObservableProperty]
+        private string _numero = "";
+
+        // Legacy columna "Elementos" (nº de columnas que forman la agrupación).
+        [ObservableProperty]
+        private string _elementos = "";
+
+        // Legacy columna "Aciertos" (lista de aciertos, p. ej. "0-14" ó "3,5").
         [ObservableProperty]
         private string _aciertos = "";
     }
