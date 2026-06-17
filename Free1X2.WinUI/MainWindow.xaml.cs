@@ -62,7 +62,7 @@ public sealed partial class MainWindow : Window
             ("E80F", "Inicio", typeof(MainPage)),
             null,
             ("E713", "Configuración…", typeof(ConfiguracionFrmPage)),
-            ("E9D2", "Configurar análisis…", typeof(ConfiguracionAnalisisFrmPage)),
+            ("E9D9", "Configurar análisis…", typeof(ConfiguracionAnalisisFrmPage)),
             null,
             ("E946", "Acerca de…", typeof(AcercaDeFrmPage)),
             ("E77B", "Créditos…", typeof(CreditosFrmPage)),
@@ -80,12 +80,12 @@ public sealed partial class MainWindow : Window
             ("E80F", "Inicio", typeof(MainPage)),
             ("E8A1", "Ver boletos…", typeof(VerBoletosPage)),
             ("E9D9", "Gráfico de columnas…", typeof(GraficoColumnasFrmPage)),
-            ("E9D2", "Estadísticas…", typeof(AnastaticsPage)),
+            ("E9D9", "Estadísticas…", typeof(AnastaticsPage)),
             null,
             ("E713", "Configuración…", typeof(ConfiguracionFrmPage))));
 
         BarraMenu.Items.Add(Menu("Combinación",
-            ("E945", "Calcular…", typeof(CalculaColumnasFrmPage)),
+            ("E950", "Calcular…", typeof(CalculaColumnasFrmPage)),
             ("E8EF", "Calcular varias…", typeof(CalculaColumnasMultipleFrmPage)),
             null,
             ("E8A1", "Ver boletos…", typeof(VerBoletosPage)),
@@ -96,8 +96,8 @@ public sealed partial class MainWindow : Window
             null,
             ("E9F5", "Analizar combinación…", typeof(AnalizarCombinacionFrmPage)),
             ("E9D9", "Gráfico de columnas…", typeof(GraficoColumnasFrmPage)),
-            ("E9D2", "Probabilidades…", typeof(ProbabilidadPremiosPage)),
-            ("E9D2", "Estadísticas…", typeof(AnastaticsPage)),
+            ("E9D9", "Probabilidades…", typeof(ProbabilidadPremiosPage)),
+            ("E9D9", "Estadísticas…", typeof(AnastaticsPage)),
             null,
             ("E710", "Añadir Pleno al 15…", typeof(AgregaP15FrmPage))));
 
@@ -110,10 +110,10 @@ public sealed partial class MainWindow : Window
             ("E71C", "Filtro Pim…", typeof(GeneraPimPage))));
 
         BarraMenu.Items.Add(Menu("Operaciones",
-            ("E948", "Álgebra de columnas…", typeof(AlgebraColumnasFrmPage)),
+            ("E950", "Álgebra de columnas…", typeof(AlgebraColumnasFrmPage)),
             ("E8AB", "Transposición…", typeof(TransposicionFrmPage)),
-            ("E947", "Multiplicador…", typeof(MultiplicadorFrmPage)),
-            ("E94D", "Fraccionador…", typeof(FraccionadorFrmPage)),
+            ("E950", "Multiplicador…", typeof(MultiplicadorFrmPage)),
+            ("E950", "Fraccionador…", typeof(FraccionadorFrmPage)),
             ("E7AD", "Rotación de signos…", typeof(RotacionDeSignosFrmPage))));
 
         BarraMenu.Items.Add(Menu("Utilidades",
@@ -129,11 +129,11 @@ public sealed partial class MainWindow : Window
             ("E762", "Selector JuanM…", typeof(SelecJMPage)),
             ("E762", "Selector MarioSan…", typeof(SelectorMSPage)),
             null,
-            ("E1D3", "Rentabilidad…", typeof(RentabilidadFrmPage)),
+            ("E9D9", "Rentabilidad…", typeof(RentabilidadFrmPage)),
             ("E9D9", "Tramificar…", typeof(TramificarFormPage)),
             ("E735", "Premiadas…", typeof(PremiadasFrmPage)),
-            ("E1D3", "Estimación de premios…", typeof(EstimadorPremiosFrmPage)),
-            ("EC7A", "Banco de pruebas…", typeof(BancoPruebasFrmPage))));
+            ("E9D9", "Estimación de premios…", typeof(EstimadorPremiosFrmPage)),
+            ("E713", "Banco de pruebas…", typeof(BancoPruebasFrmPage))));
     }
 
     // Crea un menú superior. El título a nivel superior va SIN icono (MenuBarItem no
@@ -187,19 +187,19 @@ public sealed partial class MainWindow : Window
         Separador();
 
         // --- COMBINACIÓN (tsCombinacion) ---
-        Herramienta("E945", "Calcular combinación", typeof(CalculaColumnasFrmPage));            // Lightbulb
+        Herramienta("E950", "Calcular combinación", typeof(CalculaColumnasFrmPage));            // Calculator
         Herramienta("E8EF", "Calcular múltiples combinaciones", typeof(CalculaColumnasMultipleFrmPage));// CopyTo
         Herramienta("E8A1", "Ver boletos", typeof(VerBoletosPage));                             // List
         Herramienta("E749", "Imprimir boletos", typeof(ImprimirBoletoFrmPage));                 // Print
         Herramienta("E74D", "Reducir", typeof(ReductorFrmPage));                                // Delete/Reduce
         Herramienta("E73E", "Escrutinio", typeof(EscrutiniosFrmPage));                          // CheckboxComposite
-        Herramienta("E73A", "Escrutar combinaciones", typeof(EscrutarCombinacionesFrmPage));    // CheckList
+        Herramienta("E73E", "Escrutar combinaciones", typeof(EscrutarCombinacionesFrmPage));    // CheckboxComposite
         Herramienta("E9F5", "Análisis de columnas", typeof(AnalizarFicheroFrmPage));            // Processing
         Herramienta("E9F5", "Análisis de fallos", typeof(ColGanadoraFrmPage));                  // Processing
         Herramienta("E9D9", "Análisis gráfico", typeof(GraficoColumnasFrmPage));                // BarChart
-        Herramienta("E8C1", "Análisis de signos", typeof(VSignosFrmPage));                      // ViewAll
-        Herramienta("E9D2", "Probabilidades", typeof(ProbabilidadPremiosPage));                 // DataSense
-        Herramienta("E9D2", "Estadísticas", typeof(AnastaticsPage));                            // DataSense
+        Herramienta("E8A1", "Análisis de signos", typeof(VSignosFrmPage));                      // List
+        Herramienta("E9D9", "Probabilidades", typeof(ProbabilidadPremiosPage));                 // BarChart
+        Herramienta("E9D9", "Estadísticas", typeof(AnastaticsPage));                            // BarChart
         Herramienta("E710", "Añadir pleno al 15", typeof(AgregaP15FrmPage));                    // Add
         Separador();
 
@@ -212,37 +212,37 @@ public sealed partial class MainWindow : Window
         Separador();
 
         // --- OPERACIONES (tsOperaciones) ---
-        Herramienta("E948", "Algebra", typeof(AlgebraColumnasFrmPage));          // Calculator
+        Herramienta("E950", "Algebra", typeof(AlgebraColumnasFrmPage));          // Calculator
         Herramienta("E8AB", "Transposición", typeof(TransposicionFrmPage));      // Switch
-        Herramienta("E947", "Multiplicación", typeof(MultiplicadorFrmPage));     // CalculatorMultiply
-        Herramienta("E94D", "Fraccionar", typeof(FraccionadorFrmPage));          // CalculatorDivide
+        Herramienta("E950", "Multiplicación", typeof(MultiplicadorFrmPage));     // Calculator
+        Herramienta("E950", "Fraccionar", typeof(FraccionadorFrmPage));          // Calculator
         Herramienta("E7AD", "Rotación de signos", typeof(RotacionDeSignosFrmPage));// Refresh
         Separador();
 
         // --- UTILIDADES (tsUtilidades) ---
         Herramienta("E74A", "Subir categoría", typeof(SubirCategoriaFrmPage));               // Up
-        Herramienta("E9E9", "Modificador de porcentajes", typeof(ModificadorFrmPage));       // PieSingle
+        Herramienta("E9E9", "Modificador de porcentajes", typeof(ModificadorFrmPage));       // Equalizer
         Herramienta("E710", "Generador de CPs", typeof(GenerarCPsPage));                     // Add
         Herramienta("E8AB", "Diferencias entre columnas", typeof(DifColsPage));              // Switch
         Herramienta("E8CB", "Ordenar por probabilidad", typeof(OrdenarPorProbabilidadFrmPage));// Sort
-        Herramienta("E762", "Selector JuanM", typeof(SelecJMPage));                          // Filter/People
-        Herramienta("E762", "Selector MarioSan", typeof(SelectorMSPage));                    // Filter/People
-        Herramienta("E1D3", "Rentabilidad", typeof(RentabilidadFrmPage));                    // Money
+        Herramienta("E762", "Selector JuanM", typeof(SelecJMPage));                          // Filter
+        Herramienta("E762", "Selector MarioSan", typeof(SelectorMSPage));                    // Filter
+        Herramienta("E9D9", "Rentabilidad", typeof(RentabilidadFrmPage));                    // BarChart
         Herramienta("E8A1", "Columnas GEPT", typeof(GEPTFrmPage));                           // List
         Herramienta("E9D9", "Tramificar", typeof(TramificarFormPage));                       // BarChart
         Herramienta("E735", "Premiadas", typeof(PremiadasFrmPage));                          // FavoriteStar
-        Herramienta("E1D3", "Estimación de premios", typeof(EstimadorPremiosFrmPage));       // Money
-        Herramienta("EC7A", "Banco de pruebas", typeof(BancoPruebasFrmPage));                // DeveloperTools
+        Herramienta("E9D9", "Estimación de premios", typeof(EstimadorPremiosFrmPage));       // BarChart
+        Herramienta("E713", "Banco de pruebas", typeof(BancoPruebasFrmPage));                // Settings
         Herramienta("E8B5", "Importar/Exportar", typeof(ImportExportFrmPage));               // Switch/Import
-        Herramienta("E902", "Análisis de grupos", typeof(AnaCombiPage));                     // Group
+        Herramienta("E716", "Análisis de grupos", typeof(AnaCombiPage));                     // People/Group
         Herramienta("E74D", "Reducciones perfectas", typeof(FrmReducidasPerfectasPage));     // Delete/Reduce
-        Herramienta("E9E9", "Dependencia lineal", typeof(FrmDependenciaLinealPage));         // chart
+        Herramienta("E9E9", "Dependencia lineal", typeof(FrmDependenciaLinealPage));         // Equalizer
         Separador();
 
         // --- FREE / AYUDA (tsFree) ---
         Herramienta("E7E8", "Salir", null);                                          // PowerButton; null => cierra
         Herramienta("E713", "Configuración", typeof(ConfiguracionFrmPage));          // Settings
-        Herramienta("E9D2", "Configurar Análisis", typeof(ConfiguracionAnalisisFrmPage));// DataSense
+        Herramienta("E9D9", "Configurar Análisis", typeof(ConfiguracionAnalisisFrmPage));// BarChart
         Herramienta("E897", "Ayuda", typeof(AyudaFrmPage));                          // Help
         Herramienta("E946", "Acerca de", typeof(AcercaDeFrmPage));                   // Info
     }
