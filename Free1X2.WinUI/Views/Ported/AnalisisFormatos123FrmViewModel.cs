@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Free1X2;
 using Free1X2.EntradaSalida;
+using Free1X2.MotorCalculo;
 using Free1X2.WinUI.Controls;
 using Free1X2.WinUI.Services;
 
@@ -66,6 +67,13 @@ public partial class AnalisisFormatos123FrmViewModel : ObservableObject
 
     /// <summary>Filas del informe de formatos (legacy contenido del ContainerControl cctrl).</summary>
     public ObservableCollection<Formato123FilaViewModel> Informe { get; } = new();
+
+    /// <summary>
+    /// Formatos predefinidos a analizar (legacy: campo público List&lt;Formato123&gt; ArrayFormatos,
+    /// inyectado por quien abría el form — Formatos123Frm.btnAnalisis_Click lo fijaba a
+    /// filtro.ArrayFormatos). Lo entrega el productor por el handoff estático de la página.
+    /// </summary>
+    public List<Formato123> ArrayFormatos { get; set; } = new();
 
     /// <summary>Índice de la columna actualmente analizada (legacy noColumna).</summary>
     [ObservableProperty]
@@ -178,13 +186,56 @@ public partial class AnalisisFormatos123FrmViewModel : ObservableObject
     [RelayCommand]
     private void Analizar()
     {
-        // TODO: ArrayFormatos — ver Free1X2/UI/AnalisisFormatos123Frm.cs línea 97-104
-        //   (ObtenerFormatos recorre this.ArrayFormatos, una lista de Formato123 inyectada
-        //   externamente desde quien abría el form; nunca se establece en el propio form).
-        //   Sin esa lista de formatos predefinidos el análisis no tiene entrada; usar
-        //   "Mostrar todos" mientras no exista el origen de ArrayFormatos.
+        // Réplica de ObtenerFormatos(ColumnaActual) (Free1X2/UI/AnalisisFormatos123Frm.cs
+        //   líneas 88-105): cuenta las apariciones de cada formato predefinido (ArrayFormatos,
+        //   inyectado por Formatos123Frm) sobre la columna actual traducida a 1/2/3.
         if (Columnas.Count == 0) return;
-        AppServices.MostrarInfo("Indica los formatos predefinidos a analizar o usa \"Mostrar todos\".");
+        if (ArrayFormatos.Count == 0)
+        {
+            // Legacy: el botón Analizar quedaba inerte sin ArrayFormatos (sólo lo fijaba el caller).
+            AppServices.MostrarInfo("No hay formatos predefinidos para analizar. Abra el análisis desde Formatos 123 o use \"Mostrar todos\".");
+            return;
+        }
+
+        string columna1x2 = ColumnaActual;
+        double[,] nvals = PorcentajesHelper.AMatriz(Porcentajes);  // == valors1.RetVals()
+        string columnaFormato = TraducirColumna(columna1x2, TransformarValoracion(nvals));
+        long columnaFormatoBin = ConvStrToLong(columnaFormato);
+
+        Informe.Clear();
+        foreach (var formato in ArrayFormatos)
+        {
+            long formato123 = ConvStrToLong(formato.Formato);
+            int apariciones = DeterminaApariciones(columnaFormatoBin, formato123);
+            Informe.Add(new Formato123FilaViewModel(formato.Formato, apariciones));
+        }
+    }
+
+    /// <summary>Réplica de AnalisisFormatos123Frm.ConvStrToLong (líneas 235-244).</summary>
+    private static long ConvStrToLong(string s)
+    {
+        const string signos = "321";
+        long res = 0;
+        for (int i = s.Length - 1; i > -1; i--)
+        {
+            res = (res <<= 3) ^ (1 << signos.IndexOf(s.Substring(i, 1)));
+        }
+        return res;
+    }
+
+    /// <summary>Réplica de AnalisisFormatos123Frm.DeterminaApariciones (líneas 245-258).</summary>
+    private static int DeterminaApariciones(long columnaFormato, long formato)
+    {
+        int aciertos = 0;
+        while (columnaFormato != 0)
+        {
+            if (((columnaFormato) & formato) == formato)
+            {
+                aciertos++;
+            }
+            columnaFormato >>= 3;
+        }
+        return aciertos;
     }
 
     /// <summary>

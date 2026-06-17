@@ -65,6 +65,26 @@ public partial class HistoriaValoracionesFrmViewModel : ObservableObject
 
     partial void OnTemporadaChanged(double value) => OnPropertyChanged(nameof(TemporadaSiguienteTexto));
 
+    /// <summary>
+    /// Carga el contexto que el WinForms recibía por constructor
+    /// (legacy: new HistoriaValoracionesFrm(v, temporada, jornada, archivoHistorico) desde
+    /// TramificarForm.AfegirAlHistoric). Vuelca la matriz de valoraciones a la rejilla y fija
+    /// temporada/jornada y, si llega, el fichero histórico de partida.
+    /// </summary>
+    public void Inicializar(double[,] valores, int temporada, int jornada, string? archivoHistorico)
+    {
+        PorcentajesHelper.CargarMatriz(Filas, valores);
+        Temporada = temporada;
+        Jornada = jornada;
+
+        if (!string.IsNullOrEmpty(archivoHistorico))
+        {
+            _rutaSalida = archivoHistorico!;
+            NombreFichero = Path.GetFileName(archivoHistorico);
+            PuedeGuardar = true;
+        }
+    }
+
     // --- Spinners de temporada (legacy: btTemporadaAnterior_Click / btTemporadaSiguiente_Click) ---
 
     [RelayCommand]

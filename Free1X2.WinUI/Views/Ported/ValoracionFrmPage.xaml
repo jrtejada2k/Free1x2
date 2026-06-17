@@ -26,6 +26,14 @@
                     <controls:PorcentajesControl Height="380"
                                                  Filas="{x:Bind ViewModel.Porcentajes, Mode=OneWay}"
                                                  AutomationProperties.Name="Porcentajes 1 X 2 por partido" />
+
+                    <!-- Botonera del UserControl ControlPorcentajes (ctrBarraBotones1): "Guardar"
+                         abría GuardarValoracionFrm con la matriz de porcentajes (BGuardar). -->
+                    <StackPanel Orientation="Horizontal" Spacing="5">
+                        <Button Content="Guardar valoración"
+                                Command="{x:Bind ViewModel.GuardarValoracionCommand}"
+                                AutomationProperties.Name="Guardar la valoración de porcentajes en un archivo" />
+                    </StackPanel>
                 </StackPanel>
             </Border>
 

@@ -358,6 +358,19 @@ public partial class ValoracionFrmViewModel : ObservableObject
         Navegar?.Invoke(typeof(BuscaLimsFrmPage));
     }
 
+    [RelayCommand]
+    private void GuardarValoracion()
+    {
+        // Equivale a ControlPorcentajes.ctrBarraBotones1_BGuardar (Free1X2/UI/Controls/
+        //   ControlPorcentajes.cs lineas 457-461): new GuardarValoracionFrm(Valores).Show().
+        // ControlPorcentajes vive dentro de ValoracionFrm y pasaba su matriz de porcentajes
+        // (Valores = double[NumeroPartidos,3]) al dialogo de guardado. Aqui se entrega esa
+        // misma matriz (la rejilla Porcentajes) por el handoff estatico y se navega a la
+        // pagina portada, mismo patron que VerBoletos -> BoletoFrmPage.
+        GuardarValoracionFrmPage.ValoresIniciales = PorcentajesHelper.AMatriz(Porcentajes);
+        Navegar?.Invoke(typeof(GuardarValoracionFrmPage));
+    }
+
     // --- Barra de condiciones (control legacy MenuCondiciones) ---
 
     /// <summary>

@@ -50,6 +50,9 @@ public partial class CopiarCPFrmViewModel : ObservableObject
     /// <summary>Acción de cierre/volver (la cablea la página con Frame.GoBack()). Legacy: Close().</summary>
     public Action? Volver { get; set; }
 
+    /// <summary>Acción para navegar a otra página (la cablea la página con Frame.Navigate(tipo)).</summary>
+    public Action<Type>? Navegar { get; set; }
+
     // Índice del grupo en pantalla (legacy: noGrupoPantalla = mainFrm.NoGrupoPantalla).
     private int _grupoPantalla;
 
@@ -282,20 +285,13 @@ public partial class CopiarCPFrmViewModel : ObservableObject
     [RelayCommand]
     private void CrearGrupos()
     {
-        // El WinForms abría CrearGruposFrm (ShowDialog) para leer udNumGrupos y luego creaba los
-        // grupos. En WinUI, la creación con cantidad la cubre CrearGruposFrmPage/ViewModel; aquí
-        // añadimos un grupo por pulsación (todos los partidos activos) y refrescamos la lista,
-        // que es la operación elemental equivalente del bucle legacy.
-        GrupoPartidos grupos = AppState.Instancia.Analizador.GruposPartidos;
-        var grupo = new Grupo();
-        grupo.PonerPartidosActivos("1,2,3,4,5,6,7,8,9,10,11,12,13,14");
-        grupos.AddGrupo(grupo);
-        AppState.Instancia.NotificarCambio();
-
-        Grupos.Add((grupos.Count - 1).ToString());
-        Estado = $"Grupo {grupos.Count - 1} creado.";
-        // TODO[navegación]: para crear varios grupos a la vez (udNumGrupos), enlazar con
-        //   CrearGruposFrmPage (CrearGruposFrmViewModel) — Free1X2/UI/Filtros/CopiarCPFrm.cs línea 390.
+        // Equivale a CopiarCPFrm.btnCrearGrupos_Click (Free1X2/UI/Filtros/CopiarCPFrm.cs líneas
+        //   386-403): el WinForms abría CrearGruposFrm (ShowDialog) para leer udNumGrupos y luego
+        //   creaba ese número de grupos. CrearGruposFrmViewModel.Crear ya ejecuta ese mismo bucle
+        //   (crea N grupos con los 14 partidos activos + NotificarCambio), así que aquí basta con
+        //   navegar a la página. Al volver, OnNavigatedTo -> CargarDesdeGrupo refresca la lista de
+        //   grupos destino con los recién creados.
+        Navegar?.Invoke(typeof(CrearGruposFrmPage));
     }
 
     /// <summary>

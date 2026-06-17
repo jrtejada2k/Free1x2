@@ -1,4 +1,5 @@
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Navigation;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -20,5 +21,31 @@ public sealed partial class TramificarFormPage : Page
         this.InitializeComponent();
         ViewModel.Navegar = tipo => Frame?.Navigate(tipo);
         ViewModel.Volver = () => { if (Frame?.CanGoBack == true) Frame.GoBack(); };
+
+        // Flujo "Filtrar" legacy (btFiltrar_Click): el VM calcula los extremos y pide abrir
+        // DialogoFiltrarPorLimitesFrm; aquí se pasa la matriz por el handoff estático y se navega
+        // a la página del diálogo. El resultado se recoge al volver (OnNavigatedTo, modo Back).
+        ViewModel.AbrirDialogoFiltrarPorLimites = extremos =>
+        {
+            DialogoFiltrarPorLimitesFrmPage.ExtremosEntrada = extremos;
+            DialogoFiltrarPorLimitesFrmPage.Resultado = null;
+            Frame?.Navigate(typeof(DialogoFiltrarPorLimitesFrmPage));
+        };
+    }
+
+    protected override async void OnNavigatedTo(NavigationEventArgs e)
+    {
+        base.OnNavigatedTo(e);
+
+        // Al volver de DialogoFiltrarPorLimitesFrmPage (legacy: if (DialogoFiltrar.ValoresAceptados))
+        // se aplica el filtro con los extremos editados; si se canceló, no se hace nada.
+        if (DialogoFiltrarPorLimitesFrmPage.Resultado is { } r)
+        {
+            DialogoFiltrarPorLimitesFrmPage.Resultado = null;
+            if (r.aceptado)
+            {
+                await ViewModel.AplicarFiltroConExtremos(r.extremos);
+            }
+        }
     }
 }

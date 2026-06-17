@@ -1,4 +1,9 @@
+using System.Collections.Generic;
+
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Navigation;
+
+using Free1X2.MotorCalculo;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -13,16 +18,34 @@ namespace Free1X2.WinUI.Views.Ported;
 /// posibles ("Mostrar todos"); el resultado se muestra como un informe Formato/Apariciones.
 ///
 /// La UI y el estado en memoria viven en <see cref="AnalisisFormatos123FrmViewModel"/>.
-/// La lectura de archivos, la traducción (con la valoración de la rejilla
-/// PorcentajesControl == valors1.RetVals()) y el conteo están portados; solo "Analizar"
-/// queda pendiente de ArrayFormatos (lista inyectada externamente, no relacionada con valors).
+/// La lista de formatos predefinidos (ArrayFormatos) llega por el handoff estático
+/// <see cref="FormatosEntrada"/> desde Formatos123Frm (legacy: btnAnalisis_Click fijaba
+/// analisisff.ArrayFormatos = filtro.ArrayFormatos antes de ShowDialog).
 /// </summary>
 public sealed partial class AnalisisFormatos123FrmPage : Page
 {
+    /// <summary>
+    /// Handoff estático con los formatos predefinidos a analizar (legacy:
+    /// analisisff.ArrayFormatos = this.filtro.ArrayFormatos). Lo deja el productor
+    /// (Formatos123FrmViewModel) antes de navegar y lo consume <see cref="OnNavigatedTo"/>.
+    /// </summary>
+    public static List<Formato123>? FormatosEntrada { get; set; }
+
     public AnalisisFormatos123FrmViewModel ViewModel { get; } = new();
 
     public AnalisisFormatos123FrmPage()
     {
         this.InitializeComponent();
+    }
+
+    protected override void OnNavigatedTo(NavigationEventArgs e)
+    {
+        base.OnNavigatedTo(e);
+
+        if (FormatosEntrada is { } formatos)
+        {
+            FormatosEntrada = null; // se consume una sola vez
+            ViewModel.ArrayFormatos = formatos;
+        }
     }
 }

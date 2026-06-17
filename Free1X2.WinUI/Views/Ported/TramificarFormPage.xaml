@@ -196,6 +196,12 @@
                                Style="{StaticResource SecondaryTextBlockStyle}" TextWrapping="Wrap" />
                     <controls:PorcentajesControl Height="300"
                                                  Filas="{x:Bind ViewModel.Porcentajes, Mode=OneWay}" />
+
+                    <!-- Menú legacy "Guardar en fichero de valoraciones históricas"
+                         (mnuGuardarEnHistorico -> AfegirAlHistoric -> HistoriaValoracionesFrm). -->
+                    <Button Content="Guardar en histórico de valoraciones"
+                            Command="{x:Bind ViewModel.GuardarEnHistoricoCommand}"
+                            AutomationProperties.Name="Guardar las valoraciones de la jornada en el fichero histórico" />
                 </StackPanel>
             </Border>
 
