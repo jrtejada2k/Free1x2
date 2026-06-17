@@ -43,6 +43,15 @@
     <ProjectReference Include="..\Free1X2.Domain\Free1X2.Domain.csproj" />
   </ItemGroup>
 
+  <!-- Iconos originales de la barra de herramientas, extraídos de MainForm.resx (uno
+       por botón). Se empaquetan como Content (ms-appx:///Assets/Toolbar/<botón>.png). -->
+  <ItemGroup>
+    <Content Include="Assets\Toolbar\*.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
   <!-- Datos semilla del motor (config, idioma, equipos, impresión). Se copian junto
        al exe preservando la estructura de carpetas (Equipos/, Idioma/, Impresion/);
        el dominio los lee con System.AppContext.BaseDirectory. Sin ellos,

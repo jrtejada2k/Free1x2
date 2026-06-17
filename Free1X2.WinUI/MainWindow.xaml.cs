@@ -166,105 +166,131 @@ public sealed partial class MainWindow : Window
         return menu;
     }
 
-    // ===== Barra de herramientas: réplica de los 6 ToolStrips del MainForm =====
-    // Orden y tooltips idénticos a MainForm.Designer.cs (Items.AddRange de cada ToolStrip).
-    // Grupos separados por un separador vertical, igual que los 6 ToolStrip independientes.
-    // Acciones que en WinForms operan sobre 'pronosticos' (ficheros del boleto) se enrutan
-    // a la pantalla Inicio (MainPage), donde vive el boleto, igual que el menú existente.
+    // ===== Barra de herramientas: réplica 1:1 de los 6 ToolStrips del MainForm =====
+    // El programa WinForms muestra por defecto los SEIS ToolStrips (config en
+    // parametros.free1x2; los seis flags por defecto = true, ver
+    // VariablesGlobales.SetDefaultValues líneas 162-167). El orden visual lo fija
+    // ObtenerPosicionBarraHerramientas (MainForm.cs línea 78):
+    //     tsFree, tsArchivo, tsOperaciones, tsCombinacion, tsFiltros, tsUtilidades
+    // Cada strip se separa del siguiente con un separador vertical (son ToolStrip
+    // independientes en el original). Los botones, su orden, su ToolTipText y su icono
+    // se toman EXACTAMENTE de MainForm.Designer.cs (Items.AddRange de cada ToolStrip)
+    // y MainForm.resx (imagen embebida por botón, extraída a Assets/Toolbar/<botón>.png).
+    // No se inventan botones ni se reutiliza ningún icono.
+    //
+    // Acciones que en WinForms operan sobre 'pronosticos' (ficheros del boleto base) se
+    // enrutan a la pantalla Inicio (MainPage), donde vive el boleto, igual que ya hacía
+    // el menú: misma navegación/flujo que el original, solo cambia la capa visual.
     private void ConstruirToolbar()
     {
-        // --- ARCHIVO (tsArchivo) ---
-        Herramienta("E74E", "Guardar equipos", typeof(MainPage));                       // Save
-        Herramienta("E8A5", "Nueva combinación", typeof(MainPage));                     // Document
-        Herramienta("E896", "Obtener Boletos Online", typeof(DescargaBoletoFrmPage));   // Download
-        Herramienta("E8E5", "Abrir combinación", typeof(MainPage));                     // OpenFile
-        Herramienta("E74E", "Guardar combinación", typeof(MainPage));                   // Save
-        Herramienta("E792", "Guardar combinación como", typeof(MainPage));              // SaveAs
-        Herramienta("E74D", "Borrar archivos temporales", typeof(MainPage));            // Delete (op. ficheros)
-        Herramienta("E716", "Abrir equipos", typeof(MainPage));                         // People
-        Herramienta("E74D", "Borrar Informes de Error", typeof(MainPage));              // Delete (op. ficheros)
-        Herramienta("E716", "Gestión de Equipos", typeof(GestorEquiposFrmPage));        // People
+        // --- tsFree ---
+        Herramienta("bSalir", "Salir", null);                                         // null => cierra la ventana
+        Herramienta("bConfig", "Configuración", typeof(ConfiguracionFrmPage));
+        Herramienta("bConfAnalisis", "Configurar Análisis", typeof(ConfiguracionAnalisisFrmPage));
+        Herramienta("bAyuda", "Ayuda", typeof(AyudaFrmPage));
+        Herramienta("bAcercaDe", "Acerca de ...", typeof(AcercaDeFrmPage));
         Separador();
 
-        // --- COMBINACIÓN (tsCombinacion) ---
-        Herramienta("E950", "Calcular combinación", typeof(CalculaColumnasFrmPage));            // Calculator
-        Herramienta("E8EF", "Calcular múltiples combinaciones", typeof(CalculaColumnasMultipleFrmPage));// CopyTo
-        Herramienta("E8A1", "Ver boletos", typeof(VerBoletosPage));                             // List
-        Herramienta("E749", "Imprimir boletos", typeof(ImprimirBoletoFrmPage));                 // Print
-        Herramienta("E74D", "Reducir", typeof(ReductorFrmPage));                                // Delete/Reduce
-        Herramienta("E73E", "Escrutinio", typeof(EscrutiniosFrmPage));                          // CheckboxComposite
-        Herramienta("E73E", "Escrutar combinaciones", typeof(EscrutarCombinacionesFrmPage));    // CheckboxComposite
-        Herramienta("E9F5", "Análisis de columnas", typeof(AnalizarFicheroFrmPage));            // Processing
-        Herramienta("E9F5", "Análisis de fallos", typeof(ColGanadoraFrmPage));                  // Processing
-        Herramienta("E9D9", "Análisis gráfico", typeof(GraficoColumnasFrmPage));                // BarChart
-        Herramienta("E8A1", "Análisis de signos", typeof(VSignosFrmPage));                      // List
-        Herramienta("E9D9", "Probabilidades", typeof(ProbabilidadPremiosPage));                 // BarChart
-        Herramienta("E9D9", "Estadísticas", typeof(AnastaticsPage));                            // BarChart
-        Herramienta("E710", "Añadir pleno al 15", typeof(AgregaP15FrmPage));                    // Add
+        // --- tsArchivo ---
+        Herramienta("bGuardarEquipos", "Guardar equipos", typeof(MainPage));
+        Herramienta("bNuevo", "Nueva combinación", typeof(MainPage));
+        Herramienta("bObtenerBoletos", "Obtener Boletos Online", typeof(DescargaBoletoFrmPage));
+        Herramienta("bAbrirCombinacion", "Abrir combinación", typeof(MainPage));
+        Herramienta("bGuardarCombinacion", "Guardar combinación", typeof(MainPage));
+        Herramienta("bGuardarCombinacionComo", "Guardar combinación como", typeof(MainPage));
+        Herramienta("bBorrarTemporales", "Borrar archivos temporales", typeof(MainPage));
+        Herramienta("bAbrirEquipos", "Abrir equipos", typeof(MainPage));
+        Herramienta("bBorrarInformes", "Borrar Informes de Error", typeof(MainPage));
+        Herramienta("bGestorEquipos", "Gestión de Equipos", typeof(GestorEquiposFrmPage));
         Separador();
 
-        // --- FILTROS (tsFiltros) ---
-        Herramienta("E71C", "Combinar filtros", typeof(CombinarFiltrosPage));    // Filter
-        Herramienta("E8AB", "Diferencias de filtros", typeof(DiFiltrosPage));    // Switch
-        Herramienta("E71C", "Filtro de coincidencias", typeof(CoincidenciasPage));// Filter
-        Herramienta("E71C", "Filtro Aidomnou", typeof(aidomnouPage));            // Filter
-        Herramienta("E71C", "Filtro Pim", typeof(GeneraPimPage));                // Filter
+        // --- tsOperaciones ---
+        Herramienta("bAlgebra", "Algebra", typeof(AlgebraColumnasFrmPage));
+        Herramienta("bTransposicion", "Transposición", typeof(TransposicionFrmPage));
+        Herramienta("bMultiplicacion", "Multiplicación", typeof(MultiplicadorFrmPage));
+        Herramienta("bFraccionador", "Fraccionar", typeof(FraccionadorFrmPage));
+        Herramienta("bRotacion", "Rotación de signos", typeof(RotacionDeSignosFrmPage));
         Separador();
 
-        // --- OPERACIONES (tsOperaciones) ---
-        Herramienta("E950", "Algebra", typeof(AlgebraColumnasFrmPage));          // Calculator
-        Herramienta("E8AB", "Transposición", typeof(TransposicionFrmPage));      // Switch
-        Herramienta("E950", "Multiplicación", typeof(MultiplicadorFrmPage));     // Calculator
-        Herramienta("E950", "Fraccionar", typeof(FraccionadorFrmPage));          // Calculator
-        Herramienta("E7AD", "Rotación de signos", typeof(RotacionDeSignosFrmPage));// Refresh
+        // --- tsCombinacion ---
+        Herramienta("bCalcular", "Calcular combinación", typeof(CalculaColumnasFrmPage));
+        Herramienta("bCalcularM", "Calcular múltiples combinaciones", typeof(CalculaColumnasMultipleFrmPage));
+        Herramienta("bVerBoletos", "Ver boletos", typeof(VerBoletosPage));
+        Herramienta("bImprimirBoletos", "Imprimir boletos", typeof(ImprimirBoletoFrmPage));
+        Herramienta("bReducir", "Reducir", typeof(ReductorFrmPage));
+        Herramienta("bEscrutinio", "Escrutinio", typeof(EscrutiniosFrmPage));
+        // bEscrutarComb: en el original está Enabled=false (handler vacío); se replica deshabilitado.
+        Herramienta("bEscrutarComb", "Escrutar combinaciones", null, deshabilitado: true);
+        Herramienta("bAnalisisColumnas", "Análisis de columnas", typeof(AnalizarFicheroFrmPage));
+        Herramienta("bAnalisisFallos", "Análisis de fallos", typeof(ColGanadoraFrmPage));
+        // bAnalisisGrafico: en el original está Visible=false → NO se muestra (omitido a propósito).
+        Herramienta("bAnalisisSignos", "Análisis de signos", typeof(VSignosFrmPage));
+        Herramienta("bProbabilidades", "Probabilidades", typeof(ProbabilidadPremiosPage));
+        Herramienta("bEstadisticas", "Estadísticas", typeof(AnastaticsPage));
+        Herramienta("bP15", "Añadir pleno al 15", typeof(AgregaP15FrmPage));
         Separador();
 
-        // --- UTILIDADES (tsUtilidades) ---
-        Herramienta("E74A", "Subir categoría", typeof(SubirCategoriaFrmPage));               // Up
-        Herramienta("E9E9", "Modificador de porcentajes", typeof(ModificadorFrmPage));       // Equalizer
-        Herramienta("E710", "Generador de CPs", typeof(GenerarCPsPage));                     // Add
-        Herramienta("E8AB", "Diferencias entre columnas", typeof(DifColsPage));              // Switch
-        Herramienta("E8CB", "Ordenar por probabilidad", typeof(OrdenarPorProbabilidadFrmPage));// Sort
-        Herramienta("E762", "Selector JuanM", typeof(SelecJMPage));                          // Filter
-        Herramienta("E762", "Selector MarioSan", typeof(SelectorMSPage));                    // Filter
-        Herramienta("E9D9", "Rentabilidad", typeof(RentabilidadFrmPage));                    // BarChart
-        Herramienta("E8A1", "Columnas GEPT", typeof(GEPTFrmPage));                           // List
-        Herramienta("E9D9", "Tramificar", typeof(TramificarFormPage));                       // BarChart
-        Herramienta("E735", "Premiadas", typeof(PremiadasFrmPage));                          // FavoriteStar
-        Herramienta("E9D9", "Estimación de premios", typeof(EstimadorPremiosFrmPage));       // BarChart
-        Herramienta("E713", "Banco de pruebas", typeof(BancoPruebasFrmPage));                // Settings
-        Herramienta("E8B5", "Importar/Exportar", typeof(ImportExportFrmPage));               // Switch/Import
-        Herramienta("E716", "Análisis de grupos", typeof(AnaCombiPage));                     // People/Group
-        Herramienta("E74D", "Reducciones perfectas", typeof(FrmReducidasPerfectasPage));     // Delete/Reduce
-        Herramienta("E9E9", "Dependencia lineal", typeof(FrmDependenciaLinealPage));         // Equalizer
+        // --- tsFiltros ---
+        Herramienta("bCombinarFiltros", "Combinar filtros", typeof(CombinarFiltrosPage));
+        Herramienta("bDiferenciasFiltros", "Diferencias de filtros", typeof(DiFiltrosPage));
+        Herramienta("bFiltroCoincidencias", "Filtro de coincidencias", typeof(CoincidenciasPage));
+        Herramienta("bFiltroAidomnou", "Filtro Aidomnou", typeof(aidomnouPage));
+        Herramienta("bFiltroPim", "Filtro Pim", typeof(GeneraPimPage));
         Separador();
 
-        // --- FREE / AYUDA (tsFree) ---
-        Herramienta("E7E8", "Salir", null);                                          // PowerButton; null => cierra
-        Herramienta("E713", "Configuración", typeof(ConfiguracionFrmPage));          // Settings
-        Herramienta("E9D9", "Configurar Análisis", typeof(ConfiguracionAnalisisFrmPage));// BarChart
-        Herramienta("E897", "Ayuda", typeof(AyudaFrmPage));                          // Help
-        Herramienta("E946", "Acerca de", typeof(AcercaDeFrmPage));                   // Info
+        // --- tsUtilidades ---
+        Herramienta("bSubeCategoria", "Subir categoría", typeof(SubirCategoriaFrmPage));
+        Herramienta("bModificadorPct", "Modificador de porcentajes", typeof(ModificadorFrmPage));
+        Herramienta("bGeneradorCPs", "Generador de CPs", typeof(GenerarCPsPage));
+        Herramienta("bDiferenciasColumnas", "Diferencias entre columnas", typeof(DifColsPage));
+        Herramienta("bProbabilidad", "Ordenar por probabilidad", typeof(OrdenarPorProbabilidadFrmPage));
+        Herramienta("bSelectorJuanM", "Selector JuanM", typeof(SelecJMPage));
+        Herramienta("bSelectorMarioSan", "Selector MarioSan", typeof(SelectorMSPage));
+        Herramienta("bRentabilidad", "Rentabilidad", typeof(RentabilidadFrmPage));
+        Herramienta("bColumnasGEPT", "Columnas GEPT", typeof(GEPTFrmPage));
+        Herramienta("bTramificar", "Tramificar", typeof(TramificarFormPage));
+        Herramienta("bPremiadas", "Premiadas", typeof(PremiadasFrmPage));
+        Herramienta("bEstimacion", "Estimación de premios", typeof(EstimadorPremiosFrmPage));
+        Herramienta("bBancoPruebas", "Banco de pruebas", typeof(BancoPruebasFrmPage));
+        Herramienta("bImportExport", "Importar / Exportar", typeof(ImportExportFrmPage));
+        Herramienta("bAnalisisGrupos", "Análisis de grupos", typeof(AnaCombiPage));
+        Herramienta("bRedPerfectas", "Reducciones perfectas", typeof(FrmReducidasPerfectasPage));
+        Herramienta("bDependenciaLineal", "Dependencia lineal", typeof(FrmDependenciaLinealPage));
     }
 
-    // Añade un botón icono-only compacto a la barra. page null => cierra la ventana (Salir).
-    private void Herramienta(string glifoHex, string tooltip, Type? page)
+    // Añade un botón icono-only compacto a la barra usando el icono ORIGINAL extraído del
+    // resx (Assets/Toolbar/<icono>.png), no un glifo de fuente. 'icono' es el nombre del
+    // botón en el Designer (p.ej. "bCalcular"). page null => cierra la ventana (Salir) salvo
+    // que 'deshabilitado' sea true (botón inactivo sin acción, como bEscrutarComb).
+    private void Herramienta(string icono, string tooltip, Type? page, bool deshabilitado = false)
     {
+        var img = new Image
+        {
+            Source = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage(
+                new Uri($"ms-appx:///Assets/Toolbar/{icono}.png")),
+            Width = 16,
+            Height = 16,
+            Stretch = Stretch.Uniform,
+        };
         var btn = new Button
         {
-            Content = new FontIcon { Glyph = Glifo(glifoHex), FontSize = 15, FontFamily = IconFont },
+            Content = img,
             Width = 30,
             Height = 26,
             Padding = new Thickness(0),
             Background = new SolidColorBrush(Microsoft.UI.Colors.Transparent),
             BorderThickness = new Thickness(0),
+            IsEnabled = !deshabilitado,
         };
         ToolTipService.SetToolTip(btn, tooltip);
         Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(btn, tooltip);
-        if (page is null)
-            btn.Click += (_, _) => this.Close();
-        else
-            btn.Click += (_, _) => Navegar(page);
+        if (!deshabilitado)
+        {
+            if (page is null)
+                btn.Click += (_, _) => this.Close();
+            else
+                btn.Click += (_, _) => Navegar(page);
+        }
         ToolbarPanel.Children.Add(btn);
     }
 
