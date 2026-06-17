@@ -96,6 +96,10 @@ public sealed partial class MainWindow : Window
             ("E713", "Configuración…", typeof(ConfiguracionFrmPage)));
         menuVer.Items.Add(new MenuFlyoutSeparator());
         menuVer.Items.Add(ConstruirSubmenuBarrasHerramientas());
+        // "Listado de condiciones" — en el original es el item que sigue a "Barras de Herramientas"
+        // dentro del menú Ver (menuVer.DropDownItems, MainForm.Designer.cs:1455-1457). Navega a la
+        // página portada (handler legacy: listadoDeCondicionesToolStripMenuItem_Click → ListadoCondicionesFrm).
+        menuVer.Items.Add(ItemFlyout("E9D5", "Listado de condiciones", typeof(ListadoCondicionesFrmPage)));
         BarraMenu.Items.Add(menuVer);
 
         BarraMenu.Items.Add(Menu("Combinación",
@@ -107,6 +111,10 @@ public sealed partial class MainWindow : Window
             null,
             ("E74D", "Reducir…", typeof(ReductorFrmPage)),
             ("E73E", "Escrutinios…", typeof(EscrutiniosFrmPage)),
+            // "Escrutar combinaciones" — en el menú Combinación del original
+            // (escrutarCombinacionesToolStripMenuItem, MainForm.Designer.cs:1551). Navega a la
+            // página portada (handler legacy: MEscrutinioComb → EscrutiniosFrm de combinaciones).
+            ("E762", "Escrutar combinaciones…", typeof(EscrutarCombinacionesFrmPage)),
             null,
             ("E9F5", "Analizar combinación…", typeof(AnalizarCombinacionFrmPage)),
             ("E9D9", "Gráfico de columnas…", typeof(GraficoColumnasFrmPage)),
@@ -147,7 +155,14 @@ public sealed partial class MainWindow : Window
             ("E9D9", "Tramificar…", typeof(TramificarFormPage)),
             ("E735", "Premiadas…", typeof(PremiadasFrmPage)),
             ("E9D9", "Estimación de premios…", typeof(EstimadorPremiosFrmPage)),
-            ("E713", "Banco de pruebas…", typeof(BancoPruebasFrmPage))));
+            ("E713", "Banco de pruebas…", typeof(BancoPruebasFrmPage)),
+            null,
+            // "Compresor z3q" y "EstuCol" — últimos items del menú Utilidades del original
+            // (compresorToolStripMenuItem / estuColToolStripMenuItem, MainForm.Designer.cs:1875-1876).
+            // Navegan a sus páginas portadas (handlers legacy: compresorToolStripMenuItem_Click →
+            // Compresor; estuColToolStripMenuItem_Click → EstucolFrm).
+            ("E8B7", "Compresor z3q…", typeof(CompresorPage)),
+            ("E8B7", "EstuCol…", typeof(EstucolFrmPage))));
     }
 
     // Crea un menú superior. El título a nivel superior va SIN icono (MenuBarItem no
@@ -178,6 +193,19 @@ public sealed partial class MainWindow : Window
             menu.Items.Add(mfi);
         }
         return menu;
+    }
+
+    // Crea un único MenuFlyoutItem con icono que navega a 'page' (misma lógica que los items de
+    // Menu(), para añadir entradas sueltas a un menú ya construido).
+    private MenuFlyoutItem ItemFlyout(string glifoHex, string label, Type page)
+    {
+        var mfi = new MenuFlyoutItem
+        {
+            Text = label,
+            Icon = new FontIcon { Glyph = Glifo(glifoHex), FontFamily = IconFont },
+        };
+        mfi.Click += (_, _) => Navegar(page);
+        return mfi;
     }
 
     // ===== Barra de herramientas: réplica 1:1 de los 6 ToolStrips del MainForm =====
@@ -222,16 +250,19 @@ public sealed partial class MainWindow : Window
         Separador();
 
         // --- tsArchivo ---
+        // Estos botones ejecutan una acción sobre la pantalla Inicio (no solo navegan a ella):
+        // se enrutan a MainPage con un token AccionInicio y la página invoca el comando que
+        // replica el handler equivalente del menú "Archivo" del MainForm original.
         Grupo(GrupoBarra.Archivo);
-        Herramienta("bGuardarEquipos", "Guardar equipos", typeof(MainPage));
-        Herramienta("bNuevo", "Nueva combinación", typeof(MainPage));
+        HerramientaAccion("bGuardarEquipos", "Guardar equipos", AccionInicio.GuardarEquipos);
+        HerramientaAccion("bNuevo", "Nueva combinación", AccionInicio.NuevaCombinacion);
         Herramienta("bObtenerBoletos", "Obtener Boletos Online", typeof(DescargaBoletoFrmPage));
-        Herramienta("bAbrirCombinacion", "Abrir combinación", typeof(MainPage));
-        Herramienta("bGuardarCombinacion", "Guardar combinación", typeof(MainPage));
-        Herramienta("bGuardarCombinacionComo", "Guardar combinación como", typeof(MainPage));
-        Herramienta("bBorrarTemporales", "Borrar archivos temporales", typeof(MainPage));
-        Herramienta("bAbrirEquipos", "Abrir equipos", typeof(MainPage));
-        Herramienta("bBorrarInformes", "Borrar Informes de Error", typeof(MainPage));
+        HerramientaAccion("bAbrirCombinacion", "Abrir combinación", AccionInicio.AbrirCombinacion);
+        HerramientaAccion("bGuardarCombinacion", "Guardar combinación", AccionInicio.GuardarCombinacion);
+        HerramientaAccion("bGuardarCombinacionComo", "Guardar combinación como", AccionInicio.GuardarCombinacionComo);
+        HerramientaAccion("bBorrarTemporales", "Borrar archivos temporales", AccionInicio.BorrarTemporales);
+        HerramientaAccion("bAbrirEquipos", "Abrir equipos", AccionInicio.AbrirEquipos);
+        HerramientaAccion("bBorrarInformes", "Borrar Informes de Error", AccionInicio.BorrarInformes);
         Herramienta("bGestorEquipos", "Gestión de Equipos", typeof(GestorEquiposFrmPage));
         Separador();
 
@@ -338,6 +369,34 @@ public sealed partial class MainWindow : Window
             else
                 btn.Click += (_, _) => Navegar(page);
         }
+        ToolbarPanel.Children.Add(btn);
+        _grupoActual?.Add(btn);
+    }
+
+    // Igual que Herramienta(), pero el clic ejecuta una acción sobre la pantalla Inicio
+    // (NavegarConAccion) en lugar de solo navegar. Usa el mismo icono ORIGINAL del resx.
+    private void HerramientaAccion(string icono, string tooltip, AccionInicio accion)
+    {
+        var img = new Image
+        {
+            Source = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage(
+                new Uri($"ms-appx:///Assets/Toolbar/{icono}.png")),
+            Width = 16,
+            Height = 16,
+            Stretch = Stretch.Uniform,
+        };
+        var btn = new Button
+        {
+            Content = img,
+            Width = 30,
+            Height = 26,
+            Padding = new Thickness(0),
+            Background = new SolidColorBrush(Microsoft.UI.Colors.Transparent),
+            BorderThickness = new Thickness(0),
+        };
+        ToolTipService.SetToolTip(btn, tooltip);
+        Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(btn, tooltip);
+        btn.Click += (_, _) => NavegarConAccion(accion);
         ToolbarPanel.Children.Add(btn);
         _grupoActual?.Add(btn);
     }
@@ -450,6 +509,23 @@ public sealed partial class MainWindow : Window
     {
         if (ContentFrame.CurrentSourcePageType != page)
             ContentFrame.Navigate(page);
+    }
+
+    // Ejecuta una acción de la barra "Archivo" sobre la pantalla Inicio. Si ya estamos en
+    // MainPage, invoca el comando sobre la instancia VIVA (preserva el boleto en edición); si
+    // no, navega a MainPage pasando el token como parámetro (OnNavigatedTo lo ejecuta tras
+    // cargar). En ambos casos termina en MainPage, igual que el flujo original que operaba
+    // sobre el boleto de la pantalla principal.
+    private void NavegarConAccion(AccionInicio accion)
+    {
+        if (ContentFrame.Content is MainPage paginaViva)
+        {
+            _ = paginaViva.ViewModel.EjecutarAccionAsync(accion);
+        }
+        else
+        {
+            ContentFrame.Navigate(typeof(MainPage), accion);
+        }
     }
 
     // ===== Smoke test gated por FREE1X2_SMOKE (permanente, no-op sin la env var) =====
