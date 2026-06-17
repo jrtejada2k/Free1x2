@@ -249,18 +249,23 @@
                         </Grid>
                         <StackPanel Orientation="Horizontal" Spacing="6">
                             <Button Content="Calcular" Style="{StaticResource AccentButtonStyle}"
+                                    Height="30" Padding="12,0" FontSize="12"
                                     Command="{x:Bind ViewModel.CalcularCommand}"
                                     AutomationProperties.Name="Calcular columnas" />
                             <Button Content="Reducir"
+                                    Height="30" Padding="12,0" FontSize="12"
                                     Command="{x:Bind ViewModel.ReducirCommand}"
                                     AutomationProperties.Name="Reducir columnas" />
                             <Button Content="Nueva"
+                                    Height="30" Padding="12,0" FontSize="12"
                                     Command="{x:Bind ViewModel.NuevaCombinacionCommand}"
                                     AutomationProperties.Name="Nueva combinación" />
                             <Button Content="Abrir…"
+                                    Height="30" Padding="12,0" FontSize="12"
                                     Command="{x:Bind ViewModel.AbrirCombinacionCommand}"
                                     AutomationProperties.Name="Abrir combinación" />
                             <Button Content="Guardar…"
+                                    Height="30" Padding="12,0" FontSize="12"
                                     Command="{x:Bind ViewModel.GuardarCombinacionCommand}"
                                     AutomationProperties.Name="Guardar combinación" />
                         </StackPanel>

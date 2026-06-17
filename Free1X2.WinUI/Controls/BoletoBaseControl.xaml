@@ -88,58 +88,58 @@
 
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="controls:PartidoBaseViewModel">
-                        <Grid ColumnSpacing="4" Padding="2,1" Height="30"
+                        <Grid ColumnSpacing="3" Padding="2,0" Height="26"
                               Background="{ThemeResource AppSurfaceBrush}">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="22" />
+                                <ColumnDefinition Width="20" />
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="28" />
-                                <ColumnDefinition Width="28" />
-                                <ColumnDefinition Width="28" />
+                                <ColumnDefinition Width="26" />
+                                <ColumnDefinition Width="26" />
+                                <ColumnDefinition Width="26" />
                             </Grid.ColumnDefinitions>
 
                             <TextBlock Grid.Column="0"
                                        Text="{x:Bind NumeroTexto}"
                                        VerticalAlignment="Center"
                                        HorizontalAlignment="Center"
-                                       FontSize="12"
+                                       FontSize="11"
                                        Foreground="{ThemeResource AppTextSecondaryBrush}" />
 
                             <ComboBox Grid.Column="1"
                                       IsEditable="True"
                                       Text="{x:Bind Local, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                       VerticalAlignment="Center"
-                                      MinWidth="0" MinHeight="26" Height="26"
-                                      Padding="6,0,4,0" FontSize="12"
+                                      MinWidth="0" MinHeight="22" Height="22"
+                                      Padding="5,0,2,0" FontSize="11"
                                       AutomationProperties.Name="Equipo local" />
 
                             <ComboBox Grid.Column="2"
                                       IsEditable="True"
                                       Text="{x:Bind Visitante, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                       VerticalAlignment="Center"
-                                      MinWidth="0" MinHeight="26" Height="26"
-                                      Padding="6,0,4,0" FontSize="12"
+                                      MinWidth="0" MinHeight="22" Height="22"
+                                      Padding="5,0,2,0" FontSize="11"
                                       AutomationProperties.Name="Equipo visitante" />
 
                             <ToggleButton Grid.Column="3"
                                           Content="1"
                                           IsChecked="{x:Bind Signo1, Mode=TwoWay}"
-                                          Height="26" FontSize="12"
+                                          Height="22" FontSize="11"
                                           Style="{StaticResource SignoToggleButtonStyle}"
                                           AutomationProperties.HelpText="Signo 1 (gana el local)" />
 
                             <ToggleButton Grid.Column="4"
                                           Content="X"
                                           IsChecked="{x:Bind SignoX, Mode=TwoWay}"
-                                          Height="26" FontSize="12"
+                                          Height="22" FontSize="11"
                                           Style="{StaticResource SignoToggleButtonStyle}"
                                           AutomationProperties.HelpText="Signo X (empate)" />
 
                             <ToggleButton Grid.Column="5"
                                           Content="2"
                                           IsChecked="{x:Bind Signo2, Mode=TwoWay}"
-                                          Height="26" FontSize="12"
+                                          Height="22" FontSize="11"
                                           Style="{StaticResource SignoToggleButtonStyle}"
                                           AutomationProperties.HelpText="Signo 2 (gana el visitante)" />
                         </Grid>
