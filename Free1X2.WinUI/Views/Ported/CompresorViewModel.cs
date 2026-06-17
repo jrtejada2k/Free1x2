@@ -20,11 +20,11 @@ namespace Free1X2.WinUI.Views.Ported;
 /// texto. Equivalente legacy: Compresor.EntradaFichero / EntradaFicheroComprimido.
 ///
 /// Los selectores de archivo, la lectura/dimensionado de columnas con
-/// ArchivoColumnasTexto + ConvertidorDeBases (ambos en Free1X2.Domain) y el volcado
-/// de la descompresión a texto están cableados. El núcleo de (des)compresión
-/// (Free1X2.Utils.CompresorZip, basado en SharpZipLib) permanece en el proyecto
-/// WinForms y NO está en Free1X2.Domain, que es la única referencia de Free1X2.WinUI;
-/// por eso ese paso concreto queda como TODO preciso (no se fabrica la lógica).
+/// ArchivoColumnasTexto + ConvertidorDeBases y el volcado de la descompresión a texto
+/// están cableados. El núcleo de (des)compresión (Free1X2.Utils.CompresorZip, basado en
+/// ICSharpCode.SharpZipLib) se portó 1:1 a Free1X2.Domain conservando el formato *.z3q
+/// del original (ZIP con una entrada Deflated que empaqueta el BitArray), por lo que los
+/// archivos existentes siguen siendo compatibles.
 /// </summary>
 public partial class CompresorViewModel : ObservableObject
 {
@@ -138,14 +138,31 @@ public partial class CompresorViewModel : ObservableObject
             return;
         }
 
-        // TODO[dominio]: compresión real — falta Free1X2.Utils.CompresorZip.Comprimir,
-        //   que vive en el proyecto WinForms (usa ICSharpCode.SharpZipLib) y NO está en
-        //   Free1X2.Domain (única referencia de Free1X2.WinUI). Equivalente legacy
-        //   (Free1X2/UI/Compresor.cs línea 101):
-        //     CompresorZip.Comprimir(_arrayColumnas, salida.Path, salida.Path,
-        //         _arrayColumnas.Length, NivelSeleccionado);  // nivel 0-9
-        //   Cablear cuando CompresorZip se porte a Free1X2.Domain (o se referencie SharpZipLib).
-        Estado = "Compresión pendiente: CompresorZip (SharpZipLib) no está en Free1X2.Domain.";
+        // Compresión real (CompresorZip portado a Free1X2.Domain, usa ICSharpCode.SharpZipLib).
+        // Equivalente legacy (Free1X2/UI/Compresor.cs línea 101): se fuerza la extensión .z3q
+        // sobre el nombre elegido, igual que GuardarFicheroComprimido() en WinForms.
+        try
+        {
+            string rutaFinal = Path.Combine(
+                Path.GetDirectoryName(salida.Path)!,
+                Path.GetFileNameWithoutExtension(salida.Path) + ".z3q");
+
+            long tamComprimido = await Task.Run(() =>
+                CompresorZip.Comprimir(
+                    _arrayColumnas, rutaFinal, rutaFinal, _arrayColumnas.Length, NivelSeleccionado));
+
+            long tamArchivo = new FileInfo(rutaFinal).Length;
+            Estado = $"Guardado: {Path.GetFileName(rutaFinal)} " +
+                     $"({tamComprimido:N0} bytes de datos, {tamArchivo:N0} bytes en disco, nivel {NivelSeleccionado}).";
+            AppServices.MostrarInfo(
+                $"Archivo comprimido correctamente:\n{rutaFinal}\n\n" +
+                $"Datos: {tamComprimido:N0} bytes — Archivo: {tamArchivo:N0} bytes.");
+        }
+        catch (Exception ex)
+        {
+            Estado = "Error al comprimir.";
+            AppServices.MostrarError("Error al comprimir el archivo: " + ex.Message);
+        }
     }
 
     /// <summary>
@@ -170,24 +187,30 @@ public partial class CompresorViewModel : ObservableObject
         // Réplica de EntradaFicheroComprimido() (Free1X2/UI/Compresor.cs línea 74).
         NombreArchivoComprimido = Path.GetFileName(entrada.Path);
 
-        // TODO[dominio]: descompresión real — falta Free1X2.Utils.CompresorZip.Descomprimir,
-        //   que vive en el proyecto WinForms (usa ICSharpCode.SharpZipLib) y NO está en
-        //   Free1X2.Domain (única referencia de Free1X2.WinUI). Equivalente legacy
-        //   (Free1X2/UI/Compresor.cs línea 83):
-        //     _arrayColumnas = CompresorZip.Descomprimir(entrada.Path);
-        //   Con el BitArray devuelto, GuardarFicheroDescomprimido() (ya cableado abajo) vuelca
-        //   las columnas a texto con ConvertidorDeBases + ArchivoColumnasTexto (ambos en Domain).
-        //   Cablear cuando CompresorZip se porte a Free1X2.Domain (o se referencie SharpZipLib).
-        Estado = "Descompresión pendiente: CompresorZip (SharpZipLib) no está en Free1X2.Domain.";
+        // Descompresión real (CompresorZip portado a Free1X2.Domain, usa ICSharpCode.SharpZipLib).
+        // Equivalente legacy (Free1X2/UI/Compresor.cs línea 83):
+        //   _arrayColumnas = CompresorZip.Descomprimir(entrada.Path);
+        try
+        {
+            Estado = "Descomprimiendo…";
+            _arrayColumnas = await Task.Run(() => CompresorZip.Descomprimir(entrada.Path));
+        }
+        catch (Exception ex)
+        {
+            NombreArchivoComprimido = "(ningún archivo)";
+            Estado = "Error al descomprimir.";
+            AppServices.MostrarError("Error al descomprimir el archivo: " + ex.Message);
+            return;
+        }
 
-        // await GuardarFicheroDescomprimido();  // habilitar tras obtener _arrayColumnas real.
+        // Con el BitArray obtenido, vuelca las columnas a texto (sólo Domain).
+        await GuardarFicheroDescomprimido();
     }
 
     /// <summary>
     /// Réplica de GuardarFicheroDescomprimido() (Free1X2/UI/Compresor.cs línea 105): vuelca el
-    /// BitArray a un .txt de columnas. Sólo usa Domain (ConvertidorDeBases + ArchivoColumnasTexto),
-    /// pero depende del BitArray que produce CompresorZip.Descomprimir (TODO arriba), por lo que
-    /// hoy no se invoca. Se deja listo para cuando ese paso esté disponible.
+    /// BitArray (devuelto por CompresorZip.Descomprimir) a un .txt de columnas. Sólo usa Domain
+    /// (ConvertidorDeBases + ArchivoColumnasTexto). La (des)compresión real ya está cableada.
     /// </summary>
     private async Task GuardarFicheroDescomprimido()
     {
@@ -207,21 +230,35 @@ public partial class CompresorViewModel : ObservableObject
             return;
         }
 
-        await Task.Run(() =>
+        try
         {
-            var conv = new ConvertidorDeBases();
-            conv = new ConvertidorDeBases((byte)conv.ObtenNumeroPartidosColBin(_arrayColumnas.Count));
-            IArchivoColumnas aColsTxt = new ArchivoColumnasTexto(salida.Path);
-            for (int i = 0; i < _arrayColumnas.Count; i++)
+            int columnas = await Task.Run(() =>
             {
-                if (_arrayColumnas[i])
+                var conv = new ConvertidorDeBases();
+                conv = new ConvertidorDeBases((byte)conv.ObtenNumeroPartidosColBin(_arrayColumnas.Count));
+                IArchivoColumnas aColsTxt = new ArchivoColumnasTexto(salida.Path);
+                int n = 0;
+                for (int i = 0; i < _arrayColumnas.Count; i++)
                 {
-                    aColsTxt.GuardarCols(conv.ConvNumAColumna(i));
+                    if (_arrayColumnas[i])
+                    {
+                        aColsTxt.GuardarCols(conv.ConvNumAColumna(i));
+                        n++;
+                    }
                 }
-            }
-            aColsTxt.Cerrar();
-        });
-        Estado = "Guardado";
+                aColsTxt.Cerrar();
+                return n;
+            });
+
+            Estado = $"Guardado: {Path.GetFileName(salida.Path)} ({columnas:N0} columnas).";
+            AppServices.MostrarInfo(
+                $"Archivo descomprimido correctamente:\n{salida.Path}\n\n{columnas:N0} columnas escritas.");
+        }
+        catch (Exception ex)
+        {
+            Estado = "Error al guardar las columnas.";
+            AppServices.MostrarError("Error al guardar las columnas descomprimidas: " + ex.Message);
+        }
     }
 
     /// <summary>
