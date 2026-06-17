@@ -122,7 +122,12 @@
         <Setter Property="Padding" Value="10,4,0,4" />
     </Style>
 
-    <Style TargetType="muxc:NumberBox" BasedOn="{StaticResource DefaultNumberBoxStyle}">
+    <!-- NumberBox: sin BasedOn. WinUI no expone de forma fiable la clave
+         "DefaultNumberBoxStyle" en esta versión, y referenciarla rompe la carga
+         de cualquier página con NumberBox ("Cannot find a Resource ... DefaultNumberBoxStyle").
+         Un Style implícito sin BasedOn aplica la plantilla integrada del framework
+         y sólo sobrescribe el tamaño/fuente para mantener la densidad compacta. -->
+    <Style TargetType="muxc:NumberBox">
         <Setter Property="MinHeight" Value="30" />
         <Setter Property="FontSize" Value="12" />
     </Style>
