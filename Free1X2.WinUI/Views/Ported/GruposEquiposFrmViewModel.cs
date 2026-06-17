@@ -1,11 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Free1X2.EntradaSalida;
 using Free1X2.MotorCalculo;
+using Free1X2.MotorCalculo.Estadisticas;
 using Free1X2.Utils;
 using Free1X2.WinUI.Services;
+using Windows.Storage;
+using Windows.Storage.Pickers;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -108,6 +114,17 @@ public partial class GruposEquiposFrmViewModel : ObservableObject
 
     /// <summary>Acción de cierre/volver (la cablea la página con Frame.GoBack()). Legacy: CerrarVentana().</summary>
     public Action? Volver { get; set; }
+
+    /// <summary>Acción para navegar a otra página (la cablea la página con Frame.Navigate(tipo)).</summary>
+    public Action<Type>? Navegar { get; set; }
+
+    // Fichero temporal de copiar/pegar (legacy: Application.StartupPath + "/Temp/tmp.geq").
+    private static string RutaTemporal =>
+        Path.Combine(AppContext.BaseDirectory, "Temp", "tmp.geq");
+
+    // Directorio de columnas ganadoras (legacy: Application.StartupPath + "/Ganadoras/").
+    private static string DirectorioGanadoras =>
+        Path.Combine(AppContext.BaseDirectory, "Ganadoras") + Path.DirectorySeparatorChar;
 
     // ===== Pestaña "Grupos Equipos": datos del grupo actual =====
     // Cadenas para permitir vacío y replicar SonTodosNumeros() del legacy.
@@ -841,57 +858,275 @@ public partial class GruposEquiposFrmViewModel : ObservableObject
         Volver?.Invoke();
     }
 
-    [RelayCommand]
-    private void Guardar()
+    // ----- Persistencia en disco (ArchivoCondiciones) -----
+
+    /// <summary>
+    /// Guarda en disco la condición de grupos de equipos del grupo en edición.
+    /// Equivale a GruposEquiposFrm.guardar (Free1X2/UI/Filtros/GruposEquiposFrm.cs líneas 1562-1572):
+    /// activa el filtro si tiene grupos y vuelca el FiltroGruposEquipos vía ArchivoCondiciones.GuardaArchivo.
+    /// </summary>
+    private void GuardarEn(string nombreArchivo)
     {
-        // Bloqueado: requiere selector de archivo + serialización.
-        // TODO[navegación/IO]: GruposEquiposFrm.menuCondiciones1_BGuardar + guardar (líneas 1535-1544,
-        //   1562-1572) hacía GuardarDatos() + SaveFileDialog (*.geq/*.xml) +
-        //   ArchivoCondiciones.GuardaArchivo(filtroGE). En WinUI: usar FileSavePicker en el code-behind
-        //   y portar Free1X2.EntradaSalida.ArchivoCondiciones (aún no disponible en Free1X2.Domain).
-        GuardarDatos();
-        Estado = "Guardar en archivo: pendiente (FileSavePicker + ArchivoCondiciones)";
+        if (_filtroGE is null) return;
+
+        var archComb = new ArchivoCondiciones { NombreArchivo = nombreArchivo };
+        if (_filtroGE.GruposEquipos.Count > 0)
+        {
+            _filtroGE.ContieneDatos = true;
+            _filtroGE.IsActive = true;
+        }
+        archComb.GuardaArchivo(_filtroGE);
+    }
+
+    /// <summary>
+    /// Abre la condición desde disco y recarga grupo / filtroGE / copias de trabajo.
+    /// Equivale a GruposEquiposFrm.abrir (Free1X2/UI/Filtros/GruposEquiposFrm.cs líneas 1546-1560):
+    /// ArchivoCondiciones.AbrirArchivoCombinacion + LeeCondicion + GetFiltro("GruposEquipos").
+    /// </summary>
+    private void AbrirDesde(string nombreArchivo)
+    {
+        var archComb = new ArchivoCondiciones();
+        if (archComb.AbrirArchivoCombinacion(nombreArchivo))
+        {
+            _grupo = archComb.LeeCondicion();
+            _filtroGE = (FiltroGruposEquipos)_grupo.GetFiltro(Filtro.GruposEquipos.ToString());
+            _arrayGE = ObtenCopiaArrayGE(_filtroGE);
+            _noGEPantalla = 0;
+            _relGE1Pantalla = 0;
+            ActualizaDatosPantalla(_noGEPantalla);
+            InicializaDatosRelacionesGE();
+        }
+    }
+
+    /// <summary>
+    /// Construye un FiltroGruposEquipos temporal con el estado actual (grupos + relaciones) sin
+    /// tocar el filtro real, para el cálculo de estadísticas.
+    /// Equivale a GruposEquiposFrm.ObtenerFiltroTemporal (Free1X2/UI/Filtros/GruposEquiposFrm.cs líneas 407-496).
+    /// </summary>
+    private FiltroGruposEquipos ObtenerFiltroTemporal()
+    {
+        var filtroTemp = new FiltroGruposEquipos();
+        var arrayGETemporal = new List<GrupoEquipos>();
+        var arrayRelaciones1Temporal = new List<RelacionGE1>();
+        arrayGETemporal.AddRange(_arrayGE);
+        arrayRelaciones1Temporal.AddRange(_arrayRelaciones1);
+
+        GrupoEquipos ge;
+        if (_noGEPantalla < arrayGETemporal.Count)
+        {
+            ge = arrayGETemporal[_noGEPantalla];
+            GuardaDatosGE(ge);
+        }
+        else if (TieneGEDatos())
+        {
+            ge = new GrupoEquipos();
+            arrayGETemporal.Add(ge);
+            GuardaDatosGE(ge);
+        }
+
+        if (arrayGETemporal.Count > 0)
+        {
+            // Borrar la última CP si no contiene datos (legacy: RemoveAt sobre _arrayGE, se conserva tal cual).
+            if (NecesitaBorrarUltimoGETemporal(arrayGETemporal))
+            {
+                _arrayGE.RemoveAt(arrayGETemporal.Count - 1);
+            }
+        }
+
+        if (filtroTemp.ContieneDatos == false && arrayGETemporal.Count > 0)
+        {
+            // Primera vez guardando datos: activar la condición.
+            filtroTemp.ContieneDatos = true;
+            filtroTemp.IsActive = true;
+        }
+
+        for (int i = 0; i < arrayGETemporal.Count; i++)
+        {
+            arrayGETemporal[i].CalcularLongPronosticos();
+        }
+        filtroTemp.GruposEquipos = arrayGETemporal;
+
+        RelacionGE1 rel2;
+        if (_relGE1Pantalla < arrayRelaciones1Temporal.Count)
+        {
+            rel2 = arrayRelaciones1Temporal[_relGE1Pantalla];
+            GuardaDatosRel1(rel2);
+        }
+        else if (TieneRelacion1Datos())
+        {
+            rel2 = new RelacionGE1();
+            arrayRelaciones1Temporal.Add(rel2);
+            GuardaDatosRel1(rel2);
+        }
+
+        if (arrayRelaciones1Temporal.Count > 0)
+        {
+            // Borrar la última relación si no contiene datos.
+            if (NecesitaBorrarUltimaRel1Temporal(arrayRelaciones1Temporal))
+            {
+                arrayRelaciones1Temporal.RemoveAt(arrayRelaciones1Temporal.Count - 1);
+            }
+        }
+
+        var relacionesGEFinal = new List<RelacionGE1>();
+        for (int i = 0; i < arrayRelaciones1Temporal.Count; i++)
+        {
+            RelacionGE1 rel = arrayRelaciones1Temporal[i];
+            if (rel.GruposEquipos != "")
+            {
+                relacionesGEFinal.Add(rel);
+            }
+        }
+
+        filtroTemp.RelacionesGE1.Relaciones = relacionesGEFinal;
+        return filtroTemp;
+    }
+
+    /// <summary>
+    /// True si la última copia temporal de grupos no contiene pronósticos (a borrar).
+    /// Equivale a GruposEquiposFrm.NecesitaBorrarUltimoGETemporal (líneas 655-672).
+    /// </summary>
+    private static bool NecesitaBorrarUltimoGETemporal(List<GrupoEquipos> arrayGETemporal)
+    {
+        GrupoEquipos ge = arrayGETemporal[arrayGETemporal.Count - 1];
+        char[] c = ge.Pronosticos;
+        for (int i = 0; i < c.Length; i++)
+        {
+            if (c[i] == '1' || c[i] == '2' || c[i] == '3')
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /// <summary>
+    /// True si la última relación temporal no contiene datos (a borrar).
+    /// Equivale a GruposEquiposFrm.NecesitaBorrarUltimaRel1Temporal (líneas 857-876).
+    /// </summary>
+    private static bool NecesitaBorrarUltimaRel1Temporal(List<RelacionGE1> arrayRelaciones1Temporal)
+    {
+        RelacionGE1 rel = arrayRelaciones1Temporal[arrayRelaciones1Temporal.Count - 1];
+        if (rel.GruposEquipos == "")
+        {
+            return true;
+        }
+        if (rel.SumaVictorias == "" && rel.SumaEmpates == "" &&
+            rel.SumaDerrotas == "" && rel.SumaPuntos == "")
+        {
+            return true;
+        }
+        return false;
     }
 
     [RelayCommand]
-    private void Abrir()
+    private async Task Guardar()
     {
-        // Bloqueado: requiere selector de archivo + deserialización.
-        // TODO[navegación/IO]: GruposEquiposFrm.menuCondiciones1_BAbrir + abrir (líneas 1520-1533,
-        //   1546-1560) hacía GuardarDatos() + OpenFileDialog (*.geq/*.xml) +
-        //   ArchivoCondiciones.AbrirArchivoCombinacion / LeeCondicion, recargando grupo/filtroGE.
-        //   En WinUI: usar FileOpenPicker en el code-behind y portar ArchivoCondiciones.
-        Estado = "Abrir desde archivo: pendiente (FileOpenPicker + ArchivoCondiciones)";
+        // Equivale a GruposEquiposFrm.menuCondiciones1_BGuardar + guardar
+        //   (Free1X2/UI/Filtros/GruposEquiposFrm.cs líneas 1535-1544, 1562-1572):
+        //   GuardarDatos() + SaveFileDialog (*.geq/*.xml) + ArchivoCondiciones.GuardaArchivo(filtroGE).
+        GuardarDatos();
+
+        var picker = new FileSavePicker
+        {
+            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
+            SuggestedFileName = "Grupos de equipos",
+        };
+        picker.FileTypeChoices.Add("Grupos de equipos", new List<string> { ".geq" });
+        picker.FileTypeChoices.Add("Grupos de equipos (XML)", new List<string> { ".xml" });
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        StorageFile? file = await picker.PickSaveFileAsync();
+        if (file == null) return;
+
+        try
+        {
+            GuardarEn(file.Path);
+            Estado = "Condición guardada en " + file.Name;
+        }
+        catch (Exception ex)
+        {
+            AppServices.MostrarError("No se pudo guardar: " + ex.Message);
+        }
+    }
+
+    [RelayCommand]
+    private async Task Abrir()
+    {
+        // Equivale a GruposEquiposFrm.menuCondiciones1_BAbrir + abrir
+        //   (Free1X2/UI/Filtros/GruposEquiposFrm.cs líneas 1520-1533, 1546-1560):
+        //   GuardarDatos() + OpenFileDialog (*.geq/*.xml) + ArchivoCondiciones.AbrirArchivoCombinacion/LeeCondicion.
+        GuardarDatos();
+
+        var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
+        picker.FileTypeFilter.Add(".geq");
+        picker.FileTypeFilter.Add(".xml");
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        StorageFile? file = await picker.PickSingleFileAsync();
+        if (file == null) return;
+
+        try
+        {
+            AbrirDesde(file.Path);
+            Estado = "Condición abierta de " + file.Name;
+        }
+        catch (Exception ex)
+        {
+            AppServices.MostrarError("No se pudo abrir: " + ex.Message);
+        }
     }
 
     [RelayCommand]
     private void Copiar()
     {
-        // Bloqueado: requiere escribir un .geq temporal en disco.
-        // TODO[IO]: GruposEquiposFrm.menuCondiciones1_BCopiar (líneas 1589-1597) hacía GuardarDatos()
-        //   + guardar(StartupPath + "/Temp/tmp.geq") y habilitaba Pegar. Depende de ArchivoCondiciones
-        //   (no portado a Free1X2.Domain).
+        // Equivale a GruposEquiposFrm.menuCondiciones1_BCopiar (líneas 1589-1597):
+        //   GuardarDatos() + guardar(StartupPath + "/Temp/tmp.geq") y habilitaba Pegar.
         GuardarDatos();
-        Estado = "Copiar condición: pendiente (ArchivoCondiciones + Temp/tmp.geq)";
+        try
+        {
+            string ruta = RutaTemporal;
+            Directory.CreateDirectory(Path.GetDirectoryName(ruta)!);
+            GuardarEn(ruta);
+            Estado = "Condición copiada";
+        }
+        catch (Exception ex)
+        {
+            AppServices.MostrarError("No se pudo copiar: " + ex.Message);
+        }
     }
 
     [RelayCommand]
     private void Pegar()
     {
-        // Bloqueado: requiere leer el .geq temporal de disco.
-        // TODO[IO]: GruposEquiposFrm.menuCondiciones1_BPegar (líneas 1599-1609) hacía GuardarDatos()
-        //   + abrir(StartupPath + "/Temp/tmp.geq"). Depende de ArchivoCondiciones (no portado).
-        Estado = "Pegar condición: pendiente (ArchivoCondiciones + Temp/tmp.geq)";
+        // Equivale a GruposEquiposFrm.menuCondiciones1_BPegar (líneas 1599-1609):
+        //   GuardarDatos() + abrir(StartupPath + "/Temp/tmp.geq").
+        GuardarDatos();
+        if (File.Exists(RutaTemporal))
+        {
+            try
+            {
+                AbrirDesde(RutaTemporal);
+                Estado = "Condición pegada";
+            }
+            catch (Exception ex)
+            {
+                AppServices.MostrarError("No se pudo pegar: " + ex.Message);
+            }
+        }
     }
 
     [RelayCommand]
     private void Estadisticas()
     {
-        // Bloqueado: requiere el cálculo de estadísticas + visor.
-        // TODO[navegación/dominio]: GruposEquiposFrm.menuCondiciones1_BEstadisticas (líneas 1624-1634)
-        //   construía un FiltroGruposEquipos temporal (ObtenerFiltroTemporal, líneas 407-496) y llamaba
-        //   a CalculadorEstadisticas.EstadisticasFiltro(...) + abría VisorEstadisticas. En WinUI: portar
-        //   ese cálculo y navegar a VisorEstadisticasPage cuando esté disponible.
-        Estado = "Estadísticas: pendiente (CalculadorEstadisticas + VisorEstadisticas)";
+        // Equivale a GruposEquiposFrm.menuCondiciones1_BEstadisticas (líneas 1624-1634):
+        //   ObtenerFiltroTemporal() -> CalculadorEstadisticas.EstadisticasFiltro(..., "/Ganadoras/") -> VisorEstadisticas.
+        FiltroGruposEquipos filtroTemp = ObtenerFiltroTemporal();
+
+        var calc = new CalculadorEstadisticas();
+        List<Estadistica> lista = calc.EstadisticasFiltro(filtroTemp, DirectorioGanadoras);
+
+        VisorEstadisticasViewModel.UltimasEstadisticas = lista;
+        Navegar?.Invoke(typeof(VisorEstadisticasPage));
     }
 }
