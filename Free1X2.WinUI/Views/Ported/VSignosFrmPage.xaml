@@ -105,6 +105,48 @@
                         </StackPanel>
                     </StackPanel>
 
+                    <!-- Columna ganadora editable (legacy: txts[] -> part[]) -->
+                    <StackPanel Spacing="6">
+                        <TextBlock
+                            Text="Columna ganadora (escrutinio parcial)"
+                            Style="{StaticResource CardTitleTextBlockStyle}"
+                            Foreground="{ThemeResource AppTextBrush}" />
+                        <TextBlock
+                            Text="Introduzca el signo conocido de cada partido (1 / X / 2). Use - como comodín para los partidos aún sin resultado."
+                            Style="{StaticResource SecondaryTextBlockStyle}"
+                            Foreground="{ThemeResource AppTextSecondaryBrush}"
+                            TextWrapping="Wrap" />
+                        <ItemsControl ItemsSource="{x:Bind ViewModel.ColumnaGanadora, Mode=OneWay}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <VariableSizedWrapGrid
+                                        Orientation="Horizontal"
+                                        ItemWidth="80"
+                                        ItemHeight="40" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="local:CasillaColumnaGanadora">
+                                    <StackPanel Orientation="Horizontal" Spacing="4"
+                                                VerticalAlignment="Center">
+                                        <TextBlock Text="{x:Bind Partido}"
+                                                   Width="24"
+                                                   TextAlignment="Right"
+                                                   VerticalAlignment="Center"
+                                                   Style="{StaticResource SecondaryTextBlockStyle}"
+                                                   Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                                        <TextBox Text="{x:Bind Signo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                 Width="44"
+                                                 MaxLength="1"
+                                                 CharacterCasing="Upper"
+                                                 TextAlignment="Center"
+                                                 AutomationProperties.Name="Signo de la columna ganadora del partido" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+
                     <TextBlock
                         Text="Nota: la columna ganadora y la casilla de aspiración sirven para el escrutinio parcial de las tardes de sábado y domingo."
                         Style="{StaticResource SecondaryTextBlockStyle}"

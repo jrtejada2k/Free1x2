@@ -25,7 +25,7 @@ namespace Free1X2.WinUI.Views.Ported;
 /// El cálculo (PrepararValores/Calcular/columnas base/Aceptar) está portado y la
 /// persistencia (Guardar/Abrir/Copiar/Pegar) usa ArchivoCondiciones (.valor/.xml +
 /// Temp/tmp.valor); Estadísticas vía CalculadorEstadisticas -> VisorEstadisticasPage.
-/// "Buscar límite" sigue pendiente (BuscaLimsFrm no portado).
+/// "Buscar límite" navega a BuscaLimsFrmPage (igual que el ShowDialog autónomo legacy).
 /// </summary>
 public partial class ValoracionFrmViewModel : ObservableObject
 {
@@ -350,9 +350,12 @@ public partial class ValoracionFrmViewModel : ObservableObject
     [RelayCommand]
     private void BuscarLimite()
     {
-        // TODO[forma-no-portada]: abrir BuscaLimsFrmPage como diálogo
-        //   (ValoracionFrm.btnBuscarLimites_Click). Bloqueado: BuscaLimsFrm pertenece a otro lote
-        //   y su flujo de límites aún no está portado. Fuera del alcance de este cableado.
+        // Equivale a ValoracionFrm.btnBuscarLimites_Click (ValoracionFrm.cs líneas 955-959):
+        //   BuscaLimsFrm morrisonLim = new BuscaLimsFrm(); morrisonLim.ShowDialog();
+        // El form legacy abre el buscador de límites como diálogo autónomo (sin handoff
+        // ni valor de retorno: BuscaLimsFrm lee su propia rejilla de porcentajes y muestra
+        // sus propios mín/máx). El port WinUI navega a BuscaLimsFrmPage, ya portada.
+        Navegar?.Invoke(typeof(BuscaLimsFrmPage));
     }
 
     // --- Barra de condiciones (control legacy MenuCondiciones) ---
