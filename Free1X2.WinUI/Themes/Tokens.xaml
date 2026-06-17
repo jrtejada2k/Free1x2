@@ -9,24 +9,33 @@
          ============================================================ -->
     <ResourceDictionary.ThemeDictionaries>
 
-        <!-- ===== LIGHT ===== -->
+        <!-- ===== LIGHT (paleta cálida, inspirada en el Free1X2 original) ===== -->
         <ResourceDictionary x:Key="Light">
-            <Color x:Key="SystemAccentColor">#4F46E5</Color>
-            <Color x:Key="SystemAccentColorLight1">#6366F1</Color>
-            <Color x:Key="SystemAccentColorLight2">#818CF8</Color>
-            <Color x:Key="SystemAccentColorDark1">#4338CA</Color>
-            <Color x:Key="SystemAccentColorDark2">#3730A3</Color>
+            <!-- Acento naranja/terracota (barra de herramientas del original) -->
+            <Color x:Key="SystemAccentColor">#C2541E</Color>
+            <Color x:Key="SystemAccentColorLight1">#D2691E</Color>
+            <Color x:Key="SystemAccentColorLight2">#E0884A</Color>
+            <Color x:Key="SystemAccentColorDark1">#A8460F</Color>
+            <Color x:Key="SystemAccentColorDark2">#8A3A0C</Color>
 
-            <Color x:Key="AppBackground">#F5F7FA</Color>
+            <Color x:Key="AppBackground">#FBF1E7</Color><!-- crema cálida -->
             <Color x:Key="AppSurface">#FFFFFF</Color>
-            <Color x:Key="AppSurfaceAlt">#F1F5F9</Color>
-            <Color x:Key="AppBorder">#CBD5E1</Color>
-            <Color x:Key="AppText">#0F172A</Color>
-            <Color x:Key="AppTextSecondary">#334155</Color>
-            <Color x:Key="AppSuccess">#15803D</Color><!-- green-700: texto blanco AA (4.5:1) -->
-            <Color x:Key="AppWarning">#B45309</Color><!-- amber-700: texto sobre SurfaceAlt AA -->
+            <Color x:Key="AppSurfaceAlt">#F8E2D0</Color><!-- salmón tenue (paneles/cabeceras) -->
+            <Color x:Key="AppBorder">#E3C6AE</Color>
+            <Color x:Key="AppText">#2A211C</Color>
+            <Color x:Key="AppTextSecondary">#6E574A</Color>
+            <Color x:Key="AppSuccess">#2E7D32</Color><!-- verde (condición/signo activo) -->
+            <Color x:Key="AppWarning">#B45309</Color>
             <Color x:Key="AppOnSuccess">#FFFFFF</Color>
-            <Color x:Key="AppError">#DC2626</Color>
+            <Color x:Key="AppError">#C0392B</Color>
+
+            <!-- Signos 1/X/2 marcados en verde, como el boleto del original -->
+            <SolidColorBrush x:Key="ToggleButtonBackgroundChecked"            Color="#2E7D32" />
+            <SolidColorBrush x:Key="ToggleButtonBackgroundCheckedPointerOver" Color="#357A38" />
+            <SolidColorBrush x:Key="ToggleButtonBackgroundCheckedPressed"     Color="#27692B" />
+            <SolidColorBrush x:Key="ToggleButtonForegroundChecked"            Color="#FFFFFF" />
+            <SolidColorBrush x:Key="ToggleButtonForegroundCheckedPointerOver" Color="#FFFFFF" />
+            <SolidColorBrush x:Key="ToggleButtonForegroundCheckedPressed"     Color="#FFFFFF" />
 
             <SolidColorBrush x:Key="AppBackgroundBrush"     Color="{StaticResource AppBackground}" />
             <SolidColorBrush x:Key="AppSurfaceBrush"        Color="{StaticResource AppSurface}" />

@@ -42,11 +42,11 @@ public partial class CondicionItem : ObservableObject
     public Microsoft.UI.Xaml.Media.Brush Fondo => Estado switch
     {
         EstadoSemaforo.Verde => new Microsoft.UI.Xaml.Media.SolidColorBrush(
-            Windows.UI.Color.FromArgb(0x26, 0x15, 0x80, 0x3D)),  // verde tenue (activa)
+            Windows.UI.Color.FromArgb(0x3D, 0x2E, 0x7D, 0x32)),  // verde (activa)
         EstadoSemaforo.Rojo => new Microsoft.UI.Xaml.Media.SolidColorBrush(
-            Windows.UI.Color.FromArgb(0x26, 0xDC, 0x26, 0x26)),  // rojo tenue (con datos, inactiva)
+            Windows.UI.Color.FromArgb(0x3D, 0xC0, 0x39, 0x2B)),  // rojo (con datos, inactiva)
         _ => new Microsoft.UI.Xaml.Media.SolidColorBrush(
-            Windows.UI.Color.FromArgb(0x14, 0x64, 0x74, 0x8B)),  // gris tenue (vacía)
+            Windows.UI.Color.FromArgb(0x33, 0xD2, 0x69, 0x1E)),  // salmón cálido (vacía)
     };
 
     /// <summary>
