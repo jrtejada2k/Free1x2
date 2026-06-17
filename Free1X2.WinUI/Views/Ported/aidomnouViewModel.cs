@@ -12,6 +12,17 @@ using Windows.Storage.Pickers;
 namespace Free1X2.WinUI.Views.Ported
 {
     /// <summary>
+    /// Una fila de la rejilla de "Columnas Probables" (legacy: l0PR, P=partido 1..14, R=columna 1..6).
+    /// <see cref="Partido"/> es la cabecera de fila (nº de partido) y <see cref="Signos"/> son las 6
+    /// celdas de solo lectura con el signo generado (-/1/2/12/X/1X/X2/1X2) por cada columna.
+    /// </summary>
+    public sealed class FilaColumnasProbables
+    {
+        public string Partido { get; init; } = string.Empty;
+        public IReadOnlyList<string> Signos { get; init; } = System.Array.Empty<string>();
+    }
+
+    /// <summary>
     /// ViewModel para la Page portada de "aidomnou" (WinForms legacy: Free1X2.UI.aidomnou).
     ///
     /// Propósito legacy: filtro "Filtro Aidomnou". A partir de las valoraciones de los 14
@@ -44,6 +55,10 @@ namespace Free1X2.WinUI.Views.Ported
         // 6 columnas generadas, una por línea (legacy: PintaPantalla rellena cps[14,6] -> Cambia()).
         // ItemsSource del ListView de resultado.
         public ObservableCollection<string> ColumnasGeneradas { get; } = new();
+
+        // Rejilla 14x6 de "Columnas Probables" (legacy: labels l0PR, fila=partido, columna=1..6).
+        // Se rellena en PintaPantalla con Cambia(cps[partido, columna]) para mostrarla de solo lectura.
+        public ObservableCollection<FilaColumnasProbables> ColumnasProbables { get; } = new();
 
         // --- Estado del motor reproducido del legacy. ---
         // lims por defecto del WinForms (Aidomnou.cs línea 168), coincide con aidomnou.cfg.
@@ -662,6 +677,20 @@ namespace Free1X2.WinUI.Views.Ported
                     col += Cambia(_cps[nr, nc]);
                 }
                 ColumnasGeneradas.Add($"Col {nc + 1}: {col}");
+            }
+
+            // Rejilla de solo lectura (legacy: labels l0PR). Fila = partido (1..14), columna = 1..6,
+            // celda = Cambia(cps[partido, columna]).
+            ColumnasProbables.Clear();
+            for (int nr = 0; nr < 14; nr++)
+            {
+                var signos = new string[6];
+                for (int nc = 0; nc < 6; nc++) signos[nc] = Cambia(_cps[nr, nc]);
+                ColumnasProbables.Add(new FilaColumnasProbables
+                {
+                    Partido = (nr + 1).ToString("00"),
+                    Signos = signos,
+                });
             }
         }
 

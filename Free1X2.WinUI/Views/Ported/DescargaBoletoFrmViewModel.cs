@@ -86,19 +86,14 @@ public partial class DescargaBoletoFrmViewModel : ObservableObject
         // Parámetros ya validados y listos para el servicio (legacy: ObtenerBoleto(jornada, partes[0])).
         string anioTemporada = partes[0];
 
-        // El servicio web Free1X2WService (SOAP) NO está migrado a Free1X2.Domain: en el proyecto
-        // WinForms su ObtenerBoleto(int, string) es un stub que devuelve "" (modo offline,
-        // ver Free1X2/Utils/ControlCompatibility.cs línea 738). Sin servicio real, el boleto
-        // no está disponible, igual que el camino "boleto == \"\"" del legacy.
-        // TODO[dominio]: descargar el boleto online y publicarlo en la pantalla principal.
-        //   Legacy: DescargaBoletoFrm.btnActualizar_Click (Free1X2/UI/DescargaBoletoFrm.cs línea 44):
-        //     boleto = fWS.ObtenerBoleto(jornada, anioTemporada);
-        //     if (boleto == "") -> "El Boleto elegido no está disponible";
-        //     else -> MainForm.BoletoOnline = boleto; Close();
-        //   Al migrar el servicio: invocar aquí con (jornada, anioTemporada) en Task.Run y, si hay
-        //   boleto, publicarlo en el estado compartido (análogo a MainForm.BoletoOnline) y regresar.
-        _ = jornada;            // documentado: parámetros ya parseados para el servicio futuro
+        // El servicio web Free1X2WService (SOAP) NO está disponible sin conexión: en el WinForms
+        // original ObtenerBoleto(int, string) es un stub que devuelve "" (modo offline,
+        // ver Free1X2/Utils/ControlCompatibility.cs línea 738). Por eso el legacy entra siempre por
+        // la rama "boleto == \"\"" de DescargaBoletoFrm.btnActualizar_Click (Free1X2/UI/DescargaBoletoFrm.cs
+        // línea 52) y muestra "El Boleto elegido no está disponible". Reproducimos ese mismo mensaje
+        // de runtime: sin servicio online no hay boleto que descargar (no se inventan datos).
+        _ = jornada;            // parámetros ya parseados (los usaría el servicio si estuviera disponible)
         _ = anioTemporada;
-        Mensaje = "El Boleto elegido no está disponible";
+        Mensaje = "El Boleto elegido no está disponible (servicio online no disponible sin conexión).";
     }
 }

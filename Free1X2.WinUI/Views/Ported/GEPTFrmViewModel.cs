@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Free1X2;
+using Microsoft.UI;
+using Microsoft.UI.Xaml.Media;
+using Windows.UI;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -35,6 +38,36 @@ public partial class GEPTFila : ObservableObject
     /// <summary>Pronóstico resultante para el partido (legacy: columnaResultados[i]).</summary>
     [ObservableProperty]
     private string _resultado = string.Empty;
+
+    /// <summary>
+    /// Fondo de la celda "Última vez" (legacy: primeraColumna[i].BackColor, Fondo(idx)).
+    /// G -> GreenYellow, E -> Yellow, P -> Pink, vacío -> White (Transparent en WinUI para no
+    /// romper el tema de la celda; equivale al "White" del WinForms sobre fondo blanco).
+    /// </summary>
+    [ObservableProperty]
+    private Brush _fondoPrimera = FondoNeutro;
+
+    /// <summary>Fondo de la celda "Penúltima vez" (legacy: segundaColumna[i].BackColor, Fondo(idx)).</summary>
+    [ObservableProperty]
+    private Brush _fondoSegunda = FondoNeutro;
+
+    // Cuando cambia la selección de una celda, recolorea como hacía Resultado_TextChanged del legacy.
+    partial void OnPrimeraChanged(string value) => FondoPrimera = Fondo(value);
+    partial void OnSegundaChanged(string value) => FondoSegunda = Fondo(value);
+
+    private static readonly Brush FondoNeutro = new SolidColorBrush(Colors.Transparent);
+    private static readonly Brush FondoG = new SolidColorBrush(Colors.GreenYellow);
+    private static readonly Brush FondoE = new SolidColorBrush(Colors.Yellow);
+    private static readonly Brush FondoP = new SolidColorBrush(Colors.Pink);
+
+    /// <summary>Color de fondo por valor (réplica de GEPTFrm.Fondo: G/E/P -> verde/amarillo/rosa).</summary>
+    internal static Brush Fondo(string valor) => (valor ?? string.Empty).Trim().ToUpperInvariant() switch
+    {
+        "G" => FondoG,
+        "E" => FondoE,
+        "P" => FondoP,
+        _ => FondoNeutro,
+    };
 }
 
 /// <summary>
@@ -62,15 +95,15 @@ public partial class GEPTFrmViewModel : ObservableObject
     [RelayCommand]
     private void Calcular()
     {
+        // Legacy Calcular() = Verificar() + Pronosticar(). Verificar recolorea las dos celdas de
+        // entrada (G verde / E amarillo / P rosa) y Pronosticar deriva el signo. La recoloración ya
+        // es reactiva (OnPrimera/OnSegundaChanged), pero se reasegura aquí para igualar a Verificar().
         foreach (var fila in Partidos)
         {
+            fila.FondoPrimera = GEPTFila.Fondo(fila.Primera);
+            fila.FondoSegunda = GEPTFila.Fondo(fila.Segunda);
             fila.Resultado = Traductor(fila.Primera, fila.Segunda);
         }
-
-        // TODO[dominio]: la versión legacy (GEPTFrm.Verificar) además recoloreaba cada celda
-        //   según G (verde) / E (amarillo) / P (rosa). En WinUI eso se resolvería con un
-        //   convertidor o estilo basado en el valor; pendiente de definir en el design-system.
-        //   No hay lógica de persistencia ni de apertura de otros formularios en GEPTFrm.
     }
 
     /// <summary>

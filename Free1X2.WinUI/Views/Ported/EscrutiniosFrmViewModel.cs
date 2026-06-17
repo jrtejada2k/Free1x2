@@ -303,13 +303,24 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
 
     /// <summary>
     /// Actualiza la columna ganadora desde Free1X2.com (pestaña 1).
-    /// Legacy: btnActualizaCG_Click -> Free1X2WService.ObtenerJornadaActual().
+    /// Legacy: btnActualizaCG_Click -> Free1X2WService.ObtenerJornadaActual() -> P1..P15.
     /// </summary>
     [RelayCommand]
     private void ActualizarColumnaGanadora()
     {
-        // TODO[dominio]: llamar al servicio web y volcar P1..P15 en ColumnaGanadora
-        //   recortado a VariablesGlobales.NumeroPartidos. (legacy btnActualizaCG_Click)
+        // El servicio web Free1X2WService (SOAP) NO está disponible offline: en el WinForms original
+        // ObtenerJornadaActual() es un stub que devuelve una JornadaActual con P1..P15 nulos
+        // (Free1X2/Utils/ControlCompatibility.cs línea 32). El legacy concatena esos 15 signos en un
+        // StringBuilder vacío y, al hacer Substring(0, NumeroPartidos), lanza excepción cuyo catch
+        // rellena la columna con asteriscos: txtColGanadora.Text = "****...".Substring(0, NumeroPartidos).
+        // Reproducimos ese mismo estado de runtime (sin datos reales del servicio): asteriscos.
+        // (No se referencia la clase JornadaActual del proyecto WinForms: no forma parte de Free1X2.Domain.)
+        int n = Free1X2.VariablesGlobales.NumeroPartidos;
+        ColumnaGanadora = new string('*', n);
+
+        Free1X2.Abstractions.UserDialogs.ShowInfo(
+            "El servicio online de Free1X2.com no está disponible sin conexión: " +
+            "no se ha podido obtener la columna ganadora de la jornada actual.");
     }
 
     /// <summary>

@@ -78,18 +78,30 @@
                                     Text="{x:Bind NumeroTexto}"
                                     VerticalAlignment="Center"
                                     Style="{StaticResource BodyStrongTextBlockStyle}" />
-                                <ComboBox
+                                <!-- Recolor legacy (Verificar): G verde / E amarillo / P rosa.
+                                     El borde toma el color de fondo de la celda de entrada. -->
+                                <Border
                                     Grid.Column="1"
-                                    HorizontalAlignment="Stretch"
-                                    ItemsSource="{x:Bind OpcionesSigno}"
-                                    SelectedItem="{x:Bind Primera, Mode=TwoWay}"
-                                    AutomationProperties.Name="Última ocasión (G/E/P)" />
-                                <ComboBox
+                                    Background="{x:Bind FondoPrimera, Mode=OneWay}"
+                                    CornerRadius="6">
+                                    <ComboBox
+                                        HorizontalAlignment="Stretch"
+                                        Background="Transparent"
+                                        ItemsSource="{x:Bind OpcionesSigno}"
+                                        SelectedItem="{x:Bind Primera, Mode=TwoWay}"
+                                        AutomationProperties.Name="Última ocasión (G/E/P)" />
+                                </Border>
+                                <Border
                                     Grid.Column="2"
-                                    HorizontalAlignment="Stretch"
-                                    ItemsSource="{x:Bind OpcionesSigno}"
-                                    SelectedItem="{x:Bind Segunda, Mode=TwoWay}"
-                                    AutomationProperties.Name="Penúltima ocasión (G/E/P)" />
+                                    Background="{x:Bind FondoSegunda, Mode=OneWay}"
+                                    CornerRadius="6">
+                                    <ComboBox
+                                        HorizontalAlignment="Stretch"
+                                        Background="Transparent"
+                                        ItemsSource="{x:Bind OpcionesSigno}"
+                                        SelectedItem="{x:Bind Segunda, Mode=TwoWay}"
+                                        AutomationProperties.Name="Penúltima ocasión (G/E/P)" />
+                                </Border>
                                 <Border
                                     Grid.Column="3"
                                     Background="{ThemeResource AppSurfaceAltBrush}"
