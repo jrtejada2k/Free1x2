@@ -30,12 +30,13 @@
     </Style>
 
     <!-- ===== Card (Border con esquinas redondeadas + borde sutil) ===== -->
+    <!-- Padding compacto (densidad cercana al MainForm original). -->
     <Style x:Key="AppCardStyle" TargetType="Border">
         <Setter Property="Background" Value="{ThemeResource AppSurfaceBrush}" />
         <Setter Property="BorderBrush" Value="{ThemeResource AppBorderBrush}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="CornerRadius" Value="{StaticResource AppCardCornerRadius}" />
-        <Setter Property="Padding" Value="20" />
+        <Setter Property="Padding" Value="12" />
     </Style>
 
     <!-- ===== Toggle de signo 1 / X / 2 del boleto ===== -->
@@ -59,10 +60,11 @@
     <Style x:Key="FiltroButtonBaseStyle" TargetType="Button">
         <Setter Property="HorizontalAlignment" Value="Stretch" />
         <Setter Property="HorizontalContentAlignment" Value="Left" />
-        <Setter Property="Padding" Value="12,8" />
+        <Setter Property="Padding" Value="10,5" />
         <Setter Property="CornerRadius" Value="{StaticResource AppCornerRadius}" />
         <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="MinHeight" Value="36" />
+        <Setter Property="MinHeight" Value="30" />
+        <Setter Property="FontSize" Value="12" />
     </Style>
 
     <!-- Inactivo: superficie neutra (estado por defecto) -->
