@@ -5,119 +5,147 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="using:Free1X2.WinUI.Controls">
 
-    <Grid RowSpacing="12">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
+    <!-- Panel "Pronósticos" del original: cabecera salmón + 14 filas compactas. -->
+    <Border Style="{StaticResource AppCardStyle}" Padding="0">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
 
-        <!-- Cabecera: resumen en vivo + acción Reiniciar (triples) -->
-        <Grid Grid.Row="0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
+            <!-- Cabecera salmón: "Boleto Base    Fijos: N - Dobles: N - Triples: N" -->
+            <Border Grid.Row="0"
+                    Background="{ThemeResource AppSurfaceAltBrush}"
+                    CornerRadius="11,11,0,0"
+                    Padding="10,5">
+                <Grid ColumnSpacing="8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0"
+                               Text="{x:Bind ViewModel.Titulo, Mode=OneWay}"
+                               FontWeight="SemiBold" FontSize="13"
+                               Foreground="{ThemeResource AppErrorBrush}"
+                               VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="2"
+                               Text="{x:Bind ViewModel.ResumenCabecera, Mode=OneWay}"
+                               FontSize="12"
+                               Foreground="{ThemeResource AppTextBrush}"
+                               VerticalAlignment="Center"
+                               AutomationProperties.Name="Resumen del boleto" />
+                    <Button Grid.Column="3"
+                            Content="&#xE777;" FontFamily="Segoe Fluent Icons" FontSize="13"
+                            Width="26" Height="22" Padding="0"
+                            Background="Transparent" BorderThickness="0"
+                            Command="{x:Bind ViewModel.ReiniciarCommand}"
+                            ToolTipService.ToolTip="Reiniciar a 14 triples"
+                            AutomationProperties.Name="Reiniciar el boleto a 14 triples" />
+                </Grid>
+            </Border>
 
-            <StackPanel Grid.Column="0" Spacing="2">
-                <TextBlock Text="Boleto base" Style="{StaticResource SectionHeaderTextBlockStyle}" />
-                <TextBlock Text="{x:Bind ViewModel.Resumen, Mode=OneWay}"
-                           Foreground="{ThemeResource AppTextSecondaryBrush}"
-                           AutomationProperties.Name="Resumen del boleto" />
-            </StackPanel>
+            <!-- Fila de cabecera de columnas (#, local, visitante, 1, X, 2) -->
+            <Grid Grid.Row="1" Padding="8,4,8,2" ColumnSpacing="4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="22" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="28" />
+                    <ColumnDefinition Width="28" />
+                    <ColumnDefinition Width="28" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="1" Text="Local" FontSize="11"
+                           Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                <TextBlock Grid.Column="2" Text="Visitante" FontSize="11"
+                           Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                <TextBlock Grid.Column="3" Text="1" FontSize="11" HorizontalAlignment="Center"
+                           Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                <TextBlock Grid.Column="4" Text="X" FontSize="11" HorizontalAlignment="Center"
+                           Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                <TextBlock Grid.Column="5" Text="2" FontSize="11" HorizontalAlignment="Center"
+                           Foreground="{ThemeResource AppTextSecondaryBrush}" />
+            </Grid>
 
-            <Button Grid.Column="1"
-                    Content="14 triples"
-                    VerticalAlignment="Top"
-                    Command="{x:Bind ViewModel.ReiniciarCommand}"
-                    AutomationProperties.Name="Reiniciar el boleto a 14 triples" />
-        </Grid>
-
-        <!-- Lista de los partidos -->
-        <Border Grid.Row="1"
-                Style="{StaticResource AppCardStyle}"
-                Padding="8">
-            <ListView ItemsSource="{x:Bind ViewModel.Partidos}"
+            <!-- 14 filas compactas (número, local, visitante, signos 1/X/2 verdes) -->
+            <ListView Grid.Row="2"
+                      ItemsSource="{x:Bind ViewModel.Partidos}"
                       SelectionMode="None"
                       IsItemClickEnabled="False"
+                      Padding="6,0,6,6"
                       AutomationProperties.Name="Lista de partidos del boleto base">
-                <ListView.Header>
-                    <Grid Padding="8,2" ColumnSpacing="6">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="28" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="38" />
-                            <ColumnDefinition Width="38" />
-                            <ColumnDefinition Width="38" />
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="#"
-                                   Foreground="{ThemeResource AppTextSecondaryBrush}"
-                                   Style="{StaticResource CaptionTextBlockStyle}" />
-                        <TextBlock Grid.Column="1" Text="Partido (local - visitante)"
-                                   Foreground="{ThemeResource AppTextSecondaryBrush}"
-                                   Style="{StaticResource CaptionTextBlockStyle}" />
-                        <TextBlock Grid.Column="2" Text="1" HorizontalAlignment="Center"
-                                   Foreground="{ThemeResource AppTextSecondaryBrush}"
-                                   Style="{StaticResource CaptionTextBlockStyle}" />
-                        <TextBlock Grid.Column="3" Text="X" HorizontalAlignment="Center"
-                                   Foreground="{ThemeResource AppTextSecondaryBrush}"
-                                   Style="{StaticResource CaptionTextBlockStyle}" />
-                        <TextBlock Grid.Column="4" Text="2" HorizontalAlignment="Center"
-                                   Foreground="{ThemeResource AppTextSecondaryBrush}"
-                                   Style="{StaticResource CaptionTextBlockStyle}" />
-                    </Grid>
-                </ListView.Header>
 
                 <ListView.ItemContainerStyle>
                     <Style TargetType="ListViewItem">
                         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                        <Setter Property="Padding" Value="4,2" />
+                        <Setter Property="Padding" Value="0" />
+                        <Setter Property="Margin" Value="0" />
                         <Setter Property="MinHeight" Value="0" />
                     </Style>
                 </ListView.ItemContainerStyle>
 
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="controls:PartidoBaseViewModel">
-                        <Grid ColumnSpacing="6" Padding="4,1">
+                        <Grid ColumnSpacing="4" Padding="2,1" Height="30"
+                              Background="{ThemeResource AppSurfaceBrush}">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="28" />
+                                <ColumnDefinition Width="22" />
                                 <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="38" />
-                                <ColumnDefinition Width="38" />
-                                <ColumnDefinition Width="38" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="28" />
+                                <ColumnDefinition Width="28" />
+                                <ColumnDefinition Width="28" />
                             </Grid.ColumnDefinitions>
 
                             <TextBlock Grid.Column="0"
                                        Text="{x:Bind NumeroTexto}"
                                        VerticalAlignment="Center"
+                                       HorizontalAlignment="Center"
+                                       FontSize="12"
                                        Foreground="{ThemeResource AppTextSecondaryBrush}" />
 
-                            <TextBox Grid.Column="1"
-                                     Text="{x:Bind Equipos, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                     VerticalAlignment="Center"
-                                     MinHeight="28" Height="30" Padding="8,2"
-                                     AutomationProperties.Name="Nombre del partido" />
+                            <ComboBox Grid.Column="1"
+                                      IsEditable="True"
+                                      Text="{x:Bind Local, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                      VerticalAlignment="Center"
+                                      MinWidth="0" MinHeight="26" Height="26"
+                                      Padding="6,0,4,0" FontSize="12"
+                                      AutomationProperties.Name="Equipo local" />
 
-                            <ToggleButton Grid.Column="2"
+                            <ComboBox Grid.Column="2"
+                                      IsEditable="True"
+                                      Text="{x:Bind Visitante, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                      VerticalAlignment="Center"
+                                      MinWidth="0" MinHeight="26" Height="26"
+                                      Padding="6,0,4,0" FontSize="12"
+                                      AutomationProperties.Name="Equipo visitante" />
+
+                            <ToggleButton Grid.Column="3"
                                           Content="1"
                                           IsChecked="{x:Bind Signo1, Mode=TwoWay}"
+                                          Height="26" FontSize="12"
                                           Style="{StaticResource SignoToggleButtonStyle}"
                                           AutomationProperties.HelpText="Signo 1 (gana el local)" />
 
-                            <ToggleButton Grid.Column="3"
+                            <ToggleButton Grid.Column="4"
                                           Content="X"
                                           IsChecked="{x:Bind SignoX, Mode=TwoWay}"
+                                          Height="26" FontSize="12"
                                           Style="{StaticResource SignoToggleButtonStyle}"
                                           AutomationProperties.HelpText="Signo X (empate)" />
 
-                            <ToggleButton Grid.Column="4"
+                            <ToggleButton Grid.Column="5"
                                           Content="2"
                                           IsChecked="{x:Bind Signo2, Mode=TwoWay}"
+                                          Height="26" FontSize="12"
                                           Style="{StaticResource SignoToggleButtonStyle}"
                                           AutomationProperties.HelpText="Signo 2 (gana el visitante)" />
                         </Grid>
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
-        </Border>
-    </Grid>
+        </Grid>
+    </Border>
 </UserControl>

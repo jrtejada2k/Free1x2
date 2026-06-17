@@ -37,6 +37,12 @@ public partial class MainPageViewModel : ObservableObject
     /// <summary>Condiciones que mapean a un IFiltro del grupo (botón + semáforo en MainForm).</summary>
     public ObservableCollection<CondicionItem> Condiciones { get; } = new();
 
+    /// <summary>Columna izquierda de la rejilla de condiciones (orden del MainForm original).</summary>
+    public ObservableCollection<CondicionItem> CondicionesIzquierda { get; } = new();
+
+    /// <summary>Columna derecha de la rejilla de condiciones (orden del MainForm original).</summary>
+    public ObservableCollection<CondicionItem> CondicionesDerecha { get; } = new();
+
     // ---- Estado de grupo en pantalla ----
 
     [ObservableProperty]
@@ -67,6 +73,14 @@ public partial class MainPageViewModel : ObservableObject
     [ObservableProperty]
     private bool _tieneFiltro;
 
+    // ---- Filtro parcial del grupo (gbFiltroParcial del original) ----
+
+    [ObservableProperty]
+    private string _nombreFiltroParcial = "(Selecciona)";
+
+    [ObservableProperty]
+    private EstadoSemaforo _estadoFiltroParcial = EstadoSemaforo.Neutro;
+
     // ---- Combinación ----
 
     [ObservableProperty]
@@ -85,20 +99,44 @@ public partial class MainPageViewModel : ObservableObject
     /// </summary>
     private void ConstruirCondiciones()
     {
-        Condiciones.Add(new CondicionItem("No Variantes", Filtro.NoVariantes.ToString(), typeof(NoVariantesFrmPage)));
-        Condiciones.Add(new CondicionItem("Signos Seguidos", Filtro.SignosSeguidos.ToString(), typeof(SignosSeguidosFrmPage)));
-        Condiciones.Add(new CondicionItem("Dibujos", Filtro.Dibujos.ToString(), typeof(DibujosFrmPage)));
-        Condiciones.Add(new CondicionItem("Col. Probables", Filtro.ColProbables.ToString(), typeof(ColProbablesFrmPage)));
-        Condiciones.Add(new CondicionItem("Pesos Numéricos", Filtro.PesosNumericos.ToString(), typeof(PesosNumFrmPage)));
-        Condiciones.Add(new CondicionItem("Valoración Signos", Filtro.ValoracionSignos.ToString(), typeof(ValoracionFrmPage)));
-        Condiciones.Add(new CondicionItem("No Interrupciones", Filtro.NoInterrupciones.ToString(), typeof(InterrupcionesFrmPage)));
-        Condiciones.Add(new CondicionItem("Distancias", Filtro.Distancias.ToString(), typeof(DistanciasFrmPage)));
-        Condiciones.Add(new CondicionItem("Contactos", Filtro.Contactos.ToString(), typeof(ContactosFrmPage)));
-        Condiciones.Add(new CondicionItem("Formatos Signos", Filtro.FormatosSignos.ToString(), typeof(FormatosFrmPage)));
-        Condiciones.Add(new CondicionItem("Formatos 123", Filtro.Formatos123.ToString(), typeof(Formatos123FrmPage)));
-        Condiciones.Add(new CondicionItem("Simetrías", Filtro.Simetrias.ToString(), typeof(SimetriasFrmPage)));
-        Condiciones.Add(new CondicionItem("Diferencias", Filtro.Diferencias.ToString(), typeof(DiferenciasFrmPage)));
-        Condiciones.Add(new CondicionItem("Grupos Equipos", Filtro.GruposEquipos.ToString(), typeof(GruposEquiposFrmPage)));
+        // Columna izquierda (X=21 en MainForm.Designer), de arriba a abajo:
+        var noVariantes   = new CondicionItem("Variantes X y 2", Filtro.NoVariantes.ToString(), typeof(NoVariantesFrmPage), "");
+        var signosSeg     = new CondicionItem("Signos Seguidos", Filtro.SignosSeguidos.ToString(), typeof(SignosSeguidosFrmPage), "");
+        var dibujos       = new CondicionItem("Dibujos", Filtro.Dibujos.ToString(), typeof(DibujosFrmPage), "");
+        var interrup      = new CondicionItem("Interrupciones", Filtro.NoInterrupciones.ToString(), typeof(InterrupcionesFrmPage), "");
+        var gruposEquipos = new CondicionItem("Grupos Equipos", Filtro.GruposEquipos.ToString(), typeof(GruposEquiposFrmPage), "");
+        var formatos      = new CondicionItem("Formatos", Filtro.FormatosSignos.ToString(), typeof(FormatosFrmPage), "");
+        var simetrias     = new CondicionItem("Simetrías", Filtro.Simetrias.ToString(), typeof(SimetriasFrmPage), "");
+
+        // Columna derecha (X=182 en MainForm.Designer), de arriba a abajo:
+        var pesos         = new CondicionItem("Pesos Numéricos", Filtro.PesosNumericos.ToString(), typeof(PesosNumFrmPage), "");
+        var valoracion    = new CondicionItem("Valoración", Filtro.ValoracionSignos.ToString(), typeof(ValoracionFrmPage), "");
+        var colProbables  = new CondicionItem("Columnas Probables", Filtro.ColProbables.ToString(), typeof(ColProbablesFrmPage), "");
+        var distancias    = new CondicionItem("Distancias", Filtro.Distancias.ToString(), typeof(DistanciasFrmPage), "");
+        var contactos     = new CondicionItem("Contactos", Filtro.Contactos.ToString(), typeof(ContactosFrmPage), "");
+        var formatos123   = new CondicionItem("Formatos 123", Filtro.Formatos123.ToString(), typeof(Formatos123FrmPage), "");
+        var diferencias   = new CondicionItem("Diferencias", Filtro.Diferencias.ToString(), typeof(DiferenciasFrmPage), "");
+
+        // Columnas para la rejilla (orden exacto del original).
+        CondicionesIzquierda.Add(noVariantes);
+        CondicionesIzquierda.Add(signosSeg);
+        CondicionesIzquierda.Add(dibujos);
+        CondicionesIzquierda.Add(interrup);
+        CondicionesIzquierda.Add(gruposEquipos);
+        CondicionesIzquierda.Add(formatos);
+        CondicionesIzquierda.Add(simetrias);
+
+        CondicionesDerecha.Add(pesos);
+        CondicionesDerecha.Add(valoracion);
+        CondicionesDerecha.Add(colProbables);
+        CondicionesDerecha.Add(distancias);
+        CondicionesDerecha.Add(contactos);
+        CondicionesDerecha.Add(formatos123);
+        CondicionesDerecha.Add(diferencias);
+
+        // Lista plana: la usa RefrescarPantalla() para recalcular semáforos de todas.
+        foreach (var c in CondicionesIzquierda) Condiciones.Add(c);
+        foreach (var c in CondicionesDerecha) Condiciones.Add(c);
     }
 
     /// <summary>
@@ -118,6 +156,10 @@ public partial class MainPageViewModel : ObservableObject
         TituloGrupo = grupoPantalla == 0
             ? "Boleto Base"
             : $"Grupo {grupoPantalla} / {analizador.GruposPartidos.Count - 1}";
+
+        // Sincroniza el título de la cabecera salmón del boleto (Pronosticos.lblTitulo).
+        if (Boleto != null)
+            Boleto.Titulo = TituloGrupo;
         InfoGrupos = analizador.GruposPartidos.Count == 1
             ? "1 grupo"
             : $"{analizador.GruposPartidos.Count} grupos";
@@ -195,6 +237,30 @@ public partial class MainPageViewModel : ObservableObject
     {
         AppState.GrupoEnEdicion = _estado.GrupoActual;
         Navegar?.Invoke(typeof(ControlGruposFrmPage));
+    }
+
+    /// <summary>
+    /// Tolerancias del grupo (MainForm.btnTolGrupo). Stub: el formulario de tolerancias del
+    /// original aún no está portado en M3.
+    /// TODO: portar TolGrupoFrm y navegar aquí pasando el Grupo vía AppState.GrupoEnEdicion.
+    /// </summary>
+    [RelayCommand]
+    private void AbrirTolerancias()
+    {
+        Free1X2.Abstractions.UserDialogs.ShowError(
+            "Las Tolerancias del grupo aún no están disponibles en esta versión.");
+    }
+
+    /// <summary>
+    /// Filtro parcial del grupo (MainForm.btnAbreFiltroParcial / gbFiltroParcial). Stub: el
+    /// selector de filtro parcial aún no está portado en M3.
+    /// TODO: portar el selector de filtro parcial del grupo y asignar el archivo al Grupo actual.
+    /// </summary>
+    [RelayCommand]
+    private void AbrirFiltroParcial()
+    {
+        Free1X2.Abstractions.UserDialogs.ShowError(
+            "El Filtro Parcial del grupo aún no está disponible en esta versión.");
     }
 
     // ============================================================

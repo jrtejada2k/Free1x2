@@ -27,9 +27,67 @@ public partial class PartidoBaseViewModel : ObservableObject
     /// <summary>Número formateado para TextBlock.Text (regla anti-crash: proyectar int a string).</summary>
     public string NumeroTexto => Numero.ToString("00");
 
-    // Nombre editable del partido, formato "LOCAL-VISITANTE" (igual que Pronosticos.DevolverEquipos()).
+    // Nombre editable del partido, formato "LOCAL - VISITANTE" (igual que Pronosticos.DevolverEquipos()).
     [ObservableProperty]
     private string _equipos;
+
+    private bool _actualizandoEquipos;
+
+    /// <summary>
+    /// Equipo local (parte antes del " - "). Editable; al cambiar recompone <see cref="Equipos"/>.
+    /// Réplica del combo "equipoCasa" de la fila <c>PartidoBoleto</c> del original.
+    /// </summary>
+    public string Local
+    {
+        get => DividirEquipos().local;
+        set
+        {
+            if (value == Local) return;
+            FijarEquipos(value, Visitante);
+            OnPropertyChanged();
+        }
+    }
+
+    /// <summary>
+    /// Equipo visitante (parte tras el " - "). Editable; al cambiar recompone <see cref="Equipos"/>.
+    /// Réplica del combo "equipoFuera" de la fila <c>PartidoBoleto</c> del original.
+    /// </summary>
+    public string Visitante
+    {
+        get => DividirEquipos().visitante;
+        set
+        {
+            if (value == Visitante) return;
+            FijarEquipos(Local, value);
+            OnPropertyChanged();
+        }
+    }
+
+    // Divide "LOCAL - VISITANTE" en sus dos partes (el placeholder "? - ?" se muestra vacío).
+    private (string local, string visitante) DividirEquipos()
+    {
+        if (string.IsNullOrWhiteSpace(Equipos) || Equipos == "? - ?")
+            return ("", "");
+        int idx = Equipos.IndexOf(" - ", System.StringComparison.Ordinal);
+        if (idx < 0)
+            return (Equipos.Trim(), "");
+        return (Equipos.Substring(0, idx).Trim(), Equipos.Substring(idx + 3).Trim());
+    }
+
+    // Recompone "LOCAL - VISITANTE" (o el placeholder si ambos están vacíos).
+    private void FijarEquipos(string local, string visitante)
+    {
+        _actualizandoEquipos = true;
+        try
+        {
+            local = (local ?? "").Trim();
+            visitante = (visitante ?? "").Trim();
+            Equipos = (local.Length == 0 && visitante.Length == 0)
+                ? "? - ?"
+                : local + " - " + visitante;
+        }
+        finally { _actualizandoEquipos = false; }
+    }
 
     [ObservableProperty]
     private bool _signo1 = true;
@@ -62,7 +120,18 @@ public partial class PartidoBaseViewModel : ObservableObject
     partial void OnSigno1Changed(bool value) => _owner.AlCambiarSigno();
     partial void OnSignoXChanged(bool value) => _owner.AlCambiarSigno();
     partial void OnSigno2Changed(bool value) => _owner.AlCambiarSigno();
-    partial void OnEquiposChanged(string value) => _owner.RecalcularResumen();
+
+    partial void OnEquiposChanged(string value)
+    {
+        // Si el cambio vino de Local/Visitante, ya se notificó allí; si vino de fuera
+        // (p. ej. cargar una combinación), reflejar los dos combos.
+        if (!_actualizandoEquipos)
+        {
+            OnPropertyChanged(nameof(Local));
+            OnPropertyChanged(nameof(Visitante));
+        }
+        _owner.RecalcularResumen();
+    }
 }
 
 /// <summary>
@@ -97,6 +166,16 @@ public partial class BoletoBaseViewModel : ObservableObject
 
     /// <summary>Resumen en vivo del boleto, p. ej. "Fijos: 0 · Dobles: 0 · Triples: 14".</summary>
     public string Resumen => $"Fijos: {Fijos} · Dobles: {Dobles} · Triples: {Triples}";
+
+    /// <summary>
+    /// Resumen con el formato de la cabecera salmón del original
+    /// ("Fijos: N - Dobles: N - Triples: N").
+    /// </summary>
+    public string ResumenCabecera => $"Fijos: {Fijos} - Dobles: {Dobles} - Triples: {Triples}";
+
+    /// <summary>Título de la cabecera salmón (réplica de <c>Pronosticos.lblTitulo</c>).</summary>
+    [ObservableProperty]
+    private string _titulo = "Boleto Base";
 
     // Construye una fila por partido. Inicialmente "triple" (1,X,2), igual que
     // Pronosticos.InicializaPronosticos() (todos a "1X2") en WinForms.
@@ -207,6 +286,7 @@ public partial class BoletoBaseViewModel : ObservableObject
         Dobles = dobles;
         Triples = triples;
         OnPropertyChanged(nameof(Resumen));
+        OnPropertyChanged(nameof(ResumenCabecera));
     }
 
     /// <summary>Pone todos los partidos a triple (1,X,2). Equivale a Reiniciar14Triples().</summary>
