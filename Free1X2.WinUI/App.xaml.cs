@@ -87,11 +87,12 @@ public partial class App : Application
             return string.Empty;
         };
 
-        // Visor de análisis de columnas: por ahora se guarda el payload de forma
-        // estática y se navega a la página del visor en el hilo de UI. El cableado
-        // completo del visor (poblar el árbol desde el contenedor) queda pendiente.
-        // TODO(visor): pasar (contenedorAnalisisGlobal, grupo) al ViewModel del
-        // visor para reconstruir el árbol como hace VisorAnalisisColumnasFrm en WinForms.
+        // Visor de análisis de columnas: el dominio (Analizador.AnalizaCombinacion) invoca este
+        // hook con (ContenedorAnalisisGlobal, GruposPartidos[0]) tras analizar. Se deja el payload
+        // en el handoff estático y se navega a la página del visor en el hilo de UI;
+        // VisorAnalisisColumnasFrmViewModel lo consume en su constructor y reconstruye las
+        // secciones desde el contenedor (equivalente a VisorAnalisisColumnasFrm.MostrarDatos del
+        // WinForms). El producer real es, p. ej., AnalizarFicheroFrmViewModel.
         Free1X2.Abstractions.AnalisisUi.MostrarVisor = static (contenedor, grupo) =>
         {
             VisorAnalisisColumnasFrmViewModel.UltimoContenedor = contenedor;

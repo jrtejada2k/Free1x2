@@ -180,7 +180,10 @@ public partial class VisorAnalisisColumnasAbdonFrmViewModel : ObservableObject
     {
         // Handoff del productor (EstucolFrmViewModel.UltimoInforme): equivale a los argumentos
         // del ctor legacy VisorAnalisisColumnasAbdonFrm(informePorCols, informePorGans, columnas).
+        // Se consume y se limpia: abrir el visor directamente desde el menú (sin haber generado un
+        // informe en EstuCol) muestra el estado vacío en lugar de un informe antiguo.
         var informe = EstucolFrmViewModel.UltimoInforme;
+        EstucolFrmViewModel.UltimoInforme = null;
         _informePorColumnas = informe?.porCols ?? new List<InformeColumnasABDON>();
         _informePorGanadoras = informe?.porGans ?? new List<InformeColumnasABDON>();
         _columnas = informe?.columnas ?? new List<long>();

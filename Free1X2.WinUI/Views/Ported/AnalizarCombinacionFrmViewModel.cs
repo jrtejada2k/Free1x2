@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Free1X2.MotorCalculo;
 using Free1X2.Utils;
 using Free1X2.WinUI.Controls;
+using Free1X2.WinUI.Services;
 using Microsoft.UI.Xaml;
 
 namespace Free1X2.WinUI.Views.Ported;
@@ -113,11 +114,69 @@ public partial class AnalizarCombinacionFrmViewModel : ObservableObject
         // El árbol se rellena a partir del análisis de la combinación que la pantalla anterior
         // deja en el handoff. La Page se reconstruye en cada navegación, así que basta leerlo aquí.
         var analisis = UltimoAnalisis;
+        // Consumir y limpiar el handoff: si se vuelve a abrir la pantalla directamente desde el
+        // menú (sin pasar por ColGanadora), no debe reutilizar un análisis antiguo, sino analizar
+        // la combinación que el usuario tenga en pantalla en ese momento (modo independiente).
+        UltimoAnalisis = null;
         if (analisis.HasValue)
         {
             AnalizarCombinacion(analisis.Value.nombre, analisis.Value.columna,
                 analisis.Value.analizador, analisis.Value.pronosticos);
         }
+        else
+        {
+            // Modo independiente: la pantalla se abre directamente desde el menú, sin que el flujo
+            // de ColGanadora haya dejado un handoff. En vez de mostrarse vacía, se analiza la
+            // combinación que el usuario tiene en pantalla (AppState.Analizador compartido), igual
+            // que la rama "Analizar combinación en pantalla" del legacy ColGanadoraFrm. La columna a
+            // analizar es la del propio boleto base, derivada de los pronósticos (equivale a
+            // Analizador.InicializaPronosticoBase: pronosticoBase = ConvStrToLong(Pronosticos)).
+            AnalizarCombinacionActual();
+        }
+    }
+
+    /// <summary>
+    /// Construye el árbol de fallos a partir de la combinación que el usuario tiene en pantalla
+    /// (el <see cref="Analizador"/> compartido de <see cref="AppState"/>). Réplica de la rama
+    /// "Analizar combinación en pantalla" de ColGanadoraFrm, usando como "columna ganadora" la
+    /// propia columna base del boleto (derivada de los pronósticos), de modo que abrir la pantalla
+    /// directamente ejecute un análisis real en lugar de quedarse vacía.
+    /// </summary>
+    private void AnalizarCombinacionActual()
+    {
+        var estado = AppState.Instancia;
+        Analizador analizador = estado.Analizador;
+
+        // Pronósticos de la combinación en pantalla. Si el Analizador aún no tiene pronósticos
+        // (combinación nueva sin tocar), se usa la combinación abierta "1,X,2" para los partidos
+        // configurados, igual que hace el motor al partir de un boleto en blanco.
+        string[] pronosticos = analizador.Pronosticos;
+        if (pronosticos == null || pronosticos.Length == 0)
+        {
+            int n = Free1X2.VariablesGlobales.NumeroPartidos;
+            pronosticos = new string[n];
+            for (int i = 0; i < n; i++)
+            {
+                pronosticos[i] = "1,X,2";
+            }
+        }
+
+        // Columna a analizar = columna base del boleto (mismos bits que pronosticoBase del motor).
+        long columna = UtilColumnas.ConvStrToLong(pronosticos);
+
+        // Pronósticos base sin comas, en el formato que espera EvaluarPronosticos (igual que la
+        // rama "Abrir combinación" de ColGanadoraFrm, que hace pronosticos[i].Replace(",", "")).
+        string[] pronosticosBase = new string[pronosticos.Length];
+        for (int i = 0; i < pronosticos.Length; i++)
+        {
+            pronosticosBase[i] = (pronosticos[i] ?? string.Empty).Replace(",", "");
+        }
+
+        string nombre = string.IsNullOrEmpty(estado.NombreArchivoComb)
+            ? "Combinación en pantalla"
+            : estado.NombreArchivoComb;
+
+        AnalizarCombinacion(nombre, columna, analizador, pronosticosBase);
     }
 
     /// <summary>
