@@ -31,6 +31,18 @@ namespace Free1X2.WinUI.Views.Ported
         public const int Filas = 5;
         public const int Columnas = 14;
 
+        /// <summary>
+        /// Matriz int[15,15] entregada por el productor (AnastaticsViewModel modo "Interrupciones")
+        /// antes de navegar a StaInterFrmPage. Handoff estático de proceso (mismo patrón que
+        /// VisorEstadisticas.UltimasEstadisticas / AppState.GrupoEnEdicion). El ctor la lee y, si
+        /// existe, vuelca sus filas 0..4 / columnas 0..13 a la rejilla. Equivale al ctor legacy
+        /// StaInterFrm(int[,] ofparent, int ncol).
+        /// </summary>
+        public static int[,]? MatrizEntrada { get; set; }
+
+        /// <summary>Total de columnas analizadas (legacy: numcol). Handoff estático.</summary>
+        public static int NumColEntrada { get; set; }
+
         // Encabezados de fila (label34, label85, label153, label119, label136 en el legacy).
         public IReadOnlyList<string> EncabezadosFila { get; } = new[]
         {
@@ -77,7 +89,12 @@ namespace Free1X2.WinUI.Views.Ported
                 for (int c = 0; c < Columnas; c++) Celdas[f][c] = "-";
             }
 
-            Repintar();
+            // Si el productor dejó una matriz en el handoff estático, vuélcala (ctor legacy
+            // StaInterFrm(int[,] ofparent, int ncol)). Si no, queda a 0 (rejilla vacía).
+            if (MatrizEntrada != null)
+                CargarDatos(MatrizEntrada, NumColEntrada);
+            else
+                Repintar();
         }
 
         partial void OnModoMostrarIndexChanged(int value) => Repintar();
