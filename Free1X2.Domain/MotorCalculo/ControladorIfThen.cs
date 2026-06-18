@@ -1,3 +1,4 @@
+// Free1X2 · WinUI 3 — WIN3
 // created on 23/06/2005
 // Free1X2 : Programa de quinielas "libre"
 // Copyright (C) 2005 Toni Moreno  toni@moreno-csa.com

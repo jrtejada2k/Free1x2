@@ -1,3 +1,4 @@
+// Free1X2 · WinUI 3 — WIN3
 namespace Free1X2.Escrutinio
 {
 	/// <summary>

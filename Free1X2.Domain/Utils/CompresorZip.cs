@@ -1,3 +1,4 @@
+// Free1X2 · WinUI 3 — WIN3
 // Free1X2 : Programa de quinielas "libre"
 // Copyright (C) 2008 Morrison - morrison.ne@gmail.com
 // (Basado en el Compresor *.z2q de Charlie)
