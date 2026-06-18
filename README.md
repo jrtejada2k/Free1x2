@@ -2,9 +2,13 @@
 
 **Free1X2** es una herramienta de escritorio para Windows de análisis y generación de combinaciones para la **Quiniela** española (14 partidos de fútbol con resultado 1 / X / 2, más el Pleno al 15). Permite construir un boleto, aplicar condiciones y filtros matemáticos, generar y **reducir** columnas de apuesta, escrutar resultados y analizar históricos.
 
-Programa libre bajo licencia **GPL** (proyecto original de Joan Duatis, 2005).
+La interfaz se ha **migrado a WinUI 3** (Fluent nativo de Windows), conservando intacto el motor de cálculo del programa original y reproduciendo de forma fiel las pantallas clásicas (108 superficies de UI).
 
+Programa libre bajo licencia **GPLv3** — derivado del proyecto original Free1X2 de Joan Duatis (GPL). Ver [`LICENSE`](LICENSE).
+
+- 🌐 **Web**: [clubprogol.com](https://clubprogol.com)
 - 📖 **Manual de usuario**: [`docs/MANUAL_USUARIO.md`](docs/MANUAL_USUARIO.md)
+- 🛡️ **Seguridad**: [`SECURITY.md`](SECURITY.md)
 - 🗺️ **Plan de migración a WinUI 3**: [`PLAN_MIGRACION_WINUI3.md`](PLAN_MIGRACION_WINUI3.md)
 - 📌 **Estado de la migración**: [`ESTADO_MIGRACION_WINUI3.md`](ESTADO_MIGRACION_WINUI3.md)
 
@@ -56,21 +60,38 @@ Detalle completo de cada función en el [manual de usuario](docs/MANUAL_USUARIO.
 
 ## Compilar y ejecutar
 
-Requiere **.NET 8 SDK** en Windows.
+Requiere **.NET 8 SDK** en Windows 10 (19041+) / 11, plataforma **win-x64**.
 
 ```powershell
-# App actual (WinForms)
-dotnet build Free1X2/Free1X2.csproj
-dotnet run   --project Free1X2/Free1X2.csproj
+# UI WinUI 3 — aplicación principal (self-contained, runtime empaquetado)
+dotnet build Free1X2.WinUI/Free1X2.WinUI.csproj -c Debug -p:Platform=x64
+.\Free1X2.WinUI\bin\x64\Debug\net8.0-windows10.0.19041.0\win-x64\Free1X2.WinUI.exe
+
+# Publicar un build portable self-contained (instalable):
+dotnet publish Free1X2.WinUI/Free1X2.WinUI.csproj -c Release -r win-x64 --self-contained true -p:Platform=x64
+#  …o el script equivalente:
+pwsh ./scripts/publish-winui.ps1
 
 # Lógica de dominio + tests
 dotnet build Free1X2.Domain/Free1X2.Domain.csproj
 dotnet test  Free1X2.Domain.Tests/Free1X2.Domain.Tests.csproj
 
-# Nueva UI WinUI 3 (requiere plataforma x64; runtime empaquetado, self-contained)
-dotnet build Free1X2.WinUI/Free1X2.WinUI.csproj -c Debug -p:Platform=x64 -r win-x64
-.\Free1X2.WinUI\bin\x64\Debug\net8.0-windows10.0.19041.0\win-x64\Free1X2.WinUI.exe
+# App heredada (WinForms), aún disponible en la solución
+dotnet run --project Free1X2/Free1X2.csproj
 ```
+
+El binario WinUI 3 es **self-contained**: incrusta el Windows App Runtime y los datos semilla, por lo que se ejecuta sin instalar nada a nivel de sistema.
+
+---
+
+## Versiones y tags
+
+| Tag | UI | Notas |
+|-----|----|-------|
+| `v0.81.x-winui3` | WinUI 3 | UI Fluent nativa, motor idéntico al original. Release pública. |
+| `v0.80.3-winforms` | WinForms | Última línea base estable de la UI heredada. |
+
+Las releases publicadas (con el zip portable adjunto) están en la [pestaña Releases](https://github.com/jrtejada2k/Free1x2/releases).
 
 ---
 
@@ -95,6 +116,16 @@ Ver [`ESTADO_MIGRACION_WINUI3.md`](ESTADO_MIGRACION_WINUI3.md) para el detalle y
 | `.grupos` | Un grupo de condiciones exportado. |
 | `.txt` | Archivo de columnas (una columna de 14 signos por línea). |
 | `parametros.free1x2` | Configuración del programa (puntos CP, nº de partidos, idioma, ONLAE…). |
+
+---
+
+## Licencia
+
+Free1X2 se distribuye bajo la **Licencia Pública General de GNU, versión 3 (GPLv3)**.
+El proyecto original es software libre bajo GPL, por lo que este derivado mantiene la
+misma licencia. El texto completo está en [`LICENSE`](LICENSE). Esto implica, entre
+otras cosas, que puedes usar, estudiar, modificar y redistribuir el programa siempre
+que conserves la misma licencia y el código fuente disponible.
 
 ---
 
