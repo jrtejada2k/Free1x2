@@ -47,6 +47,36 @@ namespace Free1X2
             Application.ThreadException += Application_ThreadException;
             Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+
+            WireDomainHooks();
+        }
+
+        /// <summary>
+        /// Conecta los hooks del dominio (Free1X2.Domain) a sus implementaciones
+        /// WinForms. El dominio ya no depende de System.Windows.Forms; aquí se le
+        /// inyecta el comportamiento de UI (bombeo de mensajes, diálogos, visor).
+        /// </summary>
+        private static void WireDomainHooks()
+        {
+            Free1X2.Abstractions.UiPump.Pump = Application.DoEvents;
+            Free1X2.Abstractions.UserDialogs.ShowError = m => MessageBox.Show(m, "Error");
+            Free1X2.Abstractions.UserDialogs.ShowInfo  = m => MessageBox.Show(m);
+            // Portapapeles: misma lógica que tenía Porcentajes con System.Windows.Forms.Clipboard.
+            Free1X2.Abstractions.Clipboard.Write = cadena => Clipboard.SetDataObject(cadena, true);
+            Free1X2.Abstractions.Clipboard.Read  = () =>
+            {
+                IDataObject iData = Clipboard.GetDataObject();
+                if (iData != null && iData.GetDataPresent(DataFormats.Text))
+                    return (string)iData.GetData(DataFormats.Text);
+                return string.Empty;
+            };
+            Free1X2.Abstractions.AnalisisUi.MostrarVisor = (cont, grupo) =>
+            {
+                var v = new Free1X2.UI.VisorAnalisisColumnasFrm(
+                    (Free1X2.Analisis.ContenedorAnalisisGlobal)cont,
+                    (Free1X2.MotorCalculo.Grupo)grupo);
+                v.Show();
+            };
         }
 
         private static void RunApplication(string[] args)
@@ -99,17 +129,17 @@ namespace Free1X2
                 // Create error report with original error handling logic
                 string nombreSeg = "Informe_" + DateTime.Now.ToShortDateString().Replace('/', '-') + "_" + DateTime.Now.ToLongTimeString().Replace(':', '-') + ".txt";
                 
-                var manejador = new Free1X2.Debug.ManejadorExcepciones();
-                manejador.GuardarInformeErrorATxt(exception, nombreSeg); 
+                var manejador = new global::Free1X2.Debug.ManejadorExcepciones();
+                manejador.GuardarInformeErrorATxt(exception, nombreSeg);
 
-                var infoError = new Free1X2.Debug.InfoError(nombreSeg);
+                var infoError = new global::Free1X2.Debug.InfoError(nombreSeg);
                 infoError.ShowDialog();
             }
             catch
             {
                 try
                 {
-                    var infoError = new Free1X2.Debug.InfoError("");
+                    var infoError = new global::Free1X2.Debug.InfoError("");
                     infoError.ShowDialog();
                 }
                 catch

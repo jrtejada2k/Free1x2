@@ -1,0 +1,71 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <RootNamespace>Free1X2.WinUI</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- Icono de la aplicacion (mismo .ico que la app WinForms). Se incrusta en el exe. -->
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
+    <!-- Metadatos del ensamblado / producto -->
+    <Product>Free1X2</Product>
+    <Authors>Free1X2.com</Authors>
+    <Company>Free1X2.com</Company>
+    <AssemblyVersion>0.78.0</AssemblyVersion>
+    <FileVersion>0.78.0</FileVersion>
+    <Version>0.78.0</Version>
+    <Platforms>x86;x64;ARM64</Platforms>
+    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+    <UseWinUI>true</UseWinUI>
+    <WindowsPackageType>None</WindowsPackageType>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <EnableMsixTooling>true</EnableMsixTooling>
+    <!-- Self-contained: empaqueta el Windows App Runtime, sin instalación a nivel sistema -->
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>true</SelfContained>
+    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+    <!-- MVVMTK0045: aviso de AOT/WinRT por [ObservableProperty] sobre campos.
+         La alternativa (partial properties) no la genera correctamente el toolset
+         actual de CommunityToolkit.Mvvm 8.4.0, así que se silencia de forma intencional.
+         La app no usa NativeAOT, por lo que no aplica en la práctica. -->
+    <NoWarn>$(NoWarn);MVVMTK0045</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.250108002" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Free1X2.Domain\Free1X2.Domain.csproj" />
+  </ItemGroup>
+
+  <!-- Iconos originales de la barra de herramientas, extraídos de MainForm.resx (uno
+       por botón). Se empaquetan como Content (ms-appx:///Assets/Toolbar/<botón>.png). -->
+  <ItemGroup>
+    <Content Include="Assets\Toolbar\*.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
+  <!-- Datos semilla del motor (config, idioma, equipos, impresión). Se copian junto
+       al exe preservando la estructura de carpetas (Equipos/, Idioma/, Impresion/);
+       el dominio los lee con System.AppContext.BaseDirectory. Sin ellos,
+       Analizador/AConfiguracion crashea al arrancar por falta de parametros.free1x2.
+       Se usa TargetPath (no Link) + CopyToPublishDirectory para que tanto 'build'
+       como 'publish' reubiquen los ficheros desde Datos/ a la raiz de salida
+       conservando los subdirectorios. Link es solo metadato de IDE y no fluye a
+       'dotnet publish', lo que dejaba fuera Equipos/Idioma/Impresion del paquete. -->
+  <ItemGroup>
+    <Content Include="Datos\**\*">
+      <TargetPath>%(RecursiveDir)%(Filename)%(Extension)</TargetPath>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>

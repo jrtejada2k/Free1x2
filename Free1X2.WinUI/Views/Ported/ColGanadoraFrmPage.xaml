@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.ColGanadoraFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ScrollViewer>
+        <StackPanel Padding="12,8" Spacing="8" MaxWidth="900" HorizontalAlignment="Left">
+
+            <!-- ===== Encabezado (legacy: ColGanadoraFrm.Text) ===== -->
+            <StackPanel Spacing="6">
+                <TextBlock Text="Análisis de fallos en combinación"
+                           Style="{StaticResource PageTitleTextBlockStyle}" />
+                <TextBlock
+                    Text="Introduce la columna ganadora y elige qué combinación analizar para detectar sus fallos frente a esa columna."
+                    Style="{StaticResource SecondaryTextBlockStyle}"
+                    TextWrapping="Wrap" />
+            </StackPanel>
+
+            <!-- ===== Columna ganadora (legacy: labCG + txtCG) ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="5">
+                    <TextBlock Text="Columna ganadora"
+                               Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                    <TextBox PlaceholderText="Signos de la columna ganadora"
+                             MaxLength="16"
+                             CharacterCasing="Upper"
+                             Text="{x:Bind ViewModel.ColumnaGanadora, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             AutomationProperties.Name="Columna ganadora" />
+
+                    <TextBlock Style="{StaticResource SecondaryTextBlockStyle}"
+                               TextWrapping="Wrap">
+                        <Run Text="La columna debe tener exactamente " />
+                        <Run Text="{x:Bind ViewModel.LongitudRequeridaTexto, Mode=OneWay}" />
+                        <Run Text=" signos." />
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Origen de la combinación (legacy: rbCombiPantalla / rbAbrirCombi) ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Combinación a analizar"
+                               Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                    <RadioButton Content="Analizar combinación en pantalla"
+                                 GroupName="OrigenCombi"
+                                 IsChecked="{x:Bind ViewModel.AnalizarEnPantalla, Mode=TwoWay}"
+                                 AutomationProperties.Name="Analizar la combinación en pantalla" />
+
+                    <RadioButton Content="Abrir combinación para analizar"
+                                 GroupName="OrigenCombi"
+                                 IsChecked="{x:Bind ViewModel.AbrirCombinacion, Mode=TwoWay}"
+                                 AutomationProperties.Name="Abrir una combinación desde archivo para analizar" />
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Acción (legacy: btnComienzo "Analizar") ===== -->
+            <Button Content="Analizar"
+                    Style="{StaticResource AccentButtonStyle}"
+                    Click="OnAnalizarClick"
+                    AutomationProperties.Name="Analizar la combinación" />
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

@@ -1,0 +1,144 @@
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.GeneradorCPSDiferenciasPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Background="{StaticResource AppBackgroundBrush}">
+
+    <Grid Padding="10,7" RowSpacing="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Encabezado -->
+        <StackPanel Grid.Row="0" Spacing="4">
+            <TextBlock
+                Style="{StaticResource PageTitleTextBlockStyle}"
+                Text="Generador de CPs por diferencias" />
+            <TextBlock
+                Style="{StaticResource SecondaryTextBlockStyle}"
+                Text="Genera columnas a partir de una columna inicial y una alternativa, según el tipo y el número de diferencias." />
+        </StackPanel>
+
+        <!-- Contenido -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="8">
+
+                <!-- Columnas de entrada -->
+                <Border Style="{StaticResource AppCardStyle}">
+                    <StackPanel Spacing="5">
+                        <TextBlock
+                            Style="{StaticResource CardTitleTextBlockStyle}"
+                            Text="Columnas" />
+
+                        <StackPanel Spacing="6">
+                            <TextBlock
+                                Style="{StaticResource SecondaryTextBlockStyle}"
+                                Text="Columna inicial (14 signos 1/X/2)" />
+                            <TextBox
+                                MaxLength="14"
+                                CharacterCasing="Upper"
+                                PlaceholderText="Ej. 1X21X21X21X21"
+                                Text="{x:Bind ViewModel.ColumnaInicial, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
+
+                        <StackPanel Spacing="6">
+                            <TextBlock
+                                Style="{StaticResource SecondaryTextBlockStyle}"
+                                Text="Columna alternativa (14 signos 1/X/2)" />
+                            <TextBox
+                                MaxLength="14"
+                                CharacterCasing="Upper"
+                                PlaceholderText="Ej. X12X12X12X12X"
+                                Text="{x:Bind ViewModel.ColumnaAlternativa, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Opciones de generación -->
+                <Border Style="{StaticResource AppCardStyle}">
+                    <StackPanel Spacing="6">
+                        <TextBlock
+                            Style="{StaticResource CardTitleTextBlockStyle}"
+                            Text="Opciones" />
+
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" Spacing="6">
+                                <TextBlock
+                                    Style="{StaticResource SecondaryTextBlockStyle}"
+                                    Text="Tipo de columna" />
+                                <ComboBox
+                                    HorizontalAlignment="Stretch"
+                                    ItemsSource="{x:Bind ViewModel.TiposColumna}"
+                                    SelectedIndex="{x:Bind ViewModel.TipoColumnaIndex, Mode=TwoWay}" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1" Spacing="6">
+                                <TextBlock
+                                    Style="{StaticResource SecondaryTextBlockStyle}"
+                                    Text="Número de diferencias" />
+                                <ComboBox
+                                    HorizontalAlignment="Stretch"
+                                    ItemsSource="{x:Bind ViewModel.NumerosDiferencias}"
+                                    SelectedIndex="{x:Bind ViewModel.NumeroDiferenciasIndex, Mode=TwoWay}" />
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Archivo destino -->
+                <Border Style="{StaticResource AppCardStyle}">
+                    <StackPanel Spacing="5">
+                        <TextBlock
+                            Style="{StaticResource CardTitleTextBlockStyle}"
+                            Text="Archivo destino" />
+
+                        <Grid ColumnSpacing="8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <TextBox
+                                Grid.Column="0"
+                                IsReadOnly="True"
+                                PlaceholderText="Ruta del archivo de salida (.txt)"
+                                Text="{x:Bind ViewModel.ArchivoDestino, Mode=OneWay}" />
+                            <Button
+                                Grid.Column="1"
+                                Content="Examinar…"
+                                Command="{x:Bind ViewModel.ExaminarCommand}" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Acciones -->
+        <StackPanel
+            Grid.Row="2"
+            Orientation="Horizontal"
+            HorizontalAlignment="Right"
+            Spacing="8">
+            <TextBlock
+                VerticalAlignment="Center"
+                Margin="0,0,12,0"
+                Style="{StaticResource SecondaryTextBlockStyle}"
+                Text="{x:Bind ViewModel.EstadoTexto, Mode=OneWay}" />
+            <Button
+                Content="Cancelar"
+                Command="{x:Bind ViewModel.CancelarCommand}" />
+            <Button
+                Style="{StaticResource AccentButtonStyle}"
+                Content="Generar"
+                Command="{x:Bind ViewModel.GenerarCommand}" />
+        </StackPanel>
+    </Grid>
+</Page>

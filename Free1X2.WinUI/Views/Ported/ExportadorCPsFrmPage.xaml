@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.ExportadorCPsFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ScrollViewer>
+        <StackPanel Padding="12,8" Spacing="8" MaxWidth="640" HorizontalAlignment="Left">
+
+            <!-- ===== Encabezado (Text del Form) ===== -->
+            <StackPanel Spacing="6">
+                <TextBlock Text="Exportador de Columnas Probables"
+                           Style="{StaticResource PageTitleTextBlockStyle}" />
+                <TextBlock Text="Exporta las columnas probables a fichero. Elige un formato: sólo las columnas (.txt) o las columnas con sus aciertos, aciertos seguidos y fallos seguidos (.clm)."
+                           Style="{StaticResource SecondaryTextBlockStyle}"
+                           TextWrapping="Wrap" />
+                <TextBlock Text="{x:Bind ViewModel.NumeroColumnasTexto, Mode=OneWay}"
+                           Style="{StaticResource SecondaryTextBlockStyle}"
+                           TextWrapping="Wrap" />
+            </StackPanel>
+
+            <!-- ===== Exportación simple (btnExportarSimples) ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="5">
+                    <TextBlock Text="Exportar simples (*.txt)" Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <TextBlock Text="Guarda únicamente los pronósticos de cada columna probable en un fichero de texto."
+                               Style="{StaticResource SecondaryTextBlockStyle}"
+                               TextWrapping="Wrap" />
+                    <Button Content="Exportar CPs simples (sólo columnas *.txt)"
+                            Style="{StaticResource AccentButtonStyle}"
+                            HorizontalAlignment="Left"
+                            Command="{x:Bind ViewModel.ExportarSimplesCommand}"
+                            AutomationProperties.Name="Exportar columnas probables simples a un fichero de texto" />
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Exportación con aciertos (btnExportarClm) ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="5">
+                    <TextBlock Text="Exportar con aciertos (*.clm)" Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <TextBlock Text="Guarda cada columna con sus aciertos (Ac), aciertos seguidos (Acs) y fallos seguidos (Fs)."
+                               Style="{StaticResource SecondaryTextBlockStyle}"
+                               TextWrapping="Wrap" />
+                    <Button Content="Exportar CPs con Ac, Acs, Fs (*.clm)"
+                            HorizontalAlignment="Left"
+                            Command="{x:Bind ViewModel.ExportarConAciertosCommand}"
+                            AutomationProperties.Name="Exportar columnas probables con aciertos a un fichero .clm" />
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Acciones (btnCancelar) ===== -->
+            <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
+                <Button Content="Cancelar"
+                        Command="{x:Bind ViewModel.CancelarCommand}"
+                        AutomationProperties.Name="Cancelar y cerrar" />
+            </StackPanel>
+
+            <!-- ===== Estado / feedback ===== -->
+            <TextBlock Text="{x:Bind ViewModel.Estado, Mode=OneWay}"
+                       Style="{StaticResource SecondaryTextBlockStyle}"
+                       TextWrapping="Wrap" />
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

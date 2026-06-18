@@ -54,7 +54,7 @@ dotnet run --project Free1X2/Free1X2.csproj
 
 Abrir cada sección y confirmar visualmente:
 
-- [ ] MainForm: fondo slate #F5F7FA, toolbars flat sin gradientes, status bar índigo, iconos Fluent
+- [ ] MainForm: fondo gris #F3F3F3, toolbars flat sin gradientes, status bar azul
 - [ ] Fuente Segoe UI visible en todos los controles (no "Microsoft Sans Serif")
 - [ ] Sin colores Bisque/NavajoWhite/DarkSalmon en ningún form
 - [ ] Botones filtro en MainForm: verde/rojo/blanco según estado (no LightGreen/Tomato/DarkSalmon)
@@ -87,18 +87,16 @@ Free1X2/UI/Modern/ModernFormBase.cs         ← Base class para forms modernos
 
 ### Paleta de colores
 
-Paleta **Slate / Indigo** (más contraste que el gris Windows-11 original).
-
 | Token | Color | Hex | Uso |
 |-------|-------|-----|-----|
-| `Colors.Background` | Slate-50 | `#F5F7FA` | Fondo forms/panels |
+| `Colors.Background` | Gris claro | `#F3F3F3` | Fondo forms/panels |
 | `Colors.Surface` | Blanco | `#FFFFFF` | Cards, inputs, grids |
-| `Colors.Primary` | Índigo-600 | `#4F46E5` | Acento, status bar |
-| `Colors.Text` | Slate-900 | `#0F172A` | Texto principal |
-| `Colors.Border` | Slate-300 | `#CBD5E1` | Bordes controles |
-| `Colors.Success` | Verde-600 | `#16A34A` | Filtro activo |
-| `Colors.Error` | Rojo-600 | `#DC2626` | Filtro con error |
-| `Colors.Warning` | Ámbar-600 | `#D97706` | Estado neutro/advertencia |
+| `Colors.Primary` | Azul Windows 11 | `#0078D4` | Acento, status bar |
+| `Colors.Text` | Casi negro | `#1A1A1A` | Texto principal |
+| `Colors.Border` | Gris borde | `#D5D5D5` | Bordes controles |
+| `Colors.Success` | Verde | `#107C10` | Filtro activo |
+| `Colors.Error` | Rojo | `#C42B1C` | Filtro con error |
+| `Colors.Warning` | Ámbar | `#C16400` | Estado neutro/advertencia |
 
 ### Botones de filtro (MainForm)
 
@@ -113,26 +111,6 @@ Los botones de filtro usan `SetBotonEstado(btn, BotonEstado)` en `MainForm.cs`:
 Ubicado en `Free1X2/UI/Controls/CtrSemaforo.cs`.  
 Los 3 mini-botones tienen `Tag = "no-theme"` para excluirlos del tema general.  
 Sus colores se definen internamente con constantes `ActiveRed/ActiveYellow/ActiveGreen`.
-
-### Iconos Segoe Fluent
-
-```
-Free1X2/UI/Modern/Icons/SegoeIcons.cs    ← renderiza glifos Fluent como Bitmap
-Free1X2/UI/Modern/Icons/IconReplacer.cs  ← mapea control.Name → glifo y reemplaza imágenes
-```
-
-- `SegoeIcons.Render(glyph, size, color)` dibuja un glifo de **Segoe Fluent Icons**
-  (fallback a *Segoe MDL2 Assets* en Win10). Devuelve `null` si no hay fuente → se
-  conservan los iconos legacy, sin crash.
-- `IconReplacer.Apply(root)` recorre el árbol de controles y reemplaza las imágenes de
-  toolbars/menús/botones cuyo `Name` está en el diccionario `Map`. Es idempotente.
-- `MainForm.OnLoad` llama `IconReplacer.Apply(this)` después de aplicar el tema.
-
-### Contador de pronósticos (Pronosticos.cs)
-
-`Prono1X2` expone el evento `PronosticoChanged`, propagado por `PartidoBoleto`.
-`Pronosticos.ActualizarContador()` escucha esos eventos y muestra en `lblTitulo`
-el conteo en vivo: **"Fijos: X - Dobles: Y - Triples: Z"**.
 
 ## Estructura de archivos clave
 
@@ -150,9 +128,6 @@ Free1x2/
 │       ├── MainForm.cs                ← form principal (modernizado manualmente)
 │       ├── Modern/
 │       │   ├── ModernFormBase.cs      ← base class
-│       │   ├── Icons/
-│       │   │   ├── SegoeIcons.cs       ← render de glifos Fluent
-│       │   │   └── IconReplacer.cs     ← reemplazo de iconos por Name
 │       │   └── Theming/
 │       │       └── ModernTheme.cs     ← sistema de temas completo
 │       ├── Controls/

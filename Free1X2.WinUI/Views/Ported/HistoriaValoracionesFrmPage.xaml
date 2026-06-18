@@ -1,0 +1,133 @@
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.HistoriaValoracionesFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:Free1X2.WinUI.Controls"
+    Background="{ThemeResource AppBackgroundBrush}">
+
+    <ScrollViewer Padding="10,7">
+        <StackPanel MaxWidth="640" Spacing="8" HorizontalAlignment="Left">
+
+            <TextBlock
+                Text="Valoraciones históricas"
+                Style="{StaticResource PageTitleTextBlockStyle}" />
+
+            <TextBlock
+                Text="Guarda las valoraciones 1X2 de la jornada en el fichero histórico."
+                Style="{StaticResource SecondaryTextBlockStyle}"
+                TextWrapping="Wrap" />
+
+            <!-- Jornada y temporada a guardar -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="6">
+                    <TextBlock
+                        Text="Jornada y temporada"
+                        Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                    <!-- Jornada (legacy: txJornada + btJornadaAnterior/Siguiente, rango 0..43) -->
+                    <StackPanel Spacing="6">
+                        <TextBlock
+                            Text="Se guardará la jornada"
+                            Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <NumberBox
+                            Value="{x:Bind ViewModel.Jornada, Mode=TwoWay}"
+                            Minimum="0"
+                            Maximum="43"
+                            SmallChange="1"
+                            SpinButtonPlacementMode="Inline"
+                            Width="160"
+                            HorizontalAlignment="Left" />
+                    </StackPanel>
+
+                    <!-- Temporada (legacy: txTemporada + btTemporadaAnterior/Siguiente; txTemporada2 = Temporada+1) -->
+                    <StackPanel Spacing="6">
+                        <TextBlock
+                            Text="de la temporada"
+                            Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                            <NumberBox
+                                Value="{x:Bind ViewModel.Temporada, Mode=TwoWay}"
+                                SmallChange="1"
+                                SpinButtonPlacementMode="Inline"
+                                Width="160" />
+                            <TextBlock
+                                Text="/"
+                                VerticalAlignment="Center"
+                                Style="{StaticResource SecondaryTextBlockStyle}" />
+                            <TextBox
+                                Text="{x:Bind ViewModel.TemporadaSiguienteTexto, Mode=OneWay}"
+                                IsEnabled="False"
+                                Width="90" />
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Valoraciones a guardar (en el WinForms llegaban por constructor;
+                 aquí se editan en la rejilla 14x3) -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="5">
+                    <TextBlock
+                        Text="Valoraciones (1 / X / 2)"
+                        Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <controls:PorcentajesControl
+                        Filas="{x:Bind ViewModel.Filas}"
+                        Height="260" />
+                </StackPanel>
+            </Border>
+
+            <!-- Fichero histórico de salida -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="6">
+                    <TextBlock
+                        Text="Fichero histórico"
+                        Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                    <StackPanel Spacing="6">
+                        <TextBlock
+                            Text="en el fichero histórico"
+                            Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <Grid ColumnSpacing="8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox
+                                Grid.Column="0"
+                                Text="{x:Bind ViewModel.NombreFichero, Mode=OneWay}"
+                                IsReadOnly="True"
+                                PlaceholderText="Ningún fichero seleccionado" />
+                            <Button
+                                Grid.Column="1"
+                                Content="Abrir…"
+                                Command="{x:Bind ViewModel.SeleccionarFicheroCommand}" />
+                            <Button
+                                Grid.Column="2"
+                                Content="Nuevo…"
+                                Command="{x:Bind ViewModel.NuevoFicheroCommand}" />
+                        </Grid>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Acciones (legacy: btGuardar / button2 Cancelar) -->
+            <StackPanel Orientation="Horizontal" Spacing="5">
+                <Button
+                    Content="Guardar"
+                    Style="{StaticResource AccentButtonStyle}"
+                    IsEnabled="{x:Bind ViewModel.PuedeGuardar, Mode=OneWay}"
+                    Command="{x:Bind ViewModel.GuardarCommand}" />
+                <Button
+                    Content="Cancelar"
+                    Command="{x:Bind ViewModel.CancelarCommand}" />
+            </StackPanel>
+
+            <TextBlock
+                Text="{x:Bind ViewModel.Estado, Mode=OneWay}"
+                Style="{StaticResource SecondaryTextBlockStyle}"
+                TextWrapping="Wrap" />
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

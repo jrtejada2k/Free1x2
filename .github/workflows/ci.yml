@@ -1,0 +1,79 @@
+name: CI
+
+# Compila todos los proyectos de Free1X2 y ejecuta la suite de tests del
+# dominio en cada push / pull request a las ramas de integracion.
+on:
+  push:
+    branches: [winui3-migration, main]
+  pull_request:
+    branches: [winui3-migration, main]
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: dotnet --info
+        run: dotnet --info
+
+      # --- Restaurar dependencias -----------------------------------------
+      - name: Restore Free1X2.Domain
+        run: dotnet restore Free1X2.Domain/Free1X2.Domain.csproj
+
+      - name: Restore Free1X2.Domain.Tests
+        run: dotnet restore Free1X2.Domain.Tests/Free1X2.Domain.Tests.csproj
+
+      - name: Restore Free1X2 (WinForms)
+        run: dotnet restore Free1X2/Free1X2.csproj
+
+      # --- Compilar en orden de dependencias ------------------------------
+      - name: Build Free1X2.Domain
+        run: dotnet build Free1X2.Domain/Free1X2.Domain.csproj -c Release --no-restore
+
+      - name: Build Free1X2.Domain.Tests
+        run: dotnet build Free1X2.Domain.Tests/Free1X2.Domain.Tests.csproj -c Release --no-restore
+
+      - name: Build Free1X2 (WinForms)
+        run: dotnet build Free1X2/Free1X2.csproj -c Release --no-restore
+
+      # --- Tests del dominio ----------------------------------------------
+      - name: Test Free1X2.Domain.Tests
+        run: >
+          dotnet test Free1X2.Domain.Tests/Free1X2.Domain.Tests.csproj
+          -c Release --no-build
+          --logger "trx;LogFileName=domain-tests.trx"
+          --results-directory artifacts/test-results
+
+      # --- Free1X2.WinUI ---------------------------------------------------
+      # continue-on-error: la compilacion de WinUI 3 depende del compilador
+      # de XAML de Windows App SDK (XamlCompiler.exe / MSB3073), que en runners
+      # headless de GitHub Actions y en entornos sin el workload completo de
+      # WinUI puede fallar de forma intermitente o por componentes ausentes.
+      # No queremos que eso tumbe el gate de CI mientras el resto del codigo
+      # (Domain + tests + WinForms) si se valida de forma fiable. El resultado
+      # de este paso queda visible en el log pero no marca el job como rojo.
+      - name: Build Free1X2.WinUI (x64)
+        continue-on-error: true
+        run: >
+          dotnet build Free1X2.WinUI/Free1X2.WinUI.csproj
+          -c Release -p:Platform=x64 -r win-x64
+
+      # --- Publicar resultados de test como artefacto ----------------------
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: artifacts/test-results/**/*.trx
+          if-no-files-found: ignore

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.DialogoFiltrarPorLimitesFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Free1X2.WinUI.Views.Ported"
+    Background="{ThemeResource AppBackgroundBrush}">
+
+    <Grid Padding="10,7">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Encabezado -->
+        <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,10">
+            <TextBlock
+                Text="Filtrar por límites"
+                Style="{StaticResource PageTitleTextBlockStyle}" />
+            <TextBlock
+                Text="Por cada tramo de aciertos, elimina las columnas cuyo número de diferencias quede dentro del rango indicado."
+                Style="{StaticResource SecondaryTextBlockStyle}"
+                Foreground="{ThemeResource AppTextSecondaryBrush}" />
+        </StackPanel>
+
+        <!-- Tarjeta de parámetros -->
+        <Border
+            Grid.Row="1"
+            Style="{StaticResource AppCardStyle}"
+            VerticalAlignment="Top"
+            MaxWidth="620"
+            HorizontalAlignment="Left">
+            <StackPanel Spacing="5">
+
+                <!-- Cabecera de columnas -->
+                <Grid ColumnSpacing="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="120" />
+                        <ColumnDefinition Width="110" />
+                        <ColumnDefinition Width="110" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock
+                        Grid.Column="0"
+                        Text="Rango de aciertos"
+                        Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                    <TextBlock
+                        Grid.Column="1"
+                        Text="Posiciones"
+                        Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                    <TextBlock
+                        Grid.Column="2"
+                        Text="Difs. desde"
+                        Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                    <TextBlock
+                        Grid.Column="3"
+                        Text="Difs. hasta"
+                        Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                </Grid>
+
+                <!-- Filas de límites -->
+                <ItemsControl ItemsSource="{x:Bind ViewModel.Filas}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="local:FilaLimite">
+                            <Grid ColumnSpacing="12" Margin="0,0,0,8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="120" />
+                                    <ColumnDefinition Width="110" />
+                                    <ColumnDefinition Width="110" />
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock
+                                    Grid.Column="0"
+                                    VerticalAlignment="Center"
+                                    Text="{x:Bind EtiquetaRango}"
+                                    Foreground="{ThemeResource AppTextBrush}" />
+
+                                <TextBlock
+                                    Grid.Column="1"
+                                    VerticalAlignment="Center"
+                                    Text="{x:Bind RangoTexto}"
+                                    Foreground="{ThemeResource AppTextSecondaryBrush}" />
+
+                                <NumberBox
+                                    Grid.Column="2"
+                                    SpinButtonPlacementMode="Compact"
+                                    SmallChange="1"
+                                    Minimum="0"
+                                    Value="{x:Bind DifMin, Mode=TwoWay}"
+                                    AutomationProperties.Name="Número de diferencias mínimo a eliminar" />
+
+                                <NumberBox
+                                    Grid.Column="3"
+                                    SpinButtonPlacementMode="Compact"
+                                    SmallChange="1"
+                                    Minimum="0"
+                                    Value="{x:Bind DifMax, Mode=TwoWay}"
+                                    AutomationProperties.Name="Número de diferencias máximo a eliminar" />
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!-- Acciones -->
+                <StackPanel
+                    Orientation="Horizontal"
+                    Spacing="5"
+                    HorizontalAlignment="Right"
+                    Margin="0,8,0,0">
+                    <Button
+                        Content="Cancelar"
+                        Click="OnCancelarClick"
+                        AutomationProperties.Name="Cancelar y descartar cambios" />
+                    <Button
+                        Content="Aceptar"
+                        Style="{StaticResource AccentButtonStyle}"
+                        Click="OnAceptarClick"
+                        AutomationProperties.Name="Aceptar y aplicar los límites" />
+                </StackPanel>
+
+            </StackPanel>
+        </Border>
+    </Grid>
+</Page>

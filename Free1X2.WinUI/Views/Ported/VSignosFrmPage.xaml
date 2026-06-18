@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.VSignosFrmPage"
+    x:Name="PageRoot"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Free1X2.WinUI.Views.Ported"
+    Background="{ThemeResource AppBackgroundBrush}">
+
+    <!-- Distribución a dos columnas que reproduce el VSignosFrm original (584x427):
+         izquierda = rejilla de recuentos (legacy panel1); derecha = parámetros y acciones. -->
+    <Grid Padding="10,7" ColumnSpacing="12" RowSpacing="6">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="300" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Encabezado compacto (ambas columnas) -->
+        <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Spacing="2">
+            <TextBlock
+                Text="Análisis de signos"
+                Style="{StaticResource PageTitleTextBlockStyle}" />
+            <TextBlock
+                Text="Contabiliza, partido a partido, cuántas veces aparece cada signo (1, X, 2) en un fichero de columnas."
+                Style="{StaticResource SecondaryTextBlockStyle}"
+                Foreground="{ThemeResource AppTextSecondaryBrush}" />
+        </StackPanel>
+
+        <!-- ===================== COLUMNA IZQUIERDA: rejilla de recuentos (legacy panel1) ===================== -->
+        <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource AppCardStyle}">
+            <Grid RowSpacing="4">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0"
+                    Text="Recuento por partido"
+                    Style="{StaticResource SectionHeaderTextBlockStyle}"
+                    Foreground="{ThemeResource AppTextBrush}" />
+                <TextBlock Grid.Row="1"
+                    Text="Nº de columnas con cada signo. Pulse una celda 1 / X / 2 para fijar la columna ganadora de ese partido."
+                    Style="{StaticResource SecondaryTextBlockStyle}"
+                    Foreground="{ThemeResource AppTextSecondaryBrush}"
+                    TextWrapping="Wrap" />
+
+                <!-- Cabecera de columnas -->
+                <Grid Grid.Row="2" ColumnSpacing="6" Padding="4,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="48" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="Part." Style="{StaticResource BodyStrongTextBlockStyle}" />
+                    <TextBlock Grid.Column="1" Text="1" Style="{StaticResource BodyStrongTextBlockStyle}" HorizontalAlignment="Center" />
+                    <TextBlock Grid.Column="2" Text="X" Style="{StaticResource BodyStrongTextBlockStyle}" HorizontalAlignment="Center" />
+                    <TextBlock Grid.Column="3" Text="2" Style="{StaticResource BodyStrongTextBlockStyle}" HorizontalAlignment="Center" />
+                </Grid>
+
+                <!-- Filas de recuentos: cada celda 1/X/2 es pulsable (legacy: lbl_Click). -->
+                <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{x:Bind ViewModel.Recuentos, Mode=OneWay}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="local:RecuentoSignoFila">
+                                <Grid ColumnSpacing="6" Padding="4,1">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="48" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{x:Bind Partido}"
+                                               Foreground="{ThemeResource AppTextSecondaryBrush}"
+                                               VerticalAlignment="Center" />
+                                    <!-- Celda "1": al pulsar fija el signo 1 del partido (legacy txts[indice]="1"). -->
+                                    <Button Grid.Column="1"
+                                            HorizontalAlignment="Stretch"
+                                            HorizontalContentAlignment="Center"
+                                            Padding="2,2"
+                                            Background="Transparent"
+                                            BorderThickness="0"
+                                            Content="{x:Bind Unos}"
+                                            Command="{Binding ViewModel.FijarUnoCommand, ElementName=PageRoot}"
+                                            CommandParameter="{Binding}"
+                                            AutomationProperties.Name="Fijar el signo 1 de la columna ganadora para este partido" />
+                                    <!-- Celda "X": fija el signo X del partido. -->
+                                    <Button Grid.Column="2"
+                                            HorizontalAlignment="Stretch"
+                                            HorizontalContentAlignment="Center"
+                                            Padding="2,2"
+                                            Background="Transparent"
+                                            BorderThickness="0"
+                                            Content="{x:Bind Equis}"
+                                            Command="{Binding ViewModel.FijarEquisCommand, ElementName=PageRoot}"
+                                            CommandParameter="{Binding}"
+                                            AutomationProperties.Name="Fijar el signo X de la columna ganadora para este partido" />
+                                    <!-- Celda "2": fija el signo 2 del partido. -->
+                                    <Button Grid.Column="3"
+                                            HorizontalAlignment="Stretch"
+                                            HorizontalContentAlignment="Center"
+                                            Padding="2,2"
+                                            Background="Transparent"
+                                            BorderThickness="0"
+                                            Content="{x:Bind Doses}"
+                                            Command="{Binding ViewModel.FijarDosCommand, ElementName=PageRoot}"
+                                            CommandParameter="{Binding}"
+                                            AutomationProperties.Name="Fijar el signo 2 de la columna ganadora para este partido" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+
+        <!-- ===================== COLUMNA DERECHA: parámetros y acciones (compacta) ===================== -->
+        <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource AppCardStyle}">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel Spacing="8">
+
+                    <!-- Fichero a procesar (legacy: bFileIn + lFileIn), TextBox + Examinar inline -->
+                    <StackPanel Spacing="4">
+                        <TextBlock
+                            Text="Fichero a procesar"
+                            Style="{StaticResource SectionHeaderTextBlockStyle}"
+                            Foreground="{ThemeResource AppTextBrush}" />
+                        <Grid ColumnSpacing="8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox
+                                Grid.Column="0"
+                                PlaceholderText="Ruta del fichero de columnas"
+                                Text="{x:Bind ViewModel.FicheroEntrada, Mode=TwoWay}"
+                                AutomationProperties.Name="Ruta del fichero de columnas" />
+                            <Button
+                                Grid.Column="1"
+                                Content="Examinar…"
+                                Command="{x:Bind ViewModel.AbrirFicheroCommand}"
+                                AutomationProperties.Name="Examinar y seleccionar fichero de columnas" />
+                        </Grid>
+                        <TextBlock
+                            Text="{x:Bind ViewModel.NombreFicheroEntrada, Mode=OneWay}"
+                            Style="{StaticResource SecondaryTextBlockStyle}"
+                            Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                    </StackPanel>
+
+                    <!-- Grupo "Ver" compacto: modo + pleno + aspiración (legacy: groupBox1) -->
+                    <StackPanel Spacing="6">
+                        <TextBlock
+                            Text="Ver"
+                            Style="{StaticResource SectionHeaderTextBlockStyle}"
+                            Foreground="{ThemeResource AppTextBrush}" />
+                        <Grid ColumnSpacing="12" RowSpacing="6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <!-- Modo de presentación (legacy: rbcen0 / rbcen2 / rbcol) -->
+                            <ComboBox
+                                Grid.Row="0" Grid.Column="0"
+                                Header="Formato"
+                                ItemsSource="{x:Bind ViewModel.ModosPresentacion}"
+                                SelectedItem="{x:Bind ViewModel.ModoPresentacion, Mode=TwoWay}"
+                                MinWidth="180"
+                                AutomationProperties.Name="Formato de presentación de los porcentajes" />
+
+                            <!-- Pleno al 15 (legacy: chkPleno) -->
+                            <ToggleSwitch
+                                Grid.Row="0" Grid.Column="1"
+                                Header="Último partido como Pleno"
+                                OffContent="No"
+                                OnContent="Sí"
+                                IsOn="{x:Bind ViewModel.ConsiderarPleno, Mode=TwoWay}"
+                                AutomationProperties.Name="Considerar el último partido como Pleno al 15" />
+
+                            <!-- Aspiración (legacy: lbasp + bMas / bMenos) -->
+                            <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                        Orientation="Horizontal" Spacing="8" VerticalAlignment="Bottom">
+                                <NumberBox
+                                    Header="Aspirando a…"
+                                    Value="{x:Bind ViewModel.Aspiracion, Mode=TwoWay}"
+                                    Minimum="0"
+                                    SpinButtonPlacementMode="Inline"
+                                    SmallChange="1"
+                                    Width="150"
+                                    AutomationProperties.Name="Nivel de aspiración (nº mínimo de aciertos)" />
+                                <Button
+                                    Content="−"
+                                    VerticalAlignment="Bottom"
+                                    Command="{x:Bind ViewModel.BajarAspiracionCommand}"
+                                    AutomationProperties.Name="Bajar el nivel de aspiración" />
+                                <Button
+                                    Content="+"
+                                    VerticalAlignment="Bottom"
+                                    Command="{x:Bind ViewModel.SubirAspiracionCommand}"
+                                    AutomationProperties.Name="Subir el nivel de aspiración" />
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+
+                    <!-- Columna ganadora editable (legacy: txts[] -> part[]) -->
+                    <StackPanel Spacing="4">
+                        <TextBlock
+                            Text="Columna ganadora (escrutinio parcial)"
+                            Style="{StaticResource CardTitleTextBlockStyle}"
+                            Foreground="{ThemeResource AppTextBrush}" />
+                        <TextBlock
+                            Text="Signo conocido de cada partido (1 / X / 2). Use - como comodín."
+                            Style="{StaticResource SecondaryTextBlockStyle}"
+                            Foreground="{ThemeResource AppTextSecondaryBrush}"
+                            TextWrapping="Wrap" />
+                        <ItemsControl ItemsSource="{x:Bind ViewModel.ColumnaGanadora, Mode=OneWay}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <VariableSizedWrapGrid
+                                        Orientation="Horizontal"
+                                        ItemWidth="80"
+                                        ItemHeight="40" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="local:CasillaColumnaGanadora">
+                                    <StackPanel Orientation="Horizontal" Spacing="4"
+                                                VerticalAlignment="Center">
+                                        <TextBlock Text="{x:Bind Partido}"
+                                                   Width="24"
+                                                   TextAlignment="Right"
+                                                   VerticalAlignment="Center"
+                                                   Style="{StaticResource SecondaryTextBlockStyle}"
+                                                   Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                                        <TextBox Text="{x:Bind Signo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                 Width="44"
+                                                 MaxLength="1"
+                                                 CharacterCasing="Upper"
+                                                 TextAlignment="Center"
+                                                 AutomationProperties.Name="Signo de la columna ganadora del partido" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <TextBlock
+                            Text="La columna ganadora y la aspiración sirven para el escrutinio parcial de las tardes de sábado y domingo."
+                            Style="{StaticResource SecondaryTextBlockStyle}"
+                            Foreground="{ThemeResource AppTextSecondaryBrush}"
+                            TextWrapping="Wrap" />
+                    </StackPanel>
+
+                    <!-- Acciones en una sola fila (legacy: bCalcular + bGrabar lado a lado + bLimp "R") -->
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <Button
+                            Content="Calcular"
+                            Style="{StaticResource AccentButtonStyle}"
+                            Command="{x:Bind ViewModel.CalcularCommand}"
+                            AutomationProperties.Name="Calcular el análisis de signos" />
+                        <Button
+                            Content="Grabar"
+                            Command="{x:Bind ViewModel.GrabarCommand}"
+                            AutomationProperties.Name="Grabar el resultado a fichero" />
+                        <Button
+                            Content="Limpiar"
+                            Command="{x:Bind ViewModel.LimpiarColumnaGanadoraCommand}"
+                            AutomationProperties.Name="Reiniciar la columna ganadora" />
+                    </StackPanel>
+
+                    <!-- Resultados inline (legacy: lproc / ltime / lp100viu) -->
+                    <StackPanel Spacing="2">
+                        <TextBlock
+                            Text="{x:Bind ViewModel.ColumnasProcesadasTexto, Mode=OneWay}"
+                            Style="{StaticResource SecondaryTextBlockStyle}"
+                            Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                        <TextBlock
+                            Text="{x:Bind ViewModel.TiempoTexto, Mode=OneWay}"
+                            Style="{StaticResource SecondaryTextBlockStyle}"
+                            Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                        <TextBlock
+                            Text="{x:Bind ViewModel.PremiosRemanentesTexto, Mode=OneWay}"
+                            Style="{StaticResource SecondaryTextBlockStyle}"
+                            Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                    </StackPanel>
+
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+
+    </Grid>
+</Page>

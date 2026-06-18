@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.PesosNumFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ported="using:Free1X2.WinUI.Views.Ported">
+
+    <ScrollViewer>
+        <StackPanel Padding="12,8" Spacing="8" MaxWidth="900" HorizontalAlignment="Left">
+
+            <!-- ===== Encabezado (legacy: Text = "Pesos Numéricos") ===== -->
+            <StackPanel Spacing="6">
+                <TextBlock Text="Pesos Numéricos" Style="{StaticResource PageTitleTextBlockStyle}" />
+                <TextBlock
+                    Text="{x:Bind ViewModel.TextoAyuda}"
+                    Style="{StaticResource SecondaryTextBlockStyle}"
+                    TextWrapping="Wrap" />
+            </StackPanel>
+
+            <!-- ===== Pesos Numéricos (legacy: stdGlobal/stdVariantes/stdUnos/stdEquis/stdDoses) ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Pesos Numéricos"
+                               Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <TextBlock Text="Dígitos admitidos por cada conjunto: 0 a 9 (separados por comas)."
+                               Style="{StaticResource SecondaryTextBlockStyle}"
+                               TextWrapping="Wrap" />
+
+                    <TextBox Header="Global"
+                             PlaceholderText="p. ej. 0,1,2,3"
+                             Text="{x:Bind ViewModel.PesoGlobal, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             AutomationProperties.Name="Peso numérico Global" />
+                    <TextBox Header="Var (variantes)"
+                             PlaceholderText="p. ej. 0,1,2,3"
+                             Text="{x:Bind ViewModel.PesoVariantes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             AutomationProperties.Name="Peso numérico de variantes" />
+                    <TextBox Header="1"
+                             PlaceholderText="p. ej. 0,1,2,3"
+                             Text="{x:Bind ViewModel.PesoUnos, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             AutomationProperties.Name="Peso numérico de unos" />
+                    <TextBox Header="X"
+                             PlaceholderText="p. ej. 0,1,2,3"
+                             Text="{x:Bind ViewModel.PesoEquis, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             AutomationProperties.Name="Peso numérico de equis" />
+                    <TextBox Header="2"
+                             PlaceholderText="p. ej. 0,1,2,3"
+                             Text="{x:Bind ViewModel.PesoDoses, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             AutomationProperties.Name="Peso numérico de doses" />
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Tolerancias por conjunto (legacy: stdGlobalTol/...Tol) ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Tolerancias"
+                               Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                    <TextBox Header="Global"
+                             PlaceholderText="p. ej. 0,1,2,3"
+                             Text="{x:Bind ViewModel.PesoGlobalTol, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             AutomationProperties.Name="Tolerancia Global" />
+                    <TextBox Header="Var (variantes)"
+                             PlaceholderText="p. ej. 0,1,2,3"
+                             Text="{x:Bind ViewModel.PesoVariantesTol, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             AutomationProperties.Name="Tolerancia de variantes" />
+                    <TextBox Header="1"
+                             PlaceholderText="p. ej. 0,1,2,3"
+                             Text="{x:Bind ViewModel.PesoUnosTol, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             AutomationProperties.Name="Tolerancia de unos" />
+                    <TextBox Header="X"
+                             PlaceholderText="p. ej. 0,1,2,3"
+                             Text="{x:Bind ViewModel.PesoEquisTol, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             AutomationProperties.Name="Tolerancia de equis" />
+                    <TextBox Header="2"
+                             PlaceholderText="p. ej. 0,1,2,3"
+                             Text="{x:Bind ViewModel.PesoDosesTol, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             AutomationProperties.Name="Tolerancia de doses" />
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Núm. Tolerancias (legacy: opt0..opt5) ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Núm. Tolerancias"
+                               Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <TextBlock Text="Selecciona las tolerancias numéricas a aplicar (0 a 5)."
+                               Style="{StaticResource SecondaryTextBlockStyle}"
+                               TextWrapping="Wrap" />
+
+                    <ItemsControl ItemsSource="{x:Bind ViewModel.ToleranciasNumericas}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="ported:OpcionSeleccionableViewModel">
+                                <ToggleButton Content="{x:Bind Etiqueta}"
+                                              IsChecked="{x:Bind Seleccionada, Mode=TwoWay}"
+                                              MinWidth="48"
+                                              Margin="0,0,8,0"
+                                              AutomationProperties.Name="{x:Bind Etiqueta}" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Figuras (legacy: lblFig32/lblFig311/lblFig221/lblFig2111/lblFig11111) ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Figuras"
+                               Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <TextBlock Text="{x:Bind ViewModel.NotaFiguras}"
+                               Style="{StaticResource SecondaryTextBlockStyle}"
+                               TextWrapping="Wrap" />
+
+                    <ItemsControl ItemsSource="{x:Bind ViewModel.Figuras}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="ported:OpcionSeleccionableViewModel">
+                                <ToggleButton Content="{x:Bind Etiqueta}"
+                                              IsChecked="{x:Bind Seleccionada, Mode=TwoWay}"
+                                              MinWidth="72"
+                                              Margin="0,0,8,0"
+                                              AutomationProperties.Name="{x:Bind Etiqueta}" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Acciones (legacy: menuCondiciones1: Ok/Estadisticas/Guardar/Abrir/Copiar/Pegar/Borrar/Cancelar) ===== -->
+            <StackPanel Orientation="Horizontal" Spacing="5">
+                <Button Content="Aceptar"
+                        Style="{StaticResource AccentButtonStyle}"
+                        Command="{x:Bind ViewModel.AceptarCommand}"
+                        AutomationProperties.Name="Aceptar" />
+                <Button Content="Estadísticas"
+                        Command="{x:Bind ViewModel.EstadisticasCommand}"
+                        AutomationProperties.Name="Ver estadísticas" />
+                <Button Content="Guardar…"
+                        Command="{x:Bind ViewModel.GuardarCommand}"
+                        AutomationProperties.Name="Guardar condición" />
+                <Button Content="Abrir…"
+                        Command="{x:Bind ViewModel.AbrirCommand}"
+                        AutomationProperties.Name="Abrir condición" />
+                <Button Content="Copiar"
+                        Command="{x:Bind ViewModel.CopiarCommand}"
+                        AutomationProperties.Name="Copiar condición" />
+                <Button Content="Pegar"
+                        Command="{x:Bind ViewModel.PegarCommand}"
+                        AutomationProperties.Name="Pegar condición" />
+                <Button Content="Borrar"
+                        Command="{x:Bind ViewModel.BorrarCommand}"
+                        AutomationProperties.Name="Borrar condición" />
+                <Button Content="Cancelar"
+                        Command="{x:Bind ViewModel.CancelarCommand}"
+                        AutomationProperties.Name="Cancelar" />
+            </StackPanel>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

@@ -1,7 +1,5 @@
 using System;
 using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Runtime.CompilerServices;
 using System.Windows.Forms;
 
 namespace Free1X2.UI.Modern.Theming
@@ -12,41 +10,38 @@ namespace Free1X2.UI.Modern.Theming
 
         public static class Colors
         {
-            // Slate / Indigo palette — modern, higher contrast than Windows-11 grey.
-            // Backgrounds use cool slate (Tailwind slate-50/100), accent is indigo-600.
             // Backgrounds
-            public static readonly Color Background    = Color.FromArgb(245, 247, 250); // #F5F7FA slate-50
-            public static readonly Color BackgroundAlt = Color.FromArgb(232, 237, 244); // #E8EDF4 slate-100
+            public static readonly Color Background    = Color.FromArgb(243, 243, 243); // #F3F3F3 Windows 11
+            public static readonly Color BackgroundAlt = Color.FromArgb(238, 238, 238);
             public static readonly Color Surface       = Color.White;
-            public static readonly Color SurfaceAlt    = Color.FromArgb(248, 250, 252);
-            public static readonly Color SurfaceFocus  = Color.FromArgb(238, 242, 255); // #EEF2FF indigo-50, input enfocado
+            public static readonly Color SurfaceAlt    = Color.FromArgb(249, 249, 249);
 
-            // Accent - Indigo 600
-            public static readonly Color Primary       = Color.FromArgb( 79,  70, 229); // #4F46E5
-            public static readonly Color PrimaryHover  = Color.FromArgb( 67,  56, 202); // #4338CA indigo-700
-            public static readonly Color PrimaryPress  = Color.FromArgb( 55,  48, 163); // #3730A3 indigo-800
-            public static readonly Color PrimaryLight  = Color.FromArgb(224, 231, 255); // #E0E7FF indigo-100
+            // Accent - Windows 11 blue
+            public static readonly Color Primary       = Color.FromArgb(0, 120, 212);
+            public static readonly Color PrimaryHover  = Color.FromArgb(0, 102, 180);
+            public static readonly Color PrimaryPress  = Color.FromArgb(0, 84, 153);
+            public static readonly Color PrimaryLight  = Color.FromArgb(204, 228, 255);
 
-            // Text - slate scale, very high contrast
-            public static readonly Color Text          = Color.FromArgb( 15,  23,  42); // #0F172A slate-900
-            public static readonly Color TextSecondary = Color.FromArgb( 51,  65,  85); // #334155 slate-700 (was 97,97,97 — too light)
-            public static readonly Color TextDisabled  = Color.FromArgb(148, 163, 184); // #94A3B8 slate-400
+            // Text
+            public static readonly Color Text          = Color.FromArgb(26,  26,  26);
+            public static readonly Color TextSecondary = Color.FromArgb(97,  97,  97);
+            public static readonly Color TextDisabled  = Color.FromArgb(161, 161, 161);
             public static readonly Color TextOnPrimary = Color.White;
 
             // Borders
-            public static readonly Color Border        = Color.FromArgb(203, 213, 225); // #CBD5E1 slate-300
-            public static readonly Color BorderFocus   = Color.FromArgb( 79,  70, 229);
+            public static readonly Color Border        = Color.FromArgb(213, 213, 213);
+            public static readonly Color BorderFocus   = Color.FromArgb(0, 120, 212);
 
             // Grids
-            public static readonly Color GridHeader    = Color.FromArgb(241, 245, 249); // slate-100
-            public static readonly Color GridAlternate = Color.FromArgb(248, 250, 252); // slate-50
-            public static readonly Color GridSelection = Color.FromArgb(224, 231, 255); // indigo-100
+            public static readonly Color GridHeader    = Color.FromArgb(248, 249, 250);
+            public static readonly Color GridAlternate = Color.FromArgb(248, 249, 250);
+            public static readonly Color GridSelection = Color.FromArgb(204, 228, 255); // solid, alpha breaks DataGridView
 
-            // Status — keep semantic colors but tuned to new palette
-            public static readonly Color Success  = Color.FromArgb( 22, 163,  74); // #16A34A green-600
-            public static readonly Color Warning  = Color.FromArgb(217, 119,   6); // #D97706 amber-600
-            public static readonly Color Error    = Color.FromArgb(220,  38,  38); // #DC2626 red-600
-            public static readonly Color Info     = Color.FromArgb( 79,  70, 229);
+            // Status
+            public static readonly Color Success  = Color.FromArgb(16,  124, 16);
+            public static readonly Color Warning  = Color.FromArgb(193, 100, 0);
+            public static readonly Color Error    = Color.FromArgb(196, 43,  28);
+            public static readonly Color Info     = Color.FromArgb(0,   120, 212);
         }
 
         #endregion
@@ -103,24 +98,6 @@ namespace Free1X2.UI.Modern.Theming
             form.ForeColor = Colors.Text;
             form.Font      = Fonts.Default;
             ApplyRecursive(form.Controls);
-
-            // The form's default action button becomes the accent/primary button —
-            // gives every dialog a clear visual hierarchy without per-form work.
-            if (form.AcceptButton is Button accept && !(accept.Tag is string at && at == "no-theme"))
-                MakePrimary(accept);
-        }
-
-        /// <summary>
-        /// Promote a button to the accent (primary) style: filled indigo, white text.
-        /// Safe to call from forms that want an explicit primary action.
-        /// </summary>
-        public static void MakePrimary(Button b)
-        {
-            b.BackColor = Colors.Primary;
-            b.ForeColor = Colors.TextOnPrimary;
-            b.FlatAppearance.BorderColor       = Colors.Primary;
-            b.FlatAppearance.MouseOverBackColor = Colors.PrimaryHover;
-            b.FlatAppearance.MouseDownBackColor = Colors.PrimaryPress;
         }
 
         public static void ApplyToControl(Control control)
@@ -166,8 +143,6 @@ namespace Free1X2.UI.Modern.Theming
                 case Panel           p:   StylePanel(p);     break;
                 case SplitContainer  sc:  StyleSplitContainer(sc); break;
                 case RichTextBox     rtb: StyleRichTextBox(rtb);   break;
-                case TreeView        tv:  StyleTreeView(tv);   break;
-                case PictureBox      pb:  StylePictureBox(pb); break;
             }
         }
 
@@ -181,13 +156,10 @@ namespace Free1X2.UI.Modern.Theming
             b.UseVisualStyleBackColor = false;
             b.BackColor = Colors.Surface;
             b.ForeColor = Colors.Text;
-            // We paint our own rounded border, so disable the built-in square one.
-            b.FlatAppearance.BorderSize          = 0;
-            b.FlatAppearance.BorderColor         = Colors.Border;
+            b.FlatAppearance.BorderColor        = Colors.Border;
             b.FlatAppearance.MouseOverBackColor  = Colors.BackgroundAlt;
             b.FlatAppearance.MouseDownBackColor  = Colors.PrimaryLight;
             b.Cursor = Cursors.Hand;
-            RoundButton.Attach(b);
         }
 
         private static void StyleTextBox(TextBox tb)
@@ -195,7 +167,6 @@ namespace Free1X2.UI.Modern.Theming
             tb.BorderStyle = BorderStyle.FixedSingle;
             tb.BackColor   = Colors.Surface;
             tb.ForeColor   = Colors.Text;
-            AttachFocusTint(tb);
         }
 
         private static void StyleComboBox(ComboBox cb)
@@ -203,20 +174,6 @@ namespace Free1X2.UI.Modern.Theming
             cb.FlatStyle = FlatStyle.Flat;
             cb.BackColor = Colors.Surface;
             cb.ForeColor = Colors.Text;
-        }
-
-        // Subtle focus affordance: tint the field background while it has focus.
-        // WinForms doesn't allow recoloring a TextBox border cheaply, so a faint
-        // indigo wash is the safe, layout-neutral way to signal the active input.
-        private static readonly ConditionalWeakTable<Control, object> FocusWired =
-            new ConditionalWeakTable<Control, object>();
-
-        private static void AttachFocusTint(Control c)
-        {
-            if (FocusWired.TryGetValue(c, out _)) return;
-            FocusWired.Add(c, new object());
-            c.GotFocus  += (s, e) => { var ct = (Control)s; if (ct.BackColor == Colors.Surface) ct.BackColor = Colors.SurfaceFocus; };
-            c.LostFocus += (s, e) => { var ct = (Control)s; if (ct.BackColor == Colors.SurfaceFocus) ct.BackColor = Colors.Surface; };
         }
 
         private static void StyleDataGrid(DataGridView dg)
@@ -230,20 +187,12 @@ namespace Free1X2.UI.Modern.Theming
             dg.RowHeadersVisible         = false;
             dg.SelectionMode             = DataGridViewSelectionMode.FullRowSelect;
 
-            // Density / breathing room — grids are everywhere in this stats app.
-            dg.AllowUserToResizeRows     = false;
-            dg.RowTemplate.Height        = 28;
-            dg.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
-            dg.ColumnHeadersHeight       = 34;
-
             dg.DefaultCellStyle.BackColor          = Colors.Surface;
             dg.DefaultCellStyle.ForeColor          = Colors.Text;
             dg.DefaultCellStyle.SelectionBackColor = Colors.GridSelection;
             dg.DefaultCellStyle.SelectionForeColor = Colors.Text;
             dg.DefaultCellStyle.Font               = Fonts.Default;
-            dg.DefaultCellStyle.Padding            = new Padding(8, 4, 8, 4);
 
-            dg.ColumnHeadersDefaultCellStyle.Padding   = new Padding(8, 4, 8, 4);
             dg.ColumnHeadersDefaultCellStyle.BackColor = Colors.GridHeader;
             dg.ColumnHeadersDefaultCellStyle.ForeColor = Colors.Text;
             dg.ColumnHeadersDefaultCellStyle.Font      = Fonts.Bold;
@@ -257,26 +206,13 @@ namespace Free1X2.UI.Modern.Theming
             dg.AlternatingRowsDefaultCellStyle.SelectionForeColor = Colors.Text;
         }
 
-        /// <summary>
-        /// True if the color is one of the legacy decorative backgrounds the modern
-        /// theme replaces (Bisque/Khaki/Wheat/... and SystemColors.Control).
-        /// </summary>
-        private static bool IsLegacyBackground(Color bg)
-        {
-            return bg == Color.Bisque       || bg == Color.NavajoWhite ||
-                   bg == Color.Khaki        || bg == SystemColors.Control ||
-                   bg == Color.DarkSalmon   || bg == Color.LightSalmon  ||
-                   bg == Color.LemonChiffon || bg == Color.AntiqueWhite ||
-                   bg == Color.Ivory        || bg == Color.Wheat        ||
-                   bg == Color.OldLace      || bg == Color.PapayaWhip   ||
-                   bg == Color.Moccasin     || bg == Color.PeachPuff;
-        }
-
         private static void StyleUserControl(UserControl uc)
         {
             // Replace legacy background colors; preserve intentional Surface/white controls
-            if (IsLegacyBackground(uc.BackColor))
-                uc.BackColor = Colors.Surface;
+            Color bg = uc.BackColor;
+            if (bg == Color.Bisque || bg == Color.NavajoWhite || bg == Color.Khaki ||
+                bg == SystemColors.Control || bg == Color.DarkSalmon || bg == Color.LightSalmon)
+                uc.BackColor = Colors.Background;
             uc.ForeColor = Colors.Text;
         }
 
@@ -297,10 +233,7 @@ namespace Free1X2.UI.Modern.Theming
 
         private static void StyleGroupBox(GroupBox gb)
         {
-            // Use full-strength text + bold so titles stay legible even when
-            // the GroupBox is disabled (Windows lightens the ForeColor further).
-            gb.ForeColor = Colors.Text;
-            gb.Font      = Fonts.Bold;
+            gb.ForeColor = Colors.TextSecondary;
         }
 
         private static void StyleTabControl(TabControl tc)
@@ -379,27 +312,9 @@ namespace Free1X2.UI.Modern.Theming
 
         private static void StylePanel(Panel p)
         {
-            // Remap any legacy decorative background (was: only SystemColors.Control,
-            // which left Bisque/Khaki/etc. panels as stale islands of old color).
-            if (IsLegacyBackground(p.BackColor))
+            if (p.BackColor == SystemColors.Control)
                 p.BackColor = Colors.Background;
             p.ForeColor = Colors.Text;
-        }
-
-        private static void StyleTreeView(TreeView tv)
-        {
-            tv.BackColor   = Colors.Surface;
-            tv.ForeColor   = Colors.Text;
-            tv.BorderStyle = BorderStyle.FixedSingle;
-            tv.LineColor   = Colors.Border;
-        }
-
-        private static void StylePictureBox(PictureBox pb)
-        {
-            // Only neutralize legacy filler backgrounds; never touch boxes that
-            // intentionally carry an image or a deliberate color.
-            if (IsLegacyBackground(pb.BackColor))
-                pb.BackColor = Colors.Surface;
         }
 
         private static void StyleSplitContainer(SplitContainer sc)
@@ -468,74 +383,6 @@ namespace Free1X2.UI.Modern.Theming
         }
 
         #endregion
-    }
-
-    // ---------------------------------------------------------------------------
-    // Rounded-corner rendering for flat Buttons.
-    // Clips the button to a rounded region and paints a smooth 1px border using
-    // the button's own FlatAppearance.BorderColor — so SetBotonEstado (which only
-    // swaps BackColor/BorderColor) keeps working and just renders rounded now.
-    // ---------------------------------------------------------------------------
-    internal static class RoundButton
-    {
-        private const int Radius = 6;
-
-        // Tracks buttons already wired up so re-theming never double-subscribes.
-        private static readonly ConditionalWeakTable<Button, object> Wired =
-            new ConditionalWeakTable<Button, object>();
-
-        public static void Attach(Button b)
-        {
-            if (Wired.TryGetValue(b, out _)) { UpdateRegion(b); return; }
-            Wired.Add(b, new object());
-
-            UpdateRegion(b);
-            b.SizeChanged += (s, e) => UpdateRegion((Button)s);
-            b.Paint       += OnPaint;
-        }
-
-        private static int EffectiveRadius(Button b)
-        {
-            int r = Radius;
-            r = Math.Min(r, b.Height / 2);
-            r = Math.Min(r, b.Width  / 2);
-            return Math.Max(0, r);
-        }
-
-        private static void UpdateRegion(Button b)
-        {
-            if (b.Width <= 0 || b.Height <= 0) return;
-            int r = EffectiveRadius(b);
-            if (r <= 0) { b.Region = null; return; }
-            using (var path = RoundedRect(new Rectangle(0, 0, b.Width, b.Height), r))
-                b.Region = new Region(path);
-        }
-
-        private static void OnPaint(object sender, PaintEventArgs e)
-        {
-            var b = (Button)sender;
-            int r = EffectiveRadius(b);
-            if (r <= 0) return;
-            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-            // Inset by 1px so the full stroke stays inside the clipped region.
-            var rect = new Rectangle(0, 0, b.Width - 1, b.Height - 1);
-            using (var path = RoundedRect(rect, r))
-            using (var pen  = new Pen(b.FlatAppearance.BorderColor))
-                e.Graphics.DrawPath(pen, path);
-        }
-
-        internal static GraphicsPath RoundedRect(Rectangle rect, int radius)
-        {
-            int d = radius * 2;
-            var path = new GraphicsPath();
-            if (d <= 0) { path.AddRectangle(rect); return path; }
-            path.AddArc(rect.X,             rect.Y,              d, d, 180, 90);
-            path.AddArc(rect.Right - d,     rect.Y,              d, d, 270, 90);
-            path.AddArc(rect.Right - d,     rect.Bottom - d,     d, d,   0, 90);
-            path.AddArc(rect.X,             rect.Bottom - d,     d, d,  90, 90);
-            path.CloseFigure();
-            return path;
-        }
     }
 
     // ---------------------------------------------------------------------------

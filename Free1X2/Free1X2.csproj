@@ -64,9 +64,14 @@
   <ItemGroup>
     <!-- Temporarily exclude legacy Web Services during migration -->
     <Compile Remove="Web References\**\*.cs" />
-    <!-- Keep Debug/* exception handler implementation to avoid duplicate types -->
-    <Compile Remove="Infraestructura\ManejadorExcepciones.cs" />
     <None Include="Web References\**\*.cs" />
+    <!-- Tipos duplicados: se conserva la implementación de Debug/* del manejador -->
+    <Compile Remove="Infraestructura\ManejadorExcepciones.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Lógica de dominio extraída (Fase 0 migración WinUI 3) -->
+    <ProjectReference Include="..\Free1X2.Domain\Free1X2.Domain.csproj" />
   </ItemGroup>
 
 </Project>

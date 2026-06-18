@@ -603,12 +603,12 @@ namespace Free1X2.UI
             this.btnIfThen.ForeColor = System.Drawing.Color.Maroon;
             this.btnIfThen.Image = ((System.Drawing.Image)(resources.GetObject("btnIfThen.Image")));
             this.btnIfThen.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnIfThen.Location = new System.Drawing.Point(21, 280);
+            this.btnIfThen.Location = new System.Drawing.Point(182, 264);
             this.btnIfThen.Name = "btnIfThen";
-            this.btnIfThen.Size = new System.Drawing.Size(306, 28);
+            this.btnIfThen.Size = new System.Drawing.Size(145, 34);
             this.btnIfThen.TabIndex = 33;
             this.btnIfThen.Text = "Condiciones Relacionadas";
-            this.btnIfThen.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.btnIfThen.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.btnIfThen.UseVisualStyleBackColor = false;
             this.btnIfThen.Click += new System.EventHandler(this.btnIfThen_Click);
             // 
@@ -725,12 +725,12 @@ namespace Free1X2.UI
             this.btnTolGrupo.ForeColor = System.Drawing.Color.Maroon;
             this.btnTolGrupo.Image = ((System.Drawing.Image)(resources.GetObject("btnTolGrupo.Image")));
             this.btnTolGrupo.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnTolGrupo.Location = new System.Drawing.Point(21, 248);
+            this.btnTolGrupo.Location = new System.Drawing.Point(21, 264);
             this.btnTolGrupo.Name = "btnTolGrupo";
-            this.btnTolGrupo.Size = new System.Drawing.Size(306, 28);
+            this.btnTolGrupo.Size = new System.Drawing.Size(145, 34);
             this.btnTolGrupo.TabIndex = 10;
             this.btnTolGrupo.Text = "Tolerancias";
-            this.btnTolGrupo.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.btnTolGrupo.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.btnTolGrupo.UseVisualStyleBackColor = false;
             this.btnTolGrupo.Click += new System.EventHandler(this.BtnTolGrupoClick);
             // 
@@ -2966,10 +2966,10 @@ namespace Free1X2.UI
             this.checkIfThen.Estado = Free1X2.UI.Controls.CtrSemaforo.NombreEstado.Neutro;
             this.checkIfThen.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.checkIfThen.ForeColor = System.Drawing.Color.Maroon;
-            this.checkIfThen.Location = new System.Drawing.Point(6, 280);
+            this.checkIfThen.Location = new System.Drawing.Point(167, 266);
             this.checkIfThen.Name = "checkIfThen";
             this.checkIfThen.NumLuces = Free1X2.UI.Controls.CtrSemaforo.Luces.Dos;
-            this.checkIfThen.Size = new System.Drawing.Size(15, 28);
+            this.checkIfThen.Size = new System.Drawing.Size(15, 32);
             this.checkIfThen.TabIndex = 34;
             this.checkIfThen.BotonPulsado += new System.EventHandler(this.checkIfThen_BotonPulsado);
             // 

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.ControlGruposFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ScrollViewer>
+        <StackPanel Padding="12,8" Spacing="8" MaxWidth="720" HorizontalAlignment="Left">
+
+            <!-- ===== Encabezado (Text del Form: "Control de Grupos") ===== -->
+            <StackPanel Spacing="6">
+                <TextBlock Text="Control de Grupos"
+                           Style="{StaticResource PageTitleTextBlockStyle}" />
+                <TextBlock Text="Define controles de fallos sobre grupos de partidos y sobre conjuntos de grupos. Cada sección es una lista de controles que se recorre con Anterior y Siguiente; los grupos o conjuntos no incluidos quedan como sueltos en el control base."
+                           Style="{StaticResource SecondaryTextBlockStyle}"
+                           TextWrapping="Wrap" />
+            </StackPanel>
+
+            <!-- ===== Sección Control Grupos (groupBox "Control Grupos") ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Control Grupos" Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                    <!-- Navegación (btnPrev / lblControlNo / btnNext) + eliminar (btnEliminarControl) -->
+                    <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
+                        <Button Content="Anterior"
+                                Command="{x:Bind ViewModel.GruposAnteriorCommand}"
+                                AutomationProperties.Name="Control de grupos anterior" />
+                        <TextBlock Text="{x:Bind ViewModel.ControlGruposNoTexto, Mode=OneWay}"
+                                   MinWidth="72" TextAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   Style="{StaticResource BodyStrongTextBlockStyle}" />
+                        <Button Content="Siguiente"
+                                Command="{x:Bind ViewModel.GruposSiguienteCommand}"
+                                AutomationProperties.Name="Control de grupos siguiente" />
+                        <Button Content="Eliminar Actual"
+                                Command="{x:Bind ViewModel.GruposEliminarActualCommand}"
+                                Style="{StaticResource FiltroButtonErrorStyle}"
+                                AutomationProperties.Name="Eliminar el control de grupos actual" />
+                    </StackPanel>
+
+                    <!-- Grupos controlados (txtGrupos + label "Grupos") -->
+                    <TextBox Header="Grupos"
+                             PlaceholderText="Grupos controlados, p. ej. 1,3,5"
+                             Text="{x:Bind ViewModel.Grupos, Mode=TwoWay}"
+                             MaxWidth="360" HorizontalAlignment="Left"
+                             AutomationProperties.Name="Grupos controlados" />
+
+                    <!-- Fallos permitidos (txtFallos + label2 "Fallos") -->
+                    <TextBox Header="Fallos"
+                             PlaceholderText="Fallos permitidos"
+                             Text="{x:Bind ViewModel.FallosGrupos, Mode=TwoWay}"
+                             MaxWidth="360" HorizontalAlignment="Left"
+                             AutomationProperties.Name="Fallos permitidos en el control de grupos" />
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Sección Control Conjuntos (groupBox1 "Control Conjuntos") ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Control Conjuntos" Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                    <!-- Navegación (btnPrevConj / lblConjuntoNo / btnNextConj) + eliminar (btnEliminarCtrlConjunto) -->
+                    <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
+                        <Button Content="Anterior"
+                                Command="{x:Bind ViewModel.ConjuntosAnteriorCommand}"
+                                AutomationProperties.Name="Control de conjuntos anterior" />
+                        <TextBlock Text="{x:Bind ViewModel.ControlConjuntosNoTexto, Mode=OneWay}"
+                                   MinWidth="72" TextAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   Style="{StaticResource BodyStrongTextBlockStyle}" />
+                        <Button Content="Siguiente"
+                                Command="{x:Bind ViewModel.ConjuntosSiguienteCommand}"
+                                AutomationProperties.Name="Control de conjuntos siguiente" />
+                        <Button Content="Eliminar Actual"
+                                Command="{x:Bind ViewModel.ConjuntosEliminarActualCommand}"
+                                Style="{StaticResource FiltroButtonErrorStyle}"
+                                AutomationProperties.Name="Eliminar el control de conjuntos actual" />
+                    </StackPanel>
+
+                    <!-- Conjuntos controlados (textConjuntos + label1 "Conjuntos") -->
+                    <TextBox Header="Conjuntos"
+                             PlaceholderText="Conjuntos controlados, p. ej. 1,2"
+                             Text="{x:Bind ViewModel.Conjuntos, Mode=TwoWay}"
+                             MaxWidth="360" HorizontalAlignment="Left"
+                             AutomationProperties.Name="Conjuntos controlados" />
+
+                    <!-- Fallos permitidos (textFallosConj + label3 "Fallos") -->
+                    <TextBox Header="Fallos"
+                             PlaceholderText="Fallos permitidos"
+                             Text="{x:Bind ViewModel.FallosConjuntos, Mode=TwoWay}"
+                             MaxWidth="360" HorizontalAlignment="Left"
+                             AutomationProperties.Name="Fallos permitidos en el control de conjuntos" />
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Acciones globales (btnOK / btnCancelar) + estado ===== -->
+            <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                <Button Content="OK"
+                        Style="{StaticResource AccentButtonStyle}"
+                        Command="{x:Bind ViewModel.AceptarCommand}"
+                        AutomationProperties.Name="Guardar los controles y cerrar" />
+                <Button Content="Cancelar"
+                        Command="{x:Bind ViewModel.CancelarCommand}"
+                        AutomationProperties.Name="Descartar cambios y cerrar" />
+                <TextBlock Text="{x:Bind ViewModel.Estado, Mode=OneWay}"
+                           VerticalAlignment="Center"
+                           Style="{StaticResource SecondaryTextBlockStyle}" />
+            </StackPanel>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

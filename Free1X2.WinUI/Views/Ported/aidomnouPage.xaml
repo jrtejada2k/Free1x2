@@ -1,0 +1,306 @@
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.aidomnouPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:Free1X2.WinUI.Controls"
+    xmlns:local="using:Free1X2.WinUI.Views.Ported"
+    Background="{StaticResource AppBackgroundBrush}">
+
+    <Grid Padding="10,7" RowSpacing="6">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Encabezado. Título real del form legacy (this.Text): "Filtro Aidomnou" -->
+        <StackPanel Grid.Row="0" Spacing="4">
+            <TextBlock
+                Style="{StaticResource PageTitleTextBlockStyle}"
+                Text="Filtro Aidomnou" />
+            <TextBlock
+                Style="{StaticResource SecondaryTextBlockStyle}"
+                Text="Genera 6 columnas probables a partir de las valoraciones de los 14 partidos, define límites de aciertos por columna y filtra un fichero de columnas que cumplan esas condiciones." />
+        </StackPanel>
+
+        <!-- Disposición de 3 columnas que reproduce el form WinForms original (760x557):
+             IZQUIERDA = valoraciones (valors1 168x489); CENTRO = groupBox2 "Columnas Probables"
+             (matriz 14x6 + Límites + fila de análisis + Nota); DERECHA = botonera + groupBox3. -->
+        <Grid Grid.Row="1" ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- ================= COLUMNA IZQUIERDA: Valoraciones (legacy valors1) ================= -->
+            <Border Grid.Column="0" Style="{StaticResource AppCardStyle}" VerticalAlignment="Top">
+                <StackPanel Spacing="5" Width="200">
+                    <TextBlock
+                        Style="{StaticResource SectionHeaderTextBlockStyle}"
+                        Text="Valoraciones (1 / X / 2)" />
+                    <TextBlock
+                        Style="{StaticResource SecondaryTextBlockStyle}"
+                        TextWrapping="Wrap"
+                        Text="Valoración de cada signo por partido. Genera las 6 columnas probables." />
+                    <controls:PorcentajesControl
+                        Height="460"
+                        Filas="{x:Bind ViewModel.Valoraciones, Mode=OneWay}" />
+                </StackPanel>
+            </Border>
+
+            <!-- ================= COLUMNA CENTRAL: groupBox2 "Columnas Probables" ================= -->
+            <Border Grid.Column="1" Style="{StaticResource AppCardStyle}" VerticalAlignment="Top">
+                <StackPanel Spacing="6" Width="320">
+                    <TextBlock
+                        Style="{StaticResource SectionHeaderTextBlockStyle}"
+                        Text="Columnas Probables" />
+
+                    <!-- (1) Matriz 14x6 de signos (legacy: labels l0PR, fila=partido, columna=1..6).
+                         Ancho de celda 42 para que cabecera + 6 columnas entren en ~300px. -->
+                    <ScrollViewer HorizontalScrollBarVisibility="Auto" HorizontalScrollMode="Auto"
+                                  VerticalScrollBarVisibility="Auto" VerticalScrollMode="Auto"
+                                  MaxHeight="340">
+                        <StackPanel Spacing="2">
+                            <!-- Cabecera de columnas: partido + Col 1..Col 6 -->
+                            <StackPanel Orientation="Horizontal" Spacing="2">
+                                <Border Width="42" Height="22"
+                                        Background="{ThemeResource AppSurfaceAltBrush}"
+                                        BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1" CornerRadius="3">
+                                    <TextBlock Text="P" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                               Style="{StaticResource CaptionTextBlockStyle}"
+                                               Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                                </Border>
+                                <Border Width="42" Height="22" Background="{ThemeResource AppSurfaceAltBrush}" BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1" CornerRadius="3">
+                                    <TextBlock Text="C1" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                                </Border>
+                                <Border Width="42" Height="22" Background="{ThemeResource AppSurfaceAltBrush}" BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1" CornerRadius="3">
+                                    <TextBlock Text="C2" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                                </Border>
+                                <Border Width="42" Height="22" Background="{ThemeResource AppSurfaceAltBrush}" BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1" CornerRadius="3">
+                                    <TextBlock Text="C3" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                                </Border>
+                                <Border Width="42" Height="22" Background="{ThemeResource AppSurfaceAltBrush}" BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1" CornerRadius="3">
+                                    <TextBlock Text="C4" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                                </Border>
+                                <Border Width="42" Height="22" Background="{ThemeResource AppSurfaceAltBrush}" BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1" CornerRadius="3">
+                                    <TextBlock Text="C5" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                                </Border>
+                                <Border Width="42" Height="22" Background="{ThemeResource AppSurfaceAltBrush}" BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1" CornerRadius="3">
+                                    <TextBlock Text="C6" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                                </Border>
+                            </StackPanel>
+
+                            <!-- 14 filas (una por partido) con cabecera + 6 celdas de signos -->
+                            <ItemsControl ItemsSource="{x:Bind ViewModel.ColumnasProbables, Mode=OneWay}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="local:FilaColumnasProbables">
+                                        <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,1,0,0">
+                                            <Border Width="42" Height="22"
+                                                    Background="{ThemeResource AppSurfaceAltBrush}"
+                                                    BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1" CornerRadius="3">
+                                                <TextBlock Text="{x:Bind Partido}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                                           Foreground="{ThemeResource AppTextBrush}" />
+                                            </Border>
+                                            <ItemsControl ItemsSource="{x:Bind Signos}">
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <StackPanel Orientation="Horizontal" Spacing="2" />
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate x:DataType="x:String">
+                                                        <Border Width="42" Height="22"
+                                                                Background="{ThemeResource AppSurfaceBrush}"
+                                                                BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1" CornerRadius="3">
+                                                            <TextBlock Text="{x:Bind}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                                                       Foreground="{ThemeResource AppTextBrush}" />
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <!-- (2) Fila de Límites por columna (legacy: tbmg1..tbmg6) alineada bajo la matriz.
+                         Hueco de 42 a la izquierda para alinear con la cabecera "P". -->
+                    <StackPanel Orientation="Horizontal" Spacing="2">
+                        <Border Width="42" Height="20">
+                            <TextBlock Text="lím:" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                       Foreground="{ThemeResource AppTextSecondaryBrush}" Margin="0,0,3,0" />
+                        </Border>
+                        <TextBox Width="42" MaxLength="14" PlaceholderText="0-14" TextAlignment="Center"
+                                 Text="{x:Bind ViewModel.LimColumna1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBox Width="42" MaxLength="14" PlaceholderText="0-14" TextAlignment="Center"
+                                 Text="{x:Bind ViewModel.LimColumna2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBox Width="42" MaxLength="14" PlaceholderText="0-14" TextAlignment="Center"
+                                 Text="{x:Bind ViewModel.LimColumna3, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBox Width="42" MaxLength="14" PlaceholderText="0-14" TextAlignment="Center"
+                                 Text="{x:Bind ViewModel.LimColumna4, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBox Width="42" MaxLength="14" PlaceholderText="0-14" TextAlignment="Center"
+                                 Text="{x:Bind ViewModel.LimColumna5, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBox Width="42" MaxLength="14" PlaceholderText="0-14" TextAlignment="Center"
+                                 Text="{x:Bind ViewModel.LimColumna6, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    </StackPanel>
+
+                    <!-- Límite de suma + recorrido (legacy: label4 "suma:" + tbmgsuma, label2 "recorrido:" + tbmgreco). -->
+                    <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                        <TextBlock Text="suma:" VerticalAlignment="Center"
+                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                   Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                        <TextBox Width="54" MaxLength="14" PlaceholderText="0-84" TextAlignment="Center"
+                                 Text="{x:Bind ViewModel.LimSuma, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBlock Text="recorrido:" VerticalAlignment="Center" Margin="8,0,0,0"
+                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                   Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                        <TextBox Width="54" MaxLength="14" PlaceholderText="0-14" TextAlignment="Center"
+                                 Text="{x:Bind ViewModel.LimRecorrido, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    </StackPanel>
+
+                    <!-- (3) Fila de resultado del análisis (legacy: lrk1..lrk6 + lsuma + lreco) alineada a las 6 columnas. -->
+                    <StackPanel Orientation="Horizontal" Spacing="2">
+                        <Border Width="42" Height="20">
+                            <TextBlock Text="ac:" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                       Foreground="{ThemeResource AppTextSecondaryBrush}" Margin="0,0,3,0" />
+                        </Border>
+                        <Border Width="42" Height="22" Background="{ThemeResource AppSurfaceAltBrush}" BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1" CornerRadius="3">
+                            <TextBlock Text="{x:Bind ViewModel.Rk1, Mode=OneWay}" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource AppTextBrush}" />
+                        </Border>
+                        <Border Width="42" Height="22" Background="{ThemeResource AppSurfaceAltBrush}" BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1" CornerRadius="3">
+                            <TextBlock Text="{x:Bind ViewModel.Rk2, Mode=OneWay}" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource AppTextBrush}" />
+                        </Border>
+                        <Border Width="42" Height="22" Background="{ThemeResource AppSurfaceAltBrush}" BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1" CornerRadius="3">
+                            <TextBlock Text="{x:Bind ViewModel.Rk3, Mode=OneWay}" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource AppTextBrush}" />
+                        </Border>
+                        <Border Width="42" Height="22" Background="{ThemeResource AppSurfaceAltBrush}" BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1" CornerRadius="3">
+                            <TextBlock Text="{x:Bind ViewModel.Rk4, Mode=OneWay}" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource AppTextBrush}" />
+                        </Border>
+                        <Border Width="42" Height="22" Background="{ThemeResource AppSurfaceAltBrush}" BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1" CornerRadius="3">
+                            <TextBlock Text="{x:Bind ViewModel.Rk5, Mode=OneWay}" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource AppTextBrush}" />
+                        </Border>
+                        <Border Width="42" Height="22" Background="{ThemeResource AppSurfaceAltBrush}" BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1" CornerRadius="3">
+                            <TextBlock Text="{x:Bind ViewModel.Rk6, Mode=OneWay}" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource AppTextBrush}" />
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Suma + recorrido del análisis (legacy: lsuma + lreco). -->
+                    <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                        <TextBlock Text="suma:" VerticalAlignment="Center"
+                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                   Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                        <TextBlock Text="{x:Bind ViewModel.SumaAnalisis, Mode=OneWay}" VerticalAlignment="Center" MinWidth="32"
+                                   Style="{StaticResource BodyStrongTextBlockStyle}" Foreground="{ThemeResource AppTextBrush}" />
+                        <TextBlock Text="recorrido:" VerticalAlignment="Center" Margin="8,0,0,0"
+                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                   Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                        <TextBlock Text="{x:Bind ViewModel.RecorridoAnalisis, Mode=OneWay}" VerticalAlignment="Center" MinWidth="32"
+                                   Style="{StaticResource BodyStrongTextBlockStyle}" Foreground="{ThemeResource AppTextBrush}" />
+                    </StackPanel>
+
+                    <!-- (4) Nota legacy (lNota): condiciones de generación en aidomnou.cfg. -->
+                    <TextBlock
+                        Style="{StaticResource SecondaryTextBlockStyle}"
+                        TextWrapping="Wrap"
+                        Text="NOTA: Las condiciones de generación de las 6 columnas, tras una primera ejecución, aparecen editables en el fichero 'aidomnou.cfg'." />
+                </StackPanel>
+            </Border>
+
+            <!-- ================= COLUMNA DERECHA: botonera + groupBox3 "Análisis Resultados" ================= -->
+            <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto" VerticalScrollMode="Auto">
+                <StackPanel Spacing="8" MinWidth="340" HorizontalAlignment="Left">
+
+                    <!-- Límites: salvar / recuperar (legacy: bSalvaCondis / bLeeCondis, ficheros .cnd) -->
+                    <Border Style="{StaticResource AppCardStyle}">
+                        <StackPanel Spacing="6">
+                            <Button Content="Salvar Límites" Width="150" HorizontalAlignment="Left" Command="{x:Bind ViewModel.SalvarLimitesCommand}" />
+                            <Button Content="Recuperar Límites" Width="150" HorizontalAlignment="Left" Command="{x:Bind ViewModel.RecuperarLimitesCommand}" />
+                            <TextBlock
+                                Style="{StaticResource SecondaryTextBlockStyle}"
+                                TextTrimming="CharacterEllipsis"
+                                Text="{x:Bind ViewModel.FicheroRangos, Mode=OneWay}" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Cálculo / filtrado del fichero de columnas (legacy: bCalcular / bCancelar / contadores) -->
+                    <Border Style="{StaticResource AppCardStyle}">
+                        <StackPanel Spacing="6">
+                            <Button
+                                Style="{StaticResource AccentButtonStyle}"
+                                Content="Calcular" Width="150" HorizontalAlignment="Left"
+                                Command="{x:Bind ViewModel.CalcularCommand}" />
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="Procesadas:" VerticalAlignment="Center" MinWidth="80" />
+                                <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}" Text="{x:Bind ViewModel.ColsProcesadas, Mode=OneWay}" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="Válidas:" VerticalAlignment="Center" MinWidth="80" />
+                                <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}" Text="{x:Bind ViewModel.ColsValidas, Mode=OneWay}" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="Tiempo:" VerticalAlignment="Center" MinWidth="80" />
+                                <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}" Text="{x:Bind ViewModel.Tiempo, Mode=OneWay}" />
+                            </StackPanel>
+                            <Button Content="Cancelar" Width="150" HorizontalAlignment="Left" Command="{x:Bind ViewModel.CancelarCommand}" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Exportar / grabar resultado (legacy: bExporCols / bGrabaCols, lfile) -->
+                    <Border Style="{StaticResource AppCardStyle}">
+                        <StackPanel Spacing="6">
+                            <Button Content="Exportar Columnas" Width="150" HorizontalAlignment="Left" Command="{x:Bind ViewModel.ExportarColumnasCommand}" />
+                            <Button Content="Grabar Resultado" Width="150" HorizontalAlignment="Left" Command="{x:Bind ViewModel.GrabarResultadoCommand}" />
+                            <TextBlock
+                                Style="{StaticResource SecondaryTextBlockStyle}"
+                                TextTrimming="CharacterEllipsis"
+                                Text="{x:Bind ViewModel.FicheroResultado, Mode=OneWay}" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Análisis de columnas ganadoras (legacy: groupBox3 "Análisis Resultados") -->
+                    <Border Style="{StaticResource AppCardStyle}">
+                        <StackPanel Spacing="6">
+                            <TextBlock
+                                Style="{StaticResource SectionHeaderTextBlockStyle}"
+                                Text="Análisis Resultados" />
+
+                            <!-- Navegación por el fichero de ganadoras (legacy: bFG / bMenosR / bMasR, lbCGR) -->
+                            <Button Content="Fichero Ganadoras" Width="150" HorizontalAlignment="Left" Command="{x:Bind ViewModel.AbrirGanadorasCommand}" />
+                            <TextBlock
+                                Style="{StaticResource SecondaryTextBlockStyle}"
+                                TextTrimming="CharacterEllipsis"
+                                Text="{x:Bind ViewModel.FicheroGanadoras, Mode=OneWay}" />
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <Button Content="-" Width="40" Command="{x:Bind ViewModel.GanadoraAnteriorCommand}" AutomationProperties.Name="Ganadora anterior" />
+                                <TextBlock
+                                    VerticalAlignment="Center"
+                                    MinWidth="48"
+                                    TextAlignment="Center"
+                                    Style="{StaticResource BodyStrongTextBlockStyle}"
+                                    Text="{x:Bind ViewModel.PaginacionGanadoras, Mode=OneWay}" />
+                                <Button Content="+" Width="40" Command="{x:Bind ViewModel.GanadoraSiguienteCommand}" AutomationProperties.Name="Ganadora siguiente" />
+                            </StackPanel>
+
+                            <TextBox
+                                Header="Columna a analizar (14 signos: 1 / X / 2)"
+                                MaxLength="14"
+                                CharacterCasing="Upper"
+                                PlaceholderText="Ej. 2222XXXX222XXX"
+                                Text="{x:Bind ViewModel.ColumnaResultado, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                            <Button Content="Analizar" Width="150" HorizontalAlignment="Left" Command="{x:Bind ViewModel.AnalizarCommand}" />
+                        </StackPanel>
+                    </Border>
+
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</Page>

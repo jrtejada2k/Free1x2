@@ -1,0 +1,128 @@
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.TramificarGraficasFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:Free1X2.WinUI.Controls"
+    Background="{StaticResource AppBackgroundBrush}">
+
+    <ScrollViewer>
+        <Grid Padding="10,7" RowSpacing="6">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <!-- Encabezado -->
+            <StackPanel Grid.Row="0" Spacing="4">
+                <TextBlock
+                    Style="{StaticResource PageTitleTextBlockStyle}"
+                    Text="Gráficas de los resultados del análisis de tramos" />
+                <TextBlock
+                    Style="{StaticResource SecondaryTextBlockStyle}"
+                    Text="Representa las curvas de probabilidad, aciertos, premios y balance sobre los tramos analizados." />
+            </StackPanel>
+
+            <!-- Controles de curva -->
+            <Border Grid.Row="1" Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="5">
+                    <TextBlock
+                        Style="{StaticResource SectionHeaderTextBlockStyle}"
+                        Text="Curva a representar" />
+
+                    <ComboBox
+                        Header="Tipo de curva"
+                        Width="280"
+                        HorizontalAlignment="Left"
+                        ItemsSource="{x:Bind ViewModel.CurvasDisponibles}"
+                        SelectedItem="{x:Bind ViewModel.CurvaSeleccionada, Mode=TwoWay}" />
+
+                    <NumberBox
+                        Header="Tamaño del grid"
+                        Width="200"
+                        HorizontalAlignment="Left"
+                        SpinButtonPlacementMode="Inline"
+                        Minimum="10"
+                        Maximum="200"
+                        Value="{x:Bind ViewModel.TamanoGrid, Mode=TwoWay}" />
+
+                    <StackPanel Orientation="Horizontal" Spacing="5">
+                        <Button
+                            Style="{StaticResource AccentButtonStyle}"
+                            Content="Dibujar curva"
+                            Command="{x:Bind ViewModel.DibujarCommand}" />
+                        <Button
+                            Content="Limpiar imagen"
+                            Command="{x:Bind ViewModel.LimpiarCommand}" />
+                        <Button
+                            Content="Copiar al portapapeles"
+                            Command="{x:Bind ViewModel.CopiarCommand}" />
+                    </StackPanel>
+
+                    <TextBlock
+                        Style="{StaticResource SecondaryTextBlockStyle}"
+                        TextWrapping="Wrap"
+                        Text="{x:Bind ViewModel.EstadoTexto, Mode=OneWay}" />
+                </StackPanel>
+            </Border>
+
+            <!-- Leyenda de colores (legacy: panel2..panel10) -->
+            <Border Grid.Row="2" Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="5">
+                    <TextBlock
+                        Style="{StaticResource SectionHeaderTextBlockStyle}"
+                        Text="Leyenda de curvas" />
+
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <Border Width="20" Height="12" CornerRadius="2" Background="Black" />
+                            <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="Probabilidad" VerticalAlignment="Center" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <Border Width="20" Height="12" CornerRadius="2" Background="DodgerBlue" />
+                            <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="14 aciertos" VerticalAlignment="Center" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <Border Width="20" Height="12" CornerRadius="2" Background="Brown" />
+                            <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="13 aciertos" VerticalAlignment="Center" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <Border Width="20" Height="12" CornerRadius="2" Background="Cyan" />
+                            <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="12 aciertos" VerticalAlignment="Center" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <Border Width="20" Height="12" CornerRadius="2" Background="Green" />
+                            <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="11 aciertos" VerticalAlignment="Center" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <Border Width="20" Height="12" CornerRadius="2" Background="Red" />
+                            <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="10 aciertos" VerticalAlignment="Center" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <Border Width="20" Height="12" CornerRadius="2" Background="CadetBlue" />
+                            <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="Columnas premiadas" VerticalAlignment="Center" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <Border Width="20" Height="12" CornerRadius="2" Background="ForestGreen" />
+                            <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="Importe premios" VerticalAlignment="Center" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <Border Width="20" Height="12" CornerRadius="2" Background="Orange" />
+                            <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="Balance" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Lienzo de la gráfica (legacy: pictureBox1). Render nativo WinUI de las curvas. -->
+            <Border Grid.Row="3" Style="{StaticResource AppCardStyle}" MinHeight="280">
+                <controls:GraficoLineasControl
+                    x:Name="LienzoGrafica"
+                    Curvas="{x:Bind ViewModel.Curvas, Mode=OneWay}"
+                    IntervaloGrid="{x:Bind ViewModel.TamanoGrid, Mode=OneWay}"
+                    MinHeight="240" />
+            </Border>
+        </Grid>
+    </ScrollViewer>
+</Page>

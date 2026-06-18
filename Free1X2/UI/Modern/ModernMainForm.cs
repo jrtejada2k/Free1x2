@@ -753,17 +753,17 @@ namespace Free1X2.UI.Modern
             {
                 string nombreSeg = "Informe_" + DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss") + ".txt";
                 
-                var manejador = new Free1X2.Debug.ManejadorExcepciones();
+                var manejador = new global::Free1X2.Debug.ManejadorExcepciones();
                 manejador.GuardarInformeErrorATxt(t.Exception, nombreSeg);
 
-                var infoError = new Free1X2.Debug.InfoError(nombreSeg);
+                var infoError = new global::Free1X2.Debug.InfoError(nombreSeg);
                 infoError.ShowDialog();
             }
             catch
             {
                 try
                 {
-                    var infoError = new Free1X2.Debug.InfoError("");
+                    var infoError = new global::Free1X2.Debug.InfoError("");
                     infoError.ShowDialog();
                 }
                 catch

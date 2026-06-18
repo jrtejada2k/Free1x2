@@ -1,0 +1,250 @@
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.GeneraPimPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Free1X2.WinUI.Views.Ported"
+    Background="{StaticResource AppBackgroundBrush}">
+
+    <Grid>
+        <ScrollViewer Padding="10,7" HorizontalScrollMode="Disabled">
+            <StackPanel Spacing="6" MaxWidth="1100">
+
+                <!-- Encabezado -->
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Filtro Pim" Style="{StaticResource PageTitleTextBlockStyle}" />
+                    <TextBlock
+                        Text="Genera y reduce columnas probables a partir de los pronósticos 1/X/2 de los 14 partidos."
+                        Style="{StaticResource SecondaryTextBlockStyle}" />
+                </StackPanel>
+
+                <!-- Valores por partido + Rangos -->
+                <Grid ColumnSpacing="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Rejilla de valores (legacy: control valors) -->
+                    <Border Grid.Column="0" Style="{StaticResource AppCardStyle}">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="Valores por partido" Style="{StaticResource CardTitleTextBlockStyle}" />
+                            <TextBlock
+                                Text="Probabilidad de cada signo (1 / X / 2) en los 14 partidos."
+                                Style="{StaticResource SecondaryTextBlockStyle}" />
+
+                            <Grid ColumnSpacing="8" Margin="0,4,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="48" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Part." Style="{StaticResource CaptionTextBlockStyle}" />
+                                <TextBlock Grid.Column="1" Text="1" Style="{StaticResource CaptionTextBlockStyle}" HorizontalAlignment="Center" />
+                                <TextBlock Grid.Column="2" Text="X" Style="{StaticResource CaptionTextBlockStyle}" HorizontalAlignment="Center" />
+                                <TextBlock Grid.Column="3" Text="2" Style="{StaticResource CaptionTextBlockStyle}" HorizontalAlignment="Center" />
+                            </Grid>
+
+                            <ItemsControl ItemsSource="{x:Bind ViewModel.Partidos}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="local:PartidoValores">
+                                        <Grid ColumnSpacing="8" Margin="0,2">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="48" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="{x:Bind Numero}" VerticalAlignment="Center"
+                                                       Style="{StaticResource SecondaryTextBlockStyle}" />
+                                            <NumberBox Grid.Column="1" Value="{x:Bind Valor1, Mode=TwoWay}"
+                                                       SmallChange="1" Minimum="0" SpinButtonPlacementMode="Hidden" />
+                                            <NumberBox Grid.Column="2" Value="{x:Bind ValorX, Mode=TwoWay}"
+                                                       SmallChange="1" Minimum="0" SpinButtonPlacementMode="Hidden" />
+                                            <NumberBox Grid.Column="3" Value="{x:Bind Valor2, Mode=TwoWay}"
+                                                       SmallChange="1" Minimum="0" SpinButtonPlacementMode="Hidden" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Rangos por ranking + recorrido -->
+                    <Border Grid.Column="1" Style="{StaticResource AppCardStyle}">
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="Rangos de aciertos" Style="{StaticResource CardTitleTextBlockStyle}" />
+                            <TextBlock
+                                Text="Mínimo-máximo de aciertos admitidos por cada ranking (formato min-max)."
+                                Style="{StaticResource SecondaryTextBlockStyle}" />
+
+                            <Grid ColumnSpacing="12" RowSpacing="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="R1" VerticalAlignment="Center"
+                                           Style="{StaticResource SecondaryTextBlockStyle}" />
+                                <TextBox Grid.Row="0" Grid.Column="1" Text="{x:Bind ViewModel.Rango1, Mode=TwoWay}" />
+                                <TextBlock Grid.Row="0" Grid.Column="2" Text="R2" VerticalAlignment="Center"
+                                           Style="{StaticResource SecondaryTextBlockStyle}" />
+                                <TextBox Grid.Row="0" Grid.Column="3" Text="{x:Bind ViewModel.Rango2, Mode=TwoWay}" />
+
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="R3" VerticalAlignment="Center"
+                                           Style="{StaticResource SecondaryTextBlockStyle}" />
+                                <TextBox Grid.Row="1" Grid.Column="1" Text="{x:Bind ViewModel.Rango3, Mode=TwoWay}" />
+                                <TextBlock Grid.Row="1" Grid.Column="2" Text="R4" VerticalAlignment="Center"
+                                           Style="{StaticResource SecondaryTextBlockStyle}" />
+                                <TextBox Grid.Row="1" Grid.Column="3" Text="{x:Bind ViewModel.Rango4, Mode=TwoWay}" />
+
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="R5" VerticalAlignment="Center"
+                                           Style="{StaticResource SecondaryTextBlockStyle}" />
+                                <TextBox Grid.Row="2" Grid.Column="1" Text="{x:Bind ViewModel.Rango5, Mode=TwoWay}" />
+                                <TextBlock Grid.Row="2" Grid.Column="2" Text="R6" VerticalAlignment="Center"
+                                           Style="{StaticResource SecondaryTextBlockStyle}" />
+                                <TextBox Grid.Row="2" Grid.Column="3" Text="{x:Bind ViewModel.Rango6, Mode=TwoWay}" />
+
+                                <TextBlock Grid.Row="3" Grid.Column="0" Text="R7" VerticalAlignment="Center"
+                                           Style="{StaticResource SecondaryTextBlockStyle}" />
+                                <TextBox Grid.Row="3" Grid.Column="1" Text="{x:Bind ViewModel.Rango7, Mode=TwoWay}" />
+                                <TextBlock Grid.Row="3" Grid.Column="2" Text="Recorr." VerticalAlignment="Center"
+                                           Style="{StaticResource SecondaryTextBlockStyle}" />
+                                <TextBox Grid.Row="3" Grid.Column="3" Text="{x:Bind ViewModel.RangoRecorrido, Mode=TwoWay}" />
+                            </Grid>
+
+                            <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,4,0,0">
+                                <Button Content="Salvar rangos" Command="{x:Bind ViewModel.SalvarRangosCommand}" />
+                                <Button Content="Recuperar rangos" Command="{x:Bind ViewModel.RecuperarRangosCommand}" />
+                            </StackPanel>
+                            <TextBlock Text="{x:Bind ViewModel.FicheroRangos, Mode=OneWay}"
+                                       Style="{StaticResource SecondaryTextBlockStyle}" />
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!-- Cálculo / reducción -->
+                <Border Style="{StaticResource AppCardStyle}">
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Cálculo de columnas" Style="{StaticResource CardTitleTextBlockStyle}" />
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Button Content="Calcular" Style="{StaticResource AccentButtonStyle}"
+                                    Command="{x:Bind ViewModel.CalcularCommand}" />
+                            <Button Content="Grabar resultado" Command="{x:Bind ViewModel.GrabarResultadoCommand}" />
+                            <Button Content="Exportar columnas" Command="{x:Bind ViewModel.ExportarColumnasCommand}" />
+                        </StackPanel>
+
+                        <Grid ColumnSpacing="12" Margin="0,4,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" Spacing="2">
+                                <TextBlock Text="Procesadas" Style="{StaticResource CaptionTextBlockStyle}" />
+                                <TextBlock Text="{x:Bind ViewModel.ColumnasProcesadas, Mode=OneWay}"
+                                           Style="{StaticResource BodyStrongTextBlockStyle}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Spacing="2">
+                                <TextBlock Text="Admitidas" Style="{StaticResource CaptionTextBlockStyle}" />
+                                <TextBlock Text="{x:Bind ViewModel.ColumnasAdmitidas, Mode=OneWay}"
+                                           Style="{StaticResource BodyStrongTextBlockStyle}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" Spacing="2">
+                                <TextBlock Text="Tiempo" Style="{StaticResource CaptionTextBlockStyle}" />
+                                <TextBlock Text="{x:Bind ViewModel.Tiempo, Mode=OneWay}"
+                                           Style="{StaticResource BodyStrongTextBlockStyle}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="3" Spacing="2">
+                                <TextBlock Text="Fichero resultado" Style="{StaticResource CaptionTextBlockStyle}" />
+                                <TextBlock Text="{x:Bind ViewModel.FicheroResultado, Mode=OneWay}"
+                                           Style="{StaticResource BodyStrongTextBlockStyle}" />
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Análisis de resultados -->
+                <Border Style="{StaticResource AppCardStyle}">
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Análisis Resultados" Style="{StaticResource CardTitleTextBlockStyle}" />
+                        <TextBlock
+                            Text="Cuenta aciertos por ranking de una columna ganadora cargada desde fichero."
+                            Style="{StaticResource SecondaryTextBlockStyle}" />
+
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Button Content="Cargar ganadoras" Command="{x:Bind ViewModel.CargarGanadorasCommand}" />
+                            <Button Content="-" Command="{x:Bind ViewModel.GanadoraAnteriorCommand}" />
+                            <TextBlock Text="{x:Bind ViewModel.IndiceColGanadora, Mode=OneWay}"
+                                       VerticalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                            <Button Content="+" Command="{x:Bind ViewModel.GanadoraSiguienteCommand}" />
+                            <Button Content="Analizar" Command="{x:Bind ViewModel.AnalizarCommand}" />
+                        </StackPanel>
+
+                        <TextBlock Text="{x:Bind ViewModel.FicheroGanadoras, Mode=OneWay}"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+
+                        <TextBox Header="Columna ganadora" Text="{x:Bind ViewModel.ColumnaGanadora, Mode=TwoWay}" />
+
+                        <Grid ColumnSpacing="10" Margin="0,4,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" Spacing="2">
+                                <TextBlock Text="R1" Style="{StaticResource CaptionTextBlockStyle}" />
+                                <TextBlock Text="{x:Bind ViewModel.Analisis1, Mode=OneWay}" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Spacing="2">
+                                <TextBlock Text="R2" Style="{StaticResource CaptionTextBlockStyle}" />
+                                <TextBlock Text="{x:Bind ViewModel.Analisis2, Mode=OneWay}" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" Spacing="2">
+                                <TextBlock Text="R3" Style="{StaticResource CaptionTextBlockStyle}" />
+                                <TextBlock Text="{x:Bind ViewModel.Analisis3, Mode=OneWay}" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="3" Spacing="2">
+                                <TextBlock Text="R4" Style="{StaticResource CaptionTextBlockStyle}" />
+                                <TextBlock Text="{x:Bind ViewModel.Analisis4, Mode=OneWay}" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="4" Spacing="2">
+                                <TextBlock Text="R5" Style="{StaticResource CaptionTextBlockStyle}" />
+                                <TextBlock Text="{x:Bind ViewModel.Analisis5, Mode=OneWay}" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="5" Spacing="2">
+                                <TextBlock Text="R6" Style="{StaticResource CaptionTextBlockStyle}" />
+                                <TextBlock Text="{x:Bind ViewModel.Analisis6, Mode=OneWay}" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="6" Spacing="2">
+                                <TextBlock Text="R7" Style="{StaticResource CaptionTextBlockStyle}" />
+                                <TextBlock Text="{x:Bind ViewModel.Analisis7, Mode=OneWay}" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="7" Spacing="2">
+                                <TextBlock Text="Recorr." Style="{StaticResource CaptionTextBlockStyle}" />
+                                <TextBlock Text="{x:Bind ViewModel.AnalisisRecorrido, Mode=OneWay}" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Page>

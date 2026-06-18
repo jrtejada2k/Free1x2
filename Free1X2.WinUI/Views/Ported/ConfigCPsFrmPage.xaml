@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.ConfigCPsFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Free1X2.WinUI.Views.Ported"
+    xmlns:ported="using:Free1X2.WinUI.Views.Ported"
+    Background="{ThemeResource AppBackgroundBrush}">
+
+    <ScrollViewer>
+        <StackPanel Padding="12,8" Spacing="8" MaxWidth="980" HorizontalAlignment="Left">
+
+            <!-- ===== Encabezado ===== -->
+            <StackPanel Spacing="6">
+                <TextBlock
+                    Text="Configurar Columnas Probables"
+                    Style="{StaticResource PageTitleTextBlockStyle}" />
+                <TextBlock
+                    Text="Define los tipos de columnas probables y, para cada tramo de puntuación, las reglas de forzado de fijos, dobles y triples."
+                    Style="{StaticResource SecondaryTextBlockStyle}"
+                    TextWrapping="Wrap" />
+            </StackPanel>
+
+            <!-- ===== Tipo de columna (tabla legacy "Tipos de CPs") ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="5">
+                    <TextBlock
+                        Text="Tipo de columna"
+                        Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <ComboBox
+                        MinWidth="260"
+                        Header="Tipo de CP"
+                        ItemsSource="{x:Bind ViewModel.Tipos}"
+                        SelectedItem="{x:Bind ViewModel.TipoSeleccionado, Mode=TwoWay}"
+                        AutomationProperties.Name="Tipo de columna probable" />
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Configuración de CPs (tabla legacy "Configuracion de CPs") ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="6">
+                    <TextBlock
+                        Text="Configuración de CPs"
+                        Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <TextBlock
+                        Text="Cada fila representa un tramo: rango de puntuación admitido y reglas de forzado."
+                        Style="{StaticResource SecondaryTextBlockStyle}"
+                        TextWrapping="Wrap" />
+
+                    <ItemsControl ItemsSource="{x:Bind ViewModel.Filas}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="ported:ConfigCPFilaViewModel">
+                                <Border
+                                    Background="{ThemeResource AppSurfaceAltBrush}"
+                                    CornerRadius="{StaticResource AppCornerRadius}"
+                                    Padding="10,7"
+                                    Margin="0,4">
+                                    <StackPanel Spacing="5">
+
+                                        <!-- Rango de puntuación -->
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                            <NumberBox
+                                                Header="Desde"
+                                                Width="120"
+                                                Minimum="0"
+                                                SmallChange="1"
+                                                SpinButtonPlacementMode="Compact"
+                                                Value="{x:Bind Desde, Mode=TwoWay}"
+                                                AutomationProperties.Name="Mínima puntuación para incluir el signo" />
+                                            <NumberBox
+                                                Header="Hasta"
+                                                Width="120"
+                                                Minimum="0"
+                                                SmallChange="1"
+                                                SpinButtonPlacementMode="Compact"
+                                                Value="{x:Bind Hasta, Mode=TwoWay}"
+                                                AutomationProperties.Name="Máxima puntuación para incluir el signo" />
+                                        </StackPanel>
+
+                                        <!-- Fijos -->
+                                        <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Bottom">
+                                            <ToggleSwitch
+                                                Header="Forzar Fijos"
+                                                OnContent="Sí"
+                                                OffContent="No"
+                                                IsOn="{x:Bind ForzarFijos, Mode=TwoWay}"
+                                                AutomationProperties.Name="Sólo columnas de fijos (los más fijos)" />
+                                            <NumberBox
+                                                Header="Nº Fijos"
+                                                Width="120"
+                                                Minimum="0"
+                                                SmallChange="1"
+                                                SpinButtonPlacementMode="Compact"
+                                                Value="{x:Bind NumFijos, Mode=TwoWay}"
+                                                AutomationProperties.Name="Número de fijos en columna de fijos" />
+                                        </StackPanel>
+
+                                        <!-- Dobles -->
+                                        <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Bottom">
+                                            <ToggleSwitch
+                                                Header="Forzar Dobles"
+                                                OnContent="Sí"
+                                                OffContent="No"
+                                                IsOn="{x:Bind ForzarDobles, Mode=TwoWay}"
+                                                AutomationProperties.Name="Sólo columnas de dobles (los más dobles)" />
+                                            <NumberBox
+                                                Header="Nº Dobles"
+                                                Width="120"
+                                                Minimum="0"
+                                                SmallChange="1"
+                                                SpinButtonPlacementMode="Compact"
+                                                Value="{x:Bind NumDobles, Mode=TwoWay}"
+                                                AutomationProperties.Name="Número de dobles en columna de dobles" />
+                                        </StackPanel>
+
+                                        <!-- Triples -->
+                                        <ToggleSwitch
+                                            Header="Forzar Triples"
+                                            OnContent="Sí"
+                                            OffContent="No"
+                                            IsOn="{x:Bind ForzarTriples, Mode=TwoWay}"
+                                            AutomationProperties.Name="Fuerza el triple si ningún signo se incluye en rango" />
+
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Leyenda (legacy button5_Click -> MessageBox) ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Leyenda" Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <TextBlock Style="{StaticResource SecondaryTextBlockStyle}" TextWrapping="Wrap"
+                               Text="Desde — Mínima puntuación para incluir el signo." />
+                    <TextBlock Style="{StaticResource SecondaryTextBlockStyle}" TextWrapping="Wrap"
+                               Text="Hasta — Máxima puntuación para incluir el signo." />
+                    <TextBlock Style="{StaticResource SecondaryTextBlockStyle}" TextWrapping="Wrap"
+                               Text="Forzar Fijos — Sólo columnas de fijos (los más fijos)." />
+                    <TextBlock Style="{StaticResource SecondaryTextBlockStyle}" TextWrapping="Wrap"
+                               Text="Nº Fijos — Nº de fijos en columna de fijos." />
+                    <TextBlock Style="{StaticResource SecondaryTextBlockStyle}" TextWrapping="Wrap"
+                               Text="Forzar Dobles — Sólo columnas de dobles (los más dobles)." />
+                    <TextBlock Style="{StaticResource SecondaryTextBlockStyle}" TextWrapping="Wrap"
+                               Text="Nº Dobles — Nº de dobles en columna de dobles." />
+                    <TextBlock Style="{StaticResource SecondaryTextBlockStyle}" TextWrapping="Wrap"
+                               Text="Forzar Triples — Fuerza el triple si ningún signo se incluye en rango." />
+                    <TextBlock Style="{StaticResource SecondaryTextBlockStyle}" TextWrapping="Wrap"
+                               Text="Si se hacen columnas de sólo fijos o dobles, se recomienda poner Desde=0 y Hasta=100." />
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Acciones (legacy: Guardar / Volver) ===== -->
+            <StackPanel Orientation="Horizontal" Spacing="5">
+                <Button
+                    Content="Guardar"
+                    Style="{StaticResource AccentButtonStyle}"
+                    Click="OnGuardarClick"
+                    AutomationProperties.Name="Guardar configuración" />
+                <Button
+                    Content="Volver"
+                    Click="OnVolverClick"
+                    AutomationProperties.Name="Volver sin guardar" />
+            </StackPanel>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

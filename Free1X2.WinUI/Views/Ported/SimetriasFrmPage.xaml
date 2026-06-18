@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.SimetriasFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="using:Free1X2.WinUI.Views.Ported">
+
+    <ScrollViewer>
+        <StackPanel Padding="12,8" Spacing="8" MaxWidth="820" HorizontalAlignment="Left">
+
+            <!-- ===== Encabezado ===== -->
+            <StackPanel Spacing="6">
+                <TextBlock Text="Simetrías" Style="{StaticResource PageTitleTextBlockStyle}" />
+                <TextBlock Text="Se da una simetría entre dos o más partidos cuando su signo es el mismo. Especifica los partidos separados por comas (a,b), guiones (a-b) o una mezcla de ambos (a,b-c)."
+                           Style="{StaticResource SecondaryTextBlockStyle}"
+                           TextWrapping="Wrap" />
+            </StackPanel>
+
+            <!-- ===== Simetrías (CtrlSimetria del form legacy) ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Simetrías" Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <TextBlock Text="Introduce en cada fila los partidos que deben compartir el mismo signo."
+                               Style="{StaticResource SecondaryTextBlockStyle}"
+                               TextWrapping="Wrap" />
+
+                    <ListView ItemsSource="{x:Bind ViewModel.Simetrias}"
+                              SelectionMode="None"
+                              MaxHeight="360"
+                              AutomationProperties.Name="Lista de simetrías">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="vm:FilaSimetria">
+                                <Grid ColumnSpacing="12" Padding="0,4">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="44" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0"
+                                               Text="{x:Bind NumeroTexto}"
+                                               VerticalAlignment="Center"
+                                               Style="{StaticResource SecondaryTextBlockStyle}" />
+                                    <TextBox Grid.Column="1"
+                                             PlaceholderText="p. ej. 1,2-4"
+                                             Text="{x:Bind Partidos, Mode=TwoWay}"
+                                             AutomationProperties.Name="Partidos de la simetría" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+
+                    <Button Content="Añadir fila"
+                            Command="{x:Bind ViewModel.AnadirFilaCommand}"
+                            AutomationProperties.Name="Añadir una fila de simetría más" />
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Aciertos (txtAciertos del form legacy) ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Aciertos" Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <TextBlock Text="Número(s) de aciertos a considerar. Admite valores individuales y rangos separados por comas (p. ej. 1,3,5-7)."
+                               Style="{StaticResource SecondaryTextBlockStyle}"
+                               TextWrapping="Wrap" />
+                    <TextBox PlaceholderText="p. ej. 1,3,5-7"
+                             Text="{x:Bind ViewModel.Aciertos, Mode=TwoWay}"
+                             AutomationProperties.Name="Aciertos admitidos" />
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Acciones (menuCondiciones del form legacy) ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Acciones" Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <StackPanel Orientation="Horizontal" Spacing="5">
+                        <Button Content="Aceptar"
+                                Style="{StaticResource AccentButtonStyle}"
+                                Command="{x:Bind ViewModel.AceptarCommand}"
+                                AutomationProperties.Name="Aceptar y aplicar el filtro de simetrías" />
+                        <Button Content="Estadísticas"
+                                Command="{x:Bind ViewModel.EstadisticasCommand}"
+                                AutomationProperties.Name="Ver estadísticas del filtro" />
+                        <Button Content="Guardar"
+                                Command="{x:Bind ViewModel.GuardarCommand}"
+                                AutomationProperties.Name="Guardar la condición en un archivo" />
+                        <Button Content="Abrir"
+                                Command="{x:Bind ViewModel.AbrirCommand}"
+                                AutomationProperties.Name="Abrir una condición desde un archivo" />
+                        <Button Content="Copiar"
+                                Command="{x:Bind ViewModel.CopiarCommand}"
+                                AutomationProperties.Name="Copiar la condición" />
+                        <Button Content="Pegar"
+                                Command="{x:Bind ViewModel.PegarCommand}"
+                                AutomationProperties.Name="Pegar la condición copiada" />
+                        <Button Content="Borrar"
+                                Command="{x:Bind ViewModel.BorrarCommand}"
+                                AutomationProperties.Name="Borrar todos los valores" />
+                        <Button Content="Cancelar"
+                                Command="{x:Bind ViewModel.CancelarCommand}"
+                                AutomationProperties.Name="Cancelar y cerrar" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

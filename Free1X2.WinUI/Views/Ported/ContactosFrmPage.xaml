@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.ContactosFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:Free1X2.WinUI.Controls"
+    xmlns:ported="using:Free1X2.WinUI.Views.Ported">
+
+    <ScrollViewer>
+        <StackPanel Padding="12,8" Spacing="8" MaxWidth="900" HorizontalAlignment="Left">
+
+            <!-- ===== Encabezado ===== -->
+            <StackPanel Spacing="6">
+                <TextBlock Text="Contactos" Style="{StaticResource PageTitleTextBlockStyle}" />
+                <TextBlock
+                    Text="Se da un contacto entre dos signos cuando aparecen juntos en la columna, sin importar cuál aparece en primer lugar."
+                    Style="{StaticResource SecondaryTextBlockStyle}"
+                    TextWrapping="Wrap" />
+            </StackPanel>
+
+            <!-- ===== Condición: nº de contactos admitidos por pareja de signos ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Número de contactos por pareja de signos"
+                               Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <TextBlock
+                        Text="Para cada pareja, indica los valores admitidos (de 0 a 14) separados por comas."
+                        Style="{StaticResource SecondaryTextBlockStyle}"
+                        TextWrapping="Wrap" />
+
+                    <ItemsControl ItemsSource="{x:Bind ViewModel.Filas}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="ported:FilaContactoViewModel">
+                                <Grid Margin="0,4" ColumnSpacing="12" VerticalAlignment="Center">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="48" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <Border Grid.Column="0"
+                                            Background="{ThemeResource AppSurfaceAltBrush}"
+                                            CornerRadius="{StaticResource AppCornerRadius}"
+                                            Padding="0,4" VerticalAlignment="Center">
+                                        <TextBlock Text="{x:Bind Pareja}"
+                                                   Style="{StaticResource BodyStrongTextBlockStyle}"
+                                                   Foreground="{ThemeResource AppTextBrush}"
+                                                   HorizontalAlignment="Center" />
+                                    </Border>
+
+                                    <TextBox Grid.Column="1"
+                                             Text="{x:Bind Valores, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             PlaceholderText="p.ej. 0,1,2,3"
+                                             AutomationProperties.Name="{x:Bind Pareja}" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Figuras ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="5">
+                    <TextBlock Text="Figuras" Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <TextBlock Text="Condición adicional de figuras asociada a este filtro."
+                               Style="{StaticResource SecondaryTextBlockStyle}"
+                               TextWrapping="Wrap" />
+                    <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
+                        <Button Content="Editar figuras…"
+                                Command="{x:Bind ViewModel.EditarFigurasCommand}"
+                                AutomationProperties.Name="Editar figuras" />
+                        <controls:SemaforoControl
+                            Estado="{x:Bind EstadoFiguras, Mode=OneWay}"
+                            VerticalAlignment="Center" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Acciones (equivale a MenuCondiciones del form legacy) ===== -->
+            <StackPanel Orientation="Horizontal" Spacing="5">
+                <Button Content="Aceptar"
+                        Style="{StaticResource AccentButtonStyle}"
+                        Command="{x:Bind ViewModel.AceptarCommand}"
+                        AutomationProperties.Name="Aceptar" />
+                <Button Content="Guardar"
+                        Command="{x:Bind ViewModel.GuardarCommand}"
+                        AutomationProperties.Name="Guardar condición" />
+                <Button Content="Abrir"
+                        Command="{x:Bind ViewModel.AbrirCommand}"
+                        AutomationProperties.Name="Abrir condición" />
+                <Button Content="Copiar"
+                        Command="{x:Bind ViewModel.CopiarCommand}"
+                        AutomationProperties.Name="Copiar la condición al portapapeles interno" />
+                <Button Content="Pegar"
+                        Command="{x:Bind ViewModel.PegarCommand}"
+                        AutomationProperties.Name="Pegar la condición desde el portapapeles interno" />
+                <Button Content="Estadísticas"
+                        Command="{x:Bind ViewModel.EstadisticasCommand}"
+                        AutomationProperties.Name="Estadísticas del filtro" />
+                <Button Content="Borrar"
+                        Command="{x:Bind ViewModel.BorrarCommand}"
+                        AutomationProperties.Name="Borrar datos del filtro" />
+                <Button Content="Cancelar"
+                        Command="{x:Bind ViewModel.CancelarCommand}"
+                        AutomationProperties.Name="Cancelar y volver sin aplicar cambios" />
+            </StackPanel>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

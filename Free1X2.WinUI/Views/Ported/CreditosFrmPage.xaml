@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.CreditosFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Free1X2.WinUI.Views.Ported"
+    Background="{ThemeResource AppBackgroundBrush}">
+
+    <ScrollViewer Padding="{StaticResource AppPagePadding}"
+                  VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled">
+        <Grid HorizontalAlignment="Center" MaxWidth="560" RowSpacing="8">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!-- Encabezado: título real del form -->
+            <StackPanel Grid.Row="0" Spacing="6">
+                <HyperlinkButton x:Name="WebsiteLink"
+                                 Padding="0"
+                                 Click="OnWebsiteClick"
+                                 AutomationProperties.Name="Visitar el sitio web free1x2.com">
+                    <TextBlock Text="Equipo Free1X2"
+                               Style="{StaticResource PageTitleTextBlockStyle}" />
+                </HyperlinkButton>
+                <TextBlock Text="www.free1x2.com"
+                           Style="{StaticResource SecondaryTextBlockStyle}" />
+            </StackPanel>
+
+            <!-- Card con la lista de colaboradores -->
+            <Border Grid.Row="1" Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Colaboradores"
+                               Style="{StaticResource SectionHeaderTextBlockStyle}" />
+
+                    <ItemsControl x:Name="CreditsList" ItemsSource="{x:Bind Creditos}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="local:CreditoEntrada">
+                                <Grid Padding="0,2" ColumnSpacing="12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock Grid.Column="0"
+                                               VerticalAlignment="Center"
+                                               Text="{x:Bind Nombre}"
+                                               Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                                    <HyperlinkButton Grid.Column="1"
+                                                     Content="{x:Bind Contacto}"
+                                                     NavigateUri="{x:Bind Uri}"
+                                                     AutomationProperties.Name="{x:Bind ContactoAccesible}" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- Nota de agradecimiento (lnkBtesters) -->
+            <Border Grid.Row="2" Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="8" HorizontalAlignment="Center">
+                    <TextBlock TextAlignment="Center"
+                               TextWrapping="Wrap"
+                               Style="{StaticResource SecondaryTextBlockStyle}"
+                               Text="Free1X2 nunca existiría sin las sugerencias y las ideas de los usuarios de Free1X2.com" />
+                    <TextBlock Text="¡Gracias!"
+                               TextAlignment="Center"
+                               Style="{StaticResource CardTitleTextBlockStyle}" />
+                </StackPanel>
+            </Border>
+        </Grid>
+    </ScrollViewer>
+</Page>

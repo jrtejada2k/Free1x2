@@ -1,0 +1,87 @@
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.GuardarValoracionFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:Free1X2.WinUI.Controls"
+    Background="{StaticResource AppBackgroundBrush}">
+
+    <ScrollViewer Padding="10,7">
+        <StackPanel Spacing="8" MaxWidth="640" HorizontalAlignment="Left">
+
+            <TextBlock
+                Text="Guardar Valoración"
+                Style="{StaticResource PageTitleTextBlockStyle}" />
+
+            <TextBlock
+                Text="Exporta las valoraciones a un fichero de texto eligiendo el formato y el separador de campos."
+                Style="{StaticResource SecondaryTextBlockStyle}"
+                TextWrapping="Wrap" />
+
+            <!-- Valoraciones a exportar (en el WinForms llegaban por constructor;
+                 aquí se editan en la rejilla 14x3) -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="5">
+                    <TextBlock
+                        Text="Valoraciones (1 / X / 2)"
+                        Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <controls:PorcentajesControl
+                        Filas="{x:Bind ViewModel.Filas}"
+                        Height="260" />
+                </StackPanel>
+            </Border>
+
+            <!-- Formato del fichero -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="5">
+                    <TextBlock
+                        Text="Formato del fichero"
+                        Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                    <ComboBox
+                        Header="Disposición de los valores"
+                        ItemsSource="{x:Bind ViewModel.FormatoOpciones}"
+                        SelectedItem="{x:Bind ViewModel.FormatoSeleccionado, Mode=TwoWay}"
+                        HorizontalAlignment="Stretch" />
+                </StackPanel>
+            </Border>
+
+            <!-- Separador de campos -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="5">
+                    <TextBlock
+                        Text="Separador de campos"
+                        Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                    <TextBlock
+                        Text="Carácter que separa los valores dentro de cada línea."
+                        Style="{StaticResource SecondaryTextBlockStyle}"
+                        TextWrapping="Wrap" />
+
+                    <ComboBox
+                        Header="Separador"
+                        ItemsSource="{x:Bind ViewModel.SeparadorOpciones}"
+                        SelectedItem="{x:Bind ViewModel.SeparadorSeleccionado, Mode=TwoWay}"
+                        IsEnabled="{x:Bind ViewModel.SeparadorHabilitado, Mode=OneWay}"
+                        HorizontalAlignment="Stretch" />
+                </StackPanel>
+            </Border>
+
+            <!-- Acciones -->
+            <StackPanel Orientation="Horizontal" Spacing="5">
+                <Button
+                    Content="Aceptar"
+                    Style="{StaticResource AccentButtonStyle}"
+                    Command="{x:Bind ViewModel.AceptarCommand}" />
+                <Button
+                    Content="Cancelar"
+                    Command="{x:Bind ViewModel.CancelarCommand}" />
+            </StackPanel>
+
+            <TextBlock
+                Text="{x:Bind ViewModel.Estado, Mode=OneWay}"
+                Style="{StaticResource SecondaryTextBlockStyle}"
+                TextWrapping="Wrap" />
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

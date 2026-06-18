@@ -1,0 +1,77 @@
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.ImportadorCPsFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Background="{StaticResource AppBackgroundBrush}">
+
+    <ScrollViewer>
+        <StackPanel Margin="12" Spacing="8" MaxWidth="720" HorizontalAlignment="Left">
+
+            <TextBlock
+                Text="Importador de Columnas Probables"
+                Style="{StaticResource PageTitleTextBlockStyle}" />
+
+            <TextBlock
+                Text="Importa Columnas Probables (CPs) desde un archivo a un grupo temporal."
+                Style="{StaticResource SecondaryTextBlockStyle}"
+                TextWrapping="Wrap" />
+
+            <!-- Importar CPs Simples (*.txt) -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="5">
+                    <TextBlock
+                        Text="Columnas simples"
+                        Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <TextBlock
+                        Text="Archivos de texto que contienen únicamente columnas (*.txt). Cada columna se importa como una CP con los aciertos calculados sobre el histórico."
+                        Style="{StaticResource SecondaryTextBlockStyle}"
+                        TextWrapping="Wrap" />
+                    <Button
+                        Content="Importar CPs Simples (sólo columnas *.txt)"
+                        Style="{StaticResource AccentButtonStyle}"
+                        HorizontalAlignment="Left"
+                        Command="{x:Bind ViewModel.ImportarSimplesCommand}" />
+                </StackPanel>
+            </Border>
+
+            <!-- Importar CPs con Ac, Acs, Fs (*.clm) -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="5">
+                    <TextBlock
+                        Text="Columnas con aciertos"
+                        Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <TextBlock
+                        Text="Archivos *.clm con formato pronóstico#aciertos#aciertos seguidos#fallos seguidos. Se importan las CPs respetando sus estadísticas guardadas."
+                        Style="{StaticResource SecondaryTextBlockStyle}"
+                        TextWrapping="Wrap" />
+                    <Button
+                        Content="Importar CPs con Ac, Acs, Fs (*.clm)"
+                        Style="{StaticResource AccentButtonStyle}"
+                        HorizontalAlignment="Left"
+                        Command="{x:Bind ViewModel.ImportarClmCommand}" />
+                </StackPanel>
+            </Border>
+
+            <!-- Estado -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="8">
+                    <TextBlock
+                        Text="Estado"
+                        Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                    <TextBlock
+                        Text="{x:Bind ViewModel.EstadoTexto, Mode=OneWay}"
+                        Style="{StaticResource SecondaryTextBlockStyle}"
+                        TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <!-- Acciones -->
+            <StackPanel Orientation="Horizontal" Spacing="5">
+                <Button
+                    Content="Cancelar"
+                    Command="{x:Bind ViewModel.CancelarCommand}" />
+            </StackPanel>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.DiferenciasFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ported="using:Free1X2.WinUI.Views.Ported">
+
+    <ScrollViewer>
+        <StackPanel Padding="12,8" Spacing="8" MaxWidth="980" HorizontalAlignment="Left">
+
+            <!-- ===== Encabezado ===== -->
+            <StackPanel Spacing="6">
+                <TextBlock Text="Diferencias" Style="{StaticResource PageTitleTextBlockStyle}" />
+                <TextBlock Text="Especifica en cada línea un grupo de partidos separados por &quot;,&quot; o por &quot;-&quot;. Para cada concepto indica la cantidad o el intervalo de valores DISTINTOS entre los grupos."
+                           Style="{StaticResource SecondaryTextBlockStyle}"
+                           TextWrapping="Wrap" />
+            </StackPanel>
+
+            <!-- ===== Navegación de conjuntos (groupBox legacy) ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="5">
+                    <TextBlock Text="Conjuntos — actual / guardados" Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
+                        <Button Content="◀"
+                                Command="{x:Bind ViewModel.ConjuntoAnteriorCommand}"
+                                IsEnabled="{x:Bind ViewModel.PuedeIrAnterior, Mode=OneWay}"
+                                AutomationProperties.Name="Conjunto anterior" />
+                        <TextBlock Text="{x:Bind ViewModel.ContadorConjuntosTexto, Mode=OneWay}"
+                                   VerticalAlignment="Center"
+                                   MinWidth="60"
+                                   TextAlignment="Center"
+                                   Style="{StaticResource BodyStrongTextBlockStyle}" />
+                        <Button Content="▶"
+                                Command="{x:Bind ViewModel.ConjuntoSiguienteCommand}"
+                                AutomationProperties.Name="Conjunto siguiente" />
+                        <Button Content="Eliminar actual"
+                                Command="{x:Bind ViewModel.EliminarActualCommand}"
+                                AutomationProperties.Name="Eliminar el conjunto actual" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <Grid ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <!-- ===== Grupos de partidos (contenedor cctrl legacy) ===== -->
+                <Border Grid.Column="0" Style="{StaticResource AppCardStyle}">
+                    <StackPanel Spacing="5">
+                        <TextBlock Text="Grupos de partidos" Style="{StaticResource CardTitleTextBlockStyle}" />
+                        <TextBlock Text="Una línea por grupo. Partidos separados por &quot;,&quot; o &quot;-&quot;."
+                                   Style="{StaticResource SecondaryTextBlockStyle}"
+                                   TextWrapping="Wrap" />
+                        <ListView ItemsSource="{x:Bind ViewModel.Lineas}"
+                                  SelectionMode="None"
+                                  Height="260"
+                                  AutomationProperties.Name="Grupos de partidos">
+                            <ListView.ItemTemplate>
+                                <DataTemplate x:DataType="ported:SimetriaLinea">
+                                    <Grid ColumnSpacing="12" Padding="0,4">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="32" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0"
+                                                   Text="{x:Bind NumeroTexto}"
+                                                   VerticalAlignment="Center"
+                                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                                        <TextBox Grid.Column="1"
+                                                 Text="{x:Bind Valor, Mode=TwoWay}"
+                                                 PlaceholderText="p. ej. 1,2-5"
+                                                 AutomationProperties.Name="Grupo de partidos" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </StackPanel>
+                </Border>
+
+                <!-- ===== Conceptos analizados (TextBox de la derecha legacy) ===== -->
+                <Border Grid.Column="1" Style="{StaticResource AppCardStyle}">
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Valores distintos por concepto" Style="{StaticResource CardTitleTextBlockStyle}" />
+                        <TextBlock Text="Cantidad o intervalo de valores distintos entre los grupos."
+                                   Style="{StaticResource SecondaryTextBlockStyle}"
+                                   TextWrapping="Wrap" />
+
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="110" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Variantes" VerticalAlignment="Center"
+                                       Style="{StaticResource SecondaryTextBlockStyle}" />
+                            <TextBox Grid.Column="1"
+                                     Text="{x:Bind ViewModel.Variantes, Mode=TwoWay}"
+                                     PlaceholderText="p. ej. 2 o 1-3"
+                                     AutomationProperties.Name="Variantes" />
+                        </Grid>
+
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="110" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Equis" VerticalAlignment="Center"
+                                       Style="{StaticResource SecondaryTextBlockStyle}" />
+                            <TextBox Grid.Column="1"
+                                     Text="{x:Bind ViewModel.Equis, Mode=TwoWay}"
+                                     PlaceholderText="p. ej. 2 o 1-3"
+                                     AutomationProperties.Name="Equis" />
+                        </Grid>
+
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="110" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Doses" VerticalAlignment="Center"
+                                       Style="{StaticResource SecondaryTextBlockStyle}" />
+                            <TextBox Grid.Column="1"
+                                     Text="{x:Bind ViewModel.Doses, Mode=TwoWay}"
+                                     PlaceholderText="p. ej. 2 o 1-3"
+                                     AutomationProperties.Name="Doses" />
+                        </Grid>
+
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="110" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Dibujos" VerticalAlignment="Center"
+                                       Style="{StaticResource SecondaryTextBlockStyle}" />
+                            <TextBox Grid.Column="1"
+                                     Text="{x:Bind ViewModel.Dibujos, Mode=TwoWay}"
+                                     PlaceholderText="p. ej. 2 o 1-3"
+                                     AutomationProperties.Name="Dibujos" />
+                        </Grid>
+
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="110" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Interrupciones" VerticalAlignment="Center"
+                                       Style="{StaticResource SecondaryTextBlockStyle}" />
+                            <TextBox Grid.Column="1"
+                                     Text="{x:Bind ViewModel.Interrupciones, Mode=TwoWay}"
+                                     PlaceholderText="p. ej. 2 o 1-3"
+                                     AutomationProperties.Name="Interrupciones" />
+                        </Grid>
+
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="110" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Formatos" VerticalAlignment="Center"
+                                       Style="{StaticResource SecondaryTextBlockStyle}" />
+                            <TextBox Grid.Column="1"
+                                     Text="{x:Bind ViewModel.Formatos, Mode=TwoWay}"
+                                     PlaceholderText="p. ej. 2 o 1-3"
+                                     AutomationProperties.Name="Formatos" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- ===== Atajos (cbbAtajos + chkPasoFijo + btnOK legacy) ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Atajos" Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <TextBlock Text="Genera automáticamente los grupos de partidos por agrupación."
+                               Style="{StaticResource SecondaryTextBlockStyle}"
+                               TextWrapping="Wrap" />
+                    <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
+                        <ComboBox Width="160"
+                                  Header="Agrupación"
+                                  ItemsSource="{x:Bind ViewModel.AtajosDisponibles}"
+                                  SelectedItem="{x:Bind ViewModel.AtajoSeleccionado, Mode=TwoWay}"
+                                  AutomationProperties.Name="Tipo de agrupación" />
+                        <ToggleSwitch Header="Paso fijo"
+                                      IsOn="{x:Bind ViewModel.PasoFijo, Mode=TwoWay}"
+                                      AutomationProperties.Name="Paso fijo" />
+                        <Button Content="Generar"
+                                VerticalAlignment="Bottom"
+                                Command="{x:Bind ViewModel.GenerarAtajosCommand}"
+                                AutomationProperties.Name="Generar grupos de la agrupación seleccionada" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Acciones (menuCondiciones legacy) ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Acciones" Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <StackPanel Orientation="Horizontal" Spacing="5">
+                        <Button Content="Aceptar"
+                                Style="{StaticResource AccentButtonStyle}"
+                                Command="{x:Bind ViewModel.AceptarCommand}"
+                                AutomationProperties.Name="Aceptar y aplicar el filtro de diferencias" />
+                        <Button Content="Estadísticas"
+                                Command="{x:Bind ViewModel.EstadisticasCommand}"
+                                AutomationProperties.Name="Ver estadísticas del filtro" />
+                        <Button Content="Guardar"
+                                Command="{x:Bind ViewModel.GuardarCommand}"
+                                AutomationProperties.Name="Guardar la condición en un archivo" />
+                        <Button Content="Abrir"
+                                Command="{x:Bind ViewModel.AbrirCommand}"
+                                AutomationProperties.Name="Abrir una condición desde un archivo" />
+                        <Button Content="Copiar"
+                                Command="{x:Bind ViewModel.CopiarCommand}"
+                                AutomationProperties.Name="Copiar la condición" />
+                        <Button Content="Pegar"
+                                Command="{x:Bind ViewModel.PegarCommand}"
+                                AutomationProperties.Name="Pegar la condición copiada" />
+                        <Button Content="Borrar"
+                                Command="{x:Bind ViewModel.BorrarCommand}"
+                                AutomationProperties.Name="Borrar todos los datos del filtro" />
+                        <Button Content="Cancelar"
+                                Command="{x:Bind ViewModel.CancelarCommand}"
+                                AutomationProperties.Name="Cancelar sin aplicar" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

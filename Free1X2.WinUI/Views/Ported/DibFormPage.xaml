@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.DibFormPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Free1X2.WinUI.Views.Ported"
+    Background="{ThemeResource AppBackgroundBrush}">
+
+    <Grid Padding="10,7" RowSpacing="6">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- ===== Encabezado (Text del form legacy = "dibujos") ===== -->
+        <StackPanel Grid.Row="0" Spacing="4">
+            <TextBlock Text="Dibujos" Style="{StaticResource PageTitleTextBlockStyle}" />
+            <TextBlock Style="{StaticResource SecondaryTextBlockStyle}"
+                       Foreground="{ThemeResource AppTextSecondaryBrush}"
+                       Text="Distribución por nº de X (filas) y nº de 2 (columnas): tabla triangular con totales por fila, por columna y por nº de variantes (X+2). Elige ver porcentajes o número de columnas." />
+        </StackPanel>
+
+        <!-- ===== Opciones de visualización (GroupBox "mostrar" + RadioButtons legacy) ===== -->
+        <Border Grid.Row="1" Style="{StaticResource AppCardStyle}" Padding="10,7">
+            <StackPanel Spacing="5">
+                <TextBlock Text="Mostrar"
+                           Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                <!-- rbPercent (porcentajes, Checked por defecto) / rbCols (columnas):
+                     ToggleSwitch Off = porcentajes ; On = columnas. -->
+                <ToggleSwitch Header="Modo de visualización"
+                              OffContent="Porcentajes"
+                              OnContent="Columnas"
+                              IsOn="{x:Bind ViewModel.MostrarColumnas, Mode=TwoWay}"
+                              AutomationProperties.Name="Alternar entre porcentajes y número de columnas" />
+
+                <!-- lncol.Text = numcol (total de columnas analizadas) -->
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock Text="Columnas analizadas:"
+                               VerticalAlignment="Center"
+                               Foreground="{ThemeResource AppTextSecondaryBrush}"
+                               Style="{StaticResource CaptionTextBlockStyle}" />
+                    <TextBlock Text="{x:Bind ViewModel.NumColTexto, Mode=OneWay}"
+                               VerticalAlignment="Center"
+                               Foreground="{ThemeResource AppTextBrush}"
+                               Style="{StaticResource BodyStrongTextBlockStyle}" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- ===== Tabla de distribución (matriz triangular lt####/lx##/ld##/lv## legacy) ===== -->
+        <Border Grid.Row="2" Style="{StaticResource AppCardStyle}" Padding="10,7">
+            <Grid RowSpacing="6">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0"
+                           Text="Distribución (filas = nº de X, columnas = nº de 2)"
+                           Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                <ScrollViewer Grid.Row="1"
+                              HorizontalScrollBarVisibility="Auto" HorizontalScrollMode="Auto"
+                              VerticalScrollBarVisibility="Auto" VerticalScrollMode="Auto">
+                    <StackPanel Spacing="2">
+
+                        <!-- Fila de encabezados de columna (nº de 2, 0..14) + col del total de fila -->
+                        <StackPanel Orientation="Horizontal" Spacing="2">
+                            <Border Width="64" Height="26"
+                                    Background="{ThemeResource AppSurfaceAltBrush}"
+                                    BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1" CornerRadius="3">
+                                <TextBlock Text="X \ 2" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                           Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                            </Border>
+                            <ItemsControl ItemsSource="{x:Bind ViewModel.CabecerasColumna}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Horizontal" Spacing="2" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="x:String">
+                                        <Border Width="44" Height="26"
+                                                Background="{ThemeResource AppSurfaceAltBrush}"
+                                                BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1" CornerRadius="3">
+                                            <TextBlock Text="{x:Bind}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                                       Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <Border Width="56" Height="26"
+                                    Background="{ThemeResource AppSurfaceAltBrush}"
+                                    BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1" CornerRadius="3">
+                                <TextBlock Text="Σ fila" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                           Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                            </Border>
+                        </StackPanel>
+
+                        <!-- Filas de datos (cabecera de fila + celdas triangulares + total de fila lx##) -->
+                        <ItemsControl ItemsSource="{x:Bind ViewModel.Filas, Mode=OneWay}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="local:DibFila">
+                                    <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,1,0,0">
+
+                                        <!-- Cabecera de fila (nº de X) -->
+                                        <Border Width="64" Height="26"
+                                                Background="{ThemeResource AppSurfaceAltBrush}"
+                                                BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1" CornerRadius="3">
+                                            <TextBlock Text="{x:Bind Cabecera}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                                       Foreground="{ThemeResource AppTextBrush}" />
+                                        </Border>
+
+                                        <!-- Celdas lt#### de la fila (triangular: Visible == false => hueco) -->
+                                        <ItemsControl ItemsSource="{x:Bind Celdas}">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <StackPanel Orientation="Horizontal" Spacing="2" />
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate x:DataType="local:DibCelda">
+                                                    <Grid Width="44" Height="26">
+                                                        <Border Background="{ThemeResource AppSurfaceBrush}"
+                                                                BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1" CornerRadius="3"
+                                                                Visibility="{x:Bind Visibilidad}">
+                                                            <TextBlock Text="{x:Bind Texto}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                                                       Foreground="{ThemeResource AppTextBrush}" />
+                                                        </Border>
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+
+                                        <!-- Total de fila (lx##) -->
+                                        <Border Width="56" Height="26"
+                                                Background="{ThemeResource AppSurfaceAltBrush}"
+                                                BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1" CornerRadius="3">
+                                            <TextBlock Text="{x:Bind TotalFila}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                                       Foreground="{ThemeResource AppAccentBrush}" />
+                                        </Border>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <!-- Fila de totales por columna (ld##) -->
+                        <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,4,0,0">
+                            <Border Width="64" Height="26"
+                                    Background="{ThemeResource AppSurfaceAltBrush}"
+                                    BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1" CornerRadius="3">
+                                <TextBlock Text="Σ col" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                           Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                            </Border>
+                            <ItemsControl ItemsSource="{x:Bind ViewModel.TotalesColumna, Mode=OneWay}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Horizontal" Spacing="2" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="x:String">
+                                        <Border Width="44" Height="26"
+                                                Background="{ThemeResource AppSurfaceAltBrush}"
+                                                BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1" CornerRadius="3">
+                                            <TextBlock Text="{x:Bind}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                                       Foreground="{ThemeResource AppAccentBrush}" />
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+
+                        <!-- Totales por nº de variantes (lv## = suma de celdas con X+2 == v) -->
+                        <TextBlock Text="Variantes (X + 2)" Margin="0,8,0,0"
+                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                   Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                        <StackPanel Orientation="Horizontal" Spacing="2">
+                            <ItemsControl ItemsSource="{x:Bind ViewModel.CabecerasColumna}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Horizontal" Spacing="2" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="x:String">
+                                        <Border Width="44" Height="26"
+                                                Background="{ThemeResource AppSurfaceAltBrush}"
+                                                BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1" CornerRadius="3">
+                                            <TextBlock Text="{x:Bind}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                                       Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="2">
+                            <ItemsControl ItemsSource="{x:Bind ViewModel.TotalesVariantes, Mode=OneWay}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Horizontal" Spacing="2" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="x:String">
+                                        <Border Width="44" Height="26"
+                                                Background="{ThemeResource AppSurfaceBrush}"
+                                                BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1" CornerRadius="3">
+                                            <TextBlock Text="{x:Bind}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                                       Foreground="{ThemeResource AppTextBrush}" />
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+    </Grid>
+</Page>

@@ -8,7 +8,6 @@ using Free1X2.MotorCalculo;
 using Free1X2.UI.Controls;
 using Free1X2.UI.Estadisticas;
 using Free1X2.UI.Filtros;
-using Free1X2.UI.Modern.Icons;
 using Free1X2.UI.Modern.Theming;
 
 namespace Free1X2.UI 
@@ -59,7 +58,6 @@ namespace Free1X2.UI
         {
             base.OnLoad(e);
             ModernTheme.ApplyToForm(this);
-            IconReplacer.Apply(this);
         }
 		
         private void InicializarBarrasHerramientas()

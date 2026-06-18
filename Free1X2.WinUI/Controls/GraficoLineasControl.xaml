@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="Free1X2.WinUI.Controls.GraficoLineasControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:Free1X2.WinUI.Controls">
+
+    <!-- Lienzo de líneas reutilizable: dibuja ejes + grid + una o varias polilíneas
+         (curvas) a partir de los puntos ya calculados por el ViewModel anfitrión.
+         Réplica WinUI nativa (Microsoft.UI.Xaml.Shapes) de Free1X2/Utils/Grafico.cs
+         (DibujarEjes / DibujaGrid / DibujaCurva), sin System.Drawing ni Win2D. -->
+    <Border
+        Background="{ThemeResource AppSurfaceAltBrush}"
+        BorderBrush="{ThemeResource AppBorderBrush}"
+        BorderThickness="1"
+        CornerRadius="4">
+        <Canvas
+            x:Name="Lienzo"
+            SizeChanged="Lienzo_SizeChanged" />
+    </Border>
+</UserControl>

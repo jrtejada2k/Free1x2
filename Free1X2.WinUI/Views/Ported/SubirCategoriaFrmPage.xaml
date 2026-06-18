@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.SubirCategoriaFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ported="using:Free1X2.WinUI.Views.Ported">
+
+    <Page.Resources>
+        <!-- Plantilla de una casilla (partido) -->
+        <DataTemplate x:Key="PartidoTemplate" x:DataType="ported:CasillaSeleccionable">
+            <CheckBox Content="{x:Bind Etiqueta}"
+                      MinWidth="0" Margin="0,0,4,0"
+                      IsChecked="{x:Bind Marcada, Mode=TwoWay}"
+                      IsEnabled="{x:Bind Habilitada, Mode=OneWay}"
+                      AutomationProperties.Name="{x:Bind Etiqueta}" />
+        </DataTemplate>
+
+        <!-- Plantilla de un nivel -->
+        <DataTemplate x:Key="NivelTemplate" x:DataType="ported:CasillaSeleccionable">
+            <CheckBox Content="{x:Bind Etiqueta}"
+                      Margin="0,2"
+                      IsChecked="{x:Bind Marcada, Mode=TwoWay}"
+                      IsEnabled="{x:Bind Habilitada, Mode=OneWay}"
+                      AutomationProperties.Name="{x:Bind Etiqueta}" />
+        </DataTemplate>
+    </Page.Resources>
+
+    <ScrollViewer>
+        <StackPanel Padding="12,8" Spacing="8" MaxWidth="980" HorizontalAlignment="Left">
+
+            <!-- ===== Encabezado ===== -->
+            <StackPanel Spacing="6">
+                <TextBlock Text="Subir Categoría"
+                           Style="{StaticResource PageTitleTextBlockStyle}" />
+                <TextBlock Text="A partir de un archivo de columnas de origen, elige los partidos involucrados, cuántos signos van seguidos y los niveles de acierto a aplicar; opcionalmente usa una combinación externa. El resultado se calcula y se graba en un archivo de salida."
+                           Style="{StaticResource SecondaryTextBlockStyle}"
+                           TextWrapping="Wrap" />
+            </StackPanel>
+
+            <!-- ===== Archivos ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Archivos" Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                    <Grid ColumnSpacing="12" RowSpacing="6">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <Button Grid.Row="0" Grid.Column="0"
+                                Content="Origen (txt)"
+                                Click="OnSeleccionarOrigen"
+                                AutomationProperties.Name="Seleccionar archivo de origen"
+                                MinWidth="150" HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Left" />
+                        <TextBlock Grid.Row="0" Grid.Column="1"
+                                   Text="{x:Bind ViewModel.ArchivoOrigen, Mode=OneWay}"
+                                   VerticalAlignment="Center"
+                                   Style="{StaticResource SecondaryTextBlockStyle}"
+                                   TextTrimming="CharacterEllipsis" />
+
+                        <Button Grid.Row="1" Grid.Column="0"
+                                Content="Salida (txt)"
+                                Click="OnSeleccionarSalida"
+                                IsEnabled="{x:Bind ViewModel.PuedeElegirSalida, Mode=OneWay}"
+                                AutomationProperties.Name="Seleccionar archivo de salida"
+                                MinWidth="150" HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Left" />
+                        <TextBlock Grid.Row="1" Grid.Column="1"
+                                   Text="{x:Bind ViewModel.ArchivoSalida, Mode=OneWay}"
+                                   VerticalAlignment="Center"
+                                   Style="{StaticResource SecondaryTextBlockStyle}"
+                                   TextTrimming="CharacterEllipsis" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <Grid ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <!-- ===== Partidos involucrados ===== -->
+                <Border Grid.Column="0" Style="{StaticResource AppCardStyle}" VerticalAlignment="Top">
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Partidos involucrados"
+                                   Style="{StaticResource CardTitleTextBlockStyle}" />
+                        <TextBlock Text="(desmarcando alguno, se arriesga la garantía)"
+                                   Style="{StaticResource SecondaryTextBlockStyle}"
+                                   TextWrapping="Wrap" />
+
+                        <!-- Casillas de partido. El binding IsEnabled va en cada CheckBox
+                             (Control) dentro de la plantilla, nunca en el panel contenedor. -->
+                        <ItemsControl ItemsSource="{x:Bind ViewModel.Partidos}"
+                                      ItemTemplate="{StaticResource PartidoTemplate}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+
+                        <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
+                            <TextBlock Text="Seguidos:" VerticalAlignment="Center"
+                                       Style="{StaticResource SecondaryTextBlockStyle}" />
+                            <NumberBox Value="{x:Bind ViewModel.Seguidos, Mode=TwoWay}"
+                                       Minimum="0" Maximum="16"
+                                       SpinButtonPlacementMode="Compact" MinWidth="120"
+                                       AutomationProperties.Name="Número de signos seguidos" />
+                        </StackPanel>
+
+                        <!-- Combinación externa (btFileExternas / txCombinacionExterna) -->
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Button Grid.Column="0"
+                                    Content="Usar combinación"
+                                    Click="OnSeleccionarExternas"
+                                    AutomationProperties.Name="Seleccionar combinación externa"
+                                    MinWidth="150" HorizontalContentAlignment="Left" />
+                            <TextBlock Grid.Column="1"
+                                       Text="{x:Bind ViewModel.ArchivoExternas, Mode=OneWay}"
+                                       VerticalAlignment="Center"
+                                       Style="{StaticResource SecondaryTextBlockStyle}"
+                                       TextTrimming="CharacterEllipsis" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- ===== Niveles ===== -->
+                <Border Grid.Column="1" Style="{StaticResource AppCardStyle}"
+                        VerticalAlignment="Top" MinWidth="120">
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Niveles" Style="{StaticResource CardTitleTextBlockStyle}" />
+                        <ItemsControl ItemsSource="{x:Bind ViewModel.Niveles}"
+                                      ItemTemplate="{StaticResource NivelTemplate}" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- ===== Acciones + estado ===== -->
+            <StackPanel Spacing="5">
+                <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                    <Button Content="Calcular"
+                            Style="{StaticResource AccentButtonStyle}"
+                            Command="{x:Bind ViewModel.CalcularCommand}"
+                            IsEnabled="{x:Bind ViewModel.PuedeCalcular, Mode=OneWay}"
+                            AutomationProperties.Name="Calcular las columnas resultantes" />
+                    <Button Content="Grabar"
+                            Command="{x:Bind ViewModel.GrabarCommand}"
+                            IsEnabled="{x:Bind ViewModel.PuedeGrabar, Mode=OneWay}"
+                            AutomationProperties.Name="Grabar el resultado en el archivo de salida" />
+                    <TextBlock Text="{x:Bind ViewModel.ConteoColumnas, Mode=OneWay}"
+                               VerticalAlignment="Center"
+                               Style="{StaticResource CardTitleTextBlockStyle}" />
+                </StackPanel>
+                <TextBlock Text="{x:Bind ViewModel.Estado, Mode=OneWay}"
+                           Style="{StaticResource SecondaryTextBlockStyle}" />
+            </StackPanel>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

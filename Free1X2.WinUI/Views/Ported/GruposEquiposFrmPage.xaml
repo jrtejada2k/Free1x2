@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.GruposEquiposFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ported="using:Free1X2.WinUI.Views.Ported">
+
+    <Grid Background="{StaticResource AppBackgroundBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <ScrollViewer Grid.Row="0">
+            <StackPanel Padding="12,8" Spacing="8" MaxWidth="900" HorizontalAlignment="Left">
+
+                <!-- ===== Encabezado ===== -->
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Grupos de Equipos"
+                               Style="{StaticResource PageTitleTextBlockStyle}" />
+                    <TextBlock Text="Marca los equipos elegidos y especifica las victorias / empates / derrotas y/o la suma de puntos que conseguirán. La pestaña Relaciones combina varios grupos."
+                               Style="{StaticResource SecondaryTextBlockStyle}"
+                               TextWrapping="Wrap" />
+                </StackPanel>
+
+                <Pivot>
+
+                    <!-- ============================================================
+                         Pestaña 1: Grupos Equipos (tabPage1 del WinForms)
+                         ============================================================ -->
+                    <PivotItem Header="Grupos Equipos">
+                        <StackPanel Spacing="8">
+
+                            <!-- Navegación de grupos (groupBox1: btnPrev / lblNoGruposEq / btnNext) -->
+                            <Border Style="{StaticResource AppCardStyle}">
+                                <StackPanel Spacing="6">
+                                    <TextBlock Text="Grupo" Style="{StaticResource CardTitleTextBlockStyle}" />
+                                    <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
+                                        <Button Content="◄ Anterior"
+                                                Command="{x:Bind ViewModel.GrupoAnteriorCommand}"
+                                                IsEnabled="{x:Bind ViewModel.PuedeRetrocederGrupo, Mode=OneWay}"
+                                                AutomationProperties.Name="Grupo anterior" />
+                                        <TextBlock Text="{x:Bind ViewModel.GrupoActualTexto, Mode=OneWay}"
+                                                   VerticalAlignment="Center" MinWidth="60"
+                                                   HorizontalTextAlignment="Center"
+                                                   Style="{StaticResource CardTitleTextBlockStyle}" />
+                                        <Button Content="Siguiente ►"
+                                                Command="{x:Bind ViewModel.GrupoSiguienteCommand}"
+                                                AutomationProperties.Name="Grupo siguiente" />
+                                        <Button Content="Eliminar actual"
+                                                Command="{x:Bind ViewModel.EliminarGrupoCommand}"
+                                                Style="{StaticResource FiltroButtonErrorStyle}"
+                                                AutomationProperties.Name="Eliminar grupo actual" />
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Rejilla de 14 partidos: casillas Casa / Fuera -->
+                            <Border Style="{StaticResource AppCardStyle}">
+                                <StackPanel Spacing="5">
+                                    <TextBlock Text="Equipos del grupo"
+                                               Style="{StaticResource CardTitleTextBlockStyle}" />
+                                    <TextBlock Text="Pulsa el equipo de casa (1) o de fuera (2) de cada partido. Marcar ambos equivale al empate (X)."
+                                               Style="{StaticResource SecondaryTextBlockStyle}"
+                                               TextWrapping="Wrap" />
+
+                                    <ListView ItemsSource="{x:Bind ViewModel.Partidos, Mode=OneWay}"
+                                              SelectionMode="None"
+                                              IsItemClickEnabled="False">
+                                        <ListView.ItemTemplate>
+                                            <DataTemplate x:DataType="ported:PartidoEquipos">
+                                                <Grid ColumnSpacing="10" Padding="0,4">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="32" />
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="*" />
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <TextBlock Grid.Column="0"
+                                                               Text="{x:Bind NumeroTexto}"
+                                                               VerticalAlignment="Center"
+                                                               HorizontalTextAlignment="Center"
+                                                               Style="{StaticResource SecondaryTextBlockStyle}" />
+
+                                                    <ToggleButton Grid.Column="1"
+                                                                  Content="{x:Bind EquipoCasa, Mode=OneWay}"
+                                                                  IsChecked="{x:Bind CasaSeleccionado, Mode=TwoWay}"
+                                                                  Style="{StaticResource SignoToggleButtonStyle}"
+                                                                  HorizontalContentAlignment="Left"
+                                                                  AutomationProperties.Name="Seleccionar equipo de casa" />
+
+                                                    <ToggleButton Grid.Column="2"
+                                                                  Content="{x:Bind EquipoFuera, Mode=OneWay}"
+                                                                  IsChecked="{x:Bind FueraSeleccionado, Mode=TwoWay}"
+                                                                  Style="{StaticResource SignoToggleButtonStyle}"
+                                                                  HorizontalContentAlignment="Left"
+                                                                  AutomationProperties.Name="Seleccionar equipo de fuera" />
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ListView.ItemTemplate>
+                                    </ListView>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Datos esperados del grupo (label43..46 + txt*) -->
+                            <Border Style="{StaticResource AppCardStyle}">
+                                <StackPanel Spacing="5">
+                                    <TextBlock Text="Objetivos del grupo"
+                                               Style="{StaticResource CardTitleTextBlockStyle}" />
+                                    <Grid ColumnSpacing="12" RowSpacing="6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+
+                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Victorias"
+                                                   VerticalAlignment="Center" MinWidth="110"
+                                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                                        <TextBox Grid.Row="0" Grid.Column="1"
+                                                 Text="{x:Bind ViewModel.Victorias, Mode=TwoWay}"
+                                                 MaxWidth="280" HorizontalAlignment="Left"
+                                                 AutomationProperties.Name="Victorias" />
+
+                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Empates"
+                                                   VerticalAlignment="Center" MinWidth="110"
+                                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                                        <TextBox Grid.Row="1" Grid.Column="1"
+                                                 Text="{x:Bind ViewModel.Empates, Mode=TwoWay}"
+                                                 MaxWidth="280" HorizontalAlignment="Left"
+                                                 AutomationProperties.Name="Empates" />
+
+                                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Derrotas"
+                                                   VerticalAlignment="Center" MinWidth="110"
+                                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                                        <TextBox Grid.Row="2" Grid.Column="1"
+                                                 Text="{x:Bind ViewModel.Derrotas, Mode=TwoWay}"
+                                                 MaxWidth="280" HorizontalAlignment="Left"
+                                                 AutomationProperties.Name="Derrotas" />
+
+                                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Suma Puntos"
+                                                   VerticalAlignment="Center" MinWidth="110"
+                                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                                        <TextBox Grid.Row="3" Grid.Column="1"
+                                                 Text="{x:Bind ViewModel.SumaPuntos, Mode=TwoWay}"
+                                                 MaxWidth="280" HorizontalAlignment="Left"
+                                                 AutomationProperties.Name="Suma de puntos" />
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+
+                        </StackPanel>
+                    </PivotItem>
+
+                    <!-- ============================================================
+                         Pestaña 2: Relaciones (tabPage2 del WinForms)
+                         ============================================================ -->
+                    <PivotItem Header="Relaciones">
+                        <StackPanel Spacing="8">
+
+                            <!-- Navegación de relaciones (groupBox2) -->
+                            <Border Style="{StaticResource AppCardStyle}">
+                                <StackPanel Spacing="6">
+                                    <TextBlock Text="Relación" Style="{StaticResource CardTitleTextBlockStyle}" />
+                                    <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
+                                        <Button Content="◄ Anterior"
+                                                Command="{x:Bind ViewModel.RelacionAnteriorCommand}"
+                                                IsEnabled="{x:Bind ViewModel.PuedeRetrocederRelacion, Mode=OneWay}"
+                                                AutomationProperties.Name="Relación anterior" />
+                                        <TextBlock Text="{x:Bind ViewModel.RelacionActualTexto, Mode=OneWay}"
+                                                   VerticalAlignment="Center" MinWidth="60"
+                                                   HorizontalTextAlignment="Center"
+                                                   Style="{StaticResource CardTitleTextBlockStyle}" />
+                                        <Button Content="Siguiente ►"
+                                                Command="{x:Bind ViewModel.RelacionSiguienteCommand}"
+                                                AutomationProperties.Name="Relación siguiente" />
+                                        <Button Content="Eliminar actual"
+                                                Command="{x:Bind ViewModel.EliminarRelacionCommand}"
+                                                Style="{StaticResource FiltroButtonErrorStyle}"
+                                                AutomationProperties.Name="Eliminar relación actual" />
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Datos de la relación (label16..20 + txt*Rel) -->
+                            <Border Style="{StaticResource AppCardStyle}">
+                                <StackPanel Spacing="5">
+                                    <TextBlock Text="Datos de la relación"
+                                               Style="{StaticResource CardTitleTextBlockStyle}" />
+                                    <Grid ColumnSpacing="12" RowSpacing="6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+
+                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Grupos Equipos"
+                                                   VerticalAlignment="Center" MinWidth="130"
+                                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                                        <TextBox Grid.Row="0" Grid.Column="1"
+                                                 Text="{x:Bind ViewModel.GruposEquiposRel, Mode=TwoWay}"
+                                                 MaxWidth="260" HorizontalAlignment="Left"
+                                                 AutomationProperties.Name="Grupos de equipos de la relación" />
+
+                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Suma Victorias"
+                                                   VerticalAlignment="Center" MinWidth="130"
+                                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                                        <TextBox Grid.Row="1" Grid.Column="1"
+                                                 Text="{x:Bind ViewModel.SumaVictoriasRel, Mode=TwoWay}"
+                                                 MaxWidth="260" HorizontalAlignment="Left"
+                                                 AutomationProperties.Name="Suma de victorias" />
+
+                                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Suma Empates"
+                                                   VerticalAlignment="Center" MinWidth="130"
+                                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                                        <TextBox Grid.Row="2" Grid.Column="1"
+                                                 Text="{x:Bind ViewModel.SumaEmpatesRel, Mode=TwoWay}"
+                                                 MaxWidth="260" HorizontalAlignment="Left"
+                                                 AutomationProperties.Name="Suma de empates" />
+
+                                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Suma Derrotas"
+                                                   VerticalAlignment="Center" MinWidth="130"
+                                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                                        <TextBox Grid.Row="3" Grid.Column="1"
+                                                 Text="{x:Bind ViewModel.SumaDerrotasRel, Mode=TwoWay}"
+                                                 MaxWidth="260" HorizontalAlignment="Left"
+                                                 AutomationProperties.Name="Suma de derrotas" />
+
+                                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Suma Puntos"
+                                                   VerticalAlignment="Center" MinWidth="130"
+                                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                                        <TextBox Grid.Row="4" Grid.Column="1"
+                                                 Text="{x:Bind ViewModel.SumaPuntosRel, Mode=TwoWay}"
+                                                 MaxWidth="260" HorizontalAlignment="Left"
+                                                 AutomationProperties.Name="Suma de puntos de la relación" />
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+
+                        </StackPanel>
+                    </PivotItem>
+
+                </Pivot>
+
+                <TextBlock Text="{x:Bind ViewModel.Estado, Mode=OneWay}"
+                           Style="{StaticResource SecondaryTextBlockStyle}" />
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- ===== Barra de comandos (menuCondiciones del WinForms) ===== -->
+        <Border Grid.Row="1"
+                Background="{StaticResource AppSurfaceBrush}"
+                BorderBrush="{StaticResource AppBorderBrush}"
+                BorderThickness="0,1,0,0"
+                Padding="10,7">
+            <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Right">
+                <Button Content="Estadísticas"
+                        Command="{x:Bind ViewModel.EstadisticasCommand}"
+                        AutomationProperties.Name="Ver estadísticas" />
+                <Button Content="Abrir"
+                        Command="{x:Bind ViewModel.AbrirCommand}"
+                        AutomationProperties.Name="Abrir condición" />
+                <Button Content="Guardar"
+                        Command="{x:Bind ViewModel.GuardarCommand}"
+                        AutomationProperties.Name="Guardar condición" />
+                <Button Content="Copiar"
+                        Command="{x:Bind ViewModel.CopiarCommand}"
+                        AutomationProperties.Name="Copiar condición" />
+                <Button Content="Pegar"
+                        Command="{x:Bind ViewModel.PegarCommand}"
+                        AutomationProperties.Name="Pegar condición" />
+                <Button Content="Borrar"
+                        Command="{x:Bind ViewModel.BorrarCommand}"
+                        Style="{StaticResource FiltroButtonErrorStyle}"
+                        AutomationProperties.Name="Borrar datos del filtro" />
+                <Button Content="Cancelar"
+                        Command="{x:Bind ViewModel.CancelarCommand}"
+                        AutomationProperties.Name="Cancelar" />
+                <Button Content="Aceptar"
+                        Command="{x:Bind ViewModel.AceptarCommand}"
+                        Style="{StaticResource AccentButtonStyle}"
+                        AutomationProperties.Name="Aceptar y activar el filtro" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</Page>

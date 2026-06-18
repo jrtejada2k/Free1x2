@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.AnalisisFormatos123FrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ported="using:Free1X2.WinUI.Views.Ported"
+    xmlns:controls="using:Free1X2.WinUI.Controls">
+
+    <ScrollViewer>
+        <StackPanel Padding="12,8" Spacing="8" MaxWidth="900" HorizontalAlignment="Left">
+
+            <!-- ===== Encabezado ===== -->
+            <StackPanel Spacing="6">
+                <TextBlock Text="Analizador Formatos123"
+                           Style="{StaticResource PageTitleTextBlockStyle}" />
+                <TextBlock Text="Traduce cada signo de una columna (1/X/2) a la posición que ocupa en la valoración del partido (1 más probable, 3 menos probable) y cuenta cuántas veces aparece cada formato sobre esa columna traducida."
+                           Style="{StaticResource SecondaryTextBlockStyle}"
+                           TextWrapping="Wrap" />
+            </StackPanel>
+
+            <!-- ===== Archivo de columnas + navegación ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Columnas a analizar"
+                               Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <TextBlock Text="Carga un archivo de columnas y navega por ellas; cada columna se analiza por separado."
+                               Style="{StaticResource SecondaryTextBlockStyle}"
+                               TextWrapping="Wrap" />
+
+                    <Button Content="&#xE8E5;  Archivo de columnas"
+                            FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                            Command="{x:Bind ViewModel.LeerArchivoCommand}"
+                            HorizontalAlignment="Left"
+                            AutomationProperties.Name="Cargar archivo de columnas" />
+
+                    <!-- Navegación entre columnas (legacy bMenos / bMas / lblNumCol) -->
+                    <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
+                        <Button Content="&#xE76B;"
+                                FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                Command="{x:Bind ViewModel.RetrocederCommand}"
+                                AutomationProperties.Name="Columna anterior"
+                                ToolTipService.ToolTip="Columna anterior" />
+                        <TextBlock Text="{x:Bind ViewModel.ContadorTexto, Mode=OneWay}"
+                                   MinWidth="64" TextAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   Style="{StaticResource CardTitleTextBlockStyle}"
+                                   AutomationProperties.Name="Columna actual" />
+                        <Button Content="&#xE76C;"
+                                FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                                Command="{x:Bind ViewModel.AvanzarCommand}"
+                                AutomationProperties.Name="Columna siguiente"
+                                ToolTipService.ToolTip="Columna siguiente" />
+                    </StackPanel>
+
+                    <!-- Columna ganadora actual (legacy lblCGanadora) -->
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Columna:"
+                                   VerticalAlignment="Center"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBox Grid.Column="1"
+                                 Text="{x:Bind ViewModel.ColumnaActual, Mode=OneWay}"
+                                 IsReadOnly="True"
+                                 FontFamily="Consolas"
+                                 AutomationProperties.Name="Signos de la columna actual" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Valoración de los partidos (reemplaza el UserControl 'valors') ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Valoración de los partidos"
+                               Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <TextBlock Text="Define la valoración 1/X/2 de cada partido. El orden de estos valores determina cómo se traduce cada signo a 1, 2 o 3 al construir el formato."
+                               Style="{StaticResource SecondaryTextBlockStyle}"
+                               TextWrapping="Wrap" />
+                    <controls:PorcentajesControl Height="260"
+                                                 Filas="{x:Bind ViewModel.Porcentajes, Mode=OneWay}"
+                                                 AutomationProperties.Name="Valoraciones 1 X 2 por partido" />
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Acciones de análisis (legacy btnAnalisis / button1) ===== -->
+            <StackPanel Orientation="Horizontal" Spacing="5">
+                <Button Content="Analizar"
+                        Style="{StaticResource AccentButtonStyle}"
+                        Command="{x:Bind ViewModel.AnalizarCommand}"
+                        AutomationProperties.Name="Analizar los formatos predefinidos de la columna actual" />
+                <Button Content="Mostrar todos"
+                        Command="{x:Bind ViewModel.MostrarTodosCommand}"
+                        AutomationProperties.Name="Mostrar todos los formatos posibles de la columna actual" />
+            </StackPanel>
+
+            <!-- ===== Informe de formatos (legacy label1 'Informe' + cctrl) ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Informe"
+                               Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                    <!-- Cabecera de columnas -->
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Formato"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Column="1" Text="Apariciones"
+                                   MinWidth="100" TextAlignment="Right"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                    </Grid>
+
+                    <ListView ItemsSource="{x:Bind ViewModel.Informe, Mode=OneWay}"
+                              SelectionMode="None"
+                              MaxHeight="360"
+                              AutomationProperties.Name="Informe de formatos">
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="Padding" Value="0,2" />
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                <Setter Property="MinHeight" Value="0" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="ported:Formato123FilaViewModel">
+                                <Grid ColumnSpacing="12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0"
+                                               Text="{x:Bind Formato}"
+                                               FontFamily="Consolas"
+                                               VerticalAlignment="Center"
+                                               AutomationProperties.Name="Formato" />
+                                    <TextBlock Grid.Column="1"
+                                               Text="{x:Bind AparicionesTexto}"
+                                               MinWidth="100" TextAlignment="Right"
+                                               VerticalAlignment="Center"
+                                               Style="{StaticResource BodyStrongTextBlockStyle}"
+                                               AutomationProperties.Name="Número de apariciones" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

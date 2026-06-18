@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.FrmReducidasPerfectasPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ported="using:Free1X2.WinUI.Views.Ported"
+    Background="{ThemeResource AppBackgroundBrush}">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Encabezado. Título real del form legacy: "Reducciones Perfectas" -->
+        <StackPanel Grid.Row="0" Padding="12,8" Spacing="4">
+            <TextBlock Text="Reducciones Perfectas" Style="{StaticResource PageTitleTextBlockStyle}" />
+            <TextBlock
+                Text="Genera reducciones perfectas a partir de una columna base y un pronóstico, grabándolas en un archivo de columnas."
+                Style="{StaticResource SecondaryTextBlockStyle}" TextWrapping="Wrap" />
+        </StackPanel>
+
+        <!-- Contenido desplazable -->
+        <ScrollViewer Grid.Row="1" Padding="12,8" VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="6" MaxWidth="780" HorizontalAlignment="Left">
+
+                <!-- Tarjeta: reducciones contempladas (lblSeContemplan + txtReduccionesContempladas) -->
+                <Border Style="{StaticResource AppCardStyle}">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Se contemplan las siguientes reducciones"
+                                   Style="{StaticResource CardTitleTextBlockStyle}" />
+                        <Grid ColumnSpacing="12" RowSpacing="4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="4 TRIPLES" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="reducidos al 13" Style="{StaticResource SecondaryTextBlockStyle}" />
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="13 TRIPLES" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="reducidos al 13" Style="{StaticResource SecondaryTextBlockStyle}" />
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="11 TRIPLES" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="reducidos al 12" Style="{StaticResource SecondaryTextBlockStyle}" />
+
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="7 DOBLES" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                            <TextBlock Grid.Row="3" Grid.Column="1" Text="reducidos al 13" Style="{StaticResource SecondaryTextBlockStyle}" />
+
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="15 DOBLES" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                            <TextBlock Grid.Row="4" Grid.Column="1" Text="reducidos al 13" Style="{StaticResource SecondaryTextBlockStyle}" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Tarjeta: pronóstico y columna base (grid de 15 labels del form legacy) -->
+                <Border Style="{StaticResource AppCardStyle}">
+                    <StackPanel Spacing="5">
+                        <TextBlock Text="Pronóstico y columna base"
+                                   Style="{StaticResource CardTitleTextBlockStyle}" />
+                        <TextBlock
+                            Text="Para cada partido, marca en Pronóstico los signos que juega (simple, doble o triple) y elige el signo de la columna base. La base debe estar incluida en el pronóstico."
+                            Style="{StaticResource SecondaryTextBlockStyle}" TextWrapping="Wrap" />
+
+                        <!-- Cabeceras -->
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="40" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Nº" Style="{StaticResource SecondaryTextBlockStyle}" />
+                            <TextBlock Grid.Column="1" Text="Pronóstico" Style="{StaticResource SecondaryTextBlockStyle}" />
+                            <TextBlock Grid.Column="3" Text="Base" Style="{StaticResource SecondaryTextBlockStyle}" />
+                        </Grid>
+
+                        <ItemsControl ItemsSource="{x:Bind ViewModel.Partidos}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="ported:PartidoReducidaFila">
+                                    <Grid Margin="0,3" ColumnSpacing="12" VerticalAlignment="Center">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="40" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock Grid.Column="0" Text="{x:Bind NumeroTexto}"
+                                                   Style="{StaticResource BodyStrongTextBlockStyle}"
+                                                   VerticalAlignment="Center" />
+
+                                        <!-- Pronóstico: 3 signos seleccionables (Pronosticos[i,0..2]) -->
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                                            <ToggleButton Style="{StaticResource SignoToggleButtonStyle}"
+                                                          Content="1"
+                                                          IsChecked="{x:Bind Pron1, Mode=TwoWay}"
+                                                          AutomationProperties.Name="Pronóstico signo 1" />
+                                            <ToggleButton Style="{StaticResource SignoToggleButtonStyle}"
+                                                          Content="X"
+                                                          IsChecked="{x:Bind PronX, Mode=TwoWay}"
+                                                          AutomationProperties.Name="Pronóstico signo X" />
+                                            <ToggleButton Style="{StaticResource SignoToggleButtonStyle}"
+                                                          Content="2"
+                                                          IsChecked="{x:Bind Pron2, Mode=TwoWay}"
+                                                          AutomationProperties.Name="Pronóstico signo 2" />
+                                        </StackPanel>
+
+                                        <!-- Columna base: signo único que cicla 1 → X → 2 (SignosBase[i]) -->
+                                        <Button Grid.Column="3"
+                                                MinWidth="44"
+                                                Content="{x:Bind BaseTexto, Mode=OneWay}"
+                                                Command="{x:Bind CiclarBaseCommand}"
+                                                VerticalAlignment="Center"
+                                                AutomationProperties.Name="Signo de la columna base (clic para ciclar 1 X 2)" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <!-- Tarjeta: parámetros de salida -->
+                <Border Style="{StaticResource AppCardStyle}">
+                    <StackPanel Spacing="5">
+                        <TextBlock Text="Salida" Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                        <NumberBox Header="Número de partidos"
+                                   Value="{x:Bind ViewModel.LongitudColumna, Mode=TwoWay}"
+                                   Minimum="1" Maximum="15"
+                                   SpinButtonPlacementMode="Inline"
+                                   AutomationProperties.Name="Número de partidos de la columna" />
+
+                        <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
+                            <Button Content="Seleccionar archivo..."
+                                    Command="{x:Bind ViewModel.SeleccionarArchivoCommand}"
+                                    AutomationProperties.Name="Seleccionar archivo de salida" />
+                            <TextBlock Text="{x:Bind ViewModel.NombreArchivo, Mode=OneWay}"
+                                       VerticalAlignment="Center"
+                                       Style="{StaticResource SecondaryTextBlockStyle}" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Tarjeta: ayuda / origen del método (label4 + linkLabel1 + textBox1) -->
+                <Border Style="{StaticResource AppCardStyle}">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Cómo usarlo" Style="{StaticResource CardTitleTextBlockStyle}" />
+                        <TextBlock TextWrapping="Wrap" Style="{StaticResource SecondaryTextBlockStyle}"
+                                   Text="En la columna Base: cada clic sobre el signo lo cambia (1 → X → 2). En Pronóstico: marca los signos que se juegan en cada partido." />
+                        <TextBlock TextWrapping="Wrap" Style="{StaticResource SecondaryTextBlockStyle}"
+                                   Text="Método de obtención descrito por Fortuna en foro1x2." />
+                        <HyperlinkButton Content="http://www.foro1x2.com/viewtopic.php?t=4445"
+                                         Command="{x:Bind ViewModel.AbrirEnlaceCommand}"
+                                         AutomationProperties.Name="Abrir el hilo del método en foro1x2" />
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Barra de acciones + estado (statusBarPanel1 / statusBarPanel2 + btGenerar) -->
+        <Border Grid.Row="2" Padding="12,8"
+                Background="{ThemeResource AppSurfaceBrush}"
+                BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="0,1,0,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" VerticalAlignment="Center" Spacing="2">
+                    <TextBlock Text="{x:Bind ViewModel.Estado, Mode=OneWay}"
+                               Style="{StaticResource SecondaryTextBlockStyle}" />
+                    <TextBlock Text="{x:Bind ViewModel.EstadoSalida, Mode=OneWay}"
+                               Style="{StaticResource CaptionTextBlockStyle}" />
+                </StackPanel>
+
+                <Button Grid.Column="1" Content="Generar"
+                        Style="{StaticResource AccentButtonStyle}"
+                        Command="{x:Bind ViewModel.GenerarCommand}"
+                        HorizontalAlignment="Right"
+                        AutomationProperties.Name="Generar la reducción perfecta" />
+            </Grid>
+        </Border>
+    </Grid>
+</Page>

@@ -1,0 +1,496 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.VisorAnalisisColumnasAbdonFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Free1X2.WinUI.Views.Ported"
+    Background="{ThemeResource AppBackgroundBrush}">
+
+    <ScrollViewer Padding="10,7">
+        <StackPanel Spacing="8" MaxWidth="980" HorizontalAlignment="Left">
+
+            <!-- Encabezado -->
+            <StackPanel Spacing="4">
+                <TextBlock
+                    Text="Visor de Informe"
+                    Style="{StaticResource PageTitleTextBlockStyle}" />
+                <TextBlock
+                    Text="Análisis ABDON de las columnas generadas frente a las columnas ganadoras del archivo."
+                    Style="{StaticResource SecondaryTextBlockStyle}" />
+            </StackPanel>
+
+            <!-- Modo de análisis -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="5">
+                    <TextBlock
+                        Text="Modo de análisis"
+                        Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                    <TextBlock
+                        Text="Información sobre las columnas probables generadas con respecto a cada columna ganadora."
+                        Style="{StaticResource SecondaryTextBlockStyle}" />
+                    <Button
+                        Content="{x:Bind ViewModel.TextoBotonModo, Mode=OneWay}"
+                        Command="{x:Bind ViewModel.CambiarModoCommand}"
+                        HorizontalAlignment="Left"
+                        AutomationProperties.Name="Cambiar entre modo global e individual" />
+                </StackPanel>
+            </Border>
+
+            <!-- Rango de aciertos de la columna generada -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="5">
+                    <TextBlock
+                        Text="Rango de aciertos de la columna generada"
+                        Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                    <TextBlock
+                        Text="Rango de aciertos de las columnas generadas con respecto a todas las columnas ganadoras del archivo."
+                        Style="{StaticResource SecondaryTextBlockStyle}" />
+
+                    <!-- Navegación de columnas generadas -->
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Button
+                            Grid.Column="0"
+                            Content="◀"
+                            Command="{x:Bind ViewModel.AtrasColumnaCommand}"
+                            AutomationProperties.Name="Columna generada anterior" />
+                        <TextBlock
+                            Grid.Column="1"
+                            VerticalAlignment="Center"
+                            MinWidth="80"
+                            TextAlignment="Center"
+                            Text="{x:Bind ViewModel.ColumnaTexto, Mode=OneWay}"
+                            Style="{StaticResource BodyStrongTextBlockStyle}" />
+                        <Button
+                            Grid.Column="2"
+                            Content="▶"
+                            Command="{x:Bind ViewModel.AdelanteColumnaCommand}"
+                            AutomationProperties.Name="Columna generada siguiente" />
+                    </Grid>
+
+                    <Grid ColumnSpacing="12" Margin="0,4,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Spacing="2">
+                            <TextBlock
+                                Text="Mín"
+                                Style="{StaticResource CaptionTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                            <TextBlock
+                                Text="{x:Bind ViewModel.AciertosMin, Mode=OneWay}"
+                                Style="{StaticResource BodyStrongTextBlockStyle}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Spacing="2">
+                            <TextBlock
+                                Text="Máx"
+                                Style="{StaticResource CaptionTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                            <TextBlock
+                                Text="{x:Bind ViewModel.AciertosMax, Mode=OneWay}"
+                                Style="{StaticResource BodyStrongTextBlockStyle}" />
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Navegación de columnas ganadoras (sólo modo individual) -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="5">
+                    <TextBlock
+                        Text="Columna ganadora (modo individual)"
+                        Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Button
+                            Grid.Column="0"
+                            Content="◀"
+                            Visibility="{x:Bind ViewModel.VisibilidadIndividual, Mode=OneWay}"
+                            Command="{x:Bind ViewModel.AtrasGanadoraCommand}"
+                            AutomationProperties.Name="Columna ganadora anterior" />
+                        <TextBlock
+                            Grid.Column="1"
+                            VerticalAlignment="Center"
+                            MinWidth="80"
+                            TextAlignment="Center"
+                            Visibility="{x:Bind ViewModel.VisibilidadIndividual, Mode=OneWay}"
+                            Text="{x:Bind ViewModel.GanadoraTexto, Mode=OneWay}"
+                            Style="{StaticResource BodyStrongTextBlockStyle}" />
+                        <Button
+                            Grid.Column="2"
+                            Content="▶"
+                            Visibility="{x:Bind ViewModel.VisibilidadIndividual, Mode=OneWay}"
+                            Command="{x:Bind ViewModel.AdelanteGanadoraCommand}"
+                            AutomationProperties.Name="Columna ganadora siguiente" />
+                        <TextBlock
+                            Grid.Column="3"
+                            VerticalAlignment="Center"
+                            Visibility="{x:Bind ViewModel.VisibilidadGlobal, Mode=OneWay}"
+                            Text="En modo global se muestran rangos sobre todas las ganadoras."
+                            Style="{StaticResource SecondaryTextBlockStyle}" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Agrupaciones -->
+            <Grid ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Agrupaciones Paso Fijo -->
+                <Border Grid.Column="0" Style="{StaticResource AppCardStyle}">
+                    <StackPanel Spacing="5">
+                        <TextBlock
+                            Text="Agrupaciones Paso Fijo"
+                            Style="{StaticResource SectionHeaderTextBlockStyle}" />
+
+                        <!-- Cabecera de columnas (legacy CtrlAgrupacion: Número / Elementos / Aciertos) -->
+                        <Grid ColumnSpacing="8" Padding="8,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*" />
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Número"
+                                Style="{StaticResource CaptionTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                            <TextBlock Grid.Column="1" Text="Elementos"
+                                Style="{StaticResource CaptionTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                            <TextBlock Grid.Column="2" Text="Aciertos"
+                                Style="{StaticResource CaptionTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                        </Grid>
+
+                        <ListView
+                            ItemsSource="{x:Bind ViewModel.AgrupacionesPasoFijo}"
+                            SelectionMode="None"
+                            MaxHeight="180"
+                            Background="{ThemeResource AppSurfaceBrush}">
+                            <ListView.ItemTemplate>
+                                <DataTemplate x:DataType="local:VisorAbdonAgrupacion">
+                                    <Grid ColumnSpacing="8" Padding="0,2">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="2*" />
+                                            <ColumnDefinition Width="1*" />
+                                            <ColumnDefinition Width="1*" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{x:Bind Numero}"
+                                            FontFamily="Consolas" />
+                                        <TextBlock Grid.Column="1" Text="{x:Bind Elementos}"
+                                            FontFamily="Consolas" />
+                                        <TextBlock Grid.Column="2" Text="{x:Bind Aciertos}"
+                                            FontFamily="Consolas" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock
+                                Grid.Column="0"
+                                VerticalAlignment="Center"
+                                Text="Mostrar sólo agrupaciones de"
+                                Style="{StaticResource SecondaryTextBlockStyle}" />
+                            <NumberBox
+                                Grid.Column="1"
+                                Width="100"
+                                Minimum="0"
+                                SmallChange="1"
+                                SpinButtonPlacementMode="Compact"
+                                Value="{x:Bind ViewModel.TipoAgrupacionPasoFijo, Mode=TwoWay}"
+                                AutomationProperties.Name="Número de elementos de agrupación paso fijo" />
+                            <Button
+                                Grid.Column="2"
+                                Content="Mostrar"
+                                Command="{x:Bind ViewModel.MostrarAgrupacionesPasoFijoCommand}"
+                                AutomationProperties.Name="Mostrar agrupaciones paso fijo" />
+                        </Grid>
+
+                        <Grid ColumnSpacing="8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock
+                                Grid.Column="0"
+                                VerticalAlignment="Center"
+                                Text="Hay"
+                                Style="{StaticResource SecondaryTextBlockStyle}" />
+                            <TextBlock
+                                Grid.Column="1"
+                                VerticalAlignment="Center"
+                                Text="{x:Bind ViewModel.HayPasoFijo, Mode=OneWay}"
+                                Style="{StaticResource BodyStrongTextBlockStyle}" />
+                            <TextBlock
+                                Grid.Column="2"
+                                VerticalAlignment="Center"
+                                Text="agrupaciones de"
+                                Style="{StaticResource SecondaryTextBlockStyle}" />
+                            <TextBlock
+                                Grid.Column="3"
+                                VerticalAlignment="Center"
+                                Text="{x:Bind ViewModel.NumElementosPasoFijo, Mode=OneWay}"
+                                Style="{StaticResource BodyStrongTextBlockStyle}" />
+                            <TextBlock
+                                Grid.Column="4"
+                                VerticalAlignment="Center"
+                                Text="elementos"
+                                Style="{StaticResource SecondaryTextBlockStyle}" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Agrupaciones Solapadas -->
+                <Border Grid.Column="1" Style="{StaticResource AppCardStyle}">
+                    <StackPanel Spacing="5">
+                        <TextBlock
+                            Text="Agrupaciones Solapadas"
+                            Style="{StaticResource SectionHeaderTextBlockStyle}" />
+
+                        <!-- Cabecera de columnas (legacy CtrlAgrupacion: Número / Elementos / Aciertos) -->
+                        <Grid ColumnSpacing="8" Padding="8,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*" />
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Número"
+                                Style="{StaticResource CaptionTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                            <TextBlock Grid.Column="1" Text="Elementos"
+                                Style="{StaticResource CaptionTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                            <TextBlock Grid.Column="2" Text="Aciertos"
+                                Style="{StaticResource CaptionTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                        </Grid>
+
+                        <ListView
+                            ItemsSource="{x:Bind ViewModel.AgrupacionesSolapadas}"
+                            SelectionMode="None"
+                            MaxHeight="180"
+                            Background="{ThemeResource AppSurfaceBrush}">
+                            <ListView.ItemTemplate>
+                                <DataTemplate x:DataType="local:VisorAbdonAgrupacion">
+                                    <Grid ColumnSpacing="8" Padding="0,2">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="2*" />
+                                            <ColumnDefinition Width="1*" />
+                                            <ColumnDefinition Width="1*" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{x:Bind Numero}"
+                                            FontFamily="Consolas" />
+                                        <TextBlock Grid.Column="1" Text="{x:Bind Elementos}"
+                                            FontFamily="Consolas" />
+                                        <TextBlock Grid.Column="2" Text="{x:Bind Aciertos}"
+                                            FontFamily="Consolas" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock
+                                Grid.Column="0"
+                                VerticalAlignment="Center"
+                                Text="Mostrar sólo agrupaciones de"
+                                Style="{StaticResource SecondaryTextBlockStyle}" />
+                            <NumberBox
+                                Grid.Column="1"
+                                Width="100"
+                                Minimum="0"
+                                SmallChange="1"
+                                SpinButtonPlacementMode="Compact"
+                                Value="{x:Bind ViewModel.TipoAgrupacionSolapada, Mode=TwoWay}"
+                                AutomationProperties.Name="Número de elementos de agrupación solapada" />
+                            <Button
+                                Grid.Column="2"
+                                Content="Mostrar"
+                                Command="{x:Bind ViewModel.MostrarAgrupacionesSolapadasCommand}"
+                                AutomationProperties.Name="Mostrar agrupaciones solapadas" />
+                        </Grid>
+
+                        <Grid ColumnSpacing="8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock
+                                Grid.Column="0"
+                                VerticalAlignment="Center"
+                                Text="Hay"
+                                Style="{StaticResource SecondaryTextBlockStyle}" />
+                            <TextBlock
+                                Grid.Column="1"
+                                VerticalAlignment="Center"
+                                Text="{x:Bind ViewModel.HaySolapadas, Mode=OneWay}"
+                                Style="{StaticResource BodyStrongTextBlockStyle}" />
+                            <TextBlock
+                                Grid.Column="2"
+                                VerticalAlignment="Center"
+                                Text="agrupaciones de"
+                                Style="{StaticResource SecondaryTextBlockStyle}" />
+                            <TextBlock
+                                Grid.Column="3"
+                                VerticalAlignment="Center"
+                                Text="{x:Bind ViewModel.NumElementosSolapadas, Mode=OneWay}"
+                                Style="{StaticResource BodyStrongTextBlockStyle}" />
+                            <TextBlock
+                                Grid.Column="4"
+                                VerticalAlignment="Center"
+                                Text="elementos"
+                                Style="{StaticResource SecondaryTextBlockStyle}" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- Estadísticas de la serie -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="5">
+                    <TextBlock
+                        Text="Estadísticas de la serie de aciertos"
+                        Style="{StaticResource SectionHeaderTextBlockStyle}" />
+
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock
+                            Grid.Column="0"
+                            VerticalAlignment="Center"
+                            Text="Suma Total de la serie de Aciertos"
+                            Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock
+                            Grid.Column="1"
+                            VerticalAlignment="Center"
+                            Text="{x:Bind ViewModel.SumaTotalAciertos, Mode=OneWay}"
+                            Style="{StaticResource BodyStrongTextBlockStyle}" />
+                    </Grid>
+
+                    <!-- Suma opcional de aciertos (modo individual) -->
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock
+                            Grid.Column="0"
+                            VerticalAlignment="Center"
+                            Visibility="{x:Bind ViewModel.VisibilidadIndividual, Mode=OneWay}"
+                            Text="Suma de Aciertos de las columnas"
+                            Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBox
+                            Grid.Column="1"
+                            Width="120"
+                            Visibility="{x:Bind ViewModel.VisibilidadIndividual, Mode=OneWay}"
+                            Text="{x:Bind ViewModel.SumaAciertosOpcionalEntrada, Mode=TwoWay}"
+                            PlaceholderText="1-5,8"
+                            AutomationProperties.Name="Columnas para suma opcional de aciertos" />
+                        <Button
+                            Grid.Column="2"
+                            Content="Sumar"
+                            Visibility="{x:Bind ViewModel.VisibilidadIndividual, Mode=OneWay}"
+                            Command="{x:Bind ViewModel.CalcularSumaOpcionalCommand}"
+                            AutomationProperties.Name="Calcular suma opcional de aciertos" />
+                        <TextBlock
+                            Grid.Column="3"
+                            VerticalAlignment="Center"
+                            MinWidth="60"
+                            Visibility="{x:Bind ViewModel.VisibilidadIndividual, Mode=OneWay}"
+                            Text="{x:Bind ViewModel.SumaOpcional, Mode=OneWay}"
+                            Style="{StaticResource BodyStrongTextBlockStyle}" />
+                    </Grid>
+
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Spacing="2">
+                            <TextBlock
+                                Text="Escaleras Ascendentes"
+                                Style="{StaticResource CaptionTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                            <TextBlock
+                                Text="{x:Bind ViewModel.EscalerasAsc, Mode=OneWay}"
+                                Style="{StaticResource BodyStrongTextBlockStyle}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Spacing="2">
+                            <TextBlock
+                                Text="Escaleras Descendentes"
+                                Style="{StaticResource CaptionTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                            <TextBlock
+                                Text="{x:Bind ViewModel.EscalerasDesc, Mode=OneWay}"
+                                Style="{StaticResource BodyStrongTextBlockStyle}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" Spacing="2">
+                            <TextBlock
+                                Text="Escaleras Totales"
+                                Style="{StaticResource CaptionTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                            <TextBlock
+                                Text="{x:Bind ViewModel.EscalerasTotales, Mode=OneWay}"
+                                Style="{StaticResource BodyStrongTextBlockStyle}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="3" Spacing="2">
+                            <TextBlock
+                                Text="Sandwichs"
+                                Style="{StaticResource CaptionTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                            <TextBlock
+                                Text="{x:Bind ViewModel.Sandwichs, Mode=OneWay}"
+                                Style="{StaticResource BodyStrongTextBlockStyle}" />
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Generar condición (modo global) -->
+            <Button
+                Content="Generar Condición"
+                Style="{StaticResource AccentButtonStyle}"
+                HorizontalAlignment="Left"
+                Visibility="{x:Bind ViewModel.VisibilidadGlobal, Mode=OneWay}"
+                Command="{x:Bind ViewModel.GenerarCondicionCommand}"
+                AutomationProperties.Name="Generar fichero de condición a partir del análisis global" />
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

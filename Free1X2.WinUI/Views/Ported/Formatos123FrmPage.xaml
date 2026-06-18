@@ -1,0 +1,199 @@
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.Formatos123FrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Free1X2.WinUI.Views.Ported"
+    xmlns:controls="using:Free1X2.WinUI.Controls"
+    Background="{StaticResource AppBackgroundBrush}">
+
+    <Grid Padding="10,7" RowSpacing="6">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Encabezado -->
+        <StackPanel Grid.Row="0" Spacing="4">
+            <TextBlock Text="Formatos 123" Style="{StaticResource PageTitleTextBlockStyle}" />
+            <TextBlock
+                Style="{StaticResource SecondaryTextBlockStyle}"
+                TextWrapping="Wrap"
+                Text="Un Formato 123 es la representación de una secuencia de signos en función de la valoración: el 1 corresponde al signo más valorado, el 2 al segundo más valorado y el 3 al menos valorado." />
+        </StackPanel>
+
+        <!-- Cuerpo -->
+        <Grid Grid.Row="1" ColumnSpacing="10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="280" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Columna izquierda: lista de formatos -->
+            <Border Grid.Column="0" Style="{StaticResource AppCardStyle}">
+                <Grid RowSpacing="6">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock
+                        Grid.Row="0"
+                        Text="Formatos"
+                        Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                    <!-- Cabecera de columnas -->
+                    <Grid Grid.Row="1" ColumnSpacing="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="40" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="72" />
+                            <ColumnDefinition Width="72" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Nº" Style="{StaticResource CaptionTextBlockStyle}" />
+                        <TextBlock Grid.Column="1" Text="Formato" Style="{StaticResource CaptionTextBlockStyle}" />
+                        <TextBlock Grid.Column="2" Text="Mín" Style="{StaticResource CaptionTextBlockStyle}" />
+                        <TextBlock Grid.Column="3" Text="Máx" Style="{StaticResource CaptionTextBlockStyle}" />
+                    </Grid>
+
+                    <ListView
+                        Grid.Row="2"
+                        ItemsSource="{x:Bind ViewModel.Formatos}"
+                        SelectionMode="None"
+                        ScrollViewer.VerticalScrollBarVisibility="Auto">
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                <Setter Property="Padding" Value="0,2" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="local:Formato123Item">
+                                <Grid ColumnSpacing="8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="40" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="72" />
+                                        <ColumnDefinition Width="72" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock
+                                        Grid.Column="0"
+                                        VerticalAlignment="Center"
+                                        Foreground="{StaticResource AppTextSecondaryBrush}"
+                                        Text="{x:Bind Numero, Mode=OneWay}" />
+                                    <TextBox
+                                        Grid.Column="1"
+                                        MaxLength="14"
+                                        PlaceholderText="123…"
+                                        Text="{x:Bind Formato, Mode=TwoWay}" />
+                                    <TextBox
+                                        Grid.Column="2"
+                                        InputScope="Number"
+                                        Text="{x:Bind AciertosMin, Mode=TwoWay}" />
+                                    <TextBox
+                                        Grid.Column="3"
+                                        InputScope="Number"
+                                        Text="{x:Bind AciertosMax, Mode=TwoWay}" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+
+                    <Button
+                        Grid.Row="3"
+                        Content="Añadir fila"
+                        Command="{x:Bind ViewModel.AgregarFilaCommand}" />
+                </Grid>
+            </Border>
+
+            <!-- Columna derecha -->
+            <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="6">
+
+                <!-- Aciertos -->
+                <Border Style="{StaticResource AppCardStyle}">
+                    <StackPanel Spacing="5">
+                        <TextBlock Text="Aciertos" Style="{StaticResource CardTitleTextBlockStyle}" />
+                        <StackPanel Spacing="4">
+                            <TextBlock
+                                Style="{StaticResource SecondaryTextBlockStyle}"
+                                Text="{x:Bind ViewModel.EtiquetaAciertos, Mode=OneWay}" />
+                            <TextBox
+                                PlaceholderText="Ej. 10,12-14"
+                                Text="{x:Bind ViewModel.AciertosPermitidos, Mode=TwoWay}" />
+                        </StackPanel>
+                        <ToggleSwitch
+                            Header="Ignorar repeticiones"
+                            IsOn="{x:Bind ViewModel.IgnorarRepeticiones, Mode=TwoWay}" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Porcentajes / valoración (reemplaza el UserControl ControlPorcentajes) -->
+                <Border Style="{StaticResource AppCardStyle}">
+                    <StackPanel Spacing="5">
+                        <TextBlock Text="Porcentajes" Style="{StaticResource CardTitleTextBlockStyle}" />
+                        <controls:PorcentajesControl
+                            Height="260"
+                            Filas="{x:Bind ViewModel.Porcentajes, Mode=OneWay}"
+                            AutomationProperties.Name="Porcentajes 1 X 2 por partido" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Utilidades -->
+                <Border Style="{StaticResource AppCardStyle}">
+                    <StackPanel Spacing="5">
+                        <TextBlock Text="Utilidades" Style="{StaticResource CardTitleTextBlockStyle}" />
+                        <TextBlock
+                            Style="{StaticResource SecondaryTextBlockStyle}"
+                            Text="Traducir columna 1X2 a 123" />
+                        <Grid ColumnSpacing="8" VerticalAlignment="Center">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox
+                                Grid.Column="0"
+                                MaxLength="14"
+                                PlaceholderText="1X2…"
+                                Text="{x:Bind ViewModel.Columna1X2, Mode=TwoWay}" />
+                            <Button
+                                Grid.Column="1"
+                                Content="&#x203A;"
+                                Command="{x:Bind ViewModel.TraducirCommand}" />
+                            <TextBox
+                                Grid.Column="2"
+                                IsReadOnly="True"
+                                PlaceholderText="123…"
+                                Text="{x:Bind ViewModel.Columna123, Mode=OneWay}" />
+                        </Grid>
+                        <Button
+                            HorizontalAlignment="Stretch"
+                            Content="Analizador de formatos"
+                            Command="{x:Bind ViewModel.AnalizarCommand}" />
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+            </ScrollViewer>
+        </Grid>
+
+        <!-- Barra de acciones (legacy: menuCondiciones2) -->
+        <Border Grid.Row="2" Style="{StaticResource AppCardStyle}">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <Button
+                    Content="Aceptar"
+                    Style="{StaticResource AccentButtonStyle}"
+                    Command="{x:Bind ViewModel.AceptarCommand}" />
+                <Button Content="Estadísticas" Command="{x:Bind ViewModel.EstadisticasCommand}" />
+                <Button Content="Guardar" Command="{x:Bind ViewModel.GuardarCommand}" />
+                <Button Content="Abrir" Command="{x:Bind ViewModel.AbrirCommand}" />
+                <Button Content="Copiar" Command="{x:Bind ViewModel.CopiarCommand}" />
+                <Button Content="Pegar" Command="{x:Bind ViewModel.PegarCommand}" />
+                <Button Content="Borrar" Command="{x:Bind ViewModel.BorrarCommand}" />
+                <Button Content="Cancelar" Command="{x:Bind ViewModel.CancelarCommand}" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</Page>

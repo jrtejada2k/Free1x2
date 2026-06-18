@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.SelectorMSPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ported="using:Free1X2.WinUI.Views.Ported">
+
+    <ScrollViewer>
+        <StackPanel Padding="12,8" Spacing="8" MaxWidth="1000" HorizontalAlignment="Left">
+
+            <!-- ===== Encabezado (Form.Text = "Selector MarioSan") ===== -->
+            <StackPanel Spacing="6">
+                <TextBlock Text="Selector MarioSan"
+                           Style="{StaticResource PageTitleTextBlockStyle}" />
+                <TextBlock Text="Lee un fichero de columnas y calcula, para cada columna, cuántas columnas del fichero quedan a aspecto 13, 12 u 11 signos. Agrupa la distribución, permite analizarla contra una columna ganadora y grabar los grupos seleccionados."
+                           Style="{StaticResource SecondaryTextBlockStyle}"
+                           TextWrapping="Wrap" />
+            </StackPanel>
+
+            <!-- ===== Cálculo de distribución (lbasp + bIniciar + lFileIn + lCol + lTime) ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Cálculo de distribución"
+                               Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                    <!-- Aspecto a calcular (lbasp 11..13 con bMas/bMenos) -->
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Aspecto"
+                                   VerticalAlignment="Center"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <ComboBox Grid.Column="1"
+                                  MinWidth="90"
+                                  ItemsSource="{x:Bind ViewModel.OpcionesAspecto}"
+                                  SelectedItem="{x:Bind ViewModel.AspectoSeleccionado, Mode=TwoWay}"
+                                  AutomationProperties.Name="Aspecto a calcular (11, 12 o 13)" />
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8"
+                                    VerticalAlignment="Center">
+                            <Button Content="+"
+                                    MinWidth="40"
+                                    Command="{x:Bind ViewModel.AspectoMasCommand}"
+                                    AutomationProperties.Name="Subir aspecto" />
+                            <Button Content="−"
+                                    MinWidth="40"
+                                    Command="{x:Bind ViewModel.AspectoMenosCommand}"
+                                    AutomationProperties.Name="Bajar aspecto" />
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Acciones del cálculo (bIniciar / bCancelar) -->
+                    <StackPanel Orientation="Horizontal" Spacing="5">
+                        <Button Content="Iniciar"
+                                Style="{StaticResource AccentButtonStyle}"
+                                Command="{x:Bind ViewModel.IniciarCommand}"
+                                AutomationProperties.Name="Iniciar: leer fichero y calcular distribución" />
+                        <Button Content="Cancelar"
+                                Command="{x:Bind ViewModel.CancelarCommand}"
+                                AutomationProperties.Name="Cancelar el cálculo" />
+                    </StackPanel>
+
+                    <!-- Estadísticas (lFileIn / lCol / lTime) -->
+                    <Grid ColumnSpacing="10" RowSpacing="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="160" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Fichero de entrada"
+                                   VerticalAlignment="Center"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Row="0" Grid.Column="1"
+                                   Text="{x:Bind ViewModel.FicheroEntrada, Mode=OneWay}"
+                                   Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Columnas leídas"
+                                   VerticalAlignment="Center"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Row="1" Grid.Column="1"
+                                   Text="{x:Bind ViewModel.TotalColumnas, Mode=OneWay}"
+                                   Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Tiempo"
+                                   VerticalAlignment="Center"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Row="2" Grid.Column="1"
+                                   Text="{x:Bind ViewModel.Tiempo, Mode=OneWay}"
+                                   Style="{StaticResource CardTitleTextBlockStyle}" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Distribución (dataGrid1 "Distribución") ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Distribución"
+                               Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                    <!-- Cabecera de columnas (Q / cols.. / 14 / 13 / 12 / 11 / 10) -->
+                    <Grid ColumnSpacing="8" Padding="8,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="60" />
+                            <ColumnDefinition Width="80" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Q" TextAlignment="Right"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Column="1" Text="cols." TextAlignment="Right"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Column="2" Text="14" TextAlignment="Right"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Column="3" Text="13" TextAlignment="Right"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Column="4" Text="12" TextAlignment="Right"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Column="5" Text="11" TextAlignment="Right"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Column="6" Text="10" TextAlignment="Right"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                    </Grid>
+
+                    <ListView ItemsSource="{x:Bind ViewModel.Distribucion, Mode=OneWay}"
+                              SelectedIndex="{x:Bind ViewModel.FilaSeleccionada, Mode=TwoWay}"
+                              SelectionMode="Single"
+                              MaxHeight="340"
+                              BorderBrush="{StaticResource AppBorderBrush}"
+                              BorderThickness="1"
+                              Background="{StaticResource AppSurfaceBrush}"
+                              AutomationProperties.Name="Tabla de distribución por aspecto">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="ported:FilaDistribucion">
+                                <Grid ColumnSpacing="8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="60" />
+                                        <ColumnDefinition Width="80" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{x:Bind Q}" TextAlignment="Right" />
+                                    <TextBlock Grid.Column="1" Text="{x:Bind C}" TextAlignment="Right" />
+                                    <TextBlock Grid.Column="2" Text="{x:Bind P14}" TextAlignment="Right" />
+                                    <TextBlock Grid.Column="3" Text="{x:Bind P13}" TextAlignment="Right" />
+                                    <TextBlock Grid.Column="4" Text="{x:Bind P12}" TextAlignment="Right" />
+                                    <TextBlock Grid.Column="5" Text="{x:Bind P11}" TextAlignment="Right" />
+                                    <TextBlock Grid.Column="6" Text="{x:Bind P10}" TextAlignment="Right" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+
+                    <!-- Suma de selección + grabar (bSumar / lSumSel / bGrabarCols / lFileOut) -->
+                    <Grid ColumnSpacing="10" RowSpacing="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="160" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Suma de selección"
+                                   VerticalAlignment="Center"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Row="0" Grid.Column="1"
+                                   Text="{x:Bind ViewModel.SumaSeleccion, Mode=OneWay}"
+                                   Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Fichero grabado"
+                                   VerticalAlignment="Center"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Row="1" Grid.Column="1"
+                                   Text="{x:Bind ViewModel.FicheroSalida, Mode=OneWay}"
+                                   Style="{StaticResource CardTitleTextBlockStyle}" />
+                    </Grid>
+
+                    <StackPanel Orientation="Horizontal" Spacing="5">
+                        <Button Content="Sumar"
+                                Command="{x:Bind ViewModel.SumarCommand}"
+                                AutomationProperties.Name="Sumar las columnas de los grupos seleccionados" />
+                        <Button Content="Grabar"
+                                Command="{x:Bind ViewModel.GrabarCommand}"
+                                AutomationProperties.Name="Grabar las columnas de los grupos seleccionados" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Análisis Resultados (groupBox3) ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Análisis de Resultados"
+                               Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <TextBlock Text="Carga un fichero de columnas ganadoras y analiza la distribución frente a una de ellas. Las columnas P14..P10 muestran los premios por grupo."
+                               Style="{StaticResource SecondaryTextBlockStyle}"
+                               TextWrapping="Wrap" />
+
+                    <!-- Fichero de ganadoras (bFG / lFGR / lbCGR) -->
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" Content="Cargar ganadoras…"
+                                Command="{x:Bind ViewModel.CargarGanadorasCommand}"
+                                AutomationProperties.Name="Cargar fichero de columnas ganadoras" />
+                        <TextBlock Grid.Column="1"
+                                   Text="{x:Bind ViewModel.FicheroGanadoras, Mode=OneWay}"
+                                   VerticalAlignment="Center"
+                                   Margin="12,0,0,0"
+                                   Style="{StaticResource CardTitleTextBlockStyle}" />
+                        <TextBlock Grid.Column="2"
+                                   Text="{x:Bind ViewModel.IndiceGanadora, Mode=OneWay}"
+                                   VerticalAlignment="Center"
+                                   Style="{StaticResource CardTitleTextBlockStyle}" />
+                    </Grid>
+
+                    <!-- Columna ganadora actual + navegación (tbColR / bMasR / bMenosR) -->
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Columna"
+                                   VerticalAlignment="Center"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBox Grid.Column="1"
+                                 MaxLength="14"
+                                 Text="{x:Bind ViewModel.ColumnaGanadora, Mode=TwoWay}"
+                                 AutomationProperties.Name="Columna ganadora (14 signos)" />
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8"
+                                    VerticalAlignment="Center">
+                            <Button Content="+"
+                                    MinWidth="40"
+                                    Command="{x:Bind ViewModel.GanadoraMasCommand}"
+                                    AutomationProperties.Name="Ganadora siguiente" />
+                            <Button Content="−"
+                                    MinWidth="40"
+                                    Command="{x:Bind ViewModel.GanadoraMenosCommand}"
+                                    AutomationProperties.Name="Ganadora anterior" />
+                        </StackPanel>
+                    </Grid>
+
+                    <Button Content="Analizar"
+                            Style="{StaticResource AccentButtonStyle}"
+                            IsEnabled="{x:Bind ViewModel.PuedeAnalizar, Mode=OneWay}"
+                            Command="{x:Bind ViewModel.AnalizarCommand}"
+                            AutomationProperties.Name="Analizar la distribución contra la columna ganadora" />
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.ReductorFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Layout calcado del WinForms ReductorFrm (ClientSize 491x387): bandas
+         apiladas, con la fila Nivel/Método en dos columnas (estrecha + ancha).
+         Compacto, cabe en ~1020 de ancho sin scroll vertical. -->
+    <Grid Padding="12,8" MaxWidth="1000" HorizontalAlignment="Left">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Título real del form: this.Text = "Reductor" -->
+        <StackPanel Grid.Row="0" Spacing="2" Margin="0,0,0,8">
+            <TextBlock Text="Reductor" Style="{StaticResource PageTitleTextBlockStyle}" />
+            <TextBlock Text="Reduce un archivo de columnas aplicando un método y nivel de reducción."
+                       Style="{StaticResource SecondaryTextBlockStyle}" />
+        </StackPanel>
+
+        <!-- ===== Fila 1: Datos de Entrada (groupBox) — ancho completo ===== -->
+        <Border Grid.Row="1" Style="{StaticResource AppCardStyle}" Margin="0,0,0,8">
+            <StackPanel Spacing="6">
+                <TextBlock Text="Datos de Entrada" Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                <Grid ColumnSpacing="12" RowSpacing="6">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <!-- btnSelFile + lblSelFile -->
+                    <Button Grid.Row="0" Grid.Column="0"
+                            Content="Archivo entrada"
+                            MinWidth="140"
+                            Command="{x:Bind ViewModel.SeleccionarArchivoEntradaCommand}" />
+                    <TextBlock Grid.Row="0" Grid.Column="1"
+                               VerticalAlignment="Center"
+                               Style="{StaticResource SecondaryTextBlockStyle}"
+                               Text="{x:Bind ViewModel.ArchivoEntradaTexto, Mode=OneWay}" />
+
+                    <!-- btnFileOutput + lblFicheroSalida -->
+                    <Button Grid.Row="1" Grid.Column="0"
+                            Content="Archivo salida"
+                            MinWidth="140"
+                            Command="{x:Bind ViewModel.SeleccionarArchivoSalidaCommand}" />
+                    <TextBlock Grid.Row="1" Grid.Column="1"
+                               VerticalAlignment="Center"
+                               Style="{StaticResource SecondaryTextBlockStyle}"
+                               Text="{x:Bind ViewModel.ArchivoSalidaTexto, Mode=OneWay}" />
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <!-- ===== Fila 2: Nivel (grNivelReduccion) + Método (groupBox1) lado a lado ===== -->
+        <Grid Grid.Row="2" ColumnSpacing="8" Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+                <!-- Columna izquierda estrecha (grNivelReduccion: 127px) -->
+                <ColumnDefinition Width="Auto" />
+                <!-- Columna derecha ancha (groupBox1: 337px) -->
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Nivel Reducción (estrecho) -->
+            <Border Grid.Column="0" Style="{StaticResource AppCardStyle}"
+                    VerticalAlignment="Stretch">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Nivel Reducción" Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <!-- cmbNivel -->
+                    <ComboBox MinWidth="100"
+                              ItemsSource="{x:Bind ViewModel.NivelesReduccion}"
+                              SelectedItem="{x:Bind ViewModel.NivelSeleccionado, Mode=TwoWay}" />
+                </StackPanel>
+            </Border>
+
+            <!-- Método Reducción (ancho): combo + toggle externas en la misma línea -->
+            <Border Grid.Column="1" Style="{StaticResource AppCardStyle}"
+                    VerticalAlignment="Stretch">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Método Reducción" Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <StackPanel Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
+                        <!-- cBoxMetodo -->
+                        <ComboBox MinWidth="200"
+                                  VerticalAlignment="Center"
+                                  ItemsSource="{x:Bind ViewModel.MetodosReduccion}"
+                                  SelectedItem="{x:Bind ViewModel.MetodoSeleccionado, Mode=TwoWay}" />
+                        <!-- chkExternas: HIDE (Collapsed) para "grandes archivos" /
+                             "menos columnas 2", igual que chkExternas.Visible del legacy.
+                             Visibility se bindea en el propio Control, nunca en el panel. -->
+                        <ToggleSwitch Header="Admitir columnas externas"
+                                      OnContent="Sí" OffContent="No"
+                                      VerticalAlignment="Center"
+                                      IsOn="{x:Bind ViewModel.AdmitirColumnasExternas, Mode=TwoWay}"
+                                      Visibility="{x:Bind ViewModel.ColumnasExternasVisibility, Mode=OneWay}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- ===== Fila 3: Opciones (groupBox2) — ancho completo, una sola fila ===== -->
+        <Border Grid.Row="3" Style="{StaticResource AppCardStyle}" Margin="0,0,0,8">
+            <StackPanel Spacing="6">
+                <TextBlock Text="Opciones" Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                <Grid ColumnSpacing="16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- tBoxMaxCols -->
+                    <NumberBox Grid.Column="0"
+                               Header="Máx. Columnas"
+                               MinWidth="160"
+                               Minimum="0"
+                               SpinButtonPlacementMode="Inline"
+                               Value="{x:Bind ViewModel.MaxColumnas, Mode=TwoWay}" />
+
+                    <!-- tBoxMaxPercent -->
+                    <NumberBox Grid.Column="1"
+                               Header="Máx. %"
+                               MinWidth="160"
+                               Minimum="0" Maximum="100"
+                               SpinButtonPlacementMode="Inline"
+                               Value="{x:Bind ViewModel.MaxPorcentaje, Mode=TwoWay}" />
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <!-- ===== Fila 4: Resultados (lblColsIni/Proc/Adm/Percent/Tempo) =====
+             Bloque compacto label/valor en columnas, NO una lista vertical larga.
+             Fila 1: Col. Iniciales | Procesadas
+             Fila 2: Admitidas | Porcentaje | Tiempo -->
+        <Border Grid.Row="4" Style="{StaticResource AppCardStyle}" Margin="0,0,0,8">
+            <StackPanel Spacing="6">
+                <TextBlock Text="Resultados" Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                <Grid ColumnSpacing="8" RowSpacing="6">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="80" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="80" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <!-- Fila 1: Col. Iniciales | Procesadas -->
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Col. Iniciales"
+                               VerticalAlignment="Center"
+                               Style="{StaticResource SecondaryTextBlockStyle}" />
+                    <TextBlock Grid.Row="0" Grid.Column="1"
+                               VerticalAlignment="Center"
+                               Text="{x:Bind ViewModel.ColsInicialesTexto, Mode=OneWay}" />
+
+                    <TextBlock Grid.Row="0" Grid.Column="2" Text="Procesadas"
+                               VerticalAlignment="Center"
+                               Style="{StaticResource SecondaryTextBlockStyle}" />
+                    <TextBlock Grid.Row="0" Grid.Column="3"
+                               VerticalAlignment="Center"
+                               Text="{x:Bind ViewModel.ColsProcesadasTexto, Mode=OneWay}" />
+
+                    <!-- Fila 2: Admitidas | Porcentaje | Tiempo -->
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Admitidas"
+                               VerticalAlignment="Center"
+                               Style="{StaticResource SecondaryTextBlockStyle}" />
+                    <TextBlock Grid.Row="1" Grid.Column="1"
+                               VerticalAlignment="Center"
+                               Text="{x:Bind ViewModel.ColsAdmitidasTexto, Mode=OneWay}" />
+
+                    <TextBlock Grid.Row="1" Grid.Column="2" Text="Porcentaje"
+                               VerticalAlignment="Center"
+                               Style="{StaticResource SecondaryTextBlockStyle}" />
+                    <TextBlock Grid.Row="1" Grid.Column="3"
+                               VerticalAlignment="Center"
+                               Text="{x:Bind ViewModel.PorcentajeTexto, Mode=OneWay}" />
+
+                    <TextBlock Grid.Row="1" Grid.Column="4" Text="Tiempo"
+                               Margin="8,0,0,0"
+                               VerticalAlignment="Center"
+                               Style="{StaticResource SecondaryTextBlockStyle}" />
+                    <TextBlock Grid.Row="1" Grid.Column="5"
+                               VerticalAlignment="Center"
+                               Text="{x:Bind ViewModel.TiempoTexto, Mode=OneWay}" />
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <!-- ===== Fila 5: Acciones (btnReducir / btnCancel) lado a lado ===== -->
+        <StackPanel Grid.Row="5" Orientation="Horizontal" Spacing="8">
+            <Button Content="Reducir"
+                    Style="{StaticResource AccentButtonStyle}"
+                    IsEnabled="{x:Bind ViewModel.PuedeReducir, Mode=OneWay}"
+                    Command="{x:Bind ViewModel.ReducirCommand}" />
+            <Button Content="Cancelar"
+                    Command="{x:Bind ViewModel.CancelarCommand}" />
+        </StackPanel>
+
+    </Grid>
+</Page>

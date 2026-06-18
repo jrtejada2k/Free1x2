@@ -1,0 +1,154 @@
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.ImprimirBoletoFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Background="{StaticResource AppBackgroundBrush}">
+
+    <Grid>
+    <ScrollViewer>
+        <StackPanel Margin="12" Spacing="8" MaxWidth="760" HorizontalAlignment="Left">
+
+            <TextBlock
+                Text="Impresión de boletos"
+                Style="{StaticResource PageTitleTextBlockStyle}" />
+
+            <!-- Posición de impresión -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="5">
+                    <TextBlock
+                        Text="Posición de impresión"
+                        Style="{StaticResource SectionHeaderTextBlockStyle}" />
+
+                    <Grid ColumnSpacing="10" RowSpacing="6">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <NumberBox
+                            Grid.Column="0"
+                            Header="Margen superior"
+                            SpinButtonPlacementMode="Inline"
+                            Value="{x:Bind ViewModel.MargenSuperior, Mode=TwoWay}" />
+
+                        <NumberBox
+                            Grid.Column="1"
+                            Header="Margen izquierdo"
+                            SpinButtonPlacementMode="Inline"
+                            Value="{x:Bind ViewModel.MargenIzquierdo, Mode=TwoWay}" />
+                    </Grid>
+
+                    <ToggleSwitch
+                        Header="Girar boleto"
+                        IsOn="{x:Bind ViewModel.GirarBoleto, Mode=TwoWay}" />
+
+                    <TextBlock
+                        Text="Impresora seleccionada"
+                        Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <TextBlock
+                        Text="{x:Bind ViewModel.Impresora, Mode=OneWay}"
+                        Style="{StaticResource SecondaryTextBlockStyle}" />
+
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Button
+                            Content="Impresoras conocidas"
+                            Command="{x:Bind ViewModel.ImpresorasConocidasCommand}" />
+                        <Button
+                            Content="Guardar configuración"
+                            Command="{x:Bind ViewModel.GuardarConfiguracionCommand}" />
+                        <Button
+                            Content="Recuperar configuración"
+                            Command="{x:Bind ViewModel.RecuperarConfiguracionCommand}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Selección de columnas y rango de boletos -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="5">
+                    <TextBlock
+                        Text="Seleccionar"
+                        Style="{StaticResource SectionHeaderTextBlockStyle}" />
+
+                    <Button
+                        Content="Leer columnas"
+                        Command="{x:Bind ViewModel.LeerColumnasCommand}" />
+
+                    <Grid ColumnSpacing="10" RowSpacing="4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock
+                            Grid.Row="0" Grid.Column="0"
+                            Text="Fichero entrada"
+                            Style="{StaticResource CardTitleTextBlockStyle}" />
+                        <TextBlock
+                            Grid.Row="0" Grid.Column="1"
+                            Text="{x:Bind ViewModel.FicheroEntrada, Mode=OneWay}"
+                            Style="{StaticResource SecondaryTextBlockStyle}" />
+                    </Grid>
+
+                    <Grid ColumnSpacing="10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock
+                            Grid.Column="0"
+                            Text="Núm. columnas"
+                            Style="{StaticResource CardTitleTextBlockStyle}" />
+                        <TextBlock
+                            Grid.Column="1"
+                            Text="{x:Bind ViewModel.NumeroColumnasTexto, Mode=OneWay}"
+                            Style="{StaticResource SecondaryTextBlockStyle}" />
+                    </Grid>
+
+                    <Grid ColumnSpacing="10" RowSpacing="6">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <NumberBox
+                            Grid.Column="0"
+                            Header="Desde el boleto"
+                            Minimum="1"
+                            SpinButtonPlacementMode="Inline"
+                            Value="{x:Bind ViewModel.DesdeBoleto, Mode=TwoWay}" />
+
+                        <NumberBox
+                            Grid.Column="1"
+                            Header="Hasta el boleto"
+                            Minimum="1"
+                            SpinButtonPlacementMode="Inline"
+                            Value="{x:Bind ViewModel.HastaBoleto, Mode=TwoWay}" />
+                    </Grid>
+
+                    <Button
+                        Content="Imprimir / Guardar como imagen"
+                        Style="{StaticResource AccentButtonStyle}"
+                        Command="{x:Bind ViewModel.ImprimirCommand}" />
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+
+        <!-- Host invisible para componer y exportar el boleto como imagen. Está en el árbol
+             visual (RenderTargetBitmap lo exige) pero con Opacity=0 y sin hit-test, por lo que
+             no afecta a la vista del usuario. El Canvas se rellena en code-behind con las marcas
+             1/X/2 computadas por el VM antes de renderizar. -->
+        <Border
+            x:Name="HostExportacion"
+            Background="White"
+            Opacity="0"
+            IsHitTestVisible="False"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top">
+            <Canvas x:Name="LienzoBoleto" />
+        </Border>
+    </Grid>
+</Page>

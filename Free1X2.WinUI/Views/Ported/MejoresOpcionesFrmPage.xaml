@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.MejoresOpcionesFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Free1X2.WinUI.Views.Ported"
+    Background="{ThemeResource AppBackgroundBrush}">
+
+    <Grid Padding="10,7">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Encabezado (legacy: Text del form + label2 explicativo) -->
+        <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,10">
+            <TextBlock
+                Text="Mis Mejores Opciones"
+                Style="{StaticResource PageTitleTextBlockStyle}" />
+            <TextBlock
+                Text="Indica que partidos pueden variar respecto a la columna ganadora conocida. Se generan todas las columnas ganadoras posibles, se escrutan tus columnas jugadas y se muestran las que mas premios producen."
+                Style="{StaticResource SecondaryTextBlockStyle}"
+                Foreground="{ThemeResource AppTextSecondaryBrush}"
+                TextWrapping="Wrap" />
+        </StackPanel>
+
+        <!-- Configuracion: partidos involucrados + limite de resultados -->
+        <Border Grid.Row="1" Style="{StaticResource AppCardStyle}" Margin="0,0,0,10">
+            <StackPanel Spacing="6">
+
+                <!-- Partidos involucrados (legacy: label1 + ckb1..ckb16) -->
+                <StackPanel Spacing="8">
+                    <TextBlock
+                        Text="Partidos Involucrados"
+                        Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                    <TextBlock
+                        Text="Marca los partidos cuyo resultado podria cambiar."
+                        Style="{StaticResource SecondaryTextBlockStyle}"
+                        Foreground="{ThemeResource AppTextSecondaryBrush}" />
+
+                    <!-- Cada CheckBox enlaza su propia Visibility (regla anti-crash 1:
+                         nunca en el panel contenedor). -->
+                    <ItemsControl ItemsSource="{x:Bind ViewModel.Partidos}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <VariableSizedWrapGrid
+                                    Orientation="Horizontal"
+                                    ItemWidth="64"
+                                    ItemHeight="40" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="local:PartidoInvolucradoItem">
+                                <CheckBox
+                                    Content="{x:Bind Numero}"
+                                    IsChecked="{x:Bind Involucrado, Mode=TwoWay}"
+                                    Visibility="{x:Bind Visible, Mode=OneWay}"
+                                    MinWidth="0"
+                                    Foreground="{ThemeResource AppTextBrush}" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+
+                <!-- Limite de resultados (legacy: label3 "Mostrar los" + txtLimite + label4) -->
+                <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
+                    <TextBlock
+                        Text="Mostrar los"
+                        VerticalAlignment="Center"
+                        Foreground="{ThemeResource AppTextBrush}" />
+                    <NumberBox
+                        Value="{x:Bind ViewModel.LimiteResultados, Mode=TwoWay}"
+                        Minimum="1"
+                        SmallChange="1"
+                        SpinButtonPlacementMode="Inline"
+                        Width="120" />
+                    <TextBlock
+                        Text="primeros resultados"
+                        VerticalAlignment="Center"
+                        Foreground="{ThemeResource AppTextBrush}" />
+                    <Button
+                        Content="Calcular"
+                        Style="{StaticResource AccentButtonStyle}"
+                        Command="{x:Bind ViewModel.CalcularCommand}"
+                        AutomationProperties.Name="Calcular las mejores opciones" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- Resultado (legacy: txtResumen, multilinea de solo lectura) -->
+        <Border Grid.Row="2" Style="{StaticResource AppCardStyle}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <TextBlock
+                    Grid.Row="0"
+                    Text="Resumen"
+                    Style="{StaticResource CardTitleTextBlockStyle}"
+                    Margin="0,0,0,8" />
+                <TextBox
+                    Grid.Row="1"
+                    Text="{x:Bind ViewModel.Resumen, Mode=OneWay}"
+                    IsReadOnly="True"
+                    AcceptsReturn="True"
+                    TextWrapping="NoWrap"
+                    FontFamily="Consolas"
+                    ScrollViewer.VerticalScrollBarVisibility="Auto"
+                    ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                    AutomationProperties.Name="Resumen de las mejores opciones" />
+            </Grid>
+        </Border>
+    </Grid>
+</Page>

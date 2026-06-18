@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.AlgebraColumnasFrmPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Free1X2.WinUI.Views.Ported"
+    Background="{ThemeResource AppBackgroundBrush}">
+
+    <ScrollViewer>
+        <Grid Padding="10,7" MaxWidth="640" HorizontalAlignment="Left">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!-- Encabezado -->
+            <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,10">
+                <TextBlock
+                    Text="Álgebra"
+                    Style="{StaticResource PageTitleTextBlockStyle}" />
+                <TextBlock
+                    Text="Combina o resta archivos de columnas: elimina repetidas, suma, intersección o resta de combinaciones."
+                    Style="{StaticResource SecondaryTextBlockStyle}" />
+            </StackPanel>
+
+            <!-- Tarjeta: archivos de combinaciones -->
+            <Border Grid.Row="1" Style="{StaticResource AppCardStyle}" Margin="0,0,0,8">
+                <StackPanel Spacing="6">
+                    <TextBlock
+                        Text="Combinaciones"
+                        Style="{StaticResource SectionHeaderTextBlockStyle}" />
+
+                    <!-- Combinación 1 -->
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="140" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock
+                            Grid.Column="0"
+                            Text="Combinación 1"
+                            VerticalAlignment="Center"
+                            Style="{StaticResource BodyStrongTextBlockStyle}"
+                            Foreground="{ThemeResource AppTextBrush}" />
+                        <TextBlock
+                            Grid.Column="1"
+                            Text="{x:Bind ViewModel.NombreCombinacion1, Mode=OneWay}"
+                            VerticalAlignment="Center"
+                            TextTrimming="CharacterEllipsis"
+                            Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                        <Button
+                            Grid.Column="2"
+                            Content="Seleccionar…"
+                            Command="{x:Bind ViewModel.SeleccionarCombinacion1Command}"
+                            AutomationProperties.Name="Seleccionar archivo de la Combinación 1" />
+                    </Grid>
+
+                    <!-- Combinación 2 -->
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="140" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock
+                            Grid.Column="0"
+                            Text="Combinación 2"
+                            VerticalAlignment="Center"
+                            Style="{StaticResource BodyStrongTextBlockStyle}"
+                            Foreground="{ThemeResource AppTextBrush}" />
+                        <TextBlock
+                            Grid.Column="1"
+                            Text="{x:Bind ViewModel.NombreCombinacion2, Mode=OneWay}"
+                            VerticalAlignment="Center"
+                            TextTrimming="CharacterEllipsis"
+                            Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                        <Button
+                            Grid.Column="2"
+                            Content="Seleccionar…"
+                            Command="{x:Bind ViewModel.SeleccionarCombinacion2Command}"
+                            AutomationProperties.Name="Seleccionar archivo de la Combinación 2" />
+                    </Grid>
+
+                    <!-- Resultado -->
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="140" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock
+                            Grid.Column="0"
+                            Text="Resultado"
+                            VerticalAlignment="Center"
+                            Style="{StaticResource BodyStrongTextBlockStyle}"
+                            Foreground="{ThemeResource AppTextBrush}" />
+                        <TextBlock
+                            Grid.Column="1"
+                            Text="{x:Bind ViewModel.NombreCombinacionFinal, Mode=OneWay}"
+                            VerticalAlignment="Center"
+                            TextTrimming="CharacterEllipsis"
+                            Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                        <Button
+                            Grid.Column="2"
+                            Content="Seleccionar…"
+                            Command="{x:Bind ViewModel.SeleccionarCombinacionFinalCommand}"
+                            AutomationProperties.Name="Seleccionar archivo de resultado" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Tarjeta: operación -->
+            <Border Grid.Row="2" Style="{StaticResource AppCardStyle}" Margin="0,0,0,8">
+                <StackPanel Spacing="5">
+                    <TextBlock
+                        Text="Operaciones"
+                        Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                    <ComboBox
+                        Header="Tipo de operación"
+                        HorizontalAlignment="Stretch"
+                        ItemsSource="{x:Bind ViewModel.Operaciones}"
+                        SelectedIndex="{x:Bind ViewModel.OperacionSeleccionada, Mode=TwoWay}"
+                        AutomationProperties.Name="Tipo de operación de álgebra" />
+                </StackPanel>
+            </Border>
+
+            <!-- Tarjeta: resultado del cálculo -->
+            <Border Grid.Row="3" Style="{StaticResource AppCardStyle}" Margin="0,0,0,8">
+                <StackPanel Spacing="8">
+                    <TextBlock
+                        Text="Detalle"
+                        Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                    <TextBlock
+                        Text="{x:Bind ViewModel.DetalleCombinacion1, Mode=OneWay}"
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                    <TextBlock
+                        Text="{x:Bind ViewModel.DetalleCombinacion2, Mode=OneWay}"
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                    <TextBlock
+                        Text="{x:Bind ViewModel.Resultado, Mode=OneWay}"
+                        TextWrapping="Wrap"
+                        Foreground="{ThemeResource AppAccentBrush}" />
+                </StackPanel>
+            </Border>
+
+            <!-- Acciones -->
+            <StackPanel
+                Grid.Row="4"
+                Orientation="Horizontal"
+                Spacing="5"
+                HorizontalAlignment="Right">
+                <Button
+                    Content="Cancelar"
+                    Command="{x:Bind ViewModel.CancelarCommand}"
+                    AutomationProperties.Name="Cancelar y cerrar" />
+                <Button
+                    Content="Calcular"
+                    Style="{StaticResource AccentButtonStyle}"
+                    IsEnabled="{x:Bind ViewModel.PuedeCalcular, Mode=OneWay}"
+                    Command="{x:Bind ViewModel.CalcularCommand}"
+                    AutomationProperties.Name="Ejecutar la operación de álgebra" />
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
+</Page>
