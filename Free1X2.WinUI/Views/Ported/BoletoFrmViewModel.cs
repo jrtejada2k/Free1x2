@@ -21,10 +21,11 @@ namespace Free1X2.WinUI.Views.Ported;
 /// La carga de columnas (Free1X2.EntradaSalida.ArchivoColumnasTexto), el cálculo de
 /// boletos/apuestas (ControlBoleto.CreaMatriz) y la ordenación de la matriz
 /// (ControlBoleto.OrdenarMatrizColumnas, que usa FiltroNoVariantes/FiltroInterrupciones)
-/// SÍ están cableadas al motor real. La pintura de cada columna del boleto en el
-/// <c>BoletoControl</c> visual depende del UserControl no portado
-/// <c>Free1X2.UI.Controls.Boleto.ControlColumnaBoleto</c>; aquí se expone el contenido
-/// crudo de las 8 columnas del boleto actual y se deja la sincronización visual como TODO.
+/// SÍ están cableadas al motor real. El UserControl legacy
+/// <c>Free1X2.UI.Controls.Boleto.ControlColumnaBoleto</c> se sustituyó por el
+/// <c>BoletoMatrizControl</c> de WinUI; la sincronización visual está cableada: el ViewModel
+/// emite el evento <c>BoletoCambiado</c> con las 8 columnas del boleto actual y la página host
+/// las vuelca en el control.
 /// </summary>
 public partial class BoletoFrmViewModel : ObservableObject
 {

@@ -9,7 +9,7 @@ namespace Free1X2.WinUI.Views.Ported;
 /// Permite definir simetrías —grupos de partidos que deben compartir el mismo signo—
 /// y un campo de "Aciertos". Recibe el Grupo a editar vía AppState.GrupoEnEdicion y escribe
 /// las simetrías de vuelta al <c>FiltroSimetrias</c> al Aceptar. La persistencia en disco
-/// queda como TODO en el ViewModel.
+/// está implementada en el ViewModel.
 /// </summary>
 public sealed partial class SimetriasFrmPage : Page
 {

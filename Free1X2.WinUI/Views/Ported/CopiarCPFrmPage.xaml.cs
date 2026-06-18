@@ -8,8 +8,8 @@ namespace Free1X2.WinUI.Views.Ported;
 /// Página portada del WinForms <c>CopiarCPFrm</c> ("Copiar Columnas").
 /// Captura los índices de columnas probables a copiar (txtCP) y los grupos
 /// destino (cmbGrupo, ListBox multi-selección) y copia las columnas a esos
-/// grupos. La lógica de cálculo/persistencia queda como TODO en el ViewModel
-/// hasta portar el dominio (MotorCalculo / FiltroColProbables / CrearGruposFrm).
+/// grupos. La lógica de cálculo/persistencia está implementada en el ViewModel
+/// (MotorCalculo / FiltroColProbables / CrearGruposFrm).
 /// </summary>
 public sealed partial class CopiarCPFrmPage : Page
 {

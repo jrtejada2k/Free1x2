@@ -78,7 +78,8 @@ public partial class SignosSeguidosFrmViewModel : ObservableObject
     // El form legacy rellena los campos vacíos con "0,1,...,14" (SignosSeguidosFrm.ActualizarDatos línea 345).
     private const string TodosValores = "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14";
 
-    // Listas de figuras cargadas del filtro; se preservan al Aceptar (edición de figuras pendiente).
+    // Listas de figuras cargadas del filtro; se preservan al Aceptar y se editan vía EditarFiguras
+    // (navega a FigurasFiltrosFrmPage compartiendo la referencia de lista).
     private List<long>? _figurasV;
     private List<long>? _figuras1;
     private List<long>? _figurasX;

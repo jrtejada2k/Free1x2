@@ -12,7 +12,7 @@ namespace Free1X2.WinUI.Views.Ported;
 /// estimadas y máximas con su coste), tiempos de comienzo/fin y dos barras de progreso.
 ///
 /// La lógica de dominio (Analizador, ArchivoCombinacion, ArchivoColumnasTexto,
-/// VariablesGlobales, ResultadosCalculoMultipleFrm) está marcada como TODO en el ViewModel.
+/// VariablesGlobales, navegación a ResultadosCalculoMultipleFrm) está implementada en el ViewModel.
 /// </summary>
 public sealed partial class CalculaColumnasMultipleFrmPage : Page
 {

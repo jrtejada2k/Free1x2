@@ -77,8 +77,9 @@ public sealed partial class AcercaDeFrmPage : Page
     private void CreditosLink_Click(object sender, RoutedEventArgs e)
     {
         // Legacy: new CreditosFrm().ShowDialog();
-        // TODO(navegación): mostrar la pantalla de Créditos portada (CreditosFrmPage),
-        //   p. ej. con un ContentDialog o navegación dentro del Frame de contenido.
+        // Navega a la pantalla de Créditos portada (CreditosFrmPage) en el Frame de
+        // contenido, mismo patrón que el resto de páginas (p. ej. VerBoletosPage).
+        Frame?.Navigate(typeof(CreditosFrmPage));
     }
 
     private static async System.Threading.Tasks.Task AbrirUriSeguraAsync(string url)

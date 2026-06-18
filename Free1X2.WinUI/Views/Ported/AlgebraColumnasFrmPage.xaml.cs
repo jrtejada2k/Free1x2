@@ -7,7 +7,7 @@ namespace Free1X2.WinUI.Views.Ported;
 /// Page portada del WinForms legacy "AlgebraColumnasFrm" (título "Álgebra").
 /// Realiza álgebra de combinaciones entre archivos de columnas: eliminar
 /// repetidas, sumar, intersección de comunes o resta. La lógica de dominio
-/// (SumadorCombinaciones, selección de archivos) queda como TODO.
+/// (SumadorCombinaciones, selección de archivos) está implementada en el ViewModel.
 /// </summary>
 public sealed partial class AlgebraColumnasFrmPage : Page
 {

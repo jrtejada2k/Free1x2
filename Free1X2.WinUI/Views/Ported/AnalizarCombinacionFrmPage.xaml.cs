@@ -9,8 +9,8 @@ namespace Free1X2.WinUI.Views.Ported;
 /// filtros evaluados contra una combinación, con su estado (acertada / aceptada por
 /// tolerancias / fallada) y una leyenda explicativa de los tres estados.
 /// El original constaba de un TreeView (treeView1) y un panel de leyenda con 3 iconos.
-/// El rellenado del árbol depende de la lógica de dominio (motor de cálculo/escrutinio),
-/// marcado como TODO en el ViewModel; aún no portado a Free1X2.Domain.
+/// El rellenado del árbol (motor de cálculo/escrutinio: Analizador, IFiltro.AnalizarFallos,
+/// tolerancias y control de grupos/conjuntos) está implementado en el ViewModel.
 /// </summary>
 public sealed partial class AnalizarCombinacionFrmPage : Page
 {

@@ -16,7 +16,7 @@ namespace Free1X2.WinUI.Views.Ported;
 /// Reproduce los campos de entrada (archivo entrada/salida, máx. columnas, máx. %, nivel,
 /// método y columnas externas) y los resultados de la reducción (col. iniciales, procesadas,
 /// admitidas, porcentaje y tiempo). La lógica de dominio (IReduccion: JDC, JDCDobleContador,
-/// Redu1305Xfsf, ReductorTM) NO se implementa: queda marcada como TODO.
+/// Redu1305Xfsf, ReductorTM) está implementada.
 /// </summary>
 public partial class ReductorFrmViewModel : ObservableObject
 {

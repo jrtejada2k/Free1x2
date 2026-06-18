@@ -11,7 +11,7 @@ namespace Free1X2.WinUI.Views.Ported;
 /// importes 14..10), calcula la probabilidad acumulada y permite filtrar por las
 /// posiciones mínimas/máximas de cada categoría de premio y localizar columnas
 /// concretas. Toda la lógica de dominio (cálculo, escrutinio, persistencia y apertura
-/// de otros forms) está marcada como TODO en el ViewModel.
+/// de otros forms) está implementada en el ViewModel.
 /// </summary>
 public sealed partial class TramificarFormPage : Page
 {

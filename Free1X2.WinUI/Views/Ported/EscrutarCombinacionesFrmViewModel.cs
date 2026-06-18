@@ -80,7 +80,7 @@ public partial class SignoGanadorViewModel : ObservableObject
 ///
 /// La lógica de dominio (EscrutadorComb: ObtenerPosiblesPremios + EscrutarCombinacion,
 /// lectura de ficheros, cálculo de premios, grabación y lista de premiadas) está cableada.
-/// Sólo queda como TODO la navegación a PosiblesPremiosFrmPage (responsabilidad del shell).
+/// La navegación a PosiblesPremiosFrmPage está cableada vía el delegado Navegar (lo inyecta la Page).
 /// </summary>
 public partial class EscrutarCombinacionesFrmViewModel : ObservableObject
 {

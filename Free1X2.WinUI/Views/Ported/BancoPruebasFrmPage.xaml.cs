@@ -12,7 +12,7 @@ namespace Free1X2.WinUI.Views.Ported;
 /// (Simulador de escrutinios — Banco de Pruebas).
 ///
 /// Asistente de 4 pasos: Ficheros, Valoraciones, Simular 14's y Escrutinios.
-/// La lógica de cálculo / persistencia se delega al ViewModel como TODO de dominio.
+/// La lógica de cálculo / persistencia está implementada en el ViewModel.
 /// </summary>
 public sealed partial class BancoPruebasFrmPage : Page
 {

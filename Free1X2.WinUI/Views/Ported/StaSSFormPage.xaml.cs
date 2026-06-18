@@ -8,7 +8,7 @@ namespace Free1X2.WinUI.Views.Ported;
 /// Muestra una rejilla de 4 filas (cant.1 / cant.X / cant.2 / cant.V) x 15 columnas (0..14)
 /// con la distribución de "signos seguidos" del conjunto de columnas analizadas, y un
 /// conmutador "mostrar" (porcentajes / columnas). Los datos provienen del constructor legacy
-/// <c>StaSSForm(int[,] rsl, int numcol)</c>; el volcado real está marcado como TODO en el ViewModel.
+/// <c>StaSSForm(int[,] rsl, int numcol)</c>; el volcado real está implementado en el ViewModel.
 /// </summary>
 public sealed partial class StaSSFormPage : Page
 {

@@ -8,7 +8,7 @@ namespace Free1X2.WinUI.Views.Ported;
 /// Comprime un archivo de columnas (*.txt) a formato propio *.z3q con un nivel
 /// de compresión 0-9, y descomprime *.z3q de vuelta a *.txt. La lógica de
 /// dominio (CompresorZip, ConvertidorDeBases, selección/guardado de archivos)
-/// queda como TODO.
+/// está cableada en CompresorViewModel.
 /// </summary>
 public sealed partial class CompresorPage : Page
 {

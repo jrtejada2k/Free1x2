@@ -5,7 +5,9 @@ using Microsoft.UI.Xaml.Controls;
 namespace Free1X2.WinUI.Views.Ported
 {
     // Code-behind for the ported "VisorAnalisisColumnasFrm" (legacy Free1X2.UI.VisorAnalisisColumnasFrm).
-    // Read-only tabbed analysis viewer. ViewModel holds the analysis sections; domain wiring is TODO.
+    // Read-only tabbed analysis viewer. The ViewModel reads the domain payload
+    // (ContenedorAnalisisGlobal + Grupo) from the static handoff set by the
+    // AnalisisUi.MostrarVisor hook (App.xaml.cs) and builds the analysis sections.
     public sealed partial class VisorAnalisisColumnasFrmPage : Page
     {
         public VisorAnalisisColumnasFrmViewModel ViewModel { get; } = new VisorAnalisisColumnasFrmViewModel();
@@ -13,9 +15,10 @@ namespace Free1X2.WinUI.Views.Ported
         public VisorAnalisisColumnasFrmPage()
         {
             InitializeComponent();
-            // TODO: el constructor legacy recibía (ContenedorAnalisisGlobal contenedor, Grupo grupo)
-            //       y llamaba MostrarDatos(0) para construir las pestañas activas. Falta cablear
-            //       esos parámetros de dominio al ViewModel.
+            // El constructor legacy recibía (ContenedorAnalisisGlobal contenedor, Grupo grupo) y
+            // llamaba MostrarDatos(0) para construir las pestañas. Aquí esos parámetros de dominio
+            // llegan al ViewModel por el handoff estático que deja AnalisisUi.MostrarVisor
+            // (App.xaml.cs); la VM los consume en su constructor y reconstruye las secciones.
         }
 
         /// <summary>

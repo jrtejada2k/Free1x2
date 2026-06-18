@@ -10,7 +10,8 @@ namespace Free1X2.WinUI.Views.Ported;
 /// (cada casilla admite los valores 0..16 o el comodín "*"). Recibe la List&lt;long&gt; a editar
 /// del form padre (Contactos / SignosSeguidos / PesosNum) vía el handoff estático
 /// <c>FigurasFiltrosFrmViewModel.FigurasEnEdicion</c> y escribe los cambios sobre esa misma
-/// referencia al Aceptar. La carga desde archivo .fig queda como TODO en el ViewModel.
+/// referencia al Aceptar. La carga desde archivo .fig{Condicion} está implementada en el
+/// comando Abrir del ViewModel.
 /// </summary>
 public sealed partial class FigurasFiltrosFrmPage : Page
 {

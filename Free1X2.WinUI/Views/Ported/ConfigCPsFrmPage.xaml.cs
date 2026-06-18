@@ -21,16 +21,16 @@ public sealed partial class ConfigCPsFrmPage : Page
 
     private void OnGuardarClick(object sender, RoutedEventArgs e)
     {
+        // Guarda los datos a disco. Fiel al legacy ConfigurarCPs.button3_Click, que tras
+        // DatosHelper.GuardarDatos(dsConfCol) ocultaba el botón Guardar (button3.Visible = false)
+        // y NO cerraba el form; el cierre era responsabilidad del botón Volver (OnVolverClick).
         ViewModel.GuardarCommand.Execute(null);
-
-        // TODO[dominio]: tras guardar, ocultar el botón / notificar éxito.
-        //   Legacy ConfigCPsFrm.button3_Click ocultaba el botón (button3.Visible = false)
-        //   tras DatosHelper.GuardarDatos(dsConfCol).
     }
 
     private void OnVolverClick(object sender, RoutedEventArgs e)
     {
-        // TODO[dominio]: cerrar/regresar (legacy ConfigCPsFrm.button1_Click -> this.Close()).
-        //   En navegación WinUI, invocar Frame.GoBack() o cerrar el host contenedor.
+        // Cierra/regresa (legacy ConfigurarCPs.button1_Click -> this.Close()). En navegación
+        // WinUI equivale a Frame.GoBack().
+        if (Frame?.CanGoBack == true) Frame.GoBack();
     }
 }

@@ -18,6 +18,12 @@
     <ProjectReference Include="..\Free1X2.Domain\Free1X2.Domain.csproj" />
   </ItemGroup>
 
+  <!-- Fixtures de datos reales (muestras pequeñas y portables) copiadas junto al
+       binario de pruebas para que los tests las localicen vía AppContext.BaseDirectory. -->
+  <ItemGroup>
+    <None Include="Fixtures\**\*.txt" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
   <!-- Datos semilla del motor (parametros.free1x2, etc.) junto al exe de pruebas:
        los tests de flujo construyen Analizador, que lee la configuración al arrancar.
        Reutiliza la misma semilla versionada del proyecto WinUI. -->

@@ -8,7 +8,8 @@ namespace Free1X2.WinUI.Views.Ported;
 /// Multiplica (producto cartesiano) dos archivos de combinaciones de 14 signos,
 /// concatenando cada par de columnas en 28 cifras y reordenándolas según una
 /// plantilla de 14 índices (1..28) que permite transponer columnas a la vez.
-/// La lógica de dominio (carga/multiplicación/grabado de archivos) queda como TODO.
+/// La lógica de dominio (carga/multiplicación/grabado de archivos) está implementada
+/// en el ViewModel.
 /// </summary>
 public sealed partial class MultiplicadorFrmPage : Page
 {

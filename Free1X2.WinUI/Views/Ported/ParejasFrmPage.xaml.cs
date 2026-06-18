@@ -10,7 +10,7 @@ namespace Free1X2.WinUI.Views.Ported;
 /// 7 "Condiciones" (rango min-max de aciertos por nivel) y un "Análisis
 /// Resultados" sobre una columna ganadora. La lógica de dominio (lectura/
 /// escritura de *.par y *.txt, Valida/s1n/n1s, BitArray de columnas válidas)
-/// queda como TODO en el ViewModel.
+/// está implementada en el ViewModel.
 /// </summary>
 public sealed partial class ParejasFrmPage : Page
 {

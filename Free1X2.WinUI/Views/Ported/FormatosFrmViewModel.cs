@@ -69,7 +69,8 @@ public partial class FormatosViewModel : ObservableObject
 ///
 /// Persistencia (Guardar/Abrir/Copiar/Pegar) vía ArchivoCondiciones (.fmt/.xml + Temp/tmp.fmt)
 /// y Estadísticas vía CalculadorEstadisticas -> VisorEstadisticasPage. Las utilidades
-/// "Sacar formatos / Pares / Tríos / Sumas pares" siguen pendientes (forms no portados).
+/// "Sacar formatos / Pares / Tríos / Sumas pares" navegan a sus páginas portadas
+/// (CalculoFormatosFrmPage / ParejasFrmPage / TriosFrmPage / AnalizadorJPMPage).
 /// </summary>
 public partial class FormatosFrmViewModel : ObservableObject
 {

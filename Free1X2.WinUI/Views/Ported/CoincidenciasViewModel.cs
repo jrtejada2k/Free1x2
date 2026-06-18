@@ -120,7 +120,7 @@ public partial class DistribucionFilaViewModel : ObservableObject
 /// y filtra/clasifica las columnas válidas, mostrando distribuciones y permitiendo grabarlas.
 ///
 /// Toda la lógica de dominio (lectura de ficheros, cálculo de radiografía, validación y grabado)
-/// está marcada como TODO citando los métodos de la clase legacy <c>Coincidencias</c>.
+/// está implementada replicando los métodos de la clase legacy <c>Coincidencias</c>.
 /// </summary>
 public partial class CoincidenciasViewModel : ObservableObject
 {

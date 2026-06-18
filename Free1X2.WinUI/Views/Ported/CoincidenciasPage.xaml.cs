@@ -12,8 +12,8 @@ namespace Free1X2.WinUI.Views.Ported;
 /// columnas válidas, mostrando las distribuciones resultantes y permitiendo grabarlas.
 ///
 /// La lógica de dominio (lectura de ficheros, cálculo de radiografía, validación, grabado y
-/// exportación a Excel) está marcada como TODO en <see cref="CoincidenciasViewModel"/>,
-/// citando los métodos de la clase legacy <c>Coincidencias</c>.
+/// exportación a Excel) está implementada en <see cref="CoincidenciasViewModel"/>,
+/// replicando los métodos de la clase legacy <c>Coincidencias</c>.
 /// </summary>
 public sealed partial class CoincidenciasPage : Page
 {

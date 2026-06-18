@@ -20,15 +20,16 @@ namespace Free1X2.WinUI.Views.Ported
     //
     // Es un sub-diálogo de SÓLO PRESENTACIÓN (sin E/S de fichero ni motor): formatea la matriz
     // que entrega su form padre. En WinUI esa matriz llega por el handoff estático
-    // MatrizEntrada / NumColEntrada (igual patrón que AppState.GrupoEnEdicion). Mientras el
-    // productor (form padre) no lo rellene, la tabla se muestra a 0 (TODO documentado).
+    // MatrizEntrada / NumColEntrada (igual patrón que AppState.GrupoEnEdicion). El productor
+    // (AnastaticsViewModel, modo "Sus coincidencias") rellena el handoff antes de navegar; si
+    // se abre sin datos, la tabla se muestra a 0.
     public partial class DibRepFrmViewModel : ObservableObject
     {
         /// <summary>
         /// Matriz int[5,15] entregada por el form padre (legacy: ctor DibRepFrm(int[,] ofparent, int ncol)).
         /// Handoff estático de proceso, análogo a AppState.GrupoEnEdicion.
-        /// TODO[dominio]: el productor (pantalla padre) debe asignar esta matriz y NumColEntrada
-        ///   antes de navegar a DibRepFrmPage (Free1X2/UI/Estadisticas/DibRepFrm.cs, constructor).
+        /// El productor (AnastaticsViewModel, modo "Sus coincidencias") asigna esta matriz y
+        ///   NumColEntrada antes de navegar a DibRepFrmPage (legacy: ctor DibRepFrm(int[,], int)).
         /// </summary>
         public static int[,]? MatrizEntrada { get; set; }
 

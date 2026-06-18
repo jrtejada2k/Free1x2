@@ -9,7 +9,7 @@ namespace Free1X2.WinUI.Views.Ported;
 /// tabla de "Límites" de 5 niveles (mínimo / máximo por nivel) y una matriz de
 /// "Niveles" de sólo lectura. Muestra columnas procesadas / válidas, el tiempo y
 /// un resultado por nivel. La lógica de validación, lectura de fichero, cálculo de
-/// la matriz y persistencia de condiciones está marcada como TODO en el ViewModel.
+/// la matriz y persistencia de condiciones está implementada en el ViewModel.
 /// </summary>
 public sealed partial class TriosFrmPage : Page
 {

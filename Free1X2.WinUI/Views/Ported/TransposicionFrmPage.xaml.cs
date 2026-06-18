@@ -7,7 +7,7 @@ namespace Free1X2.WinUI.Views.Ported;
 /// Page portada del WinForms legacy "TransposicionFrm" (título "Transposición de
 /// columnas"). Reordena los 14 signos de cada columna del archivo de entrada según
 /// una permutación que indica el usuario. La lógica de dominio (lectura/escritura de
-/// archivos y reordenado) queda como TODO.
+/// archivos y reordenado) está implementada en el ViewModel.
 /// </summary>
 public sealed partial class TransposicionFrmPage : Page
 {

@@ -14,7 +14,7 @@ namespace Free1X2.WinUI.Views.Ported;
 /// una columna ganadora (Analizar + Comparador2/neq).
 ///
 /// La lógica de dominio (s2n/n2s, calcular11/12/13, Comparador2, neq, ArchivoColumnasTexto,
-/// diálogos de archivo y el Timer de refresco) está marcada como TODO en el ViewModel.
+/// diálogos de archivo y el refresco de la distribución) está implementada en el ViewModel.
 /// </summary>
 public sealed partial class SelectorMSPage : Page
 {

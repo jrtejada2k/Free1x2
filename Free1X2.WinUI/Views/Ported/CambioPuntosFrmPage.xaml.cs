@@ -20,14 +20,14 @@ public sealed partial class CambioPuntosFrmPage : Page
     {
         ViewModel.GuardarCommand.Execute(null);
 
-        // TODO[dominio]: tras guardar, cerrar/regresar.
-        //   En el flujo legacy CambioPuntosFrm.btnOK_Click llamaba GuardarPuntos() y Close().
-        //   En navegación WinUI, decidir aquí Frame.GoBack() o cerrar el host contenedor.
+        // Tras guardar, regresa (legacy CambioPuntosFrm.btnOK_Click -> GuardarPuntos() que termina
+        // en Close()). En navegación WinUI equivale a Frame.GoBack().
+        if (Frame?.CanGoBack == true) Frame.GoBack();
     }
 
     private void OnCancelarClick(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
-        // TODO[dominio]: descartar y cerrar/regresar (legacy: btnCancel_Click -> Close()).
-        //   En navegación WinUI, invocar Frame.GoBack() o cerrar el host contenedor.
+        // Descarta y regresa (legacy: btnCancel_Click -> Close()). En navegación WinUI, Frame.GoBack().
+        if (Frame?.CanGoBack == true) Frame.GoBack();
     }
 }

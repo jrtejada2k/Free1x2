@@ -11,7 +11,7 @@ namespace Free1X2.WinUI.Views.Ported;
 ///   - "Por tramos": N partes iguales (legacy FracTrams / tbqnts).
 /// Muestra total de columnas, archivos generados y tiempo transcurrido.
 /// La lógica de dominio (lectura/escritura de archivos, ConvertidorDeBases,
-/// medición de tiempo) queda como TODO en el ViewModel.
+/// medición de tiempo) está implementada en el ViewModel.
 /// </summary>
 public sealed partial class FraccionadorFrmPage : Page
 {

@@ -8,7 +8,7 @@ namespace Free1X2.WinUI.Views.Ported;
 /// Muestra los equipos de las cuatro categorías (1ª, 2ª, 2ªB e Internacionales)
 /// y permite moverlos entre ellas, eliminarlos, dar de alta nuevos y guardar.
 /// La carga/guardado de los ficheros .dat y la apertura de AgregarEquipoFrm
-/// quedan como TODO de dominio en el ViewModel.
+/// están implementadas en el ViewModel.
 /// </summary>
 public sealed partial class GestorEquiposFrmPage : Page
 {

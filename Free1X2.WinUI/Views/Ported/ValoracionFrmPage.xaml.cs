@@ -10,7 +10,7 @@ namespace Free1X2.WinUI.Views.Ported;
 /// acotar los rangos de valoración Global, de Unos, Equis y Doses. Recibe el Grupo a editar
 /// vía AppState.GrupoEnEdicion y escribe tipo + rangos + matriz de porcentajes (de la
 /// rejilla PorcentajesControl) de vuelta al filtro al Aceptar. La persistencia
-/// (Guardar/Abrir/Copiar/Pegar/Estadísticas) queda como TODO en el ViewModel.
+/// (Guardar/Abrir/Copiar/Pegar/Estadísticas) está implementada en el ViewModel.
 /// </summary>
 public sealed partial class ValoracionFrmPage : Page
 {

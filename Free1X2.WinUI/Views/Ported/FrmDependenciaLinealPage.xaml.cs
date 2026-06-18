@@ -8,7 +8,7 @@ namespace Free1X2.WinUI.Views.Ported;
 /// Recalcula el signo del partido a tratar como combinación lineal (módulo 3 ó 2) de
 /// los signos del resto de partidos ponderados por sus coeficientes, y reescribe el
 /// archivo de columnas. La lógica de dominio (lectura/escritura de columnas, cálculo
-/// sobre las 4.782.969 combinaciones) queda como TODO.
+/// sobre las 4.782.969 combinaciones) está implementada en el ViewModel.
 /// </summary>
 public sealed partial class FrmDependenciaLinealPage : Page
 {

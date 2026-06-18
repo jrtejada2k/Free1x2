@@ -10,7 +10,7 @@ namespace Free1X2.WinUI.Views.Ported;
 /// Global, Variantes, 1, X y 2 (más sus tolerancias homónimas), las tolerancias numéricas
 /// 0..5 y las figuras seleccionables (3-2, 3-1-1, 2-2-1, 2-1-1-1, 1-1-1-1-1).
 /// Recibe el Grupo a editar vía AppState.GrupoEnEdicion y escribe los cambios de vuelta al
-/// <c>FiltroPesosNumericos</c> al Aceptar. La persistencia en disco queda como TODO.
+/// <c>FiltroPesosNumericos</c> al Aceptar. La persistencia en disco está implementada.
 /// </summary>
 public sealed partial class PesosNumFrmPage : Page
 {

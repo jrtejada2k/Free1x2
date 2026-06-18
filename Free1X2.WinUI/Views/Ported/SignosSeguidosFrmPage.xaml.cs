@@ -9,7 +9,8 @@ namespace Free1X2.WinUI.Views.Ported;
 /// Permite introducir, para Var / 1 / X / 2, las cantidades (0–15) admitidas de cada
 /// concepto SEGUIDO dentro de una combinación, y definir las "Figuras" asociadas a cada uno.
 /// Recibe el Grupo a editar vía AppState.GrupoEnEdicion y escribe los cambios de vuelta al
-/// <c>FiltroSignosSeguidos</c> al Aceptar. La edición de figuras y la persistencia quedan como TODO.
+/// <c>FiltroSignosSeguidos</c> al Aceptar. La edición de figuras (navega a FigurasFiltrosFrmPage)
+/// y la persistencia al filtro están implementadas en el ViewModel.
 /// </summary>
 public sealed partial class SignosSeguidosFrmPage : Page
 {

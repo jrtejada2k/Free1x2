@@ -609,7 +609,7 @@ namespace Free1X2.WinUI.Views.Ported
             Volver?.Invoke();
         }
 
-        // ===== Acciones de la pestaña Columnas pendientes de portar UserControls/diálogos =====
+        // ===== Acciones de la pestaña Columnas (diálogos portados como páginas con handoff) =====
 
         // Valores AC/ACS/FS capturados de la pantalla al abrir el diálogo de copia (legacy
         // CopiaValoresCP, líneas 764-783): se capturan ANTES de mostrar el diálogo y se aplican al

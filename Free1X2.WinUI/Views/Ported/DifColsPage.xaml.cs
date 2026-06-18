@@ -9,8 +9,8 @@ namespace Free1X2.WinUI.Views.Ported;
 /// acepta sólo si su número de diferencias respecto a la columna base (o fichero de
 /// condiciones) y respecto a las columnas ya aceptadas cae dentro de los rangos
 /// indicados. La lógica de dominio (VerColumna/PreparaDifs/MetodoInterno/MetodoExterno/
-/// Proceso/Grabar, selección de archivos y apertura de GeneradorCPSDiferencias) queda
-/// como TODO.
+/// Proceso/Grabar y la selección de archivos) está implementada en el ViewModel; la apertura
+/// de GeneradorCPSDiferencias se delega al host de la Page (Frame.Navigate).
 /// </summary>
 public sealed partial class DifColsPage : Page
 {

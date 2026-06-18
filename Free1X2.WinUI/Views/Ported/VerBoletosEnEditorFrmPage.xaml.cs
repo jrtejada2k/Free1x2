@@ -29,10 +29,10 @@ namespace Free1X2.WinUI.Views.Ported
             this.InitializeComponent();
             ViewModel.ImpresionSolicitada += async (_, _) => await ImprimirAsync();
 
-            // TODO Legacy: el constructor de VerBoletosEnEditorFrm recibía string[] columnas
-            // y las formateaba. Aquí las columnas deben llegar por navegación (OnNavigatedTo)
-            // y pasarse a ViewModel.CargarColumnas(columnas) cuando se conecte el dominio.
-            // ViewModel.CargarColumnas(columnas);
+            // Legacy: el constructor de VerBoletosEnEditorFrm recibía string[] columnas y las
+            // formateaba. Como esta página se abre por navegación (sin argumento de constructor),
+            // las columnas las carga el comando CargarFicheroAsync del ViewModel ("Cargar
+            // columnas…"), que lee el fichero y llama a ViewModel.CargarColumnas(columnas).
         }
 
         /// <summary>

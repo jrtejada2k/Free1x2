@@ -11,7 +11,8 @@ namespace Free1X2.WinUI.Views.Ported;
 /// Permite definir, para cada pareja de signos (1X, 12, X2, 11, XX, 22, 1V, XV, 2V, VV),
 /// los números de contactos admitidos, más una condición opcional de figuras.
 /// Recibe el Grupo a editar vía AppState.GrupoEnEdicion y escribe los cambios de vuelta
-/// al <c>FiltroContactos</c> al Aceptar. La edición de figuras y la persistencia quedan como TODO.
+/// al <c>FiltroContactos</c> al Aceptar. La edición de figuras (navega a
+/// FigurasFiltrosFrmPage) y la persistencia al filtro están implementadas en el ViewModel.
 /// </summary>
 public sealed partial class ContactosFrmPage : Page
 {

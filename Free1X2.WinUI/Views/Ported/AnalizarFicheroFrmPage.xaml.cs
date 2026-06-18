@@ -19,7 +19,7 @@ public sealed partial class AnalizarFicheroFrmPage : Page
 
     private void OnCancelarClick(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
-        // TODO[dominio]: descartar y cerrar/regresar (legacy: btnCancel_Click -> this.Close()).
-        //   En navegación WinUI, invocar Frame.GoBack() o cerrar el host contenedor.
+        // Descarta y regresa (legacy: btnCancel_Click -> this.Close()). En navegación WinUI, Frame.GoBack().
+        if (Frame?.CanGoBack == true) Frame.GoBack();
     }
 }

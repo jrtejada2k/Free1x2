@@ -12,7 +12,7 @@ namespace Free1X2.WinUI.Views.Ported;
 /// guardar varios conjuntos (Diferencias) y navegar entre ellos, generar grupos por
 /// atajos (Dúos..Octetos). Recibe el Grupo a editar vía AppState.GrupoEnEdicion y escribe
 /// los cambios de vuelta al <c>FiltroDiferencias</c> al Aceptar. La persistencia en disco
-/// queda como TODO en el ViewModel.
+/// está implementada en el ViewModel.
 /// </summary>
 public sealed partial class DiferenciasFrmPage : Page
 {

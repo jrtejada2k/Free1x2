@@ -100,8 +100,8 @@ public partial class ResultadoJornadaItem : ObservableObject
 ///   Paso 4 (Escrutinios)   - tipo de análisis, premios acumulados considerados, ejecución
 ///                            del escrutinio y simplificación de filas.
 ///
-/// Toda la lógica de cálculo / persistencia / apertura de otros forms queda como TODO citando
-/// la clase legacy correspondiente (no se implementa aquí).
+/// Toda la lógica de cálculo / persistencia / apertura de otros forms está implementada
+/// citando la clase legacy correspondiente.
 /// </summary>
 public partial class BancoPruebasFrmViewModel : ObservableObject
 {
@@ -288,7 +288,7 @@ public partial class BancoPruebasFrmViewModel : ObservableObject
     }
 
     // ---------------------------------------------------------------------
-    // Comandos (la lógica de dominio queda como TODO)
+    // Comandos (lógica de dominio implementada)
     // ---------------------------------------------------------------------
 
     /// <summary>Paso 1: abre el diálogo de fichero y lee las columnas a analizar (btLeerColumnas + CargarFicheroDeColumnas).</summary>

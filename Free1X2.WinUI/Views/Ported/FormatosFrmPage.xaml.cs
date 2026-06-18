@@ -12,8 +12,9 @@ namespace Free1X2.WinUI.Views.Ported;
 /// + rango Mín-Máx de apariciones) y los límites Líneas/Global.
 ///
 /// Recibe el Grupo a editar vía AppState.GrupoEnEdicion y escribe los cambios de vuelta
-/// al <c>FiltroFormatosSignos</c> al Aceptar. Las utilidades de formatos y la persistencia
-/// en disco quedan como TODO.
+/// al <c>FiltroFormatosSignos</c> al Aceptar. Las utilidades de formatos (Sacar formatos /
+/// Pares / Tríos / Sumas pares, que navegan a sus páginas) y la persistencia en disco
+/// están implementadas.
 /// </summary>
 public sealed partial class FormatosFrmPage : Page
 {
