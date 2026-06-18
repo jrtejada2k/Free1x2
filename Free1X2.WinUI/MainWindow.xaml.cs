@@ -43,12 +43,15 @@ public sealed partial class MainWindow : Window
             IniciarSmokeTest();
     }
 
-    // Tamaño inicial cercano al MainForm original (~1020 x 720).
+    // Tamaño inicial cercano al MainForm original (~1020 x 720). El alto se sube a 760
+    // para que entren cómodamente la barra de menús + la barra de herramientas a DOS
+    // filas (reserva MinHeight=63 del host) + el contenido, sin que la fila Auto del
+    // Grid recorte la 2ª fila de botones.
     private void AjustarTamanoVentana()
     {
         try
         {
-            this.AppWindow?.Resize(new Windows.Graphics.SizeInt32(1020, 720));
+            this.AppWindow?.Resize(new Windows.Graphics.SizeInt32(1020, 760));
         }
         catch { /* sin AppWindow (entornos sin presentación): no es crítico */ }
     }
@@ -357,7 +360,7 @@ public sealed partial class MainWindow : Window
         var btn = new Button
         {
             Content = img,
-            Width = 30,
+            Width = 26,
             Height = 26,
             Padding = new Thickness(0),
             Background = new SolidColorBrush(Microsoft.UI.Colors.Transparent),
@@ -392,7 +395,7 @@ public sealed partial class MainWindow : Window
         var btn = new Button
         {
             Content = img,
-            Width = 30,
+            Width = 26,
             Height = 26,
             Padding = new Thickness(0),
             Background = new SolidColorBrush(Microsoft.UI.Colors.Transparent),
