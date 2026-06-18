@@ -14,7 +14,7 @@
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="280" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
             <!-- Encabezado -->
@@ -31,22 +31,14 @@
                 <Grid RowSpacing="6">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
-                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
 
                     <TextBlock Grid.Row="0" Text="Filtros"
                                Style="{StaticResource SectionHeaderTextBlockStyle}" />
 
-                    <!-- ckMD: Activa / Desactiva -->
-                    <ToggleSwitch Grid.Row="1"
-                                  Header="Activar / Desactivar todos"
-                                  IsOn="{x:Bind ViewModel.ActivarTodas, Mode=TwoWay}"
-                                  Toggled="ActivarTodas_Toggled" />
-
                     <!-- DataGrid legacy -> ListView -->
-                    <ListView Grid.Row="2"
+                    <ListView Grid.Row="1"
                               MinHeight="240"
                               ItemsSource="{x:Bind ViewModel.Filtros, Mode=OneWay}"
                               SelectionMode="None"
@@ -152,115 +144,140 @@
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
-
-                    <!-- Botones de carga/gestión de la lista -->
-                    <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="8">
-                        <Button Content="Cargar Filtro"
-                                Command="{x:Bind ViewModel.CargarFiltroCommand}" />
-                        <Button Content="Cargar Lista"
-                                Command="{x:Bind ViewModel.CargarListaCommand}" />
-                        <Button Content="Salvar Lista"
-                                Command="{x:Bind ViewModel.SalvarListaCommand}" />
-                    </StackPanel>
                 </Grid>
             </Border>
 
-            <!-- Columna derecha: proceso + análisis -->
-            <StackPanel Grid.Row="1" Grid.Column="1" Spacing="6">
+            <!-- Columna derecha: réplica fiel del layout legacy (712x464):
+                 columna vertical de botones (orden original) + grupo "Análisis resultados". -->
+            <Grid Grid.Row="1" Grid.Column="1" RowSpacing="8" Width="200">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
 
-                <!-- Tarjeta: Proceso -->
-                <Border Style="{StaticResource AppCardStyle}">
-                    <StackPanel Spacing="5">
-                        <TextBlock Text="Proceso"
-                                   Style="{StaticResource SectionHeaderTextBlockStyle}" />
-                        <Button Content="Iniciar Proceso"
-                                Style="{StaticResource AccentButtonStyle}"
-                                HorizontalAlignment="Stretch"
-                                Command="{x:Bind ViewModel.IniciarCommand}" />
-                        <Button Content="Cancelar"
-                                HorizontalAlignment="Stretch"
-                                Command="{x:Bind ViewModel.CancelarCommand}" />
-                        <Button Content="Grabar"
-                                HorizontalAlignment="Stretch"
-                                Command="{x:Bind ViewModel.GrabarCommand}" />
+                <!-- Columna vertical de botones (orden legacy):
+                     Cargar Filtro, Activa/Desactiva, Salvar Lista, Cargar Lista,
+                     Iniciar Proceso, Tiempo, Cancelar, Grabar, Fichero. -->
+                <StackPanel Grid.Row="0" Spacing="6">
+                    <!-- btnCargarFiltro -->
+                    <Button Content="Cargar Filtro"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Center"
+                            Command="{x:Bind ViewModel.CargarFiltroCommand}" />
+                    <!-- ckMD: Activa / Desactiva -->
+                    <CheckBox Content="Activa / Desactiva"
+                              HorizontalAlignment="Stretch"
+                              IsChecked="{x:Bind ViewModel.ActivarTodas, Mode=TwoWay}"
+                              Checked="ActivarTodas_Toggled"
+                              Unchecked="ActivarTodas_Toggled" />
+                    <!-- bSalvaLista -->
+                    <Button Content="Salvar Lista"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Center"
+                            Command="{x:Bind ViewModel.SalvarListaCommand}" />
+                    <!-- bCargaLista -->
+                    <Button Content="Cargar Lista"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Center"
+                            Command="{x:Bind ViewModel.CargarListaCommand}" />
+                    <!-- bIniciar (acento) -->
+                    <Button Content="Iniciar Proceso"
+                            Style="{StaticResource AccentButtonStyle}"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Center"
+                            Command="{x:Bind ViewModel.IniciarCommand}" />
+                    <!-- lTime: tiempo del proceso (solo lectura) -->
+                    <TextBox Header="Tiempo"
+                             IsReadOnly="True"
+                             Text="{x:Bind ViewModel.Tiempo, Mode=OneWay}"
+                             AutomationProperties.Name="Tiempo del proceso" />
+                    <!-- bCancelar -->
+                    <Button Content="Cancelar"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Center"
+                            Command="{x:Bind ViewModel.CancelarCommand}" />
+                    <!-- bGrabar -->
+                    <Button Content="Grabar"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Center"
+                            Command="{x:Bind ViewModel.GrabarCommand}" />
+                    <!-- lFileR: archivo de salida (solo lectura) -->
+                    <TextBox Header="Fichero"
+                             IsReadOnly="True"
+                             Text="{x:Bind ViewModel.ArchivoSalida, Mode=OneWay}"
+                             AutomationProperties.Name="Fichero grabado" />
+                </StackPanel>
 
-                        <!-- lTime: tiempo del proceso -->
-                        <StackPanel Spacing="4">
-                            <TextBlock Text="Tiempo"
-                                       Style="{StaticResource SecondaryTextBlockStyle}" />
-                            <TextBlock Text="{x:Bind ViewModel.Tiempo, Mode=OneWay}"
-                                       Style="{StaticResource BodyStrongTextBlockStyle}" />
-                        </StackPanel>
-
-                        <!-- lFileR: archivo de salida -->
-                        <StackPanel Spacing="4">
-                            <TextBlock Text="Fichero grabado"
-                                       Style="{StaticResource SecondaryTextBlockStyle}" />
-                            <TextBlock Text="{x:Bind ViewModel.ArchivoSalida, Mode=OneWay}"
-                                       TextTrimming="CharacterEllipsis" />
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
-
-                <!-- Tarjeta: Analisis resultados (groupBox3 legacy) -->
-                <Border Style="{StaticResource AppCardStyle}">
-                    <StackPanel Spacing="5">
+                <!-- groupBox3 legacy: "Análisis resultados" (~200x120). -->
+                <Border Grid.Row="1"
+                        Width="200"
+                        MinHeight="120"
+                        Background="{ThemeResource AppSurfaceBrush}"
+                        BorderBrush="{ThemeResource AppBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="4"
+                        Padding="8">
+                    <StackPanel Spacing="6">
                         <TextBlock Text="Análisis resultados"
                                    Style="{StaticResource SectionHeaderTextBlockStyle}" />
 
-                        <!-- lFGR: fichero de ganadoras + bFG (cargar) -->
+                        <!-- Fila 1: bFG (cargar) + lFGR (nombre fichero) -->
                         <Grid ColumnSpacing="8">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0"
+                            <Button Grid.Column="0"
+                                    Content="Fichero…"
+                                    Command="{x:Bind ViewModel.CargarGanadorasCommand}"
+                                    AutomationProperties.Name="Cargar fichero de columnas ganadoras" />
+                            <TextBlock Grid.Column="1"
                                        Text="{x:Bind ViewModel.FicheroGanadoras, Mode=OneWay}"
                                        TextTrimming="CharacterEllipsis"
                                        VerticalAlignment="Center" />
-                            <Button Grid.Column="1"
-                                    Content="Cargar…"
-                                    Command="{x:Bind ViewModel.CargarGanadorasCommand}"
-                                    AutomationProperties.Name="Cargar fichero de columnas ganadoras" />
                         </Grid>
 
-                        <!-- tbCG: columna ganadora -->
-                        <TextBox Header="Columna ganadora"
-                                 MaxLength="14"
+                        <!-- Fila 2: tbCG (columna ganadora) -->
+                        <TextBox MaxLength="14"
                                  Text="{x:Bind ViewModel.ColumnaGanadora, Mode=TwoWay}"
                                  AutomationProperties.Name="Columna ganadora (14 signos)" />
 
-                        <!-- lbCGR + bMasR/bMenosR: navegador de la ganadora -->
-                        <Grid ColumnSpacing="8">
+                        <!-- Fila 3: bAnalizar + lbCGR (índice) + bMasR/bMenosR (+/-) -->
+                        <Grid ColumnSpacing="6">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Column="0" Spacing="2" VerticalAlignment="Center">
-                                <TextBlock Text="Índice"
-                                           Style="{StaticResource SecondaryTextBlockStyle}" />
-                                <TextBlock Text="{x:Bind ViewModel.IndiceGanadoraTexto, Mode=OneWay}"
-                                           Style="{StaticResource BodyStrongTextBlockStyle}" />
+                            <Button Grid.Column="0"
+                                    Content="Analizar"
+                                    HorizontalAlignment="Stretch"
+                                    HorizontalContentAlignment="Center"
+                                    IsEnabled="{x:Bind ViewModel.PuedeAnalizar, Mode=OneWay}"
+                                    Command="{x:Bind ViewModel.AnalizarCommand}" />
+                            <TextBlock Grid.Column="1"
+                                       Text="{x:Bind ViewModel.IndiceGanadoraTexto, Mode=OneWay}"
+                                       MinWidth="28"
+                                       HorizontalTextAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Style="{StaticResource BodyStrongTextBlockStyle}"
+                                       AutomationProperties.Name="Índice de la columna ganadora" />
+                            <StackPanel Grid.Column="2" Spacing="2">
+                                <Button Content="+"
+                                        Padding="6,0"
+                                        MinWidth="24"
+                                        Command="{x:Bind ViewModel.GanadoraSiguienteCommand}"
+                                        AutomationProperties.Name="Columna ganadora siguiente" />
+                                <Button Content="−"
+                                        Padding="6,0"
+                                        MinWidth="24"
+                                        Command="{x:Bind ViewModel.GanadoraAnteriorCommand}"
+                                        AutomationProperties.Name="Columna ganadora anterior" />
                             </StackPanel>
-                            <Button Grid.Column="1"
-                                    Content="−"
-                                    Command="{x:Bind ViewModel.GanadoraAnteriorCommand}"
-                                    AutomationProperties.Name="Columna ganadora anterior" />
-                            <Button Grid.Column="2"
-                                    Content="+"
-                                    Command="{x:Bind ViewModel.GanadoraSiguienteCommand}"
-                                    AutomationProperties.Name="Columna ganadora siguiente" />
                         </Grid>
-
-                        <!-- bAnalizar -->
-                        <Button Content="Analizar"
-                                HorizontalAlignment="Stretch"
-                                IsEnabled="{x:Bind ViewModel.PuedeAnalizar, Mode=OneWay}"
-                                Command="{x:Bind ViewModel.AnalizarCommand}" />
                     </StackPanel>
                 </Border>
-            </StackPanel>
+            </Grid>
         </Grid>
     </ScrollViewer>
 </Page>
