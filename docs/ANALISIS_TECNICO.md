@@ -1,3 +1,5 @@
+*> Nota: este es el análisis PREVIO a la migración (monolito WinForms y riesgos). Para la arquitectura WinUI 3 ya construida ver [ANALISIS_TECNICO_WINUI3.md](ANALISIS_TECNICO_WINUI3.md).*
+
 # Free1X2 — Análisis técnico de arquitectura
 
 *Análisis estático del repositorio (rama `winui3-migration`). App de escritorio Windows para análisis de la Quiniela (14 partidos, signos 1/X/2). Generado por el agente de análisis de código.*

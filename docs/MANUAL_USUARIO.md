@@ -115,17 +115,35 @@ Permite seleccionar un archivo de columnas que actúa como **base/filtro** de la
 ### Free1x2
 | Opción | Función |
 |--------|---------|
-| Salir | Cierra el programa (pide confirmación). |
+| Inicio | Vuelve a la pantalla principal (boleto + condiciones). |
 | Configuración | Parámetros del programa. |
+| Configurar análisis | Activa/desactiva los **tipos de análisis estadístico** que el programa tendrá en cuenta (variantes, seguidos, figuras, interrupciones, dibujos, simetrías, formatos, distancias, contactos, pesos, valoración, CPs, grupos de equipos, control de grupos, diferencias…). Botones para marcar/desmarcar todos. |
 | Acerca de | Información, licencia GPL, web, foros, manual. |
+| Créditos | Lista de autores y colaboradores del programa. |
+| Salir | Cierra el programa (pide confirmación). |
 
 ### Archivo
 | Opción | Función |
 |--------|---------|
-| Abrir / Guardar Partidos Boleto | Carga/guarda el boleto base. |
+| Abrir / Guardar Partidos Boleto | Carga/guarda el boleto base (equipos). |
 | Nueva Combinación | Reinicia para una combinación nueva. |
 | Abrir / Guardar / Guardar Como Combinación | Gestiona archivos `.comb`. |
 | Borrar Combinaciones Temporales | Elimina los backups temporales. |
+| Borrar Informes de Error | Elimina los informes de error generados por el programa. |
+| Obtener Boletos Online | Descarga el boleto oficial de una **jornada y temporada** concretas desde el servicio online del programa, para cargarlo como boleto base. |
+| Gestión de Equipos | Abre el **gestor de equipos** (ver §10). |
+| Importar / Exportar Columnas | Convierte ficheros de columnas entre **CSV y TXT** en ambos sentidos. |
+
+### Ver
+| Opción | Función |
+|--------|---------|
+| Inicio | Vuelve a la pantalla principal. |
+| Ver Boletos | Muestra las columnas dispuestas sobre boletos. |
+| Gráfico de Columnas | Representación gráfica de un archivo de columnas. |
+| Estadísticas | Distribución de un archivo por condiciones. |
+| Configuración | Parámetros del programa. |
+| **Barras de Herramientas** | Submenú con un interruptor por cada una de las **6 barras** (Filtros, Free1X2, Operaciones, Utilidades, Combinación, Archivo). Permite mostrar/ocultar cada barra; la elección se conserva al cerrar el programa. |
+| Listado de Condiciones | Muestra en **árbol** todas las condiciones/filtros configurados en la combinación actual; se puede expandir/colapsar y exportar a texto/HTML. |
 
 ### Combinación
 | Opción | Función |
@@ -133,8 +151,11 @@ Permite seleccionar un archivo de columnas que actúa como **base/filtro** de la
 | Calcular | Genera la combinación. |
 | Calcular Varias Combinaciones | Cálculo por lotes. |
 | Ver / Imprimir Boletos | Muestra / imprime en boletos oficiales. |
+| Ver Boletos en Editor de Texto | Vuelca las columnas de un fichero a un editor de texto para revisarlas/copiarlas. |
 | Reducir | Abre el reductor. |
 | Escrutinios | Escruta archivos de columnas. |
+| Escrutar Combinaciones | Escrutinio orientado a combinaciones (no solo a ficheros de columnas sueltas). |
+| Analizar Combinación | Analiza una combinación concreta (su columna, su analizador y sus pronósticos asociados). |
 | Análisis de Fallos / Gráfico / de Signos | Herramientas de análisis. |
 | Probabilidades | Probabilidad de una "hija" respecto a la "madre". |
 | Estadísticas | Distribución de un archivo por condiciones. |
@@ -170,7 +191,11 @@ Permite seleccionar un archivo de columnas que actúa como **base/filtro** de la
 | Tramificar | Separa columnas por tramos. |
 | Premiadas | Utilidad de premiadas. |
 | Estimación de Premios | Predice la cuantía de premios dada la ganadora. |
-| Simulador de Escrutinios | Banco de pruebas. |
+| Banco de Pruebas | Simulador de escrutinios (ver §10). |
+| Compresor *.z3q | Comprime/descomprime archivos de columnas. |
+| EstuCol | Generador/analizador de columnas probables a partir de reducidas y ganadoras. |
+
+> **Otras herramientas accesibles desde la barra de herramientas** (grupo Utilidades), aunque no figuran en este menú: **Análisis de grupos**, **Reducciones perfectas** y **Dependencia lineal** (ver §10).
 
 ---
 
@@ -329,6 +354,13 @@ Resumen rápido (el detalle de las más completas viene a continuación):
 | **Estimación de Premios** | Predice acertantes y cuantía de cada premio dada la ganadora y las valoraciones apostadas. |
 | **Simulador de Escrutinios (Banco de Pruebas)** | Prueba/compara combinaciones contra 14s reales o simulados. |
 | **Álgebra / Transposición / Multiplicador / Fraccionador / Rotación** | Operaciones sobre archivos de columnas. |
+| **Gestión de Equipos** | Mantiene los equipos de las 4 categorías (1ª, 2ª, 2ªB e Internacionales). |
+| **Importar / Exportar Columnas** | Convierte ficheros de columnas entre CSV y TXT. |
+| **Compresor *.z3q** | Comprime/descomprime archivos de columnas a un formato propio. |
+| **EstuCol** | Genera/analiza columnas probables a partir de reducidas y ganadoras. |
+| **Análisis de grupos** | Cuenta cuántas columnas de un fichero encajan en cada combinación de un grupo/patrón. |
+| **Reducciones perfectas** | Genera reducciones "perfectas" (4/13/11 triples ó 7/15 dobles) a partir de una base. |
+| **Dependencia lineal** | Recalcula el signo de un partido como combinación lineal de los demás. |
 
 ### SubeCategoría
 Coge cada columna de un fichero `.txt` y añade todas las que se le diferencian en un solo signo, eliminando repetidas. Opera sobre los 14 partidos por defecto, pero puedes restringir los **partidos involucrados** (solo esos cambiarán de signo). En **Niveles** indicas cuántas categorías subir: el archivo final contiene las columnas de los niveles marcados (marca el **Nivel 0** para incluir también las columnas originales). Entre "Calcular" y "Grabar" hay una casilla informativa que muestra el nº de columnas de origen (`I=`), resultantes (`F=`) y grabadas (`G=`).
@@ -400,6 +432,32 @@ Tres aplicaciones: (1) **comparar dos combinaciones** para elegir una; (2) **com
    - **Autoescrutinio** — considera cada apuesta como si fuera el 14 premiado y mide qué premios darían el resto de apuestas (marca automáticamente todos los premios).
 
    **Tabla de resultados** (análisis "Columnas" o "Autoescrutinio"): una fila por apuesta, con las columnas **Nº14, Nº13, Nº12, Nº11, Nº10** (veces que esa apuesta obtuvo cada premio en todos los escrutinios), **Premio 14 … Premio 10** (importe en euros), **Premio Ac** (acumulado de los premios marcados; en análisis "Columnas" no conviene contar el 14 por la aleatoriedad) y el **% de recuperación**. Se puede ordenar por cualquier cabecera, filtrar por rangos de cualquier concepto y grabar las apuestas seleccionadas (con `Shift`/`Ctrl`).
+
+### Gestión de Equipos
+Mantiene la base de **equipos** que se ofrecen al rellenar el boleto. Muestra los equipos repartidos en sus **cuatro categorías** (1ª, 2ª, 2ªB e Internacionales) y permite **moverlos** de una categoría a otra, **eliminarlos**, dar de **alta** nuevos (pantalla "Agregar equipo": nombre + categoría) y **guardar** los cambios.
+
+### Importar / Exportar Columnas
+Convierte ficheros de columnas entre **CSV** y **TXT** (en ambos sentidos), para intercambiar columnas con otras herramientas u hojas de cálculo.
+
+### Obtener Boletos Online
+Descarga el **boleto oficial** de la jornada eligiendo **jornada** y **temporada**; el boleto descargado se puede usar como boleto base. *(Requiere conexión; si el servicio no responde, el programa avisa de que el boleto no está disponible.)*
+
+### Compresor *.z3q
+Comprime un archivo de columnas (`.txt`) a un **formato propio comprimido `.z3q`** (con un nivel de compresión 0–9) y lo descomprime de vuelta a `.txt`. Útil para almacenar o intercambiar ficheros de columnas grandes ocupando menos espacio.
+
+### EstuCol
+**Generador / analizador de columnas probables.** Selecciona un archivo de columnas **reducidas** y otro de **ganadoras**, elige el modo de agrupación/emparejamiento de columnas y genera un informe de escrutinio (que se abre en el visor de análisis de columnas).
+
+### Análisis de grupos
+Define un **grupo o patrón** sobre los 14 partidos, carga un fichero de columnas y cuenta **cuántas columnas encajan** en cada combinación del grupo; permite grabar la selección a un fichero.
+
+### Reducciones perfectas
+Genera una **"reducción perfecta"** a partir de una **columna base** (un signo por partido) y un **pronóstico** (qué signos juega cada partido): produce reducciones de tipo 4/13/11 triples ó 7/15 dobles y las graba en un archivo de columnas. (Método descrito por "Fortuna" en el foro de la comunidad.)
+
+### Dependencia lineal
+Recalcula el signo de un **partido a tratar** como **combinación lineal** (módulo 3 ó 2) de los signos del resto de partidos, ponderados por unos coeficientes que defines, y reescribe el archivo de columnas con el resultado.
+
+> **Nota sobre el estado de algunas utilidades.** En la versión WinUI 3 actual, varias de estas pantallas (entre ellas Multiplicador, Fraccionador, Transposición, Álgebra, Reductor, Compresor, Reducciones perfectas, Dependencia lineal, Generador CP y la persistencia del Gestor de Equipos) tienen la **interfaz completa** pero parte de su **lógica de cálculo/guardado todavía en proceso de migración**. Si una acción no produce el archivo esperado, es por este motivo (pendiente de detallar/completar), no por un error de uso.
 
 ---
 
