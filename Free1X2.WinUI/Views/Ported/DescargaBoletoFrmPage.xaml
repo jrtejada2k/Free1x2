@@ -15,10 +15,10 @@
         <!-- Encabezado -->
         <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,10">
             <TextBlock
-                Text="Descargar Boleto"
+                Text="Descarga de boleto"
                 Style="{StaticResource PageTitleTextBlockStyle}" />
             <TextBlock
-                Text="Elige la jornada y la temporada para descargar el boleto oficial online."
+                Text="Actualiza la jornada de la semana online para rellenar el boleto con los equipos reales."
                 Style="{StaticResource SecondaryTextBlockStyle}"
                 Foreground="{ThemeResource AppTextSecondaryBrush}" />
         </StackPanel>
@@ -32,6 +32,7 @@
             HorizontalAlignment="Left">
             <StackPanel Spacing="6">
 
+                <!-- Selector de país (España / México) — único control nuevo (diseño aprobado) -->
                 <Grid ColumnSpacing="10">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
@@ -39,35 +40,16 @@
                     </Grid.ColumnDefinitions>
                     <TextBlock
                         Grid.Column="0"
-                        Text="Jornada"
+                        Text="País"
                         VerticalAlignment="Center"
                         Style="{StaticResource BodyStrongTextBlockStyle}"
                         Foreground="{ThemeResource AppTextBrush}" />
                     <ComboBox
                         Grid.Column="1"
                         MinWidth="140"
-                        ItemsSource="{x:Bind ViewModel.Jornadas}"
-                        SelectedItem="{x:Bind ViewModel.JornadaSeleccionada, Mode=TwoWay}"
-                        AutomationProperties.Name="Jornada a descargar" />
-                </Grid>
-
-                <Grid ColumnSpacing="10">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <TextBlock
-                        Grid.Column="0"
-                        Text="Temporada"
-                        VerticalAlignment="Center"
-                        Style="{StaticResource BodyStrongTextBlockStyle}"
-                        Foreground="{ThemeResource AppTextBrush}" />
-                    <ComboBox
-                        Grid.Column="1"
-                        MinWidth="140"
-                        ItemsSource="{x:Bind ViewModel.Temporadas}"
-                        SelectedItem="{x:Bind ViewModel.TemporadaSeleccionada, Mode=TwoWay}"
-                        AutomationProperties.Name="Temporada a descargar" />
+                        ItemsSource="{x:Bind ViewModel.Paises}"
+                        SelectedItem="{x:Bind ViewModel.PaisSeleccionado, Mode=TwoWay}"
+                        AutomationProperties.Name="País de la jornada a descargar" />
                 </Grid>
 
                 <!-- Acciones -->
@@ -77,19 +59,20 @@
                     HorizontalAlignment="Right"
                     Margin="0,8,0,0">
                     <Button
-                        Content="Descargar Boleto"
+                        x:Name="BtnDescargar"
+                        Content="Actualizar jornada"
                         Style="{StaticResource AccentButtonStyle}"
                         Click="OnDescargarClick"
-                        AutomationProperties.Name="Descargar el boleto seleccionado" />
+                        AutomationProperties.Name="Descargar la jornada del país seleccionado" />
                 </StackPanel>
 
-                <!-- Mensaje de estado (legacy: lblMensaje) -->
+                <!-- Mensaje de estado / resumen (legacy: lblMensaje) -->
                 <TextBlock
                     Text="{x:Bind ViewModel.Mensaje, Mode=OneWay}"
                     TextWrapping="Wrap"
                     HorizontalAlignment="Center"
                     Style="{StaticResource SecondaryTextBlockStyle}"
-                    Foreground="{ThemeResource AppErrorBrush}" />
+                    Foreground="{ThemeResource AppTextSecondaryBrush}" />
 
             </StackPanel>
         </Border>

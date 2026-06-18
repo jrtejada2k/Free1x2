@@ -1,100 +1,102 @@
 // Free1X2 · WinUI 3 — WIN3
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Free1X2.Online;
+using Free1X2.WinUI.Services;
 
 namespace Free1X2.WinUI.Views.Ported;
 
 /// <summary>
-/// ViewModel para la pantalla "Descargar Boleto" (legacy: DescargaBoletoFrm).
-/// Permite elegir Jornada y Temporada para descargar el boleto oficial online.
+/// ViewModel de la pantalla "Descarga de boleto" (legacy: DescargaBoletoFrm), reactivada como
+/// la integración ONLINE OPCIONAL con clubprogol.com (docs/API_CLUBPROGOL.md):
+///
+///   1. El usuario elige país (España / México) — único control nuevo (diseño aprobado).
+///   2. La acción "Actualizar / Descargar" llama a
+///      <see cref="QuinielaOnlineService.ObtenerJornadaAsync(string, CancellationToken)"/>,
+///      que descarga y parsea la jornada vigente fuera del hilo de UI.
+///   3. En caso de éxito se guarda en <see cref="AppState.JornadaActual"/> (fuente compartida
+///      de los nombres reales) y se rellenan los 14 partidos del boleto; se muestra el resumen
+///      "Jornada N · 14 partidos cargados".
+///   4. Sin conexión / dato inválido → mensaje claro y modo manual (fallback offline; no rompe nada).
+///
+/// El legacy no tenía servicio (era un stub que devolvía "" y siempre mostraba "no disponible");
+/// esta versión es funcional contra el JSON de muestra y, cuando exista el backend, solo cambia
+/// la base URL (config o variable de entorno FREE1X2_API_BASE).
 /// </summary>
 public partial class DescargaBoletoFrmViewModel : ObservableObject
 {
-    /// <summary>
-    /// Lista de jornadas (1..60). Se expone como <c>ItemsSource</c> para alimentar
-    /// el ComboBox con <c>SelectedItem</c> enlazado, evitando elementos
-    /// <c>&lt;x:String&gt;</c> en línea (regla anti-crash del XamlCompiler 1.6).
-    /// Legacy: bucle for i=1..60 en InicializarComboBoxes().
-    /// </summary>
-    public IReadOnlyList<string> Jornadas { get; }
+    private readonly QuinielaOnlineService _servicio = new();
 
-    /// <summary>
-    /// Lista de temporadas (formato "AAAA-AAAA"). Legacy: bucle for i=2005..2010.
-    /// </summary>
-    public IReadOnlyList<string> Temporadas { get; }
+    /// <summary>Opción de país para el selector (texto visible + código "es"/"mx").</summary>
+    public sealed record OpcionPais(string Nombre, string Codigo)
+    {
+        public override string ToString() => Nombre;
+    }
+
+    /// <summary>Países disponibles para el selector (España / México). Diseño aprobado.</summary>
+    public IReadOnlyList<OpcionPais> Paises { get; } = new List<OpcionPais>
+    {
+        new OpcionPais("España", "es"),
+        new OpcionPais("México", "mx"),
+    };
 
     [ObservableProperty]
-    private string _jornadaSeleccionada;
-
-    [ObservableProperty]
-    private string _temporadaSeleccionada;
+    private OpcionPais _paisSeleccionado;
 
     [ObservableProperty]
     private string _mensaje = string.Empty;
 
+    /// <summary>True mientras se descarga (deshabilita el botón en la vista).</summary>
+    [ObservableProperty]
+    private bool _descargando;
+
     public DescargaBoletoFrmViewModel()
     {
-        var jornadas = new List<string>();
-        for (int i = 1; i <= 60; i++)
-        {
-            jornadas.Add(i.ToString());
-        }
-        Jornadas = jornadas;
-
-        var temporadas = new List<string>();
-        for (int i = 2005; i <= 2010; i++)
-        {
-            temporadas.Add(i + "-" + (i + 1));
-        }
-        Temporadas = temporadas;
-
-        // Selección inicial (legacy: cbbJornada.Text = "1" y temporada según mes actual).
-        _jornadaSeleccionada = jornadas.Count > 0 ? jornadas[0] : string.Empty;
-
-        string temporadaActual = DateTime.Now.Month <= 6
-            ? (DateTime.Now.Year - 1) + "-" + DateTime.Now.Year
-            : DateTime.Now.Year + "-" + (DateTime.Now.Year + 1);
-
-        _temporadaSeleccionada = temporadas.Contains(temporadaActual)
-            ? temporadaActual
-            : (temporadas.Count > 0 ? temporadas[temporadas.Count - 1] : string.Empty);
+        // España por defecto (la quiniela "clásica" de la app).
+        _paisSeleccionado = Paises[0];
     }
 
     /// <summary>
-    /// Descarga el boleto de la jornada/temporada elegida desde el servicio online.
+    /// Descarga la jornada vigente del país seleccionado, la publica en
+    /// <see cref="AppState.JornadaActual"/> y rellena el boleto. La descarga ocurre fuera del
+    /// hilo de UI (await sobre HttpClient); sin DoEvents. Cualquier fallo cae al mensaje
+    /// offline amigable sin romper la pantalla.
     /// </summary>
     [RelayCommand]
-    private void Descargar()
+    private async Task Descargar()
     {
-        Mensaje = string.Empty;
+        if (Descargando) return;
 
-        // Validación de la temporada (legacy: partes = cbbTemporada.Text.Split('-'); if length != 2 -> error).
-        string[] partes = (TemporadaSeleccionada ?? string.Empty).Split('-');
-        if (partes.Length != 2)
+        string pais = PaisSeleccionado?.Codigo ?? "es";
+        Mensaje = "Conectando con el servicio online…";
+        Descargando = true;
+        try
         {
-            Mensaje = "La Temporada elegida no es correcta";
-            return;
-        }
+            JornadaQuiniela jornada = await _servicio
+                .ObtenerJornadaAsync(pais, CancellationToken.None)
+                .ConfigureAwait(true); // continúa en el hilo de UI para tocar AppState/binding
 
-        if (string.IsNullOrWhiteSpace(JornadaSeleccionada) || !int.TryParse(JornadaSeleccionada, out int jornada))
+            // Fuente compartida de nombres reales: boleto y "Grupos de Equipos" leen de aquí.
+            AppState.Instancia.JornadaActual = jornada;
+
+            Mensaje = "Jornada " + jornada.Jornada + " · " + jornada.Partidos.Count + " partidos cargados";
+        }
+        catch (QuinielaOnlineException ex)
         {
-            Mensaje = "La Jornada elegida no es correcta";
-            return;
+            // Fallback offline: mensaje claro, modo manual; no se inventan datos.
+            Mensaje = ex.Message + " El boleto sigue en modo manual.";
         }
-
-        // Parámetros ya validados y listos para el servicio (legacy: ObtenerBoleto(jornada, partes[0])).
-        string anioTemporada = partes[0];
-
-        // El servicio web Free1X2WService (SOAP) NO está disponible sin conexión: en el WinForms
-        // original ObtenerBoleto(int, string) es un stub que devuelve "" (modo offline,
-        // ver Free1X2/Utils/ControlCompatibility.cs línea 738). Por eso el legacy entra siempre por
-        // la rama "boleto == \"\"" de DescargaBoletoFrm.btnActualizar_Click (Free1X2/UI/DescargaBoletoFrm.cs
-        // línea 52) y muestra "El Boleto elegido no está disponible". Reproducimos ese mismo mensaje
-        // de runtime: sin servicio online no hay boleto que descargar (no se inventan datos).
-        _ = jornada;            // parámetros ya parseados (los usaría el servicio si estuviera disponible)
-        _ = anioTemporada;
-        Mensaje = "El Boleto elegido no está disponible (servicio online no disponible sin conexión).";
+        catch (Exception ex)
+        {
+            Mensaje = "No se pudo descargar la jornada: " + ex.Message + " El boleto sigue en modo manual.";
+        }
+        finally
+        {
+            Descargando = false;
+        }
     }
 }

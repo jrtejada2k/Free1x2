@@ -249,26 +249,29 @@ public partial class GruposEquiposFrmViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Rellena los nombres de los equipos de cada partido.
+    /// Rellena los nombres de los equipos de cada partido desde la jornada online compartida
+    /// (<see cref="AppState.JornadaActual"/>), análogo a GruposEquiposFrm.LlenaEquipos + getEquipo
+    /// (Free1X2/UI/Filtros/GruposEquiposFrm.cs:177-201), que en el WinForms leía
+    /// FormPadre.pronosticos.BuscarControl(n).EquipoCasa / EquipoFuera del boleto.
+    ///
+    /// Cableado real: cuando el usuario descarga una jornada (pantalla "Descarga de boleto"),
+    /// los 14 equipos local/visitante quedan en AppState.JornadaActual; aquí se vuelcan a las
+    /// etiquetas "casa N"/"fuera N" para que se muestren los NOMBRES REALES. Si todavía no se ha
+    /// descargado ninguna jornada (modo offline), se conservan los textos por defecto
+    /// "Equipo casa N" / "Equipo fuera N" fijados en el constructor (comportamiento sin cambios).
+    /// La selección casa/fuera (la parte funcional del filtro) ya estaba cableada al motor.
     /// </summary>
     private void LlenaEquipos()
     {
-        // NO-FEASIBLE (sin fabricar datos): GruposEquiposFrm.LlenaEquipos + getEquipo
-        //   (Free1X2/UI/Filtros/GruposEquiposFrm.cs:177-201) leían los nombres reales con
-        //   FormPadre.pronosticos.BuscarControl(n).EquipoCasa / EquipoFuera, es decir, de los
-        //   controles de boleto de WinForms (Free1X2/UI/Controls/Pronosticos.cs + PartidoBoleto.cs).
-        //   Investigación de dónde viven esos nombres en runtime WinUI:
-        //     · Free1X2.Domain (Grupo / GrupoPartidos / Analizador): NO tiene ningún campo de
-        //       nombre de equipo por partido (grep EquipoCasa/EquipoFuera/NombreEquipo = 0 hits).
-        //     · AppState (estado compartido del motor): expone Analizador/Grupo, sin nombres.
-        //     · El único sitio en WinUI con nombres es Controls/BoletoViewModel.PartidoViewModel
-        //       (Local/Visitante), pero son DATOS DE MUESTRA hardcodeados ("Madrid"-"Barcelona"...),
-        //       no datos reales del boleto cargado, y ese VM no se comparte con esta pantalla.
-        //   Conclusión: los nombres reales de equipo SÓLO existían en la capa de UI WinForms
-        //   (PartidoBoleto), no portada a un modelo accesible. Tomarlos de la lista de muestra
-        //   sería fabricar datos, lo que está prohibido. Por eso se conservan los textos por
-        //   defecto "Equipo casa N" / "Equipo fuera N". La selección casa/fuera (la parte
-        //   funcional del filtro) sí está cableada al motor; sólo falta la etiqueta cosmética.
+        Free1X2.Online.JornadaQuiniela? jornada = AppState.Instancia.JornadaActual;
+        if (jornada is null) return;
+
+        for (int i = 0; i < Partidos.Count && i < jornada.Partidos.Count; i++)
+        {
+            Free1X2.Online.PartidoJornada p = jornada.Partidos[i];
+            Partidos[i].EquipoCasa = p.Local;
+            Partidos[i].EquipoFuera = p.Visitante;
+        }
     }
 
     // ---- Pestaña "Grupos Equipos": pantalla <-> modelo ----

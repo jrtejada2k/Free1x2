@@ -4,8 +4,9 @@ using Microsoft.UI.Xaml.Controls;
 namespace Free1X2.WinUI.Views.Ported;
 
 /// <summary>
-/// Page portada del WinForms legacy "DescargaBoletoFrm".
-/// Permite elegir jornada y temporada para descargar el boleto oficial online.
+/// Page portada del WinForms legacy "DescargaBoletoFrm", reactivada como la integración online
+/// opcional con clubprogol.com: el usuario elige país y "Actualizar jornada" descarga la jornada
+/// vigente, la guarda en AppState.JornadaActual y rellena el boleto con los equipos reales.
 /// </summary>
 public sealed partial class DescargaBoletoFrmPage : Page
 {
@@ -16,13 +17,20 @@ public sealed partial class DescargaBoletoFrmPage : Page
         InitializeComponent();
     }
 
-    private void OnDescargarClick(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    private async void OnDescargarClick(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
-        ViewModel.DescargarCommand.Execute(null);
-
-        // TODO[dominio]: tras una descarga exitosa, publicar el boleto y cerrar/regresar.
-        //   Legacy: DescargaBoletoFrm.btnActualizar_Click -> MainForm.BoletoOnline = boleto; Close();
-        //   En navegación WinUI, decidir aquí Frame.GoBack() o cerrar el host contenedor
-        //   y entregar el boleto descargado a la pantalla principal (BoletoPage / shell).
+        // La descarga es asíncrona y fuera del hilo de UI (HttpClient async); el botón se
+        // deshabilita mientras dura para evitar dobles clics (sin DoEvents). Al terminar,
+        // la jornada queda en AppState.JornadaActual y el boleto/Grupos de Equipos muestran
+        // los nombres reales automáticamente (suscripción a AppState.JornadaCambiada).
+        BtnDescargar.IsEnabled = false;
+        try
+        {
+            await ViewModel.DescargarCommand.ExecuteAsync(null);
+        }
+        finally
+        {
+            BtnDescargar.IsEnabled = true;
+        }
     }
 }

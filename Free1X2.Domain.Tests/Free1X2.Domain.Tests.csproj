@@ -22,6 +22,7 @@
        binario de pruebas para que los tests las localicen vía AppContext.BaseDirectory. -->
   <ItemGroup>
     <None Include="Fixtures\**\*.txt" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Fixtures\**\*.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <!-- Datos semilla del motor (parametros.free1x2, etc.) junto al exe de pruebas:

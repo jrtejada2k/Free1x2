@@ -1,6 +1,7 @@
 // Free1X2 · WinUI 3 — WIN3
 using System;
 using Free1X2.MotorCalculo;
+using Free1X2.Online;
 
 namespace Free1X2.WinUI.Services;
 
@@ -31,8 +32,35 @@ public sealed class AppState
     private int _grupoPantalla;
     private string _nombreArchivoComb = "";
     private string _archivoFiltroCols = "";
+    private JornadaQuiniela? _jornadaActual;
 
     private AppState() { }
+
+    /// <summary>
+    /// Jornada de la Quiniela descargada del servicio online (clubprogol.com), o <c>null</c>
+    /// si aún no se ha descargado ninguna (modo offline/manual). Es la FUENTE COMPARTIDA de
+    /// los nombres reales de los equipos: el boleto (Controls/BoletoViewModel) y la pantalla
+    /// "Grupos de Equipos" (GruposEquiposFrmViewModel) leen de aquí los equipos local/visitante
+    /// cuando hay jornada cargada, y caen a los nombres por defecto/muestra cuando es null.
+    /// La fija <c>DescargaBoletoFrmViewModel</c> tras una descarga online correcta.
+    /// </summary>
+    public JornadaQuiniela? JornadaActual
+    {
+        get => _jornadaActual;
+        set
+        {
+            _jornadaActual = value;
+            JornadaCambiada?.Invoke(this, EventArgs.Empty);
+            NotificarCambio();
+        }
+    }
+
+    /// <summary>
+    /// Se dispara cuando cambia <see cref="JornadaActual"/> (descarga online correcta). Las
+    /// vistas que muestran nombres de equipo (boleto, Grupos de Equipos) se suscriben para
+    /// refrescar los nombres reales sin recrearse.
+    /// </summary>
+    public event EventHandler? JornadaCambiada;
 
     /// <summary>
     /// Grupo que una página de filtro está editando, entregado por la MainPage al navegar.

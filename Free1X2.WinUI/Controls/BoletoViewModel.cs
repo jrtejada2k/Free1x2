@@ -1,7 +1,10 @@
 // Free1X2 · WinUI 3 — WIN3
+using System;
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Free1X2.Online;
+using Free1X2.WinUI.Services;
 
 namespace Free1X2.WinUI.Controls;
 
@@ -25,9 +28,13 @@ public partial class PartidoViewModel : ObservableObject
 
     public string NumeroTexto => Numero.ToString("00");
 
-    public string Local { get; }
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(Equipos))]
+    private string _local;
 
-    public string Visitante { get; }
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(Equipos))]
+    private string _visitante;
 
     public string Equipos => $"{Local} - {Visitante}";
 
@@ -71,7 +78,32 @@ public partial class BoletoViewModel : ObservableObject
     public BoletoViewModel()
     {
         CargarMuestra();
+        AplicarJornadaActual();
         RecalcularResumen();
+
+        // Si llega una jornada online (o cambia), refresca los nombres reales en vivo.
+        AppState.Instancia.JornadaCambiada += OnJornadaCambiada;
+    }
+
+    private void OnJornadaCambiada(object? sender, EventArgs e) => AplicarJornadaActual();
+
+    /// <summary>
+    /// Sobreescribe los nombres de equipo de los 14 partidos con los de la jornada online
+    /// (<see cref="AppState.JornadaActual"/>) cuando hay una cargada; si es null, conserva
+    /// los nombres de muestra (comportamiento offline sin cambios). Resuelve el residuo de
+    /// que el boleto mostrara equipos de muestra en lugar de los reales de la jornada.
+    /// </summary>
+    private void AplicarJornadaActual()
+    {
+        JornadaQuiniela? jornada = AppState.Instancia.JornadaActual;
+        if (jornada is null) return;
+
+        for (int i = 0; i < Partidos.Count && i < jornada.Partidos.Count; i++)
+        {
+            PartidoJornada p = jornada.Partidos[i];
+            Partidos[i].Local = p.Local;
+            Partidos[i].Visitante = p.Visitante;
+        }
     }
 
     /// <summary>Texto resumen del boleto, p. ej. "Fijos: 0 · Dobles: 0 · Triples: 0".</summary>
