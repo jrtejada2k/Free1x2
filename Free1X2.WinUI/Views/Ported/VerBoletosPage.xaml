@@ -40,46 +40,74 @@
                     </StackPanel>
                 </Border>
 
-                <!-- Tarjeta: criterio de ordenación (groupBox1 "Ordenar por ...") -->
+                <!-- Tarjeta única: opciones de ordenación.
+                     Fusiona groupBox1 ("Ordenar por ...") + groupBox2 ("Tipo de ordenamiento")
+                     en un bloque compacto, replicando la rejilla del form legacy (379x230):
+                       Fila 1: No ordenar | Variantes | X | 2   (o0/o1/o2/o3)
+                       Fila 2: Interrupciones | Signos seguidos (o4/o5, o5 deshabilitado) -->
                 <Border Style="{StaticResource AppCardStyle}">
-                    <StackPanel Spacing="6">
-                        <TextBlock Text="Ordenar por ..." Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <StackPanel Spacing="10">
 
-                        <RadioButton Content="No ordenar" GroupName="Ordenar"
-                                     IsChecked="{x:Bind ViewModel.OrdenarNoOrdenar, Mode=TwoWay}"
-                                     AutomationProperties.Name="Ordenar: no ordenar" />
-                        <RadioButton Content="Variantes" GroupName="Ordenar"
-                                     IsChecked="{x:Bind ViewModel.OrdenarVariantes, Mode=TwoWay}"
-                                     AutomationProperties.Name="Ordenar: variantes" />
-                        <RadioButton Content="X" GroupName="Ordenar"
-                                     IsChecked="{x:Bind ViewModel.OrdenarEquis, Mode=TwoWay}"
-                                     AutomationProperties.Name="Ordenar: equis" />
-                        <RadioButton Content="2" GroupName="Ordenar"
-                                     IsChecked="{x:Bind ViewModel.OrdenarDoses, Mode=TwoWay}"
-                                     AutomationProperties.Name="Ordenar: doses" />
-                        <RadioButton Content="Interrupciones" GroupName="Ordenar"
-                                     IsChecked="{x:Bind ViewModel.OrdenarInterrupciones, Mode=TwoWay}"
-                                     AutomationProperties.Name="Ordenar: interrupciones" />
-                        <!-- o5 estaba deshabilitado en el form legacy (Enabled = false) -->
-                        <RadioButton Content="Signos seguidos" GroupName="Ordenar"
-                                     IsEnabled="False"
-                                     IsChecked="{x:Bind ViewModel.OrdenarSignosSeguidos, Mode=TwoWay}"
-                                     AutomationProperties.Name="Ordenar: signos seguidos (no disponible)" />
-                    </StackPanel>
-                </Border>
+                        <!-- Criterio (groupBox1 "Ordenar por ...") en rejilla 2 filas x 4 columnas -->
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="Ordenar por ..." Style="{StaticResource CardTitleTextBlockStyle}" />
 
-                <!-- Tarjeta: sentido de ordenación (groupBox2 "Tipo de ordenamiento") -->
-                <Border Style="{StaticResource AppCardStyle}">
-                    <StackPanel Spacing="6">
-                        <TextBlock Text="Tipo de ordenamiento" Style="{StaticResource CardTitleTextBlockStyle}" />
+                            <Grid ColumnSpacing="12" RowSpacing="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
 
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <RadioButton Content="ascendente" GroupName="Sentido"
-                                         IsChecked="{x:Bind ViewModel.SentidoAscendente, Mode=TwoWay}"
-                                         AutomationProperties.Name="Orden ascendente" />
-                            <RadioButton Content="descendente" GroupName="Sentido"
-                                         IsChecked="{x:Bind ViewModel.SentidoDescendente, Mode=TwoWay}"
-                                         AutomationProperties.Name="Orden descendente" />
+                                <!-- Fila 1 (legacy y=24): o0 | o1 | o2 | o3 -->
+                                <RadioButton Grid.Row="0" Grid.Column="0"
+                                             Content="No ordenar" GroupName="Ordenar"
+                                             IsChecked="{x:Bind ViewModel.OrdenarNoOrdenar, Mode=TwoWay}"
+                                             AutomationProperties.Name="Ordenar: no ordenar" />
+                                <RadioButton Grid.Row="0" Grid.Column="1"
+                                             Content="Variantes" GroupName="Ordenar"
+                                             IsChecked="{x:Bind ViewModel.OrdenarVariantes, Mode=TwoWay}"
+                                             AutomationProperties.Name="Ordenar: variantes" />
+                                <RadioButton Grid.Row="0" Grid.Column="2"
+                                             Content="X" GroupName="Ordenar"
+                                             IsChecked="{x:Bind ViewModel.OrdenarEquis, Mode=TwoWay}"
+                                             AutomationProperties.Name="Ordenar: equis" />
+                                <RadioButton Grid.Row="0" Grid.Column="3"
+                                             Content="2" GroupName="Ordenar"
+                                             IsChecked="{x:Bind ViewModel.OrdenarDoses, Mode=TwoWay}"
+                                             AutomationProperties.Name="Ordenar: doses" />
+
+                                <!-- Fila 2 (legacy y=44/46): o4 | o5 (deshabilitado) -->
+                                <RadioButton Grid.Row="1" Grid.Column="0"
+                                             Content="Interrupciones" GroupName="Ordenar"
+                                             IsChecked="{x:Bind ViewModel.OrdenarInterrupciones, Mode=TwoWay}"
+                                             AutomationProperties.Name="Ordenar: interrupciones" />
+                                <!-- o5 estaba deshabilitado en el form legacy (Enabled = false) -->
+                                <RadioButton Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3"
+                                             Content="Signos seguidos" GroupName="Ordenar"
+                                             IsEnabled="False"
+                                             IsChecked="{x:Bind ViewModel.OrdenarSignosSeguidos, Mode=TwoWay}"
+                                             AutomationProperties.Name="Ordenar: signos seguidos (no disponible)" />
+                            </Grid>
+                        </StackPanel>
+
+                        <!-- Sentido (groupBox2 "Tipo de ordenamiento") en el mismo bloque -->
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="Tipo de ordenamiento" Style="{StaticResource CardTitleTextBlockStyle}" />
+
+                            <StackPanel Orientation="Horizontal" Spacing="12">
+                                <RadioButton Content="ascendente" GroupName="Sentido"
+                                             IsChecked="{x:Bind ViewModel.SentidoAscendente, Mode=TwoWay}"
+                                             AutomationProperties.Name="Orden ascendente" />
+                                <RadioButton Content="descendente" GroupName="Sentido"
+                                             IsChecked="{x:Bind ViewModel.SentidoDescendente, Mode=TwoWay}"
+                                             AutomationProperties.Name="Orden descendente" />
+                            </StackPanel>
                         </StackPanel>
                     </StackPanel>
                 </Border>
