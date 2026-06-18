@@ -50,10 +50,10 @@
                                    Style="{StaticResource BodyStrongTextBlockStyle}"
                                    Foreground="{ThemeResource AppTextBrush}" />
                         <HyperlinkButton x:Name="SitioWebLink"
-                                         Content="www.free1X2.com"
+                                         Content="www.clubprogol.com"
                                          Padding="0"
                                          Click="SitioWebLink_Click"
-                                         AutomationProperties.Name="Abrir el sitio web www.free1X2.com" />
+                                         AutomationProperties.Name="Abrir el sitio web www.clubprogol.com" />
                     </StackPanel>
                 </Grid>
             </Border>

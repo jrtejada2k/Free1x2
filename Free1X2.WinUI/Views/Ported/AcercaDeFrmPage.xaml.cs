@@ -16,10 +16,10 @@ namespace Free1X2.WinUI.Views.Ported;
 public sealed partial class AcercaDeFrmPage : Page
 {
     // URLs externas (idénticas a las del form legacy AcercaDeFrm).
-    private const string UrlDescarga = "http://www.free1x2.com/Descargas/Descargas.aspx";
-    private const string UrlForo     = "http://www.free1x2.com/foros/index.php";
-    private const string UrlSitioWeb = "http://www.free1x2.com";
-    private const string UrlManual   = "http://www.free1x2.com/DocWK";
+    private const string UrlDescarga = "https://clubprogol.com/Descargas/Descargas.aspx";
+    private const string UrlForo     = "https://clubprogol.com/foros/index.php";
+    private const string UrlSitioWeb = "https://clubprogol.com";
+    private const string UrlManual   = "https://clubprogol.com/DocWK";
 
     public AcercaDeFrmPage()
     {

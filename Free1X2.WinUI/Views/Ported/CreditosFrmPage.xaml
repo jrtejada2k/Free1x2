@@ -21,11 +21,11 @@
                 <HyperlinkButton x:Name="WebsiteLink"
                                  Padding="0"
                                  Click="OnWebsiteClick"
-                                 AutomationProperties.Name="Visitar el sitio web free1x2.com">
+                                 AutomationProperties.Name="Visitar el sitio web clubprogol.com">
                     <TextBlock Text="Equipo Free1X2"
                                Style="{StaticResource PageTitleTextBlockStyle}" />
                 </HyperlinkButton>
-                <TextBlock Text="www.free1x2.com"
+                <TextBlock Text="www.clubprogol.com"
                            Style="{StaticResource SecondaryTextBlockStyle}" />
             </StackPanel>
 
@@ -66,7 +66,7 @@
                     <TextBlock TextAlignment="Center"
                                TextWrapping="Wrap"
                                Style="{StaticResource SecondaryTextBlockStyle}"
-                               Text="Free1X2 nunca existiría sin las sugerencias y las ideas de los usuarios de Free1X2.com" />
+                               Text="Free1X2 nunca existiría sin las sugerencias y las ideas de los usuarios de clubprogol.com" />
                     <TextBlock Text="¡Gracias!"
                                TextAlignment="Center"
                                Style="{StaticResource CardTitleTextBlockStyle}" />

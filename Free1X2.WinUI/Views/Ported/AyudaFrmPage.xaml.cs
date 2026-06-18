@@ -15,7 +15,7 @@ namespace Free1X2.WinUI.Views.Ported;
 public sealed partial class AyudaFrmPage : Page
 {
     // Única URL que el form legacy abría directamente (linkFAQ_LinkClicked).
-    private const string UrlFaq = "http://www.free1x2.com/DocWK/index.php?title=FAQ";
+    private const string UrlFaq = "https://clubprogol.com/DocWK/index.php?title=FAQ";
 
     public AyudaFrmPage()
     {

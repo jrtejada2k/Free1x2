@@ -43,7 +43,7 @@ namespace Free1X2.WinUI.Views.Ported
         private async void OnWebsiteClick(object sender, RoutedEventArgs e)
         {
             // Equivale a lnkEquipoFree_LinkClicked: abre el sitio del proyecto.
-            await Windows.System.Launcher.LaunchUriAsync(new Uri("https://www.free1x2.com"));
+            await Windows.System.Launcher.LaunchUriAsync(new Uri("https://clubprogol.com"));
         }
     }
 
