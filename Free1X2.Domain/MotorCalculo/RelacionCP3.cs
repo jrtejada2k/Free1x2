@@ -1,6 +1,6 @@
 // Free1X2 · WinUI 3 — WIN3
 // Free1X2 : Programa de quinielas "libre"
-// Copyright (C) 2008 Morrison - morrison.ne@gmail.com
+// Copyright (C) 2008 Morrison - morrison [dot] ne [at] gmail [dot] com
 // Idea original de Jose Carlos de Nova (ABDON) 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License

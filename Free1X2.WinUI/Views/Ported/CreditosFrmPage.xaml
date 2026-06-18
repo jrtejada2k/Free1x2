@@ -49,7 +49,17 @@
                                                Text="{x:Bind Nombre}"
                                                Style="{StaticResource CardTitleTextBlockStyle}" />
 
+                                    <!-- Contacto de tercero: email ofuscado en texto plano, NO clicable. -->
+                                    <TextBlock Grid.Column="1"
+                                               VerticalAlignment="Center"
+                                               Visibility="{x:Bind VisibilidadTexto}"
+                                               Text="{x:Bind Contacto}"
+                                               IsTextSelectionEnabled="False"
+                                               Style="{StaticResource SecondaryTextBlockStyle}" />
+
+                                    <!-- Contacto clicable (mailto:): sólo para entradas intencionales. -->
                                     <HyperlinkButton Grid.Column="1"
+                                                     Visibility="{x:Bind VisibilidadEnlace}"
                                                      Content="{x:Bind Contacto}"
                                                      NavigateUri="{x:Bind Uri}"
                                                      AutomationProperties.Name="{x:Bind ContactoAccesible}" />

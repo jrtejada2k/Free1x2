@@ -1,7 +1,7 @@
 // Free1X2 · WinUI 3 — WIN3
 // created on 22/06/2004 at 17:44
 // Free1X2 : Programa de quinielas "libre"
-// Copyright (C) 2004 Luis Fernandez - luifer@onetel.net.uk
+// Copyright (C) 2004 Luis Fernandez - luifer [at] onetel [dot] net [dot] uk
 // Copyright (C) 2004 XFSF
 // 
 // This program is free software; you can redistribute it and/or
