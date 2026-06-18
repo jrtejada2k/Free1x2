@@ -5,10 +5,10 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <ScrollViewer>
-        <StackPanel Padding="12,8" Spacing="8" MaxWidth="820" HorizontalAlignment="Left">
+        <StackPanel Padding="12,8" Spacing="8" MaxWidth="560" HorizontalAlignment="Left">
 
             <!-- ===== Encabezado ===== -->
-            <StackPanel Spacing="6">
+            <StackPanel Spacing="4">
                 <TextBlock Text="Añade P15 (Indeciso)"
                            Style="{StaticResource PageTitleTextBlockStyle}" />
                 <TextBlock Text="Genera el Pleno al 15 (P15) sobre un archivo de columnas existente y lo guarda en un archivo de salida. Elige uno de los cuatro modos."
@@ -16,169 +16,140 @@
                            TextWrapping="Wrap" />
             </StackPanel>
 
-            <!-- ===== Archivos ===== -->
+            <!-- ===== Una sola tarjeta compacta: 6 filas (una por concepto),
+                 reflejando el WinForms original (ClientSize 400x310). ===== -->
             <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="6">
-                    <TextBlock Text="Archivos" Style="{StaticResource CardTitleTextBlockStyle}" />
+                <Grid ColumnSpacing="8" RowSpacing="8">
+                    <Grid.ColumnDefinitions>
+                        <!-- Col 0: checkBox / botón de fila -->
+                        <ColumnDefinition Width="Auto" />
+                        <!-- Col 1: contenido de la fila (etiqueta + editores en línea) -->
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
 
-                    <Grid ColumnSpacing="12" RowSpacing="6">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
+                    <!-- Fila 1: Fichero entrada (btnFileIn + label1) -->
+                    <Button Grid.Row="0" Grid.Column="0"
+                            Content="Fichero entrada"
+                            Click="OnSeleccionarEntrada"
+                            AutomationProperties.Name="Seleccionar fichero de entrada"
+                            MinWidth="140"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Left" />
+                    <TextBlock Grid.Row="0" Grid.Column="1"
+                               Text="{x:Bind ViewModel.ArchivoEntrada, Mode=OneWay}"
+                               VerticalAlignment="Center"
+                               Style="{StaticResource SecondaryTextBlockStyle}"
+                               TextTrimming="CharacterEllipsis" />
 
-                        <Button Grid.Row="0" Grid.Column="0"
-                                Content="Fichero entrada"
-                                Click="OnSeleccionarEntrada"
-                                AutomationProperties.Name="Seleccionar fichero de entrada"
-                                MinWidth="150" HorizontalAlignment="Stretch"
-                                HorizontalContentAlignment="Left" />
-                        <TextBlock Grid.Row="0" Grid.Column="1"
-                                   Text="{x:Bind ViewModel.ArchivoEntrada, Mode=OneWay}"
-                                   VerticalAlignment="Center"
-                                   Style="{StaticResource SecondaryTextBlockStyle}"
-                                   TextTrimming="CharacterEllipsis" />
+                    <!-- Fila 2: Fichero salida (btnFileOut + label2) -->
+                    <Button Grid.Row="1" Grid.Column="0"
+                            Content="Fichero salida"
+                            Click="OnSeleccionarSalida"
+                            AutomationProperties.Name="Seleccionar fichero de salida"
+                            MinWidth="140"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Left" />
+                    <TextBlock Grid.Row="1" Grid.Column="1"
+                               Text="{x:Bind ViewModel.ArchivoSalida, Mode=OneWay}"
+                               VerticalAlignment="Center"
+                               Style="{StaticResource SecondaryTextBlockStyle}"
+                               TextTrimming="CharacterEllipsis" />
 
-                        <Button Grid.Row="1" Grid.Column="0"
-                                Content="Fichero salida"
-                                Click="OnSeleccionarSalida"
-                                AutomationProperties.Name="Seleccionar fichero de salida"
-                                MinWidth="150" HorizontalAlignment="Stretch"
-                                HorizontalContentAlignment="Left" />
-                        <TextBlock Grid.Row="1" Grid.Column="1"
-                                   Text="{x:Bind ViewModel.ArchivoSalida, Mode=OneWay}"
-                                   VerticalAlignment="Center"
-                                   Style="{StaticResource SecondaryTextBlockStyle}"
-                                   TextTrimming="CharacterEllipsis" />
-                    </Grid>
-                </StackPanel>
-            </Border>
+                    <!-- Fila 3 (Modo 1): checkBox1 "Partido 15 fijo a" + signo (textBox1 -> ComboBox) -->
+                    <CheckBox Grid.Row="2" Grid.Column="0"
+                              Content="Partido 15 fijo a"
+                              IsChecked="{x:Bind ViewModel.ModoFijo, Mode=TwoWay}"
+                              MinWidth="140"
+                              AutomationProperties.Name="Activar modo Partido 15 fijo" />
+                    <ComboBox Grid.Row="2" Grid.Column="1"
+                              MinWidth="70" HorizontalAlignment="Left" VerticalAlignment="Center"
+                              IsEnabled="{x:Bind ViewModel.ModoFijo, Mode=OneWay}"
+                              ItemsSource="{x:Bind ViewModel.Signos}"
+                              SelectedItem="{x:Bind ViewModel.SignoFijo, Mode=TwoWay}"
+                              AutomationProperties.Name="Signo fijo del Partido 15" />
 
-            <!-- ===== Modo 1: P15 fijo ===== -->
-            <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="5">
-                    <ToggleSwitch Header="Partido 15 fijo a un signo"
-                                  IsOn="{x:Bind ViewModel.ModoFijo, Mode=TwoWay}"
-                                  AutomationProperties.Name="Activar modo Partido 15 fijo"
-                                  OnContent="Activo" OffContent="Inactivo" />
-                    <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
-                        <TextBlock Text="Partido 15 ="
-                                   VerticalAlignment="Center"
-                                   Style="{StaticResource SecondaryTextBlockStyle}" />
-                        <ComboBox MinWidth="80"
-                                  IsEnabled="{x:Bind ViewModel.ModoFijo, Mode=OneWay}"
-                                  ItemsSource="{x:Bind ViewModel.Signos}"
-                                  SelectedItem="{x:Bind ViewModel.SignoFijo, Mode=TwoWay}"
-                                  AutomationProperties.Name="Signo fijo del Partido 15" />
-                    </StackPanel>
-                </StackPanel>
-            </Border>
-
-            <!-- ===== Modo 2: Condicional ===== -->
-            <!-- NOTA: IsEnabled enlazado con x:Bind se aplica a cada control hijo (NumberBox/ComboBox),
-                 no al Grid contenedor. Un x:Bind a IsEnabled sobre un Panel (Grid) hace fallar al
-                 XamlCompiler de Windows App SDK 1.6 con un crash opaco (MarkupCompilePass1). -->
-            <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="5">
-                    <ToggleSwitch Header="P15 condicional según otro partido"
-                                  IsOn="{x:Bind ViewModel.ModoCondicional, Mode=TwoWay}"
-                                  AutomationProperties.Name="Activar modo P15 condicional"
-                                  OnContent="Activo" OffContent="Inactivo" />
-                    <Grid ColumnSpacing="10" RowSpacing="6">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Si partido"
-                                   VerticalAlignment="Center"
-                                   Style="{StaticResource SecondaryTextBlockStyle}" />
-                        <NumberBox Grid.Row="0" Grid.Column="1"
-                                   Value="{x:Bind ViewModel.PartidoCondicion, Mode=TwoWay}"
-                                   IsEnabled="{x:Bind ViewModel.ModoCondicional, Mode=OneWay}"
-                                   Minimum="1" Maximum="14"
-                                   SpinButtonPlacementMode="Compact" MinWidth="120"
-                                   AutomationProperties.Name="Número de partido de la condición" />
-                        <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal" Spacing="6"
-                                    VerticalAlignment="Center">
-                            <TextBlock Text="=" VerticalAlignment="Center"
-                                       Style="{StaticResource SecondaryTextBlockStyle}" />
-                            <ComboBox MinWidth="70"
-                                      IsEnabled="{x:Bind ViewModel.ModoCondicional, Mode=OneWay}"
-                                      ItemsSource="{x:Bind ViewModel.Signos}"
-                                      SelectedItem="{x:Bind ViewModel.SignoCondicion, Mode=TwoWay}"
-                                      AutomationProperties.Name="Signo de la condición" />
-                        </StackPanel>
-
-                        <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
-                                    Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-                            <TextBlock Text="entonces P15 =" VerticalAlignment="Center"
-                                       Style="{StaticResource SecondaryTextBlockStyle}" />
-                            <ComboBox MinWidth="70"
-                                      IsEnabled="{x:Bind ViewModel.ModoCondicional, Mode=OneWay}"
-                                      ItemsSource="{x:Bind ViewModel.Signos}"
-                                      SelectedItem="{x:Bind ViewModel.SignoSi, Mode=TwoWay}"
-                                      AutomationProperties.Name="Signo del P15 si se cumple la condición" />
-                            <TextBlock Text="; si no P15 =" VerticalAlignment="Center"
-                                       Style="{StaticResource SecondaryTextBlockStyle}" />
-                            <ComboBox MinWidth="70"
-                                      IsEnabled="{x:Bind ViewModel.ModoCondicional, Mode=OneWay}"
-                                      ItemsSource="{x:Bind ViewModel.Signos}"
-                                      SelectedItem="{x:Bind ViewModel.SignoNo, Mode=TwoWay}"
-                                      AutomationProperties.Name="Signo del P15 si no se cumple la condición" />
-                        </StackPanel>
-                    </Grid>
-                </StackPanel>
-            </Border>
-
-            <!-- ===== Modo 3: Eliminar partido 15 / repetidas ===== -->
-            <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="5">
-                    <ToggleSwitch Header="Elimina partido 15 (quita el P15 y descarta columnas repetidas)"
-                                  IsOn="{x:Bind ViewModel.ModoEliminarRepetidas, Mode=TwoWay}"
-                                  AutomationProperties.Name="Activar modo eliminar partido 15 y repetidas"
-                                  OnContent="Activo" OffContent="Inactivo" />
-                    <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-                        <TextBlock Text="Nº columnas repetidas:" VerticalAlignment="Center"
+                    <!-- Fila 4 (Modo 3): checkBox3 "Elimina partido 15" + "Nº Columnas Repetidas:" + recuento -->
+                    <CheckBox Grid.Row="3" Grid.Column="0"
+                              Content="Elimina partido 15"
+                              IsChecked="{x:Bind ViewModel.ModoEliminarRepetidas, Mode=TwoWay}"
+                              MinWidth="140"
+                              AutomationProperties.Name="Activar modo eliminar partido 15 y repetidas" />
+                    <StackPanel Grid.Row="3" Grid.Column="1"
+                                Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                        <TextBlock Text="Nº Columnas Repetidas:" VerticalAlignment="Center"
                                    Style="{StaticResource SecondaryTextBlockStyle}" />
                         <TextBlock Text="{x:Bind ViewModel.ColumnasRepetidasTexto, Mode=OneWay}"
                                    VerticalAlignment="Center"
                                    Style="{StaticResource CardTitleTextBlockStyle}" />
                     </StackPanel>
-                </StackPanel>
-            </Border>
 
-            <!-- ===== Modo 4: Copiar resultado de otro partido ===== -->
-            <Border Style="{StaticResource AppCardStyle}">
-                <StackPanel Spacing="5">
-                    <ToggleSwitch Header="P15 = resultado de otro partido"
-                                  IsOn="{x:Bind ViewModel.ModoCopiarPartido, Mode=TwoWay}"
-                                  AutomationProperties.Name="Activar modo copiar resultado de otro partido"
-                                  OnContent="Activo" OffContent="Inactivo" />
-                    <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-                        <TextBlock Text="Resultado del P15 igual que el del partido"
-                                   VerticalAlignment="Center"
+                    <!-- Fila 5 (Modo 2): checkBox2 + condición en una sola fila horizontal
+                         Si partido [N] = [signo] entonces P15 = [signo] ; si no P15 = [signo] -->
+                    <CheckBox Grid.Row="4" Grid.Column="0"
+                              IsChecked="{x:Bind ViewModel.ModoCondicional, Mode=TwoWay}"
+                              MinWidth="32"
+                              AutomationProperties.Name="Activar modo P15 condicional" />
+                    <StackPanel Grid.Row="4" Grid.Column="1"
+                                Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                        <TextBlock Text="Si partido" VerticalAlignment="Center"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <NumberBox Value="{x:Bind ViewModel.PartidoCondicion, Mode=TwoWay}"
+                                   IsEnabled="{x:Bind ViewModel.ModoCondicional, Mode=OneWay}"
+                                   Minimum="1" Maximum="14"
+                                   SpinButtonPlacementMode="Compact" MinWidth="96"
+                                   AutomationProperties.Name="Número de partido de la condición" />
+                        <TextBlock Text="=" VerticalAlignment="Center"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <ComboBox MinWidth="60"
+                                  IsEnabled="{x:Bind ViewModel.ModoCondicional, Mode=OneWay}"
+                                  ItemsSource="{x:Bind ViewModel.Signos}"
+                                  SelectedItem="{x:Bind ViewModel.SignoCondicion, Mode=TwoWay}"
+                                  AutomationProperties.Name="Signo de la condición" />
+                        <TextBlock Text="entonces P15 =" VerticalAlignment="Center"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <ComboBox MinWidth="60"
+                                  IsEnabled="{x:Bind ViewModel.ModoCondicional, Mode=OneWay}"
+                                  ItemsSource="{x:Bind ViewModel.Signos}"
+                                  SelectedItem="{x:Bind ViewModel.SignoSi, Mode=TwoWay}"
+                                  AutomationProperties.Name="Signo del P15 si se cumple la condición" />
+                        <TextBlock Text="; si no P15 =" VerticalAlignment="Center"
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <ComboBox MinWidth="60"
+                                  IsEnabled="{x:Bind ViewModel.ModoCondicional, Mode=OneWay}"
+                                  ItemsSource="{x:Bind ViewModel.Signos}"
+                                  SelectedItem="{x:Bind ViewModel.SignoNo, Mode=TwoWay}"
+                                  AutomationProperties.Name="Signo del P15 si no se cumple la condición" />
+                    </StackPanel>
+
+                    <!-- Fila 6 (Modo 4): checkBox4 + "Resultado partido 15 igual que...partido" + N (textBox6) -->
+                    <CheckBox Grid.Row="5" Grid.Column="0"
+                              IsChecked="{x:Bind ViewModel.ModoCopiarPartido, Mode=TwoWay}"
+                              MinWidth="32"
+                              AutomationProperties.Name="Activar modo copiar resultado de otro partido" />
+                    <StackPanel Grid.Row="5" Grid.Column="1"
+                                Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                        <TextBlock Text="Resultado partido 15 igual que resultado del partido"
+                                   VerticalAlignment="Center" TextWrapping="Wrap"
                                    Style="{StaticResource SecondaryTextBlockStyle}" />
                         <NumberBox Value="{x:Bind ViewModel.PartidoCopia, Mode=TwoWay}"
                                    IsEnabled="{x:Bind ViewModel.ModoCopiarPartido, Mode=OneWay}"
                                    Minimum="1" Maximum="14"
-                                   SpinButtonPlacementMode="Compact" MinWidth="120"
+                                   SpinButtonPlacementMode="Compact" MinWidth="96"
                                    AutomationProperties.Name="Número de partido a copiar" />
                     </StackPanel>
-                </StackPanel>
+                </Grid>
             </Border>
 
-            <!-- ===== Acción + estado ===== -->
-            <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+            <!-- ===== Acción + estado (button1 "Calcular" + label4) ===== -->
+            <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                 <Button Content="Calcular"
                         Style="{StaticResource AccentButtonStyle}"
                         Command="{x:Bind ViewModel.CalcularCommand}"
