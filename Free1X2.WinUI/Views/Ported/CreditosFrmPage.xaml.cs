@@ -31,6 +31,7 @@ namespace Free1X2.WinUI.Views.Ported
             new("JVallespin", "jvallespin@gmail.com", isEmail: true),
             new("Xfsf", "segura33@ono.com", isEmail: true),
             new("ArDoC", "ardock@gmail.com", isEmail: true),
+            new("Juan Tejada", "elrevisor2k@gmail.com", isEmail: true),
         };
 
         public CreditosFrmPage()
