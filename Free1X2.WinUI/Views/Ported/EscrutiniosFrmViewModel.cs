@@ -16,6 +16,20 @@ using Windows.Storage.Pickers;
 namespace Free1X2.WinUI.Views.Ported;
 
 /// <summary>
+/// Una casilla por partido de la columna ganadora del escrutinio simple
+/// (legacy: TextBox txtCG1..txtCG14 con su Label clicable lblCG, generados en
+/// GenerarCasillasPartidos). Guarda el nº de partido y su signo (1 / X / 2 / * / S).
+/// La cabecera cicla el signo al pulsarla (legacy: partidoClicado).
+/// </summary>
+public partial class CasillaPartidoEscrutinio : ObservableObject
+{
+    [ObservableProperty] private int _partido;
+    [ObservableProperty] private string _signo = "*";
+
+    public CasillaPartidoEscrutinio(int partido) => _partido = partido;
+}
+
+/// <summary>
 /// Una fila de resultados del escrutinio (legacy: cada DataRow de la tabla "Resultados"
 /// que el Escrutador rellena vía PonerPremios). <see cref="Seleccionado"/> es editable
 /// (toggle de la rejilla); el resto se expone como string para enlazar a TextBlock.Text.
@@ -40,6 +54,13 @@ public partial class ResultadoEscrutinioItem : ObservableObject
 
     /// <summary>Premios por categoría de la fila, ya formateados ("13: 0  12: 1 ...").</summary>
     public string Premios { get; init; } = string.Empty;
+
+    /// <summary>
+    /// Recuento de columnas por cada nº de aciertos pedido, en el mismo orden (descendente)
+    /// que <see cref="EscrutiniosFrmViewModel.CabecerasAciertos"/>. Proyección de presentación
+    /// para la rejilla multi-columna (legacy dgResultados: una DataGridTextBoxColumn por "P{n}").
+    /// </summary>
+    public IReadOnlyList<string> Conteos { get; init; } = Array.Empty<string>();
 
     /// <summary>Resumen para mostrar en una sola línea de la lista.</summary>
     public string Resumen =>
@@ -112,6 +133,87 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
     [ObservableProperty]
     private string _columnaGanadora = string.Empty;
 
+    // Casillas por partido (legacy: txtCG1..txtCG14 + lblCG clicables). Se mantienen
+    // sincronizadas con ColumnaGanadora: editar/ciclar una casilla reescribe el texto
+    // (legacy: resultadoCambiado), y escribir el texto reparte los signos a las casillas
+    // (legacy: columnaCambiada -> ActualizarResultadosCasillas).
+    public ObservableCollection<CasillaPartidoEscrutinio> CasillasGanadora { get; } = new();
+
+    // Bandera de reentrada: evita el bucle texto<->casillas al propagar cambios.
+    private bool _sincronizandoCasillas;
+
+    // Inicializa las casillas (una por partido) a comodín "*" (legacy: GenerarCasillasPartidos).
+    private void GenerarCasillas()
+    {
+        CasillasGanadora.Clear();
+        int n = Free1X2.VariablesGlobales.NumeroPartidos;
+        for (int i = 1; i <= n; i++)
+        {
+            var c = new CasillaPartidoEscrutinio(i);
+            c.PropertyChanged += (_, e) =>
+            {
+                if (e.PropertyName == nameof(CasillaPartidoEscrutinio.Signo))
+                    VolcarCasillasATexto();
+            };
+            CasillasGanadora.Add(c);
+        }
+    }
+
+    // Legacy resultadoCambiado: reconstruye txtColGanadora a partir de las casillas
+    // (vacío -> "*"). Sólo signos 1/X/2/*/S; mayúsculas.
+    private void VolcarCasillasATexto()
+    {
+        if (_sincronizandoCasillas) return;
+        _sincronizandoCasillas = true;
+        try
+        {
+            var sb = new System.Text.StringBuilder();
+            foreach (var c in CasillasGanadora)
+            {
+                string s = (c.Signo ?? string.Empty).Trim().ToUpperInvariant();
+                sb.Append(s.Length == 0 ? "*" : s.Substring(0, 1));
+            }
+            ColumnaGanadora = sb.ToString();
+        }
+        finally { _sincronizandoCasillas = false; }
+    }
+
+    // Legacy ActualizarResultadosCasillas: reparte el texto de la columna a las casillas
+    // (carácter por partido; vacío -> "*"). Se dispara cuando cambia ColumnaGanadora.
+    partial void OnColumnaGanadoraChanged(string value)
+    {
+        if (_sincronizandoCasillas) return;
+        _sincronizandoCasillas = true;
+        try
+        {
+            string col = (value ?? string.Empty).ToUpperInvariant();
+            for (int i = 0; i < CasillasGanadora.Count; i++)
+            {
+                string signo = i < col.Length ? col.Substring(i, 1) : "*";
+                if (signo.Trim().Length == 0) signo = "*";
+                CasillasGanadora[i].Signo = signo;
+            }
+        }
+        finally { _sincronizandoCasillas = false; }
+    }
+
+    /// <summary>
+    /// Cicla el signo de una casilla al pulsar su cabecera (legacy: partidoClicado,
+    /// secuencia " " -> 1 -> X -> 2 -> " "). El comodín se representa como "*".
+    /// </summary>
+    [RelayCommand]
+    private void CiclarSigno(CasillaPartidoEscrutinio? casilla)
+    {
+        if (casilla is null) return;
+        string[] secuencia = { "*", "1", "X", "2" };
+        string actual = (casilla.Signo ?? string.Empty).Trim().ToUpperInvariant();
+        if (actual.Length == 0) actual = "*";
+        int idx = Array.IndexOf(secuencia, actual);
+        if (idx < 0) idx = 0;
+        idx = (idx + 1) % secuencia.Length;
+        casilla.Signo = secuencia[idx]; // dispara VolcarCasillasATexto vía PropertyChanged.
+    }
+
     // ===== Pestaña 2: Escrutinio contra fichero =====
 
     // Nombre del fichero de referencia (legacy: lblFileRef; ruta completa guardada en su Tag).
@@ -157,6 +259,11 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
     // Filas de resultados del escrutinio (legacy: dgResultados / resultadosDS "Resultados").
     public ObservableCollection<ResultadoEscrutinioItem> Resultados { get; } = new();
 
+    // Cabeceras de las columnas de aciertos de la rejilla, en orden descendente
+    // (legacy dgResultados: una columna "P{n}" por cada nº de aciertos del rango "10-14").
+    // La rejilla las pinta como cabecera y cada fila alinea su Conteos[] con esta lista.
+    public ObservableCollection<string> CabecerasAciertos { get; } = new();
+
     // Histograma de premios globales: nº de columnas con N aciertos (legacy: premiosGlobales[]).
     public ObservableCollection<PremioHistograma> Histograma { get; } = new();
 
@@ -197,6 +304,8 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
     {
         // Rango por defecto con el nº real de partidos (legacy ctor: "10-" + NumeroPartidos).
         RangoAciertos = "10-" + Free1X2.VariablesGlobales.NumeroPartidos;
+        // Genera las casillas por partido (legacy ctor: GenerarCasillasPartidos()), todas a "*".
+        GenerarCasillas();
         // Carga las temporadas del histórico (legacy ctor: crearDataset()). Requerido para tipo 3.
         CrearDataSetJornadas();
     }
@@ -343,6 +452,27 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
         if (folder is null) return;
 
         Carpeta = folder.Path;
+    }
+
+    /// <summary>
+    /// Examina un fichero y usa su nombre como plantilla (pestaña 3, botón "?").
+    /// Legacy: btnVerArch_Click -> OpenFileDialog -> txtNombreArchBase.Text = fileInfo.Name.
+    /// </summary>
+    [RelayCommand]
+    private async Task VerArchivosAsync()
+    {
+        var picker = new FileOpenPicker
+        {
+            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
+        };
+        picker.FileTypeFilter.Add("*");
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
+
+        StorageFile? file = await picker.PickSingleFileAsync();
+        if (file is null) return;
+
+        // Legacy: sólo el nombre del fichero (no la ruta) pasa a la plantilla.
+        PlantillaNombreArchivo = file.Name;
     }
 
     /// <summary>
@@ -634,14 +764,23 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
         Array.Sort(orden);
         Array.Reverse(orden); // legacy mostraba las columnas de mayor a menor acierto.
 
+        // Publica las cabeceras de las columnas de aciertos (legacy: HeaderText de cada "P{n}").
+        CabecerasAciertos.Clear();
+        foreach (int a in orden)
+            CabecerasAciertos.Add(a.ToString());
+
         foreach (DataRow row in tabla.Rows)
         {
             var sb = new System.Text.StringBuilder();
+            var conteos = new List<string>(orden.Length);
             foreach (int a in orden)
             {
                 string col = "P" + a;
-                if (tabla.Columns.Contains(col) && row[col] != DBNull.Value)
-                    sb.Append(a).Append(": ").Append(row[col]).Append("  ");
+                string valor = tabla.Columns.Contains(col) && row[col] != DBNull.Value
+                    ? row[col].ToString() ?? "" : "";
+                conteos.Add(valor);
+                if (valor.Length > 0)
+                    sb.Append(a).Append(": ").Append(valor).Append("  ");
             }
 
             Resultados.Add(new ResultadoEscrutinioItem
@@ -653,6 +792,7 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
                 AcTotales = tabla.Columns.Contains("Ac. Totales") && row["Ac. Totales"] != DBNull.Value
                     ? row["Ac. Totales"].ToString() ?? "" : "",
                 Premios = sb.ToString().Trim(),
+                Conteos = conteos,
             });
         }
     }
