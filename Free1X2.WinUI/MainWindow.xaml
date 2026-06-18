@@ -23,13 +23,20 @@
              de la ventana, fluyen a una segunda fila (igual que el original, que
              saltaba de fila en ObtenerPosicionBarraHerramientas). Así NADA se
              recorta ni queda fuera de alcance, sin depender de scroll horizontal. -->
+        <!-- MinHeight reserva sitio para DOS filas de botones (26px alto cada una +
+             3px de separación + 6px de margen vertical del panel + 2px de bordes ≈ 63px).
+             A ~1020px de ancho los 55 botones (26px) caben en 2 filas, así que la fila
+             Auto del Grid nunca puede recortar la 2ª fila. Si en una ventana más estrecha
+             hicieran falta 3 filas, el panel mide su alto real y la fila Auto crece. -->
         <Border x:Name="BarraHerramientas" Grid.Row="1"
+                MinHeight="63"
                 Background="{ThemeResource AppSurfaceAltBrush}"
                 BorderBrush="{ThemeResource AppBorderBrush}"
                 BorderThickness="0,1,0,1">
             <controls:ToolbarWrapPanel x:Name="ToolbarPanel"
                                        HorizontalSpacing="1" VerticalSpacing="3"
-                                       Margin="6,3" />
+                                       Margin="6,3"
+                                       VerticalAlignment="Top" />
         </Border>
 
         <!-- Contenido -->
