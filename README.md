@@ -14,6 +14,22 @@ Programa libre bajo licencia **GPLv3** — derivado del proyecto original Free1X
 
 ![Free1X2 WinUI 3](docs/winui3-shell.png)
 
+## Capturas (WinUI 3)
+
+Capturas reales de la interfaz Fluent tras la migración:
+
+| ![Análisis de signos](docs/img/winui3-02-analisis-signos.png) | ![Escrutinios](docs/img/winui3-03-escrutinios.png) |
+|:--:|:--:|
+| Análisis de signos | Escrutinios |
+| ![Reductor](docs/img/winui3-04-reductor.png) | ![Ver boletos](docs/img/winui3-05-ver-boletos.png) |
+| Reductor | Ver boletos |
+| ![Combinar filtros](docs/img/winui3-06-combinar-filtros.png) | ![Banco de pruebas](docs/img/winui3-07-banco-pruebas.png) |
+| Combinar filtros | Banco de pruebas |
+| ![Estadísticas](docs/img/winui3-08-estadisticas.png) | ![Tramificar](docs/img/winui3-09-condicion.png) |
+| Estadísticas | Tramificar |
+| ![Créditos / Acerca de](docs/img/winui3-10-creditos.png) | |
+| Créditos / Acerca de | |
+
 ---
 
 ## Qué hace
@@ -40,9 +56,9 @@ Detalle completo de cada función en el [manual de usuario](docs/MANUAL_USUARIO.
 
 | Proyecto | TFM | Rol |
 |----------|-----|-----|
-| **`Free1X2`** | `net8.0-windows` (WinForms) | Aplicación actual (UI + parte de la lógica). |
+| **`Free1X2`** | `net8.0-windows` (WinForms) | UI heredada (se conserva como referencia); aún aloja parte del motor pendiente de extraer. |
 | **`Free1X2.Domain`** | `net8.0` | Lógica de dominio desacoplada de la UI (en migración). Hooks de desacople en `Abstractions/`: `UiPump` (↔ `Application.DoEvents`), `UserDialogs` (↔ `MessageBox`), `AnalisisUi` (↔ visor de análisis), cableados desde WinForms en `Program.WireDomainHooks()`. |
-| **`Free1X2.WinUI`** | `net8.0-windows10.0.19041.0` (WinUI 3) | Nueva UI Fluent (Windows App SDK 1.6, self-contained). En construcción. |
+| **`Free1X2.WinUI`** | `net8.0-windows10.0.19041.0` (WinUI 3) | **UI principal** Fluent (Windows App SDK 1.6, self-contained). 108 pantallas portadas. |
 | **`Free1X2.Domain.Tests`** | `net8.0` (xUnit) | Red de tests golden-master del dominio. |
 | **`Free1X2.Shared`** | `net8.0` | Contratos/servicios compartidos. |
 
@@ -97,14 +113,14 @@ Las releases publicadas (con el zip portable adjunto) están en la [pestaña Rel
 
 ## Estado de la migración a WinUI 3
 
-La UI se está migrando de WinForms a **WinUI 3** (Fluent nativo) de forma incremental (*strangler-fig*), reutilizando la lógica de dominio. Resumen:
+La interfaz se ha **migrado a WinUI 3** (Fluent nativo), reutilizando intacto el motor del programa original. Estado actual (rama `main`, release pública):
 
-- ✅ Viabilidad validada (WinUI 3 compila, corre y renderiza Fluent nativo, self-contained).
-- ✅ Plan completo y scaffold (shell `NavigationView` + Mica + sistema de diseño slate/índigo).
-- 🔄 Fase 0 en curso: desacople de `Free1X2.Domain` + red de tests.
-- ⏳ Pendiente: portar las ~109 superficies de UI por olas.
+- ✅ **UI portada**: 108 pantallas (+ `MainPage`) recreadas desde WinForms, cableadas en menús y barra de herramientas; *smoke test* de carga 109/109.
+- ✅ **Motor intacto**: la codificación de columnas y el cálculo se reutilizan vía `Free1X2.Domain` (libre de WinForms gracias a los shims de `Abstractions/`).
+- ✅ **Self-contained** win-x64 (runtime empaquetado) + release con instalable portable.
+- 🔄 **Pendiente**: portar a `Free1X2.Domain` la lógica de dominio (E/S y cálculo) de **~23 pantallas** aún marcadas como TODO en el código.
 
-Ver [`ESTADO_MIGRACION_WINUI3.md`](ESTADO_MIGRACION_WINUI3.md) para el detalle y los próximos pasos.
+Detalle técnico y la lista honesta de lo pendiente en [`docs/ANALISIS_TECNICO_WINUI3.md`](docs/ANALISIS_TECNICO_WINUI3.md) (§11). Histórico de la migración en [`ESTADO_MIGRACION_WINUI3.md`](ESTADO_MIGRACION_WINUI3.md).
 
 ---
 
