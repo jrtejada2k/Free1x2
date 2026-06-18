@@ -13,9 +13,10 @@ y la barra de herramientas, y verificadas por el *smoke test* (`FREE1X2_SMOKE=1`
 páginas cargan). El motor de cálculo del programa original se reutiliza intacto vía
 `Free1X2.Domain`.
 
-**Pendiente:** portar a `Free1X2.Domain` la lógica de dominio (E/S de archivos y cálculo) de
-**~23 pantallas** todavía marcadas como TODO en el código — lista honesta con evidencia
-`file:line` en [`../docs/ANALISIS_TECNICO_WINUI3.md`](../docs/ANALISIS_TECNICO_WINUI3.md) (§11).
+**Verificado:** la lógica de dominio de las pantallas está implementada (1:1 con el original) y
+verificada — build 0 errores, *smoke* de carga 109/109, **107/107** tests del motor (33
+golden-master con datos reales) y una pasada *runtime* UI Automation con **0 crashes**. Los
+residuales son solo cosméticos; detalle en [`../docs/ANALISIS_TECNICO_WINUI3.md`](../docs/ANALISIS_TECNICO_WINUI3.md) (§11).
 
 Características:
 

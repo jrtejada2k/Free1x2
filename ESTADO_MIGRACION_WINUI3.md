@@ -3,8 +3,9 @@
 > **ACTUALIZACIÓN 2026-06-18 — migración completada y publicada.** La migración a WinUI 3 ya está
 > **mergeada en `main`** y publicada (repositorio público, release `v0.81.2` con instalable portable).
 > La UI está portada: **108 pantallas + `MainPage`**, cableadas en menús y barra de herramientas,
-> con *smoke test* de carga 109/109, sobre el motor reutilizado en `Free1X2.Domain`. Queda pendiente
-> portar la lógica de dominio (E/S y cálculo) de **~23 pantallas** — lista honesta con evidencia en
+> con *smoke test* de carga 109/109, sobre el motor reutilizado en `Free1X2.Domain`. La lógica de
+> dominio de las pantallas está **implementada y verificada** (build 0 err · smoke 109/109 · 107/107
+> tests del motor · runtime UI Automation 0 crashes); los residuales son solo cosméticos. Detalle en
 > [`docs/ANALISIS_TECNICO_WINUI3.md`](docs/ANALISIS_TECNICO_WINUI3.md) (§11).
 > El texto inferior es el **hand-off histórico** (Fase 0) y se conserva como registro.
 

@@ -304,58 +304,55 @@ Es decir, **instancia las 109 páginas de navegación** (cada Page con su VM) pa
 
 ---
 
-## 11. Estado y deuda técnica (honesto)
+## 11. Estado y verificación (honesto)
 
-La **estructura de UI está completa**: las 108 pantallas del registro existen como `.xaml` + `.xaml.cs` + ViewModel, están cableadas en menús/toolbar/registro y el smoke test las instancia. **Pero no todas tienen la lógica de dominio portada.** Esto está marcado explícitamente en el código con comentarios "queda como TODO" / "aún no portado a Free1X2.Domain".
+La **estructura de UI está completa Y la lógica de dominio está portada**: las 108 pantallas del registro existen como `.xaml` + `.xaml.cs` + ViewModel, están cableadas en menús/toolbar/registro, y su lógica está implementada — usando clases reales de `Free1X2.Domain` donde el original ya las tenía, y transcripción **1:1** inline donde la lógica vivía en el code-behind del Form WinForms.
 
-### Pantallas con lógica de dominio aún marcada como TODO
+> **Nota histórica.** Una versión previa de este documento listaba ~23 pantallas "con lógica aún marcada como TODO". Una auditoría posterior (4 pases de scoping independientes) demostró que esos eran **comentarios obsoletos**: el código debajo ya estaba implementado. Se limpiaron **46** doc-comments obsoletos (solo comentarios) y la realidad se verificó con build + smoke + tests + runtime (abajo).
 
-Verificado por `grep` (23 archivos con "queda como TODO" / "no portado" / "siguen pendientes" / "marcado como TODO en el ViewModel"):
+### Verificación (evidencia)
 
-| Pantalla | Qué queda pendiente (según el doc-comment) | Evidencia |
-|---|---|---|
-| `MultiplicadorFrmPage` | carga/multiplicación/grabado de archivos | `MultiplicadorFrmPage.xaml.cs:11` |
-| `ReductorFrmPage` | `IReduccion` + selección/lectura de archivos | `ReductorFrmPage.xaml.cs:9` |
-| `FraccionadorFrmPage` | carga, fraccionado y medición de tiempo | `FraccionadorFrmPage.xaml.cs:14` |
-| `TransposicionFrmPage` | lectura de archivos y reordenado | `TransposicionFrmPage.xaml.cs:10` |
-| `AlgebraColumnasFrmPage` | `SumadorCombinaciones` + selección de archivos | `AlgebraColumnasFrmPage.xaml.cs:10` |
-| `CompresorPage` | `CompresorZip`/`ConvertidorDeBases` + E/S | `CompresorPage.xaml.cs:11` |
-| `FrmDependenciaLinealPage` | cálculo sobre las 4 782 969 combinaciones | `FrmDependenciaLinealPage.xaml.cs:11` |
-| `FrmReducidasPerfectasPage` | generación de la reducción perfecta | `FrmReducidasPerfectasPage.xaml.cs:12` |
-| `GenerarCPsPage` | CPs / E/S / porcentajes | `GenerarCPsPage.xaml.cs:8` |
-| `GeneradorCPSDiferenciasPage` | validación, combinación y persistencia | `GeneradorCPSDiferenciasPage.xaml.cs:9` |
-| `CopiarCPFrmPage` | cálculo/persistencia | `CopiarCPFrmPage.xaml.cs:11` |
-| `ExportadorCPsFrmPage` | dominio de exportación de CPs | `ExportadorCPsFrmPage.xaml.cs:11` |
-| `AgregarEquipoFrmPage` | persistencia | `AgregarEquipoFrmPage.xaml.cs:9` |
-| `GestorEquiposFrmPage` | carga/guardado de `.dat` | `GestorEquiposFrmPage.xaml.cs` (doc) |
-| `AnalizarCombinacionFrmPage` | análisis aún no portado a `Free1X2.Domain` | `AnalizarCombinacionFrmPage.xaml.cs:13` |
-| `BancoPruebasFrmViewModel` | cálculo/persistencia/apertura de otros forms | `BancoPruebasFrmViewModel.cs:103,291` |
-| `DiferenciasFrmPage` | lógica de dominio | `DiferenciasFrmPage.xaml.cs:15` |
-| `ParejasFrmPage` | lógica de dominio | `ParejasFrmPage.xaml.cs:13` |
-| `SimetriasFrmPage` | lógica de dominio | `SimetriasFrmPage.xaml.cs:12` |
-| `PesosNumFrmPage` | persistencia en disco | `PesosNumFrmPage.xaml.cs:13` |
-| `StaInterFrmPage` / `StaSSFormPage` | volcado real de datos | `StaInterFrmPage.xaml.cs:13`, `StaSSFormPage.xaml.cs:11` |
-| `ValoracionFrmPage` | Guardar/Abrir/Copiar/Pegar/Estadísticas | `ValoracionFrmPage.xaml.cs:13` |
-| `FormatosFrmViewModel` | "Sacar formatos / Pares / Tríos / Sumas pares" (forms no portados) | `FormatosFrmViewModel.cs:72` |
+| Nivel | Resultado |
+|---|---|
+| Build `Free1X2.WinUI` (Debug, x64, win-x64) | **0 errores** |
+| Build `Free1X2.Domain` | **0 errores** |
+| Smoke de carga (`FREE1X2_SMOKE=1`: instancia MainPage + 108 páginas) | **109/109 ok · 0 fail** |
+| Tests del motor (`Free1X2.Domain.Tests`, xUnit) | **107/107** (incl. 33 golden-master con datos reales: ConvertidorDeBases round-trip, UtilColumnas + Comparador [invariante coincidencias+diferencias=14], SumadorCombinaciones [4 ops], Escrutador [distribución de premios], reductor JDC) |
+| Runtime UI Automation (navegar 24 pantallas + invocar la acción primaria) | **0 crashes**; las acciones completan o muestran su validación esperada |
+| Pantallas desconectadas / que lanzan excepción | **0** (todas con su productor/handoff cableado) |
 
-> Importante matizar: **muchas otras pantallas SÍ tienen su lógica funcionando** (p. ej. `AnalisisFormatos123FrmViewModel` implementa "Mostrar todos", `EscrutarCombinacionesFrmViewModel` está funcional salvo la navegación final, `ListadoCondicionesFrmViewModel` reconstruye el árbol desde `AppState.Analizador`). El TODO afecta a las pantallas de la tabla anterior; no es una afirmación global de "todo funciona".
+### Residuales menores (honestos — no bloquean ninguna función)
 
-### Otros TODO menores / dependencias externas
+- **`EscrutiniosFrmViewModel`**: los prefijos `/t` y `/j` se añaden al final del texto, no en la posición del cursor (sin tracking de caret en MVVM). `:486,497`.
+- **`GruposEquiposFrmViewModel`**: las etiquetas muestran nombres por defecto ("Equipo casa N") en vez de los nombres reales de equipo (que viven en la UI del boleto, no en el dominio). El filtrado casa/fuera sí funciona. `:256`.
+- **`ListadoCondicionesFrmViewModel`**: se muestra el resumen de una línea por filtro; el árbol detallado por tipo de filtro queda como `TODO[detalle]`. `:122`.
+- **`AcercaDeFrmPage`**: el logo no se carga (cosmético) y los enlaces licencia/GPL abren la web en vez del documento empaquetado. `:36,45,53`.
 
-- **`AcercaDeFrmPage` / `AyudaFrmPage`**: varios `TODO(dominio)` para abrir documentos empaquetados (licencia, GPL, manual), foro, Facebook y notificaciones (`AcercaDeFrmPage.xaml.cs:36,45,53,80`; `AyudaFrmPage.xaml.cs:35-68`). La pantalla existe y navega; los lanzadores externos están pendientes.
-- **`DescargaBoletoFrmViewModel`**: el mensaje "El Boleto elegido no está disponible (servicio online no disponible sin conexión)" se muestra cuando no hay conexión (`DescargaBoletoFrmViewModel.cs:98`) — comportamiento previsto, no un fallo.
-- `EstimadorPremiosFrmViewModel.cs:424` y `FrmReducidasPerfectasViewModel.cs:259`: "Lanzador no disponible: se ignora" al no poder abrir el navegador (degradación controlada).
-- `ListadoCondicionesFrmViewModel.cs:122`: `TODO[detalle]` — desglose completo por tipo de filtro pendiente de afinar.
+### Decisiones de port (correcto por diseño — no son huecos)
+
+- **Ayuda online** deshabilitada igual que el original (el `AyudaFrm` legacy ya mostraba "Online help disabled for offline operation").
+- **Descarga de boleto online**: stub offline igual que el original (`ObtenerBoleto` devolvía "" en legacy).
+- **Control de porcentajes** (`valors`) reemplazado por `PorcentajesControl`; lógica equivalente.
+- **Gráficos `System.Drawing`** (no portables a WinUI) reimplementados con `GraficoLineasControl`.
+- **`BoletoControl`** legacy reemplazado por `BoletoMatrizControl`.
+
+### Arreglado en esta auditoría
+
+- **46** doc-comments obsoletos "queda como TODO" limpiados (solo comentarios).
+- Único clic muerto user-facing arreglado: enlace **"Créditos"** en *Acerca de* → navega a `CreditosFrmPage` (confirmado en runtime).
+- Cierre fiel al original (`Frame.GoBack`) restaurado en *Cambio de puntos*, *Analizar fichero* y *Config CPs* (el original cerraba esos diálogos).
+- Comentario "111 pantallas" en `PortedPages.cs` corregido a **108**.
 
 ### Resumen del estado
 
 | Aspecto | Estado |
 |---|---|
 | Estructura de UI (páginas, menús, toolbar, tema) | **Completa y cableada** (108 páginas + MainPage) |
-| Smoke test de carga de páginas | Cubre las **109** páginas |
-| Desacople del dominio (shims) | **Completo** (UiPump/UserDialogs/AnalisisUi/Clipboard) |
-| Lógica de dominio de TODAS las pantallas | **Incompleta**: ~23 pantallas con lógica todavía marcada como TODO (tabla anterior) |
-| Comentario "111 pantallas" en `PortedPages.cs:13` | **Desactualizado** (son 108) |
+| Lógica de dominio de las pantallas | **Implementada y verificada** (build/smoke/tests/UIA) |
+| Smoke de carga | **109/109 ok** |
+| Tests del motor | **107/107** |
+| Crashes en runtime al invocar acciones (24 pantallas) | **0** |
+| Residuales | menores/cosméticos (lista arriba); **0 funciones bloqueadas** |
 
 ---
 

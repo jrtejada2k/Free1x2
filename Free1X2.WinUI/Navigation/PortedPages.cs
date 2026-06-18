@@ -9,7 +9,7 @@ namespace Free1X2.WinUI.Navigation;
 public record PortedPage(string Title, string Glyph, Type PageType, string Category);
 
 /// <summary>
-/// Registro de las 111 pantallas portadas a WinUI 3. Generado desde Views/Ported/.
+/// Registro de las 108 pantallas portadas a WinUI 3. Generado desde Views/Ported/.
 /// El NavigationView se puebla solo desde aqui - sin tocar el XAML del shell.
 /// </summary>
 public static class PortedPagesRegistry

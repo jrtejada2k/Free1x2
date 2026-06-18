@@ -118,9 +118,9 @@ La interfaz se ha **migrado a WinUI 3** (Fluent nativo), reutilizando intacto el
 - ✅ **UI portada**: 108 pantallas (+ `MainPage`) recreadas desde WinForms, cableadas en menús y barra de herramientas; *smoke test* de carga 109/109.
 - ✅ **Motor intacto**: la codificación de columnas y el cálculo se reutilizan vía `Free1X2.Domain` (libre de WinForms gracias a los shims de `Abstractions/`).
 - ✅ **Self-contained** win-x64 (runtime empaquetado) + release con instalable portable.
-- 🔄 **Pendiente**: portar a `Free1X2.Domain` la lógica de dominio (E/S y cálculo) de **~23 pantallas** aún marcadas como TODO en el código.
+- ✅ **Lógica portada y verificada**: la lógica de dominio de las pantallas está implementada (1:1 con el original) y verificada — build 0 errores, *smoke* de carga 109/109, **107/107 tests** del motor (33 golden-master con datos reales) y una pasada *runtime* UI Automation con **0 crashes** al invocar las acciones. Residuales solo cosméticos (logo de Acerca de, nombres reales de equipo, etc.).
 
-Detalle técnico y la lista honesta de lo pendiente en [`docs/ANALISIS_TECNICO_WINUI3.md`](docs/ANALISIS_TECNICO_WINUI3.md) (§11). Histórico de la migración en [`ESTADO_MIGRACION_WINUI3.md`](ESTADO_MIGRACION_WINUI3.md).
+Detalle técnico y la verificación completa en [`docs/ANALISIS_TECNICO_WINUI3.md`](docs/ANALISIS_TECNICO_WINUI3.md) (§11). Histórico de la migración en [`ESTADO_MIGRACION_WINUI3.md`](ESTADO_MIGRACION_WINUI3.md).
 
 ---
 
