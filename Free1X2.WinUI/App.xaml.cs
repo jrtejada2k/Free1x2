@@ -24,10 +24,40 @@ public partial class App : Application
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
         AsegurarCarpetasDeTrabajo();
+        SembrarJornadaDesdeCache();
         MainWindow = new MainWindow();
         AppServices.Inicializar(MainWindow);
         CablearHooksDominio();
         MainWindow.Activate();
+    }
+
+    /// <summary>
+    /// Siembra <see cref="AppState.JornadaActual"/> con la jornada cacheada más reciente al
+    /// arrancar, para que el boleto y "Grupos de Equipos" muestren los equipos REALES al instante
+    /// y OFFLINE, sin ninguna petición de red. Es una simple lectura de un fichero local
+    /// (<c>%LocalAppData%\Free1X2\jornada-{pais}.json</c>) reparseada con el parser defensivo.
+    ///
+    /// OFFLINE-FIRST estricto: NO contacta el servicio online (el único punto de red sigue siendo
+    /// el botón "Actualizar jornada"). Si no hay caché, es un no-op silencioso (la app arranca en
+    /// modo manual con los nombres de muestra, igual que antes). Cualquier error se traga: nunca
+    /// debe impedir el arranque (de hecho, JornadaCache ya es a prueba de excepciones).
+    /// </summary>
+    private static void SembrarJornadaDesdeCache()
+    {
+        try
+        {
+            string? pais = Services.JornadaCache.PaisMasReciente();
+            if (pais is null) return; // sin caché todavía: arranque manual normal (no-op).
+
+            if (Services.JornadaCache.TryCargar(pais, out var jornada, out _) && jornada is not null)
+            {
+                Services.AppState.Instancia.JornadaActual = jornada;
+            }
+        }
+        catch
+        {
+            // Robustez extra: el arranque jamás falla por la siembra de caché (sin red, local).
+        }
     }
 
     /// <summary>

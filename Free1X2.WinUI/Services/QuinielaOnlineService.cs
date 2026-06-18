@@ -1,5 +1,6 @@
 // Free1X2 · WinUI 3 — WIN3
 using System;
+using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Http;
 using System.Text.Json;
@@ -57,6 +58,20 @@ public sealed class QuinielaOnlineService
     /// </summary>
     private const int RetryAfterMaxSegundos = 3;
 
+    /// <summary>
+    /// Ventana anti-doble-descarga (segundos): si se pide la jornada del MISMO país de nuevo dentro
+    /// de este intervalo Y ya existe caché, se devuelve la caché SIN tocar la red. Evita que dobles
+    /// clics accidentales en "Actualizar jornada" disparen ráfagas que rocen el 429 del backend
+    /// (60 req/min). Una acción explícita posterior (>60 s) vuelve a contactar el servicio.
+    /// </summary>
+    private const int VentanaAntiDobleSegundos = 60;
+
+    /// <summary>
+    /// Última hora (UTC) de inicio de una descarga por país, para la guarda anti-doble-descarga.
+    /// Concurrente porque podría consultarse desde distintos contextos de sincronización.
+    /// </summary>
+    private static readonly ConcurrentDictionary<string, DateTime> _ultimaDescargaUtc = new();
+
     // Un único HttpClient reutilizado (best practice: evita el agotamiento de sockets).
     private static readonly HttpClient _http = CrearHttpClient();
 
@@ -98,21 +113,45 @@ public sealed class QuinielaOnlineService
             throw new QuinielaOnlineException("País no soportado: '" + pais + "' (use 'es' o 'mx').");
         }
 
+        // Guarda anti-doble-descarga: si el mismo país se pidió hace < VentanaAntiDobleSegundos
+        // Y hay caché válida, se devuelve la caché SIN red. Evita que dobles clics rápidos
+        // tropiecen con el límite 60/min del backend. (No hay caché => sí se contacta la red,
+        // que es el caso de la primera descarga.)
+        if (_ultimaDescargaUtc.TryGetValue(paisNorm, out DateTime ultima) &&
+            (DateTime.UtcNow - ultima).TotalSeconds < VentanaAntiDobleSegundos &&
+            JornadaCache.TryCargar(paisNorm, out JornadaQuiniela? cacheada, out _) &&
+            cacheada is not null)
+        {
+            return cacheada;
+        }
+
         // Raíz del host + prefijo WordPress del backend + recurso.
         string url = BaseUrl.TrimEnd('/') + PrefijoApi + "/quiniela/" + paisNorm + "/actual";
+
+        // Se marca el inicio de la descarga ANTES de salir a la red, para que un segundo clic
+        // que llegue mientras esta petición está en vuelo entre dentro de la ventana anti-doble.
+        _ultimaDescargaUtc[paisNorm] = DateTime.UtcNow;
 
         string cuerpo = await DescargarConReintentoAsync(url, ct).ConfigureAwait(false);
 
         // El cuerpo es DATO no confiable: el parser valida/parsea a la defensiva.
+        JornadaQuiniela jornada;
         try
         {
-            return JornadaQuinielaParser.Parse(cuerpo);
+            jornada = JornadaQuinielaParser.Parse(cuerpo);
         }
         catch (FormatException ex)
         {
             throw new QuinielaOnlineException(
                 "La respuesta del servicio no es una jornada válida: " + ex.Message, ex);
         }
+
+        // Descarga + parseo correctos: persiste los bytes CRUDOS en la caché local para que el
+        // próximo arranque muestre los equipos reales offline sin reconsultar. Es best-effort:
+        // JornadaCache.Guardar nunca lanza, así que un fallo de E/S no afecta a la descarga.
+        JornadaCache.Guardar(paisNorm, cuerpo);
+
+        return jornada;
     }
 
     /// <summary>

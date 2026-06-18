@@ -56,15 +56,40 @@ public partial class DescargaBoletoFrmViewModel : ObservableObject
 
     public DescargaBoletoFrmViewModel()
     {
-        // España por defecto (la quiniela "clásica" de la app).
-        _paisSeleccionado = Paises[0];
+        // País inicial: el de la última jornada cacheada (el que se sembró al arrancar), para que
+        // el selector y el seed estén alineados; si no hay caché, España por defecto (la quiniela
+        // "clásica" de la app). Es una lectura local; no hay red en el constructor.
+        _paisSeleccionado = ResolverPaisInicial();
+    }
+
+    private OpcionPais ResolverPaisInicial()
+    {
+        try
+        {
+            string? reciente = JornadaCache.PaisMasReciente();
+            if (reciente is not null)
+            {
+                foreach (var op in Paises)
+                {
+                    if (string.Equals(op.Codigo, reciente, StringComparison.OrdinalIgnoreCase))
+                        return op;
+                }
+            }
+        }
+        catch
+        {
+            // Sin caché o error de E/S: se cae al valor por defecto.
+        }
+        return Paises[0]; // España.
     }
 
     /// <summary>
-    /// Descarga la jornada vigente del país seleccionado, la publica en
-    /// <see cref="AppState.JornadaActual"/> y rellena el boleto. La descarga ocurre fuera del
-    /// hilo de UI (await sobre HttpClient); sin DoEvents. Cualquier fallo cae al mensaje
-    /// offline amigable sin romper la pantalla.
+    /// Acción EXPLÍCITA del usuario ("Actualizar jornada"): SIEMPRE intenta la red para traer lo
+    /// último. En éxito publica la jornada en <see cref="AppState.JornadaActual"/> (fuente
+    /// compartida de nombres reales), la deja cacheada (lo hace el servicio) y muestra el resumen
+    /// con la fecha. Si la red falla (sin conexión / 429 / error), cae a la jornada CACHEADA si la
+    /// hay, con un mensaje claro de modo offline; si no hay caché, muestra el error original.
+    /// La descarga ocurre fuera del hilo de UI (await sobre HttpClient); sin DoEvents.
     /// </summary>
     [RelayCommand]
     private async Task Descargar()
@@ -83,20 +108,52 @@ public partial class DescargaBoletoFrmViewModel : ObservableObject
             // Fuente compartida de nombres reales: boleto y "Grupos de Equipos" leen de aquí.
             AppState.Instancia.JornadaActual = jornada;
 
-            Mensaje = "Jornada " + jornada.Jornada + " · " + jornada.Partidos.Count + " partidos cargados";
+            // La caché la persiste el propio servicio tras parsear; la fecha mostrada es la del
+            // fichero recién escrito (= "ahora"), leída para un mensaje uniforme con el fallback.
+            string sufijoFecha = SufijoUltimaActualizacion(pais);
+            Mensaje = "Jornada " + jornada.Jornada + " · " + jornada.Partidos.Count +
+                      " partidos cargados" + sufijoFecha;
         }
-        catch (QuinielaOnlineException ex)
+        catch (Exception ex) when (ex is QuinielaOnlineException || ex is not OperationCanceledException)
         {
-            // Fallback offline: mensaje claro, modo manual; no se inventan datos.
-            Mensaje = ex.Message + " El boleto sigue en modo manual.";
-        }
-        catch (Exception ex)
-        {
-            Mensaje = "No se pudo descargar la jornada: " + ex.Message + " El boleto sigue en modo manual.";
+            // Fallo de red/HTTP/parseo (o cualquier excepción no de cancelación): intentar fallback
+            // a la jornada guardada antes de rendirse.
+            if (JornadaCache.TryCargar(pais, out JornadaQuiniela? cacheada, out DateTime guardadoUtc) &&
+                cacheada is not null)
+            {
+                AppState.Instancia.JornadaActual = cacheada;
+                Mensaje = "Sin conexión: mostrando la jornada guardada (actualizada " +
+                          FormatearFechaLocal(guardadoUtc) + ").";
+            }
+            else
+            {
+                // Sin caché tampoco: mensaje de error original + modo manual.
+                string detalle = ex is QuinielaOnlineException
+                    ? ex.Message
+                    : "No se pudo descargar la jornada: " + ex.Message;
+                Mensaje = detalle + " El boleto sigue en modo manual.";
+            }
         }
         finally
         {
             Descargando = false;
         }
     }
+
+    /// <summary>
+    /// Devuelve el sufijo " · Última actualización: &lt;fecha&gt;" leyendo la marca de tiempo del
+    /// fichero de caché del país (recién escrito por la descarga). Cadena vacía si no se puede leer.
+    /// </summary>
+    private static string SufijoUltimaActualizacion(string pais)
+    {
+        if (JornadaCache.TryCargar(pais, out _, out DateTime guardadoUtc))
+        {
+            return " · Última actualización: " + FormatearFechaLocal(guardadoUtc);
+        }
+        return string.Empty;
+    }
+
+    /// <summary>Formatea una marca UTC a hora local legible para el usuario.</summary>
+    private static string FormatearFechaLocal(DateTime utc) =>
+        utc.ToLocalTime().ToString("dd/MM/yyyy HH:mm");
 }
