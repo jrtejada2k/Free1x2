@@ -137,10 +137,25 @@ Misma forma que la jornada actual. Útil para revisar jornadas pasadas. No es ne
    actual, sin romper nada).
 4. (Opcional) El catálogo `/equipos/{pais}` rellena las listas del *Gestor de Equipos*.
 
-### Para probar sin backend
-En `docs/ejemplos-api/` hay respuestas de ejemplo (`quiniela-es-actual.json`, `quiniela-mx-actual.json`,
-`equipos-es.json`). Sirviéndolas en cualquier host (o como archivos locales) la app funciona de punta
-a punta antes de tener el servicio real; al activar el endpoint real solo se cambia la base URL.
+### Para probar localmente (stub)
+
+La app lee la base URL de la variable de entorno **`FREE1X2_API_BASE`** (si no existe, usa
+`https://clubprogol.com`). Para probar sin backend real, sirve los JSON de `docs/ejemplos-api/` con el
+stub incluido `scripts/stub-api.ps1`:
+
+```powershell
+# Terminal 1 — levanta el stub (sirve los ejemplos en las rutas de la spec)
+pwsh ./scripts/stub-api.ps1            # http://localhost:8080  (usa -Port para otro puerto)
+```
+```powershell
+# Terminal 2 — apunta la app al stub y lánzala
+$env:FREE1X2_API_BASE = 'http://localhost:8080'
+.\Free1X2.WinUI\bin\x64\Debug\net8.0-windows10.0.19041.0\win-x64\Free1X2.WinUI.exe
+```
+
+En la app: **Descarga de boleto → elige España/México → Actualizar jornada**. El boleto y la pantalla
+*Grupos de Equipos* se rellenan con los equipos reales del JSON. Cuando tu backend esté en producción,
+quita la variable (o ponla a `https://clubprogol.com`) y apuntará al servicio real.
 
 ---
 
