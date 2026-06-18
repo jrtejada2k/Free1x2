@@ -7,7 +7,7 @@ namespace Free1X2.Online
 {
     /// <summary>
     /// Parser PURO (sin red, sin UI) que convierte el JSON del endpoint
-    /// <c>GET {base}/api/v1/quiniela/{pais}/actual</c> en un <see cref="JornadaQuiniela"/>.
+    /// <c>GET {base}/wp-json/clubprogol/v1/quiniela/{pais}/actual</c> en un <see cref="JornadaQuiniela"/>.
     ///
     /// La respuesta de red se trata SIEMPRE como datos no confiables: se valida a la
     /// defensiva (14 partidos, números 1..14 en orden, nombres no vacíos) y se lanza un

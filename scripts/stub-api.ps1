@@ -11,14 +11,25 @@
 #
 # En la app: Descarga de boleto -> elige Espana/Mexico -> Actualizar jornada.
 # (localhost no requiere permisos de admin; Ctrl+C para parar.)
+#
+# Rutas servidas (mismo prefijo que el backend real /wp-json/clubprogol/v1/):
+#   GET /wp-json/clubprogol/v1/quiniela/es/actual
+#   GET /wp-json/clubprogol/v1/quiniela/mx/actual
+#   GET /wp-json/clubprogol/v1/equipos/es
+#   GET /wp-json/clubprogol/v1/equipos/mx
+# Simular errores (para probar el manejo del cliente):
+#   ?sim=404  -> 404 {"error":"sin_jornada","mensaje":"No hay jornada publicada para ES."}
+#   ?sim=429  -> 429 + Retry-After: 60  {"error":"rate_limited","mensaje":"..."}
 
 param([int]$Port = 8080)
 
 $ejemplos = Join-Path $PSScriptRoot '..\docs\ejemplos-api'
+# Rutas del backend real (WordPress REST de clubprogol.com): prefijo /wp-json/clubprogol/v1/.
 $rutas = @{
-    '/api/v1/quiniela/es/actual' = 'quiniela-es-actual.json'
-    '/api/v1/quiniela/mx/actual' = 'quiniela-mx-actual.json'
-    '/api/v1/equipos/es'         = 'equipos-es.json'
+    '/wp-json/clubprogol/v1/quiniela/es/actual' = 'quiniela-es-actual.json'
+    '/wp-json/clubprogol/v1/quiniela/mx/actual' = 'quiniela-mx-actual.json'
+    '/wp-json/clubprogol/v1/equipos/es'         = 'equipos-es.json'
+    '/wp-json/clubprogol/v1/equipos/mx'         = 'equipos-mx.json'
 }
 
 $listener = [System.Net.HttpListener]::new()
@@ -37,10 +48,26 @@ try {
     while ($listener.IsListening) {
         $ctx  = $listener.GetContext()
         $path = $ctx.Request.Url.AbsolutePath.TrimEnd('/')
+        $sim  = $ctx.Request.QueryString['sim']   # ?sim=404 | ?sim=429 para probar errores
         $resp = $ctx.Response
         $resp.Headers['Content-Type'] = 'application/json; charset=utf-8'
 
-        if ($rutas.ContainsKey($path)) {
+        if ($sim -eq '429') {
+            # Simula el límite de peticiones (60/min) del backend real.
+            $resp.StatusCode = 429
+            $resp.Headers['Retry-After'] = '60'
+            $body = '{"error":"rate_limited","mensaje":"Demasiadas solicitudes (limite 60/min). Intenta de nuevo en ~60 s."}'
+            $msg = [System.Text.Encoding]::UTF8.GetBytes($body)
+            $resp.OutputStream.Write($msg, 0, $msg.Length)
+        }
+        elseif ($sim -eq '404') {
+            # Simula 'no hay jornada publicada' con el cuerpo de error del contrato.
+            $resp.StatusCode = 404
+            $body = '{"error":"sin_jornada","mensaje":"No hay jornada publicada para ES."}'
+            $msg = [System.Text.Encoding]::UTF8.GetBytes($body)
+            $resp.OutputStream.Write($msg, 0, $msg.Length)
+        }
+        elseif ($rutas.ContainsKey($path)) {
             $file = Join-Path $ejemplos $rutas[$path]
             if (Test-Path $file) {
                 $bytes = [System.IO.File]::ReadAllBytes($file)
@@ -48,10 +75,12 @@ try {
                 $resp.OutputStream.Write($bytes, 0, $bytes.Length)
             } else {
                 $resp.StatusCode = 404
+                $msg = [System.Text.Encoding]::UTF8.GetBytes('{"error":"sin_jornada","mensaje":"No hay jornada publicada."}')
+                $resp.OutputStream.Write($msg, 0, $msg.Length)
             }
         } else {
             $resp.StatusCode = 404
-            $msg = [System.Text.Encoding]::UTF8.GetBytes('{"error":"not found"}')
+            $msg = [System.Text.Encoding]::UTF8.GetBytes('{"error":"not_found","mensaje":"Ruta no encontrada."}')
             $resp.OutputStream.Write($msg, 0, $msg.Length)
         }
 

@@ -13,20 +13,43 @@ de la jornada (resuelve que la pantalla *Grupos de Equipos* y el boleto muestren
 
 - **HTTPS** obligatorio. Método **GET**. Cuerpo **JSON, UTF-8** (acentos correctos: "Atlético", "Peñarol").
 - **Solo lectura** y **datos públicos** → **sin autenticación** (sin tokens ni claves).
-- **URL versionada**: prefijo `/api/v1/`. Cambios incompatibles → `/api/v2/`.
+- **URL versionada**: prefijo `/wp-json/clubprogol/v1/` (backend WordPress REST). Cambios incompatibles → `/wp-json/clubprogol/v2/`.
 - Respuestas **pequeñas** (objetivo < ~50 KB). `Content-Type: application/json; charset=utf-8`.
 - Recomendado: cabecera `ETag` y/o campo `actualizado` para que la app cachee y no re-descargue.
 - No se necesita CORS (cliente de escritorio, no navegador).
-- Errores con código HTTP correcto: `404` si no hay jornada publicada, `503` si el origen no está listo.
+- Errores con código HTTP correcto: `404` si no hay jornada publicada, `429` si se supera el límite de
+  peticiones, `503` si el origen no está listo. Los errores traen un **cuerpo JSON** (ver más abajo).
 
 `{pais}` es `es` (España) o `mx` (México).
+
+### Límite de peticiones (HTTP 429)
+
+El backend aplica un límite de **60 peticiones por minuto**. Al superarlo responde **`HTTP 429 Too
+Many Requests`** con la cabecera **`Retry-After: 60`** (segundos a esperar). La app lo maneja con
+gracia: si el `Retry-After` es corto reintenta una vez; si pide esperar ~60 s **no bloquea la UI** y
+muestra un mensaje claro (cae a modo manual). No conviene "machacar" el endpoint en bucle.
+
+### Cuerpos de error (JSON)
+
+Todos los errores devuelven el mismo shape, con un `mensaje` legible que la app propaga al usuario:
+
+```json
+{ "error": "sin_jornada",   "mensaje": "No hay jornada publicada para ES." }   // 404
+{ "error": "rate_limited",  "mensaje": "Demasiadas solicitudes (límite 60/min). Intenta de nuevo en ~60 s." }  // 429
+```
+
+| Código | `error` | Significado |
+|--------|---------|-------------|
+| `404` | `sin_jornada` | No hay jornada publicada para ese país. |
+| `429` | `rate_limited` | Se superó el límite de 60 peticiones/min (`Retry-After: 60`). |
+| `503` | `no_listo` | El origen no está listo todavía. |
 
 ---
 
 ## 1) Jornada actual — núcleo
 
 ```
-GET https://clubprogol.com/api/v1/quiniela/{pais}/actual
+GET https://clubprogol.com/wp-json/clubprogol/v1/quiniela/{pais}/actual
 ```
 
 Devuelve la jornada vigente (los 14 partidos con sus equipos). Es lo único imprescindible para
@@ -96,30 +119,35 @@ añadir `revancha` (7 partidos) más adelante si se quiere; el núcleo de 14 es 
 ## 2) Catálogo de equipos — opcional (alimenta *Gestor de Equipos*)
 
 ```
-GET https://clubprogol.com/api/v1/equipos/{pais}
+GET https://clubprogol.com/wp-json/clubprogol/v1/equipos/{pais}
 ```
+
+El backend real devuelve **una sola división** con `id` = `"all"` (los equipos que han aparecido en
+jornadas recientes), no las divisiones separadas. La app no consume este endpoint todavía; queda
+documentado por si se usa más adelante para el *Gestor de Equipos*.
 
 ```json
 {
   "pais": "ES",
   "actualizado": "2026-06-18T10:30:00Z",
   "divisiones": [
-    { "id": "1",  "nombre": "Primera", "equipos": ["Real Madrid", "FC Barcelona", "Atlético de Madrid", "..."] },
-    { "id": "2",  "nombre": "Segunda", "equipos": ["Real Oviedo", "Sporting", "..."] },
-    { "id": "2b", "nombre": "Primera RFEF", "equipos": ["..."] },
-    { "id": "int","nombre": "Internacional", "equipos": ["..."] }
+    {
+      "id": "all",
+      "nombre": "Equipos (jornadas recientes)",
+      "equipos": ["Real Madrid", "FC Barcelona", "Atlético de Madrid", "Real Oviedo", "Sporting", "..."]
+    }
   ]
 }
 ```
-Para México, `divisiones` puede ser `[{ "id":"1", "nombre":"Liga MX", "equipos":[...] }, ...]`.
-La app mapea estos `id` a sus categorías internas (`1`, `2`, `2b`, `Int`).
+México tiene la misma forma (una división `"all"`). Ejemplos completos en
+`docs/ejemplos-api/equipos-es.json` y `docs/ejemplos-api/equipos-mx.json`.
 
 ---
 
 ## 3) Jornada por número — opcional (histórico)
 
 ```
-GET https://clubprogol.com/api/v1/quiniela/{pais}/jornada/{n}
+GET https://clubprogol.com/wp-json/clubprogol/v1/quiniela/{pais}/jornada/{n}
 ```
 Misma forma que la jornada actual. Útil para revisar jornadas pasadas. No es necesario para la v1.
 
@@ -127,15 +155,16 @@ Misma forma que la jornada actual. Útil para revisar jornadas pasadas. No es ne
 
 ## Cómo lo consume la app
 
-1. Base URL **configurable** (en `parametros.free1x2` / configuración), por defecto `https://clubprogol.com`.
-   Así puedes apuntarla a un stub mientras desarrollas.
+1. Base URL **configurable** = **raíz del host** (en `parametros.free1x2` / configuración o vía la
+   variable de entorno `FREE1X2_API_BASE`), por defecto `https://clubprogol.com`. La app le antepone
+   el prefijo `/wp-json/clubprogol/v1/` a cada ruta. Así puedes apuntarla a un stub mientras desarrollas.
 2. Acción **"Actualizar jornada (online)"** (reactiva la pantalla *Descarga de boleto* del original):
-   GET a `/api/v1/quiniela/{pais}/actual`, valida el JSON, y **rellena los 14 partidos** del boleto
-   con `local`/`visitante`. Esos nombres se guardan en el estado compartido → *Grupos de Equipos* y
-   demás pantallas muestran **equipos reales**.
-3. Si no hay conexión o el JSON no valida → **mensaje claro y modo manual** (comportamiento offline
-   actual, sin romper nada).
-4. (Opcional) El catálogo `/equipos/{pais}` rellena las listas del *Gestor de Equipos*.
+   GET a `/wp-json/clubprogol/v1/quiniela/{pais}/actual`, valida el JSON, y **rellena los 14 partidos**
+   del boleto con `local`/`visitante`. Esos nombres se guardan en el estado compartido → *Grupos de
+   Equipos* y demás pantallas muestran **equipos reales**.
+3. Si no hay conexión, hay `429`/`404`, o el JSON no valida → **mensaje claro y modo manual**
+   (comportamiento offline actual, sin romper nada). En `404`/`429` se muestra el `mensaje` del servidor.
+4. (Opcional) El catálogo `/wp-json/clubprogol/v1/equipos/{pais}` rellena las listas del *Gestor de Equipos*.
 
 ### Para probar localmente (stub)
 

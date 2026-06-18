@@ -9,7 +9,7 @@ namespace Free1X2.Online
     /// opcionalmente, el Pleno al 15 (solo España).
     ///
     /// Es un tipo PURO de dominio (sin WinForms/WinUI): se obtiene parseando el JSON del
-    /// endpoint <c>GET {base}/api/v1/quiniela/{pais}/actual</c> mediante
+    /// endpoint <c>GET {base}/wp-json/clubprogol/v1/quiniela/{pais}/actual</c> mediante
     /// <see cref="JornadaQuinielaParser"/>. La respuesta de red SIEMPRE se trata como DATOS:
     /// se valida y se parsea a la defensiva; nunca se ejecuta nada del cuerpo.
     ///
