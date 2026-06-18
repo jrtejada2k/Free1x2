@@ -362,6 +362,40 @@ public partial class VSignosFrmViewModel : ObservableObject
         }
     }
 
+    /// <summary>
+    /// Fija el signo "1" de la columna ganadora para el partido de la fila pulsada
+    /// (legacy: VSignosFrm.lbl_Click sobre la etiqueta de la columna "1" -> txts[indice].Text = "1").
+    /// Pulsar una celda de la rejilla de recuentos rellena la casilla correspondiente.
+    /// </summary>
+    [RelayCommand]
+    private void FijarUno(RecuentoSignoFila? fila) => FijarSigno(fila, "1");
+
+    /// <summary>
+    /// Fija el signo "X" de la columna ganadora para el partido de la fila pulsada
+    /// (legacy: lbl_Click sobre la etiqueta de la columna "X" -> txts[indice].Text = "X").
+    /// </summary>
+    [RelayCommand]
+    private void FijarEquis(RecuentoSignoFila? fila) => FijarSigno(fila, "X");
+
+    /// <summary>
+    /// Fija el signo "2" de la columna ganadora para el partido de la fila pulsada
+    /// (legacy: lbl_Click sobre la etiqueta de la columna "2" -> txts[indice].Text = "2").
+    /// </summary>
+    [RelayCommand]
+    private void FijarDos(RecuentoSignoFila? fila) => FijarSigno(fila, "2");
+
+    /// <summary>
+    /// Vuelca el signo pulsado a la casilla editable de la columna ganadora del partido
+    /// correspondiente (legacy: VSignosFrm.lbl_Click -> txts[partido - 1].Text = signo).
+    /// </summary>
+    private void FijarSigno(RecuentoSignoFila? fila, string signo)
+    {
+        if (fila == null) return;
+        int indice = fila.Partido - 1; // legacy: indice = partido - 1
+        if (indice < 0 || indice >= ColumnaGanadora.Count) return;
+        ColumnaGanadora[indice].Signo = signo;
+    }
+
     /// <summary>Sube en 1 el nivel de aspiración (legacy: BMasClick -> AspMas).</summary>
     [RelayCommand]
     private void SubirAspiracion()
