@@ -221,6 +221,43 @@ public partial class CalculaColumnasFrmViewModel : ObservableObject
         CosteMaximo = costeMaximo.ToString(Free1X2.VariablesGlobales.Moneda + "#,##0.00;0.0");
     }
 
+    /// <summary>
+    /// Réplica fiel de <c>CalculaColumnasFrm.HayConflictosEntreArchivos()</c>
+    /// (Free1X2/UI/CalculaColumnas.cs ~116-143): comprueba si el archivo de resultados
+    /// elegido coincide con un archivo ya usado en la combinación actual — el archivo de
+    /// columnas base (grupo base → <c>ArchivoColumnasBase</c>) o el archivo de filtro parcial
+    /// de algún grupo no base (<c>UsaFiltroParcial</c> → <c>ArchivoFiltroGrupo</c>). Grabar
+    /// sobre uno de esos archivos lo machacaría mientras el motor lo está leyendo.
+    /// </summary>
+    private bool HayConflictosEntreArchivos()
+    {
+        bool hayConflictos = false;
+        for (int i = 0; i < _analizador.CtrlGrupos.GruposPartidos.Count; i++)
+        {
+            Grupo grup = _analizador.CtrlGrupos.GruposPartidos[i];
+            if (!grup.EsGrupoBase)
+            {
+                if (grup.UsaFiltroParcial)
+                {
+                    if (_archivoResultados == grup.ArchivoFiltroGrupo)
+                    {
+                        hayConflictos = true;
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                if (_archivoResultados == _analizador.ArchivoColumnasBase)
+                {
+                    hayConflictos = true;
+                    break;
+                }
+            }
+        }
+        return hayConflictos;
+    }
+
     /// <summary>Selecciona el archivo de resultados (botón btnSelArch del form legacy).</summary>
     [RelayCommand]
     private async Task SeleccionarArchivoAsync()
@@ -253,6 +290,16 @@ public partial class CalculaColumnasFrmViewModel : ObservableObject
         if (ModoGrabar && string.IsNullOrEmpty(_archivoResultados))
         {
             Free1X2.Abstractions.UserDialogs.ShowError("Seleccione un archivo de resultados.");
+            return;
+        }
+
+        // Parity con CalculaColumnasFrm.BtnCalcularClick: en modo Grabar, no se puede usar como
+        // archivo de resultados uno ya empleado en la combinación (machacaría el fichero que el
+        // motor está leyendo). Se avisa con el mismo texto del form legacy y se aborta el cálculo.
+        if (ModoGrabar && HayConflictosEntreArchivos())
+        {
+            Free1X2.Abstractions.UserDialogs.ShowError(
+                "No puede usar como archivo de resultados un archivo usado ya en la combinación");
             return;
         }
 
