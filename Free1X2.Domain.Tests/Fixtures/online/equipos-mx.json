@@ -1,0 +1,16 @@
+{
+  "pais": "MX",
+  "actualizado": "2026-06-18T10:30:00Z",
+  "divisiones": [
+    {
+      "id": "all",
+      "nombre": "Equipos (jornadas recientes)",
+      "equipos": [
+        "América", "Guadalajara", "Cruz Azul", "Pumas UNAM", "Monterrey",
+        "Tigres UANL", "Toluca", "León", "Santos Laguna", "Pachuca", "Atlas",
+        "Necaxa", "Puebla", "Querétaro", "Tijuana", "Mazatlán", "Juárez",
+        "San Luis", "Pumas Tabasco", "Atlético Morelia"
+      ]
+    }
+  ]
+}

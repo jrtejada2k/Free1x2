@@ -1,11 +1,17 @@
 // Free1X2 · WinUI 3 — WIN3
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+
+using Free1X2.Online;
+using Free1X2.WinUI.Services;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -62,6 +68,41 @@ public partial class GestorEquiposFrmViewModel : ObservableObject
     [ObservableProperty]
     private string _nuevaCategoria = "1ª";
 
+    // ===== Importación online del catálogo de equipos (clubprogol.com) =====
+    // Cliente HTTP de la integración OPCIONAL (mismo servicio que "Descarga de boleto").
+    private readonly QuinielaOnlineService _servicioOnline = new();
+
+    /// <summary>Opción de país para el selector online (texto visible + código "es"/"mx").</summary>
+    public sealed record OpcionPais(string Nombre, string Codigo)
+    {
+        public override string ToString() => Nombre;
+    }
+
+    /// <summary>
+    /// Países disponibles para importar el catálogo (España / México). Reutiliza exactamente el
+    /// mismo patrón de selector que <c>DescargaBoletoFrmViewModel.Paises</c>.
+    /// </summary>
+    public IReadOnlyList<OpcionPais> Paises { get; } = new List<OpcionPais>
+    {
+        new OpcionPais("España", "es"),
+        new OpcionPais("México", "mx"),
+    };
+
+    [ObservableProperty]
+    private OpcionPais _paisSeleccionado;
+
+    /// <summary>True mientras se descarga el catálogo (deshabilita el botón en la vista).</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(PuedeImportar))]
+    private bool _importando;
+
+    /// <summary>
+    /// Inverso de <see cref="Importando"/>: el botón de importar está habilitado salvo mientras hay
+    /// una descarga en curso. (La página enlaza IsEnabled aquí; mismo enfoque sin convertidores que
+    /// el resto de pantallas.)
+    /// </summary>
+    public bool PuedeImportar => !Importando;
+
     // ===== Estado / feedback =====
     [ObservableProperty]
     private string _estado = "Preparado";
@@ -88,6 +129,92 @@ public partial class GestorEquiposFrmViewModel : ObservableObject
         CargaEquipos(EquiposSegunda, ArchivoEquiposSegunda);
         CargaEquipos(EquiposSegundaB, ArchivoEquiposSegundaB);
         CargaEquipos(EquiposInt, ArchivoEquiposInt);
+
+        // País inicial del selector online: España por defecto (la quiniela "clásica" de la app).
+        _paisSeleccionado = Paises[0];
+    }
+
+    /// <summary>
+    /// Importa el catálogo de equipos ONLINE (clubprogol.com,
+    /// <c>GET .../equipos/{pais}</c>) y FUSIONA la lista plana de equipos en la categoría destino
+    /// elegida (<see cref="NuevaCategoria"/>, el mismo selector que usa el alta en línea).
+    ///
+    /// Importante (offline-first / no destructivo):
+    ///   · El backend sirve una ÚNICA lista plana ("all", equipos de jornadas recientes), no una
+    ///     por división; por eso se fusiona en la categoría que el usuario tenga seleccionada.
+    ///   · Solo AÑADE los que falten (dedup, ignora may/min y espacios); NO borra ni reordena los
+    ///     existentes y NO guarda en disco: el usuario revisa y pulsa "Guardar" como siempre.
+    ///   · Sin conexión / 429 / dato inválido → mensaje claro y NO cambia nada (modo manual).
+    /// </summary>
+    [RelayCommand]
+    private async Task ImportarEquiposOnline()
+    {
+        if (Importando) return;
+
+        string pais = PaisSeleccionado?.Codigo ?? "es";
+        Importando = true;
+        Estado = "Conectando con el servicio online…";
+        try
+        {
+            CatalogoEquipos catalogo = await _servicioOnline
+                .ObtenerEquiposAsync(pais, CancellationToken.None)
+                .ConfigureAwait(true); // continúa en el hilo de UI para tocar las ObservableCollection
+
+            // Categoría destino: el MISMO selector que el alta en línea (1ª/2ª/2ªB/Int).
+            ObservableCollection<string> destino = ListaDeCategoria(NuevaCategoria);
+
+            int importados = 0;
+            foreach (string equipo in catalogo.EquiposPlano())
+            {
+                if (!ContieneEquipo(destino, equipo))
+                {
+                    destino.Add(equipo);
+                    importados++;
+                }
+            }
+
+            Estado = importados > 0
+                ? $"{importados} equipos importados (online) a {NuevaCategoria}. Revisa y pulsa «Guardar archivos»."
+                : $"El catálogo online no añadió equipos nuevos a {NuevaCategoria} (ya estaban todos).";
+        }
+        catch (Exception ex) when (ex is QuinielaOnlineException || ex is not OperationCanceledException)
+        {
+            // Fallo de red/HTTP/parseo: no se cambia NADA. Mensaje amigable + modo manual.
+            string detalle = ex is QuinielaOnlineException
+                ? ex.Message
+                : "No se pudo importar el catálogo: " + ex.Message;
+            Estado = detalle + " Los equipos no se modificaron.";
+        }
+        finally
+        {
+            Importando = false;
+        }
+    }
+
+    /// <summary>Mapea el nombre de categoría (1ª/2ª/2ªB/Int) a su lista en memoria.</summary>
+    private ObservableCollection<string> ListaDeCategoria(string categoria) => categoria switch
+    {
+        "2ª" => EquiposSegunda,
+        "2ªB" => EquiposSegundaB,
+        "Int" => EquiposInt,
+        _ => EquiposPrimera, // "1ª" por defecto
+    };
+
+    /// <summary>
+    /// Comprueba si la lista ya contiene el equipo, ignorando may/min y espacios extremos
+    /// (la lista plana del catálogo ya viene recortada y de-duplicada, pero la lista local
+    /// pudo escribirse a mano).
+    /// </summary>
+    private static bool ContieneEquipo(ObservableCollection<string> lista, string equipo)
+    {
+        foreach (string existente in lista)
+        {
+            if (string.Equals(existente?.Trim(), equipo?.Trim(), StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     /// <summary>

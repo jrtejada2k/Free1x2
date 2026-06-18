@@ -3,32 +3,16 @@
   "actualizado": "2026-06-18T10:30:00Z",
   "divisiones": [
     {
-      "id": "1",
-      "nombre": "Primera",
+      "id": "all",
+      "nombre": "Equipos (jornadas recientes)",
       "equipos": [
         "Real Madrid", "FC Barcelona", "Atlético de Madrid", "Athletic Club",
         "Real Sociedad", "Real Betis", "Villarreal", "Valencia", "Sevilla",
         "Girona", "Celta", "Osasuna", "Rayo Vallecano", "Getafe", "Mallorca",
-        "Las Palmas", "Alavés", "Espanyol", "Leganés", "Valladolid"
-      ]
-    },
-    {
-      "id": "2",
-      "nombre": "Segunda",
-      "equipos": [
+        "Las Palmas", "Alavés", "Espanyol", "Leganés", "Valladolid",
         "Real Oviedo", "Sporting", "Racing", "Eibar", "Almería", "Granada",
         "Levante", "Elche", "Cádiz", "Tenerife", "Burgos", "Albacete"
       ]
-    },
-    {
-      "id": "2b",
-      "nombre": "Primera RFEF",
-      "equipos": [ "Ponferradina", "Unionistas", "Nàstic", "Celta B" ]
-    },
-    {
-      "id": "int",
-      "nombre": "Internacional",
-      "equipos": [ "Portugal", "Francia", "Italia", "Alemania" ]
     }
   ]
 }

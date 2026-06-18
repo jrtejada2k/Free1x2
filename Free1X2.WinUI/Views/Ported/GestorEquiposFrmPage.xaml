@@ -39,6 +39,24 @@
                         AutomationProperties.Name="Abrir el formulario de alta de equipo" />
             </StackPanel>
 
+            <!-- ===== Importar catálogo de equipos online (clubprogol.com) ===== -->
+            <!-- El catálogo online es una lista plana ("all"); se fusiona en la categoría destino
+                 seleccionada arriba (mismo ComboBox que el alta en línea). No guarda en disco:
+                 solo añade los que falten, el usuario revisa y pulsa "Guardar archivos". -->
+            <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Bottom">
+                <ComboBox Header="País (online)"
+                          MinWidth="120"
+                          ItemsSource="{x:Bind ViewModel.Paises}"
+                          SelectedItem="{x:Bind ViewModel.PaisSeleccionado, Mode=TwoWay}"
+                          AutomationProperties.Name="País del catálogo de equipos a importar" />
+                <Button Content="Importar equipos online"
+                        VerticalAlignment="Bottom"
+                        IsEnabled="{x:Bind ViewModel.PuedeImportar, Mode=OneWay}"
+                        Command="{x:Bind ViewModel.ImportarEquiposOnlineCommand}"
+                        ToolTipService.ToolTip="Descarga la lista de equipos de jornadas recientes y la añade a la categoría seleccionada arriba"
+                        AutomationProperties.Name="Importar el catálogo de equipos del servicio online" />
+            </StackPanel>
+
             <!-- ===== Acciones globales (btnGuardar) ===== -->
             <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
                 <Button Content="Guardar archivos"

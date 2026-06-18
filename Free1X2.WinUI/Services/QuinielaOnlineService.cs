@@ -155,6 +155,41 @@ public sealed class QuinielaOnlineService
     }
 
     /// <summary>
+    /// Descarga y parsea el CATÁLOGO de equipos del país indicado ("es" o "mx") desde
+    /// <c>GET {base}/wp-json/clubprogol/v1/equipos/{pais}</c>. Reutiliza el mismo HttpClient,
+    /// base URL, prefijo, manejo de 429 y traducción de errores que <see cref="ObtenerJornadaAsync"/>.
+    ///
+    /// El cuerpo se trata SIEMPRE como dato no confiable: se valida/parsea con el parser PURO
+    /// (<see cref="CatalogoEquiposParser"/>). No se cachea (a diferencia de la jornada): la importación
+    /// del catálogo es una acción explícita y puntual del usuario en "Gestión de Equipos".
+    /// Lanza <see cref="QuinielaOnlineException"/> con un mensaje claro ante cualquier error de
+    /// red/HTTP/parseo (el llamador lo convierte en el mensaje offline amigable).
+    /// </summary>
+    public async Task<CatalogoEquipos> ObtenerEquiposAsync(string pais, CancellationToken ct = default)
+    {
+        string paisNorm = (pais ?? "").Trim().ToLowerInvariant();
+        if (paisNorm != "es" && paisNorm != "mx")
+        {
+            throw new QuinielaOnlineException("País no soportado: '" + pais + "' (use 'es' o 'mx').");
+        }
+
+        // Raíz del host + prefijo WordPress del backend + recurso.
+        string url = BaseUrl.TrimEnd('/') + PrefijoApi + "/equipos/" + paisNorm;
+
+        string cuerpo = await DescargarConReintentoAsync(url, ct).ConfigureAwait(false);
+
+        try
+        {
+            return CatalogoEquiposParser.Parse(cuerpo);
+        }
+        catch (FormatException ex)
+        {
+            throw new QuinielaOnlineException(
+                "La respuesta del servicio no es un catálogo de equipos válido: " + ex.Message, ex);
+        }
+    }
+
+    /// <summary>
     /// Hace el GET y devuelve el cuerpo si es 2xx. En 429 con <c>Retry-After</c> corto
     /// (≤ <see cref="RetryAfterMaxSegundos"/> s) reintenta UNA vez; si no, falla rápido sin
     /// bloquear la UI. Cualquier otro no-2xx se traduce en <see cref="QuinielaOnlineException"/>
