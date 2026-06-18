@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.Input;
 using Free1X2.EntradaSalida;
 using Free1X2.Reduccion;
 using Free1X2.WinUI.Services;
+using Microsoft.UI.Xaml;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -44,19 +45,24 @@ public partial class ReductorFrmViewModel : ObservableObject
     [ObservableProperty]
     private string _metodoSeleccionado = "menos tiempo";
 
-    // chkExternas: "Admitir columnas externas". En el legacy se oculta para
-    // "grandes archivos" y "menos columnas 2".
+    // chkExternas: "Admitir columnas externas". En el legacy
+    // (cBoxMetodo_SelectedIndexChanged) se OCULTA — no sólo se deshabilita —
+    // para "grandes archivos" y "menos columnas 2" (chkExternas.Visible=false).
     [ObservableProperty]
     private bool _admitirColumnasExternas;
 
-    // Habilita/oculta el toggle de columnas externas según el método (legacy
-    // cBoxMetodo_SelectedIndexChanged). Lo exponemos como bool para bindear en
-    // el propio Control (ToggleSwitch.IsEnabled), nunca en un panel (regla #1).
-    public bool ColumnasExternasHabilitado => MetodoSeleccionado != "grandes archivos";
+    // Réplica de chkExternas.Visible del legacy: Collapsed para los dos métodos
+    // que ocultan el control, Visible para el resto. Se expone como Visibility
+    // para bindear directamente en el propio Control (ToggleSwitch.Visibility),
+    // nunca en un panel (regla #1).
+    public Visibility ColumnasExternasVisibility =>
+        MetodoSeleccionado is "grandes archivos" or "menos columnas 2"
+            ? Visibility.Collapsed
+            : Visibility.Visible;
 
     partial void OnMetodoSeleccionadoChanged(string value)
     {
-        OnPropertyChanged(nameof(ColumnasExternasHabilitado));
+        OnPropertyChanged(nameof(ColumnasExternasVisibility));
     }
 
     // ----- Opciones (groupBox2) -----
