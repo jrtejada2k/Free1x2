@@ -117,9 +117,12 @@ public partial class VSignosFrmViewModel : ObservableObject
     /// Nivel de aspiración: nº mínimo de aciertos para contabilizar una columna
     /// en el escrutinio parcial (legacy: lbasp + botones bMas/bMenos).
     /// NumberBox.Value es double.
+    /// Por defecto 14: los premios empiezan en 10 aciertos y 14/15 son el máximo, así
+    /// que el nivel de aspiración inicial se fija en 14 (en el VSignosFrm original la
+    /// etiqueta lbasp arrancaba vacía y se interpretaba como noPartidos, 14/15).
     /// </summary>
     [ObservableProperty]
-    private double _aspiracion;
+    private double _aspiracion = 14;
 
     /// <summary>Número de partidos en juego (legacy: noPartidos / lbasp tope).</summary>
     [ObservableProperty]

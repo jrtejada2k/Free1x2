@@ -20,7 +20,7 @@
     <desplazamiento valor="3" />
   </desplazamiento>
   <toolbars>
-    <Activadas tsFree="True" tsFiltros="False" tsCombinacion="True" tsOperaciones="False" tsArchivo="True" tsUtilidades="False" />
+    <Activadas tsFree="True" tsFiltros="True" tsCombinacion="True" tsOperaciones="True" tsArchivo="True" tsUtilidades="True" />
   </toolbars>
   <actualizador>
     <Opciones actualizarAlInicio="False" />

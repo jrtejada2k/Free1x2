@@ -332,8 +332,17 @@ public sealed partial class MainWindow : Window
 
         // Réplica de InicializarBarrasHerramientas (MainForm.cs:63-71): la visibilidad
         // inicial de cada grupo proviene del flag MostrarTs* cargado de parametros.free1x2.
+        // EXCEPCIÓN — grupo Filtros: se fuerza SIEMPRE visible al arrancar, con
+        // independencia del valor cargado de la config. Una copia de trabajo antigua de
+        // parametros.free1x2 (con tsFiltros=False) podría seguir ocultándolo en una
+        // instalación ya existente; el usuario exige que las 5 herramientas de Filtros
+        // (Combinar/Diferencias/Coincidencias/Aidomnou/Pim) aparezcan por defecto. El
+        // toggle Ver -> Barras de Herramientas sigue pudiendo ocultarlo después.
         foreach (var g in _gruposBarra.Keys)
-            AplicarVisibilidadGrupo(g, MostrarGrupo(g));
+        {
+            bool visible = g == GrupoBarra.Filtros ? true : MostrarGrupo(g);
+            AplicarVisibilidadGrupo(g, visible);
+        }
     }
 
     // Marca el inicio de un grupo; los siguientes Herramienta()/Separador() le pertenecen.
@@ -477,7 +486,10 @@ public sealed partial class MainWindow : Window
 
         foreach (var (grupo, label) in items)
         {
-            bool inicial = MostrarGrupo(grupo);
+            // El grupo Filtros arranca SIEMPRE marcado/visible (igual que en
+            // ConstruirToolbar), aunque la config cargada traiga tsFiltros=False, para
+            // mantener el check del menú sincronizado con la barra realmente visible.
+            bool inicial = grupo == GrupoBarra.Filtros ? true : MostrarGrupo(grupo);
             _visibleGrupo[grupo] = inicial;
 
             var item = new ToggleMenuFlyoutItem { Text = label, IsChecked = inicial };

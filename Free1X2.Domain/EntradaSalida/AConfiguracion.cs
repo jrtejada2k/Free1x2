@@ -66,17 +66,34 @@ namespace Free1X2.EntradaSalida
 		}
         public void ObtenToolBarsVisibles(ref bool tsFree, ref bool tsFiltros, ref bool tsCombinacion, ref bool tsOperaciones, ref bool tsArchivo, ref bool tsUtilidades)
         {
+            // Lectura ROBUSTA: si el nodo <toolbars> falta, o un atributo tsX falta / no
+            // es parseable, se devuelve TRUE para ese grupo. La visibilidad por defecto de
+            // las SEIS barras es "mostrar" (idéntico a VariablesGlobales.SetDefaultValues),
+            // de modo que un parametros.free1x2 viejo o corrupto nunca pueda dejar oculta
+            // una barra (p.ej. Filtros) de forma permanente al arrancar. El usuario sigue
+            // pudiendo ocultarlas desde Ver -> Barras de Herramientas.
+            tsFree = tsFiltros = tsCombinacion = tsOperaciones = tsArchivo = tsUtilidades = true;
+
             XmlNodeList XMLConfigToolBars = configFile.GetElementsByTagName("toolbars");
+            if (XMLConfigToolBars.Count == 0 || XMLConfigToolBars[0].ChildNodes.Count == 0) return;
 
             XmlNode xmlToolBars = XMLConfigToolBars[0].ChildNodes[0];
 
-            tsFree = Convert.ToBoolean(xmlToolBars.Attributes["tsFree"].Value);
-            tsFiltros = Convert.ToBoolean(xmlToolBars.Attributes["tsFiltros"].Value);
-            tsCombinacion = Convert.ToBoolean(xmlToolBars.Attributes["tsCombinacion"].Value);
-            tsOperaciones = Convert.ToBoolean(xmlToolBars.Attributes["tsOperaciones"].Value);
-            tsArchivo = Convert.ToBoolean(xmlToolBars.Attributes["tsArchivo"].Value);
-            tsUtilidades = Convert.ToBoolean(xmlToolBars.Attributes["tsUtilidades"].Value);
+            tsFree = LeerBoolAtributo(xmlToolBars, "tsFree");
+            tsFiltros = LeerBoolAtributo(xmlToolBars, "tsFiltros");
+            tsCombinacion = LeerBoolAtributo(xmlToolBars, "tsCombinacion");
+            tsOperaciones = LeerBoolAtributo(xmlToolBars, "tsOperaciones");
+            tsArchivo = LeerBoolAtributo(xmlToolBars, "tsArchivo");
+            tsUtilidades = LeerBoolAtributo(xmlToolBars, "tsUtilidades");
+        }
 
+        // Devuelve el valor booleano de un atributo; si falta o no es parseable, TRUE
+        // (la barra se muestra por defecto). Usado por ObtenToolBarsVisibles.
+        private static bool LeerBoolAtributo(XmlNode nodo, string nombre)
+        {
+            var attr = nodo?.Attributes?[nombre];
+            if (attr == null) return true;
+            return bool.TryParse(attr.Value, out bool v) ? v : true;
         }
         public void ObtenConfiguracionActualizador(ref bool actualizarAlInicio)
         {
