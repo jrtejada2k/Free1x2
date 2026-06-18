@@ -253,16 +253,22 @@ public partial class GruposEquiposFrmViewModel : ObservableObject
     /// </summary>
     private void LlenaEquipos()
     {
-        // TODO[dominio]: GruposEquiposFrm.LlenaEquipos + getEquipo (líneas 177-201) leían los
-        //   nombres reales desde FormPadre.pronosticos.BuscarControl(n).EquipoCasa / EquipoFuera,
-        //   es decir, del control de boleto de WinForms (Free1X2/UI/Controls/Pronosticos.cs +
-        //   PartidoBoleto.cs). El motor (Free1X2.Domain: Grupo / GrupoPartidos / Analizador) NO
-        //   almacena los nombres de equipo por partido — son un dato exclusivo de la capa de UI
-        //   del boleto, aún no portada a WinUI. Mientras no exista un boleto WinUI que exponga
-        //   los nombres por partido (p. ej. AppState.Instancia.Analizador.GruposPartidos[0] + un
-        //   modelo de boleto con EquipoCasa/EquipoFuera), se mantienen los textos por defecto
-        //   "Equipo casa N" / "Equipo fuera N". La selección casa/fuera (la parte funcional del
-        //   filtro) sí está cableada al motor.
+        // NO-FEASIBLE (sin fabricar datos): GruposEquiposFrm.LlenaEquipos + getEquipo
+        //   (Free1X2/UI/Filtros/GruposEquiposFrm.cs:177-201) leían los nombres reales con
+        //   FormPadre.pronosticos.BuscarControl(n).EquipoCasa / EquipoFuera, es decir, de los
+        //   controles de boleto de WinForms (Free1X2/UI/Controls/Pronosticos.cs + PartidoBoleto.cs).
+        //   Investigación de dónde viven esos nombres en runtime WinUI:
+        //     · Free1X2.Domain (Grupo / GrupoPartidos / Analizador): NO tiene ningún campo de
+        //       nombre de equipo por partido (grep EquipoCasa/EquipoFuera/NombreEquipo = 0 hits).
+        //     · AppState (estado compartido del motor): expone Analizador/Grupo, sin nombres.
+        //     · El único sitio en WinUI con nombres es Controls/BoletoViewModel.PartidoViewModel
+        //       (Local/Visitante), pero son DATOS DE MUESTRA hardcodeados ("Madrid"-"Barcelona"...),
+        //       no datos reales del boleto cargado, y ese VM no se comparte con esta pantalla.
+        //   Conclusión: los nombres reales de equipo SÓLO existían en la capa de UI WinForms
+        //   (PartidoBoleto), no portada a un modelo accesible. Tomarlos de la lista de muestra
+        //   sería fabricar datos, lo que está prohibido. Por eso se conservan los textos por
+        //   defecto "Equipo casa N" / "Equipo fuera N". La selección casa/fuera (la parte
+        //   funcional del filtro) sí está cableada al motor; sólo falta la etiqueta cosmética.
     }
 
     // ---- Pestaña "Grupos Equipos": pantalla <-> modelo ----

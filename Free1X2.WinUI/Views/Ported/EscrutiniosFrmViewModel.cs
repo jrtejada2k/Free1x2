@@ -477,24 +477,26 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Inserta el marcador de temporada /t en la plantilla (pestaña 3).
-    /// Legacy: incluirPrefijo_click con btnIntrTemp ("/t").
+    /// Inserta el marcador de temporada /t al final de la plantilla (fallback).
+    /// La inserción FIEL al legacy (en la posición del cursor, EscrutiniosFrm.incluirPrefijo_click)
+    /// la realiza la Page (EscrutiniosFrmPage.InsertarTemporada_Click), que es quien conoce el caret
+    /// del TextBox. Este comando se conserva como fallback sin UI (p. ej. pruebas) y añade al final.
     /// </summary>
     [RelayCommand]
     private void InsertarTemporada()
     {
-        // TODO[dominio]: insertar "/t" en la posición del cursor de la plantilla. (legacy incluirPrefijo_click)
         PlantillaNombreArchivo += "/t";
     }
 
     /// <summary>
-    /// Inserta el marcador de jornada /j en la plantilla (pestaña 3).
-    /// Legacy: incluirPrefijo_click con btnIntrJorn ("/j").
+    /// Inserta el marcador de jornada /j al final de la plantilla (fallback).
+    /// La inserción FIEL al legacy (en la posición del cursor, EscrutiniosFrm.incluirPrefijo_click)
+    /// la realiza la Page (EscrutiniosFrmPage.InsertarJornada_Click), que es quien conoce el caret
+    /// del TextBox. Este comando se conserva como fallback sin UI (p. ej. pruebas) y añade al final.
     /// </summary>
     [RelayCommand]
     private void InsertarJornada()
     {
-        // TODO[dominio]: insertar "/j" en la posición del cursor de la plantilla. (legacy incluirPrefijo_click)
         PlantillaNombreArchivo += "/j";
     }
 

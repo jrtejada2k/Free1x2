@@ -39,4 +39,37 @@ public sealed partial class EscrutiniosFrmPage : Page
             }
         }
     }
+
+    // Inserción de marcadores /t y /j en la posición del cursor (legacy EscrutiniosFrm.incluirPrefijo_click).
+    private void InsertarTemporada_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+        => InsertarPrefijoEnCursor("/t");
+
+    private void InsertarJornada_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+        => InsertarPrefijoEnCursor("/j");
+
+    /// <summary>
+    /// Inserta el prefijo ("/t" o "/j") en la posición del cursor del TextBox de plantilla y
+    /// recoloca el cursor tras el marcador. Réplica fiel de EscrutiniosFrm.incluirPrefijo_click
+    /// (Free1X2/UI/EscrutiniosFrm.cs:1531-1547): i = SelectionStart; Text = izq + prefijo + der;
+    /// SelectionStart = i + 2; SelectionLength = 0. Si no hay cursor/selección válidos, añade al final.
+    /// </summary>
+    private void InsertarPrefijoEnCursor(string prefijo)
+    {
+        var caja = CajaPlantilla;
+        string texto = caja.Text ?? string.Empty;
+
+        // Posición del cursor; si fuera inválida (sin foco previo), se trata como "al final".
+        int i = caja.SelectionStart;
+        if (i < 0 || i > texto.Length) i = texto.Length;
+
+        string nuevo = texto.Substring(0, i) + prefijo + texto.Substring(i);
+
+        // Actualiza el texto (propaga a ViewModel.PlantillaNombreArchivo por el binding TwoWay).
+        caja.Text = nuevo;
+
+        // Recoloca el cursor justo después del marcador insertado (legacy: i + 2).
+        caja.Focus(Microsoft.UI.Xaml.FocusState.Programmatic);
+        caja.SelectionStart = i + prefijo.Length;
+        caja.SelectionLength = 0;
+    }
 }

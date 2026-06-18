@@ -189,6 +189,7 @@
                                          + btnIntrTemp + btnIntrJorn + btnVerArch) -->
                                     <StackPanel Grid.Column="0" Spacing="6">
                                         <TextBox
+                                            x:Name="CajaPlantilla"
                                             Header="Plantilla de nombre de archivo (usa /t y /j)"
                                             PlaceholderText="quiniela_/t_/j.txt"
                                             Text="{x:Bind ViewModel.PlantillaNombreArchivo, Mode=TwoWay}"
@@ -196,11 +197,11 @@
                                         <StackPanel Orientation="Horizontal" Spacing="6">
                                             <Button
                                                 Content="Insertar /t"
-                                                Command="{x:Bind ViewModel.InsertarTemporadaCommand}"
+                                                Click="InsertarTemporada_Click"
                                                 AutomationProperties.Name="Insertar marcador de temporada" />
                                             <Button
                                                 Content="Insertar /j"
-                                                Command="{x:Bind ViewModel.InsertarJornadaCommand}"
+                                                Click="InsertarJornada_Click"
                                                 AutomationProperties.Name="Insertar marcador de jornada" />
                                             <Button
                                                 Content="?"
