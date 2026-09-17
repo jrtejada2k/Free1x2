@@ -9,7 +9,8 @@ Programa libre bajo licencia **GPLv3** — derivado del proyecto original Free1X
 - 🌐 **Web**: [clubprogol.com](https://clubprogol.com)
 - 📖 **Manual de usuario**: [`docs/MANUAL_USUARIO.md`](docs/MANUAL_USUARIO.md)
 - 🛡️ **Seguridad**: [`SECURITY.md`](SECURITY.md)
-- 🗺️ **Plan de migración a WinUI 3**: [`PLAN_MIGRACION_WINUI3.md`](PLAN_MIGRACION_WINUI3.md)
+- 🛠️ **Plan de mejoras en curso**: [`docs/PLAN_MEJORAS.md`](docs/PLAN_MEJORAS.md)
+- 🗄️ **Documentación histórica** (planes ya ejecutados o descartados): [`docs/historico/`](docs/historico/)
 - 📌 **Estado de la migración**: [`ESTADO_MIGRACION_WINUI3.md`](ESTADO_MIGRACION_WINUI3.md)
 
 ![Free1X2 WinUI 3](docs/winui3-shell.png)

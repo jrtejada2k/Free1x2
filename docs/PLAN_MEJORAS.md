@@ -122,18 +122,14 @@ de tests intacta antes de refactorizar la capa UI.
 **Impacto:** la raíz del repo público muestra 24 `.md`; un visitante no distingue lo vigente
 (`README.md`, `SECURITY.md`, `ESTADO_MIGRACION_WINUI3.md`, `docs/`) de lo histórico.
 
-**Decisión del dueño requerida** (elige una):
-- ☐ **Opción A (recomendada):** `git mv` de los 19 a `docs/historico/` + `docs/historico/README.md` con una línea por fichero (qué era, por qué se conserva). No se borra nada (R6).
-- ☐ **Opción B:** dejarlos y añadir en `README.md` una sección «Documentos históricos» que los liste como obsoletos.
-- ☐ **Opción C:** borrar los de 2025-09-30 (plan Web API/móvil nunca ejecutado) y mover el resto. Solo con orden explícita.
+**Decisión del dueño: Opción A** (2026-09-16). ✅ **HECHO.**
 
-**Pasos (Opción A):**
-1. ☐ `git mv <19 ficheros> docs/historico/` en un solo commit `docs: mover documentación histórica a docs/historico`.
-2. ☐ Grep de enlaces rotos: `Grep "PLAN_MIGRACION_WINUI3|REVISION_UI_HALLAZGOS|UI_MODERNIZATION_PLAN|MIGRATION_LOG" --glob *.md` y corregir rutas.
-3. ☐ Escribir `docs/historico/README.md`.
-4. Verificación: `Get-ChildItem *.md` en raíz deja solo `README.md`, `CLAUDE.md`, `SECURITY.md`, `ESTADO_MIGRACION_WINUI3.md`.
-
-**Esfuerzo:** S. **Riesgo:** nulo (movimiento, sin borrado).
+1. ☑ `git mv` de **20** ficheros (el plan decía 19; el recuento real es 20) a `docs/historico/`. Nada borrado.
+2. ☑ Enlaces corregidos: `README.md:12` (sustituido por punteros a `docs/PLAN_MEJORAS.md` y `docs/historico/`),
+   `ESTADO_MIGRACION_WINUI3.md:34,35,75`, `docs/ANALISIS_TECNICO.md:99`, `docs/MANUAL_USUARIO.md:513`.
+3. ☑ `docs/historico/README.md` escrito, agrupando los 20 por época (Web API/móvil nunca ejecutada ·
+   modernización WinForms no mergeada · migración WinUI 3 ejecutada) y avisando de que no son referencia.
+4. ☑ Verificado: la raíz queda con `README.md`, `CLAUDE.md`, `SECURITY.md`, `ESTADO_MIGRACION_WINUI3.md`.
 
 ### D-04 · 🔴 `docs/MANUAL_FLUJOS.md`: 18 enlaces rotos + habla de la migración como pendiente
 
