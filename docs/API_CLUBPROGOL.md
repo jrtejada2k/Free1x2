@@ -116,15 +116,32 @@ añadir `revancha` (7 partidos) más adelante si se quiere; el núcleo de 14 es 
 
 ---
 
-## 2) Catálogo de equipos — opcional (alimenta *Gestor de Equipos*)
+## 2) Catálogo de equipos — implementado (alimenta *Gestor de Equipos*)
 
 ```
 GET https://clubprogol.com/wp-json/clubprogol/v1/equipos/{pais}
 ```
 
 El backend real devuelve **una sola división** con `id` = `"all"` (los equipos que han aparecido en
-jornadas recientes), no las divisiones separadas. La app no consume este endpoint todavía; queda
-documentado por si se usa más adelante para el *Gestor de Equipos*.
+jornadas recientes), no las divisiones separadas.
+
+**La app SÍ consume este endpoint**, en *Gestión de Equipos → «Importar equipos online»*
+(`Free1X2.WinUI/Views/Ported/GestorEquiposFrmViewModel.cs:149-192`):
+
+1. El usuario elige **país** en el selector «País (online)» (España / México → `es` / `mx`).
+2. La app hace el `GET` y parsea el catálogo con el parser defensivo `CatalogoEquiposParser`
+   (`QuinielaOnlineService.ObtenerEquiposAsync`, `:168-190`).
+3. Aplana **todas las divisiones** del JSON (hoy, la única `"all"`) y **fusiona** la lista en la
+   **categoría destino** que el usuario tenga elegida en el selector «Categoría» (1ª / 2ª / 2ªB /
+   Int). El backend no separa por división, así que es el usuario quien decide dónde caen.
+4. La fusión es **no destructiva**: solo añade los que falten (dedup ignorando mayúsculas/minúsculas
+   y espacios extremos, `:208-218`); no borra, no reordena y **no escribe en disco**.
+5. El cambio queda **solo en memoria**: hay que pulsar **«Guardar archivos»** (`Guardar()`,
+   `:314-331`) para persistirlo en los `.dat` de cada categoría.
+6. Sin conexión / `429` / JSON inválido → mensaje claro y **no se modifica nada** (`:180-187`).
+
+A diferencia de la jornada, el catálogo **no se cachea** en disco: es una acción explícita y
+puntual del usuario (`QuinielaOnlineService.cs:162-164`).
 
 ```json
 {
@@ -164,7 +181,29 @@ Misma forma que la jornada actual. Útil para revisar jornadas pasadas. No es ne
    Equipos* y demás pantallas muestran **equipos reales**.
 3. Si no hay conexión, hay `429`/`404`, o el JSON no valida → **mensaje claro y modo manual**
    (comportamiento offline actual, sin romper nada). En `404`/`429` se muestra el `mensaje` del servidor.
-4. (Opcional) El catálogo `/wp-json/clubprogol/v1/equipos/{pais}` rellena las listas del *Gestor de Equipos*.
+4. **Caché local de la jornada (offline-first).** Tras cada descarga correcta, la app guarda el
+   **JSON crudo** —los bytes ya validados— en `%LocalAppData%\Free1X2\jornada-{es,mx}.json`, un
+   fichero por país (`Free1X2.WinUI/Services/JornadaCache.cs:52,66-81`;
+   `QuinielaOnlineService.cs:152`). Consecuencias:
+   - **Al arrancar**, la app siembra la jornada guardada más reciente **sin tocar la red**
+     (`App.xaml.cs:45-61`, `JornadaCache.PaisMasReciente()`): boleto y *Grupos de Equipos* ya
+     muestran equipos reales offline. El **único** punto de red es el botón «Actualizar jornada».
+   - La caché se re-parsea con el **mismo parser defensivo** que la respuesta HTTP: se trata como
+     dato no confiable. Una caché corrupta o ilegible se descarta en silencio (= «no hay caché»)
+     y la app cae a modo manual (`JornadaCache.cs:89-114`).
+   - **Guarda anti-doble-petición:** si el mismo país se pidió hace **< 60 s** y hay caché válida,
+     se devuelve la caché **sin salir a la red** (`QuinielaOnlineService.cs:67,116-126`). Evita que
+     dobles clics rápidos tropiecen con el límite de 60/min.
+   - Si la red falla, la pantalla cae a la jornada guardada e indica la fecha de última
+     actualización (`DescargaBoletoFrmViewModel.cs:117-135`).
+5. El catálogo `/wp-json/clubprogol/v1/equipos/{pais}` alimenta el *Gestor de Equipos*
+   (**implementado**, ver §2): importa la lista de equipos y la fusiona en la categoría elegida.
+   Este endpoint **no se cachea**.
+
+> **Revancha (México).** A fecha de 2026-09 el servidor **no** publica el bloque `revancha`, y la
+> app tampoco lo consume: el parser lee solo las propiedades que conoce
+> (`JornadaQuinielaParser.cs:63,87`), por lo que **tolera campos extra** sin romperse. Cuando el
+> backend lo sirva, se extenderá el parser sin cambiar el contrato actual de los 14 partidos.
 
 ### Para probar localmente (stub)
 

@@ -621,4 +621,7 @@ el original no los tenía. El resto son detalles de consistencia. Ninguna toca l
 
 | Fecha | Ítem | Decisión | Nota |
 |-------|------|----------|------|
-| | | | |
+| 2026-09-16 | **U-01** Tema oscuro | **Toggle Claro/Oscuro/Sistema en el menú Ver** | Quitar `RequestedTheme="Light"` de `App.xaml:6`, añadir entrada en el menú **Ver** con las 3 opciones y **persistir la elección**. Arrastra **U-02** (los `Foreground="White"` literales de `Themes/Styles.xaml:202,210` pasan a los tokens `AppOnSuccess`/`AppOnError`) → obligatorio. Revisar también U-03 (swatches de leyenda) y U-13 (fondo de exportación) para que no rompan en oscuro. |
+| 2026-09-16 | **D-03** Docs residuales | **Mover los 19 `.md` a `docs/historico/`** (Opción A) | `git mv`, más `docs/historico/README.md` con una línea por fichero. **No se borra nada.** Después: grep de enlaces rotos en todos los `.md`. La raíz queda con `README.md`, `CLAUDE.md`, `SECURITY.md`, `ESTADO_MIGRACION_WINUI3.md`. |
+| 2026-09-16 | **F3** Alcance del motor | **Lote A + Lote B, con tests de igualdad previos** | Lote A (P-01…P-15, riesgo nulo/bajo) directo con los 125 tests. Lote B (**P-16** ReductorTM, **P-17** RelacionCP1, **P-18** RelacionCP3, **P-19** EscrutadorComb): **primero** escribir tests de igualdad byte a byte sobre ficheros reales de `Free1X2.Domain.Tests/Fixtures`, y solo entonces optimizar. Si un test de igualdad no se puede construir para un ítem, ese ítem **no se toca**. |
+| 2026-09-16 | **P-20** Bombeo de UI | *(pendiente)* | Se decide al llegar a F3: dejar `.Milliseconds` (paridad exacta con el original) o corregir a `TotalMilliseconds` para que la UI responda de forma regular en análisis largos. |

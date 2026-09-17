@@ -30,7 +30,7 @@ De `Free1X2.WinUI/Free1X2.WinUI.csproj`:
 | `OutputType` | `WinExe` | :4 |
 | `TargetFramework` | `net8.0-windows10.0.19041.0` | :5 |
 | `TargetPlatformMinVersion` | `10.0.17763.0` | :6 |
-| `Version` / `AssemblyVersion` | `0.78.0` | :15-17 |
+| `Version` / `AssemblyVersion` | `0.82.0` | :15-17 |
 | `Platforms` | `x86;x64;ARM64` | :18 |
 | `RuntimeIdentifier` | `win-x64` | :26 |
 | `UseWinUI` | `true` | :20 |

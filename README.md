@@ -56,21 +56,36 @@ Detalle completo de cada función en el [manual de usuario](docs/MANUAL_USUARIO.
 
 | Proyecto | TFM | Rol |
 |----------|-----|-----|
-| **`Free1X2`** | `net8.0-windows` (WinForms) | UI heredada (se conserva como referencia); aún aloja parte del motor pendiente de extraer. |
-| **`Free1X2.Domain`** | `net8.0` | Lógica de dominio desacoplada de la UI (en migración). Hooks de desacople en `Abstractions/`: `UiPump` (↔ `Application.DoEvents`), `UserDialogs` (↔ `MessageBox`), `AnalisisUi` (↔ visor de análisis), cableados desde WinForms en `Program.WireDomainHooks()`. |
+| **`Free1X2`** | `net8.0-windows` (WinForms) | UI heredada; se conserva **congelada** como referencia de comportamiento. |
+| **`Free1X2.Domain`** | `net8.0` | **Motor completo**, libre de UI. Hooks de desacople en `Abstractions/`: `UiPump` (↔ `Application.DoEvents`), `UserDialogs` (↔ `MessageBox`), `AnalisisUi` (↔ visor de análisis). |
 | **`Free1X2.WinUI`** | `net8.0-windows10.0.19041.0` (WinUI 3) | **UI principal** Fluent (Windows App SDK 1.6, self-contained). 108 pantallas portadas. |
-| **`Free1X2.Domain.Tests`** | `net8.0` (xUnit) | Red de tests golden-master del dominio. |
-| **`Free1X2.Shared`** | `net8.0` | Contratos/servicios compartidos. |
+| **`Free1X2.Domain.Tests`** | `net8.0` (xUnit) | Red de tests golden-master del dominio (125 tests). |
 
-### Carpetas de dominio dentro de `Free1X2/`
+> Las carpetas `Free1X2.Shared/` y `Free1X2.WebAPI/` existen en disco pero **no forman parte de la
+> solución** (no están referenciadas en `Free1X2.sln`): son residuos de exploraciones anteriores.
+
+### Dónde vive el motor: `Free1X2.Domain/`
+
+El motor de cálculo **ya no está en `Free1X2/`**: se extrajo por completo a `Free1X2.Domain/`, libre de WinForms.
 
 - `MotorCalculo/` — motor de análisis, generación de columnas y los filtros (`IFiltro`).
-- `Reduccion/` — algoritmos de reducción.
+- `Reduccion/` — algoritmos de reducción (JDC, JLPM, XFSF, TM…).
 - `Escrutinio/` — escrutinio y cálculo de premiadas.
-- `EntradaSalida/` — lectura/escritura de archivos (`.comb`, `.grupos`, columnas, configuración).
+- `EntradaSalida/` — lectura/escritura de archivos (`.comb`, `.grupos`, columnas, configuración, idioma).
 - `Analisis/` — contenedores y analizadores de resultados.
-- `Utils/` — matemática combinatoria y utilidades.
+- `SubirCategoria/` — utilidad SubeCategoría.
+- `Utils/` — matemática combinatoria y utilidades (`UtilColumnas`, `RangosHelper`…).
+- `Online/` — modelo y parsers defensivos del servicio de jornada/equipos.
+- `Abstractions/` — shims de desacople de UI (`UiPump`, `UserDialogs`, `AnalisisUi`, `Clipboard`).
+- `VariablesGlobales.cs` — configuración global del motor (nº de partidos, puntos CP, precios…).
+
+### Qué queda en `Free1X2/` (WinForms heredado)
+
 - `UI/` — formularios WinForms (MainForm, filtros, estadísticas, controles).
+- `Program.cs`, `Infraestructura/`, `Properties/`, `Resources/` — arranque y recursos de la app heredada.
+- Remanentes aún acoplados a WinForms, no extraídos al dominio: `Analisis/AnalisisCombinacion.cs` y, en `Utils/`, `Grafico.cs`, `ControlCompatibility.cs`, `ValidadorCaracteres.cs` y `CompresorZip.cs`.
+
+`Free1X2/Free1X2.csproj` queda **congelado en la versión `0.77.2`** por diseño: se conserva como **referencia de comportamiento** frente a la que se contrasta el motor (ver `Free1X2/Free1X2.csproj:11-12`).
 
 ---
 
@@ -104,7 +119,10 @@ El binario WinUI 3 es **self-contained**: incrusta el Windows App Runtime y los 
 
 | Tag | UI | Notas |
 |-----|----|-------|
-| `v0.81.x-winui3` | WinUI 3 | UI Fluent nativa, motor idéntico al original. Release pública. |
+| `v0.82.0` | WinUI 3 | **Versión actual.** Integración online opcional (jornada + catálogo de equipos de clubprogol.com) con caché offline-first. |
+| `v0.81.2` | WinUI 3 | Licencia GPLv3, `README`, `SECURITY.md`: preparación del repositorio público. |
+| `v0.81.1-emails-ofuscados` | WinUI 3 | Ofuscación de emails de terceros (anti-scraping) previa a la publicación. |
+| `v0.81.0-winui3` | WinUI 3 | Merge de la migración a WinUI 3 en `main`: UI Fluent nativa, motor idéntico al original. |
 | `v0.80.3-winforms` | WinForms | Última línea base estable de la UI heredada. |
 
 Las releases publicadas (con el zip portable adjunto) están en la [pestaña Releases](https://github.com/jrtejada2k/Free1x2/releases).
@@ -118,7 +136,7 @@ La interfaz se ha **migrado a WinUI 3** (Fluent nativo), reutilizando intacto el
 - ✅ **UI portada**: 108 pantallas (+ `MainPage`) recreadas desde WinForms, cableadas en menús y barra de herramientas; *smoke test* de carga 109/109.
 - ✅ **Motor intacto**: la codificación de columnas y el cálculo se reutilizan vía `Free1X2.Domain` (libre de WinForms gracias a los shims de `Abstractions/`).
 - ✅ **Self-contained** win-x64 (runtime empaquetado) + release con instalable portable.
-- ✅ **Lógica portada y verificada**: la lógica de dominio de las pantallas está implementada (1:1 con el original) y verificada — build 0 errores, *smoke* de carga 109/109, **107/107 tests** del motor (33 golden-master con datos reales) y una pasada *runtime* UI Automation con **0 crashes** al invocar las acciones. Residuales solo cosméticos (logo de Acerca de, nombres reales de equipo, etc.).
+- ✅ **Lógica portada y verificada**: la lógica de dominio de las pantallas está implementada (1:1 con el original) y verificada — build 0 errores, *smoke* de carga 109/109, **125/125 tests** del motor (golden-master con datos reales) y una pasada *runtime* UI Automation con **0 crashes** al invocar las acciones. Los residuales que quedaban (logo de *Acerca de*, nombres reales de equipo, etc.) están **resueltos**.
 
 Detalle técnico y la verificación completa en [`docs/ANALISIS_TECNICO_WINUI3.md`](docs/ANALISIS_TECNICO_WINUI3.md) (§11). Histórico de la migración en [`ESTADO_MIGRACION_WINUI3.md`](ESTADO_MIGRACION_WINUI3.md).
 
