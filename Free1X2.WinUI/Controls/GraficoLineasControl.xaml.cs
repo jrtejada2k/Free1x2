@@ -51,9 +51,53 @@ public sealed partial class GraficoLineasControl : UserControl
     private const double MargenSup = 12;
     private const double MargenDer = 12;
 
+    /// <summary>
+    /// Caché de pinceles por color (C-02). <c>Redibujar</c> se invoca en cada cambio de datos y
+    /// en cada <c>SizeChanged</c>, y antes creaba un <c>SolidColorBrush</c> nuevo por cada línea
+    /// de rejilla, eje, etiqueta y curva: decenas de objetos por repintado, todos del mismo par
+    /// de colores. Los pinceles son inmutables aquí (nunca se les cambia el Color), así que se
+    /// pueden compartir sin riesgo. La caché es por instancia y se vacía con el control.
+    /// </summary>
+    private readonly Dictionary<Color, SolidColorBrush> _pinceles = new();
+
     public GraficoLineasControl()
     {
         this.InitializeComponent();
+
+        // C-03: la colección Curvas pertenece al ViewModel anfitrión; si este sobrevive al
+        // control (p. ej. al navegar a otra página), la suscripción a CollectionChanged lo
+        // retendría. Se desengancha al descargar y se vuelve a enganchar si se recarga.
+        this.Unloaded += GraficoLineasControl_Unloaded;
+        this.Loaded += GraficoLineasControl_Loaded;
+    }
+
+    /// <summary>Pincel compartido para un color (ver <see cref="_pinceles"/>).</summary>
+    private SolidColorBrush Pincel(Color color)
+    {
+        if (!_pinceles.TryGetValue(color, out var brocha))
+        {
+            brocha = new SolidColorBrush(color);
+            _pinceles[color] = brocha;
+        }
+        return brocha;
+    }
+
+    private void GraficoLineasControl_Loaded(object sender, RoutedEventArgs e)
+    {
+        if (Curvas is INotifyCollectionChanged notifica)
+        {
+            // Idempotente: -= antes de += evita duplicar la suscripción si se recarga.
+            notifica.CollectionChanged -= Curvas_CollectionChanged;
+            notifica.CollectionChanged += Curvas_CollectionChanged;
+        }
+    }
+
+    private void GraficoLineasControl_Unloaded(object sender, RoutedEventArgs e)
+    {
+        if (Curvas is INotifyCollectionChanged notifica)
+        {
+            notifica.CollectionChanged -= Curvas_CollectionChanged;
+        }
     }
 
     /// <summary>
@@ -169,13 +213,13 @@ public sealed partial class GraficoLineasControl : UserControl
     private void DibujarGrid(double ancho, double alto)
     {
         double intervalo = IntervaloGrid > 4 ? IntervaloGrid : 50;
-        var color = ColorDeRecurso("AppBorderBrush", Color.FromArgb(0x40, 0x80, 0x80, 0x80));
+        var trazo = Pincel(ColorDeRecurso("AppBorderBrush", Color.FromArgb(0x40, 0x80, 0x80, 0x80)));
 
         for (double x = MargenIzq; x <= ancho - MargenDer; x += intervalo)
-            Lienzo.Children.Add(NuevaLinea(x, MargenSup, x, alto - MargenInf, color, 0.5));
+            Lienzo.Children.Add(NuevaLinea(x, MargenSup, x, alto - MargenInf, trazo, 0.5));
 
         for (double y = MargenSup; y <= alto - MargenInf; y += intervalo)
-            Lienzo.Children.Add(NuevaLinea(MargenIzq, y, ancho - MargenDer, y, color, 0.5));
+            Lienzo.Children.Add(NuevaLinea(MargenIzq, y, ancho - MargenDer, y, trazo, 0.5));
     }
 
     /// <summary>
@@ -185,13 +229,14 @@ public sealed partial class GraficoLineasControl : UserControl
     private void DibujarEjes(double ancho, double alto, double xMin, double xMax, double yMin, double yMax)
     {
         var colorEje = ColorDeRecurso("AppTextSecondaryBrush", Color.FromArgb(0xFF, 0x33, 0x41, 0x55));
+        var trazoEje = Pincel(colorEje);
 
         double x0 = MargenIzq;
         double y0 = alto - MargenInf;
 
         // Eje Y (vertical) y eje X (horizontal).
-        Lienzo.Children.Add(NuevaLinea(x0, MargenSup, x0, y0, colorEje, 1.5));
-        Lienzo.Children.Add(NuevaLinea(x0, y0, ancho - MargenDer, y0, colorEje, 1.5));
+        Lienzo.Children.Add(NuevaLinea(x0, MargenSup, x0, y0, trazoEje, 1.5));
+        Lienzo.Children.Add(NuevaLinea(x0, y0, ancho - MargenDer, y0, trazoEje, 1.5));
 
         // Etiquetas de los extremos de cada eje.
         AnadirTexto(FormatearValor(yMax), 2, MargenSup - 2, colorEje);
@@ -213,9 +258,10 @@ public sealed partial class GraficoLineasControl : UserControl
         double areaH = alto - MargenSup - MargenInf;
         if (areaW <= 0 || areaH <= 0) return;
 
+        var pincelCurva = Pincel(curva.Color);
         var poli = new Polyline
         {
-            Stroke = new SolidColorBrush(curva.Color),
+            Stroke = pincelCurva,
             StrokeThickness = 2,
             StrokeLineJoin = PenLineJoin.Round,
         };
@@ -233,10 +279,9 @@ public sealed partial class GraficoLineasControl : UserControl
         // Marcadores de punto, para curvas con pocos puntos (tramos).
         if (curva.Puntos.Count <= 64)
         {
-            var relleno = new SolidColorBrush(curva.Color);
             foreach (var p in poli.Points)
             {
-                var dot = new Ellipse { Width = 5, Height = 5, Fill = relleno };
+                var dot = new Ellipse { Width = 5, Height = 5, Fill = pincelCurva };
                 Canvas.SetLeft(dot, p.X - 2.5);
                 Canvas.SetTop(dot, p.Y - 2.5);
                 Lienzo.Children.Add(dot);
@@ -244,13 +289,14 @@ public sealed partial class GraficoLineasControl : UserControl
         }
     }
 
-    private static Line NuevaLinea(double x1, double y1, double x2, double y2, Color color, double grosor) => new()
+    // Recibe el pincel ya resuelto (cacheado) en vez de crear uno por línea (C-02).
+    private static Line NuevaLinea(double x1, double y1, double x2, double y2, Brush trazo, double grosor) => new()
     {
         X1 = x1,
         Y1 = y1,
         X2 = x2,
         Y2 = y2,
-        Stroke = new SolidColorBrush(color),
+        Stroke = trazo,
         StrokeThickness = grosor,
     };
 
@@ -260,7 +306,7 @@ public sealed partial class GraficoLineasControl : UserControl
         {
             Text = texto,
             FontSize = 11,
-            Foreground = new SolidColorBrush(color),
+            Foreground = Pincel(color),
         };
         Canvas.SetLeft(tb, left);
         Canvas.SetTop(tb, top);

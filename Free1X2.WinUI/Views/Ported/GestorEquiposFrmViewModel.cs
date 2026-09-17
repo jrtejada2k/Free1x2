@@ -69,24 +69,15 @@ public partial class GestorEquiposFrmViewModel : ObservableObject
     private string _nuevaCategoria = "1ª";
 
     // ===== Importación online del catálogo de equipos (clubprogol.com) =====
-    // Cliente HTTP de la integración OPCIONAL (mismo servicio que "Descarga de boleto").
-    private readonly QuinielaOnlineService _servicioOnline = new();
-
-    /// <summary>Opción de país para el selector online (texto visible + código "es"/"mx").</summary>
-    public sealed record OpcionPais(string Nombre, string Codigo)
-    {
-        public override string ToString() => Nombre;
-    }
+    // Cliente HTTP de la integración OPCIONAL (mismo servicio, y misma instancia compartida,
+    // que "Descarga de boleto": todo su estado es estático — C-08).
+    private readonly QuinielaOnlineService _servicioOnline = QuinielaOnlineService.Instancia;
 
     /// <summary>
-    /// Países disponibles para importar el catálogo (España / México). Reutiliza exactamente el
-    /// mismo patrón de selector que <c>DescargaBoletoFrmViewModel.Paises</c>.
+    /// Países disponibles para importar el catálogo (España / México). Catálogo compartido con
+    /// "Descarga de boleto" (<see cref="PaisesOnline"/>, C-10).
     /// </summary>
-    public IReadOnlyList<OpcionPais> Paises { get; } = new List<OpcionPais>
-    {
-        new OpcionPais("España", "es"),
-        new OpcionPais("México", "mx"),
-    };
+    public IReadOnlyList<OpcionPais> Paises => PaisesOnline.Todos;
 
     [ObservableProperty]
     private OpcionPais _paisSeleccionado;
@@ -131,7 +122,7 @@ public partial class GestorEquiposFrmViewModel : ObservableObject
         CargaEquipos(EquiposInt, ArchivoEquiposInt);
 
         // País inicial del selector online: España por defecto (la quiniela "clásica" de la app).
-        _paisSeleccionado = Paises[0];
+        _paisSeleccionado = PaisesOnline.PorDefecto;
     }
 
     /// <summary>
@@ -163,10 +154,15 @@ public partial class GestorEquiposFrmViewModel : ObservableObject
             // Categoría destino: el MISMO selector que el alta en línea (1ª/2ª/2ªB/Int).
             ObservableCollection<string> destino = ListaDeCategoria(NuevaCategoria);
 
+            // Índice de lo ya presente, construido UNA vez (antes era O(n·m) con un Trim() por
+            // comparación). Mismo criterio que el resto de altas: OrdinalIgnoreCase + Trim.
+            var yaEstan = new HashSet<string>(ComparadorEquipos);
+            foreach (string existente in destino) yaEstan.Add(Clave(existente));
+
             int importados = 0;
             foreach (string equipo in catalogo.EquiposPlano())
             {
-                if (!ContieneEquipo(destino, equipo))
+                if (yaEstan.Add(Clave(equipo)))
                 {
                     destino.Add(equipo);
                     importados++;
@@ -177,9 +173,10 @@ public partial class GestorEquiposFrmViewModel : ObservableObject
                 ? $"{importados} equipos importados (online) a {NuevaCategoria}. Revisa y pulsa «Guardar archivos»."
                 : $"El catálogo online no añadió equipos nuevos a {NuevaCategoria} (ya estaban todos).";
         }
-        catch (Exception ex) when (ex is QuinielaOnlineException || ex is not OperationCanceledException)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             // Fallo de red/HTTP/parseo: no se cambia NADA. Mensaje amigable + modo manual.
+            Log.Error("GestorEquiposFrmViewModel.ImportarEquiposOnline(" + pais + ")", ex);
             string detalle = ex is QuinielaOnlineException
                 ? ex.Message
                 : "No se pudo importar el catálogo: " + ex.Message;
@@ -201,18 +198,26 @@ public partial class GestorEquiposFrmViewModel : ObservableObject
     };
 
     /// <summary>
-    /// Comprueba si la lista ya contiene el equipo, ignorando may/min y espacios extremos
-    /// (la lista plana del catálogo ya viene recortada y de-duplicada, pero la lista local
-    /// pudo escribirse a mano).
+    /// Comparador ÚNICO de nombres de equipo (C-06). Antes convivían dos criterios: el alta
+    /// manual y el "mover" usaban <c>Contains</c> (case-sensitive y sin recortar) mientras la
+    /// importación online ignoraba may/min y espacios → "Real Madrid" y "real madrid" podían
+    /// acabar conviviendo en la misma categoría. Ahora TODO pasa por aquí.
     /// </summary>
-    private static bool ContieneEquipo(ObservableCollection<string> lista, string equipo)
+    private static readonly StringComparer ComparadorEquipos = StringComparer.OrdinalIgnoreCase;
+
+    /// <summary>Clave de comparación de un nombre de equipo: recortado (la lista local pudo escribirse a mano).</summary>
+    private static string Clave(string? equipo) => (equipo ?? "").Trim();
+
+    /// <summary>
+    /// Comprueba si la lista ya contiene el equipo con el criterio único
+    /// (<see cref="ComparadorEquipos"/> sobre <see cref="Clave"/>).
+    /// </summary>
+    private static bool ContieneEquipo(ObservableCollection<string> lista, string? equipo)
     {
+        string clave = Clave(equipo);
         foreach (string existente in lista)
         {
-            if (string.Equals(existente?.Trim(), equipo?.Trim(), StringComparison.OrdinalIgnoreCase))
-            {
-                return true;
-            }
+            if (ComparadorEquipos.Equals(Clave(existente), clave)) return true;
         }
         return false;
     }
@@ -289,15 +294,10 @@ public partial class GestorEquiposFrmViewModel : ObservableObject
         }
 
         // Legacy AgregarEquipoFrm.btnNuevoEquipo_Click: mapeo categoría -> lista destino.
-        var destino = NuevaCategoria switch
-        {
-            "2ª" => EquiposSegunda,
-            "2ªB" => EquiposSegundaB,
-            "Int" => EquiposInt,
-            _ => EquiposPrimera, // "1ª" (rdbPrimera por defecto)
-        };
+        // (C-06: se reutiliza ListaDeCategoria en vez de repetir aquí el mismo switch.)
+        var destino = ListaDeCategoria(NuevaCategoria);
 
-        if (!destino.Contains(NuevoNombre))
+        if (!ContieneEquipo(destino, NuevoNombre))
         {
             destino.Add(NuevoNombre);
             Estado = $"Equipo \"{NuevoNombre}\" añadido a {NuevaCategoria}.";
@@ -357,7 +357,8 @@ public partial class GestorEquiposFrmViewModel : ObservableObject
     private void Mover(ObservableCollection<string> origen, ObservableCollection<string> destino, string? seleccion)
     {
         if (string.IsNullOrEmpty(seleccion)) { Estado = "Selecciona un equipo."; return; }
-        if (!destino.Contains(seleccion)) destino.Add(seleccion);
+        // Mismo criterio de duplicado que el alta y la importación (C-06).
+        if (!ContieneEquipo(destino, seleccion)) destino.Add(seleccion);
         origen.Remove(seleccion);
         Estado = $"Movido \"{seleccion}\".";
     }

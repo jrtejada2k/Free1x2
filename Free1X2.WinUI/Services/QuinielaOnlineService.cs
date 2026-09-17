@@ -22,6 +22,15 @@ public sealed class QuinielaOnlineException : Exception
 }
 
 /// <summary>
+/// Resultado de una petición de jornada: el dato y su PROCEDENCIA.
+/// <paramref name="DesdeCache"/> es true cuando la jornada NO viene de la red sino del fichero
+/// local (guarda anti-doble-descarga), y <paramref name="GuardadoUtc"/> es la fecha de esa copia
+/// local (null si no se pudo consultar). El ViewModel lo usa para redactar el mensaje correcto
+/// ("jornada actualizada" vs. "mostrando la última guardada") sin releer ni re-parsear nada.
+/// </summary>
+public sealed record ResultadoJornada(JornadaQuiniela Jornada, bool DesdeCache, DateTime? GuardadoUtc);
+
+/// <summary>
 /// Cliente HTTP de la integración OPCIONAL con clubprogol.com. Descarga la jornada vigente
 /// (<c>GET {base}/wp-json/clubprogol/v1/quiniela/{pais}/actual</c>) y la parsea con el parser
 /// PURO de dominio (<see cref="JornadaQuinielaParser"/>).
@@ -43,6 +52,15 @@ public sealed class QuinielaOnlineException : Exception
 /// </summary>
 public sealed class QuinielaOnlineService
 {
+    /// <summary>
+    /// Instancia ÚNICA compartida (C-08). Todo el estado del servicio ya era <c>static</c>
+    /// (el <c>HttpClient</c> y la marca anti-doble-descarga), así que crear una instancia por
+    /// ViewModel era un singleton disfrazado. El constructor es privado para que no haya dudas.
+    /// </summary>
+    public static QuinielaOnlineService Instancia { get; } = new();
+
+    private QuinielaOnlineService() { }
+
     /// <summary>Base URL por defecto del servicio: raíz del host (contrato: docs/API_CLUBPROGOL.md).</summary>
     public const string BaseUrlPorDefecto = "https://clubprogol.com";
 
@@ -104,8 +122,12 @@ public sealed class QuinielaOnlineService
     /// Descarga y parsea la jornada vigente del país indicado ("es" o "mx").
     /// Lanza <see cref="QuinielaOnlineException"/> con un mensaje claro ante cualquier error
     /// de red/HTTP/parseo (el llamador lo convierte en el mensaje offline amigable).
+    ///
+    /// Devuelve, además de la jornada, de DÓNDE salió (<see cref="ResultadoJornada.DesdeCache"/>)
+    /// y cuándo se guardó, para que el ViewModel pueda distinguir "jornada actualizada" de
+    /// "mostrando la última guardada" sin volver a leer ni parsear el fichero de caché.
     /// </summary>
-    public async Task<JornadaQuiniela> ObtenerJornadaAsync(string pais, CancellationToken ct = default)
+    public async Task<ResultadoJornada> ObtenerJornadaAsync(string pais, CancellationToken ct = default)
     {
         string paisNorm = (pais ?? "").Trim().ToLowerInvariant();
         if (paisNorm != "es" && paisNorm != "mx")
@@ -113,24 +135,32 @@ public sealed class QuinielaOnlineService
             throw new QuinielaOnlineException("País no soportado: '" + pais + "' (use 'es' o 'mx').");
         }
 
-        // Guarda anti-doble-descarga: si el mismo país se pidió hace < VentanaAntiDobleSegundos
-        // Y hay caché válida, se devuelve la caché SIN red. Evita que dobles clics rápidos
-        // tropiecen con el límite 60/min del backend. (No hay caché => sí se contacta la red,
-        // que es el caso de la primera descarga.)
+        // Guarda anti-doble-descarga: si el mismo país se DESCARGÓ CON ÉXITO hace
+        // < VentanaAntiDobleSegundos Y hay caché, se devuelve la caché SIN red. Evita que dobles
+        // clics rápidos tropiecen con el límite 60/min del backend. (Sin caché => sí se contacta
+        // la red, que es el caso de la primera descarga.)
+        //
+        // C-04: la comprobación mira SOLO la marca de tiempo del fichero (sin ReadAllText ni
+        // JsonDocument.Parse); el cuerpo, si hace falta, se lee y parsea en un hilo de fondo.
+        // Esta guarda es previa a cualquier await, y este método se invoca desde el hilo de UI.
         if (_ultimaDescargaUtc.TryGetValue(paisNorm, out DateTime ultima) &&
             (DateTime.UtcNow - ultima).TotalSeconds < VentanaAntiDobleSegundos &&
-            JornadaCache.TryCargar(paisNorm, out JornadaQuiniela? cacheada, out _) &&
-            cacheada is not null)
+            JornadaCache.FechaGuardado(paisNorm) is not null)
         {
-            return cacheada;
+            ResultadoJornada? deCache = await Task.Run(() =>
+            {
+                return JornadaCache.TryCargar(paisNorm, out JornadaQuiniela? c, out DateTime g) && c is not null
+                    ? new ResultadoJornada(c, true, g)
+                    : null;
+            }, ct).ConfigureAwait(false);
+
+            // Si la caché resultó ilegible pese a existir el fichero, se sigue a la red
+            // (mismo comportamiento que antes: la guarda solo corta si hay caché VÁLIDA).
+            if (deCache is not null) return deCache;
         }
 
         // Raíz del host + prefijo WordPress del backend + recurso.
         string url = BaseUrl.TrimEnd('/') + PrefijoApi + "/quiniela/" + paisNorm + "/actual";
-
-        // Se marca el inicio de la descarga ANTES de salir a la red, para que un segundo clic
-        // que llegue mientras esta petición está en vuelo entre dentro de la ventana anti-doble.
-        _ultimaDescargaUtc[paisNorm] = DateTime.UtcNow;
 
         string cuerpo = await DescargarConReintentoAsync(url, ct).ConfigureAwait(false);
 
@@ -151,7 +181,14 @@ public sealed class QuinielaOnlineService
         // JornadaCache.Guardar nunca lanza, así que un fallo de E/S no afecta a la descarga.
         JornadaCache.Guardar(paisNorm, cuerpo);
 
-        return jornada;
+        // B-05: la marca anti-doble se pone SOLO tras un éxito. Marcarla antes del GET hacía que
+        // un fallo de red (timeout / 429 / sin conexión) bloqueara el siguiente intento durante
+        // 60 s devolviendo la caché COMO SI fuese fresca, aunque ya hubiese vuelto la conexión.
+        // El doble clic sigue cubierto por las 3 capas de la pantalla (botón deshabilitado,
+        // AsyncRelayCommand sin concurrencia y el guard `if (Descargando) return;`).
+        _ultimaDescargaUtc[paisNorm] = DateTime.UtcNow;
+
+        return new ResultadoJornada(jornada, false, JornadaCache.FechaGuardado(paisNorm));
     }
 
     /// <summary>
@@ -265,8 +302,9 @@ public sealed class QuinielaOnlineService
     }
 
     /// <summary>
-    /// Lee la cabecera <c>Retry-After</c> (segundos). Soporta el formato numérico (delta-seconds);
-    /// devuelve null si no está presente o no es un entero de segundos.
+    /// Lee la cabecera <c>Retry-After</c> y la traduce a SEGUNDOS de espera. Soporta los dos
+    /// formatos del RFC: delta-seconds (numérico) y HTTP-date (C-09; antes se ignoraba y se caía
+    /// al genérico "~60 s"). Devuelve null si no está presente o no es interpretable.
     /// </summary>
     private static int? LeerRetryAfter(HttpResponseMessage resp)
     {
@@ -274,6 +312,14 @@ public sealed class QuinielaOnlineService
         if (ra?.Delta is TimeSpan delta)
         {
             return (int)Math.Ceiling(delta.TotalSeconds);
+        }
+        if (ra?.Date is DateTimeOffset fecha)
+        {
+            // HTTP-date: la espera es la diferencia con "ahora". Una fecha ya pasada (o un reloj
+            // desfasado) significa "puedes reintentar ya": se devuelve 1 s, no 0, para que siga
+            // cayendo en la rama del reintento acotado en vez de parecer "sin cabecera".
+            double segundos = (fecha - DateTimeOffset.UtcNow).TotalSeconds;
+            return segundos <= 1 ? 1 : (int)Math.Ceiling(segundos);
         }
         if (resp.Headers.TryGetValues("Retry-After", out var valores))
         {

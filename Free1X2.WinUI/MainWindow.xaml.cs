@@ -54,7 +54,12 @@ public sealed partial class MainWindow : Window
         {
             this.AppWindow?.Resize(new Windows.Graphics.SizeInt32(1020, 760));
         }
-        catch { /* sin AppWindow (entornos sin presentación): no es crítico */ }
+        catch (Exception ex)
+        {
+            // Sin AppWindow (entornos sin presentación): no es crítico, la ventana abre con su
+            // tamaño por defecto. Solo se deja traza.
+            Services.Log.Error("MainWindow.AjustarTamanoVentana", ex);
+        }
     }
 
     // Convierte un codepoint hex (p.ej. "E80F") al glifo de Segoe Fluent Icons.
@@ -522,7 +527,12 @@ public sealed partial class MainWindow : Window
                 Vis(GrupoBarra.Archivo),
                 Vis(GrupoBarra.Utilidades));
         }
-        catch { /* no bloquear el cierre por error de E/S al guardar preferencias */ }
+        catch (Exception ex)
+        {
+            // No bloquear el cierre por un error de E/S al guardar preferencias (comportamiento
+            // intacto); antes se perdía sin rastro el motivo de "no recuerda mis barras".
+            Services.Log.Error("MainWindow.GuardarBarrasHerramientas", ex);
+        }
     }
 
     private void Navegar(Type page)
@@ -530,6 +540,16 @@ public sealed partial class MainWindow : Window
         if (ContentFrame.CurrentSourcePageType != page)
             ContentFrame.Navigate(page);
     }
+
+    /// <summary>
+    /// Navega el Frame de contenido a la página indicada. Punto de entrada PÚBLICO para el
+    /// código que no tiene acceso al Frame (p. ej. el handoff del visor de análisis que cablea
+    /// <c>App.CablearHooksDominio</c>), en lugar de buscarlo por nombre con
+    /// <c>FindName("ContentFrame")</c> — acoplamiento por string que se rompía en silencio (B-07).
+    /// Navega SIEMPRE, incluso si ya se está en esa página: el visor consume un payload nuevo en
+    /// cada navegación, así que re-navegar es justo lo que hace falta (comportamiento previo).
+    /// </summary>
+    public void NavegarA(Type page) => ContentFrame.Navigate(page);
 
     // Ejecuta una acción de la barra "Archivo" sobre la pantalla Inicio. Si ya estamos en
     // MainPage, invoca el comando sobre la instancia VIVA (preserva el boleto en edición); si
@@ -540,7 +560,11 @@ public sealed partial class MainWindow : Window
     {
         if (ContentFrame.Content is MainPage paginaViva)
         {
-            _ = paginaViva.ViewModel.EjecutarAccionAsync(accion);
+            // B-06: la Task se OBSERVA (antes `_ = ...`): una excepción en Abrir/Guardar
+            // combinación se perdía con la Task descartada y la acción fallaba en silencio.
+            Services.AppServices.EjecutarObservandoErrores(
+                () => paginaViva.ViewModel.EjecutarAccionAsync(accion),
+                "MainWindow.NavegarConAccion → " + accion);
         }
         else
         {
@@ -560,7 +584,8 @@ public sealed partial class MainWindow : Window
     private void IniciarSmokeTest()
     {
         _smokeLog = Path.Combine(Path.GetTempPath(), "free1x2_smoke.log");
-        try { File.WriteAllText(_smokeLog, "SMOKE START\r\n"); } catch { }
+        try { File.WriteAllText(_smokeLog, "SMOKE START\r\n"); }
+        catch (Exception ex) { Services.Log.Error("MainWindow.IniciarSmokeTest", ex); }
 
         _smokeRuta = new List<Type> { typeof(MainPage) };
         foreach (var p in PortedPagesRegistry.All)
@@ -604,6 +629,7 @@ public sealed partial class MainWindow : Window
 
     private void SmokeAppend(string linea)
     {
-        try { File.AppendAllText(_smokeLog, linea + "\r\n"); } catch { }
+        try { File.AppendAllText(_smokeLog, linea + "\r\n"); }
+        catch (Exception ex) { Services.Log.Error("MainWindow.SmokeAppend", ex); }
     }
 }

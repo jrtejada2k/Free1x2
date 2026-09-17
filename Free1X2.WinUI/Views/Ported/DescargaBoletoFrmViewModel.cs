@@ -29,20 +29,11 @@ namespace Free1X2.WinUI.Views.Ported;
 /// </summary>
 public partial class DescargaBoletoFrmViewModel : ObservableObject
 {
-    private readonly QuinielaOnlineService _servicio = new();
+    // Instancia única compartida del cliente HTTP (C-08): todo su estado ya era estático.
+    private readonly QuinielaOnlineService _servicio = QuinielaOnlineService.Instancia;
 
-    /// <summary>Opción de país para el selector (texto visible + código "es"/"mx").</summary>
-    public sealed record OpcionPais(string Nombre, string Codigo)
-    {
-        public override string ToString() => Nombre;
-    }
-
-    /// <summary>Países disponibles para el selector (España / México). Diseño aprobado.</summary>
-    public IReadOnlyList<OpcionPais> Paises { get; } = new List<OpcionPais>
-    {
-        new OpcionPais("España", "es"),
-        new OpcionPais("México", "mx"),
-    };
+    /// <summary>Países disponibles para el selector (España / México). Catálogo compartido (C-10).</summary>
+    public IReadOnlyList<OpcionPais> Paises => PaisesOnline.Todos;
 
     [ObservableProperty]
     private OpcionPais _paisSeleccionado;
@@ -62,25 +53,18 @@ public partial class DescargaBoletoFrmViewModel : ObservableObject
         _paisSeleccionado = ResolverPaisInicial();
     }
 
-    private OpcionPais ResolverPaisInicial()
+    private static OpcionPais ResolverPaisInicial()
     {
         try
         {
-            string? reciente = JornadaCache.PaisMasReciente();
-            if (reciente is not null)
-            {
-                foreach (var op in Paises)
-                {
-                    if (string.Equals(op.Codigo, reciente, StringComparison.OrdinalIgnoreCase))
-                        return op;
-                }
-            }
+            return PaisesOnline.PorCodigo(JornadaCache.PaisMasReciente());
         }
-        catch
+        catch (Exception ex)
         {
-            // Sin caché o error de E/S: se cae al valor por defecto.
+            // Sin caché o error de E/S: se cae al valor por defecto (España).
+            Log.Error("DescargaBoletoFrmViewModel.ResolverPaisInicial", ex);
+            return PaisesOnline.PorDefecto;
         }
-        return Paises[0]; // España.
     }
 
     /// <summary>
@@ -101,26 +85,35 @@ public partial class DescargaBoletoFrmViewModel : ObservableObject
         Descargando = true;
         try
         {
-            JornadaQuiniela jornada = await _servicio
+            ResultadoJornada resultado = await _servicio
                 .ObtenerJornadaAsync(pais, CancellationToken.None)
                 .ConfigureAwait(true); // continúa en el hilo de UI para tocar AppState/binding
+
+            JornadaQuiniela jornada = resultado.Jornada;
 
             // Fuente compartida de nombres reales: boleto y "Grupos de Equipos" leen de aquí.
             AppState.Instancia.JornadaActual = jornada;
 
-            // La caché la persiste el propio servicio tras parsear; la fecha mostrada es la del
-            // fichero recién escrito (= "ahora"), leída para un mensaje uniforme con el fallback.
-            string sufijoFecha = SufijoUltimaActualizacion(pais);
-            Mensaje = "Jornada " + jornada.Jornada + " · " + jornada.Partidos.Count +
-                      " partidos cargados" + sufijoFecha;
+            // B-05: el mensaje distingue lo que ACABA de bajar de la red de lo que viene del
+            // fichero local (guarda anti-doble-descarga). Antes ambos casos decían lo mismo,
+            // así que una caché podía presentarse como recién actualizada.
+            // C-05: la fecha la trae el propio servicio (marca de tiempo del fichero); ya no se
+            // relee ni se re-parsea el JSON completo en el hilo de UI solo para el timestamp.
+            string resumen = "Jornada " + jornada.Jornada + " · " + jornada.Partidos.Count +
+                             " partidos cargados";
+            Mensaje = resultado.DesdeCache
+                ? resumen + " — mostrando la última guardada" + SufijoFecha(resultado.GuardadoUtc, " (", ")") + "."
+                : resumen + SufijoFecha(resultado.GuardadoUtc, " · Última actualización: ", "");
         }
-        catch (Exception ex) when (ex is QuinielaOnlineException || ex is not OperationCanceledException)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            // Fallo de red/HTTP/parseo (o cualquier excepción no de cancelación): intentar fallback
-            // a la jornada guardada antes de rendirse.
+            // Fallo de red/HTTP/parseo (cualquier excepción que no sea cancelación): intentar
+            // fallback a la jornada guardada antes de rendirse.
             if (JornadaCache.TryCargar(pais, out JornadaQuiniela? cacheada, out DateTime guardadoUtc) &&
                 cacheada is not null)
             {
+                Log.Warn("Descarga de jornada fallida (" + pais + "); se usa la caché de " +
+                         FormatearFechaLocal(guardadoUtc) + ". Causa: " + ex.Message);
                 AppState.Instancia.JornadaActual = cacheada;
                 Mensaje = "Sin conexión: mostrando la jornada guardada (actualizada " +
                           FormatearFechaLocal(guardadoUtc) + ").";
@@ -128,6 +121,7 @@ public partial class DescargaBoletoFrmViewModel : ObservableObject
             else
             {
                 // Sin caché tampoco: mensaje de error original + modo manual.
+                Log.Error("DescargaBoletoFrmViewModel.Descargar(" + pais + ") sin caché de respaldo", ex);
                 string detalle = ex is QuinielaOnlineException
                     ? ex.Message
                     : "No se pudo descargar la jornada: " + ex.Message;
@@ -141,17 +135,11 @@ public partial class DescargaBoletoFrmViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Devuelve el sufijo " · Última actualización: &lt;fecha&gt;" leyendo la marca de tiempo del
-    /// fichero de caché del país (recién escrito por la descarga). Cadena vacía si no se puede leer.
+    /// Compone el fragmento de fecha del mensaje, o cadena vacía si el servicio no pudo
+    /// determinar cuándo se guardó la copia local (nunca se inventa una fecha).
     /// </summary>
-    private static string SufijoUltimaActualizacion(string pais)
-    {
-        if (JornadaCache.TryCargar(pais, out _, out DateTime guardadoUtc))
-        {
-            return " · Última actualización: " + FormatearFechaLocal(guardadoUtc);
-        }
-        return string.Empty;
-    }
+    private static string SufijoFecha(DateTime? guardadoUtc, string prefijo, string sufijo) =>
+        guardadoUtc is DateTime f ? prefijo + FormatearFechaLocal(f) + sufijo : string.Empty;
 
     /// <summary>Formatea una marca UTC a hora local legible para el usuario.</summary>
     private static string FormatearFechaLocal(DateTime utc) =>

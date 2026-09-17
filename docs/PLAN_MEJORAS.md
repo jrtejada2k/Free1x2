@@ -37,11 +37,18 @@ D-03 (mover docs) · C-17/C-18 (refactor grande de 67 y 16 ficheros).
 
 **Verificación estándar (V0)** que cierra cualquier ítem de código:
 ```powershell
-dotnet build Free1X2.WinUI/Free1X2.WinUI.csproj -c Debug            # 0 errores
-dotnet test  Free1X2.Domain.Tests/Free1X2.Domain.Tests.csproj       # 125/125
-$env:FREE1X2_SMOKE = '1'; .\Free1X2.WinUI\bin\x64\Debug\net8.0-windows10.0.19041.0\win-x64\Free1X2.WinUI.exe
-Get-Content "$env:TEMP\free1x2_smoke.log" -Tail 1                    # "SMOKE DONE total=109 ok=109 fail=0"
+# OJO: -p:Platform=x64 es OBLIGATORIO. Sin el, el build escribe en bin\Debug\ y el smoke
+# de abajo se ejecutaria sobre el binario VIEJO de bin\x64\Debug\ -> pasaria en falso.
+dotnet build Free1X2.WinUI/Free1X2.WinUI.csproj -c Debug -p:Platform=x64   # 0 errores (13 warnings = baseline)
+dotnet test  Free1X2.Domain.Tests/Free1X2.Domain.Tests.csproj              # 125/125
+Remove-Item "$env:TEMP\free1x2_smoke.log" -ErrorAction SilentlyContinue
+$env:FREE1X2_SMOKE = '1'
+.\Free1X2.WinUI\bin\x64\Debug\net8.0-windows10.0.19041.0\win-x64\Free1X2.WinUI.exe | Out-Null
+Remove-Item Env:\FREE1X2_SMOKE
+Get-Content "$env:TEMP\free1x2_smoke.log" -Tail 1   # "SMOKE DONE total=109 ok=109 fail=0"
 ```
+> **Por qué el borrado previo del log:** si el smoke no llega a arrancar, sin borrarlo se leería el
+> resultado de la ejecución anterior y se daría por bueno. Comprobar además la fecha del `.exe`.
 
 ## 1. Fases
 

@@ -34,17 +34,34 @@ public partial class PartidoBaseViewModel : ObservableObject
 
     private bool _actualizandoEquipos;
 
+    // Texto TAL CUAL lo está tecleando el usuario, sin normalizar (null = "no se está editando;
+    // el valor sale de Equipos"). Ver el comentario de Local para el porqué.
+    private string? _localEditado;
+    private string? _visitanteEditado;
+
     /// <summary>
     /// Equipo local (parte antes del " - "). Editable; al cambiar recompone <see cref="Equipos"/>.
     /// Réplica del combo "equipoCasa" de la fila <c>PartidoBoleto</c> del original.
     /// </summary>
+    /// <remarks>
+    /// B-03 — <b>aquí NO se recorta</b>. El ComboBox enlaza
+    /// <c>Mode=TwoWay, UpdateSourceTrigger=PropertyChanged</c>, o sea que el setter corre en CADA
+    /// pulsación; si normalizaba con <c>Trim()</c> y notificaba, el enlace reescribía el texto sin
+    /// el espacio recién tecleado y era IMPOSIBLE escribir nombres compuestos ("Real Madrid":
+    /// el espacio tras "Real" desaparecía). Por eso el valor crudo se conserva aparte y el
+    /// recorte se hace en un único punto: <see cref="EquiposNormalizados"/>, que es lo que se
+    /// vuelca al motor / a disco (<c>DevolverEquipos</c>). La paridad con el original se mantiene:
+    /// el dominio sigue recibiendo el nombre recortado.
+    /// </remarks>
     public string Local
     {
-        get => DividirEquipos().local;
+        get => _localEditado ?? DividirEquipos().local;
         set
         {
-            if (value == Local) return;
-            FijarEquipos(value, Visitante);
+            string nuevo = value ?? "";
+            if (nuevo == Local) return;
+            _localEditado = nuevo;
+            FijarEquipos(nuevo, Visitante);
             OnPropertyChanged();
         }
     }
@@ -52,14 +69,17 @@ public partial class PartidoBaseViewModel : ObservableObject
     /// <summary>
     /// Equipo visitante (parte tras el " - "). Editable; al cambiar recompone <see cref="Equipos"/>.
     /// Réplica del combo "equipoFuera" de la fila <c>PartidoBoleto</c> del original.
+    /// Tampoco recorta en el setter (mismo motivo que <see cref="Local"/>).
     /// </summary>
     public string Visitante
     {
-        get => DividirEquipos().visitante;
+        get => _visitanteEditado ?? DividirEquipos().visitante;
         set
         {
-            if (value == Visitante) return;
-            FijarEquipos(Local, value);
+            string nuevo = value ?? "";
+            if (nuevo == Visitante) return;
+            _visitanteEditado = nuevo;
+            FijarEquipos(Local, nuevo);
             OnPropertyChanged();
         }
     }
@@ -75,19 +95,32 @@ public partial class PartidoBaseViewModel : ObservableObject
         return (Equipos.Substring(0, idx).Trim(), Equipos.Substring(idx + 3).Trim());
     }
 
-    // Recompone "LOCAL - VISITANTE" (o el placeholder si ambos están vacíos).
+    // Recompone "LOCAL - VISITANTE" con los valores CRUDOS (o el placeholder si ambos están
+    // vacíos). La normalización vive en EquiposNormalizados(), no aquí.
     private void FijarEquipos(string local, string visitante)
     {
         _actualizandoEquipos = true;
         try
         {
-            local = (local ?? "").Trim();
-            visitante = (visitante ?? "").Trim();
-            Equipos = (local.Length == 0 && visitante.Length == 0)
+            local ??= "";
+            visitante ??= "";
+            Equipos = (local.Trim().Length == 0 && visitante.Trim().Length == 0)
                 ? "? - ?"
                 : local + " - " + visitante;
         }
         finally { _actualizandoEquipos = false; }
+    }
+
+    /// <summary>
+    /// Nombre del partido YA NORMALIZADO para el motor y para disco: "LOCAL - VISITANTE" con las
+    /// dos partes recortadas, o el placeholder "? - ?" si ambas están vacías. Es el ÚNICO punto
+    /// donde se recorta (ver <see cref="Local"/>), de modo que el dominio recibe exactamente lo
+    /// mismo que antes aunque el usuario esté tecleando espacios.
+    /// </summary>
+    internal string EquiposNormalizados()
+    {
+        var (local, visitante) = DividirEquipos(); // DividirEquipos ya recorta cada parte
+        return (local.Length == 0 && visitante.Length == 0) ? "? - ?" : local + " - " + visitante;
     }
 
     [ObservableProperty]
@@ -128,6 +161,10 @@ public partial class PartidoBaseViewModel : ObservableObject
         // (p. ej. cargar una combinación), reflejar los dos combos.
         if (!_actualizandoEquipos)
         {
+            // El valor ya no lo está tecleando el usuario: se descarta el texto crudo para que
+            // Local/Visitante vuelvan a derivarse del nuevo Equipos.
+            _localEditado = null;
+            _visitanteEditado = null;
             OnPropertyChanged(nameof(Local));
             OnPropertyChanged(nameof(Visitante));
         }
@@ -234,13 +271,18 @@ public partial class BoletoBaseViewModel : ObservableObject
         }
     }
 
-    /// <summary>Devuelve los equipos en formato "LOCAL-VISITANTE" (igual que Pronosticos.DevolverEquipos()).</summary>
+    /// <summary>
+    /// Devuelve los equipos en formato "LOCAL-VISITANTE" (igual que Pronosticos.DevolverEquipos()).
+    /// Es el punto de volcado al motor / a disco, y por tanto donde se NORMALIZA el nombre
+    /// (recorte de cada parte); el setter de Local/Visitante no recorta para no destrozar la
+    /// escritura de nombres compuestos — ver <see cref="PartidoBaseViewModel.Local"/> (B-03).
+    /// </summary>
     public string[] DevolverEquipos()
     {
         var equipos = new string[Partidos.Count];
         for (int i = 0; i < Partidos.Count; i++)
         {
-            equipos[i] = Partidos[i].Equipos;
+            equipos[i] = Partidos[i].EquiposNormalizados();
         }
         return equipos;
     }

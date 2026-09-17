@@ -69,14 +69,44 @@ public static class JornadaCache
         string? ruta = RutaFichero(pais);
         if (ruta is null) return;
 
+        // Escritura ATÓMICA (B-08): se escribe primero a un temporal y se reemplaza de golpe.
+        // Con WriteAllText directo, un corte a mitad dejaba el JSON truncado y, aunque el
+        // arranque lo descartaba sin romperse, se PERDÍA la última caché buena.
+        string tmp = ruta + ".tmp";
         try
         {
             Directory.CreateDirectory(Carpeta);
-            File.WriteAllText(ruta, rawJson);
+            File.WriteAllText(tmp, rawJson);
+            File.Move(tmp, ruta, overwrite: true);
         }
-        catch
+        catch (Exception ex)
         {
-            // Permisos/disco lleno/etc.: la caché es opcional; se descarta en silencio.
+            // Permisos/disco lleno/etc.: la caché es opcional; se descarta (con traza) y la
+            // descarga, que ya tuvo éxito, no se ve afectada.
+            Log.Error("JornadaCache.Guardar(" + pais + ")", ex);
+            try { if (File.Exists(tmp)) File.Delete(tmp); } catch { /* best-effort */ }
+        }
+    }
+
+    /// <summary>
+    /// Fecha (UTC) de la caché de un país SIN leer ni parsear el JSON: solo consulta la marca de
+    /// tiempo del fichero. Devuelve <c>null</c> si no hay caché o no se puede consultar.
+    /// Existe para no pagar un <c>ReadAllText</c> + <c>JsonDocument.Parse</c> en el hilo de UI
+    /// cuando lo único que hace falta es saber SI hay caché o CUÁNDO se guardó (C-04 / C-05).
+    /// NUNCA lanza.
+    /// </summary>
+    public static DateTime? FechaGuardado(string pais)
+    {
+        string? ruta = RutaFichero(pais);
+        if (ruta is null) return null;
+        try
+        {
+            return File.Exists(ruta) ? File.GetLastWriteTimeUtc(ruta) : null;
+        }
+        catch (Exception ex)
+        {
+            Log.Error("JornadaCache.FechaGuardado(" + pais + ")", ex);
+            return null;
         }
     }
 
@@ -104,9 +134,11 @@ public static class JornadaCache
             guardadoUtc = File.GetLastWriteTimeUtc(ruta);
             return true;
         }
-        catch
+        catch (Exception ex)
         {
             // FormatException (JSON corrupto), IOException, UnauthorizedAccess, etc.: sin caché.
+            // El comportamiento no cambia (caché inválida == "no hay caché"); solo se deja traza.
+            Log.Error("JornadaCache.TryCargar(" + pais + ")", ex);
             jornada = null;
             guardadoUtc = default;
             return false;
@@ -137,9 +169,10 @@ public static class JornadaCache
                     mejorPais = pais;
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                // Fichero inaccesible: se ignora (como si no existiera).
+                // Fichero inaccesible: se ignora (como si no existiera), pero queda traza.
+                Log.Error("JornadaCache.PaisMasReciente(" + pais + ")", ex);
             }
         }
 
