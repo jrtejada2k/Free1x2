@@ -25,6 +25,10 @@ namespace Free1X2.MotorCalculo
 	{
 		private IFiltro filtroIf;
 		private IFiltro filtroThen;
+		// P-01: nº de partidos con el que se construyó cada filtro cacheado. Si
+		// VariablesGlobales.NumeroPartidos cambiase, la caché se invalida sola.
+		private int numPartidosFiltroIf = -1;
+		private int numPartidosFiltroThen = -1;
 		private string condIf;
 		private string condThen;
 		private bool noIf;
@@ -33,13 +37,21 @@ namespace Free1X2.MotorCalculo
 	    public IFiltro FiltroIf
 		{
 			get{return filtroIf;}
-			set{filtroIf=value;}
+			set
+			{
+				filtroIf=value;
+				numPartidosFiltroIf = VariablesGlobales.NumeroPartidos;
+			}
 		}
 
 		public IFiltro FiltroThen
 		{
 			get{return filtroThen;}
-			set{filtroThen=value;}
+			set
+			{
+				filtroThen=value;
+				numPartidosFiltroThen = VariablesGlobales.NumeroPartidos;
+			}
 		}
 
 		public string CondIf
@@ -49,6 +61,9 @@ namespace Free1X2.MotorCalculo
 			{
 				condIf=value;
 				noIf = (condIf.IndexOf ( "(NO)" ) >= 0);
+				// P-01: invalida el filtro cacheado al cambiar el texto.
+				filtroIf = null;
+				numPartidosFiltroIf = -1;
 			}
 		}
 
@@ -59,6 +74,9 @@ namespace Free1X2.MotorCalculo
 			{
 				condThen=value;
 				noThen = (condThen.IndexOf ( "(NO)" ) >= 0);
+				// P-01: invalida el filtro cacheado al cambiar el texto.
+				filtroThen = null;
+				numPartidosFiltroThen = -1;
 			}
 		}
 
@@ -231,16 +249,48 @@ namespace Free1X2.MotorCalculo
 			return f;
 		}
 
+		/// <summary>
+		/// P-01 · Devuelve el filtro de la condición If construido una sola vez.
+		/// Antes <see cref="CompruebaPronostico"/> llamaba a <see cref="getFiltro"/>
+		/// por CADA columna (hasta 4 782 969): un <c>new</c> del filtro, el
+		/// re-parseo del texto de la condición y un <c>LlenarTodosValores()</c> que
+		/// concatena strings. El filtro solo depende del texto y del nº de partidos,
+		/// y <c>Analizar(long)</c> reinicia sus contadores en cada llamada
+		/// (InicializaContadores), así que no arrastra estado entre columnas.
+		/// La construcción es perezosa (no en el setter) para no adelantar las
+		/// excepciones que <see cref="getFiltro"/> lanza con textos no reconocidos.
+		/// </summary>
+		private IFiltro ObtenFiltroIf()
+		{
+			if(filtroIf == null || numPartidosFiltroIf != VariablesGlobales.NumeroPartidos)
+			{
+				filtroIf = getFiltro(CondIf);
+				numPartidosFiltroIf = VariablesGlobales.NumeroPartidos;
+			}
+			return filtroIf;
+		}
+
+		/// <summary>P-01 · Igual que <see cref="ObtenFiltroIf"/> para la condición Then.</summary>
+		private IFiltro ObtenFiltroThen()
+		{
+			if(filtroThen == null || numPartidosFiltroThen != VariablesGlobales.NumeroPartidos)
+			{
+				filtroThen = getFiltro(CondThen);
+				numPartidosFiltroThen = VariablesGlobales.NumeroPartidos;
+			}
+			return filtroThen;
+		}
+
 		public bool CompruebaPronostico(long columna)
 		{
-		    IFiltro filtro = getFiltro(CondIf);
+		    IFiltro filtro = ObtenFiltroIf();
 			bool esValido = filtro.Analizar(columna);
 			if(NoIf) esValido=!esValido;
 			// Si la condición If se falla, la condición no se evalúa y la
 			// columna es correcta.
 			if(esValido==false) return true;
 
-			filtro=getFiltro(CondThen);
+			filtro=ObtenFiltroThen();
 			esValido=filtro.Analizar(columna);
 			if(NoThen) esValido=!esValido;
 			if(esValido==false) return false;

@@ -47,7 +47,8 @@ namespace Free1X2.Analisis
         }
         public void VaciarInformacion()
         {
-                AnalisisGrupos.FiltrosTemp.Clear();
+                // P-14: vacía también el conjunto paralelo de filtros temporales.
+                AnalisisGrupos.VaciarFiltrosTemp();
 
         }
         public int[] ColumnasPorFallosDeGrupos

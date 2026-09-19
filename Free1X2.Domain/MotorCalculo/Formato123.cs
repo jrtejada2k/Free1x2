@@ -24,11 +24,49 @@ namespace Free1X2.MotorCalculo
 	{
 		string formato = "";
 		int aciertosMax, aciertosMin;
+		// P-05: caché del formato ya convertido a long. Antes
+		// FiltroFormatos123.CumpleCondicionesPasoLibre/PasoFijo llamaban a
+		// ConvStrToLong(formato.Formato) por CADA columna y por CADA formato,
+		// con un Substring por carácter. Solo depende del texto del formato.
+		long formatoLong;
+		bool formatoLongCalculado;
 
 	    public string Formato
 		{
 			get {return formato;}
-			set {formato = value;}
+			set
+			{
+				formato = value;
+				formatoLongCalculado = false;
+			}
+		}
+
+		/// <summary>
+		/// P-05 · El formato convertido a long, calculado una sola vez.
+		/// Réplica exacta del ConvStrToLong privado de FiltroFormatos123.
+		/// </summary>
+		public long FormatoLong
+		{
+			get
+			{
+				if(!formatoLongCalculado)
+				{
+					formatoLong = ConvStrToLong(formato);
+					formatoLongCalculado = true;
+				}
+				return formatoLong;
+			}
+		}
+
+		private static long ConvStrToLong(string s)
+		{
+			string signos = "321";
+			long res=0;
+			for(int i=0;i<s.Length;i++)
+			{
+				res =(res <<=3) ^ (1<<signos.IndexOf (s.Substring (i,1)));
+			}
+			return res;
 		}
 		public int AciertosMax
 		{

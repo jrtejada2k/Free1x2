@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using Free1X2.EntradaSalida;
@@ -28,7 +29,10 @@ namespace Free1X2.Escrutinio
 	public class Escrutador
 	{
 		private string archivoCols = "";
-		private string[] columnas;
+		// P-11: antes los dos constructores asignaban un string[3^14] (~38 MB de
+		// referencias en el LOH) que solo usa el escrutinio de temporada, y solo
+		// hasta `limiteCol` posiciones. Una List<string> crece a lo que haga falta.
+		private readonly List<string> columnas = new List<string>();
 		private int limiteCol;
 		private bool pararEscrutinio;
 		protected ArrayList listaPremiadas=new ArrayList();
@@ -43,16 +47,12 @@ namespace Free1X2.Escrutinio
 		
 		public Escrutador(string listaPremios)
 		{
-			int maxCol=Convert.ToInt32(Math.Pow(3,VariablesGlobales.NumeroPartidos));
-			columnas = new string[maxCol];
 			premiosAceptados = LeerPremios(listaPremios);
 			premiosTotales=new int[VariablesGlobales.NumeroPartidos+1];
 		}
 
 		public Escrutador(int[] listaPremios)
 		{
-			int maxCol=Convert.ToInt32(Math.Pow(3,VariablesGlobales.NumeroPartidos));
-			columnas = new string[maxCol];
 			premiosAceptados=listaPremios;
 			premiosTotales=new int[VariablesGlobales.NumeroPartidos+1];
 		}
@@ -142,12 +142,16 @@ namespace Free1X2.Escrutinio
             IArchivoColumnas archComb = InicializaArchivoCols(combFile);
 			
 			limiteCol = 0;
+			// P-11: la lista se vacía en cada lectura, igual que antes se reescribía
+			// el array desde el índice 0 con limiteCol puesto a 0.
+			columnas.Clear();
 			
 			while(archComb.SiguienteColumna() ) 
 			{
 				string columna = archComb.LeeColumnaSinComas();
 				string colTst = columna.Replace('x','X');	
-				columnas[limiteCol++] = colTst;
+				columnas.Add(colTst);
+				limiteCol++;
 			}
 			archComb.Cerrar();
 		}	

@@ -38,11 +38,14 @@ namespace Free1X2.MotorCalculo
             ResInt = 0;
             ResFormatos = 0;
 
-            resultadosV = new bool[17];
-            resultadosX = new bool[17];
-            resultadosDoses = new bool[17];
-            resultadosInt = new bool[17];
-            resultadosDib = new bool[17, 17];
+            // P-02: antes se reasignaban 4 bool[17] + 1 bool[17,17] (~360 B) en CADA
+            // columna analizada. Los arrays son privados y no se exponen, así que
+            // limpiarlos in situ da el mismo estado inicial (todo false) sin asignar.
+            System.Array.Clear(resultadosV, 0, resultadosV.Length);
+            System.Array.Clear(resultadosX, 0, resultadosX.Length);
+            System.Array.Clear(resultadosDoses, 0, resultadosDoses.Length);
+            System.Array.Clear(resultadosInt, 0, resultadosInt.Length);
+            System.Array.Clear(resultadosDib, 0, resultadosDib.Length);
             formatos.Clear();
 
             for (int i = 0; i < partidosSimetricos.Count; i++)

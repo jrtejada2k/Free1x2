@@ -55,12 +55,24 @@ namespace Free1X2.EntradaSalida
             nombreArchivo = fileName;
             numColumnas = (int)ObtenNumCols();
         }
+		// P-15: buffers de 64 KB para ficheros de millones de líneas (los de serie son
+		// de 1 KB). La codificación y el modo de apertura son EXACTAMENTE los de
+		// File.CreateText / new StreamReader(path): UTF-8 sin BOM al escribir (el
+		// preámbulo vacío no emite nada) y UTF-8 con detección de BOM al leer, así que
+		// el contenido de los ficheros es byte a byte idéntico.
+		private const int TamBuffer = 1 << 16;
+
+		private static StreamWriter CrearEscritor(string nombreArchivo)
+		{
+			return new StreamWriter(nombreArchivo, false, new UTF8Encoding(false, true), TamBuffer);
+		}
+
 		public void GuardarCols( string columna )
 		{
 			if( sw == null )
 			{
 				numColumnas = 0;
-				sw = File.CreateText( nombreArchivo );				
+				sw = CrearEscritor( nombreArchivo );				
 			}
 
 			numColumnas++;			
@@ -82,7 +94,7 @@ namespace Free1X2.EntradaSalida
 			if( sw == null )
 			{
 				numColumnas = 0;
-				sw = File.CreateText( nombreArchivo );				
+				sw = CrearEscritor( nombreArchivo );				
 			}
 
 			numColumnas++;
@@ -174,7 +186,9 @@ namespace Free1X2.EntradaSalida
 			
 			if( sr == null )
 			{
-				sr = new StreamReader( nombreArchivo );
+				// P-15: mismo comportamiento que new StreamReader(path) (UTF-8 con
+				// detección de BOM) con buffer de 64 KB en vez de 1 KB.
+				sr = new StreamReader( nombreArchivo, Encoding.UTF8, true, TamBuffer );
 			}
 			
 			if( sr.Peek() >= 0 )

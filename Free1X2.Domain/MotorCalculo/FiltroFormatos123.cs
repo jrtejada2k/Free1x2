@@ -122,7 +122,9 @@ namespace Free1X2.MotorCalculo
 			{
 				Formato123 formato = ArrayFormatos[i];
 				int aciertos = 0;
-				long formato123 = ConvStrToLong(formato.Formato);
+				// P-05: el long del formato se calcula una vez en Formato123 (antes,
+				// ConvStrToLong con un Substring por carácter en cada columna).
+				long formato123 = formato.FormatoLong;
 				
 				while (columnaFormatoTemp != 0 )
 				{
@@ -161,7 +163,8 @@ namespace Free1X2.MotorCalculo
 		    for(int i = 0; i < ArrayFormatos.Count; i++)
 			{
 				//Formato123 formato = ArrayFormatos[i];
-                long formato123 = ConvStrToLong(ArrayFormatos[i].Formato);
+                // P-05: ver comentario en CumpleCondicionesPasoLibre.
+                long formato123 = ArrayFormatos[i].FormatoLong;
 				while (columnaFormatoTemp != 0 )
 				{
 					if ((columnaFormatoTemp & formato123) == formato123)
