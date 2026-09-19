@@ -96,13 +96,15 @@ public partial class PremiadasFrmViewModel : ObservableObject
     /// Listado de frecuencias resultantes (legacy: lbPremis, multiselección).
     /// Cada elemento es del tipo "N = M veces" (qdc[nr] = (nr+1) veces).
     /// </summary>
-    public ObservableCollection<string> Frecuencias { get; } = new();
+    /// <remarks>C-13: <see cref="ColeccionUi{T}"/> para volcar el resultado de una sola vez.</remarks>
+    public ColeccionUi<string> Frecuencias { get; } = new();
 
     /// <summary>
     /// Listado de jornadas en que aparece la frecuencia seleccionada
     /// (legacy: lbSecuencia, elementos "sem.J").
     /// </summary>
-    public ObservableCollection<string> Jornadas { get; } = new();
+    /// <remarks>C-13: <see cref="ColeccionUi{T}"/> para volcar el resultado de una sola vez.</remarks>
+    public ColeccionUi<string> Jornadas { get; } = new();
 
     /// <summary>
     /// Selecciona el fichero de columnas ganadoras de entrada
@@ -150,45 +152,70 @@ public partial class PremiadasFrmViewModel : ObservableObject
         Jornadas.Clear();
         ProcesadasTexto = "0";
 
-        // Cálculo pesado en hilo de fondo (legacy: bucle con Application.DoEvents()).
-        var resultado = await Task.Run(() =>
+        // B-12: la lectura del fichero no tenía try/catch; un IOException (fichero borrado entre
+        // el File.Exists y la lectura, unidad de red caída, permisos) escapaba al manejador
+        // global y ProcesadasTexto/TiempoTexto quedaban colgados. Ahora el finally los deja
+        // siempre coherentes (y está tras el await, o sea en el hilo de UI: son enlazadas).
+        try
         {
-            // Legacy: int[] validas = new int[4782969]; ctproc=nmax=0; for(...) validas[nr]=0;
-            var validas = new int[EspacioColumnas];
-            _nmax = 0;
-            int ctproc = 0;
-
-            // Legacy: while(sr.Peek()>0) { idx=s1n(linea); ctproc++; Genera(idx); }
-            foreach (string linea in File.ReadLines(ruta))
+            // Cálculo pesado en hilo de fondo (legacy: bucle con Application.DoEvents()).
+            var resultado = await Task.Run(() =>
             {
-                if (linea.Length < 14) continue;
-                int idx = SignosANumero(linea);
-                ctproc++;
-                Genera(validas, idx, premio);
-            }
+                // Legacy: int[] validas = new int[4782969]; ctproc=nmax=0; for(...) validas[nr]=0;
+                var validas = new int[EspacioColumnas];
+                _nmax = 0;
+                int ctproc = 0;
 
-            // Legacy Trasvasa(): qdc[n-1]++ para cada validas>0.
-            var qdc = new int[_nmax];
-            foreach (int n in validas)
-            {
-                if (n > 0) qdc[n - 1]++;
-            }
-            return (validas, qdc, ctproc);
-        });
+                // Legacy: while(sr.Peek()>0) { idx=s1n(linea); ctproc++; Genera(idx); }
+                foreach (string linea in File.ReadLines(ruta))
+                {
+                    if (linea.Length < 14) continue;
+                    int idx = SignosANumero(linea);
+                    ctproc++;
+                    Genera(validas, idx, premio);
+                }
 
-        _validas = resultado.validas;
+                // Legacy Trasvasa(): qdc[n-1]++ para cada validas>0.
+                var qdc = new int[_nmax];
+                foreach (int n in validas)
+                {
+                    if (n > 0) qdc[n - 1]++;
+                }
 
-        // Legacy Trasvasa(): lbPremis.Items.Add(String.Format("{0:d} = {1:d} veces", qdc[nr], nr+1)).
-        for (int nr = 0; nr < resultado.qdc.Length; nr++)
-        {
-            Frecuencias.Add(string.Format("{0:d} = {1:d} veces", resultado.qdc[nr], nr + 1));
+                // C-13: los textos se componen aquí, en el hilo de fondo, para poder volcarlos
+                // luego de una sola vez. Mismo formato y MISMO ORDEN que el bucle anterior.
+                // Legacy Trasvasa(): lbPremis.Items.Add(String.Format("{0:d} = {1:d} veces", qdc[nr], nr+1)).
+                var textos = new List<string>(qdc.Length);
+                for (int nr = 0; nr < qdc.Length; nr++)
+                {
+                    textos.Add(string.Format("{0:d} = {1:d} veces", qdc[nr], nr + 1));
+                }
+
+                return (validas, textos, ctproc);
+            });
+
+            _validas = resultado.validas;
+
+            // C-13: un único Reset en lugar de un CollectionChanged por frecuencia.
+            Frecuencias.ReemplazarTodo(resultado.textos);
+
+            // Legacy veureelmeu(): lProc.Text = ctproc.
+            ProcesadasTexto = resultado.ctproc.ToString();
         }
-
-        // Legacy veureelmeu(): lProc.Text = ctproc; lTime.Text = (dt9-dt0) truncado a 10 chars.
-        ProcesadasTexto = resultado.ctproc.ToString();
-        var dt9 = DateTime.Now;
-        string temp = (dt9 - dt0) + "0000000000";
-        TiempoTexto = temp.Substring(0, 10);
+        catch (Exception ex)
+        {
+            Log.Error("Premiadas.Calcular [" + ruta + "]", ex);
+            AppServices.MostrarError(
+                "No se pudo calcular sobre el fichero de columnas ganadoras:\n" + ruta +
+                "\n\n" + ex.Message);
+        }
+        finally
+        {
+            // Legacy veureelmeu(): lTime.Text = (dt9-dt0) truncado a 10 chars.
+            var dt9 = DateTime.Now;
+            string temp = (dt9 - dt0) + "0000000000";
+            TiempoTexto = temp.Substring(0, 10);
+        }
     }
 
     /// <summary>
@@ -225,17 +252,30 @@ public partial class PremiadasFrmViewModel : ObservableObject
         if (file is null) return;
 
         int[] validas = _validas;
-        await Task.Run(() =>
-        {
-            // Legacy: for(nr=0..4782969) if(validas[nr]==n) sw.WriteLine(n1s(nr));
-            using var sw = new StreamWriter(file.Path);
-            for (int nr = 0; nr < validas.Length; nr++)
-            {
-                if (validas[nr] == n) sw.WriteLine(NumeroASignos(nr));
-            }
-        });
+        string rutaSalida = file.Path;
 
-        AppServices.MostrarInfo($"Columnas grabadas en {file.Name}.");
+        // B-12: sin catch, un fallo de escritura llegaba al manejador global y además se
+        // mostraba igualmente el «Columnas grabadas» si el fallo ocurría después. Ahora no.
+        try
+        {
+            await Task.Run(() =>
+            {
+                // Legacy: for(nr=0..4782969) if(validas[nr]==n) sw.WriteLine(n1s(nr));
+                using var sw = new StreamWriter(rutaSalida);
+                for (int nr = 0; nr < validas.Length; nr++)
+                {
+                    if (validas[nr] == n) sw.WriteLine(NumeroASignos(nr));
+                }
+            });
+
+            AppServices.MostrarInfo($"Columnas grabadas en {file.Name}.");
+        }
+        catch (Exception ex)
+        {
+            Log.Error("Premiadas.Grabar [" + rutaSalida + "]", ex);
+            AppServices.MostrarError(
+                "No se pudieron grabar las columnas en:\n" + rutaSalida + "\n\n" + ex.Message);
+        }
     }
 
     /// <summary>
@@ -269,24 +309,33 @@ public partial class PremiadasFrmViewModel : ObservableObject
 
         Jornadas.Clear();
 
-        // Legacy Analiza(): por cada línea (jornada++), Examina recorre las variantes.
-        var encontradas = await Task.Run(() =>
+        // B-12: la relectura del fichero tampoco tenía try/catch.
+        try
         {
-            var lista = new List<string>();
-            int jornada = 0;
-            foreach (string linea in File.ReadLines(ruta))
+            // Legacy Analiza(): por cada línea (jornada++), Examina recorre las variantes.
+            var encontradas = await Task.Run(() =>
             {
-                if (linea.Length < 14) continue;
-                int idx = SignosANumero(linea);
-                jornada++;
-                Examina(validas, idx, premio, n, jornada, lista);
-            }
-            return lista;
-        });
+                var lista = new List<string>();
+                int jornada = 0;
+                foreach (string linea in File.ReadLines(ruta))
+                {
+                    if (linea.Length < 14) continue;
+                    int idx = SignosANumero(linea);
+                    jornada++;
+                    Examina(validas, idx, premio, n, jornada, lista);
+                }
+                return lista;
+            });
 
-        foreach (string sem in encontradas)
+            // C-13: un único Reset; la lista ya viene en el orden en que la llenó Examina.
+            Jornadas.ReemplazarTodo(encontradas);
+        }
+        catch (Exception ex)
         {
-            Jornadas.Add(sem);
+            Log.Error("Premiadas.Analizar [" + ruta + "]", ex);
+            AppServices.MostrarError(
+                "No se pudo analizar el fichero de columnas ganadoras:\n" + ruta +
+                "\n\n" + ex.Message);
         }
     }
 

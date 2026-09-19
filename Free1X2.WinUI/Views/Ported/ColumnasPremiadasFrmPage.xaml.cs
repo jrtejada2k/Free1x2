@@ -37,11 +37,9 @@ public sealed partial class ColumnasPremiadasFrmPage : Page
         // consume el handoff para no arrastrarlo a futuras navegaciones.
         if (Entrada is { } filas)
         {
-            ViewModel.Columnas.Clear();
-            foreach (var f in filas)
-            {
-                ViewModel.Columnas.Add(f);
-            }
+            // C-13: un único Reset en lugar de un CollectionChanged por premiada (el resumen
+            // puede traer miles de filas). El orden es el del productor, sin cambios.
+            ViewModel.Columnas.ReemplazarTodo(filas);
             Entrada = null;
         }
     }
@@ -51,7 +49,9 @@ public sealed partial class ColumnasPremiadasFrmPage : Page
     /// Se gestiona en code-behind porque la selección múltiple vive en el control
     /// (legacy: btnGuardarSeleccionadas_Click recorría listaResumen.Items[i].Selected).
     /// </summary>
-    private void OnGuardarSeleccionadasClick(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    // C-27: el async void vive aquí (es un manejador de evento, que es donde procede) y hace
+    // await del método del ViewModel, que ahora devuelve Task.
+    private async void OnGuardarSeleccionadasClick(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
         var seleccionadas = new List<ColumnaPremiadaItem>();
         foreach (var item in ListaResumen.SelectedItems)
@@ -62,6 +62,6 @@ public sealed partial class ColumnasPremiadasFrmPage : Page
             }
         }
 
-        ViewModel.GuardarSeleccionadas(seleccionadas);
+        await ViewModel.GuardarSeleccionadasAsync(seleccionadas);
     }
 }

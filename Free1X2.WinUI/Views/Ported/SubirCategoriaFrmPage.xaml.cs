@@ -28,7 +28,8 @@ public sealed partial class SubirCategoriaFrmPage : Page
         StorageFile? file = await AbrirSelectorAsync(guardar: false);
         if (file is not null)
         {
-            ViewModel.OnArchivoOrigenSeleccionado(file.Path);
+            // C-27: el método del ViewModel devuelve Task; el await vive aquí, en el handler.
+            await ViewModel.OnArchivoOrigenSeleccionadoAsync(file.Path);
         }
     }
 

@@ -174,28 +174,33 @@ public partial class MejoresOpcionesFrmViewModel : ObservableObject
 
         Resumen = "Calculando...";
 
-        string texto = await Task.Run(() =>
+        // B-12: sin try/catch, cualquier fallo dejaba el resumen colgado en «Calculando...»
+        // para siempre y el error acababa en el manejador global sin contexto.
+        string texto;
+        try
         {
-            _listaResumen.Clear();
-            _cGanadoras.Clear();
-            ObtenGanadoras(colGanadora, partidosInvolucrados, "", 0);
-            for (int i = 0; i < _cGanadoras.Count; i++)
+            texto = await Task.Run(() =>
             {
-                ObtenerResumen(_cGanadoras[i], archivoColumnas, noPartidos, contemplaPleno);
-            }
-            OrdenarResumen();
-            return MostrarResumen(limite, colGanadora);
-        });
+                _listaResumen.Clear();
+                _cGanadoras.Clear();
+                ObtenGanadoras(colGanadora, partidosInvolucrados, "", 0);
+                for (int i = 0; i < _cGanadoras.Count; i++)
+                {
+                    ObtenerResumen(_cGanadoras[i], archivoColumnas, noPartidos, contemplaPleno);
+                }
+                OrdenarResumen();
+                return MostrarResumen(limite, colGanadora);
+            });
+        }
+        catch (Exception ex)
+        {
+            Log.Error("MejoresOpciones.Calcular", ex);
+            AppServices.MostrarError("No se pudo calcular las mejores opciones:\n\n" + ex.Message);
+            texto = "No se pudo completar el cálculo.";
+        }
 
-        var disp = AppServices.UiDispatcher;
-        if (disp is not null)
-        {
-            disp.TryEnqueue(DispatcherQueuePriority.Normal, () => Resumen = texto);
-        }
-        else
-        {
-            Resumen = texto;
-        }
+        // C-26: el false de TryEnqueue (cola de UI cerrada) ya no se descarta en silencio.
+        UiHilo.Ejecutar(() => Resumen = texto, "MejoresOpciones.Calcular/Resumen");
     }
 
     /// <summary>

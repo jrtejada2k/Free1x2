@@ -328,7 +328,11 @@ public partial class SubirCategoriaFrmViewModel : ObservableObject
     /// Equivale a la apertura del archivo de origen (BtnFileInClick):
     /// detecta el nº de signos, carga el motor y habilita la interfaz.
     /// </summary>
-    public async void OnArchivoOrigenSeleccionado(string ruta)
+    /// <remarks>
+    /// C-27: devuelve <c>Task</c>; antes era <c>async void</c> sin ser un manejador de evento.
+    /// El <c>async void</c> queda en el handler de la página, que ahora hace await.
+    /// </remarks>
+    public async Task OnArchivoOrigenSeleccionadoAsync(string ruta)
     {
         ArchivoOrigen = ruta;
         ConteoColumnas = "leyendo...";

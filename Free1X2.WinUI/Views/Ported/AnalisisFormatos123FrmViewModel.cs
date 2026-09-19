@@ -56,8 +56,13 @@ public partial class Formato123FilaViewModel : ObservableObject
 /// </summary>
 public partial class AnalisisFormatos123FrmViewModel : ObservableObject
 {
-    /// <summary>Columnas leídas del archivo (legacy arrayColumnas).</summary>
-    public ObservableCollection<string> Columnas { get; } = new();
+    /// <summary>
+    /// Columnas leídas del archivo (legacy arrayColumnas).
+    /// C-16: es una <see cref="List{T}"/>, no una ObservableCollection: NINGÚN elemento del XAML
+    /// la enlaza (la página solo navega por ella con ColumnaActual/Contador), así que notificar
+    /// una vez por columna leída era trabajo para nadie.
+    /// </summary>
+    public List<string> Columnas { get; } = new();
 
     /// <summary>
     /// Rejilla de valoraciones 1/X/2 por partido (reemplaza el UserControl WinForms 'valors').
@@ -171,7 +176,7 @@ public partial class AnalisisFormatos123FrmViewModel : ObservableObject
             });
 
             Columnas.Clear();
-            foreach (var c in leidas) Columnas.Add(c);
+            Columnas.AddRange(leidas);
             RefrescarTrasCarga();
         }
         catch (Exception ex)

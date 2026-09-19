@@ -226,7 +226,8 @@ public partial class CalculaColumnasMultipleFrmViewModel : ObservableObject
                     archComb.AbrirArchivoCombinacion(ficheroOrigen);
                     _analizador = new Analizador();
                     archComb.CargaControladorGrupos(_analizador.CtrlGrupos);
-                    archComb.LeeFiltroColumnas();
+                    // B-11: había aquí una llamada extra a LeeFiltroColumnas() cuyo resultado se
+                    // descartaba (lectura del fichero repetida sin efecto). Eliminada.
                     _analizador.ArchivoColumnasBase = archComb.LeeFiltroColumnas();
                     _analizador.Pronosticos = archComb.LeePronosticos();
                     archComb.Pronosticos = _analizador.Pronosticos;
@@ -291,6 +292,10 @@ public partial class CalculaColumnasMultipleFrmViewModel : ObservableObject
     /// Calcula las columnas máximas previstas del archivo en curso.
     /// Replica EXACTA de actualizaColumnasPrevistas() del form legacy (línea 106):
     /// si hay filtro base, ObtenNumCols(); si no, 2^dobles * 3^triples.
+    ///
+    /// OJO (B-11): se invoca DENTRO del <c>Task.Run</c> del cálculo en lote, es decir, en un
+    /// hilo de fondo. El cálculo se queda aquí, pero la publicación de los dos textos enlazados
+    /// se marshala al hilo de UI (ver el final del método).
     /// </summary>
     private void ActualizaColumnasPrevistas()
     {
@@ -316,9 +321,21 @@ public partial class CalculaColumnasMultipleFrmViewModel : ObservableObject
             CalcularCols();
         }
 
-        ColumnasMaximas = _colsMaximas.ToString("#,##0;0");
+        // B-11: ColumnasMaximas y CosteMaximas son [ObservableProperty] enlazadas OneWay en
+        // CalculaColumnasMultipleFrmPage.xaml (:147,150). Asignarlas desde este hilo de fondo
+        // disparaba PropertyChanged fuera del hilo de UI -> x:Bind tocaba el TextBlock ->
+        // COMException RPC_E_WRONG_THREAD, capturada por el catch del bucle de CalcularAsync,
+        // que abortaba el LOTE ENTERO en el primer fichero cuyo valor cambiara.
+        // El formateo (puro) se hace aquí; solo las dos asignaciones van al hilo de UI.
         double costeMaximo = _colsMaximas * Free1X2.VariablesGlobales.PrecioApuesta;
-        CosteMaximas = costeMaximo.ToString(Free1X2.VariablesGlobales.Moneda + "#,##0.00;0.0");
+        string textoColumnas = _colsMaximas.ToString("#,##0;0");
+        string textoCoste = costeMaximo.ToString(Free1X2.VariablesGlobales.Moneda + "#,##0.00;0.0");
+
+        UiHilo.Ejecutar(() =>
+        {
+            ColumnasMaximas = textoColumnas;
+            CosteMaximas = textoCoste;
+        }, "CalculaColumnasMultipleFrmViewModel.ActualizaColumnasPrevistas");
     }
 
     // Replica EXACTA de calcularCols() del form legacy (línea 92): 2^dobles * 3^triples.

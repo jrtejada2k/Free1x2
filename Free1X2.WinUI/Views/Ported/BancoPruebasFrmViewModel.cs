@@ -261,12 +261,14 @@ public partial class BancoPruebasFrmViewModel : ObservableObject
     // Filas de resultado por columna (grid legacy dgResultadoEscrutinio en modos "Columnas" y
     // "Autoescrutinio"), con casilla de selección por fila. Equivale a ResCol[] enlazado al
     // DataGridView WinForms (mismo enfoque que EscrutiniosFrmViewModel.Resultados).
-    public ObservableCollection<ResultadoColumnaItem> ColumnasResultado { get; } = new();
+    /// <remarks>C-13: <see cref="ColeccionUi{T}"/> para volcar el resultado de una sola vez.</remarks>
+    public ColeccionUi<ResultadoColumnaItem> ColumnasResultado { get; } = new();
 
     // Filas de resultado por jornadas (grid legacy dgResultadoEscrutinio en modo "Jornadas",
     // enlazado a ResultadoPorJornadas[] vía la tabla "ResultadosJornada[]"). Una fila por columna
     // aleatoria simulada, con su saldo acumulado.
-    public ObservableCollection<ResultadoJornadaItem> JornadasResultado { get; } = new();
+    /// <remarks>C-13: <see cref="ColeccionUi{T}"/> para volcar el resultado de una sola vez.</remarks>
+    public ColeccionUi<ResultadoJornadaItem> JornadasResultado { get; } = new();
 
     // ---------------------------------------------------------------------
     // Dependencias entre opciones (equivalentes a los CheckedChanged legacy)
@@ -580,12 +582,9 @@ public partial class BancoPruebasFrmViewModel : ObservableObject
     }
 
     // statusBarPanel*.Text legacy -> propiedades de estado marshaladas al hilo de UI.
-    private void EnUi(Action accion)
-    {
-        var disp = AppServices.UiDispatcher;
-        if (disp is null) { accion(); return; }
-        disp.TryEnqueue(() => accion());
-    }
+    // C-26: delega en UiHilo, que además registra el false de TryEnqueue (cola de UI cerrada);
+    // antes ese false se descartaba y la actualización se perdía en silencio.
+    private void EnUi(Action accion) => UiHilo.Ejecutar(accion, "BancoPruebas.EnUi");
 
     // BancoPruebasFrm.cs 3350-3389. Devuelve la matriz p[14,3] de la valoración real obtenida.
     private double[,] Calcula14Triples(float Prob, double lnTxt, int NumCol)
@@ -1058,11 +1057,8 @@ public partial class BancoPruebasFrmViewModel : ObservableObject
             });
         }
 
-        EnUi(() =>
-        {
-            JornadasResultado.Clear();
-            foreach (var f in filas) JornadasResultado.Add(f);
-        });
+        // C-13: un único Reset en vez de un CollectionChanged por jornada (mismo orden).
+        EnUi(() => JornadasResultado.ReemplazarTodo(filas));
     }
 
     // Proyecta ResCol[] (sin la fila resumen final [numApuestas]) a la colección observable
@@ -1089,11 +1085,8 @@ public partial class BancoPruebasFrmViewModel : ObservableObject
             });
         }
 
-        EnUi(() =>
-        {
-            ColumnasResultado.Clear();
-            foreach (var f in filas) ColumnasResultado.Add(f);
-        });
+        // C-13: un único Reset en vez de un CollectionChanged por columna (mismo orden).
+        EnUi(() => ColumnasResultado.ReemplazarTodo(filas));
     }
 
     // =====================================================================
@@ -1191,23 +1184,36 @@ public partial class BancoPruebasFrmViewModel : ObservableObject
         }
 
         int conta = 0;
-        await Task.Run(() =>
-        {
-            // Legacy: IArchivoColumnas comCols = new ArchivoColumnasTexto(archivoSalida);
-            //   for (i=c1; i<c2; i++) { si SoloSeleccionadas-> sólo IsSelected; GuardarCols(...); if (conta==c) break; }
-            IArchivoColumnas comCols = new ArchivoColumnasTexto(file.Path);
-            foreach (var (columna, seleccionada) in filas)
-            {
-                if (soloSeleccionadas && !seleccionada) continue;
-                comCols.GuardarCols(columna);
-                conta++;
-                if (maxCols > 0 && conta == maxCols) break;
-            }
-            comCols.Cerrar();
-        });
+        string rutaSalida = file.Path;
 
-        // Legacy: statusBarPanel3.Text = "Grabadas N columnas".
-        AppServices.MostrarInfo($"Grabadas {conta} columna(s) en {file.Name}.");
+        // B-12: sin catch, un fallo al grabar (fichero abierto en otro programa, disco lleno)
+        // llegaba al manejador global y aun así se anunciaba «Grabadas N columnas».
+        try
+        {
+            await Task.Run(() =>
+            {
+                // Legacy: IArchivoColumnas comCols = new ArchivoColumnasTexto(archivoSalida);
+                //   for (i=c1; i<c2; i++) { si SoloSeleccionadas-> sólo IsSelected; GuardarCols(...); if (conta==c) break; }
+                IArchivoColumnas comCols = new ArchivoColumnasTexto(rutaSalida);
+                foreach (var (columna, seleccionada) in filas)
+                {
+                    if (soloSeleccionadas && !seleccionada) continue;
+                    comCols.GuardarCols(columna);
+                    conta++;
+                    if (maxCols > 0 && conta == maxCols) break;
+                }
+                comCols.Cerrar();
+            });
+
+            // Legacy: statusBarPanel3.Text = "Grabadas N columnas".
+            AppServices.MostrarInfo($"Grabadas {conta} columna(s) en {file.Name}.");
+        }
+        catch (Exception ex)
+        {
+            Log.Error("BancoPruebas.Grabar [" + rutaSalida + "]", ex);
+            AppServices.MostrarError(
+                "No se pudieron grabar las columnas en:\n" + rutaSalida + "\n\n" + ex.Message);
+        }
     }
 
     // BancoPruebasFrm.cs 4399-4440 (btEliminarFilas_Click + DeseleccionaColumnasPorDiferencias).

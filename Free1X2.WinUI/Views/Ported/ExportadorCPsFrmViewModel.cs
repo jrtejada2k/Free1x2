@@ -90,19 +90,31 @@ public partial class ExportadorCPsFrmViewModel : ObservableObject
         string ruta = archivo.Path;
         List<ColumnaProbable> lista = _lista;
 
-        await Task.Run(() =>
+        // B-12: sin catch, un fallo de escritura llegaba al manejador global y, peor, el
+        // Estado se quedaba sin actualizar (o mentía diciendo que se había exportado).
+        try
         {
-            string[] columnas = new string[lista.Count];
-            IArchivoColumnas comBaseCols = new ArchivoColumnasTexto(ruta);
-            for (int i = 0; i < lista.Count; i++)
+            await Task.Run(() =>
             {
-                columnas[i] = lista[i].PronosticosString;
-            }
-            comBaseCols.GuardarTodasCols(columnas, true);
-            comBaseCols.Cerrar();
-        });
+                string[] columnas = new string[lista.Count];
+                IArchivoColumnas comBaseCols = new ArchivoColumnasTexto(ruta);
+                for (int i = 0; i < lista.Count; i++)
+                {
+                    columnas[i] = lista[i].PronosticosString;
+                }
+                comBaseCols.GuardarTodasCols(columnas, true);
+                comBaseCols.Cerrar();
+            });
 
-        Estado = $"Exportadas {lista.Count} columnas simples a {Path.GetFileName(ruta)}.";
+            Estado = $"Exportadas {lista.Count} columnas simples a {Path.GetFileName(ruta)}.";
+        }
+        catch (Exception ex)
+        {
+            Log.Error("ExportadorCPs.ExportarSimples [" + ruta + "]", ex);
+            AppServices.MostrarError(
+                "No se pudieron exportar las columnas simples a:\n" + ruta + "\n\n" + ex.Message);
+            Estado = "No se pudo exportar: " + ex.Message;
+        }
     }
 
     /// <summary>
@@ -131,20 +143,31 @@ public partial class ExportadorCPsFrmViewModel : ObservableObject
         string ruta = archivo.Path;
         List<ColumnaProbable> lista = _lista;
 
-        await Task.Run(() =>
+        // B-12: idéntico al caso de arriba; el Estado debe reflejar el fallo, no quedarse mudo.
+        try
         {
-            using var sw = new StreamWriter(ruta);
-            for (int i = 0; i < lista.Count; i++)
+            await Task.Run(() =>
             {
-                ColumnaProbable cp = lista[i];
-                string linea = cp.PronosticosString + "#" + cp.GetAciertos() + "#" +
-                               cp.GetAciertosSeguidos() + "#" + cp.GetFallosSeguidos();
-                sw.WriteLine(linea);
-            }
-            sw.Close();
-        });
+                using var sw = new StreamWriter(ruta);
+                for (int i = 0; i < lista.Count; i++)
+                {
+                    ColumnaProbable cp = lista[i];
+                    string linea = cp.PronosticosString + "#" + cp.GetAciertos() + "#" +
+                                   cp.GetAciertosSeguidos() + "#" + cp.GetFallosSeguidos();
+                    sw.WriteLine(linea);
+                }
+                sw.Close();
+            });
 
-        Estado = $"Exportadas {lista.Count} columnas con aciertos a {Path.GetFileName(ruta)}.";
+            Estado = $"Exportadas {lista.Count} columnas con aciertos a {Path.GetFileName(ruta)}.";
+        }
+        catch (Exception ex)
+        {
+            Log.Error("ExportadorCPs.ExportarConAciertos [" + ruta + "]", ex);
+            AppServices.MostrarError(
+                "No se pudieron exportar las columnas con aciertos a:\n" + ruta + "\n\n" + ex.Message);
+            Estado = "No se pudo exportar: " + ex.Message;
+        }
     }
 
     /// <summary>

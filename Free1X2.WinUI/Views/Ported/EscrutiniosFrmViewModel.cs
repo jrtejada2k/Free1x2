@@ -258,7 +258,8 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
     private string _estado = string.Empty;
 
     // Filas de resultados del escrutinio (legacy: dgResultados / resultadosDS "Resultados").
-    public ObservableCollection<ResultadoEscrutinioItem> Resultados { get; } = new();
+    // C-13: ColeccionUi para volcar miles de filas con un único Reset.
+    public ColeccionUi<ResultadoEscrutinioItem> Resultados { get; } = new();
 
     // Cabeceras de las columnas de aciertos de la rejilla, en orden descendente
     // (legacy dgResultados: una columna "P{n}" por cada nº de aciertos del rango "10-14").
@@ -269,7 +270,8 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
     public ObservableCollection<PremioHistograma> Histograma { get; } = new();
 
     // Columnas premiadas del último escrutinio (legacy: listaPremiadas -> ColumnasPremiadasFrm).
-    public ObservableCollection<ColumnaPremiadaItem> Premiadas { get; } = new();
+    // C-13: ColeccionUi para volcar cientos/miles de premiadas con un único Reset.
+    public ColeccionUi<ColumnaPremiadaItem> Premiadas { get; } = new();
 
     // Visibilidad de la tarjeta de premiadas (sólo tras VerPremiadas con datos).
     [ObservableProperty]
@@ -569,87 +571,103 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
 
         var hora0 = DateTime.Now;
 
-        // RealizaEscrutinio() corre el motor por cada fichero y acumula premiosGlobales.
-        // Se ejecuta en un hilo de fondo; el DataSet de resultados queda en memoria y el
-        // histograma se publica en la UI al terminar.
-        var salida = await Task.Run(() =>
+        // B-12: todo el escrutinio (lectura de N ficheros de columnas + histórico de jornadas)
+        // corría sin try/catch: un IOException dejaba Estado colgado en «Calculando...» para
+        // siempre y el error acababa en el manejador global sin decir qué fichero falló.
+        try
         {
-            int[] globales = new int[Free1X2.VariablesGlobales.NumeroPartidos + 1];
-            var premiadas = new List<ColumnasPremiadas>();
-            // El Escrutador escribe filas en la tabla "Resultados" vía PonerPremios; hay que
-            // crear su esquema ANTES de escrutar (réplica de EscrutiniosFrm.InicializaResultadosDataSet).
-            // Sin esto, Tables["Resultados"] es null y PonerPremios lanza NullReferenceException
-            // (y PremiosTotales nunca se acumula). Bug detectado en validación de paridad.
-            var resultadosDS = CrearDataSetResultados();
-            Escrutador? ultimo = null;
+            // RealizaEscrutinio() corre el motor por cada fichero y acumula premiosGlobales.
+            // Se ejecuta en un hilo de fondo; el DataSet de resultados queda en memoria y el
+            // histograma se publica en la UI al terminar.
+            var salida = await Task.Run(() =>
+            {
+                int[] globales = new int[Free1X2.VariablesGlobales.NumeroPartidos + 1];
+                var premiadas = new List<ColumnasPremiadas>();
+                // El Escrutador escribe filas en la tabla "Resultados" vía PonerPremios; hay que
+                // crear su esquema ANTES de escrutar (réplica de EscrutiniosFrm.InicializaResultadosDataSet).
+                // Sin esto, Tables["Resultados"] es null y PonerPremios lanza NullReferenceException
+                // (y PremiosTotales nunca se acumula). Bug detectado en validación de paridad.
+                var resultadosDS = CrearDataSetResultados();
+                Escrutador? ultimo = null;
 
-            if (tipo == 3)
-            {
-                // ===== Rama tipoEscrutinio==3 de RealizaEscrutinio (escrutinio contra jornadas) =====
-                EscrutarContraJornadas(resultadosDS, colAciertos, verPremiadas, plantilla,
-                    carpeta, dt, dj, temporadasSel, globales, premiadas, ref ultimo);
-            }
-            else
-            {
-                foreach (string archivo in archivos)
+                if (tipo == 3)
                 {
-                    var escrutador = new Escrutador(colAciertos)
-                    {
-                        ArchivoColumnas = archivo,
-                        AñadirAGanadoras = verPremiadas,
-                    };
-                    // Publica el escrutador en curso para que Detener/Cancelar puedan pararlo
-                    // (legacy: campo escrutador reasignado por cada fichero).
-                    _escrutadorActual = escrutador;
-
-                    if (tipo == 1)
-                        escrutador.EscrutaCombConColumna(colGan, resultadosDS, Path.GetFileName(archivo));
-                    else // tipo == 2
-                        escrutador.EscrutaCombConTemporada(archivoRef, resultadosDS, Path.GetFileName(archivo));
-
-                    if (verPremiadas)
-                    {
-                        foreach (var p in escrutador.ListaPremiadas)
-                            premiadas.Add((ColumnasPremiadas)p);
-                    }
-
-                    int[] premios = escrutador.PremiosTotales;
-                    for (int i = 0; i <= Free1X2.VariablesGlobales.NumeroPartidos; i++)
-                        globales[i] += premios[i];
-                    ultimo = escrutador;
+                    // ===== Rama tipoEscrutinio==3 de RealizaEscrutinio (escrutinio contra jornadas) =====
+                    EscrutarContraJornadas(resultadosDS, colAciertos, verPremiadas, plantilla,
+                        carpeta, dt, dj, temporadasSel, globales, premiadas, ref ultimo);
                 }
+                else
+                {
+                    foreach (string archivo in archivos)
+                    {
+                        var escrutador = new Escrutador(colAciertos)
+                        {
+                            ArchivoColumnas = archivo,
+                            AñadirAGanadoras = verPremiadas,
+                        };
+                        // Publica el escrutador en curso para que Detener/Cancelar puedan pararlo
+                        // (legacy: campo escrutador reasignado por cada fichero).
+                        _escrutadorActual = escrutador;
+
+                        if (tipo == 1)
+                            escrutador.EscrutaCombConColumna(colGan, resultadosDS, Path.GetFileName(archivo));
+                        else // tipo == 2
+                            escrutador.EscrutaCombConTemporada(archivoRef, resultadosDS, Path.GetFileName(archivo));
+
+                        if (verPremiadas)
+                        {
+                            foreach (var p in escrutador.ListaPremiadas)
+                                premiadas.Add((ColumnasPremiadas)p);
+                        }
+
+                        int[] premios = escrutador.PremiosTotales;
+                        for (int i = 0; i <= Free1X2.VariablesGlobales.NumeroPartidos; i++)
+                            globales[i] += premios[i];
+                        ultimo = escrutador;
+                    }
+                }
+
+                // Legacy: escrutador.AñadirPremiosGlobales(premiosGlobales) — fila resumen "TOTALES".
+                ultimo?.AñadirPremiosGlobales(globales);
+
+                return (globales, resultadosDS, premiadas);
+            });
+
+            int[] premiosGlobales = salida.globales;
+            _resultadosDS = salida.resultadosDS;
+            _listaPremiadas.AddRange(salida.premiadas);
+
+            // Proyecta las filas del DataSet a la colección observable (legacy: dgResultados).
+            ProyectarResultados(colAciertos);
+
+            // Publica el histograma (nº de aciertos -> columnas) sólo para los rangos pedidos.
+            var rangoOrden = (int[])colAciertos.Clone();
+            Array.Sort(rangoOrden);
+            for (int k = rangoOrden.Length - 1; k >= 0; k--)
+            {
+                int aciertos = rangoOrden[k];
+                if (aciertos >= 0 && aciertos < premiosGlobales.Length)
+                    Histograma.Add(new PremioHistograma(aciertos, premiosGlobales[aciertos]));
             }
 
-            // Legacy: escrutador.AñadirPremiosGlobales(premiosGlobales) — fila resumen "TOTALES".
-            ultimo?.AñadirPremiosGlobales(globales);
-
-            return (globales, resultadosDS, premiadas);
-        });
-
-        int[] premiosGlobales = salida.globales;
-        _resultadosDS = salida.resultadosDS;
-        _listaPremiadas.AddRange(salida.premiadas);
-
-        // Proyecta las filas del DataSet a la colección observable (legacy: dgResultados).
-        ProyectarResultados(colAciertos);
-
-        // Publica el histograma (nº de aciertos -> columnas) sólo para los rangos pedidos.
-        var rangoOrden = (int[])colAciertos.Clone();
-        Array.Sort(rangoOrden);
-        for (int k = rangoOrden.Length - 1; k >= 0; k--)
-        {
-            int aciertos = rangoOrden[k];
-            if (aciertos >= 0 && aciertos < premiosGlobales.Length)
-                Histograma.Add(new PremioHistograma(aciertos, premiosGlobales[aciertos]));
+            HayResultados = Resultados.Count > 0;
+            PuedeVerPremiadas = verPremiadas && _listaPremiadas.Count > 0;
         }
-
-        var hora9 = DateTime.Now;
-        string tiempo = "Final = " + (hora9 - hora0);
-        if (tiempo.Length >= 18) tiempo = tiempo.Substring(0, 18);
-        Estado = tiempo;
-
-        HayResultados = Resultados.Count > 0;
-        PuedeVerPremiadas = verPremiadas && _listaPremiadas.Count > 0;
+        catch (Exception ex)
+        {
+            Log.Error("Escrutinios.Escrutar (tipo=" + tipo + ")", ex);
+            AppServices.MostrarError("No se pudo completar el escrutinio:\n\n" + ex.Message);
+        }
+        finally
+        {
+            // B-12: el tiempo se publica SIEMPRE. Antes, si algo fallaba, Estado se quedaba
+            // en «Calculando...» indefinidamente y parecía que el proceso seguía vivo.
+            // Estamos tras el await -> hilo de UI (Estado es [ObservableProperty] enlazada).
+            var hora9 = DateTime.Now;
+            string tiempo = "Final = " + (hora9 - hora0);
+            if (tiempo.Length >= 18) tiempo = tiempo.Substring(0, 18);
+            Estado = tiempo;
+        }
     }
 
     /// <summary>
@@ -763,6 +781,10 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
         var tabla = _resultadosDS.Tables["Resultados"];
         if (tabla is null) return;
 
+        // C-13: las filas se acumulan en una lista local y se vuelcan de una sola vez al final
+        // (un Reset en lugar de un CollectionChanged por fila). El orden es el mismo.
+        var filas = new List<ResultadoEscrutinioItem>(tabla.Rows.Count);
+
         var orden = (int[])colAciertos.Clone();
         Array.Sort(orden);
         Array.Reverse(orden); // legacy mostraba las columnas de mayor a menor acierto.
@@ -786,7 +808,7 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
                     sb.Append(a).Append(": ").Append(valor).Append("  ");
             }
 
-            Resultados.Add(new ResultadoEscrutinioItem
+            filas.Add(new ResultadoEscrutinioItem
             {
                 Seleccionado = row["Seleccionado"] != DBNull.Value && (bool)row["Seleccionado"],
                 LineaId = row["LineaID"] == DBNull.Value ? "" : row["LineaID"].ToString() ?? "",
@@ -798,6 +820,8 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
                 Conteos = conteos,
             });
         }
+
+        Resultados.ReemplazarTodo(filas);
     }
 
     /// <summary>
@@ -888,17 +912,30 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
         StorageFile? file = await picker.PickSaveFileAsync();
         if (file is null) return;
 
-        await Task.Run(() =>
-        {
-            // Legacy: IArchivoColumnas archivo = new ArchivoColumnasTexto(nombre);
-            //   por cada fila seleccionada -> archivo.GuardarCols(columna); archivo.Cerrar();
-            IArchivoColumnas archivo = new ArchivoColumnasTexto(file.Path);
-            foreach (string columna in seleccionadas)
-                archivo.GuardarCols(columna);
-            archivo.Cerrar();
-        });
+        string rutaSalida = file.Path;
 
-        Free1X2.Abstractions.UserDialogs.ShowInfo($"Guardadas {seleccionadas.Count} columna(s) en {file.Name}.");
+        // B-12: sin catch, un fallo de escritura llegaba al manejador global y, si ocurría
+        // a mitad, se anunciaba igualmente «Guardadas N columnas».
+        try
+        {
+            await Task.Run(() =>
+            {
+                // Legacy: IArchivoColumnas archivo = new ArchivoColumnasTexto(nombre);
+                //   por cada fila seleccionada -> archivo.GuardarCols(columna); archivo.Cerrar();
+                IArchivoColumnas archivo = new ArchivoColumnasTexto(rutaSalida);
+                foreach (string columna in seleccionadas)
+                    archivo.GuardarCols(columna);
+                archivo.Cerrar();
+            });
+
+            Free1X2.Abstractions.UserDialogs.ShowInfo($"Guardadas {seleccionadas.Count} columna(s) en {file.Name}.");
+        }
+        catch (Exception ex)
+        {
+            Log.Error("Escrutinios.GrabarColumnas [" + rutaSalida + "]", ex);
+            AppServices.MostrarError(
+                "No se pudieron grabar las columnas en:\n" + rutaSalida + "\n\n" + ex.Message);
+        }
     }
 
     /// <summary>
@@ -909,13 +946,14 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
     [RelayCommand]
     private void VerPremiadas()
     {
-        Premiadas.Clear();
+        // C-13: se construye la lista completa y se vuelca con un único Reset (mismo orden).
+        var filas = new List<ColumnaPremiadaItem>(_listaPremiadas.Count);
         foreach (var p in _listaPremiadas)
         {
             // Legacy: NoBoleto + " (" + orden + ")", con orden = NoColumna % 8 (8 si 0).
             int orden = p.NoColumna % 8;
             if (orden == 0) orden = 8;
-            Premiadas.Add(new ColumnaPremiadaItem
+            filas.Add(new ColumnaPremiadaItem
             {
                 ArchivoColumnas = Path.GetFileName(p.Fichero),
                 Jornada = p.Jornada.ToString(),
@@ -925,6 +963,7 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
                 NumeroBoleto = p.NoBoleto + " (" + orden + ")",
             });
         }
+        Premiadas.ReemplazarTodo(filas);
         MostrarPremiadas = true;
     }
 
