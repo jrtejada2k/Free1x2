@@ -254,9 +254,11 @@ public partial class FrmReducidasPerfectasViewModel : ObservableObject
             await Windows.System.Launcher.LaunchUriAsync(
                 new Uri("http://www.foro1x2.com/viewtopic.php?t=4445"));
         }
-        catch
+        catch (Exception ex)
         {
             // Lanzador no disponible: se ignora (equivale a no poder abrir el navegador).
+            // C-24: el fallback se mantiene; solo se anade la traza para poder diagnosticar.
+            Log.Error("FrmReducidasPerfectasViewModel.AbrirHiloForo", ex);
         }
     }
 

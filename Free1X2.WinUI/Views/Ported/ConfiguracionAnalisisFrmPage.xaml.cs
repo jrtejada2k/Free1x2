@@ -19,7 +19,8 @@ public sealed partial class ConfiguracionAnalisisFrmPage : Page
 
     private void BtnGuardar_Click(object sender, RoutedEventArgs e)
     {
-        // El guardado real lo hace ViewModel.GuardarCommand (TODO dominio).
+        // El guardado real lo hace ViewModel.GuardarCommand, que llama a
+        // AConfiguracion.GuardarConfiguracionAnalisis (ConfiguracionAnalisisFrmViewModel.cs:231).
         // Tras guardar, el form legacy cerraba la ventana; aquí se navega hacia atrás si es posible.
         if (Frame?.CanGoBack == true) Frame.GoBack();
     }

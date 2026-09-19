@@ -329,9 +329,9 @@ public partial class RentabilidadFrmViewModel : ObservableObject
     // statusBarPanel6.Text legacy -> EstadoTexto marshalado al hilo de UI.
     private void ActualizarEstado(string texto)
     {
-        var disp = AppServices.UiDispatcher;
-        if (disp is null) { EstadoTexto = texto; return; }
-        disp.TryEnqueue(() => EstadoTexto = texto);
+        // C-26: UiHilo cubre el caso sin hilo de UI (headless) y ademas registra el
+        // false de TryEnqueue, que antes se descartaba en silencio.
+        UiHilo.Ejecutar(() => EstadoTexto = texto, "RentabilidadFrmViewModel");
     }
 
     // ---------------------------------------------------------------------

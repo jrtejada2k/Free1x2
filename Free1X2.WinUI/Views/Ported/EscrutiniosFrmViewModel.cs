@@ -75,8 +75,10 @@ public partial class ResultadoEscrutinioItem : ObservableObject
 /// temporada/jornada correspondiente leída del histórico de resultados.
 /// El motor (Escrutador), la lectura de Jornadas/Resultados.txt, la grabación de
 /// columnas (ArchivoColumnasTexto) y la lista de premiadas están cableados. Quedan
-/// como TODO la actualización por servicio web (Free1X2WService) y la navegación a
-/// PosiblesPremios/Cancelar (responsabilidad del shell de navegación).
+/// La navegación a PosiblesPremios y el Cancelar/Volver están cableados (ver
+/// PosiblesPremios() y Volver más abajo). Lo único no portado es la actualización por
+/// el servicio web legacy Free1X2WService, que ya no existe; su sustituto actual es la
+/// jornada online de clubprogol.com (Services/QuinielaOnlineService.cs).
 /// </summary>
 public partial class EscrutiniosFrmViewModel : ObservableObject
 {
@@ -431,7 +433,7 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
         int n = Free1X2.VariablesGlobales.NumeroPartidos;
         ColumnaGanadora = new string('*', n);
 
-        Free1X2.Abstractions.UserDialogs.ShowInfo(
+        AppServices.MostrarInfo(
             "El servicio online de Free1X2.com no está disponible sin conexión: " +
             "no se ha podido obtener la columna ganadora de la jornada actual.");
     }
@@ -512,12 +514,12 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
         // Validación equivalente a SonDatosValidos() (subconjunto: tipos 1 y 2).
         if (_archivosComb.Count == 0 && TipoEscrutinio != 3)
         {
-            Free1X2.Abstractions.UserDialogs.ShowError("Falta fichero a escrutar.");
+            AppServices.MostrarError("Falta fichero a escrutar.");
             return;
         }
         if (TipoEscrutinio == 2 && _archivoReferencia.Length == 0)
         {
-            Free1X2.Abstractions.UserDialogs.ShowError("Falta fichero de referencia.");
+            AppServices.MostrarError("Falta fichero de referencia.");
             return;
         }
         if (TipoEscrutinio == 3)
@@ -525,22 +527,22 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
             // Validación del modo jornadas (legacy SonDatosValidos, rama tipoEscrutinio==3).
             if (PlantillaNombreArchivo.Length == 0)
             {
-                Free1X2.Abstractions.UserDialogs.ShowError("Falta plantilla de nombre de fichero.");
+                AppServices.MostrarError("Falta plantilla de nombre de fichero.");
                 return;
             }
             if (Carpeta.Length == 0)
             {
-                Free1X2.Abstractions.UserDialogs.ShowError("Falta la carpeta de los ficheros.");
+                AppServices.MostrarError("Falta la carpeta de los ficheros.");
                 return;
             }
             if (PlantillaNombreArchivo.IndexOf("/t", StringComparison.Ordinal) < 0)
             {
-                Free1X2.Abstractions.UserDialogs.ShowError("No se ha puesto el indicador de temporada (/t).");
+                AppServices.MostrarError("No se ha puesto el indicador de temporada (/t).");
                 return;
             }
             if (PlantillaNombreArchivo.IndexOf("/j", StringComparison.Ordinal) < 0)
             {
-                Free1X2.Abstractions.UserDialogs.ShowError("No se ha puesto el indicador de jornada (/j).");
+                AppServices.MostrarError("No se ha puesto el indicador de jornada (/j).");
                 return;
             }
         }
@@ -896,7 +898,7 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
 
         if (seleccionadas.Count == 0)
         {
-            Free1X2.Abstractions.UserDialogs.ShowInfo("No hay columnas seleccionadas que grabar.");
+            AppServices.MostrarInfo("No hay columnas seleccionadas que grabar.");
             return;
         }
 
@@ -928,7 +930,7 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
                 archivo.Cerrar();
             });
 
-            Free1X2.Abstractions.UserDialogs.ShowInfo($"Guardadas {seleccionadas.Count} columna(s) en {file.Name}.");
+            AppServices.MostrarInfo($"Guardadas {seleccionadas.Count} columna(s) en {file.Name}.");
         }
         catch (Exception ex)
         {

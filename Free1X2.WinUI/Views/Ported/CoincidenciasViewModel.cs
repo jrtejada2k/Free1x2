@@ -483,7 +483,6 @@ public partial class CoincidenciasViewModel : ObservableObject
 
         _salida = false;
         DateTime dt0 = DateTime.Now;
-        DispatcherQueue dispatcher = AppServices.UiDispatcher!;
 
         if (!InitConds())
         {
@@ -499,7 +498,7 @@ public partial class CoincidenciasViewModel : ObservableObject
 
         try
         {
-            await Task.Run(() => EjecutarCalcular(dispatcher, dt0));
+            await Task.Run(() => EjecutarCalcular(dt0));
         }
         catch (Exception ex)
         {
@@ -514,7 +513,7 @@ public partial class CoincidenciasViewModel : ObservableObject
     }
 
     // Núcleo del bucle de Calcular (legacy), fuera del hilo de UI.
-    private void EjecutarCalcular(DispatcherQueue dispatcher, DateTime dt0)
+    private void EjecutarCalcular(DateTime dt0)
     {
         _validas.SetAll(false);
         for (int nr = 0; nr < 109; nr++) { _agrabarAC[nr] = 0; _agrabarGR[nr] = 0; }
@@ -538,12 +537,16 @@ public partial class CoincidenciasViewModel : ObservableObject
                     int procActual = procesadas;
                     int admActual = _ctadm;
                     DateTime ahora = DateTime.Now;
-                    dispatcher.TryEnqueue(() =>
+                    // C-25/C-26: antes se tomaba AppServices.UiDispatcher! y se ignoraba el
+                    // retorno de TryEnqueue. Sin hilo de UI (smoke/tests) eso reventaba dentro del
+                    // Task.Run con un NullReferenceException que el catch del llamador mostraba
+                    // como «Error al calcular: Object reference…». UiHilo cubre ambos casos.
+                    UiHilo.Ejecutar(() =>
                     {
                         ColumnasProcesadas = procActual.ToString();
                         ColumnasValidas = admActual.ToString();
                         Tiempo = FormatearTiempo(ahora - dt0);
-                    });
+                    }, "CoincidenciasViewModel.Calcular");
                 }
             }
         }

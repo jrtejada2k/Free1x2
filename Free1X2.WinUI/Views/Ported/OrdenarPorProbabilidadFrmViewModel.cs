@@ -336,9 +336,9 @@ public partial class OrdenarPorProbabilidadFrmViewModel : ObservableObject
     // statusBarPanel4.Text legacy -> Estado marshalado al hilo de UI.
     private void ActualizarEstadoMotor(string texto)
     {
-        var disp = AppServices.UiDispatcher;
-        if (disp is null) { Estado = texto; return; }
-        disp.TryEnqueue(() => Estado = texto);
+        // C-26: UiHilo cubre el caso sin hilo de UI (headless) y ademas registra el
+        // false de TryEnqueue, que antes se descartaba en silencio.
+        UiHilo.Ejecutar(() => Estado = texto, "OrdenarPorProbabilidadFrmViewModel");
     }
 
     // ---------------------------------------------------------------------

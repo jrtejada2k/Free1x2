@@ -312,9 +312,11 @@ public partial class FrmDependenciaLinealViewModel : ObservableObject
             double[,] porcentajes = await Task.Run(() => LeerColumnas(_rutaSalida));
             _ = porcentajes; // los porcentajes recalculados se mostrarían en el control de % (no portado aquí)
         }
-        catch
+        catch (Exception ex)
         {
             // Relectura no crítica: el fichero ya se grabó.
+            // C-24: el fallback se mantiene; solo se anade la traza para poder diagnosticar.
+            Log.Error("FrmDependenciaLinealViewModel.RelecturaTrasGrabar", ex);
         }
     }
 

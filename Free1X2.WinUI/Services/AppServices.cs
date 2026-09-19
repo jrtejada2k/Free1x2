@@ -55,7 +55,17 @@ public static class AppServices
     /// true si el usuario confirma. Debe invocarse desde el hilo de UI. En modo headless (sin
     /// XamlRoot) devuelve false para no realizar acciones destructivas sin confirmación.
     /// </summary>
-    public static async System.Threading.Tasks.Task<bool> ConfirmarAsync(string mensaje, string titulo = "Free1X2")
+    public static System.Threading.Tasks.Task<bool> ConfirmarAsync(string mensaje, string titulo = "Free1X2")
+        => ConfirmarAsync(mensaje, titulo, ContentDialogButton.Close);
+
+    /// <summary>
+    /// Igual que <see cref="ConfirmarAsync(string,string)"/>, pero permite elegir qué botón queda
+    /// por defecto (el que responde a Intro). Necesario porque algunas pantallas portadas tenían
+    /// su propio ContentDialog con "Sí" por defecto: al unificarlas aquí (C-22) pasan a compartir
+    /// la puerta de diálogos (B-01) sin cambiar a qué botón responde el Intro.
+    /// </summary>
+    public static async System.Threading.Tasks.Task<bool> ConfirmarAsync(
+        string mensaje, string titulo, ContentDialogButton botonPorDefecto)
     {
         if (MainWindow?.Content?.XamlRoot is null) return false;
 
@@ -75,7 +85,7 @@ public static class AppServices
                 Content = mensaje,
                 PrimaryButtonText = "Sí",
                 CloseButtonText = "No",
-                DefaultButton = ContentDialogButton.Close,
+                DefaultButton = botonPorDefecto,
                 XamlRoot = root,
             };
             return await dlg.ShowAsync() == ContentDialogResult.Primary;

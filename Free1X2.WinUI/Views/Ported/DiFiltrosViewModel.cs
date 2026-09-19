@@ -168,7 +168,9 @@ public partial class DiFiltrosViewModel : ObservableObject
         Filtros.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HayFiltros));
     }
 
-    private static DispatcherQueue? Disp => AppServices.UiDispatcher;
+    // C-26: el antiguo helper Disp?.TryEnqueue descartaba la actualizacion por completo
+    // cuando no habia hilo de UI (el ?. la saltaba) y tampoco miraba el retorno. Ahora
+    // todo pasa por UiHilo, que ejecuta en el hilo actual si no hay UI y registra el false.
 
     // s2n legacy de DiFiltros (usa ConvertidorDeBases, distinto al de CombinarFiltros).
     private static int S2n(string ax)
@@ -303,13 +305,20 @@ public partial class DiFiltrosViewModel : ObservableObject
                 {
                     if (_salida) break;
                     DiFiltroFilaViewModel fila = filas[nf];
-                    Disp?.TryEnqueue(() => fila.Columnas = 0);
+                    UiHilo.Ejecutar(() => fila.Columnas = 0, "DiFiltrosViewModel");
 
                     if (!fila.Activo) continue;
 
                     IArchivoColumnas sr;
                     try { sr = new ArchivoColumnasTexto(fila.Ruta); }
-                    catch { Disp?.TryEnqueue(() => fila.Activo = false); continue; }
+                    catch (Exception ex)
+                    {
+                        // Fichero de columnas ilegible: el legacy desactivaba la fila y seguia.
+                        // C-24: se conserva ese comportamiento, pero ahora queda traza del motivo.
+                        Log.Error("DiFiltrosViewModel: no se pudo abrir " + fila.Ruta, ex);
+                        UiHilo.Ejecutar(() => fila.Activo = false, "DiFiltrosViewModel");
+                        continue;
+                    }
 
                     _filtro2.SetAll(false);
                     int ctcols = 0;
@@ -325,12 +334,12 @@ public partial class DiFiltrosViewModel : ObservableObject
                     }
                     sr.Cerrar();
                     int ctcolsFinal = ctcols;
-                    Disp?.TryEnqueue(() => fila.Columnas = ctcolsFinal);
+                    UiHilo.Ejecutar(() => fila.Columnas = ctcolsFinal, "DiFiltrosViewModel");
 
                     if (nf == 0)
                     {
                         _ctFR = ctcols;
-                        Disp?.TryEnqueue(() => fila.Admitidas = ctcolsFinal);
+                        UiHilo.Ejecutar(() => fila.Admitidas = ctcolsFinal, "DiFiltrosViewModel");
                     }
                     else
                     {
@@ -375,7 +384,7 @@ public partial class DiFiltrosViewModel : ObservableObject
             }
         }
         int ctFRFinal = _ctFR;
-        Disp?.TryEnqueue(() => fila.Admitidas = ctFRFinal);
+        UiHilo.Ejecutar(() => fila.Admitidas = ctFRFinal, "DiFiltrosViewModel");
     }
 
     // ====== Valida(nsel) legacy ======
@@ -440,11 +449,11 @@ public partial class DiFiltrosViewModel : ObservableObject
             if (_validas[n]) ct13++;
         }
         int ct13Final = ct13;
-        Disp?.TryEnqueue(() =>
+        UiHilo.Ejecutar(() =>
         {
             fila.Acierta14 = a14;
             fila.Aciertos13 = ct13Final;
-        });
+        }, "DiFiltrosViewModel");
     }
 
     // ====== bCancelar -> salida = true ======

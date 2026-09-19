@@ -3,6 +3,7 @@ using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Free1X2.EntradaSalida;
+using Free1X2.WinUI.Services;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -213,9 +214,11 @@ public partial class ConfiguracionAnalisisFrmViewModel : ObservableObject
             ControlGrupos = aControlGrupos;
             ControlConjuntos = aControlConjuntos;
         }
-        catch
+        catch (Exception ex)
         {
             // Sin archivo de configuración accesible: se mantienen los valores por defecto.
+            // C-24: el fallback se mantiene; solo se anade la traza para poder diagnosticar.
+            Log.Error("ConfiguracionAnalisisFrmViewModel.CargarDesdeConfiguracion", ex);
         }
     }
 
@@ -239,7 +242,7 @@ public partial class ConfiguracionAnalisisFrmViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            Free1X2.Abstractions.UserDialogs.ShowError(
+            AppServices.MostrarError(
                 "No se pudo guardar la configuración de análisis: " + ex.Message);
         }
     }

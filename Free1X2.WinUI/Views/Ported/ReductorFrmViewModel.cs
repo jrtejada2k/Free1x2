@@ -147,7 +147,7 @@ public partial class ReductorFrmViewModel : ObservableObject
 
         if (!EsArchivoEntradaValido(file.Path))
         {
-            Free1X2.Abstractions.UserDialogs.ShowError(
+            AppServices.MostrarError(
                 "El archivo de entrada debe tener 14 partidos.\n" +
                 "Compruebe además que no hay líneas en blanco adicionales al final del archivo.");
             return;
@@ -225,7 +225,7 @@ public partial class ReductorFrmViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            Free1X2.Abstractions.UserDialogs.ShowError("Error en la reducción: " + ex.Message);
+            AppServices.MostrarError("Error en la reducción: " + ex.Message);
         }
         finally
         {

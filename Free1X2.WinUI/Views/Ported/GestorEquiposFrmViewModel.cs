@@ -201,7 +201,7 @@ public partial class GestorEquiposFrmViewModel : ObservableObject
     /// Comparador ÚNICO de nombres de equipo (C-06). Antes convivían dos criterios: el alta
     /// manual y el "mover" usaban <c>Contains</c> (case-sensitive y sin recortar) mientras la
     /// importación online ignoraba may/min y espacios → "Real Madrid" y "real madrid" podían
-    /// acabar conviviendo en la misma categoría. Ahora TODO pasa por aquí.
+    /// acabar conviviendo en la misma categoría. Ahora todo pasa por aquí.
     /// </summary>
     private static readonly StringComparer ComparadorEquipos = StringComparer.OrdinalIgnoreCase;
 

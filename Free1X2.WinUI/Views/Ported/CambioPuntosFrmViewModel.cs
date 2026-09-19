@@ -3,6 +3,7 @@ using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Free1X2.EntradaSalida;
+using Free1X2.WinUI.Services;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -60,11 +61,11 @@ public partial class CambioPuntosFrmViewModel : ObservableObject
         try
         {
             new AConfiguracion().GuardarPuntosCP((int)ValorFijos, (int)ValorDobles, (int)ValorTriples);
-            Free1X2.Abstractions.UserDialogs.ShowInfo("Puntuación guardada.");
+            AppServices.MostrarInfo("Puntuación guardada.");
         }
         catch (Exception ex)
         {
-            Free1X2.Abstractions.UserDialogs.ShowError("No se pudo guardar la puntuación: " + ex.Message);
+            AppServices.MostrarError("No se pudo guardar la puntuación: " + ex.Message);
         }
     }
 }

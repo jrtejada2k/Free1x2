@@ -15,9 +15,8 @@ namespace Free1X2.WinUI.Views.Ported
     /// Esta pantalla es puramente informativa: no recibe parámetros de entrada ni
     /// ejecuta lógica de dominio, por lo que NO necesita ViewModel.
     ///
-    /// TODO (dominio): si en el futuro se quiere mostrar versión/build dinámicos
-    /// (p.ej. "0.77.2 Rarotonga"), obtenerlos del servicio de aplicación legacy
-    /// correspondiente cuando exista en Free1X2.Domain (no implementado aún).
+    /// Nota: la versión dinámica no se muestra aquí a propósito; quien la muestra es
+    /// "Acerca de" (AcercaDeFrmPage.xaml.cs), que la lee del ensamblado.
     /// </summary>
     public sealed partial class CreditosFrmPage : Page
     {

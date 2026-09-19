@@ -193,7 +193,7 @@ public partial class AgregaP15FrmViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            Free1X2.Abstractions.UserDialogs.ShowError("Error al añadir el P15: " + ex.Message);
+            AppServices.MostrarError("Error al añadir el P15: " + ex.Message);
             Estado = "Error";
             return;
         }
