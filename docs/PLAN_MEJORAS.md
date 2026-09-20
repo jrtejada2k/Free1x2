@@ -689,7 +689,7 @@ de donde el smoke coge el `.exe`. Un smoke podía pasar sobre un binario viejo. 
 Estado a 2026-09-19. Todo lo de abajo está **decidido** por el dueño; lo que falta es ejecutarlo.
 Las tandas están ordenadas para que **nada requiera abrir la app hasta la tanda 4**.
 
-### Tanda 1 — Motor (no abre ninguna ventana) · listo para ejecutar ya
+### Tanda 1 — Motor (no abre ninguna ventana) · ☑ HECHA (commit `078b10d`)
 
 | # | Qué | Fichero | Verificación |
 |---|-----|---------|--------------|
@@ -699,7 +699,7 @@ Las tandas están ordenadas para que **nada requiera abrir la app hasta la tanda
 
 **Cierre de tanda:** `dotnet test` 131+/131+ y `dotnet build` 0 errores. **Sin smoke** (no hace falta abrir la app para cambios de Domain cubiertos por tests).
 
-### Tanda 2 — Refactor C-17: pickers de fichero (no abre ninguna ventana)
+### Tanda 2 — Refactor C-17: pickers de fichero (no abre ninguna ventana) · 🔄 en curso
 
 163 `new FileOpenPicker`/`FileSavePicker` + 322 `InitializeWithWindow.Initialize(picker, AppServices.WindowHandle)`
 repartidos por **67 ficheros** (~800-1000 líneas de *boilerplate* idéntico).
