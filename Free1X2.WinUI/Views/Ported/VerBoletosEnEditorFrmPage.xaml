@@ -66,7 +66,12 @@
         <!-- Host invisible para exportar el texto completo de los boletos como imagen.
              Está en el árbol visual (RenderTargetBitmap lo exige) pero con Opacity=0 y sin
              hit-test, así que no afecta a la vista del usuario. El TextBlock con el texto
-             completo (sin scroll) se inserta en code-behind justo antes de renderizar. -->
+             completo (sin scroll) se inserta en code-behind justo antes de renderizar.
+             El Background="White" es INTENCIONAL y NO debe seguir el tema: es el fondo "papel"
+             de la imagen exportada (VerBoletosEnEditorFrmPage.xaml.cs:52-70 renderiza el
+             TextBlock con Foreground negro fijo sobre este host y lo codifica como PNG). Con un
+             fondo de tema, en oscuro saldría texto negro sobre negro en el PNG/portapapeles.
+             Verificado (U-13). -->
         <Border
             x:Name="HostExportacion"
             Grid.Row="0"

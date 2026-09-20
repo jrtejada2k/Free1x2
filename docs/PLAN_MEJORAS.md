@@ -1,4 +1,10 @@
-# Plan de mejoras — Free1X2 WinUI 3 (post v0.82.0 «Rarotonga»)
+#| 2026-09-19 | **N-02** Cuelgue de ReductorTM | **Arreglarlo y avisar al usuario** | Salir del bucle en vez de colgarse y mostrar un mensaje explicando que no hay emparejamientos posibles. Los golden-master de ReductorTM deben seguir verdes. |
+| 2026-09-19 | **P-20** Bombeo de UI | **Arreglarlo** | `.Milliseconds` → `.TotalMilliseconds` y comprobar cada N columnas con `Environment.TickCount64`. No afecta a resultados; la UI responde de forma regular en análisis largos. |
+| 2026-09-19 | **U-04…U-07** Opciones de UI | **Todas** (con énfasis en U-05) | U-05 tamaño mínimo de ventana · U-06 icono en la barra de título · U-04 atajos de teclado (funcionalidad nueva: se propone un juego estándar de Windows y el dueño lo ajusta) · U-07 revisión de recorte a 125/150 % DPI con capturas, arreglando solo donde se recorte de verdad. |
+| 2026-09-19 | **C-17 y C-18** Refactors | **Ambos** | C-17: 163 pickers duplicados en 67 ficheros → helper. C-18: cuarteto Guardar/Abrir/Copiar/Pegar en 16 ViewModels (48 métodos) → clase base. Verificación V0 completa tras cada uno. |
+| 2026-09-19 | **C-07** Borrar BoletoControl | **NO** | El dueño prefiere no borrar código. Se mantiene; se le añade la desuscripción para cerrar la fuga latente. |
+| 2026-09-19 | **N-04** Límite de 32 767 columnas en ReductorTM | **NO subirlo** | Se conserva el comportamiento actual con la comprobación explícita ya añadida. Documentar como limitación conocida. |
+ Plan de mejoras — Free1X2 WinUI 3 (post v0.82.0 «Rarotonga»)
 
 > **Estado: borrador para tu revisión.** Base: `main` = `e77a5ac`, release `v0.82.0`, fecha 2026-09-16.
 > Producido por **5 revisiones independientes en solo lectura** (infra WinUI · 108 páginas portadas · motor `Free1X2.Domain` ·
@@ -34,6 +40,7 @@ D-03 (mover docs) · C-17/C-18 (refactor grande de 67 y 16 ficheros).
 | R4 | **Sin evidencia no hay hallazgo.** | Cada fila cita fichero:línea leído. Lo no verificado se descarta. |
 | R5 | **Trabajo en agentes de fondo, serial cuando hay build.** | Un solo `dotnet build` a la vez (contención de `obj/`). |
 | R6 | **No borrar ramas ni cambiar visibilidad del repo.** | Los residuos documentales se *mueven*, no se borran, salvo orden del dueño. |
+| R7 | **No lanzar la app ni capturar pantalla sin permiso explícito del dueño, cada vez.** | Lanzar `Free1X2.WinUI.exe` abre una ventana que **roba el foco**, y las capturas usan ratón y teclado sintéticos que caen sobre lo que el dueño esté haciendo. Ocurrió el 2026-09-19: un agente relanzó la app en bucle sobre un juego a pantalla completa y dejó al dueño sin poder escribir. **Incluye el smoke test.** Antes de ejecutar la app: pedir permiso; al terminar, matar todo proceso `Free1X2.WinUI`. Las verificaciones que no abren ventana (`dotnet build`, `dotnet test`) no necesitan permiso. |
 
 **Verificación estándar (V0)** que cierra cualquier ítem de código:
 ```powershell
@@ -676,6 +683,117 @@ Requeriría un hook desde la capa WinUI. **Ganancia restante pequeña; no recomi
 `dotnet build -c Debug` **sin** `-p:Platform=x64` escribe en `bin\Debug\`, no en `bind\Debug\`, que es
 de donde el smoke coge el `.exe`. Un smoke podía pasar sobre un binario viejo. ☑ Corregido en §0
 (añadido `-p:Platform=x64`, borrado previo del log y comprobación de la fecha del `.exe`).
+
+## 7 ter. Trabajo restante — plan de ejecución
+
+Estado a 2026-09-19. Todo lo de abajo está **decidido** por el dueño; lo que falta es ejecutarlo.
+Las tandas están ordenadas para que **nada requiera abrir la app hasta la tanda 4**.
+
+### Tanda 1 — Motor (no abre ninguna ventana) · listo para ejecutar ya
+
+| # | Qué | Fichero | Verificación |
+|---|-----|---------|--------------|
+| **N-02** | Cuelgue de `ReductorTM` con `diferencia == 1`: `menor = Array.IndexOf(matrizTemporal, 0)` devuelve `-1`, el `for` no itera y el `while (mayor != 0)` no termina nunca. Salir del bucle y avisar al usuario de que no hay emparejamientos posibles. | `Free1X2.Domain/Reduccion/ReductorTM.cs` | Los 6 golden-master de ReductorTM/RelacionCP1 **deben seguir verdes** + un test nuevo que fije el caso `diferencia == 1` (antes: cuelgue; después: mensaje). |
+| **P-20** | Bombeo de UI errático: `Analizador.cs:100` usa `.Milliseconds` (componente 0-999) en vez de `.TotalMilliseconds`, así que si pasan 1,2 s la componente vale 200 y **no** bombea. Además llama a `DateTime.Now` 4,78 M de veces. Corregir y comprobar cada N columnas con `Environment.TickCount64`. | `Free1X2.Domain/MotorCalculo/Analizador.cs:100` | 131/131. No altera resultados, solo la cadencia del refresco. |
+| **N-03** | Comprobar si `Free1X2.WinUI/Views/Ported/ReductorFrmViewModel.cs` llama a `Inicializa` antes de `ComienzaReduccion` (la UI legacy sí lo hacía, `Free1X2/UI/ReductorFrm.cs:618-619`). Si no lo hace, `diferencia` queda en 0 → **es un bug de comportamiento**. | `ReductorFrmViewModel.cs` | Si hay que arreglarlo: golden-master del caso. |
+
+**Cierre de tanda:** `dotnet test` 131+/131+ y `dotnet build` 0 errores. **Sin smoke** (no hace falta abrir la app para cambios de Domain cubiertos por tests).
+
+### Tanda 2 — Refactor C-17: pickers de fichero (no abre ninguna ventana)
+
+163 `new FileOpenPicker`/`FileSavePicker` + 322 `InitializeWithWindow.Initialize(picker, AppServices.WindowHandle)`
+repartidos por **67 ficheros** (~800-1000 líneas de *boilerplate* idéntico).
+
+1. Crear `Free1X2.WinUI/Services/PickerHelper.cs`: `AbrirAsync(params string[] extensiones)` y
+   `GuardarAsync(string nombreSugerido, params (string etiqueta, string extension)[] tipos)`, encapsulando
+   el `InitializeWithWindow` y devolviendo `StorageFile?`.
+2. Sustituir sitio por sitio, **en tandas de ~10 ficheros**, compilando entre tandas. Conservar
+   **exactamente** las extensiones, el nombre sugerido y la ubicación inicial de cada picker: un cambio ahí
+   altera lo que el usuario ve en el diálogo.
+3. **No** cambiar el flujo posterior (qué se hace con el fichero elegido).
+
+**Cierre:** build 0 errores · 131/131 · **el smoke queda para la tanda 4**.
+
+### Tanda 3 — Refactor C-18: cuarteto de los filtros (no abre ninguna ventana)
+
+`Guardar`/`Abrir`/`Copiar`/`Pegar` idénticos salvo extensión y nombre sugerido en **16 ViewModels** de filtro
+(**48 métodos**): Contactos, Distancias, Dibujos, Diferencias, FigurasFiltros, Formatos, Formatos123,
+GruposEquipos, IfThen, Interrupciones, NoVariantes, PesosNum, Simetrias, SignosSeguidos, Valoracion, Modificador.
+Referencia de equivalencia: `ContactosFrmViewModel.cs:274-344` ≡ `DistanciasFrmViewModel.cs:207-274`.
+
+1. Clase base `FiltroArchivoViewModelBase(extension, nombreSugerido)` con los 4 comandos, apoyada en el
+   `PickerHelper` de la tanda 2. `GuardarEn`/`AbrirDesde` (lo específico de cada filtro) **siguen en cada VM**
+   como métodos abstractos.
+2. Migrar **de a un ViewModel**, compilando después de cada uno. Cualquier diferencia real entre dos VMs
+   (aunque parezca un despiste) se **conserva** y se anota: puede ser intencional del original.
+
+**Cierre:** build 0 errores · 131/131.
+
+### Tanda 4 — Verificación con la app abierta · **REQUIERE PERMISO DEL DUEÑO (R7)**
+
+Aquí es donde se abre `Free1X2.WinUI.exe`. **No se ejecuta nada de esto hasta que el dueño diga que puede.**
+Conviene hacerlo todo de una vez, en una sola ventana de tiempo en que no esté usando el ordenador.
+
+1. **Smoke** de las tandas 1-3: `SMOKE DONE total=109 ok=109 fail=0`.
+2. **U-01 pendiente de verificar en ejecución** (el código ya está escrito y compila): que el submenú
+   **Ver → Tema** cambie el tema **en vivo**, que «Sistema» siga a Windows, y que la elección **persista**
+   tras cerrar y reabrir (comprobar `%LocalAppData%\Free1X2\tema.json`).
+3. **U-02/U-03/U-13** en tema oscuro: que no quede texto ilegible; veredicto sobre los 8 *swatches* de
+   leyenda de `TramificarGraficasFrmPage.xaml:79-113` (¿coinciden con las curvas → son colores de datos?) y
+   sobre el `Background="White"` de `HostExportacion` en `VerBoletosEnEditorFrmPage.xaml:70-79` (¿es el
+   fondo «papel» del PNG exportado?).
+4. **U-07**: capturas a **100 %, 125 % y 150 %** de las 19 páginas sin `ScrollViewer` propio
+   (`AnaCombiPage`, `AnalizarFicheroFrmPage`, `AnastaticsPage`, `CambioPuntosFrmPage`, `ColumnasPremiadasFrmPage`,
+   `CombinarFiltrosPage`, `ControlTolFrmPage`, `CrearGruposFrmPage`, `DescargaBoletoFrmPage`,
+   `DialogoFiltrarPorLimitesFrmPage`, `GEPTFrmPage`, `ListaImpresorasPage`, `ListadoCondicionesFrmPage`,
+   `MejoresOpcionesFrmPage`, `PremiadasFrmPage`, `ReductorFrmPage`, `ResultadosCalculoMultipleFrmPage`,
+   `VerBoletosEnEditorFrmPage`, `VisorEstadisticasPage`) — 8 de ellas tienen scroll interno propio, así que
+   el riesgo real está en las otras 11. **Arreglar solo donde se recorte de verdad.**
+5. **U-06**: comprobar si la barra de título ya muestra el icono de la app; si no, `AppWindow.SetIcon`.
+6. **Al terminar: matar todo proceso `Free1X2.WinUI`.**
+
+### Tanda 5 — U-05 y U-04 (no abren ventana para implementar; sí para comprobar)
+
+- **U-05 tamaño mínimo de ventana** (el dueño lo destacó). Hoy `MainWindow.xaml.cs` solo hace
+  `AppWindow.Resize(1020,760)`, sin tope: al encoger, la barra de ~55 botones a 2 filas se recorta.
+  Implementar con `OverlappedPresenter.PreferredMinimumWidth/Height`. **Falta que el dueño diga el mínimo**
+  (propuesta: **900 × 600**; se aplica salvo que diga otro).
+- **U-04 atajos de teclado.** Es **funcionalidad nueva**: el WinForms original **no tenía ninguno**
+  (`Free1X2/UI/MainForm.Designer.cs` sin `ShortcutKeys`). Propuesta de juego mínimo y estándar de Windows,
+  **a confirmar o cambiar por el dueño** antes de implementar:
+
+  | Atajo | Acción |
+  |-------|--------|
+  | `Ctrl+N` | Nueva combinación |
+  | `Ctrl+O` | Abrir combinación |
+  | `Ctrl+S` | Guardar combinación |
+  | `F5` | Calcular / Analizar |
+  | `F1` | Ayuda |
+  | `Esc` | Volver (donde hoy hay botón Volver/Cancelar) |
+
+  Se añaden como `KeyboardAccelerator` en el `MenuBar`, sin tocar la disposición.
+
+### Tanda 6 — F6 Cierre
+
+1. Bump `Free1X2.WinUI.csproj` `AssemblyVersion`/`FileVersion`/`Version` → **`0.83.0`** (el nombre «Rarotonga» se conserva).
+2. Comprobar que no quedan versiones viejas en los `.md`.
+3. Actualizar `docs/ANALISIS_TECNICO_WINUI3.md` §11 con lo cerrado en F1-F5 y las cifras nuevas.
+4. Actualizar `CLAUDE.md` (versión, conteo de tests, `Services/TemaApp.cs`, `Services/Log.cs`, `PickerHelper`).
+5. V0 completo **con permiso (R7)** + `dotnet publish` self-contained win-x64; verificar `FileVersion`,
+   datos semilla, `Assets/logo.jpg`, `Documentacion/licencia.txt`.
+6. Merge de `mejoras-0.83` a `main` (**sin borrar la rama**, R6), tag `v0.83.0` y Release adjuntando el zip.
+   Recordatorio: `gh` **no** está en el PATH, hay que llamarlo por su ruta completa.
+
+### Lo que queda FUERA por decisión expresa del dueño
+
+| Ítem | Motivo |
+|------|--------|
+| **C-07** borrar `BoletoControl`/`BoletoViewModel` | El dueño prefiere no borrar código. Se mantiene; solo se le añade la desuscripción del evento para cerrar la fuga latente. |
+| **N-04** subir el límite de 32 767 columnas de `ReductorTM` | Se conserva el comportamiento actual, con la comprobación explícita ya añadida. Documentar como limitación conocida. |
+| **P-18** buffers de `RelacionCP3` | Sus getters públicos devuelven los buffers internos: reutilizarlos aliasearía estado a los consumidores. Sin test de igualdad fiable → no se toca (regla del dueño). |
+| **P-19** `Hashtable` → `Dictionary` en `EscrutadorComb` | `Keys.CopyTo` recorre los buckets **en orden inverso** y ese orden fija la lista que la UI muestra **sin ordenar**. Cambiarlo alteraría lo que ve el usuario. |
+| **N-05** `HashSet` paralelo a `Figuras` | `FigurasFiltrosFrmViewModel.cs:129-146` muta la lista **por referencia** sin pasar por el setter: el set se desincronizaría en silencio. Ganancia restante pequeña. |
+| **U-08…U-12** (FontSize 11 del boleto, orden de botones en 2 diálogos, localización, `AutomationProperties` en 20 páginas, `NumberBox`/`AutoSuggestBox`) | No decididos aún; quedan documentados en §6 a la espera de que el dueño los quiera o no. |
 
 ## 8. Registro de decisiones del dueño
 

@@ -27,6 +27,12 @@ public sealed partial class MainWindow : Window
         // (No se extiende el contenido en la barra de título ni se usa AppTitleBar.)
         this.ExtendsContentIntoTitleBar = false;
         this.Title = "Free1X2";
+
+        // Tema (U-01): aplica la preferencia guardada (Claro / Oscuro / Sistema) sobre la raíz
+        // del contenido. Va ANTES de construir menús/toolbar para que el primer pintado ya use
+        // la paleta elegida y no se vea un parpadeo claro→oscuro.
+        Services.TemaApp.Aplicar(RaizVentana);
+
         AjustarTamanoVentana();
 
         ConstruirToolbar();
@@ -109,6 +115,11 @@ public sealed partial class MainWindow : Window
         // dentro del menú Ver (menuVer.DropDownItems, MainForm.Designer.cs:1455-1457). Navega a la
         // página portada (handler legacy: listadoDeCondicionesToolStripMenuItem_Click → ListadoCondicionesFrm).
         menuVer.Items.Add(ItemFlyout("E9D5", "Listado de condiciones", typeof(ListadoCondicionesFrmPage)));
+        // "Tema" (U-01) — AÑADIDO al FINAL del menú Ver, sin reordenar nada de lo anterior.
+        // No existía en el MainForm original: es la entrada que da acceso a la paleta oscura
+        // que Themes/Tokens.xaml ya define y que App.xaml mantenía apagada.
+        menuVer.Items.Add(new MenuFlyoutSeparator());
+        menuVer.Items.Add(ConstruirSubmenuTema());
         BarraMenu.Items.Add(menuVer);
 
         BarraMenu.Items.Add(Menu("Combinación",
@@ -506,6 +517,44 @@ public sealed partial class MainWindow : Window
                 _visibleGrupo[grupo] = visible;
                 AplicarVisibilidadGrupo(grupo, visible);   // muestra/oculta en vivo
             };
+            sub.Items.Add(item);
+        }
+        return sub;
+    }
+
+    /// <summary>
+    /// Submenú «Ver → Tema» (U-01): las tres opciones de tema, mutuamente excluyentes, con la
+    /// activa marcada. Mismo patrón que <see cref="ConstruirSubmenuBarrasHerramientas"/>
+    /// (MenuFlyoutSubItem con icono + items conmutables construidos en bucle); aquí se usa
+    /// <see cref="RadioMenuFlyoutItem"/> porque la selección es EXCLUSIVA (el submenú de barras
+    /// son conmutadores independientes). El cambio se aplica en vivo y se persiste en
+    /// <see cref="Services.TemaApp"/>.
+    /// </summary>
+    private MenuFlyoutSubItem ConstruirSubmenuTema()
+    {
+        var sub = new MenuFlyoutSubItem
+        {
+            Text = "Tema",
+            Icon = new FontIcon { Glyph = Glifo("E706"), FontFamily = IconFont },
+        };
+
+        (Services.TemaApp.Opcion opcion, string label)[] items =
+        {
+            (Services.TemaApp.Opcion.Claro,   "Claro"),
+            (Services.TemaApp.Opcion.Oscuro,  "Oscuro"),
+            (Services.TemaApp.Opcion.Sistema, "Sistema"),
+        };
+
+        foreach (var (opcion, label) in items)
+        {
+            var item = new RadioMenuFlyoutItem
+            {
+                Text = label,
+                GroupName = "TemaApp",                               // exclusividad entre los 3
+                IsChecked = Services.TemaApp.Actual == opcion,        // refleja la preferencia viva
+            };
+            Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(item, "Tema " + label);
+            item.Click += (_, _) => Services.TemaApp.Cambiar(opcion);
             sub.Items.Add(item);
         }
         return sub;

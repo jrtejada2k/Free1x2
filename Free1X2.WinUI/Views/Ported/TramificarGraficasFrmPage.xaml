@@ -67,7 +67,13 @@
                 </StackPanel>
             </Border>
 
-            <!-- Leyenda de colores (legacy: panel2..panel10) -->
+            <!-- Leyenda de colores (legacy: panel2..panel10).
+                 Los 9 swatches llevan COLORES DE DATOS, intencionalmente FUERA del sistema de
+                 tokens: cada uno debe coincidir exactamente con el trazo de su curva, que fija
+                 TramificarGraficasFrmViewModel.ColorDeCurva (:74-83) replicando los Pen del
+                 legacy (Black / DodgerBlue / Brown / Cyan / Green / Red / CadetBlue /
+                 ForestGreen / Orange). Por eso NO deben seguir el tema: si cambiaran con el
+                 tema dejarían de identificar la curva. Verificado 1:1 (U-03). -->
             <Border Grid.Row="2" Style="{StaticResource AppCardStyle}">
                 <StackPanel Spacing="5">
                     <TextBlock

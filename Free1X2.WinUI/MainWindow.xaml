@@ -8,7 +8,9 @@
 
     <!-- Sin barra de título custom: se usa la barra de Windows estándar
          (minimizar / maximizar / cerrar) como el MainForm WinForms original. -->
-    <Grid Background="{ThemeResource AppBackgroundBrush}">
+    <!-- Raíz del contenido de la ventana: es el elemento sobre el que Services/TemaApp fija
+         RequestedTheme (Light / Dark / Default = seguir a Windows). Ver U-01. -->
+    <Grid x:Name="RaizVentana" Background="{ThemeResource AppBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />

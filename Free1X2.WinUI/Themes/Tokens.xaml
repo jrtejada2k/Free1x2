@@ -29,6 +29,7 @@
             <Color x:Key="AppWarning">#EE6C4D</Color><!-- coral (acento terciario / advertencia) -->
             <Color x:Key="AppOnSuccess">#FFFFFF</Color>
             <Color x:Key="AppError">#C0392B</Color>
+            <Color x:Key="AppOnError">#FFFFFF</Color><!-- texto sobre AppError (mismo par que AppOnSuccess) -->
 
             <!-- Acentos secundario (teal) y terciario "detalle" (coral) -->
             <Color x:Key="AppSecondary">#2A9D8F</Color><!-- teal (cabeceras de sección, resaltes) -->
@@ -38,9 +39,9 @@
             <SolidColorBrush x:Key="ToggleButtonBackgroundChecked"            Color="#2E7D32" />
             <SolidColorBrush x:Key="ToggleButtonBackgroundCheckedPointerOver" Color="#357A38" />
             <SolidColorBrush x:Key="ToggleButtonBackgroundCheckedPressed"     Color="#27692B" />
-            <SolidColorBrush x:Key="ToggleButtonForegroundChecked"            Color="#FFFFFF" />
-            <SolidColorBrush x:Key="ToggleButtonForegroundCheckedPointerOver" Color="#FFFFFF" />
-            <SolidColorBrush x:Key="ToggleButtonForegroundCheckedPressed"     Color="#FFFFFF" />
+            <SolidColorBrush x:Key="ToggleButtonForegroundChecked"            Color="{StaticResource AppOnSuccess}" />
+            <SolidColorBrush x:Key="ToggleButtonForegroundCheckedPointerOver" Color="{StaticResource AppOnSuccess}" />
+            <SolidColorBrush x:Key="ToggleButtonForegroundCheckedPressed"     Color="{StaticResource AppOnSuccess}" />
 
             <SolidColorBrush x:Key="AppBackgroundBrush"     Color="{StaticResource AppBackground}" />
             <SolidColorBrush x:Key="AppSurfaceBrush"        Color="{StaticResource AppSurface}" />
@@ -51,6 +52,11 @@
             <SolidColorBrush x:Key="AppSuccessBrush"        Color="{StaticResource AppSuccess}" />
             <SolidColorBrush x:Key="AppWarningBrush"        Color="{StaticResource AppWarning}" />
             <SolidColorBrush x:Key="AppErrorBrush"          Color="{StaticResource AppError}" />
+            <!-- Pareja "on-color": color del TEXTO/icono que va ENCIMA de AppSuccess / AppError
+                 (U-02). Sustituye a los Foreground="White" literales de Styles.xaml, que en
+                 tema oscuro/alto contraste no se adaptaban. -->
+            <SolidColorBrush x:Key="AppOnSuccessBrush"      Color="{StaticResource AppOnSuccess}" />
+            <SolidColorBrush x:Key="AppOnErrorBrush"        Color="{StaticResource AppOnError}" />
             <SolidColorBrush x:Key="AppAccentBrush"         Color="{StaticResource SystemAccentColor}" />
             <SolidColorBrush x:Key="AppSecondaryBrush"      Color="{StaticResource AppSecondary}" />
             <SolidColorBrush x:Key="AppTertiaryBrush"       Color="{StaticResource AppTertiary}" />
@@ -80,6 +86,7 @@
             <Color x:Key="AppWarning">#F59E0B</Color>
             <Color x:Key="AppOnSuccess">#FFFFFF</Color>
             <Color x:Key="AppError">#EF4444</Color>
+            <Color x:Key="AppOnError">#FFFFFF</Color><!-- texto sobre AppError (mismo par que AppOnSuccess) -->
 
             <!-- Acentos secundario (teal) y terciario (coral) — paralelos al Light -->
             <Color x:Key="AppSecondary">#2DD4BF</Color>
@@ -94,6 +101,11 @@
             <SolidColorBrush x:Key="AppSuccessBrush"        Color="{StaticResource AppSuccess}" />
             <SolidColorBrush x:Key="AppWarningBrush"        Color="{StaticResource AppWarning}" />
             <SolidColorBrush x:Key="AppErrorBrush"          Color="{StaticResource AppError}" />
+            <!-- Pareja "on-color": color del TEXTO/icono que va ENCIMA de AppSuccess / AppError
+                 (U-02). Sustituye a los Foreground="White" literales de Styles.xaml, que en
+                 tema oscuro/alto contraste no se adaptaban. -->
+            <SolidColorBrush x:Key="AppOnSuccessBrush"      Color="{StaticResource AppOnSuccess}" />
+            <SolidColorBrush x:Key="AppOnErrorBrush"        Color="{StaticResource AppOnError}" />
             <SolidColorBrush x:Key="AppAccentBrush"         Color="{StaticResource SystemAccentColor}" />
             <SolidColorBrush x:Key="AppSecondaryBrush"      Color="{StaticResource AppSecondary}" />
             <SolidColorBrush x:Key="AppTertiaryBrush"       Color="{StaticResource AppTertiary}" />

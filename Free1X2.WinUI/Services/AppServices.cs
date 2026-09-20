@@ -87,6 +87,10 @@ public static class AppServices
                 CloseButtonText = "No",
                 DefaultButton = botonPorDefecto,
                 XamlRoot = root,
+                // U-01: un ContentDialog vive en un popup del XamlRoot, no dentro del árbol de
+                // la ventana, así que NO hereda el RequestedTheme de la raíz. Se le pasa el tema
+                // elegido (con "Sistema" es Default = seguir a Windows, igual que antes).
+                RequestedTheme = TemaApp.TemaDeElemento,
             };
             return await dlg.ShowAsync() == ContentDialogResult.Primary;
         }
@@ -187,6 +191,8 @@ public static class AppServices
                     Content = mensaje,
                     CloseButtonText = "Aceptar",
                     XamlRoot = root,
+                    // U-01: mismo motivo que en ConfirmarAsync (el popup no hereda el tema).
+                    RequestedTheme = TemaApp.TemaDeElemento,
                 };
 
                 try
