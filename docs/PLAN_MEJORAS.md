@@ -52,15 +52,19 @@ Get-Content "$env:TEMP\free1x2_smoke.log" -Tail 1   # "SMOKE DONE total=109 ok=1
 
 ## 1. Fases
 
-| Fase | Contenido | Fuente | Estado |
-|------|-----------|--------|--------|
-| F0 | Preparación: rama `mejoras-0.83`, baseline V0 grabado | — | ☐ |
-| F1 | **Bugs de corrección** (WinUI infra + páginas portadas) | §3 | B-01…B-12 |
-| F2 | **Documentación** | §2 | D-01…D-09 |
-| F3 | **Rendimiento del motor** (Domain, rutas calientes) | §4 | P-01…P-20 |
-| F4 | **Calidad de código WinUI** (fugas, repintados, duplicados) | §5 | C-01…C-29 |
-| F5 | **UI — opciones para decidir** (tema, DPI, accesibilidad, consistencia) | §6 | U-01…U-13 |
-| F6 | Cierre: bump `0.83.0`, docs, release con zip fresco | §7 | ☐ |
+| Fase | Contenido | Fuente | Estado | Commit |
+|------|-----------|--------|--------|--------|
+| F0 | Rama `mejoras-0.83` + baseline V0 (0 err · 125/125 · 109/109) | — | ☑ | `7072cae` |
+| F1 | **Bugs** B-01…B-12 + **N-01** (6 clicks muertos en Ayuda) | §3, §7bis | ☑ | `9109823`, `8c9ffb5`, `12cfe8c` |
+| F2 | **Documentación** D-01…D-09 (incluido D-03: 20 históricos archivados) | §2 | ☑ | `1586c8f`, `c8946c8`, `af5db88` |
+| F3 | **Rendimiento del motor** P-01…P-17 + menores | §4 | ☑ · P-18/P-19 descartados con motivo · P-20 pendiente | `526b05f` |
+| F4 | **Calidad WinUI** C-01…C-16, C-22…C-29 | §5 | ☑ · C-17/C-18 no hechos (refactor grande) · C-28 pendiente | `8c9ffb5`, `12cfe8c` |
+| F5 | **UI** — U-01 toggle de tema + U-02 (decisión tomada) | §6 | en curso | — |
+| F6 | Cierre: bump `0.83.0`, docs, release con zip fresco | §7 | ☐ | — |
+
+**Evidencia acumulada tras F1-F4:** build **0 errores, 0 advertencias** · **131/131** tests
+(125 originales **sin modificar** + 6 nuevos de igualdad) · smoke **109/109** · igualdad de salidas del
+motor verificada por **SHA-256** contra la DLL publicada v0.82.0.
 
 Orden recomendado: F0 → F1 → F2 → F3 → F4 → F5 (solo lo aprobado) → F6. F1 va primero porque un bug
 confirmado pesa más que cualquier optimización; F3 antes que F4 porque toca el motor y necesita la red
