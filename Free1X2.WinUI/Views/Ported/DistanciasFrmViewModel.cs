@@ -23,7 +23,7 @@ namespace Free1X2.WinUI.Views.Ported;
 /// Cada propiedad almacena los valores admitidos (rango 0..15) tal como el control
 /// legacy OptionNumTol0_14 (lista de tolerancias).
 /// </summary>
-public partial class DistanciasFrmViewModel : ObservableObject
+public partial class DistanciasFrmViewModel : FiltroArchivoViewModelBase
 {
     // Distancias para "Var" (cualquier signo). Equivale a filtro.GetIntVar()/SetNoIntVar().
     [ObservableProperty]
@@ -53,8 +53,14 @@ public partial class DistanciasFrmViewModel : ObservableObject
     /// </summary>
     public Action<Type>? Navegar { get; set; }
 
+    // --- Lo específico del filtro para el cuarteto Guardar/Abrir/Copiar/Pegar (base C-18) ---
+    protected override string NombreSugerido => "Distancias";
+    protected override (string etiqueta, string extension)[] TiposGuardar =>
+        new[] { ("Distancias", ".dist"), ("Distancias (XML)", ".xml") };
+    protected override string[] ExtensionesAbrir => new[] { ".dist", ".xml" };
+
     // Fichero temporal de copiar/pegar (legacy: StartupPath + "/Temp/tmp.dist").
-    private static string RutaTemporal =>
+    protected override string RutaTemporal =>
         Path.Combine(AppContext.BaseDirectory, "Temp", "tmp.dist");
 
     // Directorio de columnas ganadoras (legacy: StartupPath + "/Ganadoras/").
@@ -179,7 +185,7 @@ public partial class DistanciasFrmViewModel : ObservableObject
     }
 
     // Guarda el filtro temporal en disco (DistanciasFrm.guardar(), líneas 487-497).
-    private void GuardarEn(string nombreArchivo)
+    protected override void GuardarEn(string nombreArchivo)
     {
         var filtroTemp = ObtenerFiltroTemporal();
         var archComb = new ArchivoCondiciones { NombreArchivo = nombreArchivo };
@@ -192,7 +198,7 @@ public partial class DistanciasFrmViewModel : ObservableObject
     }
 
     // Abre el filtro desde disco y vuelca sus valores (DistanciasFrm.abrir(), líneas 474-485).
-    private void AbrirDesde(string nombreArchivo)
+    protected override void AbrirDesde(string nombreArchivo)
     {
         var archComb = new ArchivoCondiciones();
         if (archComb.AbrirArchivoCombinacion(nombreArchivo))
@@ -203,65 +209,7 @@ public partial class DistanciasFrmViewModel : ObservableObject
         }
     }
 
-    [RelayCommand]
-    private async Task Guardar()
-    {
-        // Equivale a menuCondiciones1_BGuardar -> guardar() (DistanciasFrm.cs líneas 462-497).
-        StorageFile? file = await PickerHelper.GuardarAsync("Distancias", ("Distancias", ".dist"), ("Distancias (XML)", ".xml"));
-        if (file == null) return;
-
-        try
-        {
-            GuardarEn(file.Path);
-        }
-        catch (Exception ex)
-        {
-            AppServices.MostrarError("No se pudo guardar: " + ex.Message);
-        }
-    }
-
-    [RelayCommand]
-    private async Task Abrir()
-    {
-        // Equivale a menuCondiciones1_BAbrir -> abrir() (DistanciasFrm.cs líneas 446-485).
-        StorageFile? file = await PickerHelper.AbrirAsync(".dist", ".xml");
-        if (file == null) return;
-
-        try
-        {
-            AbrirDesde(file.Path);
-        }
-        catch (Exception ex)
-        {
-            AppServices.MostrarError("No se pudo abrir: " + ex.Message);
-        }
-    }
-
-    [RelayCommand]
-    private void Copiar()
-    {
-        // Equivale a menuCondiciones1_BCopiar -> guardar(Temp/tmp.dist) (DistanciasFrm.cs líneas 509-518).
-        try
-        {
-            string ruta = RutaTemporal;
-            Directory.CreateDirectory(Path.GetDirectoryName(ruta)!);
-            GuardarEn(ruta);
-        }
-        catch (Exception ex)
-        {
-            AppServices.MostrarError("No se pudo copiar: " + ex.Message);
-        }
-    }
-
-    [RelayCommand]
-    private void Pegar()
-    {
-        // Equivale a menuCondiciones1_BPegar -> abrir(Temp/tmp.dist) (DistanciasFrm.cs líneas 520-531).
-        if (File.Exists(RutaTemporal))
-        {
-            AbrirDesde(RutaTemporal);
-        }
-    }
+    // Guardar/Abrir/Copiar/Pegar: heredados de FiltroArchivoViewModelBase (C-18).
 
     [RelayCommand]
     private void Estadisticas()

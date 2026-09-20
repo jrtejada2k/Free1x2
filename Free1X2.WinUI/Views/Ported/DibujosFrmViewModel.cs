@@ -54,7 +54,7 @@ public partial class DibujoCeldaViewModel : ObservableObject
 /// seleccionarlos para construir el filtro <c>FiltroDibujos</c> del dominio.
 /// Datos de malla generados en memoria; la persistencia/cálculo aún no depende del dominio.
 /// </summary>
-public partial class DibujosFrmViewModel : ObservableObject
+public partial class DibujosFrmViewModel : FiltroArchivoViewModelBase
 {
     /// <summary>
     /// Número de partidos de la quiniela. En WinForms se lee de
@@ -73,8 +73,14 @@ public partial class DibujosFrmViewModel : ObservableObject
     /// <summary>Acción para navegar a otra página (la cablea la página con Frame.Navigate(tipo)).</summary>
     public Action<Type>? Navegar { get; set; }
 
+    // --- Lo específico del filtro para el cuarteto Guardar/Abrir/Copiar/Pegar (base C-18) ---
+    protected override string NombreSugerido => "Dibujos";
+    protected override (string etiqueta, string extension)[] TiposGuardar =>
+        new[] { ("Dibujos", ".dbj"), ("Dibujos (XML)", ".xml") };
+    protected override string[] ExtensionesAbrir => new[] { ".dbj", ".xml" };
+
     // Fichero temporal de copiar/pegar (legacy: StartupPath + "/Temp/tmp.dbj").
-    private static string RutaTemporal =>
+    protected override string RutaTemporal =>
         Path.Combine(AppContext.BaseDirectory, "Temp", "tmp.dbj");
 
     // Directorio de columnas ganadoras (legacy: StartupPath + "/Ganadoras/").
@@ -254,7 +260,7 @@ public partial class DibujosFrmViewModel : ObservableObject
     }
 
     // Guarda el filtro temporal en disco (DibujosFrm.guardar(), líneas 327-338).
-    private void GuardarEn(string nombreArchivo)
+    protected override void GuardarEn(string nombreArchivo)
     {
         var filtroTemp = ObtenerFiltroTemporal();
         var archComb = new ArchivoCondiciones { NombreArchivo = nombreArchivo };
@@ -267,7 +273,7 @@ public partial class DibujosFrmViewModel : ObservableObject
     }
 
     // Abre el filtro desde disco y marca sus dibujos (DibujosFrm.abrir(), líneas 312-325).
-    private void AbrirDesde(string nombreArchivo)
+    protected override void AbrirDesde(string nombreArchivo)
     {
         var archComb = new ArchivoCondiciones();
         if (archComb.AbrirArchivoCombinacion(nombreArchivo))
@@ -292,69 +298,7 @@ public partial class DibujosFrmViewModel : ObservableObject
         Navegar?.Invoke(typeof(VisorEstadisticasPage));
     }
 
-    /// <summary>Guarda la condición de dibujos a un archivo .dbj/.xml.</summary>
-    [RelayCommand]
-    private async Task Guardar()
-    {
-        // Equivale a DibujosFrm.menuCondiciones1_BGuardar (DibujosFrm.cs líneas 300-310).
-        StorageFile? file = await PickerHelper.GuardarAsync("Dibujos", ("Dibujos", ".dbj"), ("Dibujos (XML)", ".xml"));
-        if (file == null) return;
-
-        try
-        {
-            GuardarEn(file.Path);
-        }
-        catch (Exception ex)
-        {
-            AppServices.MostrarError("No se pudo guardar: " + ex.Message);
-        }
-    }
-
-    /// <summary>Abre una condición de dibujos desde un archivo .dbj/.xml.</summary>
-    [RelayCommand]
-    private async Task Abrir()
-    {
-        // Equivale a DibujosFrm.menuCondiciones1_BAbrir (DibujosFrm.cs líneas 285-298).
-        StorageFile? file = await PickerHelper.AbrirAsync(".dbj", ".xml");
-        if (file == null) return;
-
-        try
-        {
-            AbrirDesde(file.Path);
-        }
-        catch (Exception ex)
-        {
-            AppServices.MostrarError("No se pudo abrir: " + ex.Message);
-        }
-    }
-
-    /// <summary>Copia la condición de dibujos al fichero temporal interno.</summary>
-    [RelayCommand]
-    private void Copiar()
-    {
-        // Equivale a DibujosFrm.menuCondiciones1_BCopiar (DibujosFrm.cs líneas 350-359).
-        try
-        {
-            string ruta = RutaTemporal;
-            Directory.CreateDirectory(Path.GetDirectoryName(ruta)!);
-            GuardarEn(ruta);
-        }
-        catch (Exception ex)
-        {
-            AppServices.MostrarError("No se pudo copiar: " + ex.Message);
-        }
-    }
-
-    /// <summary>Pega la condición de dibujos desde el fichero temporal interno.</summary>
-    [RelayCommand]
-    private void Pegar()
-    {
-        // Equivale a DibujosFrm.menuCondiciones1_BPegar (DibujosFrm.cs líneas 361-370).
-        if (File.Exists(RutaTemporal))
-        {
-            AbrirDesde(RutaTemporal);
-        }
-    }
+    // Guardar/Abrir/Copiar/Pegar: heredados de FiltroArchivoViewModelBase (C-18).
 
     /// <summary>Borra los datos del filtro de dibujos.</summary>
     [RelayCommand]

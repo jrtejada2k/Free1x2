@@ -23,7 +23,7 @@ namespace Free1X2.WinUI.Views.Ported;
 /// Cada propiedad almacena la lista de cantidades admitidas (rango 0..15) tal como
 /// el control legacy <c>OptionNumTol0_14</c> (cadena de tolerancias separadas por comas).
 /// </summary>
-public partial class NoVariantesFrmViewModel : ObservableObject
+public partial class NoVariantesFrmViewModel : FiltroArchivoViewModelBase
 {
     // Cantidades admitidas de "Variantes". Equivale a filtro.GetVariantes()/SetNoVariantes().
     [ObservableProperty]
@@ -43,8 +43,14 @@ public partial class NoVariantesFrmViewModel : ObservableObject
     /// <summary>Acción para navegar a otra página (la cablea la página con Frame.Navigate(tipo)).</summary>
     public Action<Type>? Navegar { get; set; }
 
+    // --- Lo específico del filtro para el cuarteto Guardar/Abrir/Copiar/Pegar (base C-18) ---
+    protected override string NombreSugerido => "CantidadSignos";
+    protected override (string etiqueta, string extension)[] TiposGuardar =>
+        new[] { ("Cantidad de signos V, X y 2", ".vx2"), ("Cantidad de signos V, X y 2 (XML)", ".xml") };
+    protected override string[] ExtensionesAbrir => new[] { ".vx2", ".xml" };
+
     // Fichero temporal de copiar/pegar (legacy: StartupPath + "/Temp/tmp.vx2").
-    private static string RutaTemporal =>
+    protected override string RutaTemporal =>
         Path.Combine(AppContext.BaseDirectory, "Temp", "tmp.vx2");
 
     // Directorio de columnas ganadoras (legacy: StartupPath + "/Ganadoras/").
@@ -161,7 +167,7 @@ public partial class NoVariantesFrmViewModel : ObservableObject
     }
 
     // Guarda en disco el filtro temporal (NoVariantesFrm.guardar(), líneas 386-391).
-    private void GuardarEn(string nombreArchivo)
+    protected override void GuardarEn(string nombreArchivo)
     {
         var filtroTemp = ObtenerFiltroTemporal();
         var archComb = new ArchivoCondiciones { NombreArchivo = nombreArchivo };
@@ -169,7 +175,7 @@ public partial class NoVariantesFrmViewModel : ObservableObject
     }
 
     // Abre la condición desde disco y vuelca sus valores (NoVariantesFrm.abrir(), líneas 374-384).
-    private void AbrirDesde(string nombreArchivo)
+    protected override void AbrirDesde(string nombreArchivo)
     {
         var archComb = new ArchivoCondiciones();
         if (archComb.AbrirArchivoCombinacion(nombreArchivo))
@@ -180,65 +186,7 @@ public partial class NoVariantesFrmViewModel : ObservableObject
         }
     }
 
-    [RelayCommand]
-    private async Task Guardar()
-    {
-        // Equivale a NoVariantesFrm.menuCondiciones1_BGuardar (NoVariantesFrm.cs líneas 363-372).
-        StorageFile? file = await PickerHelper.GuardarAsync("CantidadSignos", ("Cantidad de signos V, X y 2", ".vx2"), ("Cantidad de signos V, X y 2 (XML)", ".xml"));
-        if (file == null) return;
-
-        try
-        {
-            GuardarEn(file.Path);
-        }
-        catch (Exception ex)
-        {
-            AppServices.MostrarError("No se pudo guardar: " + ex.Message);
-        }
-    }
-
-    [RelayCommand]
-    private async Task Abrir()
-    {
-        // Equivale a NoVariantesFrm.menuCondiciones1_BAbrir (NoVariantesFrm.cs líneas 348-361).
-        StorageFile? file = await PickerHelper.AbrirAsync(".vx2", ".xml");
-        if (file == null) return;
-
-        try
-        {
-            AbrirDesde(file.Path);
-        }
-        catch (Exception ex)
-        {
-            AppServices.MostrarError("No se pudo abrir: " + ex.Message);
-        }
-    }
-
-    [RelayCommand]
-    private void Copiar()
-    {
-        // Equivale a NoVariantesFrm.menuCondiciones1_BCopiar (NoVariantesFrm.cs líneas 409-417).
-        try
-        {
-            string ruta = RutaTemporal;
-            Directory.CreateDirectory(Path.GetDirectoryName(ruta)!);
-            GuardarEn(ruta);
-        }
-        catch (Exception ex)
-        {
-            AppServices.MostrarError("No se pudo copiar: " + ex.Message);
-        }
-    }
-
-    [RelayCommand]
-    private void Pegar()
-    {
-        // Equivale a NoVariantesFrm.menuCondiciones1_BPegar (NoVariantesFrm.cs líneas 419-429).
-        if (File.Exists(RutaTemporal))
-        {
-            AbrirDesde(RutaTemporal);
-        }
-    }
+    // Guardar/Abrir/Copiar/Pegar: heredados de FiltroArchivoViewModelBase (C-18).
 
     [RelayCommand]
     private void Estadisticas()

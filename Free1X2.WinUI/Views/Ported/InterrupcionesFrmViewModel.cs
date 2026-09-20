@@ -26,7 +26,7 @@ namespace Free1X2.WinUI.Views.Ported;
 /// Persistencia (Guardar/Abrir/Copiar/Pegar) vía ArchivoCondiciones (.int/.xml + Temp/tmp.int)
 /// y Estadísticas vía CalculadorEstadisticas -> VisorEstadisticasPage.
 /// </summary>
-public partial class InterrupcionesFrmViewModel : ObservableObject
+public partial class InterrupcionesFrmViewModel : FiltroArchivoViewModelBase
 {
     // ===== Interrupciones (bloque superior) =====
 
@@ -84,8 +84,14 @@ public partial class InterrupcionesFrmViewModel : ObservableObject
     /// <summary>Acción para navegar a otra página (la cablea la página con Frame.Navigate(tipo)).</summary>
     public Action<Type>? Navegar { get; set; }
 
+    // --- Lo específico del filtro para el cuarteto Guardar/Abrir/Copiar/Pegar (base C-18) ---
+    protected override string NombreSugerido => "Interrupciones";
+    protected override (string etiqueta, string extension)[] TiposGuardar =>
+        new[] { ("Interrupciones", ".int"), ("Interrupciones (XML)", ".xml") };
+    protected override string[] ExtensionesAbrir => new[] { ".int", ".xml" };
+
     // Fichero temporal de copiar/pegar (legacy: StartupPath + "/Temp/tmp.int").
-    private static string RutaTemporal =>
+    protected override string RutaTemporal =>
         Path.Combine(AppContext.BaseDirectory, "Temp", "tmp.int");
 
     // Directorio de columnas ganadoras (legacy: StartupPath + "/Ganadoras/").
@@ -240,7 +246,7 @@ public partial class InterrupcionesFrmViewModel : ObservableObject
     }
 
     // Guarda en disco el filtro temporal (InterrupcionesFrm.guardar(), líneas 762-766).
-    private void GuardarEn(string nombreArchivo)
+    protected override void GuardarEn(string nombreArchivo)
     {
         var filtroTemp = ObtenerFiltroTemporal();
         var archComb = new ArchivoCondiciones { NombreArchivo = nombreArchivo };
@@ -248,7 +254,7 @@ public partial class InterrupcionesFrmViewModel : ObservableObject
     }
 
     // Abre la condición desde disco y vuelca sus valores (InterrupcionesFrm.abrir(), líneas 750-758).
-    private void AbrirDesde(string nombreArchivo)
+    protected override void AbrirDesde(string nombreArchivo)
     {
         var archComb = new ArchivoCondiciones();
         if (archComb.AbrirArchivoCombinacion(nombreArchivo))
@@ -259,65 +265,7 @@ public partial class InterrupcionesFrmViewModel : ObservableObject
         }
     }
 
-    [RelayCommand]
-    private async Task Guardar()
-    {
-        // Equivale a InterrupcionesFrm.menuCondiciones1_BGuardar (InterrupcionesFrm.cs líneas 740-748).
-        StorageFile? file = await PickerHelper.GuardarAsync("Interrupciones", ("Interrupciones", ".int"), ("Interrupciones (XML)", ".xml"));
-        if (file == null) return;
-
-        try
-        {
-            GuardarEn(file.Path);
-        }
-        catch (Exception ex)
-        {
-            AppServices.MostrarError("No se pudo guardar: " + ex.Message);
-        }
-    }
-
-    [RelayCommand]
-    private async Task Abrir()
-    {
-        // Equivale a InterrupcionesFrm.menuCondiciones1_BAbrir (InterrupcionesFrm.cs líneas 729-738).
-        StorageFile? file = await PickerHelper.AbrirAsync(".int", ".xml");
-        if (file == null) return;
-
-        try
-        {
-            AbrirDesde(file.Path);
-        }
-        catch (Exception ex)
-        {
-            AppServices.MostrarError("No se pudo abrir: " + ex.Message);
-        }
-    }
-
-    [RelayCommand]
-    private void Copiar()
-    {
-        // Equivale a InterrupcionesFrm.menuCondiciones1_BCopiar (InterrupcionesFrm.cs líneas ~785).
-        try
-        {
-            string ruta = RutaTemporal;
-            Directory.CreateDirectory(Path.GetDirectoryName(ruta)!);
-            GuardarEn(ruta);
-        }
-        catch (Exception ex)
-        {
-            AppServices.MostrarError("No se pudo copiar: " + ex.Message);
-        }
-    }
-
-    [RelayCommand]
-    private void Pegar()
-    {
-        // Equivale a InterrupcionesFrm.menuCondiciones1_BPegar (InterrupcionesFrm.cs líneas ~798).
-        if (File.Exists(RutaTemporal))
-        {
-            AbrirDesde(RutaTemporal);
-        }
-    }
+    // Guardar/Abrir/Copiar/Pegar: heredados de FiltroArchivoViewModelBase (C-18).
 
     [RelayCommand]
     private void Estadisticas()

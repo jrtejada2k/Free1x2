@@ -53,7 +53,7 @@ public partial class SimetriaLinea : ObservableObject
 /// Persistencia (Guardar/Abrir/Copiar/Pegar) vía ArchivoCondiciones (.dif/.xml + Temp/tmp.rep)
 /// y Estadísticas vía CalculadorEstadisticas -> VisorEstadisticasPage.
 /// </summary>
-public partial class DiferenciasFrmViewModel : ObservableObject
+public partial class DiferenciasFrmViewModel : FiltroArchivoViewModelBase
 {
     private const int LineasIniciales = 20;
 
@@ -66,8 +66,14 @@ public partial class DiferenciasFrmViewModel : ObservableObject
     /// <summary>Acción para navegar a otra página (la cablea la página con Frame.Navigate(tipo)).</summary>
     public Action<Type>? Navegar { get; set; }
 
+    // --- Lo específico del filtro para el cuarteto Guardar/Abrir/Copiar/Pegar (base C-18) ---
+    protected override string NombreSugerido => "Diferencias";
+    protected override (string etiqueta, string extension)[] TiposGuardar =>
+        new[] { ("Diferencias", ".dif"), ("Diferencias (XML)", ".xml") };
+    protected override string[] ExtensionesAbrir => new[] { ".dif", ".xml" };
+
     // Fichero temporal de copiar/pegar (legacy: StartupPath + "/Temp/tmp.rep").
-    private static string RutaTemporal =>
+    protected override string RutaTemporal =>
         Path.Combine(AppContext.BaseDirectory, "Temp", "tmp.rep");
 
     // Directorio de columnas ganadoras (legacy: StartupPath + "/Ganadoras/").
@@ -457,7 +463,7 @@ public partial class DiferenciasFrmViewModel : ObservableObject
     }
 
     // Guarda en disco el FiltroDiferencias del grupo en edición (DiferenciasFrm.guardar, líneas 427-432).
-    private void GuardarEn(string nombreArchivo)
+    protected override void GuardarEn(string nombreArchivo)
     {
         var filtro = ObtenerFiltro();
         if (filtro is null) return;
@@ -469,7 +475,7 @@ public partial class DiferenciasFrmViewModel : ObservableObject
 
     // Abre la condición desde disco, copia sus Diferencias al filtro del grupo y vuelca a pantalla
     // (DiferenciasFrm.abrir, líneas 491-506).
-    private void AbrirDesde(string nombreArchivo)
+    protected override void AbrirDesde(string nombreArchivo)
     {
         var grupo = AppState.GrupoEnEdicion;
         if (grupo is null) return;
@@ -505,65 +511,7 @@ public partial class DiferenciasFrmViewModel : ObservableObject
         RefrescarContador(filtro);
     }
 
-    [RelayCommand]
-    private async Task Guardar()
-    {
-        // Equivale a DiferenciasFrm.menuCondiciones1_BGuardar (DiferenciasFrm.cs líneas 416-426).
-        StorageFile? file = await PickerHelper.GuardarAsync("Diferencias", ("Diferencias", ".dif"), ("Diferencias (XML)", ".xml"));
-        if (file == null) return;
-
-        try
-        {
-            GuardarEn(file.Path);
-        }
-        catch (Exception ex)
-        {
-            AppServices.MostrarError("No se pudo guardar: " + ex.Message);
-        }
-    }
-
-    [RelayCommand]
-    private async Task Abrir()
-    {
-        // Equivale a DiferenciasFrm.menuCondiciones1_BAbrir (DiferenciasFrm.cs líneas 475-490).
-        StorageFile? file = await PickerHelper.AbrirAsync(".dif", ".xml");
-        if (file == null) return;
-
-        try
-        {
-            AbrirDesde(file.Path);
-        }
-        catch (Exception ex)
-        {
-            AppServices.MostrarError("No se pudo abrir: " + ex.Message);
-        }
-    }
-
-    [RelayCommand]
-    private void Copiar()
-    {
-        // Equivale a DiferenciasFrm.menuCondiciones1_BCopiar (DiferenciasFrm.cs líneas 392-400).
-        try
-        {
-            string ruta = RutaTemporal;
-            Directory.CreateDirectory(Path.GetDirectoryName(ruta)!);
-            GuardarEn(ruta);
-        }
-        catch (Exception ex)
-        {
-            AppServices.MostrarError("No se pudo copiar: " + ex.Message);
-        }
-    }
-
-    [RelayCommand]
-    private void Pegar()
-    {
-        // Equivale a DiferenciasFrm.menuCondiciones1_BPegar (DiferenciasFrm.cs líneas 434-450).
-        if (File.Exists(RutaTemporal))
-        {
-            AbrirDesde(RutaTemporal);
-        }
-    }
+    // Guardar/Abrir/Copiar/Pegar: heredados de FiltroArchivoViewModelBase (C-18).
 
     [RelayCommand]
     private void Borrar()

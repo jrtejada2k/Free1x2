@@ -28,7 +28,7 @@ namespace Free1X2.WinUI.Views.Ported;
 /// Temp/tmp.valor); Estadísticas vía CalculadorEstadisticas -> VisorEstadisticasPage.
 /// "Buscar límite" navega a BuscaLimsFrmPage (igual que el ShowDialog autónomo legacy).
 /// </summary>
-public partial class ValoracionFrmViewModel : ObservableObject
+public partial class ValoracionFrmViewModel : FiltroArchivoViewModelBase
 {
     // --- Rejilla de porcentajes 1/X/2 por partido (reemplaza el UserControl WinForms
     //     ControlPorcentajes / controlPorcentajes1). PorcentajesHelper.AMatriz(Porcentajes)
@@ -118,8 +118,14 @@ public partial class ValoracionFrmViewModel : ObservableObject
     /// <summary>Acción para navegar a otra página (la cablea la página con Frame.Navigate(tipo)).</summary>
     public Action<Type>? Navegar { get; set; }
 
+    // --- Lo específico del filtro para el cuarteto Guardar/Abrir/Copiar/Pegar (base C-18) ---
+    protected override string NombreSugerido => "Valoracion";
+    protected override (string etiqueta, string extension)[] TiposGuardar =>
+        new[] { ("Valoración de Signos", ".valor"), ("Valoración de Signos (XML)", ".xml") };
+    protected override string[] ExtensionesAbrir => new[] { ".valor", ".xml" };
+
     // Fichero temporal de copiar/pegar (legacy: StartupPath + "/Temp/tmp.valor").
-    private static string RutaTemporal =>
+    protected override string RutaTemporal =>
         Path.Combine(AppContext.BaseDirectory, "Temp", "tmp.valor");
 
     // Directorio de columnas ganadoras (legacy: StartupPath + "/Ganadoras/").
@@ -424,7 +430,7 @@ public partial class ValoracionFrmViewModel : ObservableObject
     }
 
     // Guarda en disco el filtro temporal (ValoracionFrm.guardar(), líneas 1049-1053).
-    private void GuardarEn(string nombreArchivo)
+    protected override void GuardarEn(string nombreArchivo)
     {
         var filtroTemp = ObtenerFiltroTemporal();
         var archComb = new ArchivoCondiciones { NombreArchivo = nombreArchivo };
@@ -432,7 +438,7 @@ public partial class ValoracionFrmViewModel : ObservableObject
     }
 
     // Abre la condición desde disco y vuelca sus valores (ValoracionFrm.abrir(), líneas 1037-1046).
-    private void AbrirDesde(string nombreArchivo)
+    protected override void AbrirDesde(string nombreArchivo)
     {
         var archComb = new ArchivoCondiciones();
         if (archComb.AbrirArchivoCombinacion(nombreArchivo))
@@ -455,65 +461,7 @@ public partial class ValoracionFrmViewModel : ObservableObject
         Navegar?.Invoke(typeof(VisorEstadisticasPage));
     }
 
-    [RelayCommand]
-    private async Task Guardar()
-    {
-        // Equivale a ValoracionFrm.menuCondiciones1_BGuardar (ValoracionFrm.cs líneas 1027-1035).
-        StorageFile? file = await PickerHelper.GuardarAsync("Valoracion", ("Valoración de Signos", ".valor"), ("Valoración de Signos (XML)", ".xml"));
-        if (file == null) return;
-
-        try
-        {
-            GuardarEn(file.Path);
-        }
-        catch (Exception ex)
-        {
-            AppServices.MostrarError("No se pudo guardar: " + ex.Message);
-        }
-    }
-
-    [RelayCommand]
-    private async Task Abrir()
-    {
-        // Equivale a ValoracionFrm.menuCondiciones1_BAbrir (ValoracionFrm.cs líneas 1011-1025).
-        StorageFile? file = await PickerHelper.AbrirAsync(".valor", ".xml");
-        if (file == null) return;
-
-        try
-        {
-            AbrirDesde(file.Path);
-        }
-        catch (Exception ex)
-        {
-            AppServices.MostrarError("No se pudo abrir: " + ex.Message);
-        }
-    }
-
-    [RelayCommand]
-    private void Copiar()
-    {
-        // Equivale a ValoracionFrm.menuCondiciones1_BCopiar (ValoracionFrm.cs líneas 1073-1079).
-        try
-        {
-            string ruta = RutaTemporal;
-            Directory.CreateDirectory(Path.GetDirectoryName(ruta)!);
-            GuardarEn(ruta);
-        }
-        catch (Exception ex)
-        {
-            AppServices.MostrarError("No se pudo copiar: " + ex.Message);
-        }
-    }
-
-    [RelayCommand]
-    private void Pegar()
-    {
-        // Equivale a ValoracionFrm.menuCondiciones1_BPegar (ValoracionFrm.cs líneas 1082-1091).
-        if (File.Exists(RutaTemporal))
-        {
-            AbrirDesde(RutaTemporal);
-        }
-    }
+    // Guardar/Abrir/Copiar/Pegar: heredados de FiltroArchivoViewModelBase (C-18).
 
     [RelayCommand]
     private void Borrar()

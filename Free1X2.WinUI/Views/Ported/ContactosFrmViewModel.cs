@@ -43,7 +43,7 @@ public partial class FilaContactoViewModel : ObservableObject
 /// (AppState.GrupoEnEdicion). La edición de figuras navega a FigurasFiltrosFrmPage y la
 /// persistencia en disco se hace vía ArchivoCondiciones (.cont/.xml + Temp/tmp.cont).
 /// </summary>
-public partial class ContactosFrmViewModel : ObservableObject
+public partial class ContactosFrmViewModel : FiltroArchivoViewModelBase
 {
     // Rango admitido por cada OptionNumTol0_14 (Minimo=0, Maximo=15 en el form legacy; 0-14 contactos posibles).
     private const string ValoresPorDefecto = "0,1,2,3,4,5,6,7,8,9,10,11,12,13";
@@ -80,8 +80,14 @@ public partial class ContactosFrmViewModel : ObservableObject
     /// <summary>Acción para navegar a otra página (la cablea la página con Frame.Navigate(tipo)).</summary>
     public Action<Type>? Navegar { get; set; }
 
+    // --- Lo específico del filtro para el cuarteto Guardar/Abrir/Copiar/Pegar (base C-18) ---
+    protected override string NombreSugerido => "Contactos";
+    protected override (string etiqueta, string extension)[] TiposGuardar =>
+        new[] { ("Contactos", ".cont"), ("Contactos (XML)", ".xml") };
+    protected override string[] ExtensionesAbrir => new[] { ".cont", ".xml" };
+
     // Fichero temporal de copiar/pegar (legacy: StartupPath + "/Temp/tmp.cont").
-    private static string RutaTemporal =>
+    protected override string RutaTemporal =>
         Path.Combine(AppContext.BaseDirectory, "Temp", "tmp.cont");
 
     // Directorio de columnas ganadoras (legacy: StartupPath + "/Ganadoras/").
@@ -231,7 +237,7 @@ public partial class ContactosFrmViewModel : ObservableObject
     }
 
     // Guarda en disco la condición de Contactos del grupo en edición (ContactosFrm.guardar, líneas 692-698).
-    private void GuardarEn(string nombreArchivo)
+    protected override void GuardarEn(string nombreArchivo)
     {
         var grupo = AppState.GrupoEnEdicion;
         if (grupo is null) return;
@@ -243,7 +249,7 @@ public partial class ContactosFrmViewModel : ObservableObject
     }
 
     // Abre la condición desde disco y vuelca sus valores (ContactosFrm.abrir, líneas 681-690).
-    private void AbrirDesde(string nombreArchivo)
+    protected override void AbrirDesde(string nombreArchivo)
     {
         var archComb = new ArchivoCondiciones();
         if (archComb.AbrirArchivoCombinacion(nombreArchivo))
@@ -270,65 +276,7 @@ public partial class ContactosFrmViewModel : ObservableObject
         Navegar?.Invoke(typeof(VisorEstadisticasPage));
     }
 
-    [RelayCommand]
-    private async Task Guardar()
-    {
-        // Equivale a ContactosFrm.menuCondiciones1_BGuardar (ContactosFrm.cs líneas 668-679).
-        StorageFile? file = await PickerHelper.GuardarAsync("Contactos", ("Contactos", ".cont"), ("Contactos (XML)", ".xml"));
-        if (file == null) return;
-
-        try
-        {
-            GuardarEn(file.Path);
-        }
-        catch (Exception ex)
-        {
-            AppServices.MostrarError("No se pudo guardar: " + ex.Message);
-        }
-    }
-
-    [RelayCommand]
-    private async Task Abrir()
-    {
-        // Equivale a ContactosFrm.menuCondiciones1_BAbrir (ContactosFrm.cs líneas 651-666).
-        StorageFile? file = await PickerHelper.AbrirAsync(".cont", ".xml");
-        if (file == null) return;
-
-        try
-        {
-            AbrirDesde(file.Path);
-        }
-        catch (Exception ex)
-        {
-            AppServices.MostrarError("No se pudo abrir: " + ex.Message);
-        }
-    }
-
-    [RelayCommand]
-    private void Copiar()
-    {
-        // Equivale a ContactosFrm.menuCondiciones1_BCopiar (ContactosFrm.cs líneas 709-720).
-        try
-        {
-            string ruta = RutaTemporal;
-            Directory.CreateDirectory(Path.GetDirectoryName(ruta)!);
-            GuardarEn(ruta);
-        }
-        catch (Exception ex)
-        {
-            AppServices.MostrarError("No se pudo copiar: " + ex.Message);
-        }
-    }
-
-    [RelayCommand]
-    private void Pegar()
-    {
-        // Equivale a ContactosFrm.menuCondiciones1_BPegar (ContactosFrm.cs líneas 722-732).
-        if (File.Exists(RutaTemporal))
-        {
-            AbrirDesde(RutaTemporal);
-        }
-    }
+    // Guardar/Abrir/Copiar/Pegar: heredados de FiltroArchivoViewModelBase (C-18).
 
     [RelayCommand]
     private void Borrar()
