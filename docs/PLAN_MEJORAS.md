@@ -714,7 +714,7 @@ repartidos por **67 ficheros** (~800-1000 líneas de *boilerplate* idéntico).
 
 **Cierre:** build 0 errores · 131/131 · **el smoke queda para la tanda 4**.
 
-### Tanda 3 — Refactor C-18: cuarteto de los filtros (no abre ninguna ventana) · 🔄 en curso
+### Tanda 3 — Refactor C-18: cuarteto de los filtros (no abre ninguna ventana) · ☑ HECHA (commit `d273395`, 12/16)
 
 `Guardar`/`Abrir`/`Copiar`/`Pegar` idénticos salvo extensión y nombre sugerido en **16 ViewModels** de filtro
 (**48 métodos**): Contactos, Distancias, Dibujos, Diferencias, FigurasFiltros, Formatos, Formatos123,
@@ -729,7 +729,8 @@ Referencia de equivalencia: `ContactosFrmViewModel.cs:274-344` ≡ `DistanciasFr
 
 **Cierre:** build 0 errores · 131/131.
 
-### Tanda 4 — Verificación con la app abierta · **REQUIERE PERMISO DEL DUEÑO (R7)**
+### Tanda 4 — Verificación con la app abierta · ⏸ ESPERANDO PERMISO DEL DUEÑO (R7)
+> **U-03 y U-13 ya verificados en estático** (sin abrir la app): los colores de la leyenda de `TramificarGraficasFrmPage` coinciden 1:1 con `ColorDeCurva` (son datos, no tema); el `Background="White"` de `HostExportacion` es el fondo «papel» del PNG exportado. Ambos correctos, no deben seguir el tema.
 
 Aquí es donde se abre `Free1X2.WinUI.exe`. **No se ejecuta nada de esto hasta que el dueño diga que puede.**
 Conviene hacerlo todo de una vez, en una sola ventana de tiempo en que no esté usando el ordenador.
@@ -752,7 +753,7 @@ Conviene hacerlo todo de una vez, en una sola ventana de tiempo en que no esté 
 5. **U-06**: comprobar si la barra de título ya muestra el icono de la app; si no, `AppWindow.SetIcon`.
 6. **Al terminar: matar todo proceso `Free1X2.WinUI`.**
 
-### Tanda 5 — U-05 y U-04 (no abren ventana para implementar; sí para comprobar)
+### Tanda 5 — U-05 y U-04 · ☑ IMPLEMENTADA (commit `e1c561e`; falta comprobar en vivo → tanda 4)
 
 - **U-05 tamaño mínimo de ventana** (el dueño lo destacó). Hoy `MainWindow.xaml.cs` solo hace
   `AppWindow.Resize(1020,760)`, sin tope: al encoger, la barra de ~55 botones a 2 filas se recorta.
