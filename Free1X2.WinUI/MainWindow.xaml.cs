@@ -6,6 +6,7 @@ using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Input;
 using Free1X2.WinUI.Views;
 using Free1X2.WinUI.Views.Ported;
 using Free1X2.WinUI.Navigation;
@@ -37,6 +38,7 @@ public sealed partial class MainWindow : Window
 
         ConstruirToolbar();
         ConstruirMenus();
+        ConfigurarAtajosTeclado();
         ContentFrame.Navigate(typeof(MainPage));
 
         // Persiste la visibilidad de las barras al cerrar, igual que el MainForm
@@ -59,6 +61,14 @@ public sealed partial class MainWindow : Window
         try
         {
             this.AppWindow?.Resize(new Windows.Graphics.SizeInt32(1020, 760));
+
+            // U-05: tamaño MÍNIMO de la ventana. Antes no había tope: al encoger, la barra de
+            // ~55 botones a dos filas y el contenido quedaban recortados sin aviso. En Windows
+            // App SDK 1.6 el OverlappedPresenter TODAVÍA no expone PreferredMinimumWidth/Height
+            // (llegó en 1.7), así que el mínimo se impone interceptando WM_GETMINMAXINFO con un
+            // subclass nativo de la ventana. 900x600 deja sitio a menús + barra a dos filas +
+            // algo de contenido.
+            InstalarTamanoMinimo();
         }
         catch (Exception ex)
         {
@@ -67,6 +77,61 @@ public sealed partial class MainWindow : Window
             Services.Log.Error("MainWindow.AjustarTamanoVentana", ex);
         }
     }
+
+    // ===== U-05: tamaño mínimo de ventana vía WM_GETMINMAXINFO (WinAppSDK 1.6) =====
+
+    private const int AnchoMinimoDip = 900;
+    private const int AltoMinimoDip = 600;
+    private const uint WM_GETMINMAXINFO = 0x0024;
+    // El delegado se guarda en un campo para que el GC no lo recoja mientras la ventana vive.
+    private SUBCLASSPROC _subclassProc;
+
+    private void InstalarTamanoMinimo()
+    {
+        IntPtr hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+        _subclassProc = SubclassWndProc;
+        SetWindowSubclass(hwnd, _subclassProc, IntPtr.Zero, IntPtr.Zero);
+    }
+
+    private IntPtr SubclassWndProc(IntPtr hWnd, uint uMsg, IntPtr wParam, IntPtr lParam, IntPtr uIdSubclass, IntPtr dwRefData)
+    {
+        if (uMsg == WM_GETMINMAXINFO)
+        {
+            // El mínimo va en píxeles físicos, así que se escala por el DPI del monitor.
+            uint dpi = GetDpiForWindow(hWnd);
+            double escala = dpi > 0 ? dpi / 96.0 : 1.0;
+            var info = System.Runtime.InteropServices.Marshal.PtrToStructure<MINMAXINFO>(lParam);
+            info.ptMinTrackSize.X = (int)(AnchoMinimoDip * escala);
+            info.ptMinTrackSize.Y = (int)(AltoMinimoDip * escala);
+            System.Runtime.InteropServices.Marshal.StructureToPtr(info, lParam, false);
+            return IntPtr.Zero;
+        }
+        return DefSubclassProc(hWnd, uMsg, wParam, lParam);
+    }
+
+    private delegate IntPtr SUBCLASSPROC(IntPtr hWnd, uint uMsg, IntPtr wParam, IntPtr lParam, IntPtr uIdSubclass, IntPtr dwRefData);
+
+    [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
+    private struct POINT { public int X; public int Y; }
+
+    [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
+    private struct MINMAXINFO
+    {
+        public POINT ptReserved;
+        public POINT ptMaxSize;
+        public POINT ptMaxPosition;
+        public POINT ptMinTrackSize;
+        public POINT ptMaxTrackSize;
+    }
+
+    [System.Runtime.InteropServices.DllImport("comctl32.dll", SetLastError = true)]
+    private static extern bool SetWindowSubclass(IntPtr hWnd, SUBCLASSPROC pfnSubclass, IntPtr uIdSubclass, IntPtr dwRefData);
+
+    [System.Runtime.InteropServices.DllImport("comctl32.dll")]
+    private static extern IntPtr DefSubclassProc(IntPtr hWnd, uint uMsg, IntPtr wParam, IntPtr lParam);
+
+    [System.Runtime.InteropServices.DllImport("user32.dll")]
+    private static extern uint GetDpiForWindow(IntPtr hwnd);
 
     // Convierte un codepoint hex (p.ej. "E80F") al glifo de Segoe Fluent Icons.
     // Usar codepoints en lugar de caracteres literales garantiza que el glifo se
@@ -599,6 +664,41 @@ public sealed partial class MainWindow : Window
     /// cada navegación, así que re-navegar es justo lo que hace falta (comportamiento previo).
     /// </summary>
     public void NavegarA(Type page) => ContentFrame.Navigate(page);
+
+    // U-04: atajos de teclado. El MainForm WinForms original NO tenía ninguno; son
+    // funcionalidad nueva (decisión del dueño). Se registran a nivel de ventana en la raíz del
+    // contenido (RaizVentana), así que funcionan desde cualquier página. Las acciones de boleto
+    // (Nueva/Abrir/Guardar) pasan por NavegarConAccion, que si no estás en Inicio navega allí y
+    // ejecuta la acción — el mismo comportamiento que pulsar el botón de la barra.
+    private void ConfigurarAtajosTeclado()
+    {
+        try
+        {
+            AgregarAtajo(Windows.System.VirtualKey.N, Windows.System.VirtualKeyModifiers.Control,
+                () => NavegarConAccion(AccionInicio.NuevaCombinacion));
+            AgregarAtajo(Windows.System.VirtualKey.O, Windows.System.VirtualKeyModifiers.Control,
+                () => NavegarConAccion(AccionInicio.AbrirCombinacion));
+            AgregarAtajo(Windows.System.VirtualKey.S, Windows.System.VirtualKeyModifiers.Control,
+                () => NavegarConAccion(AccionInicio.GuardarCombinacion));
+            AgregarAtajo(Windows.System.VirtualKey.F5, Windows.System.VirtualKeyModifiers.None,
+                () => Navegar(typeof(CalculaColumnasFrmPage)));
+            AgregarAtajo(Windows.System.VirtualKey.F1, Windows.System.VirtualKeyModifiers.None,
+                () => Navegar(typeof(AyudaFrmPage)));
+            AgregarAtajo(Windows.System.VirtualKey.Escape, Windows.System.VirtualKeyModifiers.None,
+                () => { if (ContentFrame.CanGoBack) ContentFrame.GoBack(); });
+        }
+        catch (Exception ex)
+        {
+            Services.Log.Error("MainWindow.ConfigurarAtajosTeclado", ex);
+        }
+    }
+
+    private void AgregarAtajo(Windows.System.VirtualKey tecla, Windows.System.VirtualKeyModifiers mod, Action accion)
+    {
+        var atajo = new KeyboardAccelerator { Key = tecla, Modifiers = mod };
+        atajo.Invoked += (_, e) => { e.Handled = true; accion(); };
+        RaizVentana.KeyboardAccelerators.Add(atajo);
+    }
 
     // Ejecuta una acción de la barra "Archivo" sobre la pantalla Inicio. Si ya estamos en
     // MainPage, invoca el comando sobre la instancia VIVA (preserva el boleto en edición); si
