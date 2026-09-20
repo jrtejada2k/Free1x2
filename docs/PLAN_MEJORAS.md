@@ -620,6 +620,59 @@ el original no los tenía. El resto son detalles de consistencia. Ninguna toca l
 
 ---
 
+## 7 bis. Hallazgos NUEVOS surgidos al ejecutar el plan
+
+Aparecieron al trabajar, no estaban en la revisión inicial. Cada uno con evidencia verificada.
+
+### N-01 · 🔴 RESUELTO — 6 clicks muertos en la pantalla *Ayuda*
+**Evidencia:** `Free1X2.WinUI/Views/Ported/AyudaFrmPage.xaml.cs` — los handlers `ManualLink_Click`,
+`ArticulosLink_Click`, `RecursosLink_Click`, `ForoLink_Click`, `NotificacionesLink_Click` y
+`FacebookLink_Click` tenían **cuerpo vacío** (solo un `TODO`). El legacy `Free1X2/UI/AyudaFrm.cs:21-54`
+mostraba un `MessageBox` informativo en cada uno.
+**Fallo:** el usuario pulsaba 6 de las 7 opciones de la pantalla y **no ocurría nada**.
+**Estado:** ☑ arreglado (replican el mensaje del original). Es exactamente el tipo de «pantalla
+desconectada» que el dueño marcó como inadmisible, y la revisión inicial no lo detectó porque
+buscaba `Frame.Navigate` ausentes, no handlers vacíos.
+**Lección para el futuro:** un escaneo de *handlers de evento con cuerpo vacío o solo comentarios*
+en las 108 páginas encontraría más casos como éste. **Pendiente de decisión del dueño** si se hace.
+
+### N-02 · 🔴 `ReductorTM` se cuelga (bucle infinito) con `diferencia == 1`
+**Evidencia:** `Free1X2.Domain/Reduccion/ReductorTM.cs` — en `Reduce`, si ninguna columna se empareja,
+`menor = Array.IndexOf(matrizTemporal, 0)` devuelve **-1**, el `for (i = 0; i < menor)` no itera y el
+`while (mayor != 0)` **nunca termina**. **Preexistente**: reproducido con la DLL publicada v0.82.0, así
+que no lo introdujo ninguna optimización. Por eso los golden-master de `ReductorTM` usan niveles
+8/10/11/12 y no 13.
+**Fallo:** la app se queda colgada (no cierra, no responde) al reducir con ese parámetro.
+**Decisión del dueño:** ☐ (a) arreglarlo (salir del bucle y avisar al usuario) · ☐ (b) dejarlo como
+está por paridad 1:1 con el original · ☐ (c) primero quiero reproducirlo yo.
+**Nota:** una app que se cuelga es peor que una que avisa; recomiendo (a), pero es tu llamada.
+
+### N-03 · 🟠 `ReductorTM.ComienzaReduccion` no llama a `Inicializa`
+**Evidencia:** `Free1X2.Domain/Reduccion/ReductorTM.cs` — `diferencia` queda en 0 si el llamante no
+invoca `Inicializa` antes. La UI legacy sí lo hacía (`Free1X2/UI/ReductorFrm.cs:618-619`). **Preexistente.**
+**Riesgo:** si alguna ruta de la UI WinUI no replica esa llamada, la reducción corre con `diferencia = 0`.
+**Pasos:** 1. ☐ Comprobar en `Free1X2.WinUI/Views/Ported/ReductorFrmViewModel.cs` si llama a `Inicializa`.
+2. ☐ Si no lo hace, es un bug de comportamiento → arreglar. 3. ☐ Si lo hace, documentar la precondición.
+
+### N-04 · 🟡 `ReductorTM.Reduce` tiene un límite duro de 32 767 columnas
+**Evidencia:** los `Convert.ToInt16` sobre índices desbordan por encima de 32 767 columnas
+(`OverflowException`). **Preexistente**, conservado a propósito en la optimización P-16 para no cambiar
+el comportamiento; ahora con una comprobación explícita en vez de un desbordamiento crudo.
+**Decisión:** ☐ subir el límite a `int` · ☐ dejarlo y documentarlo en el manual.
+
+### N-05 · 🟡 `HashSet` paralelo a `Figuras` no es implementable con seguridad (P-03/P-04)
+**Evidencia:** `Free1X2.WinUI/Views/Ported/FigurasFiltrosFrmViewModel.cs:129-146` hace `Clear()` + `Add()`
+**sobre la misma referencia de lista** que tiene el filtro (handoff documentado en
+`ContactosFrmViewModel.cs:190-193`), **sin pasar por el setter**. Una edición que deje el mismo `Count`
+con contenido distinto desincronizaría el set en silencio.
+**Estado:** el resto de P-03/P-04 sí se aplicó (buffers sin asignaciones); solo el `HashSet` queda fuera.
+Requeriría un hook desde la capa WinUI. **Ganancia restante pequeña; no recomiendo tocarlo.**
+
+### N-06 · 🟡 V0 del plan permitía un smoke en falso — RESUELTO
+`dotnet build -c Debug` **sin** `-p:Platform=x64` escribe en `bin\Debug\`, no en `bind\Debug\`, que es
+de donde el smoke coge el `.exe`. Un smoke podía pasar sobre un binario viejo. ☑ Corregido en §0
+(añadido `-p:Platform=x64`, borrado previo del log y comprobación de la fecha del `.exe`).
+
 ## 8. Registro de decisiones del dueño
 
 | Fecha | Ítem | Decisión | Nota |
