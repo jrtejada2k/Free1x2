@@ -509,16 +509,7 @@ public partial class DiferenciasFrmViewModel : ObservableObject
     private async Task Guardar()
     {
         // Equivale a DiferenciasFrm.menuCondiciones1_BGuardar (DiferenciasFrm.cs líneas 416-426).
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "Diferencias",
-        };
-        picker.FileTypeChoices.Add("Diferencias", new List<string> { ".dif" });
-        picker.FileTypeChoices.Add("Diferencias (XML)", new List<string> { ".xml" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSaveFileAsync();
+        StorageFile? file = await PickerHelper.GuardarAsync("Diferencias", ("Diferencias", ".dif"), ("Diferencias (XML)", ".xml"));
         if (file == null) return;
 
         try
@@ -535,12 +526,7 @@ public partial class DiferenciasFrmViewModel : ObservableObject
     private async Task Abrir()
     {
         // Equivale a DiferenciasFrm.menuCondiciones1_BAbrir (DiferenciasFrm.cs líneas 475-490).
-        var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
-        picker.FileTypeFilter.Add(".dif");
-        picker.FileTypeFilter.Add(".xml");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSingleFileAsync();
+        StorageFile? file = await PickerHelper.AbrirAsync(".dif", ".xml");
         if (file == null) return;
 
         try

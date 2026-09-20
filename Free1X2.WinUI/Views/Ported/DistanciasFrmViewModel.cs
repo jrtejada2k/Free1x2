@@ -207,16 +207,7 @@ public partial class DistanciasFrmViewModel : ObservableObject
     private async Task Guardar()
     {
         // Equivale a menuCondiciones1_BGuardar -> guardar() (DistanciasFrm.cs líneas 462-497).
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "Distancias",
-        };
-        picker.FileTypeChoices.Add("Distancias", new List<string> { ".dist" });
-        picker.FileTypeChoices.Add("Distancias (XML)", new List<string> { ".xml" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSaveFileAsync();
+        StorageFile? file = await PickerHelper.GuardarAsync("Distancias", ("Distancias", ".dist"), ("Distancias (XML)", ".xml"));
         if (file == null) return;
 
         try
@@ -233,12 +224,7 @@ public partial class DistanciasFrmViewModel : ObservableObject
     private async Task Abrir()
     {
         // Equivale a menuCondiciones1_BAbrir -> abrir() (DistanciasFrm.cs líneas 446-485).
-        var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
-        picker.FileTypeFilter.Add(".dist");
-        picker.FileTypeFilter.Add(".xml");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSingleFileAsync();
+        StorageFile? file = await PickerHelper.AbrirAsync(".dist", ".xml");
         if (file == null) return;
 
         try

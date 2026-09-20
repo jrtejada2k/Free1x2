@@ -114,15 +114,7 @@ public partial class PremiadasFrmViewModel : ObservableObject
     private async Task SeleccionarFicheroAsync()
     {
         // Legacy SelFileIn(): OpenFileDialog filtro "Cols.Ganadoras(*.txt)|*.txt|...".
-        var picker = new FileOpenPicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add(".txt");
-        picker.FileTypeFilter.Add("*");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSingleFileAsync();
+        StorageFile? file = await PickerHelper.AbrirAsync(".txt", "*");
         if (file is null) return;
 
         // Legacy: faux = ruta completa; filein/lFileIn.Text = sólo el nombre.
@@ -240,15 +232,7 @@ public partial class PremiadasFrmViewModel : ObservableObject
         int n = FrecuenciaSeleccionadaIndex + 1;
 
         // Legacy: SaveFileDialog filtro "Cols.Salida(*.txt)|*.txt|...".
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "columnas",
-        };
-        picker.FileTypeChoices.Add("Cols.Salida", new List<string> { ".txt" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSaveFileAsync();
+        StorageFile? file = await PickerHelper.GuardarAsync("columnas", ("Cols.Salida", ".txt"));
         if (file is null) return;
 
         int[] validas = _validas;

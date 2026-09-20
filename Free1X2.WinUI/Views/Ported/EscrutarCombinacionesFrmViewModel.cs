@@ -269,15 +269,7 @@ public partial class EscrutarCombinacionesFrmViewModel : ObservableObject
     private async Task SeleccionarFicherosAsync()
     {
         // Legacy BtnFileOrigClick: OpenFileDialog multiselección (*.comb, *.xml) en "Columnas\\".
-        var picker = new FileOpenPicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add(".comb");
-        picker.FileTypeFilter.Add(".xml");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var files = await picker.PickMultipleFilesAsync();
+        var files = await PickerHelper.AbrirVariosAsync(".comb", ".xml");
         if (files == null || files.Count == 0) return;
 
         _archivosComb.Clear();
@@ -293,14 +285,7 @@ public partial class EscrutarCombinacionesFrmViewModel : ObservableObject
     private async Task SeleccionarFicheroReferenciaAsync()
     {
         // Legacy BtnFileRefClick: OpenFileDialog (*.txt) en "Columnas\\".
-        var picker = new FileOpenPicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add(".txt");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSingleFileAsync();
+        var file = await PickerHelper.AbrirAsync(".txt");
         if (file == null) return;
 
         _archivoRef = file.Path;
@@ -342,14 +327,7 @@ public partial class EscrutarCombinacionesFrmViewModel : ObservableObject
     private async Task VerArchivosAsync()
     {
         // Legacy btnVerArch_Click: OpenFileDialog y, si se elige un archivo, txtNombreArchBase = su nombre.
-        var picker = new FileOpenPicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add("*");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSingleFileAsync();
+        StorageFile? file = await PickerHelper.AbrirAsync("*");
         if (file is null) return;
         PlantillaNombreArchivo = file.Name;
     }
@@ -700,15 +678,7 @@ public partial class EscrutarCombinacionesFrmViewModel : ObservableObject
             return;
         }
 
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "columnas",
-        };
-        picker.FileTypeChoices.Add("Columnas", new List<string> { ".txt" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSaveFileAsync();
+        StorageFile? file = await PickerHelper.GuardarAsync("columnas", ("Columnas", ".txt"));
         if (file is null) return;
 
         string rutaSalida = file.Path;

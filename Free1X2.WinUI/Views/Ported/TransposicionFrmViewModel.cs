@@ -85,14 +85,7 @@ public partial class TransposicionFrmViewModel : ObservableObject
     [RelayCommand]
     private async Task SeleccionarEntradaAsync()
     {
-        var picker = new FileOpenPicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add(".txt");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSingleFileAsync();
+        var file = await PickerHelper.AbrirAsync(".txt");
         if (file == null) return;
         _rutaEntrada = file.Path;
         NombreEntrada = Path.GetFileName(_rutaEntrada);
@@ -105,15 +98,7 @@ public partial class TransposicionFrmViewModel : ObservableObject
     [RelayCommand]
     private async Task SeleccionarSalidaAsync()
     {
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "ColumnasTranspuestas",
-        };
-        picker.FileTypeChoices.Add("Columnas", new List<string> { ".txt" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSaveFileAsync();
+        var file = await PickerHelper.GuardarAsync("ColumnasTranspuestas", ("Columnas", ".txt"));
         if (file == null) return;
         _rutaSalida = file.Path;
         NombreSalida = Path.GetFileName(_rutaSalida);

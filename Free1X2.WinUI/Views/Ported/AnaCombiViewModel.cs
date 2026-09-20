@@ -132,15 +132,7 @@ public partial class AnaCombiViewModel : ObservableObject
     [RelayCommand]
     private async Task SeleccionarFichero()
     {
-        var picker = new FileOpenPicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add(".txt");
-        picker.FileTypeFilter.Add("*");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSingleFileAsync();
+        var file = await PickerHelper.AbrirAsync(".txt", "*");
         if (file == null) return;
         _rutaFichero = file.Path;
         FicheroEntrada = Path.GetFileName(file.Path);
@@ -335,15 +327,7 @@ public partial class AnaCombiViewModel : ObservableObject
             return;
         }
 
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "Resultados",
-        };
-        picker.FileTypeChoices.Add("Resultados", new List<string> { ".txt" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSaveFileAsync();
+        var file = await PickerHelper.GuardarAsync("Resultados", ("Resultados", ".txt"));
         if (file == null) return;
 
         string rutaEntrada = _rutaFichero;

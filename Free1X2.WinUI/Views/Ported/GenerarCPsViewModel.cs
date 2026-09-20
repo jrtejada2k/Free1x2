@@ -148,15 +148,7 @@ public partial class GenerarCPsViewModel : ObservableObject
     [RelayCommand]
     private async Task ImportarPorcentajes()
     {
-        var picker = new FileOpenPicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add(".txt");
-        picker.FileTypeFilter.Add("*");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? archivo = await picker.PickSingleFileAsync();
+        StorageFile? archivo = await PickerHelper.AbrirAsync(".txt", "*");
         if (archivo is null)
         {
             return;

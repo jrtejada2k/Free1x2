@@ -298,14 +298,7 @@ public partial class BancoPruebasFrmViewModel : ObservableObject
     private async Task LeerColumnasAsync()
     {
         // Legacy btLeerColumnas_Click (Free1X2/UI/BancoPruebasFrm.cs línea 3224): OpenFileDialog (*.txt).
-        var picker = new FileOpenPicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add(".txt");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSingleFileAsync();
+        var file = await PickerHelper.AbrirAsync(".txt");
         if (file == null) return;
 
         FicheroEntrada = file.Path;
@@ -425,15 +418,7 @@ public partial class BancoPruebasFrmViewModel : ObservableObject
             return;
         }
 
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "ColumnasAleatorias",
-        };
-        picker.FileTypeChoices.Add("Columnas", new List<string> { ".txt" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSaveFileAsync();
+        var file = await PickerHelper.GuardarAsync("ColumnasAleatorias", ("Columnas", ".txt"));
         if (file == null) return;
 
         IArchivoColumnas comCols = new ArchivoColumnasTexto(file.Path);
@@ -1162,15 +1147,7 @@ public partial class BancoPruebasFrmViewModel : ObservableObject
         }
 
         // Legacy: SaveFileDialog (carpeta Columnas, filtro "Columnas(*.txt)|*.txt|...").
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "columnas",
-        };
-        picker.FileTypeChoices.Add("Columnas", new List<string> { ".txt" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSaveFileAsync();
+        var file = await PickerHelper.GuardarAsync("columnas", ("Columnas", ".txt"));
         if (file == null) return;
 
         // Snapshot de las columnas + selección para el hilo de fondo (legacy: ResCol[i] / IsSelected(i)).

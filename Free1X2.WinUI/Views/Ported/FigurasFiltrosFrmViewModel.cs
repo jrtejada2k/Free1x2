@@ -167,12 +167,7 @@ public partial class FigurasFiltrosFrmViewModel : ObservableObject
     {
         // Equivale a FigurasFiltrosFrm.btnAbrir_Click (FigurasFiltrosFrm.cs líneas 253-280):
         //   OpenFileDialog (.fig<Condicion>) -> leer líneas -> ObtenerLongFiguraFromText -> recargar rejilla.
-        var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
-        picker.FileTypeFilter.Add(ExtensionFiguras());
-        picker.FileTypeFilter.Add("*");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSingleFileAsync();
+        StorageFile? file = await PickerHelper.AbrirAsync(ExtensionFiguras(), "*");
         if (file == null) return;
 
         try

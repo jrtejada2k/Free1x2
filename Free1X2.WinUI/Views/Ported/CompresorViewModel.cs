@@ -64,15 +64,7 @@ public partial class CompresorViewModel : ObservableObject
     [RelayCommand]
     private async Task ComprimirArchivo()
     {
-        var abrir = new FileOpenPicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-        };
-        abrir.FileTypeFilter.Add(".txt");
-        abrir.FileTypeFilter.Add("*");
-        WinRT.Interop.InitializeWithWindow.Initialize(abrir, AppServices.WindowHandle);
-
-        StorageFile? entrada = await abrir.PickSingleFileAsync();
+        StorageFile? entrada = await PickerHelper.AbrirAsync(".txt", "*");
         if (entrada is null) return;
 
         try
@@ -124,15 +116,8 @@ public partial class CompresorViewModel : ObservableObject
     private async Task GuardarFicheroComprimido(string rutaEntrada)
     {
         Estado = "Guardando";
-        var guardar = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = Path.GetFileNameWithoutExtension(rutaEntrada),
-        };
-        guardar.FileTypeChoices.Add("Columnas Comprimidas", new List<string> { ".z3q" });
-        WinRT.Interop.InitializeWithWindow.Initialize(guardar, AppServices.WindowHandle);
-
-        StorageFile? salida = await guardar.PickSaveFileAsync();
+        StorageFile? salida = await PickerHelper.GuardarAsync(
+            Path.GetFileNameWithoutExtension(rutaEntrada), ("Columnas Comprimidas", ".z3q"));
         if (salida is null)
         {
             Estado = "Preparado";
@@ -174,15 +159,7 @@ public partial class CompresorViewModel : ObservableObject
     [RelayCommand]
     private async Task DescomprimirArchivo()
     {
-        var abrir = new FileOpenPicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-        };
-        abrir.FileTypeFilter.Add(".z3q");
-        abrir.FileTypeFilter.Add("*");
-        WinRT.Interop.InitializeWithWindow.Initialize(abrir, AppServices.WindowHandle);
-
-        StorageFile? entrada = await abrir.PickSingleFileAsync();
+        StorageFile? entrada = await PickerHelper.AbrirAsync(".z3q", "*");
         if (entrada is null) return;
 
         // Réplica de EntradaFicheroComprimido() (Free1X2/UI/Compresor.cs línea 74).
@@ -216,15 +193,7 @@ public partial class CompresorViewModel : ObservableObject
     private async Task GuardarFicheroDescomprimido()
     {
         Estado = "Guardando";
-        var guardar = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "Columnas",
-        };
-        guardar.FileTypeChoices.Add("Columnas", new List<string> { ".txt" });
-        WinRT.Interop.InitializeWithWindow.Initialize(guardar, AppServices.WindowHandle);
-
-        StorageFile? salida = await guardar.PickSaveFileAsync();
+        StorageFile? salida = await PickerHelper.GuardarAsync("Columnas", ("Columnas", ".txt"));
         if (salida is null)
         {
             Estado = "Preparado";

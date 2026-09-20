@@ -183,11 +183,7 @@ public partial class DiFiltrosViewModel : ObservableObject
     [RelayCommand]
     private async Task CargarFiltro()
     {
-        var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
-        picker.FileTypeFilter.Add(".txt");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        IReadOnlyList<StorageFile> files = await picker.PickMultipleFilesAsync();
+        IReadOnlyList<StorageFile> files = await PickerHelper.AbrirVariosAsync(".txt");
         if (files == null || files.Count == 0) return;
 
         foreach (StorageFile file in files)
@@ -209,11 +205,7 @@ public partial class DiFiltrosViewModel : ObservableObject
     [RelayCommand]
     private async Task CargarLista()
     {
-        var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
-        picker.FileTypeFilter.Add(".lst");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSingleFileAsync();
+        StorageFile? file = await PickerHelper.AbrirAsync(".lst");
         if (file == null) return;
 
         Filtros.Clear();
@@ -251,15 +243,7 @@ public partial class DiFiltrosViewModel : ObservableObject
     [RelayCommand]
     private async Task SalvarLista()
     {
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "Lista",
-        };
-        picker.FileTypeChoices.Add("SalvarLista", new List<string> { ".lst" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSaveFileAsync();
+        StorageFile? file = await PickerHelper.GuardarAsync("Lista", ("SalvarLista", ".lst"));
         if (file == null) return;
 
         try
@@ -469,15 +453,7 @@ public partial class DiFiltrosViewModel : ObservableObject
     [RelayCommand]
     private async Task Grabar()
     {
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "Columnas",
-        };
-        picker.FileTypeChoices.Add("Columnas", new List<string> { ".txt" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSaveFileAsync();
+        StorageFile? file = await PickerHelper.GuardarAsync("Columnas", ("Columnas", ".txt"));
         if (file == null) return;
 
         string ruta = file.Path;
@@ -511,11 +487,7 @@ public partial class DiFiltrosViewModel : ObservableObject
     [RelayCommand]
     private async Task CargarGanadoras()
     {
-        var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
-        picker.FileTypeFilter.Add(".txt");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSingleFileAsync();
+        StorageFile? file = await PickerHelper.AbrirAsync(".txt");
         if (file == null) return;
 
         try

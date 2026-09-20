@@ -56,15 +56,7 @@ namespace Free1X2.WinUI.Views.Ported
         [RelayCommand]
         private async Task ImportarSimples()
         {
-            var picker = new FileOpenPicker
-            {
-                SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            };
-            picker.FileTypeFilter.Add(".txt");
-            picker.FileTypeFilter.Add("*");
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-            StorageFile? archivo = await picker.PickSingleFileAsync();
+            StorageFile? archivo = await PickerHelper.AbrirAsync(".txt", "*");
             if (archivo is null)
             {
                 return;
@@ -126,15 +118,7 @@ namespace Free1X2.WinUI.Views.Ported
         [RelayCommand]
         private async Task ImportarClm()
         {
-            var picker = new FileOpenPicker
-            {
-                SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            };
-            picker.FileTypeFilter.Add(".clm");
-            picker.FileTypeFilter.Add("*");
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-            StorageFile? archivo = await picker.PickSingleFileAsync();
+            StorageFile? archivo = await PickerHelper.AbrirAsync(".clm", "*");
             if (archivo is null)
             {
                 return;

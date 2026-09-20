@@ -71,17 +71,8 @@ public partial class ExportadorCPsFrmViewModel : ObservableObject
     [RelayCommand]
     private async Task ExportarSimples()
     {
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            DefaultFileExtension = ".txt",
-            SuggestedFileName = "columnas",
-        };
-        picker.FileTypeChoices.Add("Columnas Simples", new List<string> { ".txt" });
-        picker.FileTypeChoices.Add("Todos los archivos", new List<string> { "." });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? archivo = await picker.PickSaveFileAsync();
+        StorageFile? archivo = await PickerHelper.GuardarConExtensionPorDefectoAsync(
+            "columnas", ".txt", ("Columnas Simples", ".txt"), ("Todos los archivos", "."));
         if (archivo is null)
         {
             return;
@@ -124,17 +115,8 @@ public partial class ExportadorCPsFrmViewModel : ObservableObject
     [RelayCommand]
     private async Task ExportarConAciertos()
     {
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            DefaultFileExtension = ".clm",
-            SuggestedFileName = "columnas",
-        };
-        picker.FileTypeChoices.Add("Columnas Con Aciertos", new List<string> { ".clm" });
-        picker.FileTypeChoices.Add("Todos los archivos", new List<string> { "." });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? archivo = await picker.PickSaveFileAsync();
+        StorageFile? archivo = await PickerHelper.GuardarConExtensionPorDefectoAsync(
+            "columnas", ".clm", ("Columnas Con Aciertos", ".clm"), ("Todos los archivos", "."));
         if (archivo is null)
         {
             return;

@@ -163,15 +163,7 @@ public partial class PosiblesPremiosFrmViewModel : ObservableObject
     [RelayCommand]
     private async System.Threading.Tasks.Task AbrirArchivoAsync()
     {
-        var picker = new FileOpenPicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add(".txt");
-        picker.FileTypeFilter.Add(".cols");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSingleFileAsync();
+        var file = await PickerHelper.AbrirAsync(".txt", ".cols");
         if (file == null) return;
 
         _arrayColumnas.Clear();
@@ -321,15 +313,7 @@ public partial class PosiblesPremiosFrmViewModel : ObservableObject
             return;
         }
 
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "Resumen",
-        };
-        picker.FileTypeChoices.Add("Resumen", new List<string> { ".txt" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSaveFileAsync();
+        var file = await PickerHelper.GuardarAsync("Resumen", ("Resumen", ".txt"));
         if (file == null) return;
 
         // Legacy GrabarResumen() (Free1X2/UI/PosiblesPremiosFrm.cs línea 3327).

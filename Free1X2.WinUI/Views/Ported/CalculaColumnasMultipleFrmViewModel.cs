@@ -109,16 +109,7 @@ public partial class CalculaColumnasMultipleFrmViewModel : ObservableObject
         // Legacy btnSelArch_Click: OpenFileDialog (Multiselect) sobre "{StartupPath}/Combinaciones/",
         // filtro ".comb / .xml / *". Tras elegir: combinaciones.Sort() y rellenar el ListBox con
         // Path.GetFileName de cada ruta. Habilita Calcular (HayFicheros / PuedeCalcular).
-        var picker = new Windows.Storage.Pickers.FileOpenPicker
-        {
-            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add(".comb");
-        picker.FileTypeFilter.Add(".xml");
-        picker.FileTypeFilter.Add("*");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var files = await picker.PickMultipleFilesAsync();
+        var files = await PickerHelper.AbrirVariosAsync(".comb", ".xml", "*");
         if (files == null || files.Count == 0) return;
 
         // Elimina la lista de ficheros anteriores (legacy: combinaciones.Clear / listaFicheros.Items.Clear).

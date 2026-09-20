@@ -287,16 +287,7 @@ public partial class SignosSeguidosFrmViewModel : ObservableObject
     private async Task Guardar()
     {
         // Equivale a SignosSeguidosFrm.menuCondiciones1_BGuardar (SignosSeguidosFrm.cs líneas 558-565).
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "SignosSeguidos",
-        };
-        picker.FileTypeChoices.Add("Signos seguidos", new List<string> { ".seg" });
-        picker.FileTypeChoices.Add("Signos seguidos (XML)", new List<string> { ".xml" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSaveFileAsync();
+        StorageFile? file = await PickerHelper.GuardarAsync("SignosSeguidos", ("Signos seguidos", ".seg"), ("Signos seguidos (XML)", ".xml"));
         if (file == null) return;
 
         try
@@ -313,12 +304,7 @@ public partial class SignosSeguidosFrmViewModel : ObservableObject
     private async Task Abrir()
     {
         // Equivale a SignosSeguidosFrm.menuCondiciones1_BAbrir (SignosSeguidosFrm.cs líneas 547-556).
-        var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
-        picker.FileTypeFilter.Add(".seg");
-        picker.FileTypeFilter.Add(".xml");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSingleFileAsync();
+        StorageFile? file = await PickerHelper.AbrirAsync(".seg", ".xml");
         if (file == null) return;
 
         try

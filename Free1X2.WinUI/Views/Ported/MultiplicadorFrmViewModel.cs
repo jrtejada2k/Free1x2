@@ -210,15 +210,7 @@ public partial class MultiplicadorFrmViewModel : ObservableObject
     [RelayCommand]
     private async Task GrabarAsync()
     {
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "Resultado",
-        };
-        picker.FileTypeChoices.Add("Fichero resultados", new List<string> { ".txt" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSaveFileAsync();
+        var file = await PickerHelper.GuardarAsync("Resultado", ("Fichero resultados", ".txt"));
         if (file == null) return;
 
         string ruta = file.Path;
@@ -260,12 +252,6 @@ public partial class MultiplicadorFrmViewModel : ObservableObject
     /// <summary>Abre un FileOpenPicker para archivos de columnas (*.txt).</summary>
     private static async Task<Windows.Storage.StorageFile?> AbrirSelectorColumnasAsync()
     {
-        var picker = new FileOpenPicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add(".txt");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-        return await picker.PickSingleFileAsync();
+        return await PickerHelper.AbrirAsync(".txt");
     }
 }

@@ -274,16 +274,7 @@ public partial class ContactosFrmViewModel : ObservableObject
     private async Task Guardar()
     {
         // Equivale a ContactosFrm.menuCondiciones1_BGuardar (ContactosFrm.cs líneas 668-679).
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "Contactos",
-        };
-        picker.FileTypeChoices.Add("Contactos", new List<string> { ".cont" });
-        picker.FileTypeChoices.Add("Contactos (XML)", new List<string> { ".xml" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSaveFileAsync();
+        StorageFile? file = await PickerHelper.GuardarAsync("Contactos", ("Contactos", ".cont"), ("Contactos (XML)", ".xml"));
         if (file == null) return;
 
         try
@@ -300,12 +291,7 @@ public partial class ContactosFrmViewModel : ObservableObject
     private async Task Abrir()
     {
         // Equivale a ContactosFrm.menuCondiciones1_BAbrir (ContactosFrm.cs líneas 651-666).
-        var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
-        picker.FileTypeFilter.Add(".cont");
-        picker.FileTypeFilter.Add(".xml");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSingleFileAsync();
+        StorageFile? file = await PickerHelper.AbrirAsync(".cont", ".xml");
         if (file == null) return;
 
         try

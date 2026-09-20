@@ -49,15 +49,7 @@ namespace Free1X2.WinUI.Views.Ported
         [RelayCommand]
         private async Task CargarFicheroAsync()
         {
-            var picker = new FileOpenPicker
-            {
-                SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            };
-            picker.FileTypeFilter.Add(".txt");
-            picker.FileTypeFilter.Add("*");
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-            var file = await picker.PickSingleFileAsync();
+            var file = await PickerHelper.AbrirAsync(".txt", "*");
             if (file is null) return;
 
             try

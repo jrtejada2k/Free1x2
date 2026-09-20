@@ -1083,25 +1083,14 @@ public partial class CoincidenciasViewModel : ObservableObject
     // Selector genérico de fichero a abrir (filtro por extensión).
     private static async Task<string?> ElegirFicheroAbrir(string extension)
     {
-        var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
-        picker.FileTypeFilter.Add(extension);
-        picker.FileTypeFilter.Add("*");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-        var file = await picker.PickSingleFileAsync();
+        var file = await PickerHelper.AbrirAsync(extension, "*");
         return file?.Path;
     }
 
     // Selector genérico de fichero a guardar.
     private static async Task<string?> ElegirFicheroGuardar(string nombreSugerido, string extension)
     {
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = nombreSugerido,
-        };
-        picker.FileTypeChoices.Add("Archivo", new List<string> { extension });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-        var file = await picker.PickSaveFileAsync();
+        var file = await PickerHelper.GuardarAsync(nombreSugerido, ("Archivo", extension));
         return file?.Path;
     }
 

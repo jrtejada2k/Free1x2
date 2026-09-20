@@ -140,16 +140,11 @@ namespace Free1X2.WinUI.Views.Ported
         [RelayCommand]
         private async Task Calcular()
         {
-            var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
-            picker.FileTypeFilter.Add(".txt");
-            picker.FileTypeFilter.Add("*");
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
             // Recoge la pantalla y prepara las 6 columnas ANTES de elegir el fichero (igual que el legacy).
             RecuperaPantalla();
             PreparaColumnas();
 
-            StorageFile? archivo = await picker.PickSingleFileAsync();
+            StorageFile? archivo = await PickerHelper.AbrirAsync(".txt", "*");
             if (archivo is null)
             {
                 return;
@@ -235,17 +230,8 @@ namespace Free1X2.WinUI.Views.Ported
                 return;
             }
 
-            var picker = new FileSavePicker
-            {
-                SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-                DefaultFileExtension = ".txt",
-                SuggestedFileName = "resultado",
-            };
-            picker.FileTypeChoices.Add("Resultados", new System.Collections.Generic.List<string> { ".txt" });
-            picker.FileTypeChoices.Add("Todos los archivos", new System.Collections.Generic.List<string> { "." });
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-            StorageFile? archivo = await picker.PickSaveFileAsync();
+            StorageFile? archivo = await PickerHelper.GuardarConExtensionPorDefectoAsync(
+                "resultado", ".txt", ("Resultados", ".txt"), ("Todos los archivos", "."));
             if (archivo is null)
             {
                 return;
@@ -286,17 +272,8 @@ namespace Free1X2.WinUI.Views.Ported
         [RelayCommand]
         private async Task SalvarRangos()
         {
-            var picker = new FileSavePicker
-            {
-                SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-                DefaultFileExtension = ".cnd",
-                SuggestedFileName = "rangos",
-            };
-            picker.FileTypeChoices.Add("Rangos", new System.Collections.Generic.List<string> { ".cnd" });
-            picker.FileTypeChoices.Add("Todos los archivos", new System.Collections.Generic.List<string> { "." });
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-            StorageFile? archivo = await picker.PickSaveFileAsync();
+            StorageFile? archivo = await PickerHelper.GuardarConExtensionPorDefectoAsync(
+                "rangos", ".cnd", ("Rangos", ".cnd"), ("Todos los archivos", "."));
             if (archivo is null)
             {
                 return;
@@ -333,12 +310,7 @@ namespace Free1X2.WinUI.Views.Ported
         [RelayCommand]
         private async Task RecuperarRangos()
         {
-            var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
-            picker.FileTypeFilter.Add(".cnd");
-            picker.FileTypeFilter.Add("*");
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-            StorageFile? archivo = await picker.PickSingleFileAsync();
+            StorageFile? archivo = await PickerHelper.AbrirAsync(".cnd", "*");
             if (archivo is null)
             {
                 return;
@@ -385,17 +357,8 @@ namespace Free1X2.WinUI.Views.Ported
             RecuperaPantalla();
             PreparaColumnas();
 
-            var picker = new FileSavePicker
-            {
-                SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-                DefaultFileExtension = ".txt",
-                SuggestedFileName = "columnas",
-            };
-            picker.FileTypeChoices.Add("F.Salida", new System.Collections.Generic.List<string> { ".txt" });
-            picker.FileTypeChoices.Add("Todos los archivos", new System.Collections.Generic.List<string> { "." });
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-            StorageFile? archivo = await picker.PickSaveFileAsync();
+            StorageFile? archivo = await PickerHelper.GuardarConExtensionPorDefectoAsync(
+                "columnas", ".txt", ("F.Salida", ".txt"), ("Todos los archivos", "."));
             if (archivo is null)
             {
                 return;
@@ -439,12 +402,7 @@ namespace Free1X2.WinUI.Views.Ported
         [RelayCommand]
         private async Task CargarGanadoras()
         {
-            var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
-            picker.FileTypeFilter.Add(".txt");
-            picker.FileTypeFilter.Add("*");
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-            StorageFile? archivo = await picker.PickSingleFileAsync();
+            StorageFile? archivo = await PickerHelper.AbrirAsync(".txt", "*");
             if (archivo is null)
             {
                 return;

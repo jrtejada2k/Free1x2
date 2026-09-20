@@ -325,16 +325,7 @@ public partial class PesosNumFrmViewModel : ObservableObject
     private async Task Guardar()
     {
         // Equivale a PesosNumFrm.menuCondiciones1_BGuardar (PesosNumFrm.cs líneas 1115-1123).
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "PesosNumericos",
-        };
-        picker.FileTypeChoices.Add("Pesos Numéricos", new List<string> { ".pes" });
-        picker.FileTypeChoices.Add("Pesos Numéricos (XML)", new List<string> { ".xml" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSaveFileAsync();
+        StorageFile? file = await PickerHelper.GuardarAsync("PesosNumericos", ("Pesos Numéricos", ".pes"), ("Pesos Numéricos (XML)", ".xml"));
         if (file == null) return;
 
         try
@@ -351,12 +342,7 @@ public partial class PesosNumFrmViewModel : ObservableObject
     private async Task Abrir()
     {
         // Equivale a PesosNumFrm.menuCondiciones1_BAbrir (PesosNumFrm.cs líneas 1104-1113).
-        var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
-        picker.FileTypeFilter.Add(".pes");
-        picker.FileTypeFilter.Add(".xml");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSingleFileAsync();
+        StorageFile? file = await PickerHelper.AbrirAsync(".pes", ".xml");
         if (file == null) return;
 
         try

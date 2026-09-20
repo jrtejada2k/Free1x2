@@ -459,16 +459,7 @@ public partial class ValoracionFrmViewModel : ObservableObject
     private async Task Guardar()
     {
         // Equivale a ValoracionFrm.menuCondiciones1_BGuardar (ValoracionFrm.cs líneas 1027-1035).
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "Valoracion",
-        };
-        picker.FileTypeChoices.Add("Valoración de Signos", new List<string> { ".valor" });
-        picker.FileTypeChoices.Add("Valoración de Signos (XML)", new List<string> { ".xml" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSaveFileAsync();
+        StorageFile? file = await PickerHelper.GuardarAsync("Valoracion", ("Valoración de Signos", ".valor"), ("Valoración de Signos (XML)", ".xml"));
         if (file == null) return;
 
         try
@@ -485,12 +476,7 @@ public partial class ValoracionFrmViewModel : ObservableObject
     private async Task Abrir()
     {
         // Equivale a ValoracionFrm.menuCondiciones1_BAbrir (ValoracionFrm.cs líneas 1011-1025).
-        var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
-        picker.FileTypeFilter.Add(".valor");
-        picker.FileTypeFilter.Add(".xml");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSingleFileAsync();
+        StorageFile? file = await PickerHelper.AbrirAsync(".valor", ".xml");
         if (file == null) return;
 
         try

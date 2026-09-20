@@ -185,15 +185,7 @@ namespace Free1X2.WinUI.Views.Ported
             PintaPantalla();
 
             // Legacy: OpenFileDialog del fichero de columnas de entrada (*.txt).
-            var picker = new FileOpenPicker
-            {
-                SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            };
-            picker.FileTypeFilter.Add(".txt");
-            picker.FileTypeFilter.Add("*");
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-            var file = await picker.PickSingleFileAsync();
+            var file = await PickerHelper.AbrirAsync(".txt", "*");
             if (file == null) return;
 
             int ctini = 0, ctadm = 0;
@@ -242,15 +234,7 @@ namespace Free1X2.WinUI.Views.Ported
                 AppServices.MostrarInfo("No hay columnas válidas que grabar. Ejecute primero Calcular.");
                 return;
             }
-            var picker = new FileSavePicker
-            {
-                SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-                SuggestedFileName = "Resultados",
-            };
-            picker.FileTypeChoices.Add("Resultados", new List<string> { ".txt" });
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-            var file = await picker.PickSaveFileAsync();
+            var file = await PickerHelper.GuardarAsync("Resultados", ("Resultados", ".txt"));
             if (file == null) return;
             try
             {
@@ -276,15 +260,7 @@ namespace Free1X2.WinUI.Views.Ported
             PreparaColumnas();
             PintaPantalla();
 
-            var picker = new FileSavePicker
-            {
-                SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-                SuggestedFileName = "ColumnasProbables",
-            };
-            picker.FileTypeChoices.Add("Salida", new List<string> { ".txt" });
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-            var file = await picker.PickSaveFileAsync();
+            var file = await PickerHelper.GuardarAsync("ColumnasProbables", ("Salida", ".txt"));
             if (file == null) return;
             try
             {
@@ -314,15 +290,7 @@ namespace Free1X2.WinUI.Views.Ported
         [RelayCommand]
         private async Task SalvarLimitesAsync()
         {
-            var picker = new FileSavePicker
-            {
-                SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-                SuggestedFileName = "Aidomnou",
-            };
-            picker.FileTypeChoices.Add("Rangos", new List<string> { ".cnd" });
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-            var file = await picker.PickSaveFileAsync();
+            var file = await PickerHelper.GuardarAsync("Aidomnou", ("Rangos", ".cnd"));
             if (file == null) return;
 
             try
@@ -348,15 +316,7 @@ namespace Free1X2.WinUI.Views.Ported
         [RelayCommand]
         private async Task RecuperarLimitesAsync()
         {
-            var picker = new FileOpenPicker
-            {
-                SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            };
-            picker.FileTypeFilter.Add(".cnd");
-            picker.FileTypeFilter.Add("*");
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-            var file = await picker.PickSingleFileAsync();
+            var file = await PickerHelper.AbrirAsync(".cnd", "*");
             if (file == null) return;
 
             try
@@ -382,15 +342,7 @@ namespace Free1X2.WinUI.Views.Ported
         [RelayCommand]
         private async Task AbrirGanadorasAsync()
         {
-            var picker = new FileOpenPicker
-            {
-                SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            };
-            picker.FileTypeFilter.Add(".txt");
-            picker.FileTypeFilter.Add("*");
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-            var file = await picker.PickSingleFileAsync();
+            var file = await PickerHelper.AbrirAsync(".txt", "*");
             if (file == null) return;
 
             try

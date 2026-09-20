@@ -136,15 +136,7 @@ public partial class ColGanadoraFrmViewModel : ObservableObject
         {
             // Rama "Abrir combinación" (legacy líneas 182-204): OpenFileDialog (*.comb, *.xml) +
             // ArchivoCombinacion.AbrirArchivoCombinacion / CargaControladorGrupos / LeePronosticos.
-            var picker = new FileOpenPicker
-            {
-                SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            };
-            picker.FileTypeFilter.Add(".comb");
-            picker.FileTypeFilter.Add(".xml");
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-            var file = await picker.PickSingleFileAsync();
+            var file = await PickerHelper.AbrirAsync(".comb", ".xml");
             if (file == null) return;
 
             archivo = file.Path;

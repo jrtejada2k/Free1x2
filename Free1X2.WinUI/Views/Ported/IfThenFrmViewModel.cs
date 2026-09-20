@@ -530,16 +530,7 @@ public partial class IfThenFrmViewModel : ObservableObject
         ControladorIfThen? ifThen = GuardarCondicion();
         if (ifThen == null || ifThen.EsVacio) return;
 
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "Condiciones",
-        };
-        picker.FileTypeChoices.Add("Condiciones relacionadas", new List<string> { ".if" });
-        picker.FileTypeChoices.Add("Condiciones relacionadas (XML)", new List<string> { ".xml" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        Windows.Storage.StorageFile? file = await picker.PickSaveFileAsync();
+        Windows.Storage.StorageFile? file = await PickerHelper.GuardarAsync("Condiciones", ("Condiciones relacionadas", ".if"), ("Condiciones relacionadas (XML)", ".xml"));
         if (file == null) return;
 
         try
@@ -557,15 +548,7 @@ public partial class IfThenFrmViewModel : ObservableObject
     private async Task Abrir()
     {
         // Equivale a IfThenFrm.menuCondiciones1_BAbrir(): OpenFileDialog (.if/.xml) + abrir().
-        var picker = new FileOpenPicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add(".if");
-        picker.FileTypeFilter.Add(".xml");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        Windows.Storage.StorageFile? file = await picker.PickSingleFileAsync();
+        Windows.Storage.StorageFile? file = await PickerHelper.AbrirAsync(".if", ".xml");
         if (file == null) return;
 
         AbrirDesde(file.Path);

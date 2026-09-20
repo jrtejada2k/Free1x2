@@ -101,17 +101,8 @@ namespace Free1X2.WinUI.Views.Ported
             }
 
             // SaveFileDialog -> FileSavePicker (legacy: filtro "Valoraciones(*.txt)", carpeta Combinaciones).
-            var picker = new FileSavePicker
-            {
-                SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-                DefaultFileExtension = ".txt",
-                SuggestedFileName = "valoracion",
-            };
-            picker.FileTypeChoices.Add("Valoraciones", new List<string> { ".txt" });
-            picker.FileTypeChoices.Add("Todos los archivos", new List<string> { "." });
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-            StorageFile? archivo = await picker.PickSaveFileAsync();
+            StorageFile? archivo = await PickerHelper.GuardarConExtensionPorDefectoAsync(
+                "valoracion", ".txt", ("Valoraciones", ".txt"), ("Todos los archivos", "."));
             if (archivo is null)
             {
                 return;

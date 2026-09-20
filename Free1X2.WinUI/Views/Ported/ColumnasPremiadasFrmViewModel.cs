@@ -94,16 +94,8 @@ public partial class ColumnasPremiadasFrmViewModel : ObservableObject
 
         try
         {
-            var picker = new FileSavePicker
-            {
-                SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-                SuggestedFileName = "columnas",
-            };
             // Legacy: "Columnas(*.txt)|*.txt|Todos los archivos (*.*)|*.*".
-            picker.FileTypeChoices.Add("Columnas", new List<string> { ".txt" });
-
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, Services.AppServices.WindowHandle);
-            StorageFile? file = await picker.PickSaveFileAsync();
+            StorageFile? file = await Services.PickerHelper.GuardarAsync("columnas", ("Columnas", ".txt"));
             if (file is null)
             {
                 return;

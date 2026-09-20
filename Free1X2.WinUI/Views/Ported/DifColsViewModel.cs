@@ -201,15 +201,7 @@ public partial class DifColsViewModel : ObservableObject
     {
         if (_aceptadas.Count == 0) return;
 
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "Diferencias",
-        };
-        picker.FileTypeChoices.Add("F.Salida", new List<string> { ".txt" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSaveFileAsync();
+        var file = await PickerHelper.GuardarAsync("Diferencias", ("F.Salida", ".txt"));
         if (file == null) return;
 
         // límite = LimiteColumnas si > 0; si 0 -> 4.782.969 (legacy try/catch).
@@ -382,9 +374,6 @@ public partial class DifColsViewModel : ObservableObject
 
     private static async Task<Windows.Storage.StorageFile?> AbrirTxtAsync()
     {
-        var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
-        picker.FileTypeFilter.Add(".txt");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-        return await picker.PickSingleFileAsync();
+        return await PickerHelper.AbrirAsync(".txt");
     }
 }

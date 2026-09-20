@@ -284,16 +284,7 @@ public partial class SimetriasFrmViewModel : ObservableObject
     private async Task Guardar()
     {
         // Equivale a SimetriasFrm.menuCondiciones1_BGuardar (SimetriasFrm.cs líneas 500-509).
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "Simetrias",
-        };
-        picker.FileTypeChoices.Add("Simetrias", new List<string> { ".sim" });
-        picker.FileTypeChoices.Add("Simetrias (XML)", new List<string> { ".xml" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSaveFileAsync();
+        StorageFile? file = await PickerHelper.GuardarAsync("Simetrias", ("Simetrias", ".sim"), ("Simetrias (XML)", ".xml"));
         if (file == null) return;
 
         try
@@ -310,12 +301,7 @@ public partial class SimetriasFrmViewModel : ObservableObject
     private async Task Abrir()
     {
         // Equivale a SimetriasFrm.menuCondiciones1_BAbrir (SimetriasFrm.cs líneas 472-488).
-        var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
-        picker.FileTypeFilter.Add(".sim");
-        picker.FileTypeFilter.Add(".xml");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSingleFileAsync();
+        StorageFile? file = await PickerHelper.AbrirAsync(".sim", ".xml");
         if (file == null) return;
 
         try

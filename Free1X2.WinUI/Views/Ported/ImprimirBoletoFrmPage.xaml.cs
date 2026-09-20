@@ -187,15 +187,7 @@ public sealed partial class ImprimirBoletoFrmPage : Page
     /// </summary>
     private async Task GuardarComoPngAsync(byte[] pixeles, uint ancho, uint alto, string nombreSugerido)
     {
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.PicturesLibrary,
-            SuggestedFileName = nombreSugerido,
-        };
-        picker.FileTypeChoices.Add("Imagen PNG", new[] { ".png" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSaveFileAsync();
+        StorageFile? file = await PickerHelper.GuardarAsync(PickerLocationId.PicturesLibrary, nombreSugerido, ("Imagen PNG", ".png"));
         if (file == null) return; // el usuario canceló: la imagen ya está en el portapapeles.
 
         using var fileStream = await file.OpenAsync(FileAccessMode.ReadWrite);

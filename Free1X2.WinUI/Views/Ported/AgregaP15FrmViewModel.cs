@@ -94,14 +94,7 @@ public partial class AgregaP15FrmViewModel : ObservableObject
     [RelayCommand]
     private async Task SeleccionarEntradaAsync()
     {
-        var picker = new Windows.Storage.Pickers.FileOpenPicker
-        {
-            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add(".txt");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSingleFileAsync();
+        var file = await PickerHelper.AbrirAsync(".txt");
         if (file != null) ArchivoEntrada = file.Path;
     }
 
@@ -109,15 +102,7 @@ public partial class AgregaP15FrmViewModel : ObservableObject
     [RelayCommand]
     private async Task SeleccionarSalidaAsync()
     {
-        var picker = new Windows.Storage.Pickers.FileSavePicker
-        {
-            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "ColumnasP15",
-        };
-        picker.FileTypeChoices.Add("Columnas", new List<string> { ".txt" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSaveFileAsync();
+        var file = await PickerHelper.GuardarAsync("ColumnasP15", ("Columnas", ".txt"));
         if (file != null) ArchivoSalida = file.Path;
     }
 

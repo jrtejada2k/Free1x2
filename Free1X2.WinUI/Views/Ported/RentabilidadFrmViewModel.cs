@@ -135,11 +135,7 @@ public partial class RentabilidadFrmViewModel : ObservableObject
     [RelayCommand]
     private async Task SeleccionarFicheroEntrada()
     {
-        var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
-        picker.FileTypeFilter.Add(".txt");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSingleFileAsync();
+        var file = await PickerHelper.AbrirAsync(".txt");
         if (file == null) return;
         FicheroEntrada = file.Path;
     }
@@ -151,15 +147,7 @@ public partial class RentabilidadFrmViewModel : ObservableObject
     [RelayCommand]
     private async Task SeleccionarFicheroSalida()
     {
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "Rentabilidad",
-        };
-        picker.FileTypeChoices.Add("Columnas", new List<string> { ".txt" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSaveFileAsync();
+        var file = await PickerHelper.GuardarAsync("Rentabilidad", ("Columnas", ".txt"));
         if (file == null) return;
         FicheroSalida = file.Path;
     }

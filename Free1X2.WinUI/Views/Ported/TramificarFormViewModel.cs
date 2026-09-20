@@ -837,15 +837,7 @@ public partial class TramificarFormViewModel : ObservableObject
             return;
         }
 
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "Columnas",
-        };
-        picker.FileTypeChoices.Add("Columnas", new List<string> { ".txt" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSaveFileAsync();
+        var file = await PickerHelper.GuardarAsync("Columnas", ("Columnas", ".txt"));
         if (file == null) return;
 
         string ruta = file.Path;
@@ -969,15 +961,7 @@ public partial class TramificarFormViewModel : ObservableObject
     {
         // Legacy btGuardarLimites_Click (Free1X2/UI/TramificarForm.cs línea 3309): SaveFileDialog
         //   (*.txt) y vuelca, una por línea, txMin14/txMax14 ... txMin10/txMax10. Lógica pura de IO.
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "Limites",
-        };
-        picker.FileTypeChoices.Add("Límites", new List<string> { ".txt" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSaveFileAsync();
+        var file = await PickerHelper.GuardarAsync("Limites", ("Límites", ".txt"));
         if (file == null) return;
 
         try
@@ -1007,12 +991,7 @@ public partial class TramificarFormViewModel : ObservableObject
     {
         // Legacy btLeerLimites_Click (Free1X2/UI/TramificarForm.cs línea 3285): OpenFileDialog (*.txt)
         //   y lee, una por línea, txMin14/txMax14 ... txMin10/txMax10. Lógica pura de IO.
-        var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
-        picker.FileTypeFilter.Add(".txt");
-        picker.FileTypeFilter.Add("*");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSingleFileAsync();
+        var file = await PickerHelper.AbrirAsync(".txt", "*");
         if (file == null) return;
 
         try

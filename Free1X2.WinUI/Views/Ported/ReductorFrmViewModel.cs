@@ -135,14 +135,7 @@ public partial class ReductorFrmViewModel : ObservableObject
     [RelayCommand]
     private async Task SeleccionarArchivoEntradaAsync()
     {
-        var picker = new Windows.Storage.Pickers.FileOpenPicker
-        {
-            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add(".txt");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSingleFileAsync();
+        var file = await PickerHelper.AbrirAsync(".txt");
         if (file == null) return;
 
         if (!EsArchivoEntradaValido(file.Path))
@@ -162,15 +155,7 @@ public partial class ReductorFrmViewModel : ObservableObject
     [RelayCommand]
     private async Task SeleccionarArchivoSalidaAsync()
     {
-        var picker = new Windows.Storage.Pickers.FileSavePicker
-        {
-            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "Reducido",
-        };
-        picker.FileTypeChoices.Add("Columnas", new List<string> { ".txt" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSaveFileAsync();
+        var file = await PickerHelper.GuardarAsync("Reducido", ("Columnas", ".txt"));
         if (file == null) return;
 
         _archivoSalida = file.Path;

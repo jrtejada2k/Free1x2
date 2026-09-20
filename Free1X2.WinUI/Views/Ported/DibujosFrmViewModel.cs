@@ -297,16 +297,7 @@ public partial class DibujosFrmViewModel : ObservableObject
     private async Task Guardar()
     {
         // Equivale a DibujosFrm.menuCondiciones1_BGuardar (DibujosFrm.cs líneas 300-310).
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "Dibujos",
-        };
-        picker.FileTypeChoices.Add("Dibujos", new List<string> { ".dbj" });
-        picker.FileTypeChoices.Add("Dibujos (XML)", new List<string> { ".xml" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSaveFileAsync();
+        StorageFile? file = await PickerHelper.GuardarAsync("Dibujos", ("Dibujos", ".dbj"), ("Dibujos (XML)", ".xml"));
         if (file == null) return;
 
         try
@@ -324,12 +315,7 @@ public partial class DibujosFrmViewModel : ObservableObject
     private async Task Abrir()
     {
         // Equivale a DibujosFrm.menuCondiciones1_BAbrir (DibujosFrm.cs líneas 285-298).
-        var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
-        picker.FileTypeFilter.Add(".dbj");
-        picker.FileTypeFilter.Add(".xml");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSingleFileAsync();
+        StorageFile? file = await PickerHelper.AbrirAsync(".dbj", ".xml");
         if (file == null) return;
 
         try

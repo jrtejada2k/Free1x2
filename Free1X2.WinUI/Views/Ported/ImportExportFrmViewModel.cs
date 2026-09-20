@@ -118,15 +118,7 @@ namespace Free1X2.WinUI.Views.Ported
             // efectivo es 2 (csv->txt, salida .txt) o 3 (txt->csv, salida .csv).
             string extension = ConversionLegacy == 2 ? ".txt" : ".csv";
 
-            var picker = new FileSavePicker
-            {
-                SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-                SuggestedFileName = "Columnas",
-            };
-            picker.FileTypeChoices.Add("Columnas", new List<string> { extension });
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-            var file = await picker.PickSaveFileAsync();
+            var file = await PickerHelper.GuardarAsync("Columnas", ("Columnas", extension));
             if (file == null) return;
 
             FicheroSalida = file.Path;
@@ -223,13 +215,7 @@ namespace Free1X2.WinUI.Views.Ported
         /// <summary>Abre un FileOpenPicker para un tipo de archivo concreto (*.csv o *.txt).</summary>
         private static async Task<Windows.Storage.StorageFile?> AbrirSelectorAsync(string extension)
         {
-            var picker = new FileOpenPicker
-            {
-                SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            };
-            picker.FileTypeFilter.Add(extension);
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-            return await picker.PickSingleFileAsync();
+            return await PickerHelper.AbrirAsync(extension);
         }
     }
 }

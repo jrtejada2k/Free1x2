@@ -100,11 +100,7 @@ namespace Free1X2.WinUI.Views.Ported
         private async Task SeleccionarEntrada()
         {
             // Legacy button1_Click: OpenFileDialog "Columnas(*.txt)".
-            var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
-            picker.FileTypeFilter.Add(".txt");
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-            var file = await picker.PickSingleFileAsync();
+            var file = await PickerHelper.AbrirAsync(".txt");
             if (file == null) return;
 
             _archivoEntrada = file.Path;
@@ -145,15 +141,7 @@ namespace Free1X2.WinUI.Views.Ported
         private async Task SeleccionarSalida()
         {
             // Legacy button2_Click: SaveFileDialog "Columnas(*.txt)".
-            var picker = new FileSavePicker
-            {
-                SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-                SuggestedFileName = "ColumnasRotadas",
-            };
-            picker.FileTypeChoices.Add("Columnas", new List<string> { ".txt" });
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-            var file = await picker.PickSaveFileAsync();
+            var file = await PickerHelper.GuardarAsync("ColumnasRotadas", ("Columnas", ".txt"));
             if (file == null) return;
 
             _archivoSalida = file.Path;

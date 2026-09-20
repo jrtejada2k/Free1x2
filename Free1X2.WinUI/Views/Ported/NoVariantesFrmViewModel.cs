@@ -184,16 +184,7 @@ public partial class NoVariantesFrmViewModel : ObservableObject
     private async Task Guardar()
     {
         // Equivale a NoVariantesFrm.menuCondiciones1_BGuardar (NoVariantesFrm.cs líneas 363-372).
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "CantidadSignos",
-        };
-        picker.FileTypeChoices.Add("Cantidad de signos V, X y 2", new List<string> { ".vx2" });
-        picker.FileTypeChoices.Add("Cantidad de signos V, X y 2 (XML)", new List<string> { ".xml" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSaveFileAsync();
+        StorageFile? file = await PickerHelper.GuardarAsync("CantidadSignos", ("Cantidad de signos V, X y 2", ".vx2"), ("Cantidad de signos V, X y 2 (XML)", ".xml"));
         if (file == null) return;
 
         try
@@ -210,12 +201,7 @@ public partial class NoVariantesFrmViewModel : ObservableObject
     private async Task Abrir()
     {
         // Equivale a NoVariantesFrm.menuCondiciones1_BAbrir (NoVariantesFrm.cs líneas 348-361).
-        var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
-        picker.FileTypeFilter.Add(".vx2");
-        picker.FileTypeFilter.Add(".xml");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSingleFileAsync();
+        StorageFile? file = await PickerHelper.AbrirAsync(".vx2", ".xml");
         if (file == null) return;
 
         try

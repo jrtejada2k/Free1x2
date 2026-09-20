@@ -141,16 +141,7 @@ public partial class AnalisisFormatos123FrmViewModel : ObservableObject
     [RelayCommand]
     private async Task LeerArchivoAsync()
     {
-        var picker = new Windows.Storage.Pickers.FileOpenPicker
-        {
-            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add(".txt");
-        picker.FileTypeFilter.Add(".cols");
-        picker.FileTypeFilter.Add("*");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSingleFileAsync();
+        var file = await PickerHelper.AbrirAsync(".txt", ".cols", "*");
         if (file == null) return;
 
         string ruta = file.Path;

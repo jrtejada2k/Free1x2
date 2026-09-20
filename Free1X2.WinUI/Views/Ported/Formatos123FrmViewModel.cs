@@ -462,16 +462,7 @@ public partial class Formatos123FrmViewModel : ObservableObject
     private async Task Guardar()
     {
         // Equivale a Formatos123Frm.menuCondiciones1_BGuardar (Formatos123Frm.cs líneas 840-848).
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "Formatos123",
-        };
-        picker.FileTypeChoices.Add("Formatos 123", new List<string> { ".123" });
-        picker.FileTypeChoices.Add("Formatos 123 (XML)", new List<string> { ".xml" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSaveFileAsync();
+        StorageFile? file = await PickerHelper.GuardarAsync("Formatos123", ("Formatos 123", ".123"), ("Formatos 123 (XML)", ".xml"));
         if (file == null) return;
 
         try
@@ -488,12 +479,7 @@ public partial class Formatos123FrmViewModel : ObservableObject
     private async Task Abrir()
     {
         // Equivale a Formatos123Frm.menuCondiciones1_BAbrir (Formatos123Frm.cs líneas 823-838).
-        var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
-        picker.FileTypeFilter.Add(".123");
-        picker.FileTypeFilter.Add(".xml");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSingleFileAsync();
+        StorageFile? file = await PickerHelper.AbrirAsync(".123", ".xml");
         if (file == null) return;
 
         try

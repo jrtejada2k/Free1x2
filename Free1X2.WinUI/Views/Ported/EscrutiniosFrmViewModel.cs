@@ -376,14 +376,7 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
     [RelayCommand]
     private async Task SeleccionarFicherosAsync()
     {
-        var picker = new Windows.Storage.Pickers.FileOpenPicker
-        {
-            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add(".txt");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var files = await picker.PickMultipleFilesAsync();
+        var files = await PickerHelper.AbrirVariosAsync(".txt");
         if (files == null || files.Count == 0) return;
 
         _archivosComb.Clear();
@@ -402,14 +395,7 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
     [RelayCommand]
     private async Task SeleccionarFicheroReferenciaAsync()
     {
-        var picker = new Windows.Storage.Pickers.FileOpenPicker
-        {
-            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add(".txt");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSingleFileAsync();
+        var file = await PickerHelper.AbrirAsync(".txt");
         if (file == null) return;
 
         _archivoReferencia = file.Path;
@@ -466,14 +452,7 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
     [RelayCommand]
     private async Task VerArchivosAsync()
     {
-        var picker = new FileOpenPicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add("*");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSingleFileAsync();
+        StorageFile? file = await PickerHelper.AbrirAsync("*");
         if (file is null) return;
 
         // Legacy: sólo el nombre del fichero (no la ruta) pasa a la plantilla.
@@ -903,15 +882,7 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
         }
 
         // Legacy: SaveFileDialog filtro "Columnas(*.txt)|*.txt|...".
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "columnas",
-        };
-        picker.FileTypeChoices.Add("Columnas", new List<string> { ".txt" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSaveFileAsync();
+        StorageFile? file = await PickerHelper.GuardarAsync("columnas", ("Columnas", ".txt"));
         if (file is null) return;
 
         string rutaSalida = file.Path;

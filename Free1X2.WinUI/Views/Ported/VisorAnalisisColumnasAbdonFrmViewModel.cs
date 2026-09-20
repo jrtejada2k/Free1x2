@@ -727,16 +727,7 @@ public partial class VisorAnalisisColumnasAbdonFrmViewModel : ObservableObject
             return;
         }
 
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "Condicion",
-        };
-        picker.FileTypeChoices.Add("Columnas probables", new List<string> { ".cps" });
-        picker.FileTypeChoices.Add("Columnas probables (XML)", new List<string> { ".xml" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSaveFileAsync();
+        var file = await PickerHelper.GuardarAsync("Condicion", ("Columnas probables", ".cps"), ("Columnas probables (XML)", ".xml"));
         if (file == null) return;
 
         try

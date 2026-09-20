@@ -263,16 +263,7 @@ public partial class InterrupcionesFrmViewModel : ObservableObject
     private async Task Guardar()
     {
         // Equivale a InterrupcionesFrm.menuCondiciones1_BGuardar (InterrupcionesFrm.cs líneas 740-748).
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "Interrupciones",
-        };
-        picker.FileTypeChoices.Add("Interrupciones", new List<string> { ".int" });
-        picker.FileTypeChoices.Add("Interrupciones (XML)", new List<string> { ".xml" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSaveFileAsync();
+        StorageFile? file = await PickerHelper.GuardarAsync("Interrupciones", ("Interrupciones", ".int"), ("Interrupciones (XML)", ".xml"));
         if (file == null) return;
 
         try
@@ -289,12 +280,7 @@ public partial class InterrupcionesFrmViewModel : ObservableObject
     private async Task Abrir()
     {
         // Equivale a InterrupcionesFrm.menuCondiciones1_BAbrir (InterrupcionesFrm.cs líneas 729-738).
-        var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
-        picker.FileTypeFilter.Add(".int");
-        picker.FileTypeFilter.Add(".xml");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSingleFileAsync();
+        StorageFile? file = await PickerHelper.AbrirAsync(".int", ".xml");
         if (file == null) return;
 
         try

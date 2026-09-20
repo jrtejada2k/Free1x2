@@ -169,15 +169,7 @@ public partial class VSignosFrmViewModel : ObservableObject
     private async Task AbrirFicheroAsync()
     {
         // Legacy: VSignosFrm.EntradaFichero() — OpenFileDialog *.txt + dimensionar noPartidos.
-        var picker = new FileOpenPicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add(".txt");
-        picker.FileTypeFilter.Add("*");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSingleFileAsync();
+        var file = await PickerHelper.AbrirAsync(".txt", "*");
         if (file == null) return;
 
         FicheroEntrada = file.Path;
@@ -307,15 +299,8 @@ public partial class VSignosFrmViewModel : ObservableObject
         }
 
         bool modoColumnas = ModoPresentacion == "columnas";
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = modoColumnas ? "Columnas" : "Valoracion",
-        };
-        picker.FileTypeChoices.Add(modoColumnas ? "Columnas" : "Valoración", new List<string> { ".txt" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSaveFileAsync();
+        var file = await PickerHelper.GuardarAsync(
+            modoColumnas ? "Columnas" : "Valoracion", (modoColumnas ? "Columnas" : "Valoración", ".txt"));
         if (file == null) return;
 
         string ruta = file.Path;

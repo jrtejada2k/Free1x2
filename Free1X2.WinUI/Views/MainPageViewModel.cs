@@ -359,15 +359,8 @@ public partial class MainPageViewModel : ObservableObject
             return;
         }
 
-        var picker = new Windows.Storage.Pickers.FileOpenPicker
-        {
-            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add(".txt");
-        picker.FileTypeFilter.Add("*");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSingleFileAsync();
+        // C-17: picker via PickerHelper (antes ~10 lineas de boilerplate identicas).
+        var file = await PickerHelper.AbrirAsync(".txt", "*");
         if (file == null) return;
 
         // ActivaFiltroColumnasParcial: el filtro parcial debe tener EXACTAMENTE NumeroPartidos signos.
@@ -511,15 +504,8 @@ public partial class MainPageViewModel : ObservableObject
             return;
         }
 
-        var picker = new Windows.Storage.Pickers.FileOpenPicker
-        {
-            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add(".txt");
-        picker.FileTypeFilter.Add("*");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSingleFileAsync();
+        // C-17: picker via PickerHelper (antes ~10 lineas de boilerplate identicas).
+        var file = await PickerHelper.AbrirAsync(".txt", "*");
         if (file == null) return;
 
         // ActivaFiltroColumnas: valida nº de signos contra VariablesGlobales.NumeroPartidos.
@@ -590,15 +576,8 @@ public partial class MainPageViewModel : ObservableObject
     [RelayCommand]
     private async Task AbrirCombinacionAsync()
     {
-        var picker = new Windows.Storage.Pickers.FileOpenPicker
-        {
-            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add(".comb");
-        picker.FileTypeFilter.Add(".xml");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSingleFileAsync();
+        // C-17: picker via PickerHelper.
+        var file = await PickerHelper.AbrirAsync(".comb", ".xml");
         if (file == null) return;
 
         try
@@ -645,15 +624,8 @@ public partial class MainPageViewModel : ObservableObject
         string destino = _estado.NombreArchivoComb;
         if (string.IsNullOrEmpty(destino))
         {
-            var picker = new Windows.Storage.Pickers.FileSavePicker
-            {
-                SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
-                SuggestedFileName = "Combinacion",
-            };
-            picker.FileTypeChoices.Add("Combinación", new List<string> { ".comb" });
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-            var file = await picker.PickSaveFileAsync();
+            // C-17: picker via PickerHelper.
+            var file = await PickerHelper.GuardarAsync("Combinacion", ("Combinación", ".comb"));
             if (file == null) return;
             destino = file.Path;
         }
@@ -687,15 +659,8 @@ public partial class MainPageViewModel : ObservableObject
     [RelayCommand]
     private async Task GuardarCombinacionComoAsync()
     {
-        var picker = new Windows.Storage.Pickers.FileSavePicker
-        {
-            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "Combinacion",
-        };
-        picker.FileTypeChoices.Add("Combinación", new List<string> { ".comb" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSaveFileAsync();
+        // C-17: picker via PickerHelper.
+        var file = await PickerHelper.GuardarAsync("Combinacion", ("Combinación", ".comb"));
         if (file == null) return;
 
         _estado.NombreArchivoComb = file.Path;   // fija el destino y reutiliza el guardado normal
@@ -718,15 +683,8 @@ public partial class MainPageViewModel : ObservableObject
         if (Boleto is null) return;
         string[] equipos = Boleto.DevolverEquipos();
 
-        var picker = new Windows.Storage.Pickers.FileSavePicker
-        {
-            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "Equipos",
-        };
-        picker.FileTypeChoices.Add("Equipos", new List<string> { ".txt" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSaveFileAsync();
+        // C-17: picker via PickerHelper.
+        var file = await PickerHelper.GuardarAsync("Equipos", ("Equipos", ".txt"));
         if (file == null) return;
 
         try
@@ -751,15 +709,8 @@ public partial class MainPageViewModel : ObservableObject
     {
         if (Boleto is null) return;
 
-        var picker = new Windows.Storage.Pickers.FileOpenPicker
-        {
-            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add(".txt");
-        picker.FileTypeFilter.Add("*");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSingleFileAsync();
+        // C-17: picker via PickerHelper (antes ~10 lineas de boilerplate identicas).
+        var file = await PickerHelper.AbrirAsync(".txt", "*");
         if (file == null) return;
 
         try

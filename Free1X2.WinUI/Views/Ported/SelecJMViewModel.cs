@@ -175,15 +175,7 @@ public partial class SelecJMViewModel : ObservableObject
     {
         // Equivale a SelecJM.GrabaCols() (Free1X2/UI/SelectorJM.cs líneas 195-245): graba la
         // tabla de productos por grupo y, en el fichero elegido, las columnas válidas (validas[]).
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "ResultadosJM",
-        };
-        picker.FileTypeChoices.Add("Resultados", new List<string> { ".txt" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSaveFileAsync();
+        var file = await PickerHelper.GuardarAsync("ResultadosJM", ("Resultados", ".txt"));
         if (file == null) return;
 
         try
@@ -206,12 +198,7 @@ public partial class SelecJMViewModel : ObservableObject
     private async Task LeerCondiciones()
     {
         // LeeCondis() legacy: lee un .cnd de 6 líneas (grupos, límites gr1/gr2/gr3, total, modo).
-        var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
-        picker.FileTypeFilter.Add(".cnd");
-        picker.FileTypeFilter.Add(".txt");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSingleFileAsync();
+        var file = await PickerHelper.AbrirAsync(".cnd", ".txt");
         if (file == null) return;
 
         try
@@ -242,15 +229,7 @@ public partial class SelecJMViewModel : ObservableObject
     private async Task SalvarCondiciones()
     {
         // SalvaCondis() legacy: graba grupos + límites + modo a un .cnd (6 líneas).
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "Condiciones",
-        };
-        picker.FileTypeChoices.Add("F.Condiciones", new List<string> { ".cnd" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSaveFileAsync();
+        var file = await PickerHelper.GuardarAsync("Condiciones", ("F.Condiciones", ".cnd"));
         if (file == null) return;
 
         string grupos = Grupo01 + Grupo02 + Grupo03 + Grupo04 + Grupo05 + Grupo06 + Grupo07 +
@@ -276,11 +255,7 @@ public partial class SelecJMViewModel : ObservableObject
     private async Task CargarGanadoras()
     {
         // EntraCGsR() legacy: lee columnas ganadoras (>=14 chars) a colgsR[].
-        var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
-        picker.FileTypeFilter.Add(".txt");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSingleFileAsync();
+        var file = await PickerHelper.AbrirAsync(".txt");
         if (file == null) return;
 
         _colgsR.Clear();

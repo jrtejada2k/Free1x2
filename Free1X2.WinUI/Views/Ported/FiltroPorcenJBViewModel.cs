@@ -161,15 +161,7 @@ public partial class FiltroPorcenJBViewModel : ObservableObject
         }
 
         // Legacy: OpenFileDialog del fichero de columnas de entrada (*.txt).
-        var picker = new FileOpenPicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add(".txt");
-        picker.FileTypeFilter.Add("*");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSingleFileAsync();
+        var file = await PickerHelper.AbrirAsync(".txt", "*");
         if (file == null) return;
 
         // Legacy: BitArray repes (4.782.969) para descartar columnas repetidas por índice s2n.
@@ -219,15 +211,7 @@ public partial class FiltroPorcenJBViewModel : ObservableObject
             AppServices.MostrarInfo("No hay columnas admitidas que grabar. Ejecute primero Calcular.");
             return;
         }
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "Resultados",
-        };
-        picker.FileTypeChoices.Add("Resultados", new List<string> { ".txt" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSaveFileAsync();
+        var file = await PickerHelper.GuardarAsync("Resultados", ("Resultados", ".txt"));
         if (file == null) return;
         try
         {
@@ -252,15 +236,7 @@ public partial class FiltroPorcenJBViewModel : ObservableObject
     private async Task SalvarRangosAsync()
     {
         // Legacy: FiltroPorcenJB.SalvarConds() — persiste 7 rangos + recorrido + 6 límites a *.jb7.
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "RangosJB",
-        };
-        picker.FileTypeChoices.Add("Condiciones", new List<string> { ".jb7" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSaveFileAsync();
+        var file = await PickerHelper.GuardarAsync("RangosJB", ("Condiciones", ".jb7"));
         if (file == null) return;
 
         var inv = CultureInfo.InvariantCulture;
@@ -292,15 +268,7 @@ public partial class FiltroPorcenJBViewModel : ObservableObject
     private async Task LeerRangosAsync()
     {
         // Legacy: FiltroPorcenJB.LeerConds() — carga 7 rangos + recorrido + 6 límites desde *.jb7.
-        var picker = new FileOpenPicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add(".jb7");
-        picker.FileTypeFilter.Add("*");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSingleFileAsync();
+        var file = await PickerHelper.AbrirAsync(".jb7", "*");
         if (file == null) return;
 
         try
@@ -387,15 +355,7 @@ public partial class FiltroPorcenJBViewModel : ObservableObject
             AppServices.MostrarError("error en datos de entrada");
             return;
         }
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "SignosPorBanda",
-        };
-        picker.FileTypeChoices.Add("Salida", new List<string> { ".txt" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSaveFileAsync();
+        var file = await PickerHelper.GuardarAsync("SignosPorBanda", ("Salida", ".txt"));
         if (file == null) return;
         try
         {
@@ -417,15 +377,7 @@ public partial class FiltroPorcenJBViewModel : ObservableObject
     private async Task CargarGanadorasAsync()
     {
         // Legacy: FiltroPorcenJB.EntraCGsR() — carga el fichero de ganadoras y selecciona la última.
-        var picker = new FileOpenPicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add(".txt");
-        picker.FileTypeFilter.Add("*");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSingleFileAsync();
+        var file = await PickerHelper.AbrirAsync(".txt", "*");
         if (file == null) return;
 
         try

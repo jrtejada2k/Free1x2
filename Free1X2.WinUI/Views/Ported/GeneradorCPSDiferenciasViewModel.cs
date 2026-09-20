@@ -61,18 +61,9 @@ public partial class GeneradorCPSDiferenciasViewModel : ObservableObject
     [RelayCommand]
     private async Task Examinar()
     {
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            // Legacy fd.DefaultExt = ".txt".
-            DefaultFileExtension = ".txt",
-            SuggestedFileName = "doc1",
-        };
-        picker.FileTypeChoices.Add("Archivos de texto", new List<string> { ".txt" });
-        picker.FileTypeChoices.Add("Todos los archivos", new List<string> { "." });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? archivo = await picker.PickSaveFileAsync();
+        // Legacy fd.DefaultExt = ".txt".
+        StorageFile? archivo = await PickerHelper.GuardarConExtensionPorDefectoAsync(
+            "doc1", ".txt", ("Archivos de texto", ".txt"), ("Todos los archivos", "."));
         if (archivo is not null)
         {
             ArchivoDestino = archivo.Path;

@@ -116,15 +116,7 @@ public partial class AlgebraColumnasFrmViewModel : ObservableObject
     [RelayCommand]
     private async Task SeleccionarCombinacionFinalAsync()
     {
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "ColumnasResultado",
-        };
-        picker.FileTypeChoices.Add("Columnas", new List<string> { ".txt" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSaveFileAsync();
+        var file = await PickerHelper.GuardarAsync("ColumnasResultado", ("Columnas", ".txt"));
         if (file == null) return;
 
         _rutaCombinacionFinal = file.Path;
@@ -219,12 +211,6 @@ public partial class AlgebraColumnasFrmViewModel : ObservableObject
     /// <summary>Abre un FileOpenPicker para archivos de columnas (*.txt).</summary>
     private static async Task<Windows.Storage.StorageFile?> AbrirSelectorColumnasAsync()
     {
-        var picker = new FileOpenPicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add(".txt");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-        return await picker.PickSingleFileAsync();
+        return await PickerHelper.AbrirAsync(".txt");
     }
 }
