@@ -47,7 +47,12 @@ namespace Free1X2.MotorCalculo
         private ControladorIfThen ifThen;
 
         //variable usada para llamar a DoEvents()
-        private DateTime dt1 = DateTime.Now;
+        // P-20: reloj monótono para el bombeo de la UI. Antes se usaba
+        // DateTime.Now.Subtract(dt1).Milliseconds > 800, con dos fallos: (1) .Milliseconds es
+        // la componente 0-999, no el total transcurrido, así que si pasaban p. ej. 1,2 s valía
+        // 200 y NO bombeaba -> la UI se congelaba de forma irregular en análisis largos; y (2)
+        // se llamaba a DateTime.Now por cada una de los hasta 4,78 M de columnas.
+        private long ticksUltimoPump = Environment.TickCount64;
 
         public Analizador()
         {
@@ -97,14 +102,8 @@ namespace Free1X2.MotorCalculo
                 }
             }
 
-            if (DateTime.Now.Subtract(dt1).Milliseconds > 800)
+            BombearUiSiToca();
 
-            {
-                //Permitir que el programa procese eventos
-                Free1X2.Abstractions.UiPump.Pump();
-                dt1 = DateTime.Now;
-            }
-            
             // Aumentamos el contador
             noColsAnalizadas++;
 
@@ -116,6 +115,23 @@ namespace Free1X2.MotorCalculo
                     archivoCols.GuardarCols(UtilColumnas.ConvLongToStr(columna));
                 }
 
+            }
+        }
+
+        /// <summary>
+        /// P-20: cede el control a la UI (UiPump) si han pasado más de 800 ms desde el último
+        /// bombeo. Muestrea el reloj sólo cada 4096 columnas (barato) y compara el TOTAL de ms
+        /// transcurridos con Environment.TickCount64, no la componente .Milliseconds. No afecta
+        /// a los resultados, sólo a la cadencia del refresco.
+        /// </summary>
+        private void BombearUiSiToca()
+        {
+            if ((noColsAnalizadas & 0xFFF) != 0) return;
+            long ahora = Environment.TickCount64;
+            if (ahora - ticksUltimoPump > 800)
+            {
+                Free1X2.Abstractions.UiPump.Pump();
+                ticksUltimoPump = ahora;
             }
         }
         public void AnalizaColumna(long columna, bool analizar)
@@ -135,13 +151,7 @@ namespace Free1X2.MotorCalculo
                 }
             }
 
-            //si 0.8 segundos transcurridos
-            if (DateTime.Now.Subtract(dt1).Milliseconds > 800)
-            {
-                //Permitir que el programa procese eventos
-                Free1X2.Abstractions.UiPump.Pump();
-                dt1 = DateTime.Now;
-            }
+            BombearUiSiToca();
 
             // Aumentamos el contador
             noColsAnalizadas++;

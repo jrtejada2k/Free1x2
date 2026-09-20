@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using Free1X2.Reduccion;
 using Xunit;
 
@@ -127,6 +128,84 @@ namespace Free1X2.Domain.Tests
                     "XX21X1X1111111", "22111221111111", "XX121111111111", "X1X12XX1111111",
                     "X12212X1111111", "X11XXXX1111111", "X1121X21111111", "22XXX221111111",
                 }, salida);
+            }
+            finally { if (File.Exists(entrada)) File.Delete(entrada); }
+        }
+
+        // Universo de UNA sola columna (14 signos fijos): no hay ninguna otra columna a la que
+        // reducir, así que su contador queda en 1 y no hay ceros. Es el caso mínimo que dispara
+        // con seguridad la rama mayor==1 sin ceros de Reduce.
+        private static string GenerarUniverso1()
+        {
+            string ruta = Path.Combine(Path.GetTempPath(),
+                "free1x2_tm_uni1_" + Guid.NewGuid().ToString("N") + ".txt");
+            var a = new Free1X2.MotorCalculo.Analizador();
+            for (int i = 0; i < 14; i++) a.SetPronostico(i, "1");
+            a.AnalizaCombinacion(ruta);
+            return ruta;
+        }
+
+        // N-02: con una única columna, `mayor` vale 1 y no hay ceros, así que `menor` (posición
+        // del primer 0) es -1. El original entraba en la rama mayor==1 con ese bound negativo,
+        // no procesaba nada y `while (mayor != 0)` giraba para siempre: la app se colgaba. Ahora
+        // procesa la columna (la reducción es ella misma), termina y avisa al usuario. Este test
+        // fallaría por TIMEOUT si se reintrodujera el cuelgue.
+        [Fact]
+        public void ReductorTM_UnaColumna_SinEmparejamientos_NoSeCuelga()
+        {
+            string entrada = GenerarUniverso1();
+            string salida = Path.Combine(Path.GetTempPath(),
+                "free1x2_tm_n02_" + Guid.NewGuid().ToString("N") + ".txt");
+            try
+            {
+                var reductor = new ReductorTM();
+                reductor.Inicializa(entrada, 13);
+
+                var tarea = Task.Run(() =>
+                    reductor.ComienzaReduccion(entrada, salida, 13, 0, 100));
+
+                bool termino = tarea.Wait(TimeSpan.FromSeconds(30));
+                Assert.True(termino, "ReductorTM se colgó con una sola columna: regresión del cuelgue N-02.");
+
+                string[] lineas = File.ReadAllLines(salida);
+                Assert.Equal(new[] { "11111111111111" }, lineas);
+                Assert.Equal(1, reductor.NoColumnasFinales);
+            }
+            finally
+            {
+                if (File.Exists(entrada)) File.Delete(entrada);
+                if (File.Exists(salida)) File.Delete(salida);
+            }
+        }
+
+        // N-03: la UI WinUI (ReductorFrmViewModel) llama a ComienzaReduccion SIN Inicializa
+        // previo. Antes eso dejaba `diferencia` en 0 (cada columna se reducía sólo a sí misma):
+        // resultado equivocado y, además, disparaba el cuelgue N-02. ComienzaReduccion ahora
+        // fija `diferencia` por su cuenta, así que debe dar EXACTAMENTE el mismo resultado con
+        // o sin Inicializa.
+        [Fact]
+        public void ReductorTM_ComienzaReduccion_SinInicializa_IgualQueConInicializa()
+        {
+            string entrada = GenerarUniverso2187();
+            try
+            {
+                // Con Inicializa (camino del test golden y de la UI legacy).
+                string[] conInit = Reducir(entrada, 12, out int ini1, out int fin1, out int _);
+
+                // Sin Inicializa (camino de la UI WinUI).
+                string salida = Path.Combine(Path.GetTempPath(),
+                    "free1x2_tm_n03_" + Guid.NewGuid().ToString("N") + ".txt");
+                string[] sinInit;
+                try
+                {
+                    var reductor = new ReductorTM();
+                    reductor.ComienzaReduccion(entrada, salida, 12, 0, 100);
+                    sinInit = File.ReadAllLines(salida);
+                    Assert.Equal(fin1, reductor.NoColumnasFinales);
+                }
+                finally { if (File.Exists(salida)) File.Delete(salida); }
+
+                Assert.Equal(conInit, sinInit);
             }
             finally { if (File.Exists(entrada)) File.Delete(entrada); }
         }

@@ -28,6 +28,10 @@ namespace Free1X2.Reduccion
 	    readonly List<string> reductoras=new List<string>();
 		private bool matrizOk;
 		int diferencia;
+		// N-02: se pone a true cuando la reducción termina porque las columnas restantes
+		// ya no se reducen entre sí (no hay más emparejamientos posibles). Antes ese estado
+		// colgaba la app; ahora se procesa y se avisa al usuario una sola vez.
+		private bool avisarSinEmparejamientos;
 
 		public ReductorTM()
 		{
@@ -192,6 +196,13 @@ namespace Free1X2.Reduccion
 
 		public override void ComienzaReduccion(string entrada, string sal, int nivelReduccion, int maxCol, int percent)
 		{
+			// N-03: 'diferencia' (el umbral de la reducción) sólo se fijaba en Inicializa. La UI
+			// WinUI (ReductorFrmViewModel) llama a ComienzaReduccion SIN Inicializa previo — la UI
+			// legacy sí lo hacía (Free1X2/UI/ReductorFrm.cs) — así que diferencia se quedaba en 0:
+			// cada columna se reducía sólo a sí misma (comportamiento equivocado que además
+			// disparaba el cuelgue N-02). Se fija aquí con la misma fórmula que Inicializa
+			// (idempotente: si Inicializa ya corrió, el valor es el mismo).
+			diferencia = 14 - nivelReduccion;
 			if(matrizOk==false) EntradaDeDatos(entrada);
 			Reduce(nivelReduccion, maxCol, percent);
 			GrabacionDeReductoras(sal, nivelReduccion);
@@ -214,6 +225,7 @@ namespace Free1X2.Reduccion
 		    if(matrizOk==false) EntradaDeDatos(archivoEntrada);
 			noColumnasFinales=0;
 			noColumnasProcesadas=0;
+			avisarSinEmparejamientos=false;
 			int[] borrar=new int[2];
 			reductoras.Clear();
 
@@ -239,9 +251,20 @@ namespace Free1X2.Reduccion
 			        break;
 			    if (mayor == 1)
 			    {
+			        // N-02: cuando NO queda ningún cero (menor < 0) el original entraba aquí con
+			        // un bound negativo, no procesaba nada, reduceCols seguía lleno de unos y
+			        // while(mayor!=0) giraba para siempre (la app se colgaba). Pero mayor==1
+			        // implica que el MÁXIMO es 1, es decir TODAS las columnas restantes valen 1:
+			        // cada una sólo se reduce a sí misma, no hay más emparejamientos posibles y
+			        // el conjunto reducido es el conjunto entero de las que quedan. Como en ese
+			        // caso positivos == nº de columnas con valor 1, usar 'positivos' como bound
+			        // procesa exactamente lo mismo que el original cuando SÍ había ceros
+			        // (allí menor == positivos) y además cierra el caso que colgaba.
+			        int aProcesar = menor >= 0 ? menor : positivos;
+			        if (menor < 0) avisarSinEmparejamientos = true;
 			        // Estas columnas sólo se reducen a sí mismas y se añaden diréctamente a la reducción
 			        int cursor = 0;
-			        for (int i = 0; i < menor; i++)
+			        for (int i = 0; i < aProcesar; i++)
 			        {
 			            while (reduceCols[cursor] != 1) cursor++;
 			            numCol = cursor;
@@ -321,6 +344,16 @@ namespace Free1X2.Reduccion
 			            }
 			        }
 			    }
+			}
+			if (avisarSinEmparejamientos)
+			{
+			    // N-02 (decisión del dueño: arreglar y AVISAR). La reducción terminó de forma
+			    // correcta —todas las columnas restantes se añadieron a la salida— pero se
+			    // informa de que con esta diferencia ya no había reducción posible, para que no
+			    // parezca que "no ha hecho nada". En headless/tests es un no-op (Action por defecto).
+			    Free1X2.Abstractions.UserDialogs.ShowInfo(
+			        "No hay más emparejamientos posibles con esta diferencia: las columnas restantes " +
+			        "sólo se reducen a sí mismas, así que se han incluido todas en la reducción.");
 			}
 		    matrizOk=false;
 			noColumnasProcesadas=noColumnasIniciales;
