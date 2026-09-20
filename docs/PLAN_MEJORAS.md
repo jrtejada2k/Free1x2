@@ -699,7 +699,7 @@ Las tandas están ordenadas para que **nada requiera abrir la app hasta la tanda
 
 **Cierre de tanda:** `dotnet test` 131+/131+ y `dotnet build` 0 errores. **Sin smoke** (no hace falta abrir la app para cambios de Domain cubiertos por tests).
 
-### Tanda 2 — Refactor C-17: pickers de fichero (no abre ninguna ventana) · 🔄 en curso
+### Tanda 2 — Refactor C-17: pickers de fichero (no abre ninguna ventana) · ☑ HECHA (commit `f69fdea`, 168 pickers)
 
 163 `new FileOpenPicker`/`FileSavePicker` + 322 `InitializeWithWindow.Initialize(picker, AppServices.WindowHandle)`
 repartidos por **67 ficheros** (~800-1000 líneas de *boilerplate* idéntico).
@@ -714,7 +714,7 @@ repartidos por **67 ficheros** (~800-1000 líneas de *boilerplate* idéntico).
 
 **Cierre:** build 0 errores · 131/131 · **el smoke queda para la tanda 4**.
 
-### Tanda 3 — Refactor C-18: cuarteto de los filtros (no abre ninguna ventana)
+### Tanda 3 — Refactor C-18: cuarteto de los filtros (no abre ninguna ventana) · 🔄 en curso
 
 `Guardar`/`Abrir`/`Copiar`/`Pegar` idénticos salvo extensión y nombre sugerido en **16 ViewModels** de filtro
 (**48 métodos**): Contactos, Distancias, Dibujos, Diferencias, FigurasFiltros, Formatos, Formatos123,
