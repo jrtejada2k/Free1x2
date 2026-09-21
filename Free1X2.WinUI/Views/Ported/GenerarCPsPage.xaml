@@ -40,7 +40,8 @@
                     <ListView
                         ItemsSource="{x:Bind ViewModel.Valoraciones}"
                         SelectionMode="None"
-                        IsItemClickEnabled="False">
+                        IsItemClickEnabled="False"
+                        AutomationProperties.Name="Valoraciones por partido">
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem">
                                 <Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -66,19 +67,22 @@
                                         Margin="4,0"
                                         Minimum="0"
                                         SpinButtonPlacementMode="Hidden"
-                                        Value="{x:Bind Valor1, Mode=TwoWay}" />
+                                        Value="{x:Bind Valor1, Mode=TwoWay}"
+                                        AutomationProperties.Name="Valoración del signo 1" />
                                     <NumberBox
                                         Grid.Column="2"
                                         Margin="4,0"
                                         Minimum="0"
                                         SpinButtonPlacementMode="Hidden"
-                                        Value="{x:Bind ValorX, Mode=TwoWay}" />
+                                        Value="{x:Bind ValorX, Mode=TwoWay}"
+                                        AutomationProperties.Name="Valoración del signo X" />
                                     <NumberBox
                                         Grid.Column="3"
                                         Margin="4,0"
                                         Minimum="0"
                                         SpinButtonPlacementMode="Hidden"
-                                        Value="{x:Bind Valor2, Mode=TwoWay}" />
+                                        Value="{x:Bind Valor2, Mode=TwoWay}"
+                                        AutomationProperties.Name="Valoración del signo 2" />
                                 </Grid>
                             </DataTemplate>
                         </ListView.ItemTemplate>
@@ -86,7 +90,8 @@
 
                     <Button
                         Content="Importar %"
-                        Command="{x:Bind ViewModel.ImportarPorcentajesCommand}" />
+                        Command="{x:Bind ViewModel.ImportarPorcentajesCommand}"
+                        AutomationProperties.Name="Importar porcentajes" />
                 </StackPanel>
             </Border>
 
@@ -106,7 +111,8 @@
                     <Button
                         Content="Generar (OK)"
                         Style="{StaticResource AccentButtonStyle}"
-                        Command="{x:Bind ViewModel.GenerarCommand}" />
+                        Command="{x:Bind ViewModel.GenerarCommand}"
+                        AutomationProperties.Name="Generar columnas probables" />
 
                     <TextBlock
                         Text="{x:Bind ViewModel.Estado, Mode=OneWay}"
@@ -124,15 +130,18 @@
                     <Button
                         Content="Configurar columnas"
                         HorizontalAlignment="Stretch"
-                        Command="{x:Bind ViewModel.ConfigurarColumnasCommand}" />
+                        Command="{x:Bind ViewModel.ConfigurarColumnasCommand}"
+                        AutomationProperties.Name="Configurar columnas" />
                     <Button
                         Content="Separador de porcentajes"
                         HorizontalAlignment="Stretch"
-                        Command="{x:Bind ViewModel.SeparadorPorcentajesCommand}" />
+                        Command="{x:Bind ViewModel.SeparadorPorcentajesCommand}"
+                        AutomationProperties.Name="Separador de porcentajes" />
                     <Button
                         Content="CPs por diferencias"
                         HorizontalAlignment="Stretch"
-                        Command="{x:Bind ViewModel.CpsPorDiferenciasCommand}" />
+                        Command="{x:Bind ViewModel.CpsPorDiferenciasCommand}"
+                        AutomationProperties.Name="CPs por diferencias" />
                 </StackPanel>
             </Border>
 

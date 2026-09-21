@@ -40,11 +40,13 @@
                     <Button
                         Style="{StaticResource AccentButtonStyle}"
                         Content="Crear"
-                        Command="{x:Bind ViewModel.CrearCommand}" />
+                        Command="{x:Bind ViewModel.CrearCommand}"
+                        AutomationProperties.Name="Crear grupos" />
                     <!-- Legacy: btnCancelar -->
                     <Button
                         Content="Cancelar"
-                        Command="{x:Bind ViewModel.CancelarCommand}" />
+                        Command="{x:Bind ViewModel.CancelarCommand}"
+                        AutomationProperties.Name="Cancelar" />
                 </StackPanel>
             </StackPanel>
         </Border>

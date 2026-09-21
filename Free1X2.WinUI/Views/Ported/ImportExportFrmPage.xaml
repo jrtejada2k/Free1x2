@@ -20,7 +20,8 @@
                     <ComboBox
                         HorizontalAlignment="Stretch"
                         ItemsSource="{x:Bind ViewModel.OpcionesConversion}"
-                        SelectedIndex="{x:Bind ViewModel.ConversionSeleccionada, Mode=TwoWay}" />
+                        SelectedIndex="{x:Bind ViewModel.ConversionSeleccionada, Mode=TwoWay}"
+                        AutomationProperties.Name="Tipo de conversión" />
                 </StackPanel>
             </Border>
 
@@ -38,11 +39,13 @@
                         <TextBox
                             Grid.Column="0"
                             PlaceholderText="Ruta del fichero de entrada"
-                            Text="{x:Bind ViewModel.FicheroEntrada, Mode=TwoWay}" />
+                            Text="{x:Bind ViewModel.FicheroEntrada, Mode=TwoWay}"
+                            AutomationProperties.Name="Ruta del fichero de entrada" />
                         <Button
                             Grid.Column="1"
                             Content="Examinar..."
-                            Command="{x:Bind ViewModel.AbrirEntradaCommand}" />
+                            Command="{x:Bind ViewModel.AbrirEntradaCommand}"
+                            AutomationProperties.Name="Examinar fichero de entrada" />
                     </Grid>
                     <TextBlock
                         Style="{StaticResource SecondaryTextBlockStyle}"
@@ -64,11 +67,13 @@
                         <TextBox
                             Grid.Column="0"
                             PlaceholderText="Ruta del fichero de salida"
-                            Text="{x:Bind ViewModel.FicheroSalida, Mode=TwoWay}" />
+                            Text="{x:Bind ViewModel.FicheroSalida, Mode=TwoWay}"
+                            AutomationProperties.Name="Ruta del fichero de salida" />
                         <Button
                             Grid.Column="1"
                             Content="Examinar..."
-                            Command="{x:Bind ViewModel.AbrirSalidaCommand}" />
+                            Command="{x:Bind ViewModel.AbrirSalidaCommand}"
+                            AutomationProperties.Name="Examinar fichero de salida" />
                     </Grid>
                     <TextBlock
                         Style="{StaticResource SecondaryTextBlockStyle}"
@@ -81,10 +86,12 @@
                 <Button
                     Style="{StaticResource AccentButtonStyle}"
                     Content="Hacer"
-                    Command="{x:Bind ViewModel.HacerCommand}" />
+                    Command="{x:Bind ViewModel.HacerCommand}"
+                    AutomationProperties.Name="Hacer la conversión" />
                 <Button
                     Content="Cancelar"
-                    Command="{x:Bind ViewModel.CancelarCommand}" />
+                    Command="{x:Bind ViewModel.CancelarCommand}"
+                    AutomationProperties.Name="Cancelar" />
             </StackPanel>
 
             <TextBlock

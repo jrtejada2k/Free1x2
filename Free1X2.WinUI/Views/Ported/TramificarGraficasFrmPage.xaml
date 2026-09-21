@@ -51,13 +51,16 @@
                         <Button
                             Style="{StaticResource AccentButtonStyle}"
                             Content="Dibujar curva"
-                            Command="{x:Bind ViewModel.DibujarCommand}" />
+                            Command="{x:Bind ViewModel.DibujarCommand}"
+                            AutomationProperties.Name="Dibujar curva" />
                         <Button
                             Content="Limpiar imagen"
-                            Command="{x:Bind ViewModel.LimpiarCommand}" />
+                            Command="{x:Bind ViewModel.LimpiarCommand}"
+                            AutomationProperties.Name="Limpiar imagen" />
                         <Button
                             Content="Copiar al portapapeles"
-                            Command="{x:Bind ViewModel.CopiarCommand}" />
+                            Command="{x:Bind ViewModel.CopiarCommand}"
+                            AutomationProperties.Name="Copiar gráfica al portapapeles" />
                     </StackPanel>
 
                     <TextBlock

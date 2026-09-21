@@ -44,7 +44,8 @@
                     FontFamily="Consolas"
                     FontSize="13"
                     ScrollViewer.VerticalScrollBarVisibility="Auto"
-                    ScrollViewer.HorizontalScrollBarVisibility="Auto" />
+                    ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                    AutomationProperties.Name="Boletos formateados" />
             </Grid>
         </Border>
 
@@ -56,11 +57,13 @@
             Spacing="5">
             <Button
                 Content="Cargar columnas…"
-                Command="{x:Bind ViewModel.CargarFicheroCommand}" />
+                Command="{x:Bind ViewModel.CargarFicheroCommand}"
+                AutomationProperties.Name="Cargar columnas desde fichero" />
             <Button
                 Content="Imprimir / Exportar imagen"
                 Style="{StaticResource AccentButtonStyle}"
-                Command="{x:Bind ViewModel.ImprimirCommand}" />
+                Command="{x:Bind ViewModel.ImprimirCommand}"
+                AutomationProperties.Name="Imprimir o exportar como imagen" />
         </StackPanel>
 
         <!-- Host invisible para exportar el texto completo de los boletos como imagen.

@@ -71,10 +71,12 @@
                 <Button
                     Content="Aceptar"
                     Style="{StaticResource AccentButtonStyle}"
-                    Command="{x:Bind ViewModel.AceptarCommand}" />
+                    Command="{x:Bind ViewModel.AceptarCommand}"
+                    AutomationProperties.Name="Aceptar y guardar valoración" />
                 <Button
                     Content="Cancelar"
-                    Command="{x:Bind ViewModel.CancelarCommand}" />
+                    Command="{x:Bind ViewModel.CancelarCommand}"
+                    AutomationProperties.Name="Cancelar" />
             </StackPanel>
 
             <TextBlock

@@ -32,7 +32,8 @@
                     MaxWidth="200"
                     HorizontalAlignment="Left"
                     PlaceholderText="Fallos permitidos"
-                    Text="{x:Bind ViewModel.FallosPermitidos, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    Text="{x:Bind ViewModel.FallosPermitidos, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    AutomationProperties.Name="Fallos permitidos en los controles" />
             </StackPanel>
         </Border>
 
@@ -69,7 +70,8 @@
                 <ListView
                     Grid.Row="2"
                     ItemsSource="{x:Bind ViewModel.Tolerancias, Mode=OneWay}"
-                    SelectionMode="None">
+                    SelectionMode="None"
+                    AutomationProperties.Name="Tabla de tolerancias">
                     <ListView.ItemTemplate>
                         <DataTemplate x:DataType="local:ToleranciaItem">
                             <Grid ColumnSpacing="12" Padding="0,4">
@@ -80,11 +82,13 @@
                                 <TextBox
                                     Grid.Column="0"
                                     PlaceholderText="Tolerancia"
-                                    Text="{x:Bind LetrasTol, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                    Text="{x:Bind LetrasTol, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    AutomationProperties.Name="Tolerancia (letras)" />
                                 <TextBox
                                     Grid.Column="1"
                                     PlaceholderText="Aciertos"
-                                    Text="{x:Bind Aciertos, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                    Text="{x:Bind Aciertos, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    AutomationProperties.Name="Aciertos" />
                             </Grid>
                         </DataTemplate>
                     </ListView.ItemTemplate>
@@ -100,11 +104,13 @@
             Spacing="5">
             <Button
                 Content="Cancelar"
-                Command="{x:Bind ViewModel.CancelarCommand}" />
+                Command="{x:Bind ViewModel.CancelarCommand}"
+                AutomationProperties.Name="Cancelar" />
             <Button
                 Style="{StaticResource AccentButtonStyle}"
                 Content="Ok"
-                Command="{x:Bind ViewModel.GuardarCommand}" />
+                Command="{x:Bind ViewModel.GuardarCommand}"
+                AutomationProperties.Name="Aceptar y guardar tolerancias" />
         </StackPanel>
     </Grid>
 </Page>
