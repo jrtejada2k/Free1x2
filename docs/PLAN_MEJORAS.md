@@ -8,7 +8,7 @@
 | 2026-09-20 | **U-09** Orden de botones | **Unificar** (HECHO `ed11361`) | Aceptar→Cancelar en ambos diálogos, fiel al original y a la convención Windows. |
 | 2026-09-20 | **U-11** Restos de patrón manual | **Dejar ambos** (recomendación) | Convertirlos CAMBIA comportamiento: `LimiteLineas`/`Global` son strings con vacío=«sin límite» (`FormatosFrmViewModel.cs:190-193`), un NumberBox forzaría double; y el ComboBox del boleto era ComboBox en el original (cambiar a AutoSuggestBox arriesga B-03). Choca con la regla 1:1. Se dejan salvo que el dueño pida el cambio a sabiendas. |
 | 2026-09-20 | **U-12** Accesibilidad | **Aplicar** (HECHO `58e4844`) | 123 `AutomationProperties.Name` en las 20 páginas que faltaban. |
-| 2026-09-20 | **U-10** Localización | **Infraestructura + 1 pantalla piloto** | Montar recursos `.resw` ES/EN + selector de idioma persistido, y migrar UNA pantalla como patrón probado. El resto de las 108 queda para después de que el dueño vea el piloto. |
+| 2026-09-20 | **U-10** Localización | **Infraestructura + 1 pantalla piloto** (HECHO `e1b2371`) | `Services/IdiomaApp.cs` + `.resw` ES/EN + submenú Ver→Idioma + piloto `CreditosFrmPage` con `x:Uid`. App arranca en español; inglés adicional. Falta verificar el cambio es/en en runtime (tanda 4). Extender a las 108 = esfuerzo L, mismo patrón. |
  Plan de mejoras — Free1X2 WinUI 3 (post v0.82.0 «Rarotonga»)
 
 > **Estado: borrador para tu revisión.** Base: `main` = `e77a5ac`, release `v0.82.0`, fecha 2026-09-16.
