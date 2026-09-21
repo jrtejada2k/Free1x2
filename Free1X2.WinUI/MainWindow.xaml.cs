@@ -185,6 +185,10 @@ public sealed partial class MainWindow : Window
         // que Themes/Tokens.xaml ya define y que App.xaml mantenía apagada.
         menuVer.Items.Add(new MenuFlyoutSeparator());
         menuVer.Items.Add(ConstruirSubmenuTema());
+        // "Idioma" (U-10) — AÑADIDO junto al submenú Tema, mismo patrón. No existía en el MainForm
+        // original: es la entrada del selector de idioma (Español / English) que expone la
+        // localización piloto de CreditosFrmPage.
+        menuVer.Items.Add(ConstruirSubmenuIdioma());
         BarraMenu.Items.Add(menuVer);
 
         BarraMenu.Items.Add(Menu("Combinación",
@@ -623,6 +627,72 @@ public sealed partial class MainWindow : Window
             sub.Items.Add(item);
         }
         return sub;
+    }
+
+    /// <summary>
+    /// Submenú «Ver → Idioma» (U-10): las dos opciones de idioma, mutuamente excluyentes, con la
+    /// activa marcada. Mismo patrón EXACTO que <see cref="ConstruirSubmenuTema"/>
+    /// (MenuFlyoutSubItem con icono + <see cref="RadioMenuFlyoutItem"/> en bucle, selección
+    /// exclusiva por GroupName). Al cambiar, se persiste en <see cref="Services.IdiomaApp"/> y se
+    /// RE-NAVEGA a la página actual: los recursos <c>x:Uid</c> se resuelven al CARGAR la página, así
+    /// que el cambio de idioma se refleja al recrearla (WinUI no repinta los <c>x:Uid</c> en vivo).
+    /// </summary>
+    private MenuFlyoutSubItem ConstruirSubmenuIdioma()
+    {
+        var sub = new MenuFlyoutSubItem
+        {
+            Text = "Idioma",
+            Icon = new FontIcon { Glyph = Glifo("E774"), FontFamily = IconFont }, // Globe
+        };
+
+        (Services.IdiomaApp.Opcion opcion, string label)[] items =
+        {
+            (Services.IdiomaApp.Opcion.Espanol, "Español"),
+            (Services.IdiomaApp.Opcion.Ingles,  "English"),
+        };
+
+        foreach (var (opcion, label) in items)
+        {
+            var item = new RadioMenuFlyoutItem
+            {
+                Text = label,
+                GroupName = "IdiomaApp",                               // exclusividad entre los 2
+                IsChecked = Services.IdiomaApp.Actual == opcion,        // refleja la preferencia viva
+            };
+            Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(item, "Idioma " + label);
+            item.Click += (_, _) =>
+            {
+                Services.IdiomaApp.Cambiar(opcion);
+                RecargarPaginaActual();
+            };
+            sub.Items.Add(item);
+        }
+        return sub;
+    }
+
+    /// <summary>
+    /// Re-navega el Frame de contenido a la página que ya está mostrando, para que sus recursos
+    /// <c>x:Uid</c> se re-resuelvan con el idioma recién elegido (U-10). Los <c>x:Uid</c> se aplican
+    /// al CARGAR la página, no en vivo, así que un cambio de idioma solo se ve al recrear la página.
+    /// Se elimina la entrada duplicada que la re-navegación deja en la pila de "atrás".
+    /// LÍMITE: recrear la página REINICIA su estado en memoria (p. ej. un boleto en edición). El
+    /// cambio de idioma es una acción deliberada y poco frecuente; aun así este comportamiento en
+    /// runtime NO se ha podido verificar (R7: no se lanza la app). No lanza.
+    /// </summary>
+    private void RecargarPaginaActual()
+    {
+        var tipo = ContentFrame.CurrentSourcePageType;
+        if (tipo is null) return;
+        try
+        {
+            ContentFrame.Navigate(tipo);
+            if (ContentFrame.BackStack.Count > 0)
+                ContentFrame.BackStack.RemoveAt(ContentFrame.BackStack.Count - 1);
+        }
+        catch (Exception ex)
+        {
+            Services.Log.Error("MainWindow.RecargarPaginaActual", ex);
+        }
     }
 
     // Persiste la visibilidad de las barras al cerrar, mirror exacto de

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!--
+    Free1X2 · WinUI 3 — WIN3
+    Recursos de la pantalla piloto de localización (U-10): CreditosFrmPage.
+    Idioma: Español (es) — texto ACTUAL de la app, sin cambios de redacción.
+    Las claves siguen el patrón <x:Uid>.<Propiedad>; se resuelven vía el sistema PRI + x:Uid.
+    El resto de las 107 páginas siguen con su texto en español embebido (fuera de alcance).
+  -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="CreditosTituloEquipo.Text" xml:space="preserve">
+    <value>Equipo Free1X2</value>
+    <comment>Título/enlace de cabecera de la pantalla de créditos.</comment>
+  </data>
+  <data name="CreditosWebsiteLink.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Visitar el sitio web clubprogol.com</value>
+    <comment>Nombre accesible del enlace de cabecera (lector de pantalla).</comment>
+  </data>
+  <data name="CreditosWebUrl.Text" xml:space="preserve">
+    <value>www.clubprogol.com</value>
+    <comment>URL del proyecto mostrada bajo el título (no se traduce).</comment>
+  </data>
+  <data name="CreditosColaboradores.Text" xml:space="preserve">
+    <value>Colaboradores</value>
+    <comment>Cabecera de la tarjeta con la lista de colaboradores.</comment>
+  </data>
+  <data name="CreditosGraciasNota.Text" xml:space="preserve">
+    <value>Free1X2 nunca existiría sin las sugerencias y las ideas de los usuarios de clubprogol.com</value>
+    <comment>Nota de agradecimiento a los usuarios.</comment>
+  </data>
+  <data name="CreditosGracias.Text" xml:space="preserve">
+    <value>¡Gracias!</value>
+    <comment>Cierre de la nota de agradecimiento.</comment>
+  </data>
+</root>

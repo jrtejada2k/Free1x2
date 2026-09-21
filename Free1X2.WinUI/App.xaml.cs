@@ -50,6 +50,11 @@ public partial class App : Application
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
         AsegurarCarpetasDeTrabajo();
+        // Idioma (U-10): fija ApplicationLanguages.PrimaryLanguageOverride con la preferencia
+        // guardada ANTES de crear la ventana y navegar a la primera página, para que los recursos
+        // .resw (x:Uid) se resuelvan ya en el idioma elegido. Por defecto Español (la app arranca
+        // en español); solo la pantalla piloto está localizada. No toca la red ni lanza.
+        IdiomaApp.Aplicar();
         SembrarJornadaDesdeCache();
         MainWindow = new MainWindow();
         AppServices.Inicializar(MainWindow);

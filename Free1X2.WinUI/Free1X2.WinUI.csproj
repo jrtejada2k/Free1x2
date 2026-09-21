@@ -75,4 +75,14 @@
     </Content>
   </ItemGroup>
 
+  <!-- Localizacion (U-10): los recursos .resw se indexan por MakePri en el resources.pri y el
+       sistema PRI + x:Uid funciona en la app DESEMPAQUETADA (WindowsPackageType=None). NO hace
+       falta un <PRIResource Include="..."> explicito: el SDK del Windows App SDK ya incluye por
+       defecto todos los .resw del proyecto como PRIResource (EnableDefaultPriItems=true); anadirlos
+       a mano provoca NETSDK1022 (elementos duplicados). Estructura: Strings\<idioma>\Resources.resw,
+       con <idioma> = "es" (por defecto, texto actual) y "en-US" (adicional, coincide con el idioma
+       por defecto del PRI). El idioma por defecto de la app es espanol: IdiomaApp fija el override
+       "es" al arrancar (App.OnLaunched). Solo la pantalla piloto (CreditosFrmPage) usa estos
+       recursos; el resto de paginas siguen con su texto en espanol embebido. -->
+
 </Project>
