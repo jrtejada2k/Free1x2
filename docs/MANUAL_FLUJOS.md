@@ -362,7 +362,7 @@ Las **108 páginas portadas** (`Free1X2.WinUI/Views/Ported/`, registradas en [`N
 - **Flujo 6 — escrutinio:** `EscrutiniosFrmViewModel.cs:606,608` llama a `escrutador.EscrutaCombConColumna(...)` y `EscrutaCombConTemporada(...)`.
 - **Flujo 8 — persistencia:** `Views/MainPageViewModel.cs:572-573` construye `ArchivoCombinacion` y hace `AbrirArchivoCombinacion(ruta)`.
 
-Verificación de la migración: build 0 errores, *smoke test* de carga **109/109** (108 páginas + `MainPage`) y **125/125** tests golden-master del motor. Detalle en [`ANALISIS_TECNICO_WINUI3.md`](ANALISIS_TECNICO_WINUI3.md) §11.
+Verificación de la migración: build 0 errores, *smoke test* de carga **109/109** (108 páginas + `MainPage`) y **133/133** tests golden-master del motor. Detalle en [`ANALISIS_TECNICO_WINUI3.md`](ANALISIS_TECNICO_WINUI3.md) §11.
 
 ---
 

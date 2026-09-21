@@ -13,7 +13,7 @@ Programa libre bajo **GPLv3**, derivado del Free1X2 original de Joan Duatis.
 
 | Dato | Valor | Evidencia |
 |------|-------|-----------|
-| Versión | **0.82.0** | `Free1X2.WinUI/Free1X2.WinUI.csproj:15-17` |
+| Versión | **0.83.0** «Rarotonga» | `Free1X2.WinUI/Free1X2.WinUI.csproj:15-17` |
 | UI | WinUI 3 (Windows App SDK **1.6**, `Microsoft.WindowsAppSDK 1.6.250108002`) | `Free1X2.WinUI.csproj:20,37` |
 | TFM | `net8.0-windows10.0.19041.0` (mínimo `10.0.17763.0`) | `Free1X2.WinUI.csproj:5-6` |
 | Empaquetado | Desempaquetado (`WindowsPackageType=None`), **self-contained win-x64** | `Free1X2.WinUI.csproj:21,26-28` |
@@ -26,10 +26,10 @@ Programa libre bajo **GPLv3**, derivado del Free1X2 original de Joan Duatis.
 
 | Proyecto | Rol |
 |----------|-----|
-| **`Free1X2.WinUI/`** | **Aplicación principal.** 108 páginas en `Views/Ported/`, registradas en `Navigation/PortedPages.cs` (108 entradas). Shell en `MainWindow.xaml.cs`, inicio en `App.xaml.cs`, servicios en `Services/`. |
+| **`Free1X2.WinUI/`** | **Aplicación principal.** 108 páginas en `Views/Ported/`, registradas en `Navigation/PortedPages.cs` (108 entradas). Shell en `MainWindow.xaml.cs`, inicio en `App.xaml.cs`, servicios en `Services/` (`Log`, `TemaApp`, `IdiomaApp`, `PickerHelper`, `QuinielaOnlineService`, `JornadaCache`, `PaisesOnline`, `AppServices`, `AppState`). |
 | **`Free1X2.Domain/`** | **Motor completo**, libre de UI: `MotorCalculo/`, `Reduccion/`, `Escrutinio/`, `EntradaSalida/`, `Analisis/`, `Utils/`, `SubirCategoria/`, `Online/`, `VariablesGlobales.cs`. Desacople de UI vía `Abstractions/UiHooks.cs` (`UiPump`, `UserDialogs`, `AnalisisUi`). |
 | **`Free1X2/`** | UI **WinForms legacy** = **referencia de comportamiento**. Congelado en **0.77.2** por diseño (`Free1X2/Free1X2.csproj:11-12`). Ya no aloja el motor: solo quedan `UI/`, `Program.cs`, `Infraestructura/`, `Analisis/AnalisisCombinacion.cs` y 4 ficheros en `Utils/` (`Grafico.cs`, `ControlCompatibility.cs`, `ValidadorCaracteres.cs`, `CompresorZip.cs`). |
-| **`Free1X2.Domain.Tests/`** | **125 tests** golden-master del motor (76 `[Fact]` + 49 casos `[InlineData]`). Red de seguridad de toda optimización. |
+| **`Free1X2.Domain.Tests/`** | **133 tests** golden-master del motor (84 `[Fact]` + 49 casos `[InlineData]`). Red de seguridad de toda optimización. |
 
 Además, fuera de la solución: `docs/` (documentación vigente), `scripts/` (build, publish, smoke,
 stub de la API), `tools/`, y carpetas `Free1X2.Shared/` y `Free1X2.WebAPI/` que **no** están
@@ -42,7 +42,7 @@ referenciadas en `Free1X2.sln`.
 dotnet build Free1X2.WinUI/Free1X2.WinUI.csproj -c Debug -p:Platform=x64   # 0 errores
 
 # Tests del motor
-dotnet test  Free1X2.Domain.Tests/Free1X2.Domain.Tests.csproj              # 125/125
+dotnet test  Free1X2.Domain.Tests/Free1X2.Domain.Tests.csproj              # 133/133
 
 # Smoke de carga de las 109 superficies (108 páginas + MainPage)
 $env:FREE1X2_SMOKE = '1'
@@ -79,7 +79,7 @@ Vigentes desde [`docs/PLAN_MEJORAS.md`](docs/PLAN_MEJORAS.md) §0:
 
 | # | Regla | Consecuencia práctica |
 |---|-------|-----------------------|
-| R1 | **La lógica de negocio no cambia.** El motor (`Free1X2.Domain`) debe producir resultados idénticos al WinForms original (`Free1X2/`). | Toda optimización pasa los **125 tests golden-master** sin tocarlos. |
+| R1 | **La lógica de negocio no cambia.** El motor (`Free1X2.Domain`) debe producir resultados idénticos al WinForms original (`Free1X2/`). | Toda optimización pasa los **133 tests golden-master** sin tocarlos. |
 | R2 | **Las decisiones de diseño/UI las toma el dueño.** | Los hallazgos de UI son *opciones a considerar*; ninguna se implementa sin aprobación explícita. |
 | R3 | **Completitud binaria (0 o 1).** | Un ítem solo se marca hecho con evidencia: build 0 err, smoke 109/109, tests verdes y `file:line` del cambio. |
 | R4 | **Sin evidencia no hay hallazgo.** | Cada afirmación cita fichero:línea leído. Lo no verificado se descarta. |

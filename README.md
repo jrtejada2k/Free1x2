@@ -60,7 +60,7 @@ Detalle completo de cada función en el [manual de usuario](docs/MANUAL_USUARIO.
 | **`Free1X2`** | `net8.0-windows` (WinForms) | UI heredada; se conserva **congelada** como referencia de comportamiento. |
 | **`Free1X2.Domain`** | `net8.0` | **Motor completo**, libre de UI. Hooks de desacople en `Abstractions/`: `UiPump` (↔ `Application.DoEvents`), `UserDialogs` (↔ `MessageBox`), `AnalisisUi` (↔ visor de análisis). |
 | **`Free1X2.WinUI`** | `net8.0-windows10.0.19041.0` (WinUI 3) | **UI principal** Fluent (Windows App SDK 1.6, self-contained). 108 pantallas portadas. |
-| **`Free1X2.Domain.Tests`** | `net8.0` (xUnit) | Red de tests golden-master del dominio (125 tests). |
+| **`Free1X2.Domain.Tests`** | `net8.0` (xUnit) | Red de tests golden-master del dominio (133 tests). |
 
 > Las carpetas `Free1X2.Shared/` y `Free1X2.WebAPI/` existen en disco pero **no forman parte de la
 > solución** (no están referenciadas en `Free1X2.sln`): son residuos de exploraciones anteriores.
@@ -120,7 +120,8 @@ El binario WinUI 3 es **self-contained**: incrusta el Windows App Runtime y los 
 
 | Tag | UI | Notas |
 |-----|----|-------|
-| `v0.82.0` | WinUI 3 | **Versión actual.** Integración online opcional (jornada + catálogo de equipos de clubprogol.com) con caché offline-first. |
+| `v0.83.0` | WinUI 3 | **Versión actual.** Mejoras post-0.82: corrección de bugs de UI + logging, optimizaciones del motor (salida idéntica, verificada por SHA-256), tema Claro/Oscuro/Sistema, tamaño mínimo de ventana y atajos de teclado, accesibilidad e infraestructura de localización. |
+| `v0.82.0` | WinUI 3 | Integración online opcional (jornada + catálogo de equipos de clubprogol.com) con caché offline-first. |
 | `v0.81.2` | WinUI 3 | Licencia GPLv3, `README`, `SECURITY.md`: preparación del repositorio público. |
 | `v0.81.1-emails-ofuscados` | WinUI 3 | Ofuscación de emails de terceros (anti-scraping) previa a la publicación. |
 | `v0.81.0-winui3` | WinUI 3 | Merge de la migración a WinUI 3 en `main`: UI Fluent nativa, motor idéntico al original. |
@@ -137,7 +138,7 @@ La interfaz se ha **migrado a WinUI 3** (Fluent nativo), reutilizando intacto el
 - ✅ **UI portada**: 108 pantallas (+ `MainPage`) recreadas desde WinForms, cableadas en menús y barra de herramientas; *smoke test* de carga 109/109.
 - ✅ **Motor intacto**: la codificación de columnas y el cálculo se reutilizan vía `Free1X2.Domain` (libre de WinForms gracias a los shims de `Abstractions/`).
 - ✅ **Self-contained** win-x64 (runtime empaquetado) + release con instalable portable.
-- ✅ **Lógica portada y verificada**: la lógica de dominio de las pantallas está implementada (1:1 con el original) y verificada — build 0 errores, *smoke* de carga 109/109, **125/125 tests** del motor (golden-master con datos reales) y una pasada *runtime* UI Automation con **0 crashes** al invocar las acciones. Los residuales que quedaban (logo de *Acerca de*, nombres reales de equipo, etc.) están **resueltos**.
+- ✅ **Lógica portada y verificada**: la lógica de dominio de las pantallas está implementada (1:1 con el original) y verificada — build 0 errores, *smoke* de carga 109/109, **133/133 tests** del motor (golden-master con datos reales) y una pasada *runtime* UI Automation con **0 crashes** al invocar las acciones. Los residuales que quedaban (logo de *Acerca de*, nombres reales de equipo, etc.) están **resueltos**.
 
 Detalle técnico y la verificación completa en [`docs/ANALISIS_TECNICO_WINUI3.md`](docs/ANALISIS_TECNICO_WINUI3.md) (§11). Histórico de la migración en [`ESTADO_MIGRACION_WINUI3.md`](ESTADO_MIGRACION_WINUI3.md).
 
