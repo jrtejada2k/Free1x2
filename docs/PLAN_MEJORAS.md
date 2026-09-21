@@ -4,6 +4,11 @@
 | 2026-09-19 | **C-17 y C-18** Refactors | **Ambos** | C-17: 163 pickers duplicados en 67 ficheros → helper. C-18: cuarteto Guardar/Abrir/Copiar/Pegar en 16 ViewModels (48 métodos) → clase base. Verificación V0 completa tras cada uno. |
 | 2026-09-19 | **C-07** Borrar BoletoControl | **NO** | El dueño prefiere no borrar código. Se mantiene; se le añade la desuscripción para cerrar la fuga latente. |
 | 2026-09-19 | **N-04** Límite de 32 767 columnas en ReductorTM | **NO subirlo** | Se conserva el comportamiento actual con la comprobación explícita ya añadida. Documentar como limitación conocida. |
+| 2026-09-20 | **U-08** FontSize 11 boleto | **Dejar** | Densidad intencional del boleto; no se toca. |
+| 2026-09-20 | **U-09** Orden de botones | **Unificar** (HECHO `ed11361`) | Aceptar→Cancelar en ambos diálogos, fiel al original y a la convención Windows. |
+| 2026-09-20 | **U-11** Restos de patrón manual | **Dejar ambos** (recomendación) | Convertirlos CAMBIA comportamiento: `LimiteLineas`/`Global` son strings con vacío=«sin límite» (`FormatosFrmViewModel.cs:190-193`), un NumberBox forzaría double; y el ComboBox del boleto era ComboBox en el original (cambiar a AutoSuggestBox arriesga B-03). Choca con la regla 1:1. Se dejan salvo que el dueño pida el cambio a sabiendas. |
+| 2026-09-20 | **U-12** Accesibilidad | **Aplicar** (HECHO `58e4844`) | 123 `AutomationProperties.Name` en las 20 páginas que faltaban. |
+| 2026-09-20 | **U-10** Localización | **Infraestructura + 1 pantalla piloto** | Montar recursos `.resw` ES/EN + selector de idioma persistido, y migrar UNA pantalla como patrón probado. El resto de las 108 queda para después de que el dueño vea el piloto. |
  Plan de mejoras — Free1X2 WinUI 3 (post v0.82.0 «Rarotonga»)
 
 > **Estado: borrador para tu revisión.** Base: `main` = `e77a5ac`, release `v0.82.0`, fecha 2026-09-16.
