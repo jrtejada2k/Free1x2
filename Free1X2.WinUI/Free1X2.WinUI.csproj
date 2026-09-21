@@ -57,6 +57,13 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
+    <!-- Icono de la app como fichero suelto en Assets\ además de incrustarlo en el exe
+         (<ApplicationIcon>). AppWindow.SetIcon (U-06) necesita el .ico en disco en tiempo
+         de ejecución; se copia tanto en 'build' como en 'publish' para la barra de título. -->
+    <Content Include="Assets\app.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
   </ItemGroup>
 
   <!-- Datos semilla del motor (config, idioma, equipos, impresión). Se copian junto

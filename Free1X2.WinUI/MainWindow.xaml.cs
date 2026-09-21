@@ -62,6 +62,22 @@ public sealed partial class MainWindow : Window
         {
             this.AppWindow?.Resize(new Windows.Graphics.SizeInt32(1020, 760));
 
+            // U-06: icono en la barra de título y en la barra de tareas. En apps DESEMPAQUETADAS
+            // (WindowsPackageType=None) el AppWindow NO hereda automáticamente para el icono pequeño
+            // de la barra de título el <ApplicationIcon> incrustado en el exe, así que se fija de forma
+            // explícita al mismo Assets\app.ico (paridad con el icono del MainForm WinForms original).
+            // Se aísla en su propio try para que un fallo de icono no impida el tamaño mínimo (U-05).
+            try
+            {
+                string rutaIco = System.IO.Path.Combine(AppContext.BaseDirectory, "Assets", "app.ico");
+                if (System.IO.File.Exists(rutaIco))
+                    this.AppWindow?.SetIcon(rutaIco);
+            }
+            catch (Exception exIcono)
+            {
+                Services.Log.Error("MainWindow.SetIcon", exIcono);
+            }
+
             // U-05: tamaño MÍNIMO de la ventana. Antes no había tope: al encoger, la barra de
             // ~55 botones a dos filas y el contenido quedaban recortados sin aviso. En Windows
             // App SDK 1.6 el OverlappedPresenter TODAVÍA no expone PreferredMinimumWidth/Height
