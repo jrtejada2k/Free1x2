@@ -28,8 +28,19 @@ namespace Free1X2.Reduccion
 {
 	public class XFSF : Base, IReduccion
 	{
-		protected byte[,] columnas = new byte[4782969,3];
-		private int[] flags = new int[4782969];
+		// P-11: antes el constructor asignaba ~33 MB en el LOH (byte[4782969,3] +
+		// int[4782969]) aunque el usuario solo estuviese eligiendo el algoritmo en el
+		// combo del reductor. Ahora se crean la primera vez que se leen datos.
+		// Se conserva el tamaño máximo (3^14) y NO se reasignan en llamadas
+		// sucesivas, para no alterar el estado residual de flags entre reducciones.
+		protected byte[,] columnas;
+		private int[] flags;
+
+		private void AsegurarBuffers()
+		{
+			if (columnas == null) columnas = new byte[4782969,3];
+			if (flags == null) flags = new int[4782969];
+		}
 
 		public override void ComienzaReduccion(string archivoEntrada, string sal, int nivelReduccion, int maxCol, int percent)
 		{
@@ -43,6 +54,7 @@ namespace Free1X2.Reduccion
 
 		protected override void EntradaDeDatos(string archivoEntrada) 
 		{
+			AsegurarBuffers();
             IArchivoColumnas comBaseCols = new ArchivoColumnasTexto(archivoEntrada);
 			Comparador col= new Comparador();
 			noColumnasIniciales = 0;

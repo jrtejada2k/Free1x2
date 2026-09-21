@@ -1037,16 +1037,7 @@ public partial class GruposEquiposFrmViewModel : ObservableObject
         //   GuardarDatos() + SaveFileDialog (*.geq/*.xml) + ArchivoCondiciones.GuardaArchivo(filtroGE).
         GuardarDatos();
 
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "Grupos de equipos",
-        };
-        picker.FileTypeChoices.Add("Grupos de equipos", new List<string> { ".geq" });
-        picker.FileTypeChoices.Add("Grupos de equipos (XML)", new List<string> { ".xml" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSaveFileAsync();
+        StorageFile? file = await PickerHelper.GuardarAsync("Grupos de equipos", ("Grupos de equipos", ".geq"), ("Grupos de equipos (XML)", ".xml"));
         if (file == null) return;
 
         try
@@ -1068,12 +1059,7 @@ public partial class GruposEquiposFrmViewModel : ObservableObject
         //   GuardarDatos() + OpenFileDialog (*.geq/*.xml) + ArchivoCondiciones.AbrirArchivoCombinacion/LeeCondicion.
         GuardarDatos();
 
-        var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
-        picker.FileTypeFilter.Add(".geq");
-        picker.FileTypeFilter.Add(".xml");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSingleFileAsync();
+        StorageFile? file = await PickerHelper.AbrirAsync(".geq", ".xml");
         if (file == null) return;
 
         try

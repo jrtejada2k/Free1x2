@@ -122,15 +122,7 @@ public partial class FrmDependenciaLinealViewModel : ObservableObject
     [RelayCommand]
     private async Task SeleccionarEntrada()
     {
-        var picker = new FileOpenPicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add(".txt");
-        picker.FileTypeFilter.Add("*");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? archivo = await picker.PickSingleFileAsync();
+        StorageFile? archivo = await PickerHelper.AbrirAsync(".txt", "*");
         if (archivo is null)
         {
             return;
@@ -173,17 +165,8 @@ public partial class FrmDependenciaLinealViewModel : ObservableObject
     [RelayCommand]
     private async Task SeleccionarSalida()
     {
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            DefaultFileExtension = ".txt",
-            SuggestedFileName = "columnas",
-        };
-        picker.FileTypeChoices.Add("Columnas", new List<string> { ".txt" });
-        picker.FileTypeChoices.Add("Todos los archivos", new List<string> { "." });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? archivo = await picker.PickSaveFileAsync();
+        StorageFile? archivo = await PickerHelper.GuardarConExtensionPorDefectoAsync(
+            "columnas", ".txt", ("Columnas", ".txt"), ("Todos los archivos", "."));
         if (archivo is null)
         {
             return;
@@ -312,9 +295,11 @@ public partial class FrmDependenciaLinealViewModel : ObservableObject
             double[,] porcentajes = await Task.Run(() => LeerColumnas(_rutaSalida));
             _ = porcentajes; // los porcentajes recalculados se mostrarían en el control de % (no portado aquí)
         }
-        catch
+        catch (Exception ex)
         {
             // Relectura no crítica: el fichero ya se grabó.
+            // C-24: el fallback se mantiene; solo se anade la traza para poder diagnosticar.
+            Log.Error("FrmDependenciaLinealViewModel.RelecturaTrasGrabar", ex);
         }
     }
 

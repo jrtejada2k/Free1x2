@@ -39,11 +39,13 @@
                                 <TextBox
                                     Grid.Column="0"
                                     IsReadOnly="True"
-                                    Text="{x:Bind ViewModel.FicheroEntrada, Mode=OneWay}" />
+                                    Text="{x:Bind ViewModel.FicheroEntrada, Mode=OneWay}"
+                                    AutomationProperties.Name="Fichero de entrada" />
                                 <Button
                                     Grid.Column="1"
                                     Content="Examinar…"
-                                    Command="{x:Bind ViewModel.SeleccionarEntradaCommand}" />
+                                    Command="{x:Bind ViewModel.SeleccionarEntradaCommand}"
+                                    AutomationProperties.Name="Examinar fichero de entrada" />
                             </Grid>
                         </StackPanel>
 
@@ -57,11 +59,13 @@
                                 <TextBox
                                     Grid.Column="0"
                                     IsReadOnly="True"
-                                    Text="{x:Bind ViewModel.FicheroSalida, Mode=OneWay}" />
+                                    Text="{x:Bind ViewModel.FicheroSalida, Mode=OneWay}"
+                                    AutomationProperties.Name="Fichero de salida" />
                                 <Button
                                     Grid.Column="1"
                                     Content="Examinar…"
-                                    Command="{x:Bind ViewModel.SeleccionarSalidaCommand}" />
+                                    Command="{x:Bind ViewModel.SeleccionarSalidaCommand}"
+                                    AutomationProperties.Name="Examinar fichero de salida" />
                             </Grid>
                         </StackPanel>
                     </StackPanel>
@@ -112,22 +116,26 @@
                                             Grid.Column="1"
                                             HorizontalAlignment="Stretch"
                                             ItemsSource="{x:Bind OpcionesSigno}"
-                                            SelectedItem="{x:Bind SignoBase, Mode=TwoWay}" />
+                                            SelectedItem="{x:Bind SignoBase, Mode=TwoWay}"
+                                            AutomationProperties.Name="Signo base" />
                                         <ComboBox
                                             Grid.Column="2"
                                             HorizontalAlignment="Stretch"
                                             ItemsSource="{x:Bind OpcionesSigno}"
-                                            SelectedItem="{x:Bind NuevoUno, Mode=TwoWay}" />
+                                            SelectedItem="{x:Bind NuevoUno, Mode=TwoWay}"
+                                            AutomationProperties.Name="Nuevo signo para el 1" />
                                         <ComboBox
                                             Grid.Column="3"
                                             HorizontalAlignment="Stretch"
                                             ItemsSource="{x:Bind OpcionesSigno}"
-                                            SelectedItem="{x:Bind NuevaX, Mode=TwoWay}" />
+                                            SelectedItem="{x:Bind NuevaX, Mode=TwoWay}"
+                                            AutomationProperties.Name="Nuevo signo para la X" />
                                         <ComboBox
                                             Grid.Column="4"
                                             HorizontalAlignment="Stretch"
                                             ItemsSource="{x:Bind OpcionesSigno}"
-                                            SelectedItem="{x:Bind NuevoDos, Mode=TwoWay}" />
+                                            SelectedItem="{x:Bind NuevoDos, Mode=TwoWay}"
+                                            AutomationProperties.Name="Nuevo signo para el 2" />
                                     </Grid>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
@@ -146,7 +154,8 @@
                             IsOn="{x:Bind ViewModel.CorreccionDeFallos, Mode=TwoWay}" />
                         <Button
                             Content="Transponer"
-                            Command="{x:Bind ViewModel.TransponerCommand}" />
+                            Command="{x:Bind ViewModel.TransponerCommand}"
+                            AutomationProperties.Name="Transponer cambios de signo" />
                         <TextBlock
                             Text="Nota: las valoraciones de JORNADA y COMBINACIÓN (ControlPorcentajes legacy) se portarán como control propio en una fase posterior."
                             Style="{StaticResource SecondaryTextBlockStyle}"
@@ -174,11 +183,13 @@
                 Content="Aceptar"
                 Style="{StaticResource AccentButtonStyle}"
                 IsEnabled="{x:Bind ViewModel.PuedeCalcular, Mode=OneWay}"
-                Command="{x:Bind ViewModel.AceptarCommand}" />
+                Command="{x:Bind ViewModel.AceptarCommand}"
+                AutomationProperties.Name="Aceptar y aplicar rotación" />
             <Button
                 Grid.Column="2"
                 Content="Cancelar"
-                Command="{x:Bind ViewModel.CancelarCommand}" />
+                Command="{x:Bind ViewModel.CancelarCommand}"
+                AutomationProperties.Name="Cancelar" />
         </Grid>
     </Grid>
 </Page>

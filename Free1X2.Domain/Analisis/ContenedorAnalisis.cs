@@ -33,6 +33,13 @@ namespace Free1X2.Analisis
         protected bool usaDiferencias = true;
 
         List<IFiltro> filtrosTemp = new List<IFiltro>();
+        // P-14: conjunto paralelo a filtrosTemp para sustituir el Contains O(n) que
+        // Grupo.AnalizaColumna(long, ContenedorAnalisis) hacía por cada filtro y cada
+        // columna (~200 comparaciones por columna en modo análisis). Usa el mismo
+        // criterio de igualdad que List<IFiltro>.Contains (los filtros no redefinen
+        // Equals, luego identidad de referencia) y la lista conserva el orden de
+        // inserción, que es el que recorre IncrementarContador.
+        readonly HashSet<IFiltro> filtrosTempSet = new HashSet<IFiltro>();
 
 
         #endregion
@@ -130,14 +137,17 @@ namespace Free1X2.Analisis
                                 contactos[9, filtroCont.NoContactosVV]++;
                                 if (VariablesGlobales.AnalizarFigurasContactos)
                                 {
-                                    FiguraCondicion figura = filtroCont.ObtenerFiguraLong();
-                                    if (sortedFigurasContactos.ContainsKey(figura.Figura))
+                                    // P-04: ObtenerFiguraLongValor() da el mismo long que
+                                    // ObtenerFiguraLong().Figura sin crear un FiguraCondicion
+                                    // por columna analizada.
+                                    long figura = filtroCont.ObtenerFiguraLongValor();
+                                    if (sortedFigurasContactos.ContainsKey(figura))
                                     {
-                                        sortedFigurasContactos[figura.Figura]++;
+                                        sortedFigurasContactos[figura]++;
                                     }
                                     else
                                     {
-                                        sortedFigurasContactos.Add(figura.Figura, 1);
+                                        sortedFigurasContactos.Add(figura, 1);
                                     }
                                 }
                             
@@ -320,8 +330,24 @@ namespace Free1X2.Analisis
                     }
                 }
             }
-            FiltrosTemp.Clear();
+            VaciarFiltrosTemp();
            
+        }
+
+        /// <summary>P-14 · Añade el filtro si no estaba ya (equivale a !Contains + Add).</summary>
+        public void AñadirFiltroTemp(IFiltro filtro)
+        {
+            if (filtrosTempSet.Add(filtro))
+            {
+                filtrosTemp.Add(filtro);
+            }
+        }
+
+        /// <summary>P-14 · Vacía la lista temporal de filtros y su conjunto paralelo.</summary>
+        public void VaciarFiltrosTemp()
+        {
+            filtrosTemp.Clear();
+            filtrosTempSet.Clear();
         }
         private void Inicializa(int numPartidos)
         {
@@ -519,7 +545,16 @@ namespace Free1X2.Analisis
         public List<IFiltro> FiltrosTemp
         {
             get { return filtrosTemp; }
-            set { filtrosTemp = value; }
+            set
+            {
+                filtrosTemp = value;
+                // P-14: mantiene el conjunto sincronizado con la lista asignada.
+                filtrosTempSet.Clear();
+                if (filtrosTemp != null)
+                {
+                    for (int i = 0; i < filtrosTemp.Count; i++) filtrosTempSet.Add(filtrosTemp[i]);
+                }
+            }
         }
 
         #endregion

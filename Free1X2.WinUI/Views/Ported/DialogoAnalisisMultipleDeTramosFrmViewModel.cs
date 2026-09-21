@@ -353,15 +353,7 @@ public partial class DialogoAnalisisMultipleDeTramosFrmViewModel : ObservableObj
     {
         // Legacy btGuardar_Click: SaveFileDialog (*.lst) en "Lista\". Vuelca cada Combinacion
         // ("Temporada Jornada Path") con ArchivoColumnasTexto.GuardarCols(...).
-        var picker = new Windows.Storage.Pickers.FileSavePicker
-        {
-            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "Lista",
-        };
-        picker.FileTypeChoices.Add("Lista", new List<string> { ".lst" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSaveFileAsync();
+        var file = await PickerHelper.GuardarAsync("Lista", ("Lista", ".lst"));
         if (file == null) return;
 
         try
@@ -551,13 +543,6 @@ public partial class DialogoAnalisisMultipleDeTramosFrmViewModel : ObservableObj
     // Helper común para los OpenFileDialog (*.txt / *.lst) del form legacy.
     private static async Task<Windows.Storage.StorageFile?> ElegirArchivoAsync(string extension)
     {
-        var picker = new Windows.Storage.Pickers.FileOpenPicker
-        {
-            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add(extension);
-        picker.FileTypeFilter.Add("*");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-        return await picker.PickSingleFileAsync();
+        return await PickerHelper.AbrirAsync(extension, "*");
     }
 }

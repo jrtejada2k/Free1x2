@@ -2,8 +2,12 @@
 <Application
     x:Class="Free1X2.WinUI.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    RequestedTheme="Light">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- SIN RequestedTheme fijo (U-01): un valor aquí congelaba la app en claro y dejaba
+         inaccesible el diccionario "Dark" de Themes/Tokens.xaml. El tema lo decide
+         Services/TemaApp (preferencia Claro / Oscuro / Sistema persistida en
+         %LocalAppData%\Free1X2\tema.json) aplicándolo al RequestedTheme de la raíz del
+         contenido de MainWindow, lo que además permite cambiarlo EN VIVO. -->
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

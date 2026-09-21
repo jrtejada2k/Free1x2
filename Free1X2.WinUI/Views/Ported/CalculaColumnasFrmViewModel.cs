@@ -264,15 +264,7 @@ public partial class CalculaColumnasFrmViewModel : ObservableObject
     private async Task SeleccionarArchivoAsync()
     {
         // Equivale a CalculaColumnasFrm.ObtenNombreArchivoResultados() (SaveFileDialog *.txt).
-        var picker = new Windows.Storage.Pickers.FileSavePicker
-        {
-            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "Columnas",
-        };
-        picker.FileTypeChoices.Add("Columnas", new System.Collections.Generic.List<string> { ".txt" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSaveFileAsync();
+        var file = await PickerHelper.GuardarAsync("Columnas", ("Columnas", ".txt"));
         if (file != null)
         {
             _archivoResultados = file.Path;
@@ -290,7 +282,7 @@ public partial class CalculaColumnasFrmViewModel : ObservableObject
 
         if (ModoGrabar && string.IsNullOrEmpty(_archivoResultados))
         {
-            Free1X2.Abstractions.UserDialogs.ShowError("Seleccione un archivo de resultados.");
+            AppServices.MostrarError("Seleccione un archivo de resultados.");
             return;
         }
 
@@ -299,7 +291,7 @@ public partial class CalculaColumnasFrmViewModel : ObservableObject
         // motor está leyendo). Se avisa con el mismo texto del form legacy y se aborta el cálculo.
         if (ModoGrabar && HayConflictosEntreArchivos())
         {
-            Free1X2.Abstractions.UserDialogs.ShowError(
+            AppServices.MostrarError(
                 "No puede usar como archivo de resultados un archivo usado ya en la combinación");
             return;
         }
@@ -345,7 +337,7 @@ public partial class CalculaColumnasFrmViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            Free1X2.Abstractions.UserDialogs.ShowError("Error en el cálculo: " + ex.Message);
+            AppServices.MostrarError("Error en el cálculo: " + ex.Message);
         }
         finally
         {

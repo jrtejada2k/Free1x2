@@ -53,7 +53,7 @@ Flujos posteriores consumen el `.txt` resultante: **Reducción** (menos columnas
 
 ## 2. El modelo de datos central: la columna como `long`
 
-Todo el motor trabaja con columnas codificadas en un único `long` de 64 bits: **3 bits por partido**, hasta 16 partidos (48 bits). La conversión vive en [`UtilColumnas.cs`](../Free1X2/Utils/UtilColumnas.cs).
+Todo el motor trabaja con columnas codificadas en un único `long` de 64 bits: **3 bits por partido**, hasta 16 partidos (48 bits). La conversión vive en [`UtilColumnas.cs`](../Free1X2.Domain/Utils/UtilColumnas.cs).
 
 ### Codificación de un signo (3 bits)
 
@@ -84,7 +84,7 @@ Esto habilita la operación más importante del motor — **comprobar si una col
                                         // está permitido por el pronóstico
 ```
 
-Igual de barato es **contar aciertos entre dos apuestas**: `ContarBitsA1(ganadora & apuesta)` ([`Escrutador.EscrutaApuestaMultiple`](../Free1X2/Escrutinio/Escrutador.cs)).
+Igual de barato es **contar aciertos entre dos apuestas**: `ContarBitsA1(ganadora & apuesta)` ([`Escrutador.EscrutaApuestaMultiple`](../Free1X2.Domain/Escrutinio/Escrutador.cs)).
 
 ### Constantes notables
 
@@ -95,7 +95,7 @@ Igual de barato es **contar aciertos entre dos apuestas**: `ContarBitsA1(ganador
 
 ## 3. Flujo 1 — Cálculo de una combinación
 
-El flujo principal del programa (`Combinación → Calcular`). Participan: [`MainForm`](../Free1X2/UI/MainForm.cs) → [`CalculaColumnas`](../Free1X2/UI/CalculaColumnas.cs) → [`Analizador`](../Free1X2/MotorCalculo/Analizador.cs) → [`GeneradorColumnas`](../Free1X2/MotorCalculo/GeneradorColumnas.cs).
+El flujo principal del programa (`Combinación → Calcular`). Participan: [`MainForm`](../Free1X2/UI/MainForm.cs) → [`CalculaColumnas`](../Free1X2/UI/CalculaColumnas.cs) → [`Analizador`](../Free1X2.Domain/MotorCalculo/Analizador.cs) → [`GeneradorColumnas`](../Free1X2.Domain/MotorCalculo/GeneradorColumnas.cs).
 
 ### Paso a paso (con datos)
 
@@ -210,7 +210,7 @@ Tras los grupos, el `Analizador` aplica el **ControladorIfThen** (condiciones re
 
 Variante del Flujo 1 con recolección estadística (`AnalizaCombinacion(true)`), usada por "Análisis de Signos", "Analizar fichero", etc.
 
-1. `InicializarContenedorAnalisis(esArchivo)` crea el [`ContenedorAnalisisGlobal`](../Free1X2/Analisis/ContenedorAnalisisGlobal.cs) dimensionado por nº de grupos y nº de controles, y consulta qué condiciones del grupo base están activas (`UsaSimetrias/UsaDiferencias/UsaValoraciones/UsaCPs/UsaFormatos`) para preparar sus acumuladores.
+1. `InicializarContenedorAnalisis(esArchivo)` crea el [`ContenedorAnalisisGlobal`](../Free1X2.Domain/Analisis/ContenedorAnalisisGlobal.cs) dimensionado por nº de grupos y nº de controles, y consulta qué condiciones del grupo base están activas (`UsaSimetrias/UsaDiferencias/UsaValoraciones/UsaCPs/UsaFormatos`) para preparar sus acumuladores.
 2. La validación usa las sobrecargas `AnalizaColumna(long, contenedor)`: **los filtros se evalúan aunque estén inactivos** (`filtro.AnalisisActivo`) para poder informar de su distribución, y el contenedor acumula por columna aceptada (`AnalisisGrupos.IncrementarContador(columna)`, `ColumnasPorFallosDeGrupos[n]++`, etc.).
 3. Al terminar, si hubo columnas aceptadas, el motor pide a la UI que muestre el visor:
    ```csharp
@@ -225,7 +225,7 @@ Variante del Flujo 1 con recolección estadística (`AnalizaCombinacion(true)`),
 
 ## 7. Flujo 5 — Reducción
 
-Entrada y salida son **archivos de columnas `.txt`**; el motor de cálculo no participa. Contrato: [`IReduccion`](../Free1X2/Reduccion/IReductor.cs).
+Entrada y salida son **archivos de columnas `.txt`**; el motor de cálculo no participa. Contrato: [`IReduccion`](../Free1X2.Domain/Reduccion/IReductor.cs).
 
 ```csharp
 void Inicializa(string entrada, int nivelReduccion);
@@ -237,7 +237,7 @@ int NoColumnasIniciales / NoColumnasFinales / NoColumnasProcesadas
 Flujo en [`ReductorFrm`](../Free1X2/UI/ReductorFrm.cs):
 
 1. Usuario elige archivo de entrada (la "madre"), **nivel** (categoría a garantizar: reducir al 13, al 12…), método y opcionalmente `maxCol` / `percent` (reducciones porcentuales).
-2. Según el método se instancia el algoritmo: [`JDC`](../Free1X2/Reduccion/JDC.cs), [`JDCdobleContador`](../Free1X2/Reduccion/JDCdobleContador.cs), [`ReductorTM`](../Free1X2/Reduccion/ReductorTM.cs), [`XFSF`](../Free1X2/Reduccion/XFSF.cs) / [`xfsfV3`](../Free1X2/Reduccion/xfsfV3.cs), [`JLPM`](../Free1X2/Reduccion/JLPM.cs), [`Redu1305Xfsf`](../Free1X2/Reduccion/Redu1305Xfsf.cs) — todos heredan de [`ReductorBase.Base`](../Free1X2/Reduccion/ReductorBase.cs) con plantilla `EntradaDeDatos → Reduce → GrabacionDeReductoras`.
+2. Según el método se instancia el algoritmo: [`JDC`](../Free1X2.Domain/Reduccion/JDC.cs), [`JDCdobleContador`](../Free1X2.Domain/Reduccion/JDCdobleContador.cs), [`ReductorTM`](../Free1X2.Domain/Reduccion/ReductorTM.cs), [`XFSF`](../Free1X2.Domain/Reduccion/XFSF.cs) / [`xfsfV3`](../Free1X2.Domain/Reduccion/xfsfV3.cs), [`JLPM`](../Free1X2.Domain/Reduccion/JLPM.cs), [`Redu1305Xfsf`](../Free1X2.Domain/Reduccion/Redu1305Xfsf.cs) — todos heredan de [`ReductorBase.Base`](../Free1X2.Domain/Reduccion/ReductorBase.cs) con plantilla `EntradaDeDatos → Reduce → GrabacionDeReductoras`.
 3. **Invariante de los algoritmos:** las columnas elegidas ("reductoras") deben **cubrir** la madre — para cada columna de la madre debe existir una reductora a distancia de Hamming ≤ (14 − nivel). Así, si la ganadora estaba en la madre, alguna reductora tiene al menos `nivel` aciertos.
 4. Salida: `.txt` con las reductoras + contadores de progreso (la UI los lee en un timer). `Cancelar()` pone un flag que corta el bucle.
 
@@ -247,7 +247,7 @@ Flujo en [`ReductorFrm`](../Free1X2/UI/ReductorFrm.cs):
 
 ## 8. Flujo 6 — Escrutinio
 
-Comprueba archivos de columnas contra el resultado real de la jornada. Núcleo: [`Escrutador`](../Free1X2/Escrutinio/Escrutador.cs).
+Comprueba archivos de columnas contra el resultado real de la jornada. Núcleo: [`Escrutador`](../Free1X2.Domain/Escrutinio/Escrutador.cs).
 
 ### Datos de entrada
 - **Columna ganadora** (string de 14 signos; admite `*` como comodín que siempre acierta).
@@ -276,7 +276,7 @@ Este flujo alimenta también **Premiadas**, **Estimación de Premios** y el **Ba
 
 ## 9. Flujo 7 — Columnas Probables (CP)
 
-La condición más rica del motor. Cada CP ([`ColumnaProbable`](../Free1X2/MotorCalculo/ColumnaProbable.cs)) es **un segundo pronóstico con presupuesto de fallos**, y [`FiltroColProbables`](../Free1X2/MotorCalculo/FiltroColProbables.cs) gestiona la lista.
+La condición más rica del motor. Cada CP ([`ColumnaProbable`](../Free1X2.Domain/MotorCalculo/ColumnaProbable.cs)) es **un segundo pronóstico con presupuesto de fallos**, y [`FiltroColProbables`](../Free1X2.Domain/MotorCalculo/FiltroColProbables.cs) gestiona la lista.
 
 ### Datos de una CP
 - Pronóstico propio por partido (puede ser doble/triple: misma codificación de bits).
@@ -285,28 +285,28 @@ La condición más rica del motor. Cada CP ([`ColumnaProbable`](../Free1X2/Motor
   - Tolerancias propias (`ACTol`, `ACSTol`): valores "tolerados" fuera del rango estricto.
 
 ### Evaluación por columna
-`Analizar(long columna)` compara la columna candidata contra el pronóstico de la CP partido a partido (AND de bits), cuenta aciertos, rachas de aciertos y de fallos, y consulta los `bool[]`. El resultado entra al presupuesto de fallos del [`CPControlFallos`](../Free1X2/MotorCalculo/CPControlFallos.cs) / [`ControladorCPControlFallos`](../Free1X2/MotorCalculo/ControladorCPControlFallos.cs).
+`Analizar(long columna)` compara la columna candidata contra el pronóstico de la CP partido a partido (AND de bits), cuenta aciertos, rachas de aciertos y de fallos, y consulta los `bool[]`. El resultado entra al presupuesto de fallos del [`CPControlFallos`](../Free1X2.Domain/MotorCalculo/CPControlFallos.cs) / [`ControladorCPControlFallos`](../Free1X2.Domain/MotorCalculo/ControladorCPControlFallos.cs).
 
 ### Relaciones entre CPs
 Tres controladores evalúan condiciones **sobre el conjunto de CPs** una vez calculados los aciertos de cada una para la columna en curso:
 
 | Controlador | Condición |
 |---|---|
-| [`ControladorRelacionesCP1`](../Free1X2/MotorCalculo/ControladorRelacionesCP1.cs) | **Suma de aciertos** de varias CPs en rango |
-| [`ControladorRelacionesCP2`](../Free1X2/MotorCalculo/ControladorRelacionesCP2.cs) | **Recorrido** (máx − mín aciertos) limitado |
-| [`ControladorRelacionesCP3`](../Free1X2/MotorCalculo/ControladorRelacionesCP3.cs) | Relaciones lógicas "si CP A acierta ≤ x, CP B debe acertar ≥ y" |
+| [`ControladorRelacionesCP1`](../Free1X2.Domain/MotorCalculo/ControladorRelacionesCP1.cs) | **Suma de aciertos** de varias CPs en rango |
+| [`ControladorRelacionesCP2`](../Free1X2.Domain/MotorCalculo/ControladorRelacionesCP2.cs) | **Recorrido** (máx − mín aciertos) limitado |
+| [`ControladorRelacionesCP3`](../Free1X2.Domain/MotorCalculo/ControladorRelacionesCP3.cs) | Relaciones lógicas "si CP A acierta ≤ x, CP B debe acertar ≥ y" |
 
 (Análogo para grupos de equipos: `ControladorRelacionesGE1`.)
 
 ### Generación de CPs
-`Utilidades → Generador CP` usa [`EntradaSalida/GenerarCPs/`](../Free1X2/EntradaSalida/GenerarCPs/) (`CPs.cs`, `ColumnasProbables.xsd`, `Valoracion.cs`): produce CPs desde valoraciones/estadísticas y las persiste en XML conforme al esquema.
+`Utilidades → Generador CP` usa [`EntradaSalida/GenerarCPs/`](../Free1X2.Domain/EntradaSalida/GenerarCPs/) (`CPs.cs`, `ColumnasProbables.xsd`, `Valoracion.cs`): produce CPs desde valoraciones/estadísticas y las persiste en XML conforme al esquema.
 
 ---
 
 ## 10. Flujo 8 — Persistencia y configuración
 
 ### `.comb` — la combinación completa (XML)
-[`ArchivoCombinacion`](../Free1X2/EntradaSalida/ArchivoCombinacion.cs) serializa/deserializa **todo el estado del sistema**:
+[`ArchivoCombinacion`](../Free1X2.Domain/EntradaSalida/ArchivoCombinacion.cs) serializa/deserializa **todo el estado del sistema**:
 
 ```
 .comb ─┬─ Equipos[14]                 (LeeEquipos)
@@ -319,18 +319,18 @@ Tres controladores evalúan condiciones **sobre el conjunto de CPs** una vez cal
        └─ Ruta del archivo-filtro     (LeeFiltroColumnas)
 ```
 
-Al abrir un `.comb`, `MainForm` reconstruye `Analizador` + `ControladorGrupos` desde el XML y repinta los semáforos de condiciones. Al guardar, `GuardaArchivo()` recorre la misma estructura en sentido inverso. Los datos de cada condición viajan vía las clases `F*Data` de [`EntradaSalida/`](../Free1X2/EntradaSalida/) (`FDibujosData`, `FColProbablesData`…), una por filtro (patrón DTO).
+Al abrir un `.comb`, `MainForm` reconstruye `Analizador` + `ControladorGrupos` desde el XML y repinta los semáforos de condiciones. Al guardar, `GuardaArchivo()` recorre la misma estructura en sentido inverso. Los datos de cada condición viajan vía las clases `F*Data` de [`EntradaSalida/`](../Free1X2.Domain/EntradaSalida/) (`FDibujosData`, `FColProbablesData`…), una por filtro (patrón DTO).
 
 ### `.txt` — columnas
-[`ArchivoColumnasTexto`](../Free1X2/EntradaSalida/ArchivoColumnasTexto.cs) (implementa `IArchivoColumnas`): una columna por línea, con o sin comas. Es el **formato de intercambio** de todos los flujos (filtros, reducción, escrutinio, operaciones).
+[`ArchivoColumnasTexto`](../Free1X2.Domain/EntradaSalida/ArchivoColumnasTexto.cs) (implementa `IArchivoColumnas`): una columna por línea, con o sin comas. Es el **formato de intercambio** de todos los flujos (filtros, reducción, escrutinio, operaciones).
 
 ### `parametros.free1x2` — configuración global
-[`AConfiguracion`](../Free1X2/EntradaSalida/AConfiguracion.cs) lee el archivo al lado del ejecutable (`System.AppContext.BaseDirectory`). [`VariablesGlobales`](../Free1X2/VariablesGlobales.cs) lo carga **una vez en su constructor estático** y expone todo como propiedades estáticas:
+[`AConfiguracion`](../Free1X2.Domain/EntradaSalida/AConfiguracion.cs) lee el archivo al lado del ejecutable (`System.AppContext.BaseDirectory`). [`VariablesGlobales`](../Free1X2.Domain/VariablesGlobales.cs) lo carga **una vez en su constructor estático** y expone todo como propiedades estáticas:
 
 - `NumeroPartidos` (dimensiona el motor: máscaras, semillas, arrays de premios), `Separador`, `Desplazamiento`.
 - `PuntosFijos/Dobles/Triples` (sistema de puntos de las CPs).
 - `PrecioApuesta`, `Moneda`, `Porcentaje14`, `Recaudacion` (coste y estimación de premios).
-- Flags `analizar*` (qué condiciones recoge el Flujo 4), toolbars visibles, idioma ([`ArchivoIdioma`](../Free1X2/EntradaSalida/ArchivoIdioma.cs) → `diccionarioIdioma`).
+- Flags `analizar*` (qué condiciones recoge el Flujo 4), toolbars visibles, idioma ([`ArchivoIdioma`](../Free1X2.Domain/EntradaSalida/ArchivoIdioma.cs) → `diccionarioIdioma`).
 
 **Implicación de diseño:** `VariablesGlobales.NumeroPartidos` es un acoplamiento global — el `Analizador` puede recibir otro nº de partidos por constructor (análisis externo), pero el resto del motor consulta la estática. Cualquier flujo que cambie el nº de partidos debe hacerlo **antes** de instanciar el motor.
 
@@ -338,7 +338,7 @@ Al abrir un `.comb`, `MainForm` reconstruye `Analizador` + `ControladorGrupos` d
 
 ## 11. Acoplamiento con la UI y migración WinUI 3
 
-El dominio fue desacoplado de WinForms mediante **tres shims estáticos** en [`Free1X2.Domain/Abstractions/UiHooks.cs`](../Free1X2.Domain/Abstractions/UiHooks.cs); el motor llama a la abstracción y cada frontend la cablea al arrancar:
+El dominio fue desacoplado de WinForms mediante **cuatro shims estáticos** en [`Free1X2.Domain/Abstractions/UiHooks.cs`](../Free1X2.Domain/Abstractions/UiHooks.cs) (`UiPump`, `UserDialogs`, `AnalisisUi`, `Clipboard` — `:12,22,33,44`); el motor llama a la abstracción y cada frontend la cablea al arrancar:
 
 | Shim | Llamado desde | WinForms cablea (en `Program.WireDomainHooks`) |
 |---|---|---|
@@ -346,13 +346,24 @@ El dominio fue desacoplado de WinForms mediante **tres shims estáticos** en [`F
 | `UserDialogs.ShowError/ShowInfo` | `ControlGrupos`, `Analizador` | `MessageBox.Show` |
 | `AnalisisUi.MostrarVisor` | fin del Flujo 4 | abre `VisorAnalisisColumnasFrm` |
 
-Para **WinUI 3** (rama `winui3-migration`, proyecto [`Free1X2.WinUI`](../Free1X2.WinUI/)) el mismo contrato aplica:
-- `UiPump.Pump` → no-op o `DispatcherQueue` yield (mejor: mover el cálculo a `Task.Run` y reportar progreso con `IProgress<T>`).
-- `UserDialogs` → `ContentDialog`.
-- `AnalisisUi.MostrarVisor` → navegar a `VisorAnalisisColumnasFrmPage` pasando el contenedor.
+La **migración a WinUI 3 está completada** y publicada en `main`. El proyecto [`Free1X2.WinUI`](../Free1X2.WinUI/) es hoy la UI principal y cablea el mismo contrato en `App.CablearHooksDominio()` (`Free1X2.WinUI/App.xaml.cs:89-140`):
 
-Las 111 páginas portadas (`Free1X2.WinUI/Views/Ported/`) replican las pantallas; el **cableado de estos flujos** a sus ViewModels es el trabajo pendiente de la migración: cada ViewModel debe invocar exactamente las mismas entradas de flujo descritas aquí (`Analizador.AnalizaCombinacion`, `IReduccion.ComienzaReduccion`, `Escrutador.EscrutaCombConTemporada`, `ArchivoCombinacion`…), que ya no dependen de WinForms.
+| Shim | WinUI 3 cablea |
+|---|---|
+| `UiPump.Pump` | **No-op intencional** (`App.xaml.cs:93`): el motor corre en `Task.Run`, no se bombea el dispatcher desde un hilo de trabajo. |
+| `UserDialogs.ShowError/ShowInfo` | `AppServices.MostrarError` / `MostrarInfo` → `ContentDialog` (`App.xaml.cs:95-96`). |
+| `AnalisisUi.MostrarVisor` | Deja el payload en el handoff estático y navega a `VisorAnalisisColumnasFrmPage` en el hilo de UI (`App.xaml.cs:127-139`). |
+| `Clipboard.Read/Write` | `Windows.ApplicationModel.DataTransfer.DataPackage` (`App.xaml.cs:101-119`). |
+
+Las **108 páginas portadas** (`Free1X2.WinUI/Views/Ported/`, registradas en [`Navigation/PortedPages.cs`](../Free1X2.WinUI/Navigation/PortedPages.cs)) replican las pantallas, y sus ViewModels **ya invocan** exactamente las entradas de flujo descritas aquí, que no dependen de WinForms:
+
+- **Flujo 1/4 — cálculo y análisis:** `CalculaColumnasFrmViewModel.cs:334,338,342` llama a `_analizador.AnalizaCombinacion(archivoResultados)` / `(14|15)` / `(false)`, los tres modos del §3; `AnalizarFicheroFrmViewModel.cs:137` usa `AnalizaCombinacion(true, true)` para el análisis externo.
+- **Flujo 5 — reducción:** `ReductorFrmViewModel.cs:224` llama a `_reductor.ComienzaReduccion(entrada, salida, nivel, maxCol, percent)` en un hilo aparte.
+- **Flujo 6 — escrutinio:** `EscrutiniosFrmViewModel.cs:606,608` llama a `escrutador.EscrutaCombConColumna(...)` y `EscrutaCombConTemporada(...)`.
+- **Flujo 8 — persistencia:** `Views/MainPageViewModel.cs:572-573` construye `ArchivoCombinacion` y hace `AbrirArchivoCombinacion(ruta)`.
+
+Verificación de la migración: build 0 errores, *smoke test* de carga **109/109** (108 páginas + `MainPage`) y **133/133** tests golden-master del motor. Detalle en [`ANALISIS_TECNICO_WINUI3.md`](ANALISIS_TECNICO_WINUI3.md) §11.
 
 ---
 
-*Documento generado a partir del análisis del código fuente (rama `winui3-migration`). Para el detalle de pantallas y uso, ver el [Manual de usuario](MANUAL_USUARIO.md); para la arquitectura técnica, [`ANALISIS_TECNICO.md`](ANALISIS_TECNICO.md).*
+*Documento generado a partir del análisis del código fuente. Para el detalle de pantallas y uso, ver el [Manual de usuario](MANUAL_USUARIO.md); para la arquitectura técnica de la capa WinUI 3, [`ANALISIS_TECNICO_WINUI3.md`](ANALISIS_TECNICO_WINUI3.md).*

@@ -213,11 +213,23 @@ namespace Free1X2.MotorCalculo
 			return CumpleCondiciones(columna);
 		}
         #region Métodos Obtención de Figuras
-        public long ObtenFiguraV(long columna)
+        /// <summary>
+        /// P-04 · Núcleo común de ObtenFiguraV/1/X/2 sin asignaciones.
+        /// Antes cada una de las 4 variantes creaba un <c>List&lt;int&gt;</c> y llamaba a
+        /// <c>Sort()</c> por columna analizada (hasta 4 listas + 4 Sort × 4 782 969
+        /// columnas). El buffer va en la pila; la ordenación por inserción ascendente
+        /// produce para enteros exactamente la misma secuencia que <c>List&lt;int&gt;.Sort()</c>
+        /// y el empaquetado en nibbles (descendente) es idéntico al original.
+        /// El buffer de 16 cubre el máximo de rachas posibles (las máscaras abarcan
+        /// 16 grupos de 3 bits, luego como máximo 8 rachas).
+        /// </summary>
+        private readonly int[] bufFigura = new int[16];
+
+        private long ObtenFiguraConMascara(long columna, long mascara)
         {
-            long temporal = 0;
-            columna &= 120632132875995;
-            List<int> valores = new List<int>();
+            columna &= mascara;
+            int[] valores = bufFigura;
+            int noValores = 0;
             int cuantas = 0;
 
             while (columna != 0)
@@ -230,7 +242,7 @@ namespace Free1X2.MotorCalculo
                 {
                     if (cuantas > 0)
                     {
-                        valores.Add(cuantas);
+                        valores[noValores++] = cuantas;
                         cuantas = 0;
                     }
                 }
@@ -238,120 +250,48 @@ namespace Free1X2.MotorCalculo
             }
             if (cuantas > 0)
             {
-                valores.Add(cuantas);
-            }           
-            valores.Sort();
-            for (int i = valores.Count - 1; i >= 0; i--)
+                valores[noValores++] = cuantas;
+            }
+
+            for (int i = 1; i < noValores; i++)
+            {
+                int v = valores[i];
+                int j = i - 1;
+                while (j >= 0 && valores[j] > v)
+                {
+                    valores[j + 1] = valores[j];
+                    j--;
+                }
+                valores[j + 1] = v;
+            }
+
+            long temporal = 0;
+            for (int i = noValores - 1; i >= 0; i--)
             {
                 temporal <<= 4;
                 temporal |= (uint)valores[i];
             }
             return temporal;
+        }
+        public long ObtenFiguraV(long columna)
+        {
+            // P-04: delega en el calculo sin asignaciones (misma mascara, mismo resultado).
+            return ObtenFiguraConMascara(columna, 120632132875995);
         }
         public long ObtenFigura1(long columna)
         {
-            long temporal = 0;
-            columna &= 160842843834660;
-            List<int> valores = new List<int>();
-            int cuantas = 0;
-
-            while (columna != 0)
-            {
-                if ((columna & 7) != 0)
-                {
-                    cuantas++;
-                }
-                else
-                {
-                    if (cuantas > 0)
-                    {
-                        valores.Add(cuantas);
-                        cuantas = 0;
-                    }
-                }
-                columna >>= 3;
-            }
-            if (cuantas > 0)
-            {
-                valores.Add(cuantas);
-            }
-            valores.Sort();
-            for (int i = valores.Count - 1; i >= 0; i--)
-            {
-                temporal <<= 4;
-                temporal |= (uint)valores[i];
-            }
-            return temporal;
+            // P-04: delega en el calculo sin asignaciones (misma mascara, mismo resultado).
+            return ObtenFiguraConMascara(columna, 160842843834660);
         }
         public long ObtenFiguraX(long columna)
         {
-            long temporal = 0;
-            columna &= 80421421917330;
-            List<int> valores = new List<int>();
-            int cuantas = 0;
-
-            while (columna != 0)
-            {
-                if ((columna & 7) != 0)
-                {
-                    cuantas++;
-                }
-                else
-                {
-                    if (cuantas > 0)
-                    {
-                        valores.Add(cuantas);
-                        cuantas = 0;
-                    }
-                }
-                columna >>= 3;
-            }
-            if (cuantas > 0)
-            {
-                valores.Add(cuantas);
-            }
-            valores.Sort();
-            for (int i = valores.Count - 1; i >= 0; i--)
-            {
-                temporal <<= 4;
-                temporal |= (uint)valores[i];
-            }
-            return temporal;
+            // P-04: delega en el calculo sin asignaciones (misma mascara, mismo resultado).
+            return ObtenFiguraConMascara(columna, 80421421917330);
         }
         public long ObtenFigura2(long columna)
         {
-            long temporal = 0;
-            columna &= 40210710958665;
-            List<int> valores = new List<int>();
-            int cuantas = 0;
-
-            while (columna != 0)
-            {
-                if ((columna & 7) != 0)
-                {
-                    cuantas++;
-                }
-                else
-                {
-                    if (cuantas > 0)
-                    {
-                        valores.Add(cuantas);
-                        cuantas = 0;
-                    }
-                }
-                columna >>= 3;
-            }
-            if (cuantas > 0)
-            {
-                valores.Add(cuantas);
-            }
-            valores.Sort();
-            for (int i = valores.Count - 1; i >= 0; i--)
-            {
-                temporal <<= 4;
-                temporal |= (uint)valores[i];
-            }
-            return temporal;
+            // P-04: delega en el calculo sin asignaciones (misma mascara, mismo resultado).
+            return ObtenFiguraConMascara(columna, 40210710958665);
         } 
         #endregion
 

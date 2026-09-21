@@ -95,11 +95,7 @@ public partial class SelectorMSViewModel : ObservableObject
     private async Task Iniciar()
     {
         // Iniciar() legacy: elige fichero, lee columnas, calcula vecinos y agrupa la distribución.
-        var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
-        picker.FileTypeFilter.Add(".txt");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSingleFileAsync();
+        var file = await PickerHelper.AbrirAsync(".txt");
         if (file == null) return;
 
         FicheroEntrada = Path.GetFileName(file.Path);
@@ -154,15 +150,7 @@ public partial class SelectorMSViewModel : ObservableObject
         // Grabar() legacy: graba las columnas cuyo grupo (equivalentes) está seleccionado.
         if (_conta == 0 || FilaSeleccionada < 0) return;
 
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "SeleccionMS",
-        };
-        picker.FileTypeChoices.Add("Columnas", new List<string> { ".txt" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSaveFileAsync();
+        var file = await PickerHelper.GuardarAsync("SeleccionMS", ("Columnas", ".txt"));
         if (file == null) return;
 
         string ruta = file.Path;
@@ -189,11 +177,7 @@ public partial class SelectorMSViewModel : ObservableObject
     private async Task CargarGanadoras()
     {
         // EntraCGsR() legacy: lee columnas ganadoras (>=14 chars) a colgsR[].
-        var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
-        picker.FileTypeFilter.Add(".txt");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSingleFileAsync();
+        var file = await PickerHelper.AbrirAsync(".txt");
         if (file == null) return;
 
         _colgsR.Clear();

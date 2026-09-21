@@ -252,12 +252,12 @@ namespace Free1X2.MotorCalculo
 
                                 filtro.Analizar(nuevaCol);
                             }
-                            if (!contenedor.FiltrosTemp.Contains(filtro))
+                            // P-14: equivale a `if(!FiltrosTemp.Contains(filtro)) if(EsGrupoBase) Add`
+                            // (Contains no tiene efectos secundarios), pero con búsqueda O(1)
+                            // y conservando el orden de inserción de la lista.
+                            if (EsGrupoBase)
                             {
-                                if (EsGrupoBase)
-                                {
-                                    contenedor.FiltrosTemp.Add(filtro);
-                                }
+                                contenedor.AñadirFiltroTemp(filtro);
                             }
                         }
                         else
@@ -366,6 +366,11 @@ namespace Free1X2.MotorCalculo
 
 		protected bool SonTolGrupoValidas()
 		{
+		    // P-09: sin tolerancias definidas (el caso habitual) los tres bucles de
+		    // abajo no hacen nada y el método acaba devolviendo true. Salir aquí evita
+		    // recorrer los 14 filtros del grupo en CADA columna analizada.
+		    if (ctrlTolerancias.Tolerancias.Count == 0) return true;
+
 		    bool columnaValida = true;
 			
 			//poner contadores de tolerancias a 0

@@ -3,6 +3,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
+using Free1X2.WinUI.Services;
 
 namespace Free1X2.WinUI.Views.Ported
 {
@@ -93,19 +94,12 @@ namespace Free1X2.WinUI.Views.Ported
             ViewModel.AplicarImportacionReemplazar();
         }
 
-        /// <summary>Muestra un ContentDialog Sí/No y devuelve true si el usuario eligió Sí.</summary>
-        private async Task<bool> ConfirmarAsync(string titulo, string mensaje)
-        {
-            var dlg = new ContentDialog
-            {
-                Title = titulo,
-                Content = mensaje,
-                PrimaryButtonText = "Sí",
-                CloseButtonText = "No",
-                DefaultButton = ContentDialogButton.Primary,
-                XamlRoot = this.XamlRoot,
-            };
-            return await dlg.ShowAsync() == ContentDialogResult.Primary;
-        }
+        /// <summary>
+        /// Confirmación Sí/No. C-22: antes esta página construía su propio ContentDialog, que
+        /// esquivaba la puerta de diálogos de AppServices (B-01) y podía chocar con un mensaje
+        /// de la cola. Se delega en el helper, conservando "Sí" como botón por defecto.
+        /// </summary>
+        private static Task<bool> ConfirmarAsync(string titulo, string mensaje)
+            => AppServices.ConfirmarAsync(mensaje, titulo, ContentDialogButton.Primary);
     }
 }

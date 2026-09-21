@@ -98,14 +98,7 @@ public partial class FraccionadorFrmViewModel : ObservableObject
     [RelayCommand]
     private async Task Entrada()
     {
-        var picker = new FileOpenPicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add(".txt");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSingleFileAsync();
+        var file = await PickerHelper.AbrirAsync(".txt");
         if (file == null) return;
 
         string ruta = file.Path;
@@ -139,15 +132,7 @@ public partial class FraccionadorFrmViewModel : ObservableObject
     [RelayCommand]
     private async Task Fraccionar()
     {
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "BASE",
-        };
-        picker.FileTypeChoices.Add("Nombre BASE salida", new List<string> { ".txt" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSaveFileAsync();
+        var file = await PickerHelper.GuardarAsync("BASE", ("Nombre BASE salida", ".txt"));
         if (file == null) return;
 
         // Legacy usaba GetFileNameWithoutExtension (nombre relativo). Aquí construimos la base

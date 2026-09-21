@@ -72,7 +72,7 @@ public partial class FormatosViewModel : ObservableObject
 /// "Sacar formatos / Pares / Tríos / Sumas pares" navegan a sus páginas portadas
 /// (CalculoFormatosFrmPage / ParejasFrmPage / TriosFrmPage / AnalizadorJPMPage).
 /// </summary>
-public partial class FormatosFrmViewModel : ObservableObject
+public partial class FormatosFrmViewModel : FiltroArchivoViewModelBase
 {
     public ObservableCollection<FormatosViewModel> Relaciones { get; } = new();
 
@@ -85,8 +85,14 @@ public partial class FormatosFrmViewModel : ObservableObject
     /// <summary>Acción para navegar a otra página (la cablea la página con Frame.Navigate(tipo)).</summary>
     public Action<Type>? Navegar { get; set; }
 
+    // --- Lo específico del filtro para el cuarteto Guardar/Abrir/Copiar/Pegar (base C-18) ---
+    protected override string NombreSugerido => "Formatos";
+    protected override (string etiqueta, string extension)[] TiposGuardar =>
+        new[] { ("Formatos", ".fmt"), ("Formatos (XML)", ".xml") };
+    protected override string[] ExtensionesAbrir => new[] { ".fmt", ".xml" };
+
     // Fichero temporal de copiar/pegar (legacy: StartupPath + "/Temp/tmp.fmt").
-    private static string RutaTemporal =>
+    protected override string RutaTemporal =>
         Path.Combine(AppContext.BaseDirectory, "Temp", "tmp.fmt");
 
     // Directorio de columnas ganadoras (legacy: StartupPath + "/Ganadoras/").
@@ -332,7 +338,7 @@ public partial class FormatosFrmViewModel : ObservableObject
     }
 
     // Guarda en disco el filtro temporal (FormatosFrm.guardar(), líneas 968-978).
-    private void GuardarEn(string nombreArchivo)
+    protected override void GuardarEn(string nombreArchivo)
     {
         var filtroTemp = ObtenerFiltroTemporal();
         var archComb = new ArchivoCondiciones { NombreArchivo = nombreArchivo };
@@ -346,7 +352,7 @@ public partial class FormatosFrmViewModel : ObservableObject
 
     // Abre la condición desde disco, vuelca al filtro del grupo y recarga la pantalla
     // (FormatosFrm.abrir(), líneas 955-966).
-    private void AbrirDesde(string nombreArchivo)
+    protected override void AbrirDesde(string nombreArchivo)
     {
         var filtroGrupo = ObtenerFiltroGrupo();
         if (filtroGrupo is null) return;
@@ -376,83 +382,7 @@ public partial class FormatosFrmViewModel : ObservableObject
         Navegar?.Invoke(typeof(VisorEstadisticasPage));
     }
 
-    /// <summary>Guarda la condición de formatos a un archivo .fmt/.xml.</summary>
-    [RelayCommand]
-    private async Task Guardar()
-    {
-        // Equivale a FormatosFrm.menuCondiciones1_BGuardar (FormatosFrm.cs líneas 944-953).
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "Formatos",
-        };
-        picker.FileTypeChoices.Add("Formatos", new List<string> { ".fmt" });
-        picker.FileTypeChoices.Add("Formatos (XML)", new List<string> { ".xml" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSaveFileAsync();
-        if (file == null) return;
-
-        try
-        {
-            GuardarEn(file.Path);
-        }
-        catch (Exception ex)
-        {
-            AppServices.MostrarError("No se pudo guardar: " + ex.Message);
-        }
-    }
-
-    /// <summary>Abre una condición de formatos desde un archivo .fmt/.xml.</summary>
-    [RelayCommand]
-    private async Task Abrir()
-    {
-        // Equivale a FormatosFrm.menuCondiciones1_BAbrir (FormatosFrm.cs líneas 929-942).
-        var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
-        picker.FileTypeFilter.Add(".fmt");
-        picker.FileTypeFilter.Add(".xml");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSingleFileAsync();
-        if (file == null) return;
-
-        try
-        {
-            AbrirDesde(file.Path);
-        }
-        catch (Exception ex)
-        {
-            AppServices.MostrarError("No se pudo abrir: " + ex.Message);
-        }
-    }
-
-    /// <summary>Copia la condición de formatos al fichero temporal interno.</summary>
-    [RelayCommand]
-    private void Copiar()
-    {
-        // Equivale a FormatosFrm.menuCondiciones1_BCopiar (FormatosFrm.cs líneas 993-1001).
-        try
-        {
-            string ruta = RutaTemporal;
-            Directory.CreateDirectory(Path.GetDirectoryName(ruta)!);
-            GuardarEn(ruta);
-        }
-        catch (Exception ex)
-        {
-            AppServices.MostrarError("No se pudo copiar: " + ex.Message);
-        }
-    }
-
-    /// <summary>Pega la condición de formatos desde el fichero temporal interno.</summary>
-    [RelayCommand]
-    private void Pegar()
-    {
-        // Equivale a FormatosFrm.menuCondiciones1_BPegar (FormatosFrm.cs líneas 1003-1013).
-        if (File.Exists(RutaTemporal))
-        {
-            AbrirDesde(RutaTemporal);
-        }
-    }
+    // Guardar/Abrir/Copiar/Pegar: heredados de FiltroArchivoViewModelBase (C-18).
 
     /// <summary>Borra los datos del filtro de formatos (menuCondiciones1_BBorrar).</summary>
     [RelayCommand]

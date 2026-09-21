@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Free1X2.WinUI.Controls;
+using Free1X2.WinUI.Services;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -419,9 +420,11 @@ public partial class EstimadorPremiosFrmViewModel : ObservableObject
             await Windows.System.Launcher.LaunchUriAsync(
                 new Uri("https://www.loteriasyapuestas.es/es/la-quiniela"));
         }
-        catch
+        catch (Exception ex)
         {
             // Lanzador no disponible: se ignora (equivale a no poder abrir el navegador).
+            // C-24: el fallback se mantiene; solo se anade la traza para poder diagnosticar.
+            Log.Error("EstimadorPremiosFrmViewModel.AbrirLAE", ex);
         }
     }
 }

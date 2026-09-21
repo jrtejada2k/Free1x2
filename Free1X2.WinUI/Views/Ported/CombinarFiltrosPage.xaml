@@ -45,7 +45,8 @@
                           SelectionMode="None"
                           Background="{ThemeResource AppSurfaceAltBrush}"
                           BorderBrush="{ThemeResource AppBorderBrush}"
-                          BorderThickness="1">
+                          BorderThickness="1"
+                          AutomationProperties.Name="Lista de filtros">
                     <ListView.HeaderTemplate>
                         <DataTemplate>
                             <Grid Padding="12,8" ColumnSpacing="8">
@@ -84,7 +85,8 @@
                                            VerticalAlignment="Center" />
                                 <CheckBox Grid.Column="2"
                                           IsChecked="{x:Bind Activo, Mode=TwoWay}"
-                                          VerticalAlignment="Center" />
+                                          VerticalAlignment="Center"
+                                          AutomationProperties.Name="Filtro activo" />
                                 <TextBlock Grid.Column="3"
                                            Text="{x:Bind ColumnasTexto, Mode=OneWay}"
                                            HorizontalTextAlignment="Right"
@@ -101,7 +103,8 @@
             <!-- btnCargarFiltro -->
             <Button Content="Cargar Filtro"
                     HorizontalAlignment="Stretch"
-                    Command="{x:Bind ViewModel.CargarFiltroCommand}" />
+                    Command="{x:Bind ViewModel.CargarFiltroCommand}"
+                    AutomationProperties.Name="Cargar filtro" />
             <!-- ckMD: Activa / Desactiva (toggle/checkbox) -->
             <ToggleSwitch Header="Activa / Desactiva"
                           IsOn="{x:Bind ViewModel.ActivarTodas, Mode=TwoWay}"
@@ -109,11 +112,13 @@
             <!-- bSalvaLista -->
             <Button Content="Salvar Lista"
                     HorizontalAlignment="Stretch"
-                    Command="{x:Bind ViewModel.SalvarListaCommand}" />
+                    Command="{x:Bind ViewModel.SalvarListaCommand}"
+                    AutomationProperties.Name="Salvar lista de filtros" />
             <!-- bCargaLista -->
             <Button Content="Cargar Lista"
                     HorizontalAlignment="Stretch"
-                    Command="{x:Bind ViewModel.CargarListaCommand}" />
+                    Command="{x:Bind ViewModel.CargarListaCommand}"
+                    AutomationProperties.Name="Cargar lista de filtros" />
 
             <!-- gap -->
             <Border Height="8" />
@@ -122,11 +127,13 @@
             <Button Content="Iniciar Proceso"
                     Style="{StaticResource AccentButtonStyle}"
                     HorizontalAlignment="Stretch"
-                    Command="{x:Bind ViewModel.IniciarCommand}" />
+                    Command="{x:Bind ViewModel.IniciarCommand}"
+                    AutomationProperties.Name="Iniciar proceso de combinación" />
             <!-- bCancelar -->
             <Button Content="Cancelar"
                     HorizontalAlignment="Stretch"
-                    Command="{x:Bind ViewModel.CancelarCommand}" />
+                    Command="{x:Bind ViewModel.CancelarCommand}"
+                    AutomationProperties.Name="Cancelar" />
 
             <!-- gap -->
             <Border Height="8" />
@@ -134,7 +141,8 @@
             <!-- btnReiniciaTodo -->
             <Button Content="Reiniciar Todo"
                     HorizontalAlignment="Stretch"
-                    Command="{x:Bind ViewModel.ReiniciarTodoCommand}" />
+                    Command="{x:Bind ViewModel.ReiniciarTodoCommand}"
+                    AutomationProperties.Name="Reiniciar todo" />
 
             <!-- label3 NOTA legacy -->
             <TextBlock Text="Cualquier variación en el cuadro &quot;Filtros&quot; requiere repetir el proceso antes de sumar o grabar columnas."
@@ -177,7 +185,8 @@
                 <!-- bSumaCols -->
                 <Button Content="Sumar cols."
                         HorizontalAlignment="Stretch"
-                        Command="{x:Bind ViewModel.SumarColumnasCommand}" />
+                        Command="{x:Bind ViewModel.SumarColumnasCommand}"
+                        AutomationProperties.Name="Sumar columnas" />
 
                 <!-- lCols: total de columnas -->
                 <StackPanel Spacing="4">
@@ -190,7 +199,8 @@
                 <!-- btnGrabarFiltro -->
                 <Button Content="Grabar cols."
                         HorizontalAlignment="Stretch"
-                        Command="{x:Bind ViewModel.GrabarColumnasCommand}" />
+                        Command="{x:Bind ViewModel.GrabarColumnasCommand}"
+                        AutomationProperties.Name="Grabar columnas" />
 
                 <!-- lfilout: archivo de salida -->
                 <StackPanel Spacing="4">

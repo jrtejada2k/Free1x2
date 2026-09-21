@@ -88,7 +88,8 @@
                     HorizontalAlignment="Right"
                     Style="{StaticResource AccentButtonStyle}"
                     Content="Aceptar"
-                    Command="{x:Bind ViewModel.GrabarCommand}" />
+                    Command="{x:Bind ViewModel.GrabarCommand}"
+                    AutomationProperties.Name="Aceptar y grabar tramos" />
 
             </StackPanel>
         </ScrollViewer>

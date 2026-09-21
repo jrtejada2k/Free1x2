@@ -135,11 +135,7 @@ public partial class RentabilidadFrmViewModel : ObservableObject
     [RelayCommand]
     private async Task SeleccionarFicheroEntrada()
     {
-        var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
-        picker.FileTypeFilter.Add(".txt");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSingleFileAsync();
+        var file = await PickerHelper.AbrirAsync(".txt");
         if (file == null) return;
         FicheroEntrada = file.Path;
     }
@@ -151,15 +147,7 @@ public partial class RentabilidadFrmViewModel : ObservableObject
     [RelayCommand]
     private async Task SeleccionarFicheroSalida()
     {
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "Rentabilidad",
-        };
-        picker.FileTypeChoices.Add("Columnas", new List<string> { ".txt" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSaveFileAsync();
+        var file = await PickerHelper.GuardarAsync("Rentabilidad", ("Columnas", ".txt"));
         if (file == null) return;
         FicheroSalida = file.Path;
     }
@@ -329,9 +317,9 @@ public partial class RentabilidadFrmViewModel : ObservableObject
     // statusBarPanel6.Text legacy -> EstadoTexto marshalado al hilo de UI.
     private void ActualizarEstado(string texto)
     {
-        var disp = AppServices.UiDispatcher;
-        if (disp is null) { EstadoTexto = texto; return; }
-        disp.TryEnqueue(() => EstadoTexto = texto);
+        // C-26: UiHilo cubre el caso sin hilo de UI (headless) y ademas registra el
+        // false de TryEnqueue, que antes se descartaba en silencio.
+        UiHilo.Ejecutar(() => EstadoTexto = texto, "RentabilidadFrmViewModel");
     }
 
     // ---------------------------------------------------------------------

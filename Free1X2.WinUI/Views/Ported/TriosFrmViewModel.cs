@@ -210,15 +210,7 @@ public partial class TriosFrmViewModel : ObservableObject
     [RelayCommand]
     private async Task CalcularAsync()
     {
-        var picker = new FileOpenPicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add(".txt");
-        picker.FileTypeFilter.Add("*");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSingleFileAsync();
+        var file = await PickerHelper.AbrirAsync(".txt", "*");
         if (file == null) return;
 
         _salida = false;
@@ -277,15 +269,7 @@ public partial class TriosFrmViewModel : ObservableObject
     private async Task GrabarAsync()
     {
         // Legacy: TriosFrm.GrabarCols() — recorre el BitArray validas y escribe n1s(idx).
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "Resultados",
-        };
-        picker.FileTypeChoices.Add("Resultados", new List<string> { ".txt" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSaveFileAsync();
+        var file = await PickerHelper.GuardarAsync("Resultados", ("Resultados", ".txt"));
         if (file == null) return;
 
         string ruta = file.Path;
@@ -311,15 +295,7 @@ public partial class TriosFrmViewModel : ObservableObject
     {
         // Legacy: TriosFrm.LeeCondis() (líneas 473-602) — 12 líneas de Niveles (30 valores
         // c/u: Pos1,Pos2,Pos3 + 27 niveles) seguidas de 5 líneas de Límites (min,max).
-        var picker = new FileOpenPicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add(".tri");
-        picker.FileTypeFilter.Add("*");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSingleFileAsync();
+        var file = await PickerHelper.AbrirAsync(".tri", "*");
         if (file == null) return;
 
         try
@@ -366,15 +342,7 @@ public partial class TriosFrmViewModel : ObservableObject
         // Legacy: TriosFrm.SalvaCondis() (líneas 603+) — persiste la matriz de Niveles (12 líneas
         // de 30 valores) y los Límites (5 líneas min,max). RecuperarPantalla() llena _nivells desde
         // la rejilla portada, por lo que las 12 líneas reflejan los valores editados por el usuario.
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "Trios",
-        };
-        picker.FileTypeChoices.Add("Condiciones", new List<string> { ".tri" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSaveFileAsync();
+        var file = await PickerHelper.GuardarAsync("Trios", ("Condiciones", ".tri"));
         if (file == null) return;
 
         RecuperarPantalla();

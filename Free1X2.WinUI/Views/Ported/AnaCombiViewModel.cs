@@ -75,7 +75,7 @@ public partial class AnaCombiViewModel : ObservableObject
     public ObservableCollection<AnaCombiPartido> Partidos { get; } = new();
 
     /// <summary>Filas de resultado producidas por el cálculo.</summary>
-    public ObservableCollection<AnaCombiResultado> Resultados { get; } = new();
+    public ColeccionUi<AnaCombiResultado> Resultados { get; } = new(); // C-13
 
     [ObservableProperty]
     private double _fallosAdmitidos;
@@ -132,15 +132,7 @@ public partial class AnaCombiViewModel : ObservableObject
     [RelayCommand]
     private async Task SeleccionarFichero()
     {
-        var picker = new FileOpenPicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add(".txt");
-        picker.FileTypeFilter.Add("*");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSingleFileAsync();
+        var file = await PickerHelper.AbrirAsync(".txt", "*");
         if (file == null) return;
         _rutaFichero = file.Path;
         FicheroEntrada = Path.GetFileName(file.Path);
@@ -174,18 +166,19 @@ public partial class AnaCombiViewModel : ObservableObject
         ProcesadasTexto = "0";
         TiempoTexto = "0";
 
-        DispatcherQueue dispatcher = AppServices.UiDispatcher!;
+        // C-25: antes había aquí un `AppServices.UiDispatcher!`. Sin hilo de UI (headless,
+        // smoke, tests) eso producía un NullReferenceException DENTRO del Task.Run, que el
+        // catch de abajo mostraba como «Error al calcular: Object reference…» — engañoso.
+        // Ahora el marshalado lo resuelve UiHilo, que ya contempla ese caso.
         DateTime dt0 = DateTime.Now;
         string ruta = _rutaFichero;
 
         try
         {
-            List<AnaCombiResultado> resultados = await Task.Run(() => EjecutarCalculo(ruta, dispatcher, dt0));
+            List<AnaCombiResultado> resultados = await Task.Run(() => EjecutarCalculo(ruta, dt0));
 
-            foreach (var r in resultados)
-            {
-                Resultados.Add(r);
-            }
+            // C-13: un único Reset en vez de un CollectionChanged por fila (mismo orden).
+            Resultados.ReemplazarTodo(resultados);
             TiempoTexto = FormatearTiempo(DateTime.Now - dt0);
             PuedeGrabar = Resultados.Count > 0;
         }
@@ -200,7 +193,7 @@ public partial class AnaCombiViewModel : ObservableObject
     }
 
     // Núcleo del cálculo (legacy: Calcular + Contabiliza + Mostraresuls), fuera del hilo de UI.
-    private List<AnaCombiResultado> EjecutarCalculo(string ruta, DispatcherQueue dispatcher, DateTime dt0)
+    private List<AnaCombiResultado> EjecutarCalculo(string ruta, DateTime dt0)
     {
         int ctproc = 0;
         var comptes = new int[TotalCombinaciones];
@@ -252,17 +245,17 @@ public partial class AnaCombiViewModel : ObservableObject
                 {
                     int procActual = ctproc;
                     DateTime ahora = DateTime.Now;
-                    dispatcher.TryEnqueue(() =>
+                    UiHilo.Ejecutar(() =>                       // C-25 / C-26
                     {
                         ProcesadasTexto = procActual.ToString();
                         TiempoTexto = FormatearTiempo(ahora - dt0);
-                    });
+                    }, "AnaCombi.EjecutarCalculo/progreso");
                 }
             }
         }
 
         int procFinal = ctproc;
-        dispatcher.TryEnqueue(() => ProcesadasTexto = procFinal.ToString());
+        UiHilo.Ejecutar(() => ProcesadasTexto = procFinal.ToString(), "AnaCombi.EjecutarCalculo/final"); // C-25 / C-26
 
         // Mostraresuls(): genera las filas de resultado (legacy: comptes[nr] >= 0).
         var resultados = new List<AnaCombiResultado>();
@@ -281,12 +274,17 @@ public partial class AnaCombiViewModel : ObservableObject
     // legacy: Contabiliza(string columna)
     private void Contabiliza(string columna, int[] comptes, int[] valides)
     {
-        string xcol = "";
+        // C-15: este método se ejecuta UNA VEZ POR LÍNEA del fichero (millones). Antes componía
+        // xcol con 14 concatenaciones de string -> 14 asignaciones por línea. Con un buffer en
+        // pila no se asigna nada y el contenido de los 14 caracteres es EXACTAMENTE el mismo:
+        // los _ctgrup signos de los partidos del grupo, y '1' en el resto hasta 14.
+        // (_ctgrup nunca pasa de 14: RecuperaGrupo recorre exactamente los 14 partidos.)
+        Span<char> xcol = stackalloc char[14];
         for (int nr = 0; nr < _ctgrup; nr++)
         {
-            xcol += columna[_grup[nr]];
+            xcol[nr] = columna[_grup[nr]];
         }
-        for (int nr = _ctgrup; nr < 14; nr++) xcol += '1';
+        for (int nr = _ctgrup; nr < 14; nr++) xcol[nr] = '1';
         int idxg = S14N(xcol);
         comptes[idxg]++;
         int idxc = S14N(columna);
@@ -329,15 +327,7 @@ public partial class AnaCombiViewModel : ObservableObject
             return;
         }
 
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "Resultados",
-        };
-        picker.FileTypeChoices.Add("Resultados", new List<string> { ".txt" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSaveFileAsync();
+        var file = await PickerHelper.GuardarAsync("Resultados", ("Resultados", ".txt"));
         if (file == null) return;
 
         string rutaEntrada = _rutaFichero;
@@ -417,7 +407,11 @@ public partial class AnaCombiViewModel : ObservableObject
     }
 
     // legacy: s14n(string) — convierte una columna de 14 signos a su índice base-3.
-    private static int S14N(string ax)
+    // C-15: se admite también un ReadOnlySpan<char> para poder llamarlo desde Contabiliza sin
+    // materializar una cadena. El cálculo es carácter a carácter, así que el índice es idéntico.
+    private static int S14N(string ax) => S14N(ax.AsSpan());
+
+    private static int S14N(ReadOnlySpan<char> ax)
     {
         int nx = 0;
         for (int nr = 0; nr < 14; nr++)

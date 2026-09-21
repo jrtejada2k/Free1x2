@@ -6,6 +6,7 @@ using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Input;
 using Free1X2.WinUI.Views;
 using Free1X2.WinUI.Views.Ported;
 using Free1X2.WinUI.Navigation;
@@ -27,10 +28,17 @@ public sealed partial class MainWindow : Window
         // (No se extiende el contenido en la barra de título ni se usa AppTitleBar.)
         this.ExtendsContentIntoTitleBar = false;
         this.Title = "Free1X2";
+
+        // Tema (U-01): aplica la preferencia guardada (Claro / Oscuro / Sistema) sobre la raíz
+        // del contenido. Va ANTES de construir menús/toolbar para que el primer pintado ya use
+        // la paleta elegida y no se vea un parpadeo claro→oscuro.
+        Services.TemaApp.Aplicar(RaizVentana);
+
         AjustarTamanoVentana();
 
         ConstruirToolbar();
         ConstruirMenus();
+        ConfigurarAtajosTeclado();
         ContentFrame.Navigate(typeof(MainPage));
 
         // Persiste la visibilidad de las barras al cerrar, igual que el MainForm
@@ -53,9 +61,93 @@ public sealed partial class MainWindow : Window
         try
         {
             this.AppWindow?.Resize(new Windows.Graphics.SizeInt32(1020, 760));
+
+            // U-06: icono en la barra de título y en la barra de tareas. En apps DESEMPAQUETADAS
+            // (WindowsPackageType=None) el AppWindow NO hereda automáticamente para el icono pequeño
+            // de la barra de título el <ApplicationIcon> incrustado en el exe, así que se fija de forma
+            // explícita al mismo Assets\app.ico (paridad con el icono del MainForm WinForms original).
+            // Se aísla en su propio try para que un fallo de icono no impida el tamaño mínimo (U-05).
+            try
+            {
+                string rutaIco = System.IO.Path.Combine(AppContext.BaseDirectory, "Assets", "app.ico");
+                if (System.IO.File.Exists(rutaIco))
+                    this.AppWindow?.SetIcon(rutaIco);
+            }
+            catch (Exception exIcono)
+            {
+                Services.Log.Error("MainWindow.SetIcon", exIcono);
+            }
+
+            // U-05: tamaño MÍNIMO de la ventana. Antes no había tope: al encoger, la barra de
+            // ~55 botones a dos filas y el contenido quedaban recortados sin aviso. En Windows
+            // App SDK 1.6 el OverlappedPresenter TODAVÍA no expone PreferredMinimumWidth/Height
+            // (llegó en 1.7), así que el mínimo se impone interceptando WM_GETMINMAXINFO con un
+            // subclass nativo de la ventana. 900x600 deja sitio a menús + barra a dos filas +
+            // algo de contenido.
+            InstalarTamanoMinimo();
         }
-        catch { /* sin AppWindow (entornos sin presentación): no es crítico */ }
+        catch (Exception ex)
+        {
+            // Sin AppWindow (entornos sin presentación): no es crítico, la ventana abre con su
+            // tamaño por defecto. Solo se deja traza.
+            Services.Log.Error("MainWindow.AjustarTamanoVentana", ex);
+        }
     }
+
+    // ===== U-05: tamaño mínimo de ventana vía WM_GETMINMAXINFO (WinAppSDK 1.6) =====
+
+    private const int AnchoMinimoDip = 900;
+    private const int AltoMinimoDip = 600;
+    private const uint WM_GETMINMAXINFO = 0x0024;
+    // El delegado se guarda en un campo para que el GC no lo recoja mientras la ventana vive.
+    private SUBCLASSPROC _subclassProc;
+
+    private void InstalarTamanoMinimo()
+    {
+        IntPtr hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+        _subclassProc = SubclassWndProc;
+        SetWindowSubclass(hwnd, _subclassProc, IntPtr.Zero, IntPtr.Zero);
+    }
+
+    private IntPtr SubclassWndProc(IntPtr hWnd, uint uMsg, IntPtr wParam, IntPtr lParam, IntPtr uIdSubclass, IntPtr dwRefData)
+    {
+        if (uMsg == WM_GETMINMAXINFO)
+        {
+            // El mínimo va en píxeles físicos, así que se escala por el DPI del monitor.
+            uint dpi = GetDpiForWindow(hWnd);
+            double escala = dpi > 0 ? dpi / 96.0 : 1.0;
+            var info = System.Runtime.InteropServices.Marshal.PtrToStructure<MINMAXINFO>(lParam);
+            info.ptMinTrackSize.X = (int)(AnchoMinimoDip * escala);
+            info.ptMinTrackSize.Y = (int)(AltoMinimoDip * escala);
+            System.Runtime.InteropServices.Marshal.StructureToPtr(info, lParam, false);
+            return IntPtr.Zero;
+        }
+        return DefSubclassProc(hWnd, uMsg, wParam, lParam);
+    }
+
+    private delegate IntPtr SUBCLASSPROC(IntPtr hWnd, uint uMsg, IntPtr wParam, IntPtr lParam, IntPtr uIdSubclass, IntPtr dwRefData);
+
+    [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
+    private struct POINT { public int X; public int Y; }
+
+    [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
+    private struct MINMAXINFO
+    {
+        public POINT ptReserved;
+        public POINT ptMaxSize;
+        public POINT ptMaxPosition;
+        public POINT ptMinTrackSize;
+        public POINT ptMaxTrackSize;
+    }
+
+    [System.Runtime.InteropServices.DllImport("comctl32.dll", SetLastError = true)]
+    private static extern bool SetWindowSubclass(IntPtr hWnd, SUBCLASSPROC pfnSubclass, IntPtr uIdSubclass, IntPtr dwRefData);
+
+    [System.Runtime.InteropServices.DllImport("comctl32.dll")]
+    private static extern IntPtr DefSubclassProc(IntPtr hWnd, uint uMsg, IntPtr wParam, IntPtr lParam);
+
+    [System.Runtime.InteropServices.DllImport("user32.dll")]
+    private static extern uint GetDpiForWindow(IntPtr hwnd);
 
     // Convierte un codepoint hex (p.ej. "E80F") al glifo de Segoe Fluent Icons.
     // Usar codepoints en lugar de caracteres literales garantiza que el glifo se
@@ -104,6 +196,15 @@ public sealed partial class MainWindow : Window
         // dentro del menú Ver (menuVer.DropDownItems, MainForm.Designer.cs:1455-1457). Navega a la
         // página portada (handler legacy: listadoDeCondicionesToolStripMenuItem_Click → ListadoCondicionesFrm).
         menuVer.Items.Add(ItemFlyout("E9D5", "Listado de condiciones", typeof(ListadoCondicionesFrmPage)));
+        // "Tema" (U-01) — AÑADIDO al FINAL del menú Ver, sin reordenar nada de lo anterior.
+        // No existía en el MainForm original: es la entrada que da acceso a la paleta oscura
+        // que Themes/Tokens.xaml ya define y que App.xaml mantenía apagada.
+        menuVer.Items.Add(new MenuFlyoutSeparator());
+        menuVer.Items.Add(ConstruirSubmenuTema());
+        // "Idioma" (U-10) — AÑADIDO junto al submenú Tema, mismo patrón. No existía en el MainForm
+        // original: es la entrada del selector de idioma (Español / English) que expone la
+        // localización piloto de CreditosFrmPage.
+        menuVer.Items.Add(ConstruirSubmenuIdioma());
         BarraMenu.Items.Add(menuVer);
 
         BarraMenu.Items.Add(Menu("Combinación",
@@ -506,6 +607,110 @@ public sealed partial class MainWindow : Window
         return sub;
     }
 
+    /// <summary>
+    /// Submenú «Ver → Tema» (U-01): las tres opciones de tema, mutuamente excluyentes, con la
+    /// activa marcada. Mismo patrón que <see cref="ConstruirSubmenuBarrasHerramientas"/>
+    /// (MenuFlyoutSubItem con icono + items conmutables construidos en bucle); aquí se usa
+    /// <see cref="RadioMenuFlyoutItem"/> porque la selección es EXCLUSIVA (el submenú de barras
+    /// son conmutadores independientes). El cambio se aplica en vivo y se persiste en
+    /// <see cref="Services.TemaApp"/>.
+    /// </summary>
+    private MenuFlyoutSubItem ConstruirSubmenuTema()
+    {
+        var sub = new MenuFlyoutSubItem
+        {
+            Text = "Tema",
+            Icon = new FontIcon { Glyph = Glifo("E706"), FontFamily = IconFont },
+        };
+
+        (Services.TemaApp.Opcion opcion, string label)[] items =
+        {
+            (Services.TemaApp.Opcion.Claro,   "Claro"),
+            (Services.TemaApp.Opcion.Oscuro,  "Oscuro"),
+            (Services.TemaApp.Opcion.Sistema, "Sistema"),
+        };
+
+        foreach (var (opcion, label) in items)
+        {
+            var item = new RadioMenuFlyoutItem
+            {
+                Text = label,
+                GroupName = "TemaApp",                               // exclusividad entre los 3
+                IsChecked = Services.TemaApp.Actual == opcion,        // refleja la preferencia viva
+            };
+            Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(item, "Tema " + label);
+            item.Click += (_, _) => Services.TemaApp.Cambiar(opcion);
+            sub.Items.Add(item);
+        }
+        return sub;
+    }
+
+    /// <summary>
+    /// Submenú «Ver → Idioma» (U-10): las dos opciones de idioma, mutuamente excluyentes, con la
+    /// activa marcada. Mismo patrón EXACTO que <see cref="ConstruirSubmenuTema"/>
+    /// (MenuFlyoutSubItem con icono + <see cref="RadioMenuFlyoutItem"/> en bucle, selección
+    /// exclusiva por GroupName). Al cambiar, se persiste en <see cref="Services.IdiomaApp"/> y se
+    /// RE-NAVEGA a la página actual: los recursos <c>x:Uid</c> se resuelven al CARGAR la página, así
+    /// que el cambio de idioma se refleja al recrearla (WinUI no repinta los <c>x:Uid</c> en vivo).
+    /// </summary>
+    private MenuFlyoutSubItem ConstruirSubmenuIdioma()
+    {
+        var sub = new MenuFlyoutSubItem
+        {
+            Text = "Idioma",
+            Icon = new FontIcon { Glyph = Glifo("E774"), FontFamily = IconFont }, // Globe
+        };
+
+        (Services.IdiomaApp.Opcion opcion, string label)[] items =
+        {
+            (Services.IdiomaApp.Opcion.Espanol, "Español"),
+            (Services.IdiomaApp.Opcion.Ingles,  "English"),
+        };
+
+        foreach (var (opcion, label) in items)
+        {
+            var item = new RadioMenuFlyoutItem
+            {
+                Text = label,
+                GroupName = "IdiomaApp",                               // exclusividad entre los 2
+                IsChecked = Services.IdiomaApp.Actual == opcion,        // refleja la preferencia viva
+            };
+            Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(item, "Idioma " + label);
+            item.Click += (_, _) =>
+            {
+                Services.IdiomaApp.Cambiar(opcion);
+                RecargarPaginaActual();
+            };
+            sub.Items.Add(item);
+        }
+        return sub;
+    }
+
+    /// <summary>
+    /// Re-navega el Frame de contenido a la página que ya está mostrando, para que sus recursos
+    /// <c>x:Uid</c> se re-resuelvan con el idioma recién elegido (U-10). Los <c>x:Uid</c> se aplican
+    /// al CARGAR la página, no en vivo, así que un cambio de idioma solo se ve al recrear la página.
+    /// Se elimina la entrada duplicada que la re-navegación deja en la pila de "atrás".
+    /// LÍMITE: recrear la página REINICIA su estado en memoria (p. ej. un boleto en edición). El
+    /// cambio de idioma es una acción deliberada y poco frecuente; aun así este comportamiento en
+    /// runtime NO se ha podido verificar (R7: no se lanza la app). No lanza.
+    /// </summary>
+    private void RecargarPaginaActual()
+    {
+        var tipo = ContentFrame.CurrentSourcePageType;
+        if (tipo is null) return;
+        try
+        {
+            ContentFrame.Navigate(tipo);
+            if (ContentFrame.BackStack.Count > 0)
+                ContentFrame.BackStack.RemoveAt(ContentFrame.BackStack.Count - 1);
+        }
+        catch (Exception ex)
+        {
+            Services.Log.Error("MainWindow.RecargarPaginaActual", ex);
+        }
+    }
+
     // Persiste la visibilidad de las barras al cerrar, mirror exacto de
     // AConfiguracion.GuardarToolBarsVisibles (MainForm.cs:178). Orden de argumentos del
     // original: tsFree, tsFiltros, tsCombinacion, tsOperaciones, tsArchivo, tsUtilidades.
@@ -522,13 +727,63 @@ public sealed partial class MainWindow : Window
                 Vis(GrupoBarra.Archivo),
                 Vis(GrupoBarra.Utilidades));
         }
-        catch { /* no bloquear el cierre por error de E/S al guardar preferencias */ }
+        catch (Exception ex)
+        {
+            // No bloquear el cierre por un error de E/S al guardar preferencias (comportamiento
+            // intacto); antes se perdía sin rastro el motivo de "no recuerda mis barras".
+            Services.Log.Error("MainWindow.GuardarBarrasHerramientas", ex);
+        }
     }
 
     private void Navegar(Type page)
     {
         if (ContentFrame.CurrentSourcePageType != page)
             ContentFrame.Navigate(page);
+    }
+
+    /// <summary>
+    /// Navega el Frame de contenido a la página indicada. Punto de entrada PÚBLICO para el
+    /// código que no tiene acceso al Frame (p. ej. el handoff del visor de análisis que cablea
+    /// <c>App.CablearHooksDominio</c>), en lugar de buscarlo por nombre con
+    /// <c>FindName("ContentFrame")</c> — acoplamiento por string que se rompía en silencio (B-07).
+    /// Navega SIEMPRE, incluso si ya se está en esa página: el visor consume un payload nuevo en
+    /// cada navegación, así que re-navegar es justo lo que hace falta (comportamiento previo).
+    /// </summary>
+    public void NavegarA(Type page) => ContentFrame.Navigate(page);
+
+    // U-04: atajos de teclado. El MainForm WinForms original NO tenía ninguno; son
+    // funcionalidad nueva (decisión del dueño). Se registran a nivel de ventana en la raíz del
+    // contenido (RaizVentana), así que funcionan desde cualquier página. Las acciones de boleto
+    // (Nueva/Abrir/Guardar) pasan por NavegarConAccion, que si no estás en Inicio navega allí y
+    // ejecuta la acción — el mismo comportamiento que pulsar el botón de la barra.
+    private void ConfigurarAtajosTeclado()
+    {
+        try
+        {
+            AgregarAtajo(Windows.System.VirtualKey.N, Windows.System.VirtualKeyModifiers.Control,
+                () => NavegarConAccion(AccionInicio.NuevaCombinacion));
+            AgregarAtajo(Windows.System.VirtualKey.O, Windows.System.VirtualKeyModifiers.Control,
+                () => NavegarConAccion(AccionInicio.AbrirCombinacion));
+            AgregarAtajo(Windows.System.VirtualKey.S, Windows.System.VirtualKeyModifiers.Control,
+                () => NavegarConAccion(AccionInicio.GuardarCombinacion));
+            AgregarAtajo(Windows.System.VirtualKey.F5, Windows.System.VirtualKeyModifiers.None,
+                () => Navegar(typeof(CalculaColumnasFrmPage)));
+            AgregarAtajo(Windows.System.VirtualKey.F1, Windows.System.VirtualKeyModifiers.None,
+                () => Navegar(typeof(AyudaFrmPage)));
+            AgregarAtajo(Windows.System.VirtualKey.Escape, Windows.System.VirtualKeyModifiers.None,
+                () => { if (ContentFrame.CanGoBack) ContentFrame.GoBack(); });
+        }
+        catch (Exception ex)
+        {
+            Services.Log.Error("MainWindow.ConfigurarAtajosTeclado", ex);
+        }
+    }
+
+    private void AgregarAtajo(Windows.System.VirtualKey tecla, Windows.System.VirtualKeyModifiers mod, Action accion)
+    {
+        var atajo = new KeyboardAccelerator { Key = tecla, Modifiers = mod };
+        atajo.Invoked += (_, e) => { e.Handled = true; accion(); };
+        RaizVentana.KeyboardAccelerators.Add(atajo);
     }
 
     // Ejecuta una acción de la barra "Archivo" sobre la pantalla Inicio. Si ya estamos en
@@ -540,7 +795,11 @@ public sealed partial class MainWindow : Window
     {
         if (ContentFrame.Content is MainPage paginaViva)
         {
-            _ = paginaViva.ViewModel.EjecutarAccionAsync(accion);
+            // B-06: la Task se OBSERVA (antes `_ = ...`): una excepción en Abrir/Guardar
+            // combinación se perdía con la Task descartada y la acción fallaba en silencio.
+            Services.AppServices.EjecutarObservandoErrores(
+                () => paginaViva.ViewModel.EjecutarAccionAsync(accion),
+                "MainWindow.NavegarConAccion → " + accion);
         }
         else
         {
@@ -560,7 +819,8 @@ public sealed partial class MainWindow : Window
     private void IniciarSmokeTest()
     {
         _smokeLog = Path.Combine(Path.GetTempPath(), "free1x2_smoke.log");
-        try { File.WriteAllText(_smokeLog, "SMOKE START\r\n"); } catch { }
+        try { File.WriteAllText(_smokeLog, "SMOKE START\r\n"); }
+        catch (Exception ex) { Services.Log.Error("MainWindow.IniciarSmokeTest", ex); }
 
         _smokeRuta = new List<Type> { typeof(MainPage) };
         foreach (var p in PortedPagesRegistry.All)
@@ -604,6 +864,7 @@ public sealed partial class MainWindow : Window
 
     private void SmokeAppend(string linea)
     {
-        try { File.AppendAllText(_smokeLog, linea + "\r\n"); } catch { }
+        try { File.AppendAllText(_smokeLog, linea + "\r\n"); }
+        catch (Exception ex) { Services.Log.Error("MainWindow.SmokeAppend", ex); }
     }
 }

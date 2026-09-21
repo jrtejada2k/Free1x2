@@ -130,10 +130,12 @@
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <Button
                             Content="Salvar Rangos"
-                            Command="{x:Bind ViewModel.SalvarRangosCommand}" />
+                            Command="{x:Bind ViewModel.SalvarRangosCommand}"
+                            AutomationProperties.Name="Salvar rangos" />
                         <Button
                             Content="Leer Rangos"
-                            Command="{x:Bind ViewModel.LeerRangosCommand}" />
+                            Command="{x:Bind ViewModel.LeerRangosCommand}"
+                            AutomationProperties.Name="Leer rangos" />
                         <TextBlock
                             VerticalAlignment="Center"
                             Style="{StaticResource SecondaryTextBlockStyle}"
@@ -164,16 +166,20 @@
                         <Button
                             Content="Calcular"
                             Style="{StaticResource AccentButtonStyle}"
-                            Command="{x:Bind ViewModel.CalcularCommand}" />
+                            Command="{x:Bind ViewModel.CalcularCommand}"
+                            AutomationProperties.Name="Calcular columnas admitidas" />
                         <Button
                             Content="Grabar Resultado"
-                            Command="{x:Bind ViewModel.GrabarResultadoCommand}" />
+                            Command="{x:Bind ViewModel.GrabarResultadoCommand}"
+                            AutomationProperties.Name="Grabar resultado" />
                         <Button
                             Content="Exportar"
-                            Command="{x:Bind ViewModel.ExportarCommand}" />
+                            Command="{x:Bind ViewModel.ExportarCommand}"
+                            AutomationProperties.Name="Exportar resultado" />
                         <Button
                             Content="Cancelar"
-                            Command="{x:Bind ViewModel.CancelarCommand}" />
+                            Command="{x:Bind ViewModel.CancelarCommand}"
+                            AutomationProperties.Name="Cancelar" />
                     </StackPanel>
 
                     <Grid ColumnSpacing="10" RowSpacing="8">
@@ -228,13 +234,16 @@
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <Button
                             Content="Cargar Ganadoras"
-                            Command="{x:Bind ViewModel.CargarGanadorasCommand}" />
+                            Command="{x:Bind ViewModel.CargarGanadorasCommand}"
+                            AutomationProperties.Name="Cargar columnas ganadoras" />
                         <Button
                             Content="Anterior"
-                            Command="{x:Bind ViewModel.GanadoraAnteriorCommand}" />
+                            Command="{x:Bind ViewModel.GanadoraAnteriorCommand}"
+                            AutomationProperties.Name="Ganadora anterior" />
                         <Button
                             Content="Siguiente"
-                            Command="{x:Bind ViewModel.GanadoraSiguienteCommand}" />
+                            Command="{x:Bind ViewModel.GanadoraSiguienteCommand}"
+                            AutomationProperties.Name="Ganadora siguiente" />
                         <TextBlock
                             VerticalAlignment="Center"
                             Style="{StaticResource SecondaryTextBlockStyle}"
@@ -251,7 +260,8 @@
 
                     <Button
                         Content="Analizar"
-                        Command="{x:Bind ViewModel.AnalizarCommand}" />
+                        Command="{x:Bind ViewModel.AnalizarCommand}"
+                        AutomationProperties.Name="Analizar columna ganadora" />
 
                     <Grid ColumnSpacing="12" RowSpacing="8">
                         <Grid.ColumnDefinitions>

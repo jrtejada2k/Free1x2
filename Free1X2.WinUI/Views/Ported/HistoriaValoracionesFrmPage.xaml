@@ -36,7 +36,8 @@
                             SmallChange="1"
                             SpinButtonPlacementMode="Inline"
                             Width="160"
-                            HorizontalAlignment="Left" />
+                            HorizontalAlignment="Left"
+                            AutomationProperties.Name="Jornada a guardar" />
                     </StackPanel>
 
                     <!-- Temporada (legacy: txTemporada + btTemporadaAnterior/Siguiente; txTemporada2 = Temporada+1) -->
@@ -49,7 +50,8 @@
                                 Value="{x:Bind ViewModel.Temporada, Mode=TwoWay}"
                                 SmallChange="1"
                                 SpinButtonPlacementMode="Inline"
-                                Width="160" />
+                                Width="160"
+                                AutomationProperties.Name="Temporada" />
                             <TextBlock
                                 Text="/"
                                 VerticalAlignment="Center"
@@ -97,15 +99,18 @@
                                 Grid.Column="0"
                                 Text="{x:Bind ViewModel.NombreFichero, Mode=OneWay}"
                                 IsReadOnly="True"
-                                PlaceholderText="Ningún fichero seleccionado" />
+                                PlaceholderText="Ningún fichero seleccionado"
+                                AutomationProperties.Name="Fichero histórico seleccionado" />
                             <Button
                                 Grid.Column="1"
                                 Content="Abrir…"
-                                Command="{x:Bind ViewModel.SeleccionarFicheroCommand}" />
+                                Command="{x:Bind ViewModel.SeleccionarFicheroCommand}"
+                                AutomationProperties.Name="Abrir fichero histórico" />
                             <Button
                                 Grid.Column="2"
                                 Content="Nuevo…"
-                                Command="{x:Bind ViewModel.NuevoFicheroCommand}" />
+                                Command="{x:Bind ViewModel.NuevoFicheroCommand}"
+                                AutomationProperties.Name="Nuevo fichero histórico" />
                         </Grid>
                     </StackPanel>
                 </StackPanel>
@@ -117,10 +122,12 @@
                     Content="Guardar"
                     Style="{StaticResource AccentButtonStyle}"
                     IsEnabled="{x:Bind ViewModel.PuedeGuardar, Mode=OneWay}"
-                    Command="{x:Bind ViewModel.GuardarCommand}" />
+                    Command="{x:Bind ViewModel.GuardarCommand}"
+                    AutomationProperties.Name="Guardar valoraciones en el histórico" />
                 <Button
                     Content="Cancelar"
-                    Command="{x:Bind ViewModel.CancelarCommand}" />
+                    Command="{x:Bind ViewModel.CancelarCommand}"
+                    AutomationProperties.Name="Cancelar" />
             </StackPanel>
 
             <TextBlock

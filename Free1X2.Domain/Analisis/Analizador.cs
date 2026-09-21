@@ -20,6 +20,7 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
+using System;
 using System.Collections;
 using Free1X2.EntradaSalida;
 using Free1X2.Utils;
@@ -33,7 +34,9 @@ namespace Free1X2.Analisis
         private IArchivoColumnas comCols;
 		
 		private ArrayList comColsIter=new ArrayList();
-		private BitArray Bits = new BitArray(4782969,false);
+		// P-11: InicializarNumeroDePartidos() reasigna Bits al conocer el nº de
+		// partidos de los ficheros comparados; no hace falta el BitArray de 4,78 M aquí.
+		private BitArray Bits;
         private int[] pot = new int[] { 1, 3, 9, 27, 81, 243, 729, 2187, 6561, 19683, 59049, 177147, 531441, 1594323, 4782969, 14348907, 43046721 };
 
         private int premioMinimo = 10;
@@ -62,7 +65,10 @@ namespace Free1X2.Analisis
         }
         private void InicializaTemporales()
         {
-            premiosTemp = new int[17];
+            // Menor (F3): antes se asignaba un int[17] por CADA columna base comparada.
+            // El array es privado y se reescribe por completo, así que limpiarlo in situ
+            // da el mismo estado inicial (todo 0).
+            Array.Clear(premiosTemp, 0, premiosTemp.Length);
         }
 		public void ComparaCombinaciones(string combFileBase, string combFile)
 		{

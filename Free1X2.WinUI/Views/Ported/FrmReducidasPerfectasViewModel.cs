@@ -157,17 +157,8 @@ public partial class FrmReducidasPerfectasViewModel : ObservableObject
     [RelayCommand]
     private async Task SeleccionarArchivo()
     {
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            DefaultFileExtension = ".txt",
-            SuggestedFileName = "reducida",
-        };
-        picker.FileTypeChoices.Add("Columnas", new List<string> { ".txt" });
-        picker.FileTypeChoices.Add("Todos los archivos", new List<string> { "." });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? archivo = await picker.PickSaveFileAsync();
+        StorageFile? archivo = await PickerHelper.GuardarConExtensionPorDefectoAsync(
+            "reducida", ".txt", ("Columnas", ".txt"), ("Todos los archivos", "."));
         if (archivo is null)
         {
             return;
@@ -254,9 +245,11 @@ public partial class FrmReducidasPerfectasViewModel : ObservableObject
             await Windows.System.Launcher.LaunchUriAsync(
                 new Uri("http://www.foro1x2.com/viewtopic.php?t=4445"));
         }
-        catch
+        catch (Exception ex)
         {
             // Lanzador no disponible: se ignora (equivale a no poder abrir el navegador).
+            // C-24: el fallback se mantiene; solo se anade la traza para poder diagnosticar.
+            Log.Error("FrmReducidasPerfectasViewModel.AbrirHiloForo", ex);
         }
     }
 

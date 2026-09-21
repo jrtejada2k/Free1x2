@@ -30,7 +30,7 @@ De `Free1X2.WinUI/Free1X2.WinUI.csproj`:
 | `OutputType` | `WinExe` | :4 |
 | `TargetFramework` | `net8.0-windows10.0.19041.0` | :5 |
 | `TargetPlatformMinVersion` | `10.0.17763.0` | :6 |
-| `Version` / `AssemblyVersion` | `0.78.0` | :15-17 |
+| `Version` / `AssemblyVersion` | `0.83.0` | :15-17 |
 | `Platforms` | `x86;x64;ARM64` | :18 |
 | `RuntimeIdentifier` | `win-x64` | :26 |
 | `UseWinUI` | `true` | :20 |
@@ -342,6 +342,34 @@ La **estructura de UI está completa Y la lógica de dominio está portada**: la
 - Único clic muerto user-facing arreglado: enlace **"Créditos"** en *Acerca de* → navega a `CreditosFrmPage` (confirmado en runtime).
 - Cierre fiel al original (`Frame.GoBack`) restaurado en *Cambio de puntos*, *Analizar fichero* y *Config CPs* (el original cerraba esos diálogos).
 - Comentario "111 pantallas" en `PortedPages.cs` corregido a **108**.
+
+### Cerrado en 0.83.0 «Rarotonga» (plan de mejoras post-auditoría)
+
+> Las cifras de arriba (107/107, 52 tests) son de la auditoría de migración original. Tras el plan
+> de mejoras (fases F1–F5 de [`PLAN_MEJORAS.md`](PLAN_MEJORAS.md)) el gate vigente es **build 0 err ·
+> `dotnet test` 133/133 · smoke 109/109**, con igualdad del motor verificada por **SHA-256** contra la
+> DLL publicada de v0.82.0. Nada de esto cambia resultados del motor (regla R1).
+
+- **F1 — bugs de UI + logging.** 12 correcciones: servicio de traza `Services/Log.cs`
+  (`%LocalAppData%\Free1X2\log.txt`, rotación ~1 MB, thread-safe); cola de diálogos anti-solape;
+  nombres compuestos de equipo en el boleto; guarda anti-doble; `COMException` del cálculo múltiple;
+  **6 clics muertos** cableados en `AyudaFrmPage`.
+- **F3 — motor (salida idéntica, SHA-256).** Optimizaciones P-01…P-17 sin cambio de resultados
+  + **tests de igualdad** byte a byte sobre ficheros reales; total de tests 125 → **133**.
+- **T1 — `ReductorTM`.** Corregido el cuelgue con una columna sin emparejamientos (N-02) + `Inicializa`
+  idempotente (N-03) + bombeo de UI con *throttle* en `Analizador` (P-20). `Free1X2.Domain/Reduccion/ReductorTM.cs`.
+- **T2/T3 — refactors de UI.** 168 *file pickers* → `Services/PickerHelper.cs` (C-17); cuarteto
+  Guardar/Abrir/Copiar/Pegar → `Views/Ported/_Helpers/FiltroArchivoViewModelBase.cs` (12/16 VMs, C-18).
+- **U-01/U-02 — tema.** Toggle Claro/Oscuro/Sistema en menú *Ver*, persistido (`Services/TemaApp.cs`,
+  `%LocalAppData%\Free1X2\tema.json`).
+- **U-04/U-05 — ventana.** Tamaño mínimo **900×600** vía `WM_GETMINMAXINFO` (WinAppSDK 1.6 no expone
+  `PreferredMinimumWidth/Height`) + atajos Ctrl+N/O/S, F5, F1, Esc. `MainWindow.xaml.cs`.
+- **U-06 — icono.** `AppWindow.SetIcon(Assets\app.ico)` para la barra de título (apps desempaquetadas
+  no heredan el `<ApplicationIcon>` del exe para ese icono). `MainWindow.xaml.cs`.
+- **U-09 — diálogos.** Orden de botones unificado a Aceptar→Cancelar.
+- **U-10 — localización (infra + piloto).** `Services/IdiomaApp.cs` + `Strings/{es,en-US}/Resources.resw`;
+  menú *Ver → Idioma*; pantalla piloto `CreditosFrmPage` bilingüe (el resto de páginas, pendiente).
+- **U-12 — accesibilidad.** **123** `AutomationProperties.Name` en 20 páginas.
 
 ### Resumen del estado
 

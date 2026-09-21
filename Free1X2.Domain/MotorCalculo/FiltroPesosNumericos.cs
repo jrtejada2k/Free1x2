@@ -11,6 +11,9 @@ namespace Free1X2.MotorCalculo
         List<long> figuras = new List<long>();
 
         FiguraCondicion figuraPesos;
+        // P-10: buffer reutilizable de ObtenerFiguraLong(). Antes se asignaba un
+        // int[10] (y un FiguraCondicion) en CADA columna analizada con figuras activas.
+        readonly int[] figTempReutilizable = new int[10];
 
 		private int pesoGlobal;
 		private int pesoUnos;
@@ -170,9 +173,14 @@ namespace Free1X2.MotorCalculo
 
         public void ObtenerFiguraLong()
         {
-            figuraPesos = new FiguraCondicion();
+            // P-10: se reutilizan la instancia y el buffer en vez de asignarlos por columna.
+            // Ambos se escriben por completo antes de leerse (Array.Clear deja el mismo
+            // estado inicial que new int[10], y figuraPesos.Figura se reasigna siempre),
+            // así que el resultado es idéntico.
+            if (figuraPesos == null) figuraPesos = new FiguraCondicion();
 
-            int[] figTemp = new int[10]; // Para 14 el máximo es 9
+            int[] figTemp = figTempReutilizable; // Para 14 el máximo es 9
+            System.Array.Clear(figTemp, 0, figTemp.Length);
 
             figTemp[PesoUnos]++;
             figTemp[PesoEquis]++;

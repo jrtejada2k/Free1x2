@@ -18,21 +18,26 @@
 
             <!-- Encabezado: título real del form -->
             <StackPanel Grid.Row="0" Spacing="6">
+                <!-- U-10: textos migrados a x:Uid + Strings\{es,en-US}\Resources.resw.
+                     El AutomationProperties.Name se localiza vía la clave attached-property del
+                     .resw; se conserva el literal en español como fallback de diseño (si la clave
+                     no resolviera, no habría regresión de accesibilidad respecto a U-12). -->
                 <HyperlinkButton x:Name="WebsiteLink"
+                                 x:Uid="CreditosWebsiteLink"
                                  Padding="0"
                                  Click="OnWebsiteClick"
                                  AutomationProperties.Name="Visitar el sitio web clubprogol.com">
-                    <TextBlock Text="Equipo Free1X2"
+                    <TextBlock x:Uid="CreditosTituloEquipo"
                                Style="{StaticResource PageTitleTextBlockStyle}" />
                 </HyperlinkButton>
-                <TextBlock Text="www.clubprogol.com"
+                <TextBlock x:Uid="CreditosWebUrl"
                            Style="{StaticResource SecondaryTextBlockStyle}" />
             </StackPanel>
 
             <!-- Card con la lista de colaboradores -->
             <Border Grid.Row="1" Style="{StaticResource AppCardStyle}">
                 <StackPanel Spacing="6">
-                    <TextBlock Text="Colaboradores"
+                    <TextBlock x:Uid="CreditosColaboradores"
                                Style="{StaticResource SectionHeaderTextBlockStyle}" />
 
                     <ItemsControl x:Name="CreditsList" ItemsSource="{x:Bind Creditos}">
@@ -73,11 +78,11 @@
             <!-- Nota de agradecimiento (lnkBtesters) -->
             <Border Grid.Row="2" Style="{StaticResource AppCardStyle}">
                 <StackPanel Spacing="8" HorizontalAlignment="Center">
-                    <TextBlock TextAlignment="Center"
+                    <TextBlock x:Uid="CreditosGraciasNota"
+                               TextAlignment="Center"
                                TextWrapping="Wrap"
-                               Style="{StaticResource SecondaryTextBlockStyle}"
-                               Text="Free1X2 nunca existiría sin las sugerencias y las ideas de los usuarios de clubprogol.com" />
-                    <TextBlock Text="¡Gracias!"
+                               Style="{StaticResource SecondaryTextBlockStyle}" />
+                    <TextBlock x:Uid="CreditosGracias"
                                TextAlignment="Center"
                                Style="{StaticResource CardTitleTextBlockStyle}" />
                 </StackPanel>

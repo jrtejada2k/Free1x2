@@ -167,15 +167,7 @@ public partial class AnalizadorJPMViewModel : ObservableObject
     [RelayCommand]
     private async Task IniciarAsync()
     {
-        var picker = new Windows.Storage.Pickers.FileOpenPicker
-        {
-            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add(".txt");
-        picker.FileTypeFilter.Add("*");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSingleFileAsync();
+        var file = await PickerHelper.AbrirAsync(".txt", "*");
         if (file == null) return;
 
         FicheroEntrada = file.Name;
@@ -250,15 +242,7 @@ public partial class AnalizadorJPMViewModel : ObservableObject
             return;
         }
 
-        var picker = new Windows.Storage.Pickers.FileSavePicker
-        {
-            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "ColumnasSalida",
-        };
-        picker.FileTypeChoices.Add("ColumnasSalida", new List<string> { ".txt" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSaveFileAsync();
+        var file = await PickerHelper.GuardarAsync("ColumnasSalida", ("ColumnasSalida", ".txt"));
         if (file == null) return;
 
         // Captura de las casillas marcadas (legacy: ck00..ck35 -> marcas implícitas en el switch).
@@ -319,15 +303,7 @@ public partial class AnalizadorJPMViewModel : ObservableObject
     [RelayCommand]
     private async Task CargarGanadorasAsync()
     {
-        var picker = new Windows.Storage.Pickers.FileOpenPicker
-        {
-            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add(".txt");
-        picker.FileTypeFilter.Add("*");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSingleFileAsync();
+        var file = await PickerHelper.AbrirAsync(".txt", "*");
         if (file == null) return;
 
         string ruta = file.Path;

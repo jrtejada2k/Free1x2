@@ -58,11 +58,14 @@
                                             <TextBlock Grid.Column="0" Text="{x:Bind Numero}" VerticalAlignment="Center"
                                                        Style="{StaticResource SecondaryTextBlockStyle}" />
                                             <NumberBox Grid.Column="1" Value="{x:Bind Valor1, Mode=TwoWay}"
-                                                       SmallChange="1" Minimum="0" SpinButtonPlacementMode="Hidden" />
+                                                       SmallChange="1" Minimum="0" SpinButtonPlacementMode="Hidden"
+                                                       AutomationProperties.Name="Valor del signo 1" />
                                             <NumberBox Grid.Column="2" Value="{x:Bind ValorX, Mode=TwoWay}"
-                                                       SmallChange="1" Minimum="0" SpinButtonPlacementMode="Hidden" />
+                                                       SmallChange="1" Minimum="0" SpinButtonPlacementMode="Hidden"
+                                                       AutomationProperties.Name="Valor del signo X" />
                                             <NumberBox Grid.Column="3" Value="{x:Bind Valor2, Mode=TwoWay}"
-                                                       SmallChange="1" Minimum="0" SpinButtonPlacementMode="Hidden" />
+                                                       SmallChange="1" Minimum="0" SpinButtonPlacementMode="Hidden"
+                                                       AutomationProperties.Name="Valor del signo 2" />
                                         </Grid>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
@@ -94,36 +97,46 @@
 
                                 <TextBlock Grid.Row="0" Grid.Column="0" Text="R1" VerticalAlignment="Center"
                                            Style="{StaticResource SecondaryTextBlockStyle}" />
-                                <TextBox Grid.Row="0" Grid.Column="1" Text="{x:Bind ViewModel.Rango1, Mode=TwoWay}" />
+                                <TextBox Grid.Row="0" Grid.Column="1" Text="{x:Bind ViewModel.Rango1, Mode=TwoWay}"
+                                         AutomationProperties.Name="Rango de aciertos R1" />
                                 <TextBlock Grid.Row="0" Grid.Column="2" Text="R2" VerticalAlignment="Center"
                                            Style="{StaticResource SecondaryTextBlockStyle}" />
-                                <TextBox Grid.Row="0" Grid.Column="3" Text="{x:Bind ViewModel.Rango2, Mode=TwoWay}" />
+                                <TextBox Grid.Row="0" Grid.Column="3" Text="{x:Bind ViewModel.Rango2, Mode=TwoWay}"
+                                         AutomationProperties.Name="Rango de aciertos R2" />
 
                                 <TextBlock Grid.Row="1" Grid.Column="0" Text="R3" VerticalAlignment="Center"
                                            Style="{StaticResource SecondaryTextBlockStyle}" />
-                                <TextBox Grid.Row="1" Grid.Column="1" Text="{x:Bind ViewModel.Rango3, Mode=TwoWay}" />
+                                <TextBox Grid.Row="1" Grid.Column="1" Text="{x:Bind ViewModel.Rango3, Mode=TwoWay}"
+                                         AutomationProperties.Name="Rango de aciertos R3" />
                                 <TextBlock Grid.Row="1" Grid.Column="2" Text="R4" VerticalAlignment="Center"
                                            Style="{StaticResource SecondaryTextBlockStyle}" />
-                                <TextBox Grid.Row="1" Grid.Column="3" Text="{x:Bind ViewModel.Rango4, Mode=TwoWay}" />
+                                <TextBox Grid.Row="1" Grid.Column="3" Text="{x:Bind ViewModel.Rango4, Mode=TwoWay}"
+                                         AutomationProperties.Name="Rango de aciertos R4" />
 
                                 <TextBlock Grid.Row="2" Grid.Column="0" Text="R5" VerticalAlignment="Center"
                                            Style="{StaticResource SecondaryTextBlockStyle}" />
-                                <TextBox Grid.Row="2" Grid.Column="1" Text="{x:Bind ViewModel.Rango5, Mode=TwoWay}" />
+                                <TextBox Grid.Row="2" Grid.Column="1" Text="{x:Bind ViewModel.Rango5, Mode=TwoWay}"
+                                         AutomationProperties.Name="Rango de aciertos R5" />
                                 <TextBlock Grid.Row="2" Grid.Column="2" Text="R6" VerticalAlignment="Center"
                                            Style="{StaticResource SecondaryTextBlockStyle}" />
-                                <TextBox Grid.Row="2" Grid.Column="3" Text="{x:Bind ViewModel.Rango6, Mode=TwoWay}" />
+                                <TextBox Grid.Row="2" Grid.Column="3" Text="{x:Bind ViewModel.Rango6, Mode=TwoWay}"
+                                         AutomationProperties.Name="Rango de aciertos R6" />
 
                                 <TextBlock Grid.Row="3" Grid.Column="0" Text="R7" VerticalAlignment="Center"
                                            Style="{StaticResource SecondaryTextBlockStyle}" />
-                                <TextBox Grid.Row="3" Grid.Column="1" Text="{x:Bind ViewModel.Rango7, Mode=TwoWay}" />
+                                <TextBox Grid.Row="3" Grid.Column="1" Text="{x:Bind ViewModel.Rango7, Mode=TwoWay}"
+                                         AutomationProperties.Name="Rango de aciertos R7" />
                                 <TextBlock Grid.Row="3" Grid.Column="2" Text="Recorr." VerticalAlignment="Center"
                                            Style="{StaticResource SecondaryTextBlockStyle}" />
-                                <TextBox Grid.Row="3" Grid.Column="3" Text="{x:Bind ViewModel.RangoRecorrido, Mode=TwoWay}" />
+                                <TextBox Grid.Row="3" Grid.Column="3" Text="{x:Bind ViewModel.RangoRecorrido, Mode=TwoWay}"
+                                         AutomationProperties.Name="Rango del recorrido" />
                             </Grid>
 
                             <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,4,0,0">
-                                <Button Content="Salvar rangos" Command="{x:Bind ViewModel.SalvarRangosCommand}" />
-                                <Button Content="Recuperar rangos" Command="{x:Bind ViewModel.RecuperarRangosCommand}" />
+                                <Button Content="Salvar rangos" Command="{x:Bind ViewModel.SalvarRangosCommand}"
+                                        AutomationProperties.Name="Salvar rangos" />
+                                <Button Content="Recuperar rangos" Command="{x:Bind ViewModel.RecuperarRangosCommand}"
+                                        AutomationProperties.Name="Recuperar rangos" />
                             </StackPanel>
                             <TextBlock Text="{x:Bind ViewModel.FicheroRangos, Mode=OneWay}"
                                        Style="{StaticResource SecondaryTextBlockStyle}" />
@@ -137,9 +150,12 @@
                         <TextBlock Text="Cálculo de columnas" Style="{StaticResource CardTitleTextBlockStyle}" />
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <Button Content="Calcular" Style="{StaticResource AccentButtonStyle}"
-                                    Command="{x:Bind ViewModel.CalcularCommand}" />
-                            <Button Content="Grabar resultado" Command="{x:Bind ViewModel.GrabarResultadoCommand}" />
-                            <Button Content="Exportar columnas" Command="{x:Bind ViewModel.ExportarColumnasCommand}" />
+                                    Command="{x:Bind ViewModel.CalcularCommand}"
+                                    AutomationProperties.Name="Calcular columnas" />
+                            <Button Content="Grabar resultado" Command="{x:Bind ViewModel.GrabarResultadoCommand}"
+                                    AutomationProperties.Name="Grabar resultado" />
+                            <Button Content="Exportar columnas" Command="{x:Bind ViewModel.ExportarColumnasCommand}"
+                                    AutomationProperties.Name="Exportar columnas" />
                         </StackPanel>
 
                         <Grid ColumnSpacing="12" Margin="0,4,0,0">
@@ -183,12 +199,16 @@
                             Style="{StaticResource SecondaryTextBlockStyle}" />
 
                         <StackPanel Orientation="Horizontal" Spacing="8">
-                            <Button Content="Cargar ganadoras" Command="{x:Bind ViewModel.CargarGanadorasCommand}" />
-                            <Button Content="-" Command="{x:Bind ViewModel.GanadoraAnteriorCommand}" />
+                            <Button Content="Cargar ganadoras" Command="{x:Bind ViewModel.CargarGanadorasCommand}"
+                                    AutomationProperties.Name="Cargar columnas ganadoras" />
+                            <Button Content="-" Command="{x:Bind ViewModel.GanadoraAnteriorCommand}"
+                                    AutomationProperties.Name="Ganadora anterior" />
                             <TextBlock Text="{x:Bind ViewModel.IndiceColGanadora, Mode=OneWay}"
                                        VerticalAlignment="Center" Style="{StaticResource BodyStrongTextBlockStyle}" />
-                            <Button Content="+" Command="{x:Bind ViewModel.GanadoraSiguienteCommand}" />
-                            <Button Content="Analizar" Command="{x:Bind ViewModel.AnalizarCommand}" />
+                            <Button Content="+" Command="{x:Bind ViewModel.GanadoraSiguienteCommand}"
+                                    AutomationProperties.Name="Ganadora siguiente" />
+                            <Button Content="Analizar" Command="{x:Bind ViewModel.AnalizarCommand}"
+                                    AutomationProperties.Name="Analizar columna ganadora" />
                         </StackPanel>
 
                         <TextBlock Text="{x:Bind ViewModel.FicheroGanadoras, Mode=OneWay}"

@@ -102,7 +102,8 @@ public partial class CombinarFiltrosViewModel : ObservableObject
         Filtros.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HayFiltros));
     }
 
-    private static DispatcherQueue? Disp => AppServices.UiDispatcher;
+    // C-26: el acceso directo al DispatcherQueue se sustituyó por UiHilo.Ejecutar, que
+    // comprueba el retorno de TryEnqueue y cubre el caso sin hilo de UI (headless).
 
     // ====== s2n / n2s propios de CombinarFiltros (NO ConvertidorDeBases) ======
     // X=0, 1=+1, 2=+2, dígito más significativo a la izquierda (legacy CombinarFiltros).
@@ -143,11 +144,7 @@ public partial class CombinarFiltrosViewModel : ObservableObject
     {
         // OpenFileDialog multiselección (*.txt). Valida que todos los filtros tengan el
         // mismo número de partidos (ArchivoColumnasTexto.ObtenNumSignos).
-        var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
-        picker.FileTypeFilter.Add(".txt");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        IReadOnlyList<StorageFile> files = await picker.PickMultipleFilesAsync();
+        IReadOnlyList<StorageFile> files = await PickerHelper.AbrirVariosAsync(".txt");
         if (files == null || files.Count == 0) return;
 
         foreach (StorageFile file in files)
@@ -185,11 +182,7 @@ public partial class CombinarFiltrosViewModel : ObservableObject
     [RelayCommand]
     private async Task CargarLista()
     {
-        var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
-        picker.FileTypeFilter.Add(".lst");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSingleFileAsync();
+        StorageFile? file = await PickerHelper.AbrirAsync(".lst");
         if (file == null) return;
 
         Filtros.Clear();
@@ -237,15 +230,7 @@ public partial class CombinarFiltrosViewModel : ObservableObject
     [RelayCommand]
     private async Task SalvarLista()
     {
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "Lista",
-        };
-        picker.FileTypeChoices.Add("SalvarLista", new List<string> { ".lst" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSaveFileAsync();
+        StorageFile? file = await PickerHelper.GuardarAsync("Lista", ("SalvarLista", ".lst"));
         if (file == null) return;
 
         try
@@ -289,7 +274,9 @@ public partial class CombinarFiltrosViewModel : ObservableObject
                     if (_salida) break;
                     int ctcols = 0;
                     FiltroFilaViewModel filaLocal = fila;
-                    Disp?.TryEnqueue(() => filaLocal.Columnas = 0);
+                    // C-26: UiHilo registra el false de TryEnqueue (cola de UI cerrada) y
+                    // cubre el caso headless, donde Disp es null y el valor no se asignaba.
+                    UiHilo.Ejecutar(() => filaLocal.Columnas = 0, "CombinarFiltros.Iniciar/reset");
 
                     if (!fila.Activo) continue;
 
@@ -313,9 +300,17 @@ public partial class CombinarFiltrosViewModel : ObservableObject
                     }
                     sr.Cerrar();
                     int ctcolsFinal = ctcols;
-                    Disp?.TryEnqueue(() => filaLocal.Columnas = ctcolsFinal);
+                    UiHilo.Ejecutar(() => filaLocal.Columnas = ctcolsFinal, "CombinarFiltros.Iniciar/columnas"); // C-26
                 }
             });
+        }
+        catch (Exception ex)
+        {
+            // B-12: había finally (que sí bajaba Procesando) pero NINGÚN catch: cualquier fallo
+            // de E/S fuera del try interno de ArchivoColumnasTexto llegaba al manejador global
+            // con un mensaje genérico y sin decir qué filtro se estaba recorriendo.
+            Log.Error("CombinarFiltros.Iniciar", ex);
+            AppServices.MostrarError("No se pudo combinar los filtros:\n\n" + ex.Message);
         }
         finally
         {
@@ -336,15 +331,7 @@ public partial class CombinarFiltrosViewModel : ObservableObject
     [RelayCommand]
     private async Task GrabarColumnas()
     {
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "Columnas",
-        };
-        picker.FileTypeChoices.Add("Columnas", new List<string> { ".txt" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSaveFileAsync();
+        StorageFile? file = await PickerHelper.GuardarAsync("Columnas", ("Columnas", ".txt"));
         if (file == null) return;
 
         int min = (int)Minimo;

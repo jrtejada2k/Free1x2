@@ -26,7 +26,7 @@ namespace Free1X2.WinUI.Views.Ported;
 /// WinForms SimetriasFrm. Persistencia (Guardar/Abrir/Copiar/Pegar) vía ArchivoCondiciones
 /// (.sim/.xml + Temp/tmp.sim) y Estadísticas vía CalculadorEstadisticas -> VisorEstadisticasPage.
 /// </summary>
-public partial class SimetriasFrmViewModel : ObservableObject
+public partial class SimetriasFrmViewModel : FiltroArchivoViewModelBase
 {
     // La fila de simetría se define como clase pública de nivel superior en
     // FilaSimetria.cs (necesario para x:DataType="vm:FilaSimetria" en el DataTemplate).
@@ -45,8 +45,14 @@ public partial class SimetriasFrmViewModel : ObservableObject
     /// <summary>Acción para navegar a otra página (la cablea la página con Frame.Navigate(tipo)).</summary>
     public Action<Type>? Navegar { get; set; }
 
+    // --- Lo específico del filtro para el cuarteto Guardar/Abrir/Copiar/Pegar (base C-18) ---
+    protected override string NombreSugerido => "Simetrias";
+    protected override (string etiqueta, string extension)[] TiposGuardar =>
+        new[] { ("Simetrias", ".sim"), ("Simetrias (XML)", ".xml") };
+    protected override string[] ExtensionesAbrir => new[] { ".sim", ".xml" };
+
     // Fichero temporal de copiar/pegar (legacy: StartupPath + "/Temp/tmp.sim").
-    private static string RutaTemporal =>
+    protected override string RutaTemporal =>
         Path.Combine(AppContext.BaseDirectory, "Temp", "tmp.sim");
 
     // Directorio de columnas ganadoras (legacy: StartupPath + "/Ganadoras/").
@@ -246,7 +252,7 @@ public partial class SimetriasFrmViewModel : ObservableObject
     }
 
     // Guarda en disco el filtro temporal (SimetriasFrm.guardar(), líneas 510-515).
-    private void GuardarEn(string nombreArchivo)
+    protected override void GuardarEn(string nombreArchivo)
     {
         var filtroTemp = ObtenerFiltroTemporal();
         if (filtroTemp is null) return;
@@ -255,7 +261,7 @@ public partial class SimetriasFrmViewModel : ObservableObject
     }
 
     // Abre la condición desde disco y vuelca sus valores (SimetriasFrm.abrir(), líneas 489-499).
-    private void AbrirDesde(string nombreArchivo)
+    protected override void AbrirDesde(string nombreArchivo)
     {
         var archComb = new ArchivoCondiciones();
         if (archComb.AbrirArchivoCombinacion(nombreArchivo))
@@ -280,79 +286,7 @@ public partial class SimetriasFrmViewModel : ObservableObject
         Navegar?.Invoke(typeof(VisorEstadisticasPage));
     }
 
-    [RelayCommand]
-    private async Task Guardar()
-    {
-        // Equivale a SimetriasFrm.menuCondiciones1_BGuardar (SimetriasFrm.cs líneas 500-509).
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "Simetrias",
-        };
-        picker.FileTypeChoices.Add("Simetrias", new List<string> { ".sim" });
-        picker.FileTypeChoices.Add("Simetrias (XML)", new List<string> { ".xml" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSaveFileAsync();
-        if (file == null) return;
-
-        try
-        {
-            GuardarEn(file.Path);
-        }
-        catch (Exception ex)
-        {
-            AppServices.MostrarError("No se pudo guardar: " + ex.Message);
-        }
-    }
-
-    [RelayCommand]
-    private async Task Abrir()
-    {
-        // Equivale a SimetriasFrm.menuCondiciones1_BAbrir (SimetriasFrm.cs líneas 472-488).
-        var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
-        picker.FileTypeFilter.Add(".sim");
-        picker.FileTypeFilter.Add(".xml");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSingleFileAsync();
-        if (file == null) return;
-
-        try
-        {
-            AbrirDesde(file.Path);
-        }
-        catch (Exception ex)
-        {
-            AppServices.MostrarError("No se pudo abrir: " + ex.Message);
-        }
-    }
-
-    [RelayCommand]
-    private void Copiar()
-    {
-        // Equivale a SimetriasFrm.menuCondiciones1_BCopiar (SimetriasFrm.cs líneas 516-523).
-        try
-        {
-            string ruta = RutaTemporal;
-            Directory.CreateDirectory(Path.GetDirectoryName(ruta)!);
-            GuardarEn(ruta);
-        }
-        catch (Exception ex)
-        {
-            AppServices.MostrarError("No se pudo copiar: " + ex.Message);
-        }
-    }
-
-    [RelayCommand]
-    private void Pegar()
-    {
-        // Equivale a SimetriasFrm.menuCondiciones1_BPegar (SimetriasFrm.cs líneas 524-540).
-        if (File.Exists(RutaTemporal))
-        {
-            AbrirDesde(RutaTemporal);
-        }
-    }
+    // Guardar/Abrir/Copiar/Pegar: heredados de FiltroArchivoViewModelBase (C-18).
 
     [RelayCommand]
     private void Borrar()

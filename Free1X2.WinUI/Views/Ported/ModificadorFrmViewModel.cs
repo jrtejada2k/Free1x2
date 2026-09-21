@@ -129,11 +129,7 @@ namespace Free1X2.WinUI.Views.Ported
         private async Task Abrir()
         {
             // Legacy AbrirClick: OpenFileDialog (*.txt).
-            var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
-            picker.FileTypeFilter.Add(".txt");
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-            var file = await picker.PickSingleFileAsync();
+            var file = await PickerHelper.AbrirAsync(".txt");
             if (file == null) return;
 
             _rutaEntrada = file.Path;
@@ -184,15 +180,7 @@ namespace Free1X2.WinUI.Views.Ported
             if (!FicheroCargado) return;
 
             string baseNombre = Path.GetFileNameWithoutExtension(_rutaEntrada);
-            var picker = new FileSavePicker
-            {
-                SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-                SuggestedFileName = baseNombre + "_modificado",
-            };
-            picker.FileTypeChoices.Add("Columnas", new List<string> { ".txt" });
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-            var file = await picker.PickSaveFileAsync();
+            var file = await PickerHelper.GuardarAsync(baseNombre + "_modificado", ("Columnas", ".txt"));
             if (file == null) return;
 
             string ruta = file.Path;

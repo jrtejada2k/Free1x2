@@ -31,6 +31,11 @@ namespace Free1X2.MotorCalculo
         List<long> figuras;
 
 		private string tipoValoracion = "suma";
+		// P-13: el switch sobre string se resolvía en CADA columna analizada.
+		// Se precalcula al asignar TipoValoracion. Se guardan los DOS casos para
+		// conservar el tercero (cualquier otro texto: no analiza nada).
+		private bool esSuma = true;
+		private bool esMultiplo;
 
 		private double[] valores1;
 		private double[] valoresX;
@@ -79,15 +84,16 @@ namespace Free1X2.MotorCalculo
 
 		private void AnalizaColumna(long columna)
 		{
-			switch(tipoValoracion)
+			// P-13: equivalente exacto del switch sobre tipoValoracion, sin comparar
+			// strings por columna.
+			if(esSuma)
 			{
-				case "suma":
-					AnalizaPorSumas(columna);
-					break;
-				case "multiplo":
-					AnalizaPorMultiplos(columna);
-					break;
-			}		
+				AnalizaPorSumas(columna);
+			}
+			else if(esMultiplo)
+			{
+				AnalizaPorMultiplos(columna);
+			}
 		}
         private void AnalizaPorSumas(long columna)
         {
@@ -310,7 +316,13 @@ namespace Free1X2.MotorCalculo
 	    public string TipoValoracion
 		{
 			get{ return tipoValoracion; }	
-			set{ tipoValoracion = value; }
+			set
+			{
+				tipoValoracion = value;
+				// P-13: misma semántica que el switch (comparación ordinal exacta).
+				esSuma = (tipoValoracion == "suma");
+				esMultiplo = (tipoValoracion == "multiplo");
+			}
 		}
 
 

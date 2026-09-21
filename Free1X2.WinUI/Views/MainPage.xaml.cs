@@ -29,6 +29,11 @@ public sealed partial class MainPage : Page
     protected override void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
+
+        // Suscribe el VM a AppState.Cambiado mientras la página está en pantalla (B-02). Se hace
+        // ANTES de ejecutar la acción de la barra, que puede disparar ese mismo evento.
+        ViewModel.Activar();
+
         // Al volver de una página de filtro, refresca los semáforos de condiciones
         // (equivale a MainForm.MainFormActivated → ActualizaGrupoPantalla).
         ViewModel.RefrescarPantalla();
@@ -38,8 +43,20 @@ public sealed partial class MainPage : Page
         // aquí con el token y la página invoca el comando equivalente del MainForm original.
         if (e.Parameter is AccionInicio accion && accion != AccionInicio.Ninguna)
         {
-            // Fire-and-forget: los comandos hacen su propio await y muestran sus diálogos.
-            _ = ViewModel.EjecutarAccionAsync(accion);
+            // B-06: la Task se OBSERVA. Antes era `_ = ViewModel.EjecutarAccionAsync(accion);`
+            // y una excepción (p. ej. abrir una combinación corrupta) se perdía con la Task
+            // descartada: la acción fallaba en silencio, sin log ni mensaje al usuario.
+            Services.AppServices.EjecutarObservandoErrores(
+                () => ViewModel.EjecutarAccionAsync(accion),
+                "MainPage.OnNavigatedTo → " + accion);
         }
+    }
+
+    protected override void OnNavigatedFrom(NavigationEventArgs e)
+    {
+        // Desuscribe el VM: sin esto, AppState (singleton) retenía este VM y esta página para
+        // siempre, y refrescaba todos los zombis en cada cambio del motor (B-02).
+        ViewModel.Desactivar();
+        base.OnNavigatedFrom(e);
     }
 }

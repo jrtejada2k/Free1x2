@@ -135,19 +135,12 @@ public partial class ReductorFrmViewModel : ObservableObject
     [RelayCommand]
     private async Task SeleccionarArchivoEntradaAsync()
     {
-        var picker = new Windows.Storage.Pickers.FileOpenPicker
-        {
-            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add(".txt");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSingleFileAsync();
+        var file = await PickerHelper.AbrirAsync(".txt");
         if (file == null) return;
 
         if (!EsArchivoEntradaValido(file.Path))
         {
-            Free1X2.Abstractions.UserDialogs.ShowError(
+            AppServices.MostrarError(
                 "El archivo de entrada debe tener 14 partidos.\n" +
                 "Compruebe además que no hay líneas en blanco adicionales al final del archivo.");
             return;
@@ -162,15 +155,7 @@ public partial class ReductorFrmViewModel : ObservableObject
     [RelayCommand]
     private async Task SeleccionarArchivoSalidaAsync()
     {
-        var picker = new Windows.Storage.Pickers.FileSavePicker
-        {
-            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "Reducido",
-        };
-        picker.FileTypeChoices.Add("Columnas", new List<string> { ".txt" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSaveFileAsync();
+        var file = await PickerHelper.GuardarAsync("Reducido", ("Columnas", ".txt"));
         if (file == null) return;
 
         _archivoSalida = file.Path;
@@ -225,7 +210,7 @@ public partial class ReductorFrmViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            Free1X2.Abstractions.UserDialogs.ShowError("Error en la reducción: " + ex.Message);
+            AppServices.MostrarError("Error en la reducción: " + ex.Message);
         }
         finally
         {

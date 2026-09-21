@@ -45,7 +45,8 @@
                         Grid.Row="1"
                         ItemsSource="{x:Bind ViewModel.Secciones}"
                         SelectedItem="{x:Bind ViewModel.SeccionSeleccionada, Mode=TwoWay}"
-                        SelectionMode="Single">
+                        SelectionMode="Single"
+                        AutomationProperties.Name="Secciones de análisis">
                         <ListView.ItemTemplate>
                             <DataTemplate x:DataType="ported:SeccionAnalisisItem">
                                 <Grid Padding="0,6" ColumnSpacing="8">
@@ -71,7 +72,8 @@
                         Grid.Row="2"
                         Content="Refrescar"
                         HorizontalAlignment="Stretch"
-                        Command="{x:Bind ViewModel.RefrescarCommand}" />
+                        Command="{x:Bind ViewModel.RefrescarCommand}"
+                        AutomationProperties.Name="Refrescar secciones de análisis" />
                 </Grid>
             </Border>
 

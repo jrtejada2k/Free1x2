@@ -199,7 +199,8 @@
     <Style x:Key="FiltroButtonActivoStyle" TargetType="Button"
            BasedOn="{StaticResource FiltroButtonBaseStyle}">
         <Setter Property="Background" Value="{ThemeResource AppSuccessBrush}" />
-        <Setter Property="Foreground" Value="White" />
+        <!-- U-02: el texto sobre el verde sale del token "on-color", no de un White literal. -->
+        <Setter Property="Foreground" Value="{ThemeResource AppOnSuccessBrush}" />
         <Setter Property="BorderBrush" Value="{ThemeResource AppSuccessBrush}" />
     </Style>
 
@@ -207,7 +208,8 @@
     <Style x:Key="FiltroButtonErrorStyle" TargetType="Button"
            BasedOn="{StaticResource FiltroButtonBaseStyle}">
         <Setter Property="Background" Value="{ThemeResource AppErrorBrush}" />
-        <Setter Property="Foreground" Value="White" />
+        <!-- U-02: el texto sobre el rojo sale del token "on-color", no de un White literal. -->
+        <Setter Property="Foreground" Value="{ThemeResource AppOnErrorBrush}" />
         <Setter Property="BorderBrush" Value="{ThemeResource AppErrorBrush}" />
     </Style>
 

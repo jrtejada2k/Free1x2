@@ -43,7 +43,8 @@
                     <Button Grid.Row="0" Grid.Column="0"
                             Content="Archivo entrada"
                             MinWidth="140"
-                            Command="{x:Bind ViewModel.SeleccionarArchivoEntradaCommand}" />
+                            Command="{x:Bind ViewModel.SeleccionarArchivoEntradaCommand}"
+                            AutomationProperties.Name="Seleccionar archivo de entrada" />
                     <TextBlock Grid.Row="0" Grid.Column="1"
                                VerticalAlignment="Center"
                                Style="{StaticResource SecondaryTextBlockStyle}"
@@ -53,7 +54,8 @@
                     <Button Grid.Row="1" Grid.Column="0"
                             Content="Archivo salida"
                             MinWidth="140"
-                            Command="{x:Bind ViewModel.SeleccionarArchivoSalidaCommand}" />
+                            Command="{x:Bind ViewModel.SeleccionarArchivoSalidaCommand}"
+                            AutomationProperties.Name="Seleccionar archivo de salida" />
                     <TextBlock Grid.Row="1" Grid.Column="1"
                                VerticalAlignment="Center"
                                Style="{StaticResource SecondaryTextBlockStyle}"
@@ -79,7 +81,8 @@
                     <!-- cmbNivel -->
                     <ComboBox MinWidth="100"
                               ItemsSource="{x:Bind ViewModel.NivelesReduccion}"
-                              SelectedItem="{x:Bind ViewModel.NivelSeleccionado, Mode=TwoWay}" />
+                              SelectedItem="{x:Bind ViewModel.NivelSeleccionado, Mode=TwoWay}"
+                              AutomationProperties.Name="Nivel de reducción" />
                 </StackPanel>
             </Border>
 
@@ -93,7 +96,8 @@
                         <ComboBox MinWidth="200"
                                   VerticalAlignment="Center"
                                   ItemsSource="{x:Bind ViewModel.MetodosReduccion}"
-                                  SelectedItem="{x:Bind ViewModel.MetodoSeleccionado, Mode=TwoWay}" />
+                                  SelectedItem="{x:Bind ViewModel.MetodoSeleccionado, Mode=TwoWay}"
+                                  AutomationProperties.Name="Método de reducción" />
                         <!-- chkExternas: HIDE (Collapsed) para "grandes archivos" /
                              "menos columnas 2", igual que chkExternas.Visible del legacy.
                              Visibility se bindea en el propio Control, nunca en el panel. -->
@@ -205,9 +209,11 @@
             <Button Content="Reducir"
                     Style="{StaticResource AccentButtonStyle}"
                     IsEnabled="{x:Bind ViewModel.PuedeReducir, Mode=OneWay}"
-                    Command="{x:Bind ViewModel.ReducirCommand}" />
+                    Command="{x:Bind ViewModel.ReducirCommand}"
+                    AutomationProperties.Name="Reducir columnas" />
             <Button Content="Cancelar"
-                    Command="{x:Bind ViewModel.CancelarCommand}" />
+                    Command="{x:Bind ViewModel.CancelarCommand}"
+                    AutomationProperties.Name="Cancelar" />
         </StackPanel>
 
     </Grid>

@@ -278,12 +278,25 @@ namespace Free1X2.Utils
 		public byte[]  byteCol2=new byte[] {0,0,0};
 		
 
-		public void ConvColumnaA3Bytes (string columna1, ref byte b1, ref byte b2, ref byte b3)
+		// Menor (F3): buffer de 15 caracteres reutilizado. El original hacía
+		// columna1 += "1" (un string nuevo por columna leída) solo para que existiese el
+		// índice 14 cuando la columna trae 14 signos. Aquí se copian los 15 primeros
+		// caracteres y las posiciones que falten se rellenan con '1', que es lo mismo
+		// que hacía la concatenación (el bucle nunca lee más allá del índice 14).
+		private readonly char[] bufColumna = new char[15];
+
+		public void ConvColumnaA3Bytes (string columna1sinRelleno, ref byte b1, ref byte b2, ref byte b3)
 		{
 			int i;
 
 			b1 = b2=b3=0;
-			columna1 +="1";
+			char[] columna1 = bufColumna;
+			// Fidelidad: con menos de 14 signos el original (columna1 += "1" y lectura del
+			// índice 14) lanzaba IndexOutOfRangeException. Se conserva ese comportamiento.
+			if (columna1sinRelleno.Length < 14) throw new System.IndexOutOfRangeException();
+			int copiar = columna1sinRelleno.Length < 15 ? columna1sinRelleno.Length : 15;
+			for (i = 0; i < copiar; i++) columna1[i] = columna1sinRelleno[i];
+			for (i = copiar; i < 15; i++) columna1[i] = '1';
 	
 			for ( i=0;i<5;i++ ) 
 			{ 

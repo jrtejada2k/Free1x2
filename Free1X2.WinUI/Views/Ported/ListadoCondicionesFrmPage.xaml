@@ -26,16 +26,20 @@
             Spacing="8">
             <Button
                 Command="{x:Bind ViewModel.ExpandirTodoCommand}"
-                Content="Expandir Todo" />
+                Content="Expandir Todo"
+                AutomationProperties.Name="Expandir todo el árbol" />
             <Button
                 Command="{x:Bind ViewModel.ColapsarTodoCommand}"
-                Content="Colapsar Todo" />
+                Content="Colapsar Todo"
+                AutomationProperties.Name="Colapsar todo el árbol" />
             <Button
                 Command="{x:Bind ViewModel.ExportarTextoCommand}"
-                Content="Exportar a Texto" />
+                Content="Exportar a Texto"
+                AutomationProperties.Name="Exportar a texto" />
             <Button
                 Command="{x:Bind ViewModel.ExportarHtmlCommand}"
-                Content="Exportar a Html" />
+                Content="Exportar a Html"
+                AutomationProperties.Name="Exportar a HTML" />
         </StackPanel>
 
         <!-- Árbol de condiciones (equivalente del TreeView legacy) -->
@@ -44,7 +48,8 @@
             Style="{StaticResource AppCardStyle}">
             <TreeView
                 ItemsSource="{x:Bind ViewModel.Condiciones}"
-                SelectionMode="Single">
+                SelectionMode="Single"
+                AutomationProperties.Name="Árbol de condiciones">
                 <TreeView.ItemTemplate>
                     <DataTemplate x:DataType="ported:CondicionNodo">
                         <TreeViewItem

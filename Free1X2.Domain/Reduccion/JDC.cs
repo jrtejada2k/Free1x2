@@ -20,6 +20,7 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 using System.Collections;
+using System.Collections.Generic;
 using Free1X2.EntradaSalida;
 using Free1X2.Utils;
 
@@ -27,10 +28,16 @@ namespace Free1X2.Reduccion
 {
 	public class JDC : Base, IReduccion
 	{ 
-		private ArrayList columnas;
-		private BitArray Bits = new BitArray(4782969,false);
-		private BitArray BitsExternos = new BitArray(4782969,false);
-		private int[] flags = new int[4782969];
+		// P-07: List<int> en vez de ArrayList. El ArrayList boxeaba cada índice
+		// (un objeto por columna, hasta 4,78 M) y obligaba a un unbox en cada
+		// acceso dentro de bucles O(n²). El orden de recorrido es idéntico.
+		private List<int> columnas;
+		// P-11: se asignaban aquí ~20 MB en el LOH (BitArray de 4 782 969 ×2 +
+		// int[4 782 969]) que InicializarNumeroDePartidos() reasigna en cuanto conoce
+		// el nº de partidos del fichero. Ahora se crean solo allí.
+		private BitArray Bits;
+		private BitArray BitsExternos;
+		private int[] flags;
 		private short Profundidad;
 		private short nivelProf;
         private int[] pot = new int[] { 1, 3, 9, 27, 81, 243, 729, 2187, 6561, 19683, 59049, 177147, 531441, 1594323, 4782969, 14348907, 43046721 };
@@ -205,7 +212,7 @@ namespace Free1X2.Reduccion
 		}
 		protected override void EntradaDeDatos(string archivoEntrada) 
 		{
-		    columnas = new ArrayList();
+		    columnas = new List<int>();
             IArchivoColumnas comBaseCols = new ArchivoColumnasTexto(archivoEntrada);
             noPartidos = comBaseCols.ObtenNumSignos();
             InicializarNumeroDePartidos();

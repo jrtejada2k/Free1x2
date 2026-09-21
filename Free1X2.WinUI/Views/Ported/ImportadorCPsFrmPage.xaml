@@ -30,7 +30,8 @@
                         Content="Importar CPs Simples (sólo columnas *.txt)"
                         Style="{StaticResource AccentButtonStyle}"
                         HorizontalAlignment="Left"
-                        Command="{x:Bind ViewModel.ImportarSimplesCommand}" />
+                        Command="{x:Bind ViewModel.ImportarSimplesCommand}"
+                        AutomationProperties.Name="Importar CPs simples desde archivo de texto" />
                 </StackPanel>
             </Border>
 
@@ -48,7 +49,8 @@
                         Content="Importar CPs con Ac, Acs, Fs (*.clm)"
                         Style="{StaticResource AccentButtonStyle}"
                         HorizontalAlignment="Left"
-                        Command="{x:Bind ViewModel.ImportarClmCommand}" />
+                        Command="{x:Bind ViewModel.ImportarClmCommand}"
+                        AutomationProperties.Name="Importar CPs con aciertos desde archivo clm" />
                 </StackPanel>
             </Border>
 
@@ -69,7 +71,8 @@
             <StackPanel Orientation="Horizontal" Spacing="5">
                 <Button
                     Content="Cancelar"
-                    Command="{x:Bind ViewModel.CancelarCommand}" />
+                    Command="{x:Bind ViewModel.CancelarCommand}"
+                    AutomationProperties.Name="Cancelar" />
             </StackPanel>
 
         </StackPanel>

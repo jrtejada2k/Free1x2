@@ -17,6 +17,7 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
+using System;
 using System.Text;
 
 namespace Free1X2.Utils
@@ -25,13 +26,21 @@ namespace Free1X2.Utils
 	{
         public static string ConvLongToStr(long L)
         {
-            StringBuilder res = new StringBuilder();
+            // P-15: el string se compone en un buffer de pila en vez de con un
+            // StringBuilder. Antes cada columna aceptada costaba 3 asignaciones
+            // (StringBuilder + su char[] interno + el string final); ahora solo queda
+            // el string final, que es el valor devuelto. Mismo recorrido, mismos
+            // caracteres y mismo orden. 22 posiciones cubren cualquier long >= 0
+            // (21 grupos de 3 bits); con un long negativo el bucle original no
+            // terminaba nunca, así que ese caso no es representable.
+            Span<char> buffer = stackalloc char[22];
+            int n = 0;
             while (L != 0)
             {
-                res.Append("2X1"[(int)(L & 7) >> 1]);
+                buffer[n++] = "2X1"[(int)(L & 7) >> 1];
                 L >>= 3;
             }
-            return res.ToString();
+            return new string(buffer.Slice(0, n));
         }
             ///<summary>
             ///Devuelve el signo del <paramref name="partido"/> en una columna <paramref name="L"/> expresada como un long
@@ -170,10 +179,13 @@ namespace Free1X2.Utils
             }
             return res;
         }
+        // Menor (F3): la tabla se creó una sola vez; antes ConvStrToLong la reconstruía
+        // (array + 15 literales) en cada llamada.
+        private static readonly string[] signosRelleno = new string[] { "1", "11", "111", "1111", "11111", "111111", "1111111", "11111111", "111111111", "1111111111", "11111111111", "111111111111", "1111111111111", "11111111111111", "111111111111111" };
+
         public static long ConvStrToLong(string s, int partidosDeMenos)
         {
-            string[] signos = new string[] { "1", "11", "111", "1111", "11111", "111111", "1111111", "11111111", "111111111", "1111111111", "11111111111", "111111111111", "1111111111111", "11111111111111", "111111111111111" };
-            s += signos[partidosDeMenos - 1];
+            s += signosRelleno[partidosDeMenos - 1];
             long res = 0;
             for (int i = s.Length - 1; i > -1; i--)
             {
@@ -288,15 +300,12 @@ namespace Free1X2.Utils
         {            
            //contamos el numero de bits en el long que estan puestos a 1
 
-           int count = 0;
-
-           while (b!=0)
-           {
-              b = b & (b-1);
-              count++;
-           }
-
-           return count;
+           // P-08: instrucción hardware (POPCNT) en vez del bucle de Kernighan, que
+           // daba hasta 14 vueltas y se ejecuta 2 veces por columna en
+           // FiltroNoVariantes.AnalizaColumna y también en FiltroDibujos y Escrutador.
+           // El resultado es el mismo para cualquier long: el cast a ulong no altera
+           // los bits, y el bucle original contaba igualmente los 64 bits.
+           return System.Numerics.BitOperations.PopCount((ulong)b);
         }
 
 		public int Compara( string ColumnaBase, string Columna)
@@ -305,12 +314,12 @@ namespace Free1X2.Utils
 		   
 			int noSignosDistintos = 0;
 			
-			char[] arrayColumnaBase = ColumnaBase.ToCharArray();
-			char[] arrayColumna = Columna.ToCharArray();			
-			
-			for(int i = 0; i < arrayColumnaBase.Length; i++ )
+			// P-06: se indexa el string directamente. Antes cada comparación copiaba
+			// las dos columnas a char[] (2 asignaciones), y estas comparaciones se
+			// hacen en bucles O(n²)/O(n³) de la reducción JLPM.
+			for(int i = 0; i < ColumnaBase.Length; i++ )
 			{
-				if( !arrayColumnaBase[i].Equals( arrayColumna[i] ) )
+				if( ColumnaBase[i] != Columna[i] )
 				{
 					noSignosDistintos++;
 				}			
@@ -324,12 +333,10 @@ namespace Free1X2.Utils
 			// Si las diferencias superal al máximo indicado, deja de comparar y sale.
 			//string columnas con formato 1x12x111111111
 			int noSignosDistintos = 0;
-			char[] arrayColumnaBase = ColumnaBase.ToCharArray();
-			char[] arrayColumna = Columna.ToCharArray();			
-			
-			for(int i = 0; i < arrayColumnaBase.Length; i++ )
+			// P-06: ver Compara(string,string) — sin ToCharArray().
+			for(int i = 0; i < ColumnaBase.Length; i++ )
 			{
-				if( !arrayColumnaBase[i].Equals( arrayColumna[i] ) )
+				if( ColumnaBase[i] != Columna[i] )
 				{
 					noSignosDistintos++;
 					if(noSignosDistintos>Maximo) return noSignosDistintos;
@@ -345,12 +352,11 @@ namespace Free1X2.Utils
 		
 			int noCoincidencias = 0;
 			
-			char[] arrayColumnaBase = ColumnaBase.ToCharArray();
-			char[] arrayColumna = Columna.ToCharArray();			
-			
-			for(int i = 0; i < arrayColumnaBase.Length; i++ )
+			// P-06: ver Compara(string,string) — sin ToCharArray(). JLPM llama a este
+			// método O(n²) veces por vuelta del bucle de reducción.
+			for(int i = 0; i < ColumnaBase.Length; i++ )
 			{
-				if( arrayColumnaBase[i].Equals( arrayColumna[i] ) )
+				if( ColumnaBase[i] == Columna[i] )
 				{
 					noCoincidencias++;
 				}			

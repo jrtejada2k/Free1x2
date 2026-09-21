@@ -20,7 +20,7 @@ namespace Free1X2.WinUI.Views.Ported
     /// gestiona, mediante pestañas:
     ///   - Columnas: pronóstico 1/X/2 por partido + rangos de Aciertos / Ac. Seguidos /
     ///     Fallos Seguidos, puntos y tolerancias locales.
-    ///   - Relaciones I/II/III: condiciones entre columnas (no portadas; ver TODOs).
+    ///   - Relaciones I/II/III: condiciones entre columnas (no portadas).
     ///   - Control Fallos: tabla (Columnas / Tolerancias / Aciertos) + puntuación (no portada).
     ///
     /// Cableado al motor real (pestaña Columnas): la lista de columnas probables se carga del

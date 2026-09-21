@@ -148,15 +148,7 @@ public partial class GenerarCPsViewModel : ObservableObject
     [RelayCommand]
     private async Task ImportarPorcentajes()
     {
-        var picker = new FileOpenPicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add(".txt");
-        picker.FileTypeFilter.Add("*");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? archivo = await picker.PickSingleFileAsync();
+        StorageFile? archivo = await PickerHelper.AbrirAsync(".txt", "*");
         if (archivo is null)
         {
             return;
@@ -286,20 +278,24 @@ public partial class GenerarCPsViewModel : ObservableObject
     /// <summary>Legacy LlenarTxtColumnas(): serializa el DataSet de columnas a texto (CSV por partido).</summary>
     private static string LlenarTxtColumnas(DataSet dsCPs)
     {
-        string txt = "";
+        // C-14: el bucle anidado (nº de columnas × 14 partidos) concatenaba sobre un string,
+        // reasignando y recopiando el texto entero en cada paso -> O(n²) en memoria y copias.
+        // El StringBuilder hace EXACTAMENTE los mismos Append, en el mismo orden, así que la
+        // cadena resultante es idéntica carácter a carácter.
+        var txt = new System.Text.StringBuilder();
         const string nl = "\r\n";
         for (int i = 0; i < dsCPs.Tables[0].Columns.Count; i++)
         {
             for (int j = 0; j < VariablesGlobales.NumeroPartidos; j++)
             {
-                txt += dsCPs.Tables[0].Rows[j][i].ToString();
+                txt.Append(dsCPs.Tables[0].Rows[j][i].ToString());
                 if (j < VariablesGlobales.NumeroPartidos - 1)
                 {
-                    txt += ",";
+                    txt.Append(',');
                 }
             }
-            txt += nl;
+            txt.Append(nl);
         }
-        return txt;
+        return txt.ToString();
     }
 }

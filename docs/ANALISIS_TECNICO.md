@@ -96,7 +96,7 @@ El dominio real sigue **dentro de `Free1X2/`** (WinForms); `Free1X2.Domain` solo
 3. **`VariablesGlobales` y `parametros.free1x2`.** 69 archivos dependen del singleton → reemplazar por config inyectada.
 4. **`DataSet`/`DataTable` en escrutinio** (19 archivos) → modelos POCO + colecciones observables.
 5. **Controles sin equivalente directo:** `DataVisualization` (gráficos), impresión de boletos, `DataGridView` masivos → Win2D/primitivas WinUI.
-6. **Superficie enorme:** ~115 forms a portar (estrategia strangler-fig, `PLAN_MIGRACION_WINUI3.md`).
+6. **Superficie enorme:** ~115 forms a portar (estrategia strangler-fig, [`historico/PLAN_MIGRACION_WINUI3.md`](historico/PLAN_MIGRACION_WINUI3.md)).
 
 **Puntos a favor:** la codificación `long` de columnas y `Comparador`/utils son lógica pura y portable; sin serialización binaria; red de tests golden-master + scaffold WinUI que compila y renderiza Fluent nativo.
 

@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using Free1X2.EntradaSalida;
 using Free1X2.Utils;
 
@@ -28,13 +29,19 @@ namespace Free1X2.Reduccion
 {
 	public class JDCDobleContador : Base, IReduccion
 	{ 
-		private ArrayList columnas;
-		private BitArray Bits = new BitArray(4782969,false);
-		private BitArray Reducida = new BitArray(4782969,false);
-		private BitArray MenorDistHamming = new BitArray(4782969,false);
-	    private BitArray Reductora = new BitArray(4782969,false);
-		private BitArray BitsExternos = new BitArray(4782969,false);
-		private int[] flags = new int[4782969];
+		// P-07: List<int> en vez de ArrayList (ver JDC.cs). Sort() sobre List<int>
+		// produce el mismo orden ascendente que ArrayList.Sort() con Comparer.Default:
+		// los enteros iguales son indistinguibles, así que la secuencia es idéntica.
+		private List<int> columnas;
+		// P-11: se asignaban aquí ~38 MB en el LOH (5 BitArray de 4 782 969 +
+		// int[4 782 969]) que InicializarNumeroDePartidos() reasigna en cuanto conoce
+		// el nº de partidos del fichero. Ahora se crean solo allí.
+		private BitArray Bits;
+		private BitArray Reducida;
+		private BitArray MenorDistHamming;
+	    private BitArray Reductora;
+		private BitArray BitsExternos;
+		private int[] flags;
 		private short Profundidad;
 		private short nivelProf;
         private int[] pot = new int[] { 1, 3, 9, 27, 81, 243, 729, 2187, 6561, 19683, 59049, 177147, 531441, 1594323, 4782969, 14348907, 43046721 };
@@ -55,7 +62,8 @@ namespace Free1X2.Reduccion
             indices = pot[noPartidos];
             Reducida = new BitArray(indices);
             MenorDistHamming = new BitArray(indices);
-            new BitArray(indices);
+            // P-11: aquí había un `new BitArray(indices);` cuyo resultado se descartaba
+            // (asignación perdida). Eliminarlo no cambia ningún resultado.
             Bits = new BitArray(indices);
             Reductora = new BitArray(indices);
             BitsExternos = new BitArray(indices);
@@ -283,7 +291,7 @@ namespace Free1X2.Reduccion
 
 	    protected override void EntradaDeDatos(string archivoEntrada) 
 		{
-		    columnas = new ArrayList();
+		    columnas = new List<int>();
             IArchivoColumnas comBaseCols = new ArchivoColumnasTexto(archivoEntrada);
             noPartidos = comBaseCols.ObtenNumSignos();
             InicializarNumeroDePartidos();

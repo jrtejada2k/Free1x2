@@ -36,7 +36,21 @@ namespace Free1X2.MotorCalculo
 
 		//variable apra almacenar que CP hacen cumplir 
 		//la condicion de grupos de CP
-		string strCPs = "";
+		// P-17: antes era un string CSV que se reconstruía por concatenación y se
+		// re-parseaba con Split + Convert.ToInt32 en CADA columna analizada. Ahora es una
+		// lista de enteros reutilizada; el orden de inserción es el mismo que tenía el CSV.
+		private readonly List<int> listaCPs = new List<int>();
+		// P-17: buffers reutilizables de AnalizaGruposColumnas (antes un int[15], un
+		// string[15] y 15 strings vacías por columna).
+		private readonly int[] noAciertosPorCP = new int[15];
+		private readonly List<int>[] cpsPorNoAciertos = CrearBuffersCPs();
+
+		private static List<int>[] CrearBuffersCPs()
+		{
+			List<int>[] buffers = new List<int>[15];
+			for(int i = 0; i < 15; i++) buffers[i] = new List<int>();
+			return buffers;
+		}
 
 		private int[] columnasRelacionadas;
 		//private RangosOpciones rangosSumas;
@@ -102,7 +116,7 @@ namespace Free1X2.MotorCalculo
 
 		protected void InicializaValores()
 		{
-			strCPs = "";
+			listaCPs.Clear();
 			sumaTemp=0;
 			noColConMismosAC=0;
 		}
@@ -112,8 +126,8 @@ namespace Free1X2.MotorCalculo
 			bool relacionValida = true;
 			ColumnaProbable cp;
 
-			//strCps tendra valores si se han analizado los grupos de columnas
-			if(strCPs == "")
+			//listaCPs tendra valores si se han analizado los grupos de columnas
+			if(listaCPs.Count == 0)
 			{
 				for(int i = 0; i < columnasRelacionadas.Length; i++)
 				{
@@ -123,11 +137,10 @@ namespace Free1X2.MotorCalculo
 			}
 			else
 			{
-				string[] cps = strCPs.Split(',');
-
-			    for(int i = 0; i< cps.Length; i++ )
+			    // P-17: se recorre la lista de enteros, sin Split ni Convert.ToInt32.
+			    for(int i = 0; i< listaCPs.Count; i++ )
 				{
-					int noCP = Convert.ToInt32(cps[i]);
+					int noCP = listaCPs[i];
 					
 					cp = columnasProbables[ columnasRelacionadas[ noCP ]-1 ];
 					sumaTemp += cp.NoAC;
@@ -157,8 +170,8 @@ namespace Free1X2.MotorCalculo
 			ColumnaProbable cp;
 			int tempNoAC;
 
-			//strCps tendra valores si se han analizado los grupos de columnas
-			if(strCPs == "")
+			//listaCPs tendra valores si se han analizado los grupos de columnas
+			if(listaCPs.Count == 0)
 			{
 				for(int i = 0; i < columnasRelacionadas.Length; i++)
 				{
@@ -179,11 +192,10 @@ namespace Free1X2.MotorCalculo
 			}
 			else
 			{
-				string[] cps = strCPs.Split(',');
-
-			    for(int i = 0; i < cps.Length; i++ )
+			    // P-17: se recorre la lista de enteros, sin Split ni Convert.ToInt32.
+			    for(int i = 0; i < listaCPs.Count; i++ )
 				{
-					int noCP = Convert.ToInt32(cps[i]);
+					int noCP = listaCPs[i];
 				
 					cp = columnasProbables[ columnasRelacionadas[ noCP ]-1 ];
 				
@@ -211,50 +223,40 @@ namespace Free1X2.MotorCalculo
 			return relacionValida;		
 		}
 		
+		/// <summary>
+		/// P-17 · Agrupa los CP relacionados por su número de aciertos. Misma semántica y
+		/// mismo orden que la versión con strings CSV: para cada número de aciertos
+		/// aceptado (en orden creciente) se añaden las posiciones de ese grupo en el orden
+		/// en que se recorrieron. Los buffers son de instancia y se limpian en cada llamada,
+		/// en vez de asignar un int[15] + un string[15] + 15 strings vacías por columna.
+		/// </summary>
 		protected bool AnalizaGruposColumnas()
 		{
 			bool relacionValida = false;
-			int[] noAciertos = new int[15];
-			string[] cps_noAciertos = new string[15];
-						
+			Array.Clear(noAciertosPorCP, 0, noAciertosPorCP.Length);
 			for(int i = 0; i < 15; i++)
 			{
-				cps_noAciertos[i] = "";
+				cpsPorNoAciertos[i].Clear();
 			}
 
 		    for(int i = 0; i < columnasRelacionadas.Length; i++)
 			{
 				ColumnaProbable cp = columnasProbables[ columnasRelacionadas[i]-1 ];
 				
-				noAciertos[ cp.NoAC ]++;
-				cps_noAciertos[cp.NoAC ] += (i + ",");
-			}
-
-		    //quitar ultima coma de cada elemento en cps_noAciertos
-			for(int i = 0; i < 15; i++)
-			{
-			    string valores = cps_noAciertos[i];
-
-			    if(valores != "")
-				{
-					cps_noAciertos[i] = valores.Substring(0, valores.Length - 1);
-				}
+				noAciertosPorCP[ cp.NoAC ]++;
+				cpsPorNoAciertos[cp.NoAC ].Add(i);
 			}
 
 		    for(int i = 0; i < cuantosAC.Length; i++)
 			{
 				if(cuantosAC[i])
 				{					
-					noColConMismosAC += noAciertos[i];	
+					noColConMismosAC += noAciertosPorCP[i];	
 
-					if(cps_noAciertos[i] != "")
+					List<int> grupo = cpsPorNoAciertos[i];
+					for(int j = 0; j < grupo.Count; j++)
 					{
-						if(strCPs != "")
-						{
-							strCPs += ",";
-						}
-						
-						strCPs += cps_noAciertos[i];					
+						listaCPs.Add(grupo[j]);
 					}
 				}			
 			}	

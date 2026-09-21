@@ -27,8 +27,16 @@ namespace Free1X2.Reduccion
 {
 	public class XfsfV3 : Base, IReduccion
 	{ 
-		protected byte[,] columnas = new byte[4782969,3];
-		private int[] flags = new int[4782969];
+		// P-11: ver XFSF.cs — ~33 MB de LOH que el constructor asignaba sin usarlos
+		// todavía. Se crean al leer datos y NO se reasignan en llamadas sucesivas.
+		protected byte[,] columnas;
+		private int[] flags;
+
+		private void AsegurarBuffers()
+		{
+			if (columnas == null) columnas = new byte[4782969,3];
+			if (flags == null) flags = new int[4782969];
+		}
 		
 		public override void ComienzaReduccion(string archivoEntrada,string sal, int nivelReduccion, int maxCol, int percent)
 		{
@@ -115,6 +123,7 @@ namespace Free1X2.Reduccion
 
 		protected override void EntradaDeDatos(string archivoEntrada) 
 		{
+			AsegurarBuffers();
             IArchivoColumnas comBaseCols = new ArchivoColumnasTexto(archivoEntrada);
 			Comparador col= new Comparador();
 			noColumnasIniciales = 0;

@@ -43,15 +43,7 @@ namespace Free1X2.WinUI.Views.Ported
         [RelayCommand]
         private async Task SeleccionarFicheroSalidaAsync()
         {
-            var picker = new Windows.Storage.Pickers.FileSavePicker
-            {
-                SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
-                SuggestedFileName = "Informe",
-            };
-            picker.FileTypeChoices.Add("Informe", new System.Collections.Generic.List<string> { ".txt" });
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-            var file = await picker.PickSaveFileAsync();
+            var file = await PickerHelper.GuardarAsync("Informe", ("Informe", ".txt"));
             if (file != null)
             {
                 ArchivoSalida = file.Path;

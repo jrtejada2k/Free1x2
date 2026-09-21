@@ -40,7 +40,8 @@
                                 MaxLength="14"
                                 CharacterCasing="Upper"
                                 PlaceholderText="Ej. 1X21X21X21X21"
-                                Text="{x:Bind ViewModel.ColumnaInicial, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                Text="{x:Bind ViewModel.ColumnaInicial, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                AutomationProperties.Name="Columna inicial (14 signos)" />
                         </StackPanel>
 
                         <StackPanel Spacing="6">
@@ -51,7 +52,8 @@
                                 MaxLength="14"
                                 CharacterCasing="Upper"
                                 PlaceholderText="Ej. X12X12X12X12X"
-                                Text="{x:Bind ViewModel.ColumnaAlternativa, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                Text="{x:Bind ViewModel.ColumnaAlternativa, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                AutomationProperties.Name="Columna alternativa (14 signos)" />
                         </StackPanel>
                     </StackPanel>
                 </Border>
@@ -76,7 +78,8 @@
                                 <ComboBox
                                     HorizontalAlignment="Stretch"
                                     ItemsSource="{x:Bind ViewModel.TiposColumna}"
-                                    SelectedIndex="{x:Bind ViewModel.TipoColumnaIndex, Mode=TwoWay}" />
+                                    SelectedIndex="{x:Bind ViewModel.TipoColumnaIndex, Mode=TwoWay}"
+                                    AutomationProperties.Name="Tipo de columna" />
                             </StackPanel>
 
                             <StackPanel Grid.Column="1" Spacing="6">
@@ -86,7 +89,8 @@
                                 <ComboBox
                                     HorizontalAlignment="Stretch"
                                     ItemsSource="{x:Bind ViewModel.NumerosDiferencias}"
-                                    SelectedIndex="{x:Bind ViewModel.NumeroDiferenciasIndex, Mode=TwoWay}" />
+                                    SelectedIndex="{x:Bind ViewModel.NumeroDiferenciasIndex, Mode=TwoWay}"
+                                    AutomationProperties.Name="Número de diferencias" />
                             </StackPanel>
                         </Grid>
                     </StackPanel>
@@ -109,11 +113,13 @@
                                 Grid.Column="0"
                                 IsReadOnly="True"
                                 PlaceholderText="Ruta del archivo de salida (.txt)"
-                                Text="{x:Bind ViewModel.ArchivoDestino, Mode=OneWay}" />
+                                Text="{x:Bind ViewModel.ArchivoDestino, Mode=OneWay}"
+                                AutomationProperties.Name="Ruta del archivo de salida" />
                             <Button
                                 Grid.Column="1"
                                 Content="Examinar…"
-                                Command="{x:Bind ViewModel.ExaminarCommand}" />
+                                Command="{x:Bind ViewModel.ExaminarCommand}"
+                                AutomationProperties.Name="Examinar archivo destino" />
                         </Grid>
                     </StackPanel>
                 </Border>
@@ -134,11 +140,13 @@
                 Text="{x:Bind ViewModel.EstadoTexto, Mode=OneWay}" />
             <Button
                 Content="Cancelar"
-                Command="{x:Bind ViewModel.CancelarCommand}" />
+                Command="{x:Bind ViewModel.CancelarCommand}"
+                AutomationProperties.Name="Cancelar" />
             <Button
                 Style="{StaticResource AccentButtonStyle}"
                 Content="Generar"
-                Command="{x:Bind ViewModel.GenerarCommand}" />
+                Command="{x:Bind ViewModel.GenerarCommand}"
+                AutomationProperties.Name="Generar columnas" />
         </StackPanel>
     </Grid>
 </Page>

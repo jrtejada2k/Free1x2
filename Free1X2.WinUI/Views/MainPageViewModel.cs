@@ -107,11 +107,45 @@ public partial class MainPageViewModel : ObservableObject
     [ObservableProperty]
     private string _nombreCombinacion = "(combinación nueva)";
 
+    /// <summary>True mientras el VM está suscrito a <see cref="AppState.Cambiado"/>.</summary>
+    private bool _suscritoACambios;
+
     public MainPageViewModel()
     {
         ConstruirCondiciones();
-        _estado.Cambiado += (_, _) => RefrescarPantalla();
+        // La suscripción a AppState.Cambiado NO se hace aquí: ver Activar()/Desactivar() (B-02).
     }
+
+    /// <summary>
+    /// Conecta el VM al estado compartido. La llama la página en <c>OnNavigatedTo</c>.
+    /// </summary>
+    /// <remarks>
+    /// B-02 — antes el constructor hacía <c>_estado.Cambiado += (_, _) =&gt; RefrescarPantalla();</c>
+    /// con una <b>lambda</b>, imposible de desuscribir. Como <c>MainPage</c> crea un ViewModel
+    /// nuevo en cada navegación (no hay <c>NavigationCacheMode</c>), el singleton
+    /// <see cref="AppState"/> retenía TODOS los ViewModels anteriores — y con ellos sus páginas,
+    /// vía la closure de <see cref="Navegar"/> — y ejecutaba <see cref="RefrescarPantalla"/> en
+    /// cada uno de esos zombis: fuga de memoria y coste de CPU lineal en el número de visitas.
+    /// Con handler nombrado + <see cref="Desactivar"/> en <c>OnNavigatedFrom</c>, solo queda viva
+    /// la suscripción de la página visible.
+    /// </remarks>
+    public void Activar()
+    {
+        if (_suscritoACambios) return;
+        _estado.Cambiado += AlCambiarEstado;
+        _suscritoACambios = true;
+    }
+
+    /// <summary>Desconecta el VM del estado compartido. La llama la página en <c>OnNavigatedFrom</c>.</summary>
+    public void Desactivar()
+    {
+        if (!_suscritoACambios) return;
+        _estado.Cambiado -= AlCambiarEstado;
+        _suscritoACambios = false;
+    }
+
+    /// <summary>Handler NOMBRADO de <see cref="AppState.Cambiado"/> (para poder hacer <c>-=</c>).</summary>
+    private void AlCambiarEstado(object? sender, EventArgs e) => RefrescarPantalla();
 
     /// <summary>
     /// Construye las condiciones que mapean a un IFiltro del grupo. El orden replica el de
@@ -325,15 +359,8 @@ public partial class MainPageViewModel : ObservableObject
             return;
         }
 
-        var picker = new Windows.Storage.Pickers.FileOpenPicker
-        {
-            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add(".txt");
-        picker.FileTypeFilter.Add("*");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSingleFileAsync();
+        // C-17: picker via PickerHelper (antes ~10 lineas de boilerplate identicas).
+        var file = await PickerHelper.AbrirAsync(".txt", "*");
         if (file == null) return;
 
         // ActivaFiltroColumnasParcial: el filtro parcial debe tener EXACTAMENTE NumeroPartidos signos.
@@ -477,15 +504,8 @@ public partial class MainPageViewModel : ObservableObject
             return;
         }
 
-        var picker = new Windows.Storage.Pickers.FileOpenPicker
-        {
-            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add(".txt");
-        picker.FileTypeFilter.Add("*");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSingleFileAsync();
+        // C-17: picker via PickerHelper (antes ~10 lineas de boilerplate identicas).
+        var file = await PickerHelper.AbrirAsync(".txt", "*");
         if (file == null) return;
 
         // ActivaFiltroColumnas: valida nº de signos contra VariablesGlobales.NumeroPartidos.
@@ -556,15 +576,8 @@ public partial class MainPageViewModel : ObservableObject
     [RelayCommand]
     private async Task AbrirCombinacionAsync()
     {
-        var picker = new Windows.Storage.Pickers.FileOpenPicker
-        {
-            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add(".comb");
-        picker.FileTypeFilter.Add(".xml");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSingleFileAsync();
+        // C-17: picker via PickerHelper.
+        var file = await PickerHelper.AbrirAsync(".comb", ".xml");
         if (file == null) return;
 
         try
@@ -611,15 +624,8 @@ public partial class MainPageViewModel : ObservableObject
         string destino = _estado.NombreArchivoComb;
         if (string.IsNullOrEmpty(destino))
         {
-            var picker = new Windows.Storage.Pickers.FileSavePicker
-            {
-                SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
-                SuggestedFileName = "Combinacion",
-            };
-            picker.FileTypeChoices.Add("Combinación", new List<string> { ".comb" });
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-            var file = await picker.PickSaveFileAsync();
+            // C-17: picker via PickerHelper.
+            var file = await PickerHelper.GuardarAsync("Combinacion", ("Combinación", ".comb"));
             if (file == null) return;
             destino = file.Path;
         }
@@ -653,15 +659,8 @@ public partial class MainPageViewModel : ObservableObject
     [RelayCommand]
     private async Task GuardarCombinacionComoAsync()
     {
-        var picker = new Windows.Storage.Pickers.FileSavePicker
-        {
-            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "Combinacion",
-        };
-        picker.FileTypeChoices.Add("Combinación", new List<string> { ".comb" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSaveFileAsync();
+        // C-17: picker via PickerHelper.
+        var file = await PickerHelper.GuardarAsync("Combinacion", ("Combinación", ".comb"));
         if (file == null) return;
 
         _estado.NombreArchivoComb = file.Path;   // fija el destino y reutiliza el guardado normal
@@ -684,15 +683,8 @@ public partial class MainPageViewModel : ObservableObject
         if (Boleto is null) return;
         string[] equipos = Boleto.DevolverEquipos();
 
-        var picker = new Windows.Storage.Pickers.FileSavePicker
-        {
-            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "Equipos",
-        };
-        picker.FileTypeChoices.Add("Equipos", new List<string> { ".txt" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSaveFileAsync();
+        // C-17: picker via PickerHelper.
+        var file = await PickerHelper.GuardarAsync("Equipos", ("Equipos", ".txt"));
         if (file == null) return;
 
         try
@@ -717,15 +709,8 @@ public partial class MainPageViewModel : ObservableObject
     {
         if (Boleto is null) return;
 
-        var picker = new Windows.Storage.Pickers.FileOpenPicker
-        {
-            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add(".txt");
-        picker.FileTypeFilter.Add("*");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSingleFileAsync();
+        // C-17: picker via PickerHelper (antes ~10 lineas de boilerplate identicas).
+        var file = await PickerHelper.AbrirAsync(".txt", "*");
         if (file == null) return;
 
         try

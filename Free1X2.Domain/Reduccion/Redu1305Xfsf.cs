@@ -27,8 +27,10 @@ namespace Free1X2.Reduccion
 {
 	public class Redu1305Xfsf : Base, IReduccion
 	{ 
-		private BitArray validas = new BitArray(4782969);
-	    private int[] flags = new int[4782969];
+		// P-11: ver JDC.cs — InicializarNumeroDePartidos() reasigna ambos al conocer
+		// el nº de partidos, así que no se asignan aquí (~20 MB de LOH ahorrados).
+		private BitArray validas;
+	    private int[] flags;
 		private short Profundidad;
         private readonly int[] pot = new int[] { 1, 3, 9, 27, 81, 243, 729, 2187, 6561, 19683, 59049, 177147, 531441, 1594323, 4782969, 14348907, 43046721};
 		private int numExternas;

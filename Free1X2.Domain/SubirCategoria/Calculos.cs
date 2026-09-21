@@ -21,6 +21,7 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 using System.Collections;
+using System.Collections.Generic;
 using Free1X2.EntradaSalida;
 using Free1X2.Utils ;
 
@@ -29,7 +30,9 @@ namespace Free1X2.SubirCategoria
 	public class Calculos 
 	{
 		private int noColumnas;
-		private ArrayList columnas;
+		// Menor (F3): List<int> en vez de ArrayList; el ArrayList boxeaba cada índice
+		// y obligaba a un unbox en cada acceso dentro de los bucles de subida de categoría.
+		private List<int> columnas;
 		private int Profundidad;
 		private bool[] _nivel;
 		private bool[] _involucrados;
@@ -49,7 +52,7 @@ namespace Free1X2.SubirCategoria
 
 		public Calculos (string archivoEntrada) 
 		{
-		    columnas = new ArrayList();
+		    columnas = new List<int>();
             IArchivoColumnas comBaseCols = new ArchivoColumnasTexto(archivoEntrada);
             int noP = comBaseCols.ObtenNumSignos();
 

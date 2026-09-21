@@ -2,161 +2,100 @@
 
 ## Qué es este proyecto
 
-**Free1X2** es una herramienta de escritorio Windows para análisis estadístico de la Quiniela española (apuestas de fútbol, sistema 14 partidos con resultado 1/X/2). Permite generar y reducir columnas de apuestas, aplicar filtros matemáticos, analizar históricos y generar boletos imprimibles.
+**Free1X2** es una herramienta de escritorio Windows para análisis estadístico de la Quiniela
+española (14 partidos de fútbol con resultado 1/X/2, más el Pleno al 15). Permite construir un
+boleto, aplicar condiciones y filtros matemáticos, generar y **reducir** columnas de apuesta,
+escrutar resultados contra la ganadora y analizar históricos.
 
-- **Versión**: 0.77.2 "Rarotonga"
-- **Stack**: WinForms .NET 8.0-windows (solo Windows)
-- **SDK requerido**: .NET 8+ (probado con .NET 10 SDK en Mac)
-- **Build**: `dotnet build Free1X2/Free1X2.csproj`
+Programa libre bajo **GPLv3**, derivado del Free1X2 original de Joan Duatis.
 
-## Estado actual de la rama
+## Stack
 
-**Rama activa**: `ui-modernization`  
-**Tag de referencia**: `v0.78.0-ui-modernization-ready`  
-**Tag del estado original** (antes de modernizar): `v0.77.2-legacy-ui`
+| Dato | Valor | Evidencia |
+|------|-------|-----------|
+| Versión | **0.83.0** «Rarotonga» | `Free1X2.WinUI/Free1X2.WinUI.csproj:15-17` |
+| UI | WinUI 3 (Windows App SDK **1.6**, `Microsoft.WindowsAppSDK 1.6.250108002`) | `Free1X2.WinUI.csproj:20,37` |
+| TFM | `net8.0-windows10.0.19041.0` (mínimo `10.0.17763.0`) | `Free1X2.WinUI.csproj:5-6` |
+| Empaquetado | Desempaquetado (`WindowsPackageType=None`), **self-contained win-x64** | `Free1X2.WinUI.csproj:21,26-28` |
+| MVVM | `CommunityToolkit.Mvvm 8.4.0` | `Free1X2.WinUI.csproj:39` |
+| SDK requerido | .NET 8 SDK, Windows 10 19041+ / 11, plataforma x64 | — |
 
-### Lo que está completo
+## Estructura
 
-Modernización completa de la UI — todas las fases ejecutadas:
+`Free1X2.sln` agrupa **4** proyectos:
 
-| Fase | Descripción | Estado |
-|------|-------------|--------|
-| 1 | ModernTheme.cs + NeoToolStripRenderer + ModernFormBase | ✅ |
-| 2 | MainForm — menus, toolbars, status bar, botones de filtro | ✅ |
-| 3 | 111 Forms (batch via tools/apply_theme_batch.py) | ✅ |
-| 4 | 24 Filtros (incluídos en batch Fase 3) | ✅ |
-| 5 | 53 UserControls (batch extendido a UserControl) | ✅ |
-| 6 | Estadísticas (incluídas en batch Fase 3) | ✅ |
-| 7 | Pulido — CtrSemaforo, sweep colores, limpieza | ✅ |
+| Proyecto | Rol |
+|----------|-----|
+| **`Free1X2.WinUI/`** | **Aplicación principal.** 108 páginas en `Views/Ported/`, registradas en `Navigation/PortedPages.cs` (108 entradas). Shell en `MainWindow.xaml.cs`, inicio en `App.xaml.cs`, servicios en `Services/` (`Log`, `TemaApp`, `IdiomaApp`, `PickerHelper`, `QuinielaOnlineService`, `JornadaCache`, `PaisesOnline`, `AppServices`, `AppState`). |
+| **`Free1X2.Domain/`** | **Motor completo**, libre de UI: `MotorCalculo/`, `Reduccion/`, `Escrutinio/`, `EntradaSalida/`, `Analisis/`, `Utils/`, `SubirCategoria/`, `Online/`, `VariablesGlobales.cs`. Desacople de UI vía `Abstractions/UiHooks.cs` (`UiPump`, `UserDialogs`, `AnalisisUi`). |
+| **`Free1X2/`** | UI **WinForms legacy** = **referencia de comportamiento**. Congelado en **0.77.2** por diseño (`Free1X2/Free1X2.csproj:11-12`). Ya no aloja el motor: solo quedan `UI/`, `Program.cs`, `Infraestructura/`, `Analisis/AnalisisCombinacion.cs` y 4 ficheros en `Utils/` (`Grafico.cs`, `ControlCompatibility.cs`, `ValidadorCaracteres.cs`, `CompresorZip.cs`). |
+| **`Free1X2.Domain.Tests/`** | **133 tests** golden-master del motor (84 `[Fact]` + 49 casos `[InlineData]`). Red de seguridad de toda optimización. |
 
-### Lo que falta
+Además, fuera de la solución: `docs/` (documentación vigente), `scripts/` (build, publish, smoke,
+stub de la API), `tools/`, y carpetas `Free1X2.Shared/` y `Free1X2.WebAPI/` que **no** están
+referenciadas en `Free1X2.sln`.
 
-1. **Prueba visual en Windows** — verificar que todos los forms se ven correctos al ejecutar
-2. **Correcciones post-prueba** — ajustar lo que no se vea bien
-3. **Merge a main** — cuando prueba en Windows sea aprobada por el usuario
-4. **Manual de usuario** — PLAN_MANUAL_USUARIO.md (diferido hasta después del merge)
+## Comandos
 
-## Cómo continuar en Windows
+```powershell
+# Build de la app principal
+dotnet build Free1X2.WinUI/Free1X2.WinUI.csproj -c Debug -p:Platform=x64   # 0 errores
 
-```bash
-# Clonar o hacer pull de la rama
-git clone https://github.com/jrtejada2k/Free1x2
-git checkout ui-modernization
+# Tests del motor
+dotnet test  Free1X2.Domain.Tests/Free1X2.Domain.Tests.csproj              # 133/133
 
-# Compilar
-dotnet build Free1X2/Free1X2.csproj
+# Smoke de carga de las 109 superficies (108 páginas + MainPage)
+$env:FREE1X2_SMOKE = '1'
+.\Free1X2.WinUI\bin\x64\Debug\net8.0-windows10.0.19041.0\win-x64\Free1X2.WinUI.exe
+Get-Content "$env:TEMP\free1x2_smoke.log" -Tail 1   # "SMOKE DONE total=109 ok=109 fail=0"
 
-# Ejecutar y probar visualmente
-dotnet run --project Free1X2/Free1X2.csproj
+# Publicar portable self-contained
+pwsh ./scripts/publish-winui.ps1
 ```
 
-### Qué verificar al probar
+El smoke está **gated** por la variable `FREE1X2_SMOKE` y es inerte sin ella
+(`Free1X2.WinUI/MainWindow.xaml.cs:43,562,587`). El script `scripts/smoke-winui.ps1` automatiza
+la secuencia completa.
 
-Abrir cada sección y confirmar visualmente:
+## Integración online (opcional)
 
-- [ ] MainForm: fondo gris #F3F3F3, toolbars flat sin gradientes, status bar azul
-- [ ] Fuente Segoe UI visible en todos los controles (no "Microsoft Sans Serif")
-- [ ] Sin colores Bisque/NavajoWhite/DarkSalmon en ningún form
-- [ ] Botones filtro en MainForm: verde/rojo/blanco según estado (no LightGreen/Tomato/DarkSalmon)
-- [ ] CtrSemaforo (dots de semáforo): rojo/amarillo/verde modernos sin bordes 3D
-- [ ] BancoPruebasFrm: tabs, grids, groupboxes con tema moderno
-- [ ] Cualquier form de filtro (Contactos, Distancias, etc.): fondo blanco, fuente Segoe UI
-- [ ] Boleto: controles legibles con nueva paleta
+Servicio de la jornada y del catálogo de equipos contra **clubprogol.com**. Contrato completo en
+[`docs/API_CLUBPROGOL.md`](docs/API_CLUBPROGOL.md).
 
-### Proceso de corrección
+- Cliente: `Free1X2.WinUI/Services/QuinielaOnlineService.cs`.
+  Base URL por defecto `https://clubprogol.com` (`:47`) + prefijo **`/wp-json/clubprogol/v1`**
+  (`:50`). `HttpClient` estático con timeout de 10 s; manejo de `429`/`Retry-After`.
+- **Desarrollo:** la variable de entorno **`FREE1X2_API_BASE`** (`:53`) sobreescribe la base URL;
+  `scripts/stub-api.ps1` sirve los JSON de `docs/ejemplos-api/` en las rutas de la spec.
+  Es una variable de desarrollo: **no se documenta en el manual de usuario**.
+- **Caché offline-first:** `Free1X2.WinUI/Services/JornadaCache.cs` guarda el JSON crudo de la
+  última jornada correcta en `%LocalAppData%\Free1X2\jornada-{es,mx}.json` (`:52`), y
+  `App.xaml.cs:45` (`SembrarJornadaDesdeCache`) la siembra al arrancar **sin red**. La red solo se
+  toca al pulsar «Actualizar jornada».
 
-Si algo no se ve bien:
-1. Identificar el archivo (form o control)
-2. Verificar si tiene `OnLoad` con `ModernTheme.ApplyToForm/ApplyToControl`
-3. Si tiene colores dinámicos en código (no Designer), actualizarlos a tokens de ModernTheme
-4. Compilar y verificar
+## Reglas del proyecto
 
-## Arquitectura del sistema de temas
+Vigentes desde [`docs/PLAN_MEJORAS.md`](docs/PLAN_MEJORAS.md) §0:
 
-```
-Free1X2/UI/Modern/Theming/ModernTheme.cs   ← TODO el sistema de temas
-Free1X2/UI/Modern/ModernFormBase.cs         ← Base class para forms modernos
-```
+| # | Regla | Consecuencia práctica |
+|---|-------|-----------------------|
+| R1 | **La lógica de negocio no cambia.** El motor (`Free1X2.Domain`) debe producir resultados idénticos al WinForms original (`Free1X2/`). | Toda optimización pasa los **133 tests golden-master** sin tocarlos. |
+| R2 | **Las decisiones de diseño/UI las toma el dueño.** | Los hallazgos de UI son *opciones a considerar*; ninguna se implementa sin aprobación explícita. |
+| R3 | **Completitud binaria (0 o 1).** | Un ítem solo se marca hecho con evidencia: build 0 err, smoke 109/109, tests verdes y `file:line` del cambio. |
+| R4 | **Sin evidencia no hay hallazgo.** | Cada afirmación cita fichero:línea leído. Lo no verificado se descarta. |
+| R5 | **Trabajo en agentes de fondo, serial cuando hay build.** | Un solo `dotnet build` a la vez (contención de `obj/`). |
+| R6 | **No borrar ramas ni cambiar visibilidad del repo.** | Los residuos documentales se *mueven*, no se borran, salvo orden del dueño. |
 
-### Cómo funciona
+Y, además:
 
-1. Cada Form/UserControl tiene `OnLoad` que llama `ModernTheme.ApplyToForm(this)` o `ApplyToControl(this)`
-2. `ApplyToForm` recorre recursivamente todos los controles hijos
-3. Cada tipo de control tiene su propio handler: `StyleButton`, `StyleTextBox`, `StyleDataGrid`, etc.
-4. Los colores legacy del Designer (Bisque, DarkSalmon, etc.) se sobreescriben en runtime
+- **Cuota de plan**: preguntar antes de ejecutar tareas masivas (subagents, búsquedas extensas).
 
-### Paleta de colores
+## Documentación
 
-| Token | Color | Hex | Uso |
-|-------|-------|-----|-----|
-| `Colors.Background` | Gris claro | `#F3F3F3` | Fondo forms/panels |
-| `Colors.Surface` | Blanco | `#FFFFFF` | Cards, inputs, grids |
-| `Colors.Primary` | Azul Windows 11 | `#0078D4` | Acento, status bar |
-| `Colors.Text` | Casi negro | `#1A1A1A` | Texto principal |
-| `Colors.Border` | Gris borde | `#D5D5D5` | Bordes controles |
-| `Colors.Success` | Verde | `#107C10` | Filtro activo |
-| `Colors.Error` | Rojo | `#C42B1C` | Filtro con error |
-| `Colors.Warning` | Ámbar | `#C16400` | Estado neutro/advertencia |
-
-### Botones de filtro (MainForm)
-
-Los botones de filtro usan `SetBotonEstado(btn, BotonEstado)` en `MainForm.cs`:
-- `BotonEstado.Activo` → verde Success
-- `BotonEstado.Error` → rojo Error
-- `BotonEstado.Neutro` → ámbar claro
-- `BotonEstado.Inactivo` → Surface blanco (default)
-
-### CtrSemaforo (control semáforo)
-
-Ubicado en `Free1X2/UI/Controls/CtrSemaforo.cs`.  
-Los 3 mini-botones tienen `Tag = "no-theme"` para excluirlos del tema general.  
-Sus colores se definen internamente con constantes `ActiveRed/ActiveYellow/ActiveGreen`.
-
-## Estructura de archivos clave
-
-```
-Free1x2/
-├── CLAUDE.md                          ← este archivo
-├── PLAN_UI_MODERNIZACION.md           ← plan completo (referencia)
-├── PLAN_MANUAL_USUARIO.md             ← plan manual (diferido post-merge)
-├── Free1X2/
-│   ├── Free1X2.csproj                 ← proyecto principal
-│   ├── Program.cs                     ← entry point
-│   ├── Infraestructura/
-│   │   └── ManejadorExcepciones.cs    ← stubs de error handler (recreados)
-│   └── UI/
-│       ├── MainForm.cs                ← form principal (modernizado manualmente)
-│       ├── Modern/
-│       │   ├── ModernFormBase.cs      ← base class
-│       │   └── Theming/
-│       │       └── ModernTheme.cs     ← sistema de temas completo
-│       ├── Controls/
-│       │   ├── CtrSemaforo.cs        ← semáforo de filtros (modificado)
-│       │   └── Analisis/              ← 19 controles de análisis
-│       ├── Filtros/                   ← 24 forms de filtros
-│       └── Estadisticas/              ← 5 forms de estadísticas
-├── Free1X2.Shared/                    ← lógica compartida
-└── tools/
-    └── apply_theme_batch.py           ← script que modernizó 164 archivos
-```
-
-## Reglas para este proyecto
-
-- **No cambiar lógica de negocio** — solo UI (colores, fuentes, temas)
-- **No tocar Designer.cs** — los colores allí se sobreescriben en runtime por el tema
-- **Commits por funcionalidad** — no batches masivos sin descripción
-- **Compilar antes de commitear** — 0 errores siempre
-- **Rama ui-modernization** hasta aprobación visual → luego merge a main
-- **Cuota de plan**: preguntar antes de ejecutar tareas masivas (subagents, búsquedas extensas)
-
-## Historial relevante de esta sesión
-
-1. Análisis de UI legacy → encontrado: Bisque/NavajoWhite/Verdana/FlatStyle.Popup en 220+ archivos
-2. Tag `v0.77.2-legacy-ui` en main → snapshot del estado original
-3. Rama `ui-modernization` creada
-4. Fase 1: ModernTheme.cs con Segoe UI, paleta Windows 11, NeoToolStripRenderer
-5. Fase 2: MainForm con OnLoad + SetBotonEstado para botones semánticos
-6. Fase 3-6: batch Python modernizó 164 forms/controles en una pasada
-7. Fase 7: CtrSemaforo colores modernos + cleanup
-8. Tag `v0.78.0-ui-modernization-ready` en rama actual
-9. Push a GitHub → listo para prueba en Windows
+| Documento | Contenido |
+|-----------|-----------|
+| [`docs/ANALISIS_TECNICO_WINUI3.md`](docs/ANALISIS_TECNICO_WINUI3.md) | Arquitectura de la capa WinUI 3 y verificación de la migración (§11). |
+| [`docs/API_CLUBPROGOL.md`](docs/API_CLUBPROGOL.md) | Contrato HTTP del servicio online + cómo lo consume la app. |
+| [`docs/MANUAL_USUARIO.md`](docs/MANUAL_USUARIO.md) | Manual de usuario: pantallas y menús. |
+| [`docs/MANUAL_FLUJOS.md`](docs/MANUAL_FLUJOS.md) | Flujos funcionales y de datos del motor, con enlaces al código. |
+| [`docs/PLAN_MEJORAS.md`](docs/PLAN_MEJORAS.md) | Plan de mejoras post-v0.82.0 (fases F1–F6, con evidencia `file:line`). |

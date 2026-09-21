@@ -45,7 +45,7 @@ public partial class OpcionSeleccionableViewModel : ObservableObject
 /// seleccionables. Persistencia (Guardar/Abrir/Copiar/Pegar) vía ArchivoCondiciones
 /// (.pes/.xml + Temp/tmp.pes) y Estadísticas vía CalculadorEstadisticas -> VisorEstadisticasPage.
 /// </summary>
-public partial class PesosNumFrmViewModel : ObservableObject
+public partial class PesosNumFrmViewModel : FiltroArchivoViewModelBase
 {
     public PesosNumFrmViewModel()
     {
@@ -72,8 +72,14 @@ public partial class PesosNumFrmViewModel : ObservableObject
     /// <summary>Acción para navegar a otra página (la cablea la página con Frame.Navigate(tipo)).</summary>
     public Action<Type>? Navegar { get; set; }
 
+    // --- Lo específico del filtro para el cuarteto Guardar/Abrir/Copiar/Pegar (base C-18) ---
+    protected override string NombreSugerido => "PesosNumericos";
+    protected override (string etiqueta, string extension)[] TiposGuardar =>
+        new[] { ("Pesos Numéricos", ".pes"), ("Pesos Numéricos (XML)", ".xml") };
+    protected override string[] ExtensionesAbrir => new[] { ".pes", ".xml" };
+
     // Fichero temporal de copiar/pegar (legacy: StartupPath + "/Temp/tmp.pes").
-    private static string RutaTemporal =>
+    protected override string RutaTemporal =>
         Path.Combine(AppContext.BaseDirectory, "Temp", "tmp.pes");
 
     // Directorio de columnas ganadoras (legacy: StartupPath + "/Ganadoras/").
@@ -290,7 +296,7 @@ public partial class PesosNumFrmViewModel : ObservableObject
     }
 
     // Guarda en disco el filtro temporal (PesosNumFrm.guardar(), líneas 1137-1142).
-    private void GuardarEn(string nombreArchivo)
+    protected override void GuardarEn(string nombreArchivo)
     {
         var filtroTemp = ObtenerFiltroTemporal();
         var archComb = new ArchivoCondiciones { NombreArchivo = nombreArchivo };
@@ -298,7 +304,7 @@ public partial class PesosNumFrmViewModel : ObservableObject
     }
 
     // Abre la condición desde disco y vuelca sus valores (PesosNumFrm.abrir(), líneas 1125-1134).
-    private void AbrirDesde(string nombreArchivo)
+    protected override void AbrirDesde(string nombreArchivo)
     {
         var archComb = new ArchivoCondiciones();
         if (archComb.AbrirArchivoCombinacion(nombreArchivo))
@@ -321,79 +327,7 @@ public partial class PesosNumFrmViewModel : ObservableObject
         Navegar?.Invoke(typeof(VisorEstadisticasPage));
     }
 
-    [RelayCommand]
-    private async Task Guardar()
-    {
-        // Equivale a PesosNumFrm.menuCondiciones1_BGuardar (PesosNumFrm.cs líneas 1115-1123).
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "PesosNumericos",
-        };
-        picker.FileTypeChoices.Add("Pesos Numéricos", new List<string> { ".pes" });
-        picker.FileTypeChoices.Add("Pesos Numéricos (XML)", new List<string> { ".xml" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSaveFileAsync();
-        if (file == null) return;
-
-        try
-        {
-            GuardarEn(file.Path);
-        }
-        catch (Exception ex)
-        {
-            AppServices.MostrarError("No se pudo guardar: " + ex.Message);
-        }
-    }
-
-    [RelayCommand]
-    private async Task Abrir()
-    {
-        // Equivale a PesosNumFrm.menuCondiciones1_BAbrir (PesosNumFrm.cs líneas 1104-1113).
-        var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
-        picker.FileTypeFilter.Add(".pes");
-        picker.FileTypeFilter.Add(".xml");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSingleFileAsync();
-        if (file == null) return;
-
-        try
-        {
-            AbrirDesde(file.Path);
-        }
-        catch (Exception ex)
-        {
-            AppServices.MostrarError("No se pudo abrir: " + ex.Message);
-        }
-    }
-
-    [RelayCommand]
-    private void Copiar()
-    {
-        // Equivale a PesosNumFrm.menuCondiciones1_BCopiar (PesosNumFrm.cs líneas ~1160).
-        try
-        {
-            string ruta = RutaTemporal;
-            Directory.CreateDirectory(Path.GetDirectoryName(ruta)!);
-            GuardarEn(ruta);
-        }
-        catch (Exception ex)
-        {
-            AppServices.MostrarError("No se pudo copiar: " + ex.Message);
-        }
-    }
-
-    [RelayCommand]
-    private void Pegar()
-    {
-        // Equivale a PesosNumFrm.menuCondiciones1_BPegar (PesosNumFrm.cs líneas ~1175).
-        if (File.Exists(RutaTemporal))
-        {
-            AbrirDesde(RutaTemporal);
-        }
-    }
+    // Guardar/Abrir/Copiar/Pegar: heredados de FiltroArchivoViewModelBase (C-18).
 
     [RelayCommand]
     private void Borrar()

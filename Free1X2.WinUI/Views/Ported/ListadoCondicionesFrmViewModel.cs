@@ -658,15 +658,7 @@ namespace Free1X2.WinUI.Views.Ported
 
         private static async Task GuardarYAbrirAsync(string contenido, string extension, string nombreSugerido)
         {
-            var picker = new FileSavePicker
-            {
-                SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-                SuggestedFileName = nombreSugerido,
-            };
-            picker.FileTypeChoices.Add("Listados", new List<string> { "." + extension });
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-            StorageFile? file = await picker.PickSaveFileAsync();
+            StorageFile? file = await PickerHelper.GuardarAsync(nombreSugerido, ("Listados", "." + extension));
             if (file == null) return;
 
             try

@@ -120,15 +120,7 @@ public partial class HistoriaValoracionesFrmViewModel : ObservableObject
     [RelayCommand]
     private async Task SeleccionarFichero()
     {
-        var picker = new FileOpenPicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add(".txt");
-        picker.FileTypeFilter.Add("*");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? archivo = await picker.PickSingleFileAsync();
+        StorageFile? archivo = await PickerHelper.AbrirAsync(".txt", "*");
         if (archivo is null)
         {
             return;
@@ -143,17 +135,8 @@ public partial class HistoriaValoracionesFrmViewModel : ObservableObject
     [RelayCommand]
     private async Task NuevoFichero()
     {
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            DefaultFileExtension = ".txt",
-            SuggestedFileName = "valoraciones_historicas",
-        };
-        picker.FileTypeChoices.Add("Valoraciones históricas", new List<string> { ".txt" });
-        picker.FileTypeChoices.Add("Todos los archivos", new List<string> { "." });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? archivo = await picker.PickSaveFileAsync();
+        StorageFile? archivo = await PickerHelper.GuardarConExtensionPorDefectoAsync(
+            "valoraciones_historicas", ".txt", ("Valoraciones históricas", ".txt"), ("Todos los archivos", "."));
         if (archivo is null)
         {
             return;

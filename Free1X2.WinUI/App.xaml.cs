@@ -1,4 +1,5 @@
 // Free1X2 · WinUI 3 — WIN3
+using System;
 using Microsoft.UI.Xaml;
 using Free1X2.WinUI.Services;
 using Free1X2.WinUI.Views.Ported;
@@ -9,6 +10,16 @@ public partial class App : Application
 {
     public static Window? MainWindow { get; private set; }
 
+    /// <summary>
+    /// Bandera de corte del manejador global (B-01). Si al intentar AVISAR de una excepción se
+    /// produce otra, mostrar un segundo diálogo reentraría en el mismo fallo → bucle infinito
+    /// (el caso descrito en el plan: ContentDialog ya abierto → InvalidOperationException →
+    /// MostrarError → re-encola → vuelve a lanzar). Con la bandera puesta la segunda excepción
+    /// solo se REGISTRA. El corte real del bucle está en <see cref="AppServices"/> (la cola
+    /// serializa los diálogos y captura el fallo del ShowAsync); esto es la red de seguridad.
+    /// </summary>
+    private static bool _enManejadorDeExcepciones;
+
     public App()
     {
         this.InitializeComponent();
@@ -17,13 +28,33 @@ public partial class App : Application
         this.UnhandledException += static (s, e) =>
         {
             e.Handled = true;
-            Services.AppServices.MostrarError("Se produjo un error inesperado:\n\n" + e.Exception.Message);
+
+            // SIEMPRE se registra primero: antes de esto una excepción no controlada no dejaba
+            // ningún rastro en disco y no había nada que mirar al reportar el fallo (C-12).
+            Log.Error("App.UnhandledException", e.Exception);
+
+            if (_enManejadorDeExcepciones) return; // ya estamos avisando de un error: no reentrar
+
+            try
+            {
+                _enManejadorDeExcepciones = true;
+                Services.AppServices.MostrarError("Se produjo un error inesperado:\n\n" + e.Exception.Message);
+            }
+            finally
+            {
+                _enManejadorDeExcepciones = false;
+            }
         };
     }
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
         AsegurarCarpetasDeTrabajo();
+        // Idioma (U-10): fija ApplicationLanguages.PrimaryLanguageOverride con la preferencia
+        // guardada ANTES de crear la ventana y navegar a la primera página, para que los recursos
+        // .resw (x:Uid) se resuelvan ya en el idioma elegido. Por defecto Español (la app arranca
+        // en español); solo la pantalla piloto está localizada. No toca la red ni lanza.
+        IdiomaApp.Aplicar();
         SembrarJornadaDesdeCache();
         MainWindow = new MainWindow();
         AppServices.Inicializar(MainWindow);
@@ -54,9 +85,11 @@ public partial class App : Application
                 Services.AppState.Instancia.JornadaActual = jornada;
             }
         }
-        catch
+        catch (Exception ex)
         {
             // Robustez extra: el arranque jamás falla por la siembra de caché (sin red, local).
+            // El fallback (arrancar en modo manual) NO cambia; solo se deja traza.
+            Log.Error("App.SembrarJornadaDesdeCache", ex);
         }
     }
 
@@ -78,7 +111,12 @@ public partial class App : Application
                 System.IO.Directory.CreateDirectory(System.IO.Path.Combine(baseDir, d));
             }
         }
-        catch { /* no bloquear el arranque por permisos de carpeta */ }
+        catch (Exception ex)
+        {
+            // No bloquear el arranque por permisos de carpeta (comportamiento intacto); se
+            // registra para poder diagnosticar el caso "Guardar no hace nada" bajo Program Files.
+            Log.Error("App.AsegurarCarpetasDeTrabajo", ex);
+        }
     }
 
     /// <summary>
@@ -114,7 +152,12 @@ public partial class App : Application
                     return System.WindowsRuntimeSystemExtensions.AsTask(contenido.GetTextAsync()).GetAwaiter().GetResult();
                 }
             }
-            catch { /* portapapeles inaccesible: tratar como vacío */ }
+            catch (Exception ex)
+            {
+                // Portapapeles inaccesible: se sigue tratando como vacío (fallback intacto),
+                // pero ahora queda traza del "pegar no hace nada" que antes era silencioso.
+                Log.Error("Clipboard.Read", ex);
+            }
             return string.Empty;
         };
 
@@ -126,16 +169,40 @@ public partial class App : Application
         // WinForms). El producer real es, p. ej., AnalizarFicheroFrmViewModel.
         Free1X2.Abstractions.AnalisisUi.MostrarVisor = static (contenedor, grupo) =>
         {
-            VisorAnalisisColumnasFrmViewModel.UltimoContenedor = contenedor;
-            VisorAnalisisColumnasFrmViewModel.UltimoGrupo = grupo;
-            AppServices.UiDispatcher?.TryEnqueue(static () =>
+            var disp = AppServices.UiDispatcher;
+            if (disp is null)
             {
-                if (MainWindow?.Content is FrameworkElement fe &&
-                    fe.FindName("ContentFrame") is Microsoft.UI.Xaml.Controls.Frame frame)
+                Log.Warn("AnalisisUi.MostrarVisor: sin DispatcherQueue de UI; no se abre el visor.");
+                return;
+            }
+
+            // B-07: las asignaciones del handoff se hacen DENTRO de la lambda de UI, capturando
+            // los valores. Antes se escribían en el hilo del dominio y la navegación se encolaba
+            // aparte: dos MostrarVisor seguidos dejaban que el segundo productor pisara los
+            // estáticos y que el primer visor los consumiera y anulara (el ctor del VM hace
+            // consume-and-clear) → el SEGUNDO visor abría vacío. Ahora cada navegación encolada
+            // publica su propio payload justo antes de navegar, en el mismo turno de UI.
+            bool encolado = disp.TryEnqueue(() =>
+            {
+                VisorAnalisisColumnasFrmViewModel.UltimoContenedor = contenedor;
+                VisorAnalisisColumnasFrmViewModel.UltimoGrupo = grupo;
+
+                // Navegación por método público de la ventana (sin acoplamiento por string a
+                // FindName("ContentFrame")).
+                if (MainWindow is Free1X2.WinUI.MainWindow ventana)
                 {
-                    frame.Navigate(typeof(VisorAnalisisColumnasFrmPage));
+                    ventana.NavegarA(typeof(VisorAnalisisColumnasFrmPage));
+                }
+                else
+                {
+                    Log.Warn("AnalisisUi.MostrarVisor: la ventana principal no está disponible.");
                 }
             });
+
+            if (!encolado)
+            {
+                Log.Warn("AnalisisUi.MostrarVisor: la cola de UI rechazó la navegación (app cerrándose).");
+            }
         };
     }
 }

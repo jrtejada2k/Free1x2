@@ -6,6 +6,7 @@ using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Free1X2.EntradaSalida;
+using Free1X2.WinUI.Services;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -148,9 +149,11 @@ public partial class ConfiguracionFrmViewModel : ObservableObject
                 IdiomaSeleccionado = idioma;
             }
         }
-        catch
+        catch (Exception ex)
         {
             // Sin archivo de configuración accesible: se mantienen los valores por defecto.
+            // C-24: el fallback se mantiene; solo se anade la traza para poder diagnosticar.
+            Log.Error("ConfiguracionFrmViewModel.CargarDesdeConfiguracion", ex);
         }
     }
 
@@ -169,7 +172,7 @@ public partial class ConfiguracionFrmViewModel : ObservableObject
         {
             if (jb[i - 1] >= jb[i])
             {
-                Free1X2.Abstractions.UserDialogs.ShowError(
+                AppServices.MostrarError(
                     "El valor del campo " + i + " no puede ser mayor o igual que el siguiente.");
                 return;
             }
@@ -195,12 +198,12 @@ public partial class ConfiguracionFrmViewModel : ObservableObject
             // Recarga las variables globales con los nuevos valores (legacy tras guardar).
             Free1X2.VariablesGlobales.ReinicializarVariables();
 
-            Free1X2.Abstractions.UserDialogs.ShowInfo(
+            AppServices.MostrarInfo(
                 "Configuración guardada. Algunos cambios pueden requerir reiniciar la aplicación.");
         }
         catch (Exception ex)
         {
-            Free1X2.Abstractions.UserDialogs.ShowError("No se pudo guardar la configuración: " + ex.Message);
+            AppServices.MostrarError("No se pudo guardar la configuración: " + ex.Message);
         }
     }
 }

@@ -3,7 +3,7 @@
 Capa de UI en **WinUI 3** (Windows App SDK 1.6, .NET 8, self-contained win-x64) de Free1X2.
 Es la **interfaz principal** del programa tras la migración desde WinForms. Detalle de
 arquitectura en [`../docs/ANALISIS_TECNICO_WINUI3.md`](../docs/ANALISIS_TECNICO_WINUI3.md);
-plan original en [`../PLAN_MIGRACION_WINUI3.md`](../PLAN_MIGRACION_WINUI3.md).
+plan original en [`../docs/historico/PLAN_MIGRACION_WINUI3.md`](../docs/historico/PLAN_MIGRACION_WINUI3.md).
 
 ## Estado
 

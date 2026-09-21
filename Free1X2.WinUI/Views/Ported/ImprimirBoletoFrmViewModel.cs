@@ -135,14 +135,7 @@ public partial class ImprimirBoletoFrmViewModel : ObservableObject
     private async Task LeerColumnasAsync()
     {
         // Legacy LeerCols(): OpenFileDialog filtrando *.txt en /Columnas/.
-        var picker = new FileOpenPicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add(".txt");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSingleFileAsync();
+        var file = await PickerHelper.AbrirAsync(".txt");
         if (file == null) return;
 
         FicheroEntrada = "-";

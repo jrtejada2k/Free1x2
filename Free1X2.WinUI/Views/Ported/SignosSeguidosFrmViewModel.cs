@@ -25,7 +25,7 @@ namespace Free1X2.WinUI.Views.Ported;
 /// Además, cada concepto puede tener una lista de "Figuras" asociada (List&lt;long&gt; en
 /// el dominio legacy: FigurasV/Figuras1/FigurasX/Figuras2), gestionada vía FigurasFiltrosFrm.
 /// </summary>
-public partial class SignosSeguidosFrmViewModel : ObservableObject
+public partial class SignosSeguidosFrmViewModel : FiltroArchivoViewModelBase
 {
     // Cantidades admitidas de "Variantes" seguidas. Equivale a filtro.GetVariantes()/SetNoVariantes().
     [ObservableProperty]
@@ -91,8 +91,14 @@ public partial class SignosSeguidosFrmViewModel : ObservableObject
     /// <summary>Acción para navegar a otra página (la cablea la página con Frame.Navigate(tipo)).</summary>
     public Action<Type>? Navegar { get; set; }
 
+    // --- Lo específico del filtro para el cuarteto Guardar/Abrir/Copiar/Pegar (base C-18) ---
+    protected override string NombreSugerido => "SignosSeguidos";
+    protected override (string etiqueta, string extension)[] TiposGuardar =>
+        new[] { ("Signos seguidos", ".seg"), ("Signos seguidos (XML)", ".xml") };
+    protected override string[] ExtensionesAbrir => new[] { ".seg", ".xml" };
+
     // Fichero temporal de copiar/pegar (legacy: StartupPath + "/Temp/tmp.seg").
-    private static string RutaTemporal =>
+    protected override string RutaTemporal =>
         Path.Combine(AppContext.BaseDirectory, "Temp", "tmp.seg");
 
     // Directorio de columnas ganadoras (legacy: StartupPath + "/Ganadoras/").
@@ -255,7 +261,7 @@ public partial class SignosSeguidosFrmViewModel : ObservableObject
     public void RefrescarFiguras() => ActualizarIndicadoresFiguras();
 
     // Guarda en disco el filtro temporal (SignosSeguidosFrm.guardar(), líneas 579-584).
-    private void GuardarEn(string nombreArchivo)
+    protected override void GuardarEn(string nombreArchivo)
     {
         var filtroTemp = ObtenerFiltroTemporal();
         var archComb = new ArchivoCondiciones { NombreArchivo = nombreArchivo };
@@ -263,7 +269,7 @@ public partial class SignosSeguidosFrmViewModel : ObservableObject
     }
 
     // Abre la condición desde disco y vuelca sus valores (SignosSeguidosFrm.abrir(), líneas 567-577).
-    private void AbrirDesde(string nombreArchivo)
+    protected override void AbrirDesde(string nombreArchivo)
     {
         var archComb = new ArchivoCondiciones();
         if (archComb.AbrirArchivoCombinacion(nombreArchivo))
@@ -283,79 +289,7 @@ public partial class SignosSeguidosFrmViewModel : ObservableObject
         Navegar?.Invoke(typeof(FigurasFiltrosFrmPage));
     }
 
-    [RelayCommand]
-    private async Task Guardar()
-    {
-        // Equivale a SignosSeguidosFrm.menuCondiciones1_BGuardar (SignosSeguidosFrm.cs líneas 558-565).
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "SignosSeguidos",
-        };
-        picker.FileTypeChoices.Add("Signos seguidos", new List<string> { ".seg" });
-        picker.FileTypeChoices.Add("Signos seguidos (XML)", new List<string> { ".xml" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSaveFileAsync();
-        if (file == null) return;
-
-        try
-        {
-            GuardarEn(file.Path);
-        }
-        catch (Exception ex)
-        {
-            AppServices.MostrarError("No se pudo guardar: " + ex.Message);
-        }
-    }
-
-    [RelayCommand]
-    private async Task Abrir()
-    {
-        // Equivale a SignosSeguidosFrm.menuCondiciones1_BAbrir (SignosSeguidosFrm.cs líneas 547-556).
-        var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
-        picker.FileTypeFilter.Add(".seg");
-        picker.FileTypeFilter.Add(".xml");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSingleFileAsync();
-        if (file == null) return;
-
-        try
-        {
-            AbrirDesde(file.Path);
-        }
-        catch (Exception ex)
-        {
-            AppServices.MostrarError("No se pudo abrir: " + ex.Message);
-        }
-    }
-
-    [RelayCommand]
-    private void Copiar()
-    {
-        // Equivale a SignosSeguidosFrm.menuCondiciones1_BCopiar (SignosSeguidosFrm.cs líneas ~600).
-        try
-        {
-            string ruta = RutaTemporal;
-            Directory.CreateDirectory(Path.GetDirectoryName(ruta)!);
-            GuardarEn(ruta);
-        }
-        catch (Exception ex)
-        {
-            AppServices.MostrarError("No se pudo copiar: " + ex.Message);
-        }
-    }
-
-    [RelayCommand]
-    private void Pegar()
-    {
-        // Equivale a SignosSeguidosFrm.menuCondiciones1_BPegar (SignosSeguidosFrm.cs líneas ~617).
-        if (File.Exists(RutaTemporal))
-        {
-            AbrirDesde(RutaTemporal);
-        }
-    }
+    // Guardar/Abrir/Copiar/Pegar: heredados de FiltroArchivoViewModelBase (C-18).
 
     [RelayCommand]
     private void Estadisticas()

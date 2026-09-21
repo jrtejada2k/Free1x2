@@ -112,15 +112,7 @@ public partial class ParejasFrmViewModel : ObservableObject
     [RelayCommand]
     private async Task LeerAsync()
     {
-        var picker = new FileOpenPicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add(".par");
-        picker.FileTypeFilter.Add("*");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSingleFileAsync();
+        var file = await PickerHelper.AbrirAsync(".par", "*");
         if (file == null) return;
 
         try
@@ -163,15 +155,7 @@ public partial class ParejasFrmViewModel : ObservableObject
     [RelayCommand]
     private async Task SalvarCondicionesAsync()
     {
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "Pares",
-        };
-        picker.FileTypeChoices.Add("Condiciones", new List<string> { ".par" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSaveFileAsync();
+        var file = await PickerHelper.GuardarAsync("Pares", ("Condiciones", ".par"));
         if (file == null) return;
 
         try
@@ -205,15 +189,7 @@ public partial class ParejasFrmViewModel : ObservableObject
     [RelayCommand]
     private async Task CalcularAsync()
     {
-        var picker = new FileOpenPicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add(".txt");
-        picker.FileTypeFilter.Add("*");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSingleFileAsync();
+        var file = await PickerHelper.AbrirAsync(".txt", "*");
         if (file == null) return;
 
         PuedeCalcular = false;
@@ -269,15 +245,7 @@ public partial class ParejasFrmViewModel : ObservableObject
     [RelayCommand]
     private async Task GrabarResultadoAsync()
     {
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "Resultados",
-        };
-        picker.FileTypeChoices.Add("Resultados", new List<string> { ".txt" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSaveFileAsync();
+        var file = await PickerHelper.GuardarAsync("Resultados", ("Resultados", ".txt"));
         if (file == null) return;
 
         string ruta = file.Path;

@@ -18,7 +18,8 @@ namespace Free1X2.WinUI.Views.Ported
     /// ColumnasPremiadas, TotalImportePremios, Balance) usando la clase Grafico.
     ///
     /// Aquí se cablea el CÁLCULO de los puntos (Puntos[]) de cada curva, que es la parte
-    /// portable. El RENDER (clase Grafico, System.Drawing) sigue en WinForms; ver TODO en Dibujar.
+    /// portable. El RENDER original (clase Grafico, System.Drawing) se queda en WinForms; aquí
+    /// las curvas se pintan con GraficoLineasControl a partir de esos mismos puntos.
     /// </summary>
     public partial class TramificarGraficasFrmViewModel : ObservableObject
     {

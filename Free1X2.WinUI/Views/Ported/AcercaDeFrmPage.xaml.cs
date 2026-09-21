@@ -33,10 +33,10 @@ public sealed partial class AcercaDeFrmPage : Page
     private void AcercaDeFrmPage_Loaded(object sender, RoutedEventArgs e)
     {
         // El form legacy hacía: lblVersion.Text = "Versión " + Application.ProductVersion + " Rarotonga";
-        // Application.ProductVersion en WinForms equivale a la FileVersion del ensamblado; aquí
-        // usamos la versión del ensamblado (csproj <Version>/<FileVersion>), conservando " Rarotonga".
-        var version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "0.81.2";
-        VersionTextBlock.Text = $"Versión {version} Rarotonga";
+        // Application.ProductVersion es el ProductVersion del ensamblado, que en .NET se
+        // corresponde con AssemblyInformationalVersion (el <Version> del csproj: "0.82.0"), no
+        // con GetName().Version, que da 4 partes ("0.82.0.0"). Se conserva " Rarotonga".
+        VersionTextBlock.Text = $"Versión {VersionProducto()} Rarotonga";
 
         // Logo real de la app (imgLogo en WinForms, resources.GetObject("imgLogo.Image")).
         // El recurso legacy (AcercaDeFrm.resx, JPEG 110x110) se extrajo a Assets/logo.jpg y se
@@ -45,10 +45,53 @@ public sealed partial class AcercaDeFrmPage : Page
         {
             LogoImage.Source = new BitmapImage(new Uri("ms-appx:///Assets/logo.jpg"));
         }
-        catch
+        catch (Exception ex)
         {
             // Si el recurso faltara, se deja el recuadro vacío (no se inventa logo).
+            Free1X2.WinUI.Services.Log.Error("AcercaDeFrmPage: carga del logo", ex);
         }
+    }
+
+    /// <summary>
+    /// Versión de producto del ejecutable, equivalente al <c>Application.ProductVersion</c> del
+    /// WinForms legacy. Orden de resolución (B-09; ya NO hay ningún literal de versión: un número
+    /// escrito a mano se queda obsoleto y MIENTE — el "0.81.2" que había aquí sobrevivió a dos
+    /// releases):
+    ///   1. <see cref="AssemblyInformationalVersionAttribute"/> (= &lt;Version&gt; del csproj).
+    ///      Se recorta el sufijo "+commit" que añaden las compilaciones con SourceLink.
+    ///   2. <c>FileVersionInfo.ProductVersion</c> del propio fichero .exe/.dll.
+    ///   3. <c>GetName().Version</c> (4 partes) como último recurso.
+    ///   4. Si nada de lo anterior está disponible, "(desconocida)" — nunca un número inventado.
+    /// </summary>
+    private static string VersionProducto()
+    {
+        try
+        {
+            Assembly ensamblado = Assembly.GetExecutingAssembly();
+
+            string? informativa = ensamblado
+                .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
+            if (!string.IsNullOrWhiteSpace(informativa))
+            {
+                int mas = informativa!.IndexOf('+');   // "0.82.0+abc1234" -> "0.82.0"
+                return (mas > 0 ? informativa.Substring(0, mas) : informativa).Trim();
+            }
+
+            string ruta = ensamblado.Location;
+            if (!string.IsNullOrEmpty(ruta) && File.Exists(ruta))
+            {
+                string? producto = System.Diagnostics.FileVersionInfo.GetVersionInfo(ruta).ProductVersion;
+                if (!string.IsNullOrWhiteSpace(producto)) return producto!.Trim();
+            }
+
+            string? cuatroPartes = ensamblado.GetName().Version?.ToString();
+            if (!string.IsNullOrWhiteSpace(cuatroPartes)) return cuatroPartes!;
+        }
+        catch (Exception ex)
+        {
+            Free1X2.WinUI.Services.Log.Error("AcercaDeFrmPage.VersionProducto", ex);
+        }
+        return "(desconocida)";
     }
 
     private async void LicenciaLink_Click(object sender, RoutedEventArgs e)
@@ -121,9 +164,10 @@ public sealed partial class AcercaDeFrmPage : Page
                 if (ok) return;
             }
         }
-        catch
+        catch (Exception ex)
         {
-            // Si no se puede abrir el documento local, se intenta el sitio web.
+            // Si no se puede abrir el documento local, se intenta el sitio web (fallback intacto).
+            Free1X2.WinUI.Services.Log.Error("AcercaDeFrmPage.AbrirDocumentoLocalAsync(" + rutaRelativa + ")", ex);
         }
 
         await AbrirUriSeguraAsync(urlFallback);

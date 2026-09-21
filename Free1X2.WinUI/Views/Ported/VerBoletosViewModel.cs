@@ -120,16 +120,7 @@ public partial class VerBoletosViewModel : ObservableObject
         //   InitialDirectory "Columnas\".
         try
         {
-            var picker = new FileOpenPicker
-            {
-                SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            };
-            picker.FileTypeFilter.Add(".txt");
-            picker.FileTypeFilter.Add(".cols");
-            picker.FileTypeFilter.Add("*");
-
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, Services.AppServices.WindowHandle);
-            StorageFile? file = await picker.PickSingleFileAsync();
+            StorageFile? file = await Services.PickerHelper.AbrirAsync(".txt", ".cols", "*");
             if (file is null)
             {
                 return;

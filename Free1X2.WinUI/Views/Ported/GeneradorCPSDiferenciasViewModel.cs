@@ -61,18 +61,9 @@ public partial class GeneradorCPSDiferenciasViewModel : ObservableObject
     [RelayCommand]
     private async Task Examinar()
     {
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            // Legacy fd.DefaultExt = ".txt".
-            DefaultFileExtension = ".txt",
-            SuggestedFileName = "doc1",
-        };
-        picker.FileTypeChoices.Add("Archivos de texto", new List<string> { ".txt" });
-        picker.FileTypeChoices.Add("Todos los archivos", new List<string> { "." });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? archivo = await picker.PickSaveFileAsync();
+        // Legacy fd.DefaultExt = ".txt".
+        StorageFile? archivo = await PickerHelper.GuardarConExtensionPorDefectoAsync(
+            "doc1", ".txt", ("Archivos de texto", ".txt"), ("Todos los archivos", "."));
         if (archivo is not null)
         {
             ArchivoDestino = archivo.Path;
@@ -116,36 +107,48 @@ public partial class GeneradorCPSDiferenciasViewModel : ObservableObject
 
         EstadoTexto = "Generando...";
 
-        await Task.Run(() =>
+        // B-12: sin catch, un fallo de escritura dejaba EstadoTexto colgado en «Generando...»
+        // y el error llegaba al manejador global sin decir qué fichero había fallado.
+        try
         {
-            string[]? columnas = null;
-            IArchivoColumnas f = new ArchivoColumnasTexto(archivo);
-
-            if (tipoColumna == 0) // rFijos.Checked
+            await Task.Run(() =>
             {
-                if (numDif == 0) // rDif1
-                    columnas = CombinarFijos1(cInicial, cAlterna);
-                else             // rDif2
-                    columnas = CombinarFijos2(cInicial, cAlterna);
-            }
-            else // rDobles.Checked
-            {
-                if (numDif == 0) // rDif1
-                    columnas = CombinarDobles1(cInicial, cAlterna);
-                else             // rDif2
-                    columnas = CombinarDobles2(cInicial, cAlterna);
-            }
+                string[]? columnas = null;
+                IArchivoColumnas f = new ArchivoColumnasTexto(archivo);
 
-            // Guardamos las columnas de la matriz al archivo (igual que el legacy).
-            for (int i = 0; i < columnas!.Length; i++)
-            {
-                f.GuardarColsComa(columnas[i]);
-            }
-            f.Cerrar();
-        });
+                if (tipoColumna == 0) // rFijos.Checked
+                {
+                    if (numDif == 0) // rDif1
+                        columnas = CombinarFijos1(cInicial, cAlterna);
+                    else             // rDif2
+                        columnas = CombinarFijos2(cInicial, cAlterna);
+                }
+                else // rDobles.Checked
+                {
+                    if (numDif == 0) // rDif1
+                        columnas = CombinarDobles1(cInicial, cAlterna);
+                    else             // rDif2
+                        columnas = CombinarDobles2(cInicial, cAlterna);
+                }
 
-        EstadoTexto = "Columnas creadas.";
-        AppServices.MostrarInfo("Columnas creadas");
+                // Guardamos las columnas de la matriz al archivo (igual que el legacy).
+                for (int i = 0; i < columnas!.Length; i++)
+                {
+                    f.GuardarColsComa(columnas[i]);
+                }
+                f.Cerrar();
+            });
+
+            EstadoTexto = "Columnas creadas.";
+            AppServices.MostrarInfo("Columnas creadas");
+        }
+        catch (Exception ex)
+        {
+            Log.Error("GeneradorCPSDiferencias.Generar [" + archivo + "]", ex);
+            AppServices.MostrarError(
+                "No se pudieron generar las columnas en:\n" + archivo + "\n\n" + ex.Message);
+            EstadoTexto = "No se pudieron crear las columnas: " + ex.Message;
+        }
     }
 
     /// <summary>

@@ -140,16 +140,11 @@ namespace Free1X2.WinUI.Views.Ported
         [RelayCommand]
         private async Task Calcular()
         {
-            var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
-            picker.FileTypeFilter.Add(".txt");
-            picker.FileTypeFilter.Add("*");
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
             // Recoge la pantalla y prepara las 6 columnas ANTES de elegir el fichero (igual que el legacy).
             RecuperaPantalla();
             PreparaColumnas();
 
-            StorageFile? archivo = await picker.PickSingleFileAsync();
+            StorageFile? archivo = await PickerHelper.AbrirAsync(".txt", "*");
             if (archivo is null)
             {
                 return;
@@ -166,44 +161,60 @@ namespace Free1X2.WinUI.Views.Ported
             bool errorLongitud = false;
             var validas = new BitArray(4782969);
 
-            await Task.Run(() =>
+            // B-12: sin try/catch, cualquier IOException (fichero bloqueado, unidad de red caída,
+            // disco lleno) escapaba al manejador global y los tres indicadores se quedaban
+            // COLGADOS en "..." para siempre. Ahora el error se registra y se explica, y el
+            // finally deja siempre los contadores en un valor coherente. Estas asignaciones
+            // están tras el await, es decir, ya en el hilo de UI (son propiedades enlazadas).
+            try
             {
-                using var sr = new StreamReader(ruta);
-                while (sr.Peek() > 0)
+                await Task.Run(() =>
                 {
-                    string tmp = sr.ReadLine()!.Trim();
-                    ctini++;
-                    if (tmp.Length < 14)
+                    using var sr = new StreamReader(ruta);
+                    while (sr.Peek() > 0)
                     {
-                        errorLongitud = true;
-                        break;
-                    }
-                    tmp = tmp.Replace('x', '4');
-                    tmp = tmp.Replace('X', '4');
-                    if (Valida(tmp))
-                    {
-                        int idx = S2n(tmp, 14);
-                        if (validas[idx] == false)
+                        string tmp = sr.ReadLine()!.Trim();
+                        ctini++;
+                        if (tmp.Length < 14)
                         {
-                            validas[idx] = true;
-                            ctadm++;
+                            errorLongitud = true;
+                            break;
+                        }
+                        tmp = tmp.Replace('x', '4');
+                        tmp = tmp.Replace('X', '4');
+                        if (Valida(tmp))
+                        {
+                            int idx = S2n(tmp, 14);
+                            if (validas[idx] == false)
+                            {
+                                validas[idx] = true;
+                                ctadm++;
+                            }
                         }
                     }
+                });
+
+                _validas = validas;
+                _ctadm = ctadm;
+
+                if (errorLongitud)
+                {
+                    AppServices.MostrarError("error de longitud en una columna de entrada");
                 }
-            });
-
-            _validas = validas;
-            _ctadm = ctadm;
-
-            if (errorLongitud)
-            {
-                AppServices.MostrarError("error de longitud en una columna de entrada");
             }
-
-            ColumnasProcesadas = ctini.ToString();
-            ColumnasAdmitidas = ctadm.ToString();
-            string t = (DateTime.Now - time0).ToString() + "0000000000";
-            Tiempo = t.Substring(0, 10);
+            catch (Exception ex)
+            {
+                Log.Error("GeneraPim.Calcular [" + ruta + "]", ex);
+                AppServices.MostrarError(
+                    "No se pudo leer el fichero de columnas:\n" + ruta + "\n\n" + ex.Message);
+            }
+            finally
+            {
+                ColumnasProcesadas = ctini.ToString();
+                ColumnasAdmitidas = ctadm.ToString();
+                string t = (DateTime.Now - time0).ToString() + "0000000000";
+                Tiempo = t.Substring(0, 10);
+            }
         }
 
         /// <summary>
@@ -219,17 +230,8 @@ namespace Free1X2.WinUI.Views.Ported
                 return;
             }
 
-            var picker = new FileSavePicker
-            {
-                SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-                DefaultFileExtension = ".txt",
-                SuggestedFileName = "resultado",
-            };
-            picker.FileTypeChoices.Add("Resultados", new System.Collections.Generic.List<string> { ".txt" });
-            picker.FileTypeChoices.Add("Todos los archivos", new System.Collections.Generic.List<string> { "." });
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-            StorageFile? archivo = await picker.PickSaveFileAsync();
+            StorageFile? archivo = await PickerHelper.GuardarConExtensionPorDefectoAsync(
+                "resultado", ".txt", ("Resultados", ".txt"), ("Todos los archivos", "."));
             if (archivo is null)
             {
                 return;
@@ -238,19 +240,30 @@ namespace Free1X2.WinUI.Views.Ported
             string ruta = archivo.Path;
             BitArray validas = _validas;
 
-            await Task.Run(() =>
+            // B-12: escritura de hasta 4.782.969 líneas; un fallo de E/S a mitad dejaba el
+            // fichero a medias y el error sin explicar (ni el nombre en pantalla se actualizaba).
+            try
             {
-                using var wr = new StreamWriter(ruta);
-                for (int nr = 0; nr < 4782969; nr++)
+                await Task.Run(() =>
                 {
-                    if (validas[nr])
+                    using var wr = new StreamWriter(ruta);
+                    for (int nr = 0; nr < 4782969; nr++)
                     {
-                        wr.WriteLine(N2s(nr, 14));
+                        if (validas[nr])
+                        {
+                            wr.WriteLine(N2s(nr, 14));
+                        }
                     }
-                }
-            });
+                });
 
-            FicheroResultado = Path.GetFileName(ruta);
+                FicheroResultado = Path.GetFileName(ruta);
+            }
+            catch (Exception ex)
+            {
+                Log.Error("GeneraPim.GrabarResultado [" + ruta + "]", ex);
+                AppServices.MostrarError(
+                    "No se pudo grabar el fichero de resultado:\n" + ruta + "\n\n" + ex.Message);
+            }
         }
 
         /// <summary>
@@ -259,17 +272,8 @@ namespace Free1X2.WinUI.Views.Ported
         [RelayCommand]
         private async Task SalvarRangos()
         {
-            var picker = new FileSavePicker
-            {
-                SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-                DefaultFileExtension = ".cnd",
-                SuggestedFileName = "rangos",
-            };
-            picker.FileTypeChoices.Add("Rangos", new System.Collections.Generic.List<string> { ".cnd" });
-            picker.FileTypeChoices.Add("Todos los archivos", new System.Collections.Generic.List<string> { "." });
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-            StorageFile? archivo = await picker.PickSaveFileAsync();
+            StorageFile? archivo = await PickerHelper.GuardarConExtensionPorDefectoAsync(
+                "rangos", ".cnd", ("Rangos", ".cnd"), ("Todos los archivos", "."));
             if (archivo is null)
             {
                 return;
@@ -278,16 +282,26 @@ namespace Free1X2.WinUI.Views.Ported
             string ruta = archivo.Path;
             string[] lineas = { Rango1, Rango2, Rango3, Rango4, Rango5, Rango6, Rango7, RangoRecorrido };
 
-            await Task.Run(() =>
+            // B-12: sin catch, un fallo al escribir los rangos llegaba al manejador global.
+            try
             {
-                using var sw = new StreamWriter(ruta);
-                foreach (string l in lineas)
+                await Task.Run(() =>
                 {
-                    sw.WriteLine(l);
-                }
-            });
+                    using var sw = new StreamWriter(ruta);
+                    foreach (string l in lineas)
+                    {
+                        sw.WriteLine(l);
+                    }
+                });
 
-            FicheroRangos = Path.GetFileName(ruta);
+                FicheroRangos = Path.GetFileName(ruta);
+            }
+            catch (Exception ex)
+            {
+                Log.Error("GeneraPim.SalvarRangos [" + ruta + "]", ex);
+                AppServices.MostrarError(
+                    "No se pudieron grabar los rangos en:\n" + ruta + "\n\n" + ex.Message);
+            }
         }
 
         /// <summary>
@@ -296,19 +310,28 @@ namespace Free1X2.WinUI.Views.Ported
         [RelayCommand]
         private async Task RecuperarRangos()
         {
-            var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
-            picker.FileTypeFilter.Add(".cnd");
-            picker.FileTypeFilter.Add("*");
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-            StorageFile? archivo = await picker.PickSingleFileAsync();
+            StorageFile? archivo = await PickerHelper.AbrirAsync(".cnd", "*");
             if (archivo is null)
             {
                 return;
             }
 
             string ruta = archivo.Path;
-            string[] lineas = await Task.Run(() => File.ReadAllLines(ruta));
+
+            // B-12: fichero inexistente, corrupto o inaccesible -> error explicado, sin tocar
+            // los rangos actuales (se sale antes de asignar nada).
+            string[] lineas;
+            try
+            {
+                lineas = await Task.Run(() => File.ReadAllLines(ruta));
+            }
+            catch (Exception ex)
+            {
+                Log.Error("GeneraPim.RecuperarRangos [" + ruta + "]", ex);
+                AppServices.MostrarError(
+                    "No se pudo leer el fichero de rangos:\n" + ruta + "\n\n" + ex.Message);
+                return;
+            }
 
             // Asigna en el mismo orden que el legacy (tbmg1..6, tbmgsuma, tbmgreco).
             if (lineas.Length > 0) Rango1 = lineas[0];
@@ -334,17 +357,8 @@ namespace Free1X2.WinUI.Views.Ported
             RecuperaPantalla();
             PreparaColumnas();
 
-            var picker = new FileSavePicker
-            {
-                SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-                DefaultFileExtension = ".txt",
-                SuggestedFileName = "columnas",
-            };
-            picker.FileTypeChoices.Add("F.Salida", new System.Collections.Generic.List<string> { ".txt" });
-            picker.FileTypeChoices.Add("Todos los archivos", new System.Collections.Generic.List<string> { "." });
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-            StorageFile? archivo = await picker.PickSaveFileAsync();
+            StorageFile? archivo = await PickerHelper.GuardarConExtensionPorDefectoAsync(
+                "columnas", ".txt", ("F.Salida", ".txt"), ("Todos los archivos", "."));
             if (archivo is null)
             {
                 return;
@@ -353,21 +367,32 @@ namespace Free1X2.WinUI.Views.Ported
             string ruta = archivo.Path;
             int[,] cps = (int[,])_cps.Clone();
 
-            await Task.Run(() =>
+            // B-12: sin catch, un fallo de escritura llegaba al manejador global sin decir
+            // siquiera qué fichero falló.
+            try
             {
-                using var sw = new StreamWriter(ruta);
-                for (int nr = 0; nr < 6; nr++)
+                await Task.Run(() =>
                 {
-                    string tmp = Cambia(cps[0, nr]);
-                    for (int np = 1; np < 14; np++)
+                    using var sw = new StreamWriter(ruta);
+                    for (int nr = 0; nr < 6; nr++)
                     {
-                        tmp += "," + Cambia(cps[np, nr]);
+                        string tmp = Cambia(cps[0, nr]);
+                        for (int np = 1; np < 14; np++)
+                        {
+                            tmp += "," + Cambia(cps[np, nr]);
+                        }
+                        sw.WriteLine(tmp);
                     }
-                    sw.WriteLine(tmp);
-                }
-            });
+                });
 
-            FicheroResultado = Path.GetFileName(ruta);
+                FicheroResultado = Path.GetFileName(ruta);
+            }
+            catch (Exception ex)
+            {
+                Log.Error("GeneraPim.ExportarColumnas [" + ruta + "]", ex);
+                AppServices.MostrarError(
+                    "No se pudieron exportar las columnas a:\n" + ruta + "\n\n" + ex.Message);
+            }
         }
 
         /// <summary>
@@ -377,12 +402,7 @@ namespace Free1X2.WinUI.Views.Ported
         [RelayCommand]
         private async Task CargarGanadoras()
         {
-            var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
-            picker.FileTypeFilter.Add(".txt");
-            picker.FileTypeFilter.Add("*");
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-            StorageFile? archivo = await picker.PickSingleFileAsync();
+            StorageFile? archivo = await PickerHelper.AbrirAsync(".txt", "*");
             if (archivo is null)
             {
                 return;
@@ -393,21 +413,33 @@ namespace Free1X2.WinUI.Views.Ported
             int limcgsR = 0;
             bool columnaErronea = false;
 
-            await Task.Run(() =>
+            // B-12: sin catch, un fichero inaccesible (o con más de 3000 columnas ->
+            // IndexOutOfRange) llegaba al manejador global y las ganadoras quedaban a medias.
+            try
             {
-                using var sr = new StreamReader(ruta);
-                while (sr.Peek() > 0)
+                await Task.Run(() =>
                 {
-                    string tmp = VerColumna(sr.ReadLine() ?? "");
-                    if (tmp.Length == 0)
+                    using var sr = new StreamReader(ruta);
+                    while (sr.Peek() > 0)
                     {
-                        columnaErronea = true;
-                        return;
+                        string tmp = VerColumna(sr.ReadLine() ?? "");
+                        if (tmp.Length == 0)
+                        {
+                            columnaErronea = true;
+                            return;
+                        }
+                        colgsR[limcgsR] = tmp;
+                        limcgsR++;
                     }
-                    colgsR[limcgsR] = tmp;
-                    limcgsR++;
-                }
-            });
+                });
+            }
+            catch (Exception ex)
+            {
+                Log.Error("GeneraPim.CargarGanadoras [" + ruta + "]", ex);
+                AppServices.MostrarError(
+                    "No se pudo leer el fichero de columnas ganadoras:\n" + ruta + "\n\n" + ex.Message);
+                return; // No se toca el estado actual: las ganadoras previas siguen válidas.
+            }
 
             if (columnaErronea)
             {

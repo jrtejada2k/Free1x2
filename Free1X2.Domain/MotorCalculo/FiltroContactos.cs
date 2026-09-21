@@ -298,7 +298,9 @@ namespace Free1X2.MotorCalculo
 
         protected bool AnalizarFiguras()
         {
-            return Figuras.Contains(FiguraContactos.Figura);
+            // P-03: usa la variante sin asignaciones; el valor es el mismo que
+            // FiguraContactos.Figura pero sin crear el FiguraCondicion por columna.
+            return Figuras.Contains(ObtenerFiguraLongValor());
         }
 		#region metodos interface IFiltro
 		
@@ -964,22 +966,47 @@ namespace Free1X2.MotorCalculo
         public FiguraCondicion ObtenerFiguraLong()
         {
             FiguraCondicion figura = new FiguraCondicion();
+            figura.Figura = ObtenerFiguraLongValor();
+            return figura;
+        }
+
+        /// <summary>
+        /// P-03 · Calcula el <c>long</c> de la figura de contactos SIN asignar memoria.
+        /// Antes cada columna analizada creaba un <c>FiguraCondicion</c> + un
+        /// <c>List&lt;int&gt;</c> con 10 <c>Add</c> + un <c>Sort()</c>; en un universo de
+        /// 4 782 969 columnas eso son ~15 M de objetos. El buffer va en la pila y se
+        /// ordena con inserción ascendente, que para 10 enteros produce exactamente la
+        /// misma secuencia que <c>List&lt;int&gt;.Sort()</c> (enteros iguales son
+        /// indistinguibles), y el empaquetado en nibbles es idéntico.
+        /// </summary>
+        public long ObtenerFiguraLongValor()
+        {
+            Span<int> valores = stackalloc int[10];
+            valores[0] = Num1X;
+            valores[1] = Num12;
+            valores[2] = NumX2;
+            valores[3] = Num11;
+            valores[4] = NumXX;
+            valores[5] = Num22;
+            valores[6] = Num1V;
+            valores[7] = NumXV;
+            valores[8] = Num2V;
+            valores[9] = NumVV;
+
+            for (int i = 1; i < 10; i++)
+            {
+                int v = valores[i];
+                int j = i - 1;
+                while (j >= 0 && valores[j] > v)
+                {
+                    valores[j + 1] = valores[j];
+                    j--;
+                }
+                valores[j + 1] = v;
+            }
+
             long temporal = 0;
-            List<int> valores = new List<int>();
-            valores.Add(Num1X);
-            valores.Add(Num12);
-            valores.Add(NumX2);
-            valores.Add(Num11);
-            valores.Add(NumXX);
-            valores.Add(Num22);
-            valores.Add(Num1V);
-            valores.Add(NumXV);
-            valores.Add(Num2V);
-            valores.Add(NumVV);
-
-            valores.Sort();
-
-            for (int i = valores.Count - 1; i >= 0; i--)
+            for (int i = 9; i >= 0; i--)
             {
                 if (valores[i] > 0)
                 {
@@ -987,8 +1014,7 @@ namespace Free1X2.MotorCalculo
                     temporal |= (uint)valores[i];
                 }
             }
-            figura.Figura = temporal;
-            return figura;
+            return temporal;
         }
 
         public int NoContactos1X

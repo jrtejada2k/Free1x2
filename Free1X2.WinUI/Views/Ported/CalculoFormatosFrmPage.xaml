@@ -26,7 +26,8 @@
                     <StackPanel Orientation="Horizontal" Spacing="5">
                         <Button
                             Content="Seleccionar fichero…"
-                            Command="{x:Bind ViewModel.SeleccionarFicheroSalidaCommand}" />
+                            Command="{x:Bind ViewModel.SeleccionarFicheroSalidaCommand}"
+                            AutomationProperties.Name="Seleccionar fichero de salida" />
                         <TextBlock
                             VerticalAlignment="Center"
                             Style="{StaticResource SecondaryTextBlockStyle}"
@@ -52,7 +53,8 @@
                     <Button
                         Style="{StaticResource AccentButtonStyle}"
                         Content="Sacar Formato"
-                        Command="{x:Bind ViewModel.SacarFormatoCommand}" />
+                        Command="{x:Bind ViewModel.SacarFormatoCommand}"
+                        AutomationProperties.Name="Sacar formato de la columna" />
                 </StackPanel>
             </Border>
 
@@ -69,7 +71,8 @@
                         TextWrapping="Wrap"
                         MinHeight="160"
                         PlaceholderText="El informe generado aparecerá aquí."
-                        Text="{x:Bind ViewModel.Informe, Mode=OneWay}" />
+                        Text="{x:Bind ViewModel.Informe, Mode=OneWay}"
+                        AutomationProperties.Name="Informe generado" />
                 </StackPanel>
             </Border>
 

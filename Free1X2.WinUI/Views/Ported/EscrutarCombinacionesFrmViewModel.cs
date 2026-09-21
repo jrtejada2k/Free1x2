@@ -252,7 +252,7 @@ public partial class EscrutarCombinacionesFrmViewModel : ObservableObject
     /// (EscrutadorComb.escrutinioDS quedaba null); las columnas premiadas
     /// (ListaEscrutadasConPremio) son la salida útil que se selecciona/graba.
     /// </summary>
-    public ObservableCollection<CombinacionPremiadaItem> Resultados { get; } = new();
+    public ColeccionUi<CombinacionPremiadaItem> Resultados { get; } = new(); // C-13
 
     /// <summary>Histograma de premios por categoría (nº de columnas con N aciertos).</summary>
     public ObservableCollection<string> Histograma { get; } = new();
@@ -269,15 +269,7 @@ public partial class EscrutarCombinacionesFrmViewModel : ObservableObject
     private async Task SeleccionarFicherosAsync()
     {
         // Legacy BtnFileOrigClick: OpenFileDialog multiselección (*.comb, *.xml) en "Columnas\\".
-        var picker = new FileOpenPicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add(".comb");
-        picker.FileTypeFilter.Add(".xml");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var files = await picker.PickMultipleFilesAsync();
+        var files = await PickerHelper.AbrirVariosAsync(".comb", ".xml");
         if (files == null || files.Count == 0) return;
 
         _archivosComb.Clear();
@@ -293,14 +285,7 @@ public partial class EscrutarCombinacionesFrmViewModel : ObservableObject
     private async Task SeleccionarFicheroReferenciaAsync()
     {
         // Legacy BtnFileRefClick: OpenFileDialog (*.txt) en "Columnas\\".
-        var picker = new FileOpenPicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add(".txt");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSingleFileAsync();
+        var file = await PickerHelper.AbrirAsync(".txt");
         if (file == null) return;
 
         _archivoRef = file.Path;
@@ -342,14 +327,7 @@ public partial class EscrutarCombinacionesFrmViewModel : ObservableObject
     private async Task VerArchivosAsync()
     {
         // Legacy btnVerArch_Click: OpenFileDialog y, si se elige un archivo, txtNombreArchBase = su nombre.
-        var picker = new FileOpenPicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add("*");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSingleFileAsync();
+        StorageFile? file = await PickerHelper.AbrirAsync("*");
         if (file is null) return;
         PlantillaNombreArchivo = file.Name;
     }
@@ -426,92 +404,110 @@ public partial class EscrutarCombinacionesFrmViewModel : ObservableObject
         // posibles premios de la columna ganadora y escruta cada fichero de combinaciones.
         // NOTA: el legacy llamaba a AñadirPremiosGlobales (escribe en escrutinioDS, que en
         // EscrutadorComb es null) — lanzaría NullReferenceException; se omite a propósito.
-        var salida = await Task.Run(() =>
+        // B-12: el escrutinio completo corría sin try/catch. Un IOException (fichero de
+        // combinaciones bloqueado, carpeta de jornadas caída) dejaba TiempoTexto colgado en
+        // «Calculando...» para siempre y el error llegaba al manejador global sin contexto.
+        try
         {
-            // Histograma por categoría de aciertos. EscrutadorComb.PremiosTotales se indexa por
-            // la posición de la categoría en su array Premios (que ObtenerPosiblesPremios ordena
-            // descendente in-place), no por el nº de aciertos; por eso se agrega emparejando
-            // Premios[i] (categoría) con PremiosTotales[i] (conteo).
-            var globales = new Dictionary<int, int>();
-            var premiadas = new List<ColumnasPremiadasComb>();
+            var salida = await Task.Run(() =>
+            {
+                // Histograma por categoría de aciertos. EscrutadorComb.PremiosTotales se indexa por
+                // la posición de la categoría en su array Premios (que ObtenerPosiblesPremios ordena
+                // descendente in-place), no por el nº de aciertos; por eso se agrega emparejando
+                // Premios[i] (categoría) con PremiosTotales[i] (conteo).
+                var globales = new Dictionary<int, int>();
+                var premiadas = new List<ColumnasPremiadasComb>();
 
-            if (tipo == 3)
-            {
-                EscrutarCombinacionesContraJornadas(colAciertos, verPremiadas, plantilla,
-                    carpeta, dt, dj, temporadasSel, globales, premiadas);
-            }
-            else
-            {
-                foreach (string archivoComb in archivos)
+                if (tipo == 3)
                 {
-                    var escrutador = new EscrutadorComb(colAciertos)
+                    EscrutarCombinacionesContraJornadas(colAciertos, verPremiadas, plantilla,
+                        carpeta, dt, dj, temporadasSel, globales, premiadas);
+                }
+                else
+                {
+                    foreach (string archivoComb in archivos)
                     {
-                        ArchivoColumnas = archivoComb,
-                        AñadirAGanadoras = verPremiadas,
-                    };
-                    // El motor añade premiadas a ListaEscrutadasConPremio; hay que inicializarla
-                    // (en EscrutadorComb es null por defecto -> NullReferenceException si no).
-                    if (verPremiadas) escrutador.ListaEscrutadasConPremio = new ArrayList();
-
-                    if (tipo == 1)
-                    {
-                        escrutador.ObtenerPosiblesPremios(colGan, colAciertos);
-                        escrutador.EscrutarCombinacion(0);
-                    }
-                    else // tipo == 2
-                    {
-                        IArchivoColumnas arch = new ArchivoColumnasTexto(archivoRef);
-                        string[] ganadoras = arch.LeerTodasCols(false);
-                        for (int jorn = 1; jorn <= ganadoras.Length; jorn++)
+                        var escrutador = new EscrutadorComb(colAciertos)
                         {
-                            escrutador.ObtenerPosiblesPremios(ganadoras[jorn - 1], colAciertos);
-                            escrutador.EscrutarCombinacion(jorn);
+                            ArchivoColumnas = archivoComb,
+                            AñadirAGanadoras = verPremiadas,
+                        };
+                        // El motor añade premiadas a ListaEscrutadasConPremio; hay que inicializarla
+                        // (en EscrutadorComb es null por defecto -> NullReferenceException si no).
+                        if (verPremiadas) escrutador.ListaEscrutadasConPremio = new ArrayList();
+
+                        if (tipo == 1)
+                        {
+                            escrutador.ObtenerPosiblesPremios(colGan, colAciertos);
+                            escrutador.EscrutarCombinacion(0);
+                        }
+                        else // tipo == 2
+                        {
+                            IArchivoColumnas arch = new ArchivoColumnasTexto(archivoRef);
+                            string[] ganadoras = arch.LeerTodasCols(false);
+                            for (int jorn = 1; jorn <= ganadoras.Length; jorn++)
+                            {
+                                escrutador.ObtenerPosiblesPremios(ganadoras[jorn - 1], colAciertos);
+                                escrutador.EscrutarCombinacion(jorn);
+                            }
+                        }
+
+                        // PremiosTotales es acumulativo en el escrutador; se lee una vez al final
+                        // (el legacy lo sumaba dentro del bucle, lo que duplicaba en el modo 2).
+                        AcumularPremios(globales, escrutador);
+
+                        if (verPremiadas && escrutador.ListaEscrutadasConPremio != null)
+                        {
+                            foreach (var p in escrutador.ListaEscrutadasConPremio)
+                                premiadas.Add((ColumnasPremiadasComb)p);
                         }
                     }
-
-                    // PremiosTotales es acumulativo en el escrutador; se lee una vez al final
-                    // (el legacy lo sumaba dentro del bucle, lo que duplicaba en el modo 2).
-                    AcumularPremios(globales, escrutador);
-
-                    if (verPremiadas && escrutador.ListaEscrutadasConPremio != null)
-                    {
-                        foreach (var p in escrutador.ListaEscrutadasConPremio)
-                            premiadas.Add((ColumnasPremiadasComb)p);
-                    }
                 }
-            }
 
-            return (globales, premiadas);
-        });
-
-        // Premiadas -> filas de resultado seleccionables.
-        _premiadas.Clear();
-        foreach (var p in salida.premiadas)
-        {
-            _premiadas.Add(p);
-            Resultados.Add(new CombinacionPremiadaItem
-            {
-                Columna = p.ColumnaTexto,
-                Archivo = Path.GetFileName(p.Fichero ?? ""),
-                Jornada = p.Jornada.ToString(),
-                Premio = p.Premio.ToString(),
+                return (globales, premiadas);
             });
-        }
 
-        // Histograma de premios por categoría (premiosTotales acumulado), de mayor a menor.
-        var categorias = new List<int>(salida.globales.Keys);
-        categorias.Sort();
-        categorias.Reverse();
-        foreach (int a in categorias)
+            // Premiadas -> filas de resultado seleccionables.
+            // C-13: se compone la lista completa y se vuelca con un único Reset (mismo orden).
+            _premiadas.Clear();
+            var filasResultado = new List<CombinacionPremiadaItem>(salida.premiadas.Count);
+            foreach (var p in salida.premiadas)
+            {
+                _premiadas.Add(p);
+                filasResultado.Add(new CombinacionPremiadaItem
+                {
+                    Columna = p.ColumnaTexto,
+                    Archivo = Path.GetFileName(p.Fichero ?? ""),
+                    Jornada = p.Jornada.ToString(),
+                    Premio = p.Premio.ToString(),
+                });
+            }
+            Resultados.ReemplazarTodo(filasResultado);
+
+            // Histograma de premios por categoría (premiosTotales acumulado), de mayor a menor.
+            var categorias = new List<int>(salida.globales.Keys);
+            categorias.Sort();
+            categorias.Reverse();
+            foreach (int a in categorias)
+            {
+                Histograma.Add($"{a} aciertos: {salida.globales[a]}");
+            }
+        }
+        catch (Exception ex)
         {
-            Histograma.Add($"{a} aciertos: {salida.globales[a]}");
+            Log.Error("EscrutarCombinaciones.Escrutar (tipo=" + tipo + ")", ex);
+            AppServices.MostrarError("No se pudo completar el escrutinio:\n\n" + ex.Message);
         }
-
-        var hora9 = DateTime.Now;
-        string tiempo = "Final = " + (hora9 - hora0);
-        if (tiempo.Length >= 18) tiempo = tiempo.Substring(0, 18);
-        TiempoTexto = tiempo;
-        OnPropertyChanged(nameof(MensajeVacioVisibility));
+        finally
+        {
+            // B-12: el tiempo se publica SIEMPRE; antes, tras un fallo, TiempoTexto se quedaba
+            // en «Calculando...». Estamos tras el await -> hilo de UI (propiedad enlazada).
+            var hora9 = DateTime.Now;
+            string tiempo = "Final = " + (hora9 - hora0);
+            if (tiempo.Length >= 18) tiempo = tiempo.Substring(0, 18);
+            TiempoTexto = tiempo;
+            OnPropertyChanged(nameof(MensajeVacioVisibility));
+        }
     }
 
     // Lista de premiadas del último escrutinio (legacy: listaEscrutadasConPremio).
@@ -682,32 +678,37 @@ public partial class EscrutarCombinacionesFrmViewModel : ObservableObject
             return;
         }
 
-        var picker = new FileSavePicker
-        {
-            SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-            SuggestedFileName = "columnas",
-        };
-        picker.FileTypeChoices.Add("Columnas", new List<string> { ".txt" });
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        StorageFile? file = await picker.PickSaveFileAsync();
+        StorageFile? file = await PickerHelper.GuardarAsync("columnas", ("Columnas", ".txt"));
         if (file is null) return;
 
-        await Task.Run(() =>
-        {
-            // Legacy: IArchivoColumnas archivo = new ArchivoColumnasTexto(nombre);
-            //   archivo.GuardarCols(columna) por fila; archivo.Cerrar().
-            IArchivoColumnas archivo = new ArchivoColumnasTexto(file.Path);
-            foreach (string columna in seleccionadas)
-                archivo.GuardarCols(columna);
-            archivo.Cerrar();
-        });
+        string rutaSalida = file.Path;
 
-        AppServices.MostrarInfo($"Guardadas {seleccionadas.Count} columna(s) en {file.Name}.");
+        // B-12: sin catch, un fallo de escritura llegaba al manejador global y aun así se
+        // anunciaba «Guardadas N columnas».
+        try
+        {
+            await Task.Run(() =>
+            {
+                // Legacy: IArchivoColumnas archivo = new ArchivoColumnasTexto(nombre);
+                //   archivo.GuardarCols(columna) por fila; archivo.Cerrar().
+                IArchivoColumnas archivo = new ArchivoColumnasTexto(rutaSalida);
+                foreach (string columna in seleccionadas)
+                    archivo.GuardarCols(columna);
+                archivo.Cerrar();
+            });
+
+            AppServices.MostrarInfo($"Guardadas {seleccionadas.Count} columna(s) en {file.Name}.");
+        }
+        catch (Exception ex)
+        {
+            Log.Error("EscrutarCombinaciones.GrabarColumnas [" + rutaSalida + "]", ex);
+            AppServices.MostrarError(
+                "No se pudieron grabar las columnas en:\n" + rutaSalida + "\n\n" + ex.Message);
+        }
     }
 
     /// <summary>Columnas premiadas a mostrar (legacy btnVerPremiadas_Click -> ColumnasPremiadasFrm).</summary>
-    public ObservableCollection<CombinacionPremiadaItem> Premiadas { get; } = new();
+    public ColeccionUi<CombinacionPremiadaItem> Premiadas { get; } = new(); // C-13
 
     /// <summary>Visibilidad de la tarjeta de premiadas (sólo tras Ver Premiadas con datos).</summary>
     [ObservableProperty]
@@ -717,10 +718,11 @@ public partial class EscrutarCombinacionesFrmViewModel : ObservableObject
     private void VerPremiadasAccion()
     {
         // Legacy btnVerPremiadas_Click: vuelca listaPremiadas (ColumnasPremiadasComb) a la lista.
-        Premiadas.Clear();
+        // C-13: se compone la lista y se vuelca con un único Reset (mismo contenido y orden).
+        var filas = new List<CombinacionPremiadaItem>(_premiadas.Count);
         foreach (var p in _premiadas)
         {
-            Premiadas.Add(new CombinacionPremiadaItem
+            filas.Add(new CombinacionPremiadaItem
             {
                 Columna = p.ColumnaTexto,
                 Archivo = Path.GetFileName(p.Fichero ?? ""),
@@ -728,6 +730,7 @@ public partial class EscrutarCombinacionesFrmViewModel : ObservableObject
                 Premio = p.Premio.ToString(),
             });
         }
+        Premiadas.ReemplazarTodo(filas);
         if (Premiadas.Count == 0)
         {
             AppServices.MostrarInfo("No hay columnas premiadas. Activa «Ver Premiadas» antes de escrutar.");

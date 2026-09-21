@@ -1,11 +1,11 @@
 # Estado de la migración a WinUI 3 — hand-off
 
 > **ACTUALIZACIÓN 2026-06-18 — migración completada y publicada.** La migración a WinUI 3 ya está
-> **mergeada en `main`** y publicada (repositorio público, release `v0.81.2` con instalable portable).
+> **mergeada en `main`** y publicada (repositorio público, release actual **`v0.83.0`** con instalable portable).
 > La UI está portada: **108 pantallas + `MainPage`**, cableadas en menús y barra de herramientas,
 > con *smoke test* de carga 109/109, sobre el motor reutilizado en `Free1X2.Domain`. La lógica de
-> dominio de las pantallas está **implementada y verificada** (build 0 err · smoke 109/109 · 107/107
-> tests del motor · runtime UI Automation 0 crashes); los residuales son solo cosméticos. Detalle en
+> dominio de las pantallas está **implementada y verificada** (build 0 err · smoke 109/109 · 133/133
+> tests del motor · runtime UI Automation 0 crashes); los residuales quedaron resueltos. Detalle en
 > [`docs/ANALISIS_TECNICO_WINUI3.md`](docs/ANALISIS_TECNICO_WINUI3.md) (§11).
 > El texto inferior es el **hand-off histórico** (Fase 0) y se conserva como registro.
 
@@ -31,8 +31,8 @@
 ## Hecho
 
 ### Plan
-- `PLAN_MIGRACION_WINUI3.md` (~93 KB): roadmap consolidado por 6 agentes (PM, Diseño, UI/UX, Tester, Performance + síntesis). Estrategia **strangler-fig**, 8 fases, 31–45 semanas-persona.
-- `REVISION_UI_HALLAZGOS.md`: hallazgos previos de la UI WinForms.
+- [`docs/historico/PLAN_MIGRACION_WINUI3.md`](docs/historico/PLAN_MIGRACION_WINUI3.md) (~93 KB): roadmap consolidado por 6 agentes (PM, Diseño, UI/UX, Tester, Performance + síntesis). Estrategia **strangler-fig**, 8 fases, 31–45 semanas-persona.
+- [`docs/historico/REVISION_UI_HALLAZGOS.md`](docs/historico/REVISION_UI_HALLAZGOS.md): hallazgos previos de la UI WinForms.
 
 ### Scaffold WinUI 3 (`Free1X2.WinUI/`)
 - Shell `NavigationView` + **Mica** + barra de título extendida.
@@ -72,7 +72,7 @@
 7. Ampliar tests golden-master a cada pieza antes/después de moverla.
 8. Luego: Fase 2 del plan (Boleto + primer filtro end-to-end con MVVM real sobre el dominio).
 
-Ver detalle completo por fase en `PLAN_MIGRACION_WINUI3.md`.
+Ver detalle completo por fase en [`docs/historico/PLAN_MIGRACION_WINUI3.md`](docs/historico/PLAN_MIGRACION_WINUI3.md).
 
 ## Comandos
 

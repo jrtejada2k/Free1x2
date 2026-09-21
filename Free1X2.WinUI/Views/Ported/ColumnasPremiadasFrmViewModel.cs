@@ -51,7 +51,8 @@ public partial class ColumnasPremiadasFrmViewModel : ObservableObject
     /// Colección de columnas premiadas a mostrar en la rejilla
     /// (legacy: listaResumen.Items, alimentado por el formulario que abría este diálogo).
     /// </summary>
-    public ObservableCollection<ColumnaPremiadaItem> Columnas { get; } = new();
+    /// <remarks>C-13: <see cref="ColeccionUi{T}"/> para volcar el resumen de una sola vez.</remarks>
+    public ColeccionUi<ColumnaPremiadaItem> Columnas { get; } = new();
 
     /// <summary>
     /// Exporta TODAS las columnas del listado a un fichero de texto
@@ -68,9 +69,14 @@ public partial class ColumnasPremiadasFrmViewModel : ObservableObject
     /// (legacy: btnGuardarSeleccionadas_Click). La selección se obtiene desde el
     /// code-behind porque vive en el control de UI.
     /// </summary>
-    public async void GuardarSeleccionadas(IReadOnlyList<ColumnaPremiadaItem> seleccionadas)
+    /// <remarks>
+    /// C-27: devuelve <c>Task</c> (antes era <c>async void</c> sin ser un manejador de evento,
+    /// así que una excepción no capturada habría llegado al manejador global sin contexto).
+    /// El <c>async void</c> queda donde corresponde: el handler de la página, que hace await.
+    /// </remarks>
+    public Task GuardarSeleccionadasAsync(IReadOnlyList<ColumnaPremiadaItem> seleccionadas)
     {
-        await GuardarAsync(seleccionadas);
+        return GuardarAsync(seleccionadas);
     }
 
     /// <summary>
@@ -88,16 +94,8 @@ public partial class ColumnasPremiadasFrmViewModel : ObservableObject
 
         try
         {
-            var picker = new FileSavePicker
-            {
-                SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-                SuggestedFileName = "columnas",
-            };
             // Legacy: "Columnas(*.txt)|*.txt|Todos los archivos (*.*)|*.*".
-            picker.FileTypeChoices.Add("Columnas", new List<string> { ".txt" });
-
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, Services.AppServices.WindowHandle);
-            StorageFile? file = await picker.PickSaveFileAsync();
+            StorageFile? file = await Services.PickerHelper.GuardarAsync("columnas", ("Columnas", ".txt"));
             if (file is null)
             {
                 return;

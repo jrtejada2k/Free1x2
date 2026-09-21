@@ -83,15 +83,7 @@ public partial class AnastaticsViewModel : ObservableObject
     private async Task SeleccionarOrigenAsync()
     {
         // Equivale a SelOrigen() del Anastatics legacy.
-        var picker = new Windows.Storage.Pickers.FileOpenPicker
-        {
-            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
-        };
-        picker.FileTypeFilter.Add(".txt");
-        picker.FileTypeFilter.Add("*");
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, AppServices.WindowHandle);
-
-        var file = await picker.PickSingleFileAsync();
+        var file = await PickerHelper.AbrirAsync(".txt", "*");
         if (file == null) return;
 
         _rutaOrigen = file.Path;

@@ -130,7 +130,7 @@ Permite seleccionar un archivo de columnas que actúa como **base/filtro** de la
 | Abrir / Guardar / Guardar Como Combinación | Gestiona archivos `.comb`. |
 | Borrar Combinaciones Temporales | Elimina los backups temporales. |
 | Borrar Informes de Error | Elimina los informes de error generados por el programa. |
-| Obtener Boletos Online | Descarga el boleto oficial de una **jornada y temporada** concretas desde el servicio online del programa, para cargarlo como boleto base. |
+| Obtener Boletos Online | Descarga la **jornada de la semana** (España o México) desde el servicio online y rellena el boleto con los equipos reales (ver §10). |
 | Gestión de Equipos | Abre el **gestor de equipos** (ver §10). |
 | Importar / Exportar Columnas | Convierte ficheros de columnas entre **CSV y TXT** en ambos sentidos. |
 
@@ -434,13 +434,35 @@ Tres aplicaciones: (1) **comparar dos combinaciones** para elegir una; (2) **com
    **Tabla de resultados** (análisis "Columnas" o "Autoescrutinio"): una fila por apuesta, con las columnas **Nº14, Nº13, Nº12, Nº11, Nº10** (veces que esa apuesta obtuvo cada premio en todos los escrutinios), **Premio 14 … Premio 10** (importe en euros), **Premio Ac** (acumulado de los premios marcados; en análisis "Columnas" no conviene contar el 14 por la aleatoriedad) y el **% de recuperación**. Se puede ordenar por cualquier cabecera, filtrar por rangos de cualquier concepto y grabar las apuestas seleccionadas (con `Shift`/`Ctrl`).
 
 ### Gestión de Equipos
-Mantiene la base de **equipos** que se ofrecen al rellenar el boleto. Muestra los equipos repartidos en sus **cuatro categorías** (1ª, 2ª, 2ªB e Internacionales) y permite **moverlos** de una categoría a otra, **eliminarlos**, dar de **alta** nuevos (pantalla "Agregar equipo": nombre + categoría) y **guardar** los cambios.
+Mantiene la base de **equipos** que se ofrecen al rellenar el boleto. Muestra los equipos repartidos en sus **cuatro categorías** (1ª, 2ª, 2ªB e Internacionales) y permite **moverlos** de una categoría a otra, **eliminarlos**, dar de **alta** nuevos (pantalla "Agregar equipo": nombre + categoría) y **guardar** los cambios con **«Guardar archivos»**.
+
+**Importar equipos online.** En vez de teclearlos uno a uno, puedes traer de Internet los equipos que han aparecido en las jornadas recientes:
+
+1. Elige el **país** en el selector **«País (online)»** (España o México).
+2. Elige en **«Categoría»** (1ª / 2ª / 2ªB / Int) **dónde quieres que caigan** los equipos importados: el servicio devuelve una **única lista**, sin separar por división, así que eres tú quien decide la categoría destino.
+3. Pulsa **«Importar equipos online»**.
+
+La importación **solo añade**: los equipos que ya tenías se conservan tal cual, y los repetidos se descartan (no distingue mayúsculas de minúsculas). Un mensaje indica cuántos se han añadido, o que no había ninguno nuevo.
+
+> **Importante:** la importación se queda **en pantalla**; para que los cambios se conserven hay que pulsar **«Guardar archivos»**. Si no hay conexión o el servicio falla, **no se modifica nada** y se muestra el motivo.
 
 ### Importar / Exportar Columnas
 Convierte ficheros de columnas entre **CSV** y **TXT** (en ambos sentidos), para intercambiar columnas con otras herramientas u hojas de cálculo.
 
 ### Obtener Boletos Online
-Descarga el **boleto oficial** de la jornada eligiendo **jornada** y **temporada**; el boleto descargado se puede usar como boleto base. *(Requiere conexión; si el servicio no responde, el programa avisa de que el boleto no está disponible.)*
+Descarga la **jornada de la semana** y rellena el boleto con los **equipos reales**, sin teclearlos a mano. Es una función **opcional**: el programa funciona igual sin conexión.
+
+1. Elige el **país**: **España** o **México**. (El programa propone el del último país descargado.)
+2. Pulsa **«Actualizar jornada»**.
+3. Si la descarga va bien, aparece un resumen del tipo *«Jornada 38 · 14 partidos cargados · Última actualización: 21/06/2026 10:30»* y los 14 partidos del boleto quedan rellenos con los equipos locales y visitantes de esa jornada. Esos nombres se comparten con el resto de pantallas (por ejemplo **Grupos de Equipos**).
+
+**Qué pasa sin conexión.** El programa guarda en tu equipo la última jornada descargada con éxito de cada país:
+
+- Al **abrir el programa**, esa jornada guardada se carga al instante y **sin conectarse**: el boleto ya muestra equipos reales aunque estés sin red. La única operación que sale a Internet es el botón «Actualizar jornada».
+- Si pulsas «Actualizar jornada» y **no hay conexión**, verás *«Sin conexión: mostrando la jornada guardada (actualizada dd/mm/aaaa hh:mm)»* — así sabes de cuándo son los datos que estás viendo.
+- Si **nunca** se ha descargado nada para ese país, el mensaje explica el fallo y el boleto **sigue en modo manual** (puedes escribir los equipos tú mismo).
+
+**Si el servidor responde con un error**, el programa muestra el mensaje que envía el servicio: por ejemplo *«No hay jornada publicada para ES»* cuando todavía no se ha publicado la jornada, o un aviso de *demasiadas solicitudes* si se ha pulsado el botón muchas veces seguidas (en ese caso, espera un minuto). En ningún caso se pierde lo que ya tenías: el boleto conserva los últimos equipos cargados.
 
 ### Compresor *.z3q
 Comprime un archivo de columnas (`.txt`) a un **formato propio comprimido `.z3q`** (con un nivel de compresión 0–9) y lo descomprime de vuelta a `.txt`. Útil para almacenar o intercambiar ficheros de columnas grandes ocupando menos espacio.
@@ -457,7 +479,7 @@ Genera una **"reducción perfecta"** a partir de una **columna base** (un signo 
 ### Dependencia lineal
 Recalcula el signo de un **partido a tratar** como **combinación lineal** (módulo 3 ó 2) de los signos del resto de partidos, ponderados por unos coeficientes que defines, y reescribe el archivo de columnas con el resultado.
 
-> **Nota sobre el estado de algunas utilidades.** En la versión WinUI 3 actual, varias de estas pantallas (entre ellas Multiplicador, Fraccionador, Transposición, Álgebra, Reductor, Compresor, Reducciones perfectas, Dependencia lineal, Generador CP y la persistencia del Gestor de Equipos) tienen la **interfaz completa** pero parte de su **lógica de cálculo/guardado todavía en proceso de migración**. Si una acción no produce el archivo esperado, es por este motivo (pendiente de detallar/completar), no por un error de uso.
+> **Nota sobre el estado de algunas utilidades.** En la versión WinUI 3 actual, varias de estas pantallas (entre ellas Multiplicador, Fraccionador, Transposición, Álgebra, Reductor, Compresor, Reducciones perfectas, Dependencia lineal y Generador CP) tienen la **interfaz completa** pero parte de su **lógica de cálculo/guardado todavía en proceso de migración**. Si una acción no produce el archivo esperado, es por este motivo (pendiente de detallar/completar), no por un error de uso.
 
 ---
 
@@ -488,4 +510,4 @@ Las combinaciones temporales se guardan como backups y se pueden limpiar desde `
 
 ---
 
-*Manual reconstruido para la versión actual de Free1X2. Para el detalle de **flujos funcionales y de datos** (cómo viaja una columna por el motor), ver [`MANUAL_FLUJOS.md`](MANUAL_FLUJOS.md). Para la arquitectura técnica y el estado de la migración a WinUI 3, ver [`../README.md`](../README.md) y [`../PLAN_MIGRACION_WINUI3.md`](../PLAN_MIGRACION_WINUI3.md).*
+*Manual reconstruido para la versión actual de Free1X2. Para el detalle de **flujos funcionales y de datos** (cómo viaja una columna por el motor), ver [`MANUAL_FLUJOS.md`](MANUAL_FLUJOS.md). Para la arquitectura técnica, ver [`../README.md`](../README.md) y [`ANALISIS_TECNICO_WINUI3.md`](ANALISIS_TECNICO_WINUI3.md).*
