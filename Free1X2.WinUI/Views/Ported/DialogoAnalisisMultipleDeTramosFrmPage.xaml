@@ -400,15 +400,18 @@
                 </StackPanel>
             </Border>
 
-            <!-- ===== Acciones del diálogo (legacy btAceptar / btCancelar) ===== -->
+            <!-- ===== Acciones del diálogo (legacy btAceptar / btCancelar) =====
+                 U-09: orden unificado a Aceptar (acento) → Cancelar, igual que
+                 DialogoGrabarBancoPruebasFrmPage y que el original (btAceptar iba arriba/izquierda
+                 de btCancelar en ambos diálogos WinForms) y que la convención de Windows. -->
             <StackPanel Orientation="Horizontal" Spacing="5" HorizontalAlignment="Right">
-                <Button Content="Cancelar"
-                        Command="{x:Bind ViewModel.CancelarCommand}"
-                        AutomationProperties.Name="Cancelar" />
                 <Button Content="Aceptar"
                         Style="{StaticResource AccentButtonStyle}"
                         Command="{x:Bind ViewModel.AceptarCommand}"
                         AutomationProperties.Name="Aceptar" />
+                <Button Content="Cancelar"
+                        Command="{x:Bind ViewModel.CancelarCommand}"
+                        AutomationProperties.Name="Cancelar" />
             </StackPanel>
 
         </StackPanel>
