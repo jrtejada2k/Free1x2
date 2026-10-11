@@ -42,6 +42,14 @@ namespace Free1X2.Reduccion
 	    private BitArray Reductora;
 		private BitArray BitsExternos;
 		private int[] flags;
+		// P-21: contador "columnas pobres que reduce cada columna", indexado por VALOR (0..3^n-1),
+		// no por posición. Antes se recalculaba para TODAS las columnas en cada pasada del while
+		// (O(final × n × vecindario)); ahora se dispersa desde cada columna pobre a su vecindario
+		// (relación simétrica → mismo recuento) con coste O(final × pobres × vecindario).
+		// 'pobresTocados' lista los valores incrementados, para ponerlos a 0 tras cada pasada sin
+		// barrer los 3^n enteros.
+		private int[] poorN;
+		private System.Collections.Generic.List<int> pobresTocados;
 		private short Profundidad;
 		private short nivelProf;
         private int[] pot = new int[] { 1, 3, 9, 27, 81, 243, 729, 2187, 6561, 19683, 59049, 177147, 531441, 1594323, 4782969, 14348907, 43046721 };
@@ -69,6 +77,8 @@ namespace Free1X2.Reduccion
             BitsExternos = new BitArray(indices);
 
             flags = new int[indices];
+            poorN = new int[indices];
+            pobresTocados = new System.Collections.Generic.List<int>();
         }
 
 		public override void ComienzaReduccion(string archivoEntrada, string sal, int nivelReduccion, int maxCol, int percent)
@@ -109,7 +119,7 @@ namespace Free1X2.Reduccion
 				if (salida) break;	
 			}
 			
-			int[] n = new int[noColumnasIniciales+numExternas]; //nª bordes que reduce cada columna
+			// P-21: el contador por posición n[] se sustituye por poorN[] (por valor). //nª bordes que reduce cada columna
 		    int ncent;
 
 			noColumnasProcesadas=0;
@@ -132,13 +142,14 @@ namespace Free1X2.Reduccion
 					if(Reducida[(int) columnas[nr]] == false && flags[(int) columnas[nr]] > 1) Rmin=Math.Min (Rmin,flags[(int) columnas[nr]]);
 				}
 				if (max==0) break;
-				//calculamos el numero de bordes que reduce cada columna
-				for (nr=primera; nr<ultima; nr++) 
+				// P-21: dispersa desde cada columna POBRE (flags==Rmin, viva) a su vecindario de
+				// Hamming. poorN[v] queda idéntico a n[v] del doble bucle original (vecindad simétrica),
+				// con coste O(pobres × vecindario) por pasada en vez de O(n × vecindario).
+				for (nr=primera; nr<ultima; nr++)
 				{
-					n[nr]=0;
-					
-					CalculaNumColumnasPobresQueReduce ((int)columnas[nr], 1, (short)(14-nivelReduccion),ref n[nr]);
-					if (flags[(int) columnas[nr]]==max) n[nr]++;
+					int valP=(int)columnas[nr];
+					if (Bits[valP] && Reducida[valP]==false && flags[valP]>1 && flags[valP]==Rmin)
+						DispersaColumnaPobre(valP, 1, (short)(14-nivelReduccion));
 				}
 				//permitimos que el programa ejecute los eventos correspondientes
 				Free1X2.Abstractions.UiPump.Pump();	
@@ -148,12 +159,17 @@ namespace Free1X2.Reduccion
 			    // seleccion de la maxima reductora que elimina a mas columnas pobres
 				for (nr=primera; nr<ultima; nr++) 
 				{
-					nv=flags[(int)columnas[nr]];
-					
-					if(Reductora[(int)columnas[nr]]) continue;
-					if (n[nr]>min) { min=n[nr]; nextcol=nr; Rmayor=nv;}
-					if (n[nr]==min && nv>Rmayor) {nextcol=nr; Rmayor=nv;}
+					int val=(int)columnas[nr];
+					nv=flags[val];
+					// n[nr] original = poorN (pobres que reduce) + 1 si su propio flags==max.
+					int nnr = poorN[val] + (flags[val]==max ? 1 : 0);
+					if(Reductora[val]) continue;
+					if (nnr>min) { min=nnr; nextcol=nr; Rmayor=nv;}
+					if (nnr==min && nv>Rmayor) {nextcol=nr; Rmayor=nv;}
 				}
+				// P-21: repone a 0 sólo los valores tocados por la dispersión de esta pasada.
+				for (int t=0; t<pobresTocados.Count; t++) poorN[pobresTocados[t]]=0;
+				pobresTocados.Clear();
 				if (nextcol<0) break;
 				max=min;
 				
@@ -184,30 +200,29 @@ namespace Free1X2.Reduccion
 		}
 
 
-		private void CalculaNumColumnasPobresQueReduce (int IndiceInicial, short PosicionInicial, short pProfundidad, ref int contador)
+		// P-21: dispersa +1 al contador poorN de cada columna del vecindario de Hamming (distancia
+		// ≤ 14-nivel) de una columna POBRE. Recorre EXACTAMENTE los mismos índices que el antiguo
+		// CalculaNumColumnasPobresQueReduce (mismas posiciones crecientes, misma profundidad), de
+		// modo que poorN[v] acaba contando cuántas columnas pobres tienen a v como vecina = el valor
+		// que el original calculaba columna a columna. Sin Pump() dentro: era el bucle más caliente
+		// (se invocaba por cada columna en cada pasada) y bombeaba la UI miles de millones de veces;
+		// el bombeo ya ocurre una vez por pasada en Reduce.
+		private void DispersaColumnaPobre(int IndiceInicial, short PosicionInicial, short pProfundidad)
 		{
-			short Partido,z;
+			short Partido, z;
 			int SigIni, Indice;
 
-			//--encontramos las apuestas que se diferencian en un solo signo ----
 			nivelProf++;
-
-            for (Partido = PosicionInicial; Partido < noPartidos + 1; Partido++)
+			for (Partido = PosicionInicial; Partido < noPartidos + 1; Partido++)
 			{
-                Free1X2.Abstractions.UiPump.Pump();
 				SigIni = ((IndiceInicial / pot[Partido - 1]) % 3);
-				for (z = 0; z<3; z++)
+				for (z = 0; z < 3; z++)
 				{
 					if (z == SigIni) continue;
 					Indice = IndiceInicial + pot[Partido - 1] * (z - SigIni);
-					if (Bits [Indice])
-					{
-						if (Reducida[Indice]==false && flags[Indice] > 1) 
-						{
-							if (flags[Indice]==Rmin) contador++;
-						}
-					}
-					if (nivelProf < pProfundidad) CalculaNumColumnasPobresQueReduce (Indice, (short)(Partido + 1), pProfundidad, ref contador);
+					poorN[Indice]++;
+					pobresTocados.Add(Indice);
+					if (nivelProf < pProfundidad) DispersaColumnaPobre(Indice, (short)(Partido + 1), pProfundidad);
 				}
 			}
 			nivelProf--;
