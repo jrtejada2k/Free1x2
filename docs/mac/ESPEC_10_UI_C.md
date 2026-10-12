@@ -1409,3 +1409,46 @@ Codificación `S1n`/`N1s`: la propia de las pantallas 77/80 (X=0, MSB primero); 
 **Evidencia.** `P:TriosFrmViewModel.cs:24-486`, `P:TriosFrmPage.xaml:11-291`, `P:TriosFrmPage.xaml.cs:14-22`.
 
 ---
+
+### 97. `VSignosFrm` — Análisis de signos
+
+**Propósito.** Contabiliza, partido a partido, cuántas veces aparece cada signo (1, X, 2) en un fichero de columnas, con una **columna ganadora parcial** (escrutinio de tardes de sábado/domingo) y un nivel de **aspiración** que filtra qué columnas se contabilizan; resume premios «remanentes» y graba porcentajes o las columnas aceptadas. **Se abre** únicamente desde el botón de barra «Análisis de signos» (`W:MainWindow.xaml.cs:400`); no hay entrada de menú.
+
+**Entradas** (`P:VSignosFrmPage.xaml`):
+
+| Control | Tipo / rango | Defecto |
+|---------|--------------|---------|
+| `TextBox` ruta + «Examinar…» `:139,144` | picker `.txt`/`*`; al elegirlo calcula **automáticamente** (`VM:168-201`) | «Fichero a procesar» |
+| `ComboBox` «Formato» `:173` | «% enteros» / «% con decimales» / «columnas» (solo afecta a **Grabar**) | «% enteros» |
+| `ToggleSwitch` «Último partido como Pleno» `:182` | bool | **Sí** |
+| `NumberBox` «Aspirando a…» `:193` ≥ 0 + «−» `:201` / «+» `:206` | nº mínimo de aciertos | 14 (`+` solo si `< NumeroPartidos`, `−` solo si `> 0`, `VM:389-408`) |
+| «Columna ganadora» `:226-245`: una casilla por partido (1 carácter, mayúsculas) | `1` / `X` / `2` / `-` (comodín) | `-` |
+| «Calcular» `:264`, «Grabar» `:269`, «Limpiar» `:273` (vuelve la columna ganadora a `-`) | botones | |
+| Rejilla «Recuento por partido» `:69-105`: filas [Part., celda 1, celda X, celda 2]; **pulsar una celda fija ese signo en la columna ganadora del partido** (`FijarUno/FijarEquis/FijarDos`, `VM:359-386`) | enteros | vacía hasta calcular |
+
+**Salidas** (`:281-289`): «Procesadas: n» (defecto «Procesadas: -»), «Tiempo: hh:mm:ss.f» (defecto «Tiempo: -»), «Premios remanentes: a-b-c…» (defecto «Premios remanentes: -»). La rejilla siempre muestra **recuentos** (los modos de porcentaje solo se aplican al grabar).
+**Mensajes**: «Seleccione primero un fichero de columnas.», «No se ha podido leer el fichero de columnas: {msg}», «Error al procesar el fichero: {msg}», «Calcule primero el análisis antes de grabar.», «Error al grabar el resultado: {msg}».
+
+**Lógica en el ViewModel.**
+*CU-40 `AnalizarSignosDeFichero`* (`Calcular` `VM:205-289`, `AcCb` `:430-462`, `RecuperaColumnaGanadora` `:414-423`):
+```
+abrir fichero: N = ObtenNumSignos() ; si N < 10 { N = 15 } ; NumeroPartidos = N ; vals = Int[N][3] ; casillas de ganadora = N (todas "-") ; luego Calcular()
+calcular:  part[i] = (casilla i vacía) ? '-' : primer carácter ; limac = Int(Aspiracion)
+    premis = Int[ max(1, N-9) ] ; vals = Int[N][3] ; aceptadas = [] ; ctproc = 0
+    para cada línea: col = línea.trim().uppercased() ; si col.count < N : continuar ; ctproc += 1
+        a = AcCb(col)
+        si a >= limac : para i<N: vals[i][ col[i]=='1' ? 0 : col[i]=='2' ? 2 : 1 ] += 1 ; aceptadas.append(col)
+        si a > 9 && a <= N : idx = N - a ; si idx < premis.count { premis[idx] += 1 }          // idx 0 = todos los aciertos
+    "Premios remanentes: " + premis.joined("-")
+AcCb(col):  r = 0
+    para nr en 0..<(N-1): si part[nr] == col[nr] { r += 1 } sino si part[nr] ∈ {1,X,2} { nada (fallo) } sino { r += 1 }       // cualquier otro carácter = comodín
+    u = part.last ;  c = col.last                                         // ¡el ÚLTIMO CARÁCTER de la columna, aunque tenga más de N!
+    si pleno:  si r == N-1 { si u == c { r += 1 } sino si u ∉ {1,X,2} { r += 1 } }
+    sino:      si u == c { r += 1 } sino si u ∉ {1,X,2} { r += 1 }
+```
+*CU-41 `GrabarSignos`* (`Grabar` `:293-341`): sin resultado previo → aviso. Modo «columnas»: picker «Columnas» `.txt`, una línea por columna aceptada. Modo porcentajes: picker «Valoracion» (tipo «Valoración» `.txt`); por cada partido `suma = vals[0]+vals[1]+vals[2]` (si 0 → 1); `v = vals[j] / suma * 100`; línea `"{v1}, {vx}, {v2}"` formateada con `InvariantCulture` y `"f0"` (enteros) o `"f2"` (2 decimales), separador `", "`.
+**Peculiaridades / trampas Swift.** (a) `"F0"/"F2"` de .NET Core ≥ 3.0 redondean el valor binario exacto **«half away from zero»** (12,5 → `13`); `String(format:"%.0f")` da `12` en empates exactos: usar `Decimal`/`NumberFormatter(.halfUp)` y probar con golden (T4). (b) La columna ganadora/aspiración solo filtran la **contabilización**; el contador «Procesadas» cuenta todas las columnas con longitud suficiente. (c) `AcCb` usa el último carácter de la columna real (no el partido `N-1`), igual que `PosiblesPremios`. (d) El bucle se ejecuta en `Task.Run` sin cancelación ni progreso. (e) Un fichero con `N<10` se trata como 15 partidos.
+**Área Mac propuesta.** **Análisis** · vista principal con la rejilla de recuentos a la izquierda y panel de parámetros a la derecha (inspector); clic en celda fija el signo de la ganadora.
+**Evidencia.** `P:VSignosFrmViewModel.cs:20-463`, `P:VSignosFrmPage.xaml:33-289`, `P:VSignosFrmPage.xaml.cs:12-20`.
+
+---

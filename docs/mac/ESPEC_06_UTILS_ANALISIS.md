@@ -167,7 +167,7 @@ contribución `Int64(Int32.min) = −2147483648` (XOR, no OR) → columna negati
 | `Comparador2` | **14 fijo** (2 mitades × 7) | `Comparador2.cs:46-47` |
 | `ConvertidorDeBases` | 16 (17 potencias, índices 0…16) | `ConvertidorDeBases.cs:28-29` |
 | `SumadorCombinaciones` | 15 (`BitArray(3^15)`) | `SumadorCombinaciones.cs:41` |
-| `CompresorZip` | 14 o 15 | `CompresorZip.cs:88-123` |
+| `CompresorZip` | 14 o 15 | `CompresorZip.cs:90,123-127` |
 | `A/Analizador` | 16 (`pot` de 17) | `Analizador.cs:40,63` |
 | `TransponedorAutomatico` | 14 fijo | `TransponedorAutomatico.cs:29-32` |
 | `ContenedorAnalisis` | parametrizado (`numPartidos`) | `ContenedorAnalisis.cs:352-365` |
@@ -257,7 +257,7 @@ estáticas, §1.4 da firma y algoritmo de cada una) y tres funciones libres de c
 
 **Trampas Swift.** T1 (`&<<` en `1 << idx` y en `ObtenerSignoInt`; `res << 3` nunca aborta pero pierde bits como C#), T2 (`Int64`, `>>` aritmético), T7/T11 (`ToUpper` de `ConvStrToLongDosBits` usa cultura; `IndexOf(char)` es ordinal), UTF-16 para índices (§1.8), `(uint)b` ⇒ `UInt32(bitPattern:)`.
 
-**Casos golden propuestos.** Tabla §1.9 completa; además: `ConvStrToLong("1", "")` con N=14 (relleno 13 unos → `columnaInicial(14)`... EXC si `s.Length==14`), `ConvStrToLong("1X", 3)` (relleno `"111"`), `ConvStrToLong("1X2", [true,false,true])` (= 4 + 0 + 1·64 = 68), `ConvLongToStr(3)` (`"X"`), `ConvLongToStr(6)` (EXC), `ConvLongToStr(260)` (`"1" + "2" + "1"` = `"121"`: el slot 0 interior da `'2'`), `ObtenerSignoInt(84, 1..3)` = 4,2,1, `ObtenerSignoInt(84, 0)` (desplaza −3 ⇒ módulo 64 ⇒ 0), `IgnorarPartidos([_,true,false,true], 84)` (= signo(3)=1 → `(1<<3)|4`= 12... calcular con oráculo), `ContarBitsA1(-1)` = 64, `ObtenNoCoincidencias("1X2","1X1")` = 2.
+**Casos golden propuestos.** Tabla §1.9 completa; además: `ConvStrToLong("1", "")` con N=14 (relleno 13 unos → `columnaInicial(14)`... EXC si `s.Length==14`), `ConvStrToLong("1X", 3)` (relleno `"111"`), `ConvStrToLong("1X2", [true,false,true])` (= 4 + 0 + 1·64 = 68), `ConvLongToStr(3)` (`"X"`), `ConvLongToStr(6)` (EXC), `ConvLongToStr(260)` (`"1" + "2" + "1"` = `"121"`: el slot 0 interior da `'2'`), `ObtenerSignoInt(84, 1..3)` = 4,2,1, `ObtenerSignoInt(84, 0)` (desplaza −3 ⇒ módulo 64 ⇒ 0), `IgnorarPartidos([_,true,false,true], 84)` (= 12: partido 3 aporta `1`, partido 1 aporta `4` ⇒ `(1<<3)|4`), `ContarBitsA1(-1)` = 64, `ObtenNoCoincidencias("1X2","1X1")` = 2.
 
 **Evidencia.** `U/UtilColumnas.cs:27-487` (líneas por función en §1.4), `T/UtilColumnasTests.cs` (round-trip y pesos de 3 bits), `Reduccion/JLPM.cs:33,103,107,137`, `MC/Diferencia.cs:53,140`, `MC/FiltroSimetrias.cs:72-106`, `MC/Analizador.cs:115`.
 
@@ -312,7 +312,7 @@ Conv3BytesAColumna(b1,b2,b3) = N1X2[b1] + N1X2[b2] + N1X2[b3].prefix(4)         
 | `…("222222222222222","111111111111111")` | **255** |
 | `…("1111","1111")` | EXC |
 | round-trip de las 6 columnas de `ComparadorBytesTests` | idéntico |
-Más los 30 casos de `T/ComparadorTests.cs`, `ComparadorBytesTests.cs`, `UtilColumnasTests.cs:48-86` (usa fixtures `cols_a.txt`/`ganadora.txt`).
+Más todos los casos de `T/ComparadorTests.cs`, `T/ComparadorBytesTests.cs` y los dos tests de `Comparador` en `T/UtilColumnasTests.cs` (usan los fixtures `cols_a.txt`/`ganadora.txt`).
 
 **Evidencia.** `U/Comparador.cs:25-385`; `T/ComparadorBytesTests.cs` (nota de la cabecera sobre el `"1"` fijo de la posición 15); `Reduccion/XFSF.cs:59,75,111`, `Reduccion/xfsfV3.cs:128,142`, `A/Analizador.cs:164`.
 
@@ -343,7 +343,7 @@ n2s(a,b) público = n2s7(a) + n2s7(b)                                           
 
 **Trampas Swift.** Construir la tabla perezosamente (el ctor C# tarda ~16 M operaciones); `UInt8`; no mezclar con los números de `ConvertidorDeBases`.
 
-**Casos golden.** Los de `T/Comparador2Tests.cs`: `s1n("11111111111111") = 2391484`, `s1n("XXXXXXXXXXXXXX") = 0`, `s1n("22222222222222") = 4782968`, `n1s(0) = "XXXXXXXXXXXXXX"`, `s2n("11111112222222") → (1093, 2186)`, `neq` idénticas = 14, opuestas = 0, una diferencia = 13, round-trip `n2s(s2n(c))` para `"1122XX1122XX11"`.
+**Casos golden.** Los de `T/Comparador2Tests.cs`: `s1n("11111111111111") = 2391484`, `s1n("XXXXXXXXXXXXXX") = 0`, `n1s(0) = "XXXXXXXXXXXXXX"`, `s2n("11111112222222") → (1093, 2186)`, `neq` idénticas = 14, opuestas = 0, una diferencia = 13, round-trip `n2s(s2n(c))` para `"1122XX1122XX11"`; añadido (modelo): `s1n("22222222222222") = 4782968`.
 
 **Evidencia.** `U/Comparador2.cs:21-96`; `T/Comparador2Tests.cs` (cabecera: convenciones caracterizadas).
 
@@ -455,7 +455,7 @@ ObtenBoolArray(texto):                                                         /
 1. **Bug de deduplicado en `ObtenerListaFromTxt`**: `"2,1"` ⇒ `[1]` (el `1` se descarta porque `lista` ya contiene el valor `1` = índice del partido 2); `"2-4,1-2"` ⇒ `[1,2,3]` (faltan los índices 0); `"1-3,3"` ⇒ `[0,1,2,2]` (duplicado). Replicar tal cual: la variante `…Aciertos` es la correcta.
 2. Cualquier excepción en las dos variantes `ObtenerListaFromTxt*` se traga y devuelve `[]` (no `throws`), mientras que `ObtenerBoolArrayFromTxt(txt, longitud)` lanza si el resultado queda vacío.
 3. Rango con más de un `-` (`"1-3-5"`): usa solo las dos primeras partes (1 y 3).
-4. `j <= max` con `max = Int32.max` no termina en C# (y reventaría memoria); en Swift acotar el bucle (`for j in min...max` con `max == Int.max` no traparía, pero sí `Int32`): usar `stride` sobre `Int` y rechazar rangos > 10^6 con error.
+4. `for (int j = min; j <= max; j++)` con `max = Int32.MaxValue` no termina en C# (`j` da la vuelta y la lista crece hasta agotar memoria). En Swift (`Int` de 64 bits) el rango terminaría pero con un coste absurdo: rechazar con error los rangos de más de 10^6 elementos.
 5. `ObtenerRangos` muta la lista del llamador.
 6. `ObtenerTextoFiguraFromLong`: el `Convert.ToString(long)` es invariante (sin cultura).
 
@@ -517,7 +517,7 @@ Lectores (cada uno cierra el lector al final):
 - otro formato: fichero vacío.
 - `GuardarValoraciones(nombre, formato, sep, valores1[], valoresX[], valores2[])` `:401-413` copia las tres columnas en `valores[i][0..2]`; la de `double[,]` `:415-420` toma la referencia; ambas fijan `sep`, `FormatoFichero` y llaman a `Guardar`.
 - **Histórico** `GuardarValoraciones(nombre, sep, valores, temp, jor)` `:422-480`: `FormatoFichero = existe ? TestFichero : 44`; si ≠ 44 ⇒ `ShowError("El fichero no es un fichero de Valoraciones históricas")` y fin. Si 44: lee **todas** las líneas con `LeeColumnaSinComas` (`Trim().ToUpper()`, `ACT:214-217`), `split(sep)` (aquí `sep` es el **detectado** por `TestFichero` si el fichero existía, el del parámetro si era nuevo); la línea cuyo `[0]==temp && [1]==jor` se sustituye por `MontaLinea`; si no existía la jornada se añade al final; reescribe el fichero entero con `GuardarColsComa` (sin quitar comas).
-- `MontaLinea` `:482-499`: `temp + sep + jor` y, por cada partido y signo, `sep + v.ToString().Replace(".", ",")` (**decimales con coma**, al contrario que `Guardar`), con el `sep` del parámetro.
+- `MontaLinea` `:482-499`: `temp + sep + jor` y, por cada partido y signo, `sep + v.ToString().Replace(".", ",")` (**decimales con coma**, al contrario que `Guardar`), con el campo `sep` vigente (el **detectado** si el fichero existía, el del parámetro si es nuevo: `:459,478`).
 
 **D) Portapapeles.** `FormatearParaPortapapeles()` `:505-523`: `v[0][0] + TAB + v[0][1] + TAB + v[0][2]` y para cada partido siguiente `CR LF` + lo mismo; sin salto final; números con `ToString()` de la cultura actual (coma en es-ES). `CargarDesdeCadena(cadena)` `:525-537`: `""`/`null` ⇒ `false`; escribe la cadena en `Path.GetTempFileName()` (UTF-8 sin BOM, no se borra) y llama a `Leer()`; Swift: ejecutar la misma máquina de estados sobre las líneas de la cadena, sin fichero temporal. `PonerPorcentajesEnElPortapapeles/RecuperarPorcentajesDelPortapapeles` solo delegan en `Clipboard` (`:539-547`).
 
@@ -586,7 +586,7 @@ GrabarJornada(acertantes):                                         // :77-118
 
 **Propósito.** Álgebra de ficheros de columnas (pantalla «Álgebra»): eliminar repetidas, unión, intersección, resta.
 
-**Tipos y datos.** `archivoCols1/2/Final: String`, `noColumnasFinal`, `noColsRepetidas: Int`, `mensajeFinCalculo: String`, `noPartidos` (ctor `:45-48`), `Bits`: `BitArray(14348907)` = 3^15 por instancia (`:41`). Enum `AlgebraCombTipo { EliminaRepetidas, SumaEliminaRepetidas, SumaSoloComunes, RestaSegunda }` (`Enums.cs:45-51`). Swift: `Bits` como `[UInt64]` de 224 154 palabras; índices fuera ⇒ lanzar.
+**Tipos y datos.** `archivoCols1/2/Final: String`, `noColumnasFinal`, `noColsRepetidas: Int`, `mensajeFinCalculo: String`, `noPartidos` (ctor `:45-48`), `Bits`: `BitArray(14348907)` = 3^15 por instancia (`:41`). Enum `AlgebraCombTipo { EliminaRepetidas, SumaEliminaRepetidas, SumaSoloComunes, RestaSegunda }` (`Enums.cs:45-51`). Swift: `Bits` como `[UInt64]` de 224 202 palabras; índices fuera ⇒ lanzar.
 
 **Convenciones comunes** (todas las operaciones): `Bits.SetAll(false)`; `conv = ConvertidorDeBases(noPartidos)`; cada línea se lee con `LeeColumnaSinComas` = `Trim().ToUpper()` (**a pesar del nombre NO quita las comas**, `ACT:214-217`); `num = conv.ConvColumnaANumero(linea)` (usa `linea.Length`, no `noPartidos`); la línea en blanco ⇒ `""` ⇒ `num = 0` (equivale a la columna «todo `1`»); se escribe con `GuardarCols(string)`, que **elimina las comas** y escribe `WriteLine` (`ACT:70-80`); el escritor se crea en la **primera** escritura ⇒ si no sale ninguna columna el fichero de salida **no se crea ni se trunca** (`ACT:70-75`).
 
@@ -670,18 +670,18 @@ DTO inmutable en la práctica: `Temporada`, `Jornada`, `Path` (`String`), ctor `
 
 **Propósito.** Guardar/leer un conjunto de columnas (bitmap de 3^N bits) como fichero `.z3q`: un ZIP con una única entrada Deflate. Basado en el compresor `*.z2q` de Charlie (`:2-4`). Dependencia: `SharpZipLib 1.4.2` (`Free1X2.Domain.csproj:14`).
 
-**Tipos y datos.** `Comprimir(BitArray bs, string fichZip, string fichBin, int tamano, int nivel) → long`; `Descomprimir(string fichComprimido) → BitArray`. Swift: `Bitmap` = `[UInt64]` + `count`; `comprimir(_ bits: Bitmap, a url: URL, nombreEntrada: String, tamano: Int, nivel: Int) throws -> Int`; `descomprimir(_ url: URL) throws -> Bitmap`. Constantes: `BUFFER = 2048` (`:38`), 14 348 907 = 3^15 (`:90,116`), 4 782 969 = 3^14 (`:114`).
+**Tipos y datos.** `Comprimir(BitArray bs, string fichZip, string fichBin, int tamano, int nivel) → long` (`:41-85`); `Descomprimir(string fichComprimido) → BitArray` (`:88-136`). Swift: `Bitmap` = `[UInt64]` + `count`; `comprimir(_ bits: Bitmap, a url: URL, nombreEntrada: String, tamano: Int, nivel: Int) throws -> Int`; `descomprimir(_ url: URL) throws -> Bitmap`. Constantes: `BUFFER = 2048` (`:39`), 14 348 907 = 3^15 (`:90,124,126`), 4 782 969 = 3^14 (`:123`).
 
 **Formato `.z3q` (lo observable en el código):**
-1. **Contenedor ZIP** (PKWARE) con **una sola entrada** creada con `ZipOutputStream` (`:43,69-78`).
-2. **Método** `Deflated` (`:67`); **nivel** `SetLevel(nivel)` con `nivel` 0–9 (la UI usa 5 por defecto, `CompresorViewModel.cs:46`).
-3. **Nombre de la entrada** = parámetro `fichBin`. WinUI pasa la **ruta absoluta del propio `.z3q`** (`CompresorViewModel.cs:137-138`), WinForms el nombre elegido (`Free1X2/UI/Compresor.cs:101`); el lector **ignora el nombre** (`:94`). El comentario `:60` pide «.bin y sin path». **Swift:** escribir un nombre corto (`"columnas.bin"`) y aceptar cualquiera.
-4. **Metadatos fijados antes de `PutNextEntry`:** `entry.Size = matrizBits.Length`, `entry.Crc = crc.Value` (`:64-70`) ⇒ cabecera con tamaños y CRC reales.
-5. **Carga útil descomprimida:** `matrizBits` de **`⌊tamano/8⌋ + 1` bytes** (`:46`; siempre un byte de más); el bit del **número de columna `i`** (índice base-3 de `ConvertidorDeBases`, §1.7) es el bit `i % 8` (LSB primero, máscara `0x01 << (i%8)`) del byte `i / 8` (`:48-61`); los bits `≥ bs.Length` no existen (el indexador lanza y el `catch {}` vacío `:55-58` los deja a 0).
-6. **CRC-32** del ZIP (polinomio reflejado `0xEDB88320`) sobre `matrizBits` (`:62-63`).
-7. **Valor devuelto** por `Comprimir` = `entry.Size` = longitud **sin comprimir** (`:77`), no el tamaño en disco (`T/CompresorZipTests.cs`: `(Length/8)+1`).
+1. **Contenedor ZIP** (PKWARE) con **una sola entrada** creada con `ZipOutputStream` (`:43,67-77`).
+2. **Método** `Deflated` (`:69`); **nivel** `SetLevel(nivel)` (`:75`) con `nivel` 0–9 (la UI usa 5 por defecto, `CompresorViewModel.cs:46`).
+3. **Nombre de la entrada** = parámetro `fichBin`. WinUI pasa la **ruta absoluta del propio `.z3q`** (`CompresorViewModel.cs:137-138`), WinForms el nombre elegido (`Free1X2/UI/Compresor.cs:101`); el lector **ignora el nombre** (`GetNextEntry`, `:96`). El comentario de `:67` pide «.bin y sin path». **Swift:** escribir un nombre corto (`"columnas.bin"`) y aceptar cualquiera.
+4. **Metadatos fijados antes de `PutNextEntry`:** `entry.Size = matrizBits.Length`, `entry.Crc = crc.Value` (`:71,73`) ⇒ cabecera con tamaños y CRC reales.
+5. **Carga útil descomprimida:** `matrizBits` de **`⌊tamano/8⌋ + 1` bytes** (`:45`; siempre un byte de más); el bit del **número de columna `i`** (índice base-3 de `ConvertidorDeBases`, §1.7) es el bit `i % 8` (LSB primero, máscara `0x01 << (i%8)`) del byte `i / 8` (`:46-62`); los bits `≥ bs.Length` no existen (el indexador lanza y el `catch {}` vacío `:59-61` los deja a 0).
+6. **CRC-32** del ZIP (polinomio reflejado `0xEDB88320`) sobre `matrizBits` (`:64-65`).
+7. **Valor devuelto** por `Comprimir` = `entry.Size` = longitud **sin comprimir** (`:80`), no el tamaño en disco (`T/CompresorZipTests.cs`: `(Length/8)+1`).
 
-**Lectura** (`Descomprimir` `:88-133`): `ZipInputStream`, **primera** entrada (`GetNextEntry`; zip sin entradas ⇒ NRE; si es directorio no se lee nada); lee en bloques de 2048; para cada byte `car` y `p in 0..<8`, si `car & (1<<p)` ⇒ `bs.Set(count + i*8 + p)` sobre un `BitArray(14348907)` (EXC si un bit a 1 cae ≥ 3^15); `count += numBytes*8` por bloque. Tamaño del resultado: `tamanoReal = (count > 14348907) ? 14348907 : 4782969`; devuelve los primeros `tamanoReal` bits. Consecuencia: archivo de 14 partidos (597 872 bytes ⇒ 4 782 976 bits) ⇒ 3^14; de 15 (1 793 614 bytes ⇒ 14 348 912 bits) ⇒ 3^15; **cualquier otro tamaño ⇒ 3^14** (p. ej. un bitmap 3^13 o 3^16 se lee como 3^14).
+**Lectura** (`Descomprimir` `:88-136`): `ZipInputStream`, **primera** entrada (`GetNextEntry`; zip sin entradas ⇒ NRE; si es directorio no se lee nada); lee en bloques de 2048; para cada byte `car` y `p in 0..<8`, si `car & (1<<p)` ⇒ `bs.Set(count + i*8 + p)` sobre un `BitArray(14348907)` (EXC si un bit a 1 cae ≥ 3^15); `count += numBytes*8` por bloque. Tamaño del resultado: `tamanoReal = (count > 14348907) ? 14348907 : 4782969`; devuelve los primeros `tamanoReal` bits. Consecuencia: archivo de 14 partidos (597 872 bytes ⇒ 4 782 976 bits) ⇒ 3^14; de 15 (1 793 614 bytes ⇒ 14 348 912 bits) ⇒ 3^15; **cualquier otro tamaño ⇒ 3^14** (p. ej. un bitmap 3^13 o 3^16 se lee como 3^14).
 
 **Qué debe cumplir el Swift** (compatibilidad **funcional** en ambos sentidos; igualdad byte a byte imposible porque la fecha DOS de la entrada es la hora actual):
 - *Escritor:* ZIP estándar de 1 entrada, método 8 (o 0 si el nivel es 0 y se prefiere), tamaños y CRC reales en la cabecera local (sin bit 3), directorio central y registro de fin estándar, sin comentario. El `ZipInputStream` de SharpZipLib lee ese resultado.
