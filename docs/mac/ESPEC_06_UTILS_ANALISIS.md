@@ -9,6 +9,8 @@
 **Abreviaturas de ruta** (todas relativas a la raíz del repo): `U/` = `Free1X2.Domain/Utils/` ·
 `A/` = `Free1X2.Domain/Analisis/` · `MC/` = `Free1X2.Domain/MotorCalculo/` ·
 `T/` = `Free1X2.Domain.Tests/` · `ACT` = `Free1X2.Domain/EntradaSalida/ArchivoColumnasTexto.cs`.
+Sin prefijo = carpeta de `Free1X2.Domain/` (`Reduccion/JLPM.cs`, `Escrutinio/EscrutadorComb.cs`, `EntradaSalida/…`, `Enums.cs`, `EnumFiltros.cs`, `VariablesGlobales.cs`);
+`Free1X2/…` = WinForms legacy; `*ViewModel.cs` = `Free1X2.WinUI/Views/Ported/`; `:n` suelto = línea del fichero de la ficha en curso.
 
 **Convención de lectura.** «Preservar» = comportamiento raro que se replica. «EXC» = el C# lanza excepción
 (en Swift: `throws` con error tipado, nunca `fatalError`, salvo que se indique). Los valores «esperado
@@ -23,7 +25,7 @@
 
 | # | Componente | Fichero (líneas) | Uso | Módulo Swift propuesto |
 |---|-----------|------------------|-----|------------------------|
-| U1 | `UtilColumnas` | `U/UtilColumnas.cs` (489) | vivo; 7 miembros muertos (ver §2.1) | `Columnas/UtilColumnas` |
+| U1 | `UtilColumnas` | `U/UtilColumnas.cs` (489) | vivo; 9 miembros muertos (ver §2.1) | `Columnas/UtilColumnas` |
 | U2 | `Comparador` | `U/Comparador.cs` (390) | vivo (XFSF, xfsfV3, `A/Analizador.IteraCols` muerto) | `Columnas/Comparador` |
 | U3 | `Comparador2` | `U/Comparador2.cs` (98) | solo tests (`SelectorMSViewModel.cs:405` tiene copia propia) | `Columnas/Comparador2` |
 | U4 | `ConvertidorDeBases` | `U/ConvertidorDeBases.cs` (186) | vivo (Escrutinio, Reducción, Sumador, Compresor…) | `Columnas/ConvertidorDeBases` |
@@ -37,23 +39,26 @@
 | U12 | `Combinacion` | `U/Combinacion.cs` (52) | vivo (análisis múltiple de tramos) | `Columnas/Combinacion` |
 | U13 | `Pral` | `U/Pral.cs` (41) | vivo (CombinarFiltros) | `Columnas/Pral` |
 | U14 | `CompresorZip` | `U/CompresorZip.cs` (149) | vivo (`CompresorViewModel.cs:137,174`); `CreateZip/ExtractZip` muertos | `Columnas/CompresorZ3Q` |
-| A1 | `Analizador` (Análisis) | `A/Analizador.cs` (213) | vivo (`ProbabilidadPremiosViewModel.cs:138`) | `Analisis/AnalizadorProbabilidades` |
-| A2 | `ProbabilidadesPremios` | `A/ProbabilidadesPremios.cs` (76) | vivo (solo vía A1) | `Analisis/ProbabilidadesPremios` |
-| A3 | `AnalizadorColumnaCombinacion` | `A/AnalizadorColumnaCombinacion.cs` (162) | vivo (`EscrutadorComb.cs:112`) | `Analisis/AnalizadorColumnaCombinacion` |
-| A4 | `ContenedorAnalisisGlobal` | `A/ContenedorAnalisisGlobal.cs` (79) | vivo (MC `Analizador`, `ControlGrupos`, `ControladorGrupos`) | `Analisis/ContenedorAnalisisGlobal` |
-| A5 | `ContenedorAnalisis` | `A/ContenedorAnalisis.cs` (684) | vivo | `Analisis/ContenedorAnalisis` |
-| A6 | `ContenedorColumnasProbables` | `A/ContenedorColumnasProbables.cs` (69) | vivo | `Analisis/ContenedoresSimples` |
-| A7 | `ContenedorDiferencias` | `A/ContenedorDiferencias.cs` (55) | vivo | ídem |
-| A8 | `ContenedorFormatos` | `A/ContenedorFormatos.cs` (38) | vivo | ídem |
-| A9 | `ContenedorSimetrias` | `A/ContenedorSimetrias.cs` (36) | vivo | ídem |
-| A10 | `ContenedorValoraciones` | `A/ContenedorValoraciones.cs` (36) | **muerto** (0 refs) | ídem (opcional) |
-| A11 | `ApuestaProbable` | `A/ApuestaProbable.cs` (29) | vivo (`RentabilidadFrmViewModel.cs:116`) | `Analisis/Apuestas` |
-| A12 | `ApuestaProbableCentral` | `A/ApuestaProbableCentral.cs` (30) | vivo (`BancoPruebasFrmViewModel.cs:537`) | ídem |
-| A13 | `ApuestaProbEscrutada` | `A/ApuestaProbEscrutada.cs` (32) | vivo (`TramificarFormViewModel.cs:315`) | ídem |
-| A14 | `FigurasComparer` | `A/FigurasComparer.cs` (35) | solo WinForms (`VisorAnalisisColumnasFrm.cs:397-482`) | `Analisis/FigurasComparer` |
-| A15 | `InformeColumnasABDON` | `A/InformeColumnasABDON_UnaColTodasGan.cs` (62) | vivo (`EstucolFrmViewModel.cs:35`) | `Analisis/InformeColumnasABDON` |
-| A16 | `TransponedorAutomatico` | `A/TransponedorAutomatico.cs` (90) | solo WinForms (`RotacionDeSignosFrm.cs`) | `Analisis/TransponedorAutomatico` |
-| A17 | `clAnalisisColumnas` | `A/clAnalisisColumnas.cs` (109) | **muerto** (0 refs) | `Analisis/ResumenCondicion` (opcional) |
+| AN1 | `Analizador` (Análisis) | `A/Analizador.cs` (213) | vivo (`ProbabilidadPremiosViewModel.cs:138`) | `Analisis/AnalizadorProbabilidades` |
+| AN2 | `ProbabilidadesPremios` | `A/ProbabilidadesPremios.cs` (76) | vivo (solo vía AN1) | `Analisis/ProbabilidadesPremios` |
+| AN3 | `AnalizadorColumnaCombinacion` | `A/AnalizadorColumnaCombinacion.cs` (162) | vivo (`EscrutadorComb.cs:112`) | `Analisis/AnalizadorColumnaCombinacion` |
+| AN4 | `ContenedorAnalisisGlobal` | `A/ContenedorAnalisisGlobal.cs` (79) | vivo (MC `Analizador`, `ControlGrupos`, `ControladorGrupos`) | `Analisis/ContenedorAnalisisGlobal` |
+| AN5 | `ContenedorAnalisis` | `A/ContenedorAnalisis.cs` (684) | vivo | `Analisis/ContenedorAnalisis` |
+| AN6 | `ContenedorColumnasProbables` | `A/ContenedorColumnasProbables.cs` (69) | vivo | `Analisis/ContenedoresSimples` |
+| AN7 | `ContenedorDiferencias` | `A/ContenedorDiferencias.cs` (55) | vivo | ídem |
+| AN8 | `ContenedorFormatos` | `A/ContenedorFormatos.cs` (38) | vivo | ídem |
+| AN9 | `ContenedorSimetrias` | `A/ContenedorSimetrias.cs` (36) | vivo | ídem |
+| AN10 | `ContenedorValoraciones` | `A/ContenedorValoraciones.cs` (36) | **muerto** (0 refs) | ídem (opcional) |
+| AN11 | `ApuestaProbable` | `A/ApuestaProbable.cs` (29) | vivo (`RentabilidadFrmViewModel.cs:116`) | `Analisis/Apuestas` |
+| AN12 | `ApuestaProbableCentral` | `A/ApuestaProbableCentral.cs` (30) | vivo (`BancoPruebasFrmViewModel.cs:537`) | ídem |
+| AN13 | `ApuestaProbEscrutada` | `A/ApuestaProbEscrutada.cs` (32) | vivo (`TramificarFormViewModel.cs:315`) | ídem |
+| AN14 | `FigurasComparer` | `A/FigurasComparer.cs` (35) | solo WinForms (`VisorAnalisisColumnasFrm.cs:397-482`) | `Analisis/FigurasComparer` |
+| AN15 | `InformeColumnasABDON` | `A/InformeColumnasABDON_UnaColTodasGan.cs` (62) | vivo (`EstucolFrmViewModel.cs:35`) | `Analisis/InformeColumnasABDON` |
+| AN16 | `TransponedorAutomatico` | `A/TransponedorAutomatico.cs` (90) | solo WinForms (`RotacionDeSignosFrm.cs`) | `Analisis/TransponedorAutomatico` |
+| AN17 | `clAnalisisColumnas` | `A/clAnalisisColumnas.cs` (109) | **muerto** (0 refs) | `Analisis/ResumenCondicion` (opcional) |
+
+Fichas: U1–U14 = §2.1–§2.14 · AN1 = §3.1 · AN2 = §3.2 · AN3 = §3.3 · AN4 = §3.4 · AN5 = §3.5 · AN6–AN10 = §3.6 ·
+AN11–AN13 = §3.7 · AN14 = §3.8 · AN15 = §3.9 · AN16 = §3.10 · AN17 = §3.11. Dudas abiertas: A1–A19 en §5.
 
 ---
 
@@ -92,7 +97,7 @@ Familias de valores según uso (mismo formato, distinto contenido de los slots):
 Operaciones núcleo (ya documentadas en MANUAL_FLUJOS §2; aquí solo la regla exacta):
 - **Pertenencia a pronóstico:** `(pron & col) == col`.
 - **Aciertos entre dos apuestas:** `ContarBitsA1(ganadora & apuesta)` = popcount de 64 bits (`:299-309`) → Swift `nonzeroBitCount`.
-- **Contar signos por tipo:** `popcount(col & máscara_signo)` con máscaras `FiltroNoVariantes.cs:107,111`, `FiltroDibujos.cs:46-47` (ver §1.3).
+- **Contar signos por tipo:** `popcount(col & máscara_signo)` con máscaras `MC/FiltroNoVariantes.cs:107,111`, `MC/FiltroDibujos.cs:46-47` (ver §1.3).
 
 ### 1.2 Reparto de conceptos «columna / texto / índice»
 
@@ -103,7 +108,7 @@ Operaciones núcleo (ya documentadas en MANUAL_FLUJOS §2; aquí solo la regla e
 | Pronósticos | `string[N]` | elemento 0 = partido 1 | — | cada elemento `"1,X,2"`/`"1X2"`/`"1"`… |
 | `bool[] partidos` de `IgnorarPartidos`, `ObtenerMascaraParcial`, `ObtenerBoolArrayFromTxt(txt)` | `bool[]` | **1-based con el índice 0 sin usar** (longitud N+1) | — | `IgnorarPartidos` itera `i = len−1 … 1` (`:433`); `ObtenerBoolArrayFromTxt(txt)` crea `N+1` (`U/UtilidadesEntradasValores.cs:282-302`) |
 | `bool[] partidosMarcados` de `ConvStrToLong(s, bool[])` y `Grupo.partidosActivos` | `bool[]` | **0-based**, alineado con el texto | — | `MC/Grupo.cs:67,321` |
-| Número base-3 | `int` | partido 1 = dígito menos significativo (`ConvertidorDeBases`) | — | ver §1.8 |
+| Número base-3 | `int` | partido 1 = dígito menos significativo (`ConvertidorDeBases`) | — | ver §1.7 |
 
 ### 1.3 Constantes
 
@@ -112,15 +117,15 @@ Operaciones núcleo (ya documentadas en MANUAL_FLUJOS §2; aquí solo la regla e
 | Bits por partido | 3 | — | `UtilColumnas.cs:41` (`>>= 3`) |
 | `columnaBase` (archivo, sin pronóstico) | `281474976710655` | `2^48 − 1` (16 slots a 7) | `MC/GeneradorColumnas.cs:30` |
 | `columnaInicial(N)` = «todo `1`» | N=1…16: 4 · 36 · 292 · 2340 · 18724 · 149796 · 1198372 · 9586980 · 76695844 · 613566756 · 4908534052 · 39268272420 · 314146179364 · **2513169434916 (N=14)** · 20105355479332 (15) · 160842843834660 (16) | `4·(8^N−1)/7` (verificado para los 16 valores) | `MC/GeneradorColumnas.cs:36-91` (por `NumeroPartidos`, `switch` en `:38`) y `:92-143` (por parámetro; el constructor de archivo lo llama con `ObtenNumSignos()`, `:33`); **N fuera de 1…16 → 0** (no hay `default`) |
-| Máscara signo `2` (N partidos) | `m2(N) = (8^N−1)/7` | `40210710958665` (N=16), `5026338869833` (N=15) | `FiltroDibujos.cs:47`, `FiltroNoVariantes.cs:111` |
-| Máscara signo `X` | `2·m2(N)` | `80421421917330` (N=16) | `FiltroDibujos.cs:46`, `FiltroNoVariantes.cs:107` |
+| Máscara signo `2` (N partidos) | `m2(N) = (8^N−1)/7` | `40210710958665` (N=16), `5026338869833` (N=15) | `MC/FiltroDibujos.cs:47`, `MC/FiltroNoVariantes.cs:111` |
+| Máscara signo `X` | `2·m2(N)` | `80421421917330` (N=16) | `MC/FiltroDibujos.cs:46`, `MC/FiltroNoVariantes.cs:107` |
 | Máscara signo `1` | `4·m2(N)` | = `columnaInicial(N)` | — |
 | Potencias de 3 (0…16) | 1, 3, 9, 27, 81, 243, 729, 2187, 6561, 19683, 59049, 177147, 531441, 1594323, **4782969 (3^14)**, **14348907 (3^15)**, 43046721 (3^16) | — | `U/ConvertidorDeBases.cs:28`, `A/Analizador.cs:40` |
-| Universo de columnas | `3^N` | 14→4 782 969 · 15→14 348 907 · 16→43 046 721 | `T/CompresorZipTests.cs:20` |
+| Universo de columnas | `3^N` | 14→4 782 969 · 15→14 348 907 · 16→43 046 721 | `T/CompresorZipTests.cs:19` |
 
-Los filtros usan máscaras de 15/16 partidos aunque N=14: los bits por encima de N son 0 en columnas válidas,
-así que el resultado no cambia (no replicar la inconsistencia: derivar `m2(N)` del `N` activo está permitido
-**solo si** el golden de cada filtro lo confirma; por defecto copiar las constantes).
+Los filtros usan máscaras de 15/16 partidos aunque N=14 (p. ej. `FiltroNoVariantes` usa `m2(15)` para los `2` y
+`FiltroDibujos` `m2(16)`): los bits por encima de N son 0 en columnas válidas, así que el resultado no cambia.
+Copiar las constantes literales de cada filtro; derivarlas de N solo si el golden del filtro lo confirma.
 
 ### 1.4 Conversiones string ↔ long (todas en `U/UtilColumnas.cs`)
 
@@ -257,7 +262,7 @@ estáticas, §1.4 da firma y algoritmo de cada una) y tres funciones libres de c
 
 **Trampas Swift.** T1 (`&<<` en `1 << idx` y en `ObtenerSignoInt`; `res << 3` nunca aborta pero pierde bits como C#), T2 (`Int64`, `>>` aritmético), T7/T11 (`ToUpper` de `ConvStrToLongDosBits` usa cultura; `IndexOf(char)` es ordinal), UTF-16 para índices (§1.8), `(uint)b` ⇒ `UInt32(bitPattern:)`.
 
-**Casos golden propuestos.** Tabla §1.9 completa; además: `ConvStrToLong("1", "")` con N=14 (relleno 13 unos → `columnaInicial(14)`... EXC si `s.Length==14`), `ConvStrToLong("1X", 3)` (relleno `"111"`), `ConvStrToLong("1X2", [true,false,true])` (= 4 + 0 + 1·64 = 68), `ConvLongToStr(3)` (`"X"`), `ConvLongToStr(6)` (EXC), `ConvLongToStr(260)` (`"1" + "2" + "1"` = `"121"`: el slot 0 interior da `'2'`), `ObtenerSignoInt(84, 1..3)` = 4,2,1, `ObtenerSignoInt(84, 0)` (desplaza −3 ⇒ módulo 64 ⇒ 0), `IgnorarPartidos([_,true,false,true], 84)` (= 12: partido 3 aporta `1`, partido 1 aporta `4` ⇒ `(1<<3)|4`), `ContarBitsA1(-1)` = 64, `ObtenNoCoincidencias("1X2","1X1")` = 2.
+**Casos golden propuestos.** Tabla §1.9 completa; además: `ConvStrToLong("1", "")` con N=14 (relleno de 13 unos ⇒ 2513169434916), `ConvStrToLong("11111111111111", "")` con N=14 (EXC: `faltan = 0`), `ConvStrToLong("1X", 3)` (relleno `"111"`), `ConvStrToLong("1X2", [true,false,true])` (= 4 + 0 + 1·64 = 68), `ConvLongToStr(3)` (`"X"`), `ConvLongToStr(6)` (EXC), `ConvLongToStr(260)` (`"1" + "2" + "1"` = `"121"`: el slot 0 interior da `'2'`), `ObtenerSignoInt(84, 1..3)` = 4,2,1, `ObtenerSignoInt(84, 0)` (desplaza −3 ⇒ módulo 64 ⇒ 0), `IgnorarPartidos([_,true,false,true], 84)` (= 12: partido 3 aporta `1`, partido 1 aporta `4` ⇒ `(1<<3)|4`), `ContarBitsA1(-1)` = 64, `ObtenNoCoincidencias("1X2","1X1")` = 2.
 
 **Evidencia.** `U/UtilColumnas.cs:27-487` (líneas por función en §1.4), `T/UtilColumnasTests.cs` (round-trip y pesos de 3 bits), `Reduccion/JLPM.cs:33,103,107,137`, `MC/Diferencia.cs:53,140`, `MC/FiltroSimetrias.cs:72-106`, `MC/Analizador.cs:115`.
 
@@ -301,6 +306,7 @@ Conv3BytesAColumna(b1,b2,b3) = N1X2[b1] + N1X2[b2] + N1X2[b3].prefix(4)         
 **Trampas Swift.** T1 (`UInt8(truncatingIfNeeded:)`), UTF-16 para `Length`/índices (§1.8), tablas como `static let` planas `[UInt8]` (`a*243+b`), `struct Comparador` con `mutating` o `final class` (los reductores lo mutan por columna).
 
 **Casos golden propuestos.** (esperado = modelo)
+
 | Caso | Esperado |
 |------|----------|
 | `ConvColumnaA3Bytes("1X21X21X21X21X")` | bytes `(102, 65, 34)` |
@@ -312,6 +318,7 @@ Conv3BytesAColumna(b1,b2,b3) = N1X2[b1] + N1X2[b2] + N1X2[b3].prefix(4)         
 | `…("222222222222222","111111111111111")` | **255** |
 | `…("1111","1111")` | EXC |
 | round-trip de las 6 columnas de `ComparadorBytesTests` | idéntico |
+
 Más todos los casos de `T/ComparadorTests.cs`, `T/ComparadorBytesTests.cs` y los dos tests de `Comparador` en `T/UtilColumnasTests.cs` (usan los fixtures `cols_a.txt`/`ganadora.txt`).
 
 **Evidencia.** `U/Comparador.cs:25-385`; `T/ComparadorBytesTests.cs` (nota de la cabecera sobre el `"1"` fijo de la posición 15); `Reduccion/XFSF.cs:59,75,111`, `Reduccion/xfsfV3.cs:128,142`, `A/Analizador.cs:164`.
@@ -409,10 +416,10 @@ ObtenBoolArray(texto):                                                         /
 2. `"1-2-3"`: `ObtenIntArray → [1]`, `ObtenBoolArray → {1,2}` (más `max` = 3 ⇒ longitud 5): las dos rutas **no coinciden**.
 3. Rango invertido `"5-3"`: `ObtenIntArray → []`; `ObtenBoolArray` ⇒ todo `false`, longitud 7.
 4. Sin deduplicado en `ObtenIntArray` (`"3,3"` ⇒ `[3,3]`); espacios admitidos: `" 2 - 4"` ⇒ 2…4.
-5. Entradas inválidas (`""`, `"a"`, `"1,,2"`, `"3-"`, `"-1"`) ⇒ EXC; los llamadores de la UI las capturan.
+5. Entradas inválidas (`""`, `"a"`, `"1,,2"`, `"3-"`, `"-1"`) ⇒ EXC (`FormatException`).
 6. Memoria: `"999999999"` pide un `bool[10^9]` (en C# `OutOfMemoryException`): Swift debe lanzar error en vez de reservar sin límite razonable.
 
-**Trampas Swift.** Parseo estilo `Convert.ToInt32` (recortar solo espacios en blanco Unicode ASCII `9–13, 32`, un signo, dígitos); `Int32` y overflow; no usar `split` de Swift con `omittingEmptySubsequences` por defecto (`true`): usar `omittingEmptySubsequences: false`.
+**Trampas Swift.** Parseo estilo `Convert.ToInt32` (recortar solo espacios en blanco Unicode ASCII `9–13, 32`, un signo, dígitos); `Int32` y overflow; no usar `split` de Swift con `omittingEmptySubsequences` por defecto (`true`): usar `omittingEmptySubsequences: false`; los rangos `a...b` con `a > b` abortan en Swift (en C# el `for` simplemente no itera): usar `stride(from:through:by:)`.
 
 **Casos golden propuestos.** Los de `T/RangosHelperTests.cs` y `RangosHelperBoolTests.cs`, más: `"1-2-3"`, `"5-3"`, `"3,3"`, `" 2 - 4"`, `"0"` (Bool: `[T,F]`), `"0-14"`, `""`, `"a"`, `"1,,2"`, `"3-"`, `"-1"`, `"2147483648"` (overflow).
 
@@ -459,7 +466,7 @@ ObtenBoolArray(texto):                                                         /
 5. `ObtenerRangos` muta la lista del llamador.
 6. `ObtenerTextoFiguraFromLong`: el `Convert.ToString(long)` es invariante (sin cultura).
 
-**Trampas Swift.** `Convert.ToInt32` (recorte, signo, `Int32`), `Int32` ↔ `UInt32(bitPattern:)` en `(uint)Convert.ToInt32(...)`, `split(omittingEmptySubsequences: false)`, `ToUpper` simple (usar `String(c).uppercased()` solo si el resultado tiene un único `Character`; si no, dejar `c`: así `ß` queda `ß` como en .NET), cultura invariante en `ToString()`.
+**Trampas Swift.** `Convert.ToInt32` (recorte, signo, `Int32`), `Int32` ↔ `UInt32(bitPattern:)` en `(uint)Convert.ToInt32(...)`, `split(omittingEmptySubsequences: false)`, `ToUpper` simple (usar `String(c).uppercased()` solo si el resultado tiene un único `Character`; si no, dejar `c`: así `ß` queda `ß` como en .NET), cultura invariante en `ToString()`, y bucles `for j in i+1…N` con `i = N` (rango inválido en Swift; usar `stride`).
 
 **Casos golden propuestos.** `ObtenerListaFromTxt`: `"1-3"` (→ `[0,1,2]`), `"2,1"` (→ `[1]`), `"2-4,1-2"` (→ `[1,2,3]`), `"1-3,3"` (→ `[0,1,2,2]`), `"1,2"`, `"3-1"`, `""`, `"a"`, `"1-3-5"`; `…Aciertos`: `"0,2-4,3"` (→ `[0,2,3,4]`); `ObtenerLongFiguraFromText("1-2-3")` = 291, `("16-1")` = 257; `ObtenerTextoFiguraFromLong(291)` = `"1-2-3"`, `(257)` = `"1-0-1"`, `(1)` = `"1"`, `(0)` = `"0"`; `ObtenerBoolArrayFromTxt("1,3-4", 2)` = `[F,T,F,T,T]`, `("1,3-4", 14)` (longitud 15), `("x", 14)` (EXC), `("")` (nil), `("0,2")` con N=14; `ObtenerTodosValores(3,5)` = `"3,4,5"`, `(5,3)` (EXC); `ObtenerValoresSeparadosPorComas("1,3-5,9")` = `"1,3,4,5,9"`; `SonTodosNumeros("1,,2")` = false; `ObtenerRangosSeparadosPorGuion("3,4,5")` = `"3-5"`, `("7")` = `""`; `ObtenerGruposDeValores(3, false)` N=14 ⇒ `"1-3","2-4",…,"12-14"`, `(3, true)` ⇒ `"1-3","4-6","7-9","10-12"`, `(2, true)` ⇒ 7 grupos, `(1, false)` ⇒ `[]`; `PonerEnMayuscula`: `"real madrid"` (→ `"Real Madrid "`), `"r. madrid"`, `"a"`, `""`, `"ab"`, `"ñandú"`.
 
@@ -517,7 +524,7 @@ Lectores (cada uno cierra el lector al final):
 - otro formato: fichero vacío.
 - `GuardarValoraciones(nombre, formato, sep, valores1[], valoresX[], valores2[])` `:401-413` copia las tres columnas en `valores[i][0..2]`; la de `double[,]` `:415-420` toma la referencia; ambas fijan `sep`, `FormatoFichero` y llaman a `Guardar`.
 - **Histórico** `GuardarValoraciones(nombre, sep, valores, temp, jor)` `:422-480`: `FormatoFichero = existe ? TestFichero : 44`; si ≠ 44 ⇒ `ShowError("El fichero no es un fichero de Valoraciones históricas")` y fin. Si 44: lee **todas** las líneas con `LeeColumnaSinComas` (`Trim().ToUpper()`, `ACT:214-217`), `split(sep)` (aquí `sep` es el **detectado** por `TestFichero` si el fichero existía, el del parámetro si era nuevo); la línea cuyo `[0]==temp && [1]==jor` se sustituye por `MontaLinea`; si no existía la jornada se añade al final; reescribe el fichero entero con `GuardarColsComa` (sin quitar comas).
-- `MontaLinea` `:482-499`: `temp + sep + jor` y, por cada partido y signo, `sep + v.ToString().Replace(".", ",")` (**decimales con coma**, al contrario que `Guardar`), con el campo `sep` vigente (el **detectado** si el fichero existía, el del parámetro si es nuevo: `:459,478`).
+- `MontaLinea` `:482-499`: `temp + sep + jor` y, por cada partido y signo, `sep + v.ToString().Replace(".", ",")` (**decimales con coma**, al contrario que `Guardar`), con el campo `sep` vigente (el **detectado** si el fichero existía —`:427-431`—, el del parámetro si es nuevo; se usa en `:453,458,466`).
 
 **D) Portapapeles.** `FormatearParaPortapapeles()` `:505-523`: `v[0][0] + TAB + v[0][1] + TAB + v[0][2]` y para cada partido siguiente `CR LF` + lo mismo; sin salto final; números con `ToString()` de la cultura actual (coma en es-ES). `CargarDesdeCadena(cadena)` `:525-537`: `""`/`null` ⇒ `false`; escribe la cadena en `Path.GetTempFileName()` (UTF-8 sin BOM, no se borra) y llama a `Leer()`; Swift: ejecutar la misma máquina de estados sobre las líneas de la cadena, sin fichero temporal. `PonerPorcentajesEnElPortapapeles/RecuperarPorcentajesDelPortapapeles` solo delegan en `Clipboard` (`:539-547`).
 
@@ -537,7 +544,7 @@ Lectores (cada uno cierra el lector al final):
 
 **Propósito.** Calcula los importes de premio por categoría (14…10) a partir de la recaudación y de los acertantes de una jornada y los **graba** en `Jornadas/InfoJornadasLAE.txt` (historial de Loterías y Apuestas del Estado).
 
-**Tipos y datos.** `_Temporada`, `_Jornada = numJornada.PadLeft(2,'0')` (`:43`), `_ColumnaPremiada`, `_Acertantes: [Int](5)`, `_Recaudacion`, `_PrecioApuesta: Double`, `_PorcentajePremioCategoria: [Double](5)`, `_Premios: [Double](5)`, `moneda` (leída y **no usada**).
+**Tipos y datos.** `_Temporada`, `_Jornada = numJornada.PadLeft(2,'0')` (`:44`), `_ColumnaPremiada`, `_Acertantes: [Int](5)`, `_Recaudacion`, `_PrecioApuesta: Double`, `_PorcentajePremioCategoria: [Double](5)`, `_Premios: [Double](5)`, `moneda` (leída y **no usada**).
 
 **Constructor** (`:41-57`): `AConfiguracion(BaseDirectory).ObtenValoresLAE(&precio, &pct[0], &recaud, &moneda)`; luego `pct[1…4] = 10`; `if recaudacion > 0 { _Recaudacion = recaudacion }`.
 **Importante (T3):** `ObtenValoresLAE` parsea los tres números con `float.Parse(texto, CultureInfo("es-ES"))` y los asigna a `double` (`EntradaSalida/AConfiguracion.cs:407-410`) ⇒ en Swift `Double(Float(parseEs(texto)))`: `0,6` queda `0.6000000238418579`, no `0.6`. El parámetro `recaudacion` del ctor (double) **no** pasa por `Float`.
@@ -606,7 +613,7 @@ Mensajes (:283-302; "\n" literal):
 
 **Peculiaridades a preservar.** (1) En `SumaSoloComunes`, `final == rep` y las repeticiones de f2 se escriben duplicadas. (2) `RestaSegunda` pierde el orden y el formato original de las líneas (salida canónica) y su `rep` cuenta repetidas de f1 **más** columnas eliminadas por f2. (3) Línea en blanco = columna 0 (se escribiría como `""` en las otras tres operaciones). (4) Una línea con comas o de > 17 caracteres no-`1` lanza EXC en `ConvColumnaANumero`; una de > 15 signos con carácter ≠ `1` en posición ≥ 15 desborda `Bits` (EXC `ArgumentOutOfRange`). (5) Se leen los ficheros por orden: f1 completo y después f2. (6) `Bits` se reserva en el constructor (1,8 MB).
 
-**Trampas Swift.** Lectura línea a línea con `ReadLine` de .NET (separadores `\n`, `\r`, `\r\n`; `Peek() >= 0` no devuelve línea vacía final si el fichero acaba en salto), `Trim()` .NET (todo espacio Unicode, incluido ` `), `ToUpper()` cultural, escritura UTF-8 sin BOM con `\n` o `\r\n` (T8: decidir y documentar; los lectores de ambos mundos aceptan los dos), no cargar f1 entero en memoria si es enorme (3^15 líneas) — procesar en streaming.
+**Trampas Swift.** Lectura línea a línea con `ReadLine` de .NET (separadores `\n`, `\r`, `\r\n`; `Peek() >= 0` no devuelve línea vacía final si el fichero acaba en salto), `Trim()` .NET (todo espacio Unicode, incluido U+00A0), `ToUpper()` cultural, escritura UTF-8 sin BOM con `\n` o `\r\n` (T8: decidir y documentar; los lectores de ambos mundos aceptan los dos), no cargar f1 entero en memoria si es enorme (3^15 líneas) — procesar en streaming.
 
 **Casos golden propuestos.** Los 5 de `T/SumadorCombinacionesTests.cs` (fixtures `cols_a/cols_b/cols_con_repetidas`: unión 15, intersección 5, resta 5, dedup 10→6, relaciones de conjuntos) comparando **ficheros byte a byte** (no solo recuentos) y los mensajes; añadir: f2 con una columna de f1 repetida 2 veces (SoloComunes ⇒ 2 líneas), línea en blanco al final, minúsculas, espacios alrededor, `noPartidos=15`, resultado vacío con fichero de salida preexistente (no se toca).
 
@@ -678,13 +685,13 @@ DTO inmutable en la práctica: `Temporada`, `Jornada`, `Path` (`String`), ctor `
 3. **Nombre de la entrada** = parámetro `fichBin`. WinUI pasa la **ruta absoluta del propio `.z3q`** (`CompresorViewModel.cs:137-138`), WinForms el nombre elegido (`Free1X2/UI/Compresor.cs:101`); el lector **ignora el nombre** (`GetNextEntry`, `:96`). El comentario de `:67` pide «.bin y sin path». **Swift:** escribir un nombre corto (`"columnas.bin"`) y aceptar cualquiera.
 4. **Metadatos fijados antes de `PutNextEntry`:** `entry.Size = matrizBits.Length`, `entry.Crc = crc.Value` (`:71,73`) ⇒ cabecera con tamaños y CRC reales.
 5. **Carga útil descomprimida:** `matrizBits` de **`⌊tamano/8⌋ + 1` bytes** (`:45`; siempre un byte de más); el bit del **número de columna `i`** (índice base-3 de `ConvertidorDeBases`, §1.7) es el bit `i % 8` (LSB primero, máscara `0x01 << (i%8)`) del byte `i / 8` (`:46-62`); los bits `≥ bs.Length` no existen (el indexador lanza y el `catch {}` vacío `:59-61` los deja a 0).
-6. **CRC-32** del ZIP (polinomio reflejado `0xEDB88320`) sobre `matrizBits` (`:64-65`).
-7. **Valor devuelto** por `Comprimir` = `entry.Size` = longitud **sin comprimir** (`:80`), no el tamaño en disco (`T/CompresorZipTests.cs`: `(Length/8)+1`).
+6. **CRC-32** estándar de ZIP (`ICSharpCode.SharpZipLib.Checksum.Crc32`, polinomio reflejado `0xEDB88320`) sobre `matrizBits` (`:64-65`).
+7. **Valor devuelto** por `Comprimir` = `entry.Size` = longitud **sin comprimir** (`:80`), no el tamaño en disco (`T/CompresorZipTests.cs:41`: `(Length/8)+1`).
 
 **Lectura** (`Descomprimir` `:88-136`): `ZipInputStream`, **primera** entrada (`GetNextEntry`; zip sin entradas ⇒ NRE; si es directorio no se lee nada); lee en bloques de 2048; para cada byte `car` y `p in 0..<8`, si `car & (1<<p)` ⇒ `bs.Set(count + i*8 + p)` sobre un `BitArray(14348907)` (EXC si un bit a 1 cae ≥ 3^15); `count += numBytes*8` por bloque. Tamaño del resultado: `tamanoReal = (count > 14348907) ? 14348907 : 4782969`; devuelve los primeros `tamanoReal` bits. Consecuencia: archivo de 14 partidos (597 872 bytes ⇒ 4 782 976 bits) ⇒ 3^14; de 15 (1 793 614 bytes ⇒ 14 348 912 bits) ⇒ 3^15; **cualquier otro tamaño ⇒ 3^14** (p. ej. un bitmap 3^13 o 3^16 se lee como 3^14).
 
-**Qué debe cumplir el Swift** (compatibilidad **funcional** en ambos sentidos; igualdad byte a byte imposible porque la fecha DOS de la entrada es la hora actual):
-- *Escritor:* ZIP estándar de 1 entrada, método 8 (o 0 si el nivel es 0 y se prefiere), tamaños y CRC reales en la cabecera local (sin bit 3), directorio central y registro de fin estándar, sin comentario. El `ZipInputStream` de SharpZipLib lee ese resultado.
+**Qué debe cumplir el Swift** (compatibilidad **funcional** en ambos sentidos; igualdad byte a byte imposible porque la fecha DOS de la entrada es la hora actual). Los detalles internos de las cabeceras que genera SharpZipLib 1.4.2 no están verificados (Abiertas A1):
+- *Escritor:* ZIP estándar de 1 entrada, método 8 (Deflate), tamaños y CRC reales en la cabecera local (sin bit 3), directorio central y registro de fin estándar, sin comentario. El `ZipInputStream` de SharpZipLib lee ese resultado.
 - *Lector:* localizar `PK\x05\x06` desde el final, usar el directorio central (no los tamaños de la cabecera local), tomar la primera entrada que no sea directorio, método 8 ⇒ inflate crudo, método 0 ⇒ copia; tolerar el bit 3 (descriptor de datos); verificar el CRC.
 - Reproducir el cálculo de `tamanoReal` y la longitud `⌊tamano/8⌋+1`.
 
@@ -700,3 +707,342 @@ DTO inmutable en la práctica: `Temporada`, `Jornada`, `Path` (`String`), ctor `
 
 ---
 
+## 3. Análisis — fichas por componente
+
+### 3.1 Analizador (Análisis) — `Free1X2.Domain/Analisis/Analizador.cs`
+
+> No confundir con `MotorCalculo.Analizador` (generador/validador, ESPEC_01). Esta clase calcula la **probabilidad de premio de una combinación «hija» respecto a una «madre»** (pantalla *Probabilidad de premios*).
+
+**Propósito.** Para cada categoría `c` (nº de aciertos), % de columnas de la madre que tienen **al menos una** hija a distancia de Hamming `N − c`, buscando por vecindad hasta `N − premioMinimo` cambios.
+
+**Tipos y datos.** `premioMinimo: Int` (ctor, `:56-60`; la UI lo toma del rango de premios escrito por el usuario, por defecto 10: `ProbabilidadPremiosViewModel.cs:104-126`), `pot: [Int](17)` (`:40`), `Bits: [Bool]` de `3^noPartidosA` (se reasigna en `:61-65`), `premios: [Int](17)` (**solo escritura**, nunca se lee), `premiosTemp: [Int](17)` (se pone a 0 por cada columna madre, `:66-72`), `Profundidad: Int16` (`:43`), `noPartidosA/B`, `probabilidadesPremios` (§3.2).
+
+**Entradas / salidas.** `ComparaCombinaciones(madre: String, hija: String)` (ficheros de columnas), luego `ObtenProbabilidadPremios(categoria) → Double` (`:206-209`). Efectos: lee los dos ficheros; `UserDialogs.ShowError` en un caso.
+
+**Algoritmo.**
+```
+ComparaCombinaciones(madre, hija):                                                   // :73-78
+   InicializaArchivosCols(madre, hija)
+   probabilidades.CalculaProbabilidades()                                            // SIEMPRE, también tras el error de abajo
+InicializaArchivosCols:                                                              // :80-131
+   A = ACT(madre).ObtenNumSignos();  B = ACT(hija).ObtenNumSignos()                  // = longitud de la 1.ª línea (Trim+ToUpper; 0 si el fichero no existe)
+   si A != B { ShowError("Los Dos archivos tienen un número distinto de signos"); return }      // noColumnasBase queda a 0
+   Bits = [false] × pot[A]
+   hijas = 0;  para L en hija:  Bits[ConvColumnaANumero(L)] = true;  hijas += 1                  // cuenta líneas, no columnas distintas
+   base = 0
+   para L en madre:
+        premiosTemp = [0]×17
+        num = ConvColumnaANumero(L)
+        si Bits[num] { ObtenPremios(0) }                                                          // coincidencia exacta; no se exploran vecinos
+        sino { Profundidad = 0; EncontrarDistantes1(num, 0, A − premioMinimo) }
+        ObtenPremiosDirectos();  base += 1
+   probabilidades.NoColsComb = hijas;  probabilidades.NoColsCombBase = base
+EncontrarDistantes1(idx, posIni, pProf):                                             // :133-159
+   Profundidad += 1
+   para partido en posIni ..< A:
+        sig = (idx / pot[partido]) % 3                                                // dígito base-3 del partido
+        para z en 0..<3 donde z != sig:
+             j = idx + pot[partido] * (z − sig)
+             si Bits[j] { ObtenPremios(Profundidad) }                                 // cuenta y NO desciende por esta rama
+             sino si Profundidad < pProf { EncontrarDistantes1(j, partido + 1, pProf) }
+   Profundidad −= 1
+ObtenPremios(d):          premios[A−d] += 1;  premiosTemp[A−d] += 1                   // :199-204
+ObtenPremiosDirectos():   para i en 0..<17 donde premiosTemp[i] != 0:  prob.AddPremioDirecto(i, 1)     // :188-197
+```
+El dígito del partido `p` es `(num / 3^p) % 3` con el mapa de `ConvertidorDeBases` (`'1'=0, 'X'=1, '2'=2`, §1.7): cada vecino cambia **un** partido a uno de los otros dos signos, y las posiciones de una misma rama van en orden estrictamente creciente (cada columna a distancia `d` se alcanza por un único camino).
+
+**Estado global.** Solo `UserDialogs.ShowError`. Swift: `throws`/closure `alErrorSignos`, manteniendo que el cálculo **continúa** y devuelve NaN.
+
+**Peculiaridades a preservar.**
+1. **Poda:** al encontrar una hija se cuenta y no se desciende; una hija a distancia 2 solo se cuenta si el camino de posiciones ascendentes hasta ella no pasa por otra hija. El resultado no es «existe alguna hija a distancia `d`».
+2. Los vecinos de distancia 1 se examinan **siempre**, aunque `pProf ≤ 0` (`premioMinimo ≥ A`): la categoría `A−1` puede contarse con mínimo 14 (`:139-150`).
+3. `noColsComb` cuenta **líneas** de la hija (con repetidas y en blanco).
+4. Tras el error de nº de signos: `noColumnasBase = 0` ⇒ `CalculaProbabilidades` produce `0·100.0/0 = NaN` en las 17 categorías.
+5. Línea en blanco ⇒ `Num = 0` (columna «todo `1`»); columnas con longitud distinta de la primera ⇒ `Num` puede salirse de `Bits` ⇒ EXC; fichero inexistente con A=B=0 ⇒ `FileNotFoundException` al leer (`ACT:183-190`).
+6. `premios[]`, `IteraCols` (`:161-186`) y `comColsIter` (siempre vacío) son código **muerto**: no portar.
+7. `ObtenNumSignos` cuenta caracteres de la primera línea **con comas** (no las quita): un fichero con comas da A distinto del esperado y rompe `ConvColumnaANumero` (§2.4).
+
+**Trampas Swift.** Recursión con `Int` (profundidad ≤ `A−premioMinimo+1`); `Bits` como `[UInt64]`/`[Bool]` de hasta 3^16; `Int16 Profundidad` ⇒ `Int`; `ObtenNumSignos` reimplementar con la misma lectura (`Trim().ToUpper()`).
+
+**Casos golden propuestos.** (N=14, mínimo 10; «M» = 14 unos)
+
+| Caso | Esperado (modelo) |
+|------|-------------------|
+| madre `{M}`, hija `{1111111111111X}` | `prob[13] = 100`, resto 0 |
+| madre `{M}`, hija `{M}` | `prob[14] = 100` |
+| madre `{M}`, hijas `{11X11111111111, 11X1X111111111}` | `prob[13] = 100`, **`prob[12] = 0`** (poda); sin la 1.ª hija `prob[12] = 100` |
+| ídem con `premioMinimo = 14` | `prob[13] = 100` (vecinos de distancia 1 siempre examinados) |
+| madre 14 signos, hija 15 | error + 17 × NaN |
+| hija con una línea en blanco y madre `{M}` | `prob[14] = 100` (blanca = columna 0) |
+| 10 columnas madre reales (`cols_a.txt`) × hija `cols_b.txt` | volcado completo de `prob[0…16]` |
+
+**Evidencia.** `A/Analizador.cs:36-213`; `ProbabilidadPremiosViewModel.cs:138-144`; `ACT:183-217,342-357`.
+
+---
+
+### 3.2 ProbabilidadesPremios — `Free1X2.Domain/Analisis/ProbabilidadesPremios.cs`
+
+**Propósito.** Contenedor de recuentos por categoría y su paso a porcentaje.
+**Tipos y datos.** `premios: [Int](17)`, `probabilidades: [Double](17)` (`:27-28`), `noColumnasBase`, `noColumnasComb: Int` (`:24-25`).
+**Algoritmo.** `AddPremioDirecto(c, n)`: `premios[c] += n` (`:44`). `CalculaProbabilidades()`: `for i in 0..<17 { probabilidades[i] = (Double(premios[i]) * 100.0) / Double(noColumnasBase) }` (`:49-54`, formula en `:53`). `ObtenProbabilidadPremioDirecto(c) = probabilidades[c]` (`:69`). Categoría fuera de 0…16 ⇒ EXC.
+**Estado global.** Ninguno. **Peculiaridades.** `noColumnasBase == 0` ⇒ NaN (`0/0`) o +∞ (si `premios[i] > 0`, imposible en la práctica); `NoColsComb` se guarda pero nunca se usa.
+**Trampas Swift.** `Double` (no `Float`); la UI formatea con `"#,##0.00;0.00"` (cultura) — fuera de esta espec. **Golden.** `premios=[…,3 en [13]…], base=10` ⇒ 30.0; `base=0` ⇒ NaN. **Evidencia.** `A/ProbabilidadesPremios.cs:22-76`.
+
+---
+
+### 3.3 AnalizadorColumnaCombinacion — `Free1X2.Domain/Analisis/AnalizadorColumnaCombinacion.cs`
+
+**Propósito.** Veredicto booleano «¿esta columna cumple la combinación guardada?» (sin UI), usado por el **escrutinio de combinaciones** (`Escrutinio/EscrutadorComb.cs:112-117`). Extraído del WinForms `AnalisisCombinacion.AnalizaColumna`.
+
+**Tipos y datos.** Tres `bool[]` privados de trabajo (`grupos`, `conjuntos`, `conjuntos2`, `:34-36`) que se **reasignan en cada llamada**. Entradas: `columna: Int64`, `analizador: MotorCalculo.Analizador` (grupos, controles, If-Then), `pronosticosBase: [String]` (sin comas, `EscrutadorComb.cs:107-111`).
+
+**Algoritmo** (`:38-110`):
+```
+analizaColumna(columna, analizador, pronosticosBase) -> Bool:
+  grupos = [false] × analizador.GruposPartidos.count                               // NUNCA se pone a true
+  para i, g en GruposPartidos:
+     si i == 0 y hayFallosPronostico(columna, pronosticosBase) { return false }
+     colG = g.ColumnaGrupo(columna)                                                // = columna & g.mascara   (MC/Grupo.cs:160-163)
+     para f en g.Filtros donde f.IsActive: si !f.Analizar(colG) { return false }
+     si g.ControladorTolerancias.Tolerancias.count > 0 y !g.AnalizaToleranciasGrupo(colG) { return false }
+  conjuntos = [false] × CtrlGrupos.ControlesGrupos.count                           // NUNCA se pone a true
+  si conjuntos.count > 1:
+     para i en 1..<conjuntos.count: si !analizaFallosGrupos(ControlesGrupos[i]) { return false }
+     conjuntos2 = [false] × CtrlGrupos.ControlesConjuntos.count
+     si conjuntos2.count > 1: para i en 1..<ControlesConjuntos.count: si !analizaFallosConjuntos(ControlesConjuntos[i]) { return false }
+  si IfThen != nil y !IfThen.EsVacio y IfThen.EsActivo:
+     si IfThen.ControlesCondiciones.count > 0 y IfThen.CompruebaErrores(columna).count > 0 { return false }
+     si IfThen.ControlesGrupos.count > 0 y IfThen.CompruebaErrores(columna, GruposPartidos).count > 0 { return false }
+  return true
+hayFallosPronostico(cg, pron):                                                      // :112-134
+  partido = 0
+  mientras cg != 0: signo = Int(truncatingIfNeeded: cg) & 7;  p = ConvPartidoStrToByte(pron[partido]);  si (signo & p) != signo → fallo;  cg >>= 3;  partido += 1
+  devuelve «hay algún fallo»  (el C# construye "#n#m…" y lo trocea, pero solo se usa `!= null`)
+analizaFallosGrupos(c):      numFallos = #{ n ∈ c.GruposControlados : grupos[n] == false };      return c.FallosPermitidos[numFallos]         // :136-146
+analizaFallosConjuntos(c):   conj = c.ObtenCtrolGruposConjunto();  numFallos = #{ n ∈ conj : conjuntos[n] == false };  return c.ObtenFallosPermitidos()[numFallos]   // :148-160
+```
+**Estado global.** Ninguno propio (todo vía `analizador`). Dependencias de ESPEC_01/04: `Grupo.ColumnaGrupo/Filtros/ControladorTolerancias/AnalizaToleranciasGrupo`, `IFiltro.IsActive/Analizar`, `ControlGrupos.GruposControlados/FallosPermitidos`, `ControlConjuntos.ObtenFallosPermitidos/ObtenCtrolGruposConjunto`, `ControladorIfThen.*`.
+
+**Peculiaridades a preservar.**
+1. **Divergencia con el WinForms legacy:** `Free1X2/Analisis/AnalisisCombinacion.cs:198-202,237` sí marca `grupos[i]`/`conjuntos[i]` y no corta al primer fallo de filtro (necesita el árbol completo). La versión de dominio **corta al primer fallo** y **nunca marca** `grupos`/`conjuntos` ⇒ en los controles, `numFallos` = nº de grupos/conjuntos controlados (todos «fallados») ⇒ solo pasa si `FallosPermitidos[todos]` es `true`. Los fallos de grupo **tolerados** por un `ControlGrupos` no se admiten antes (cualquier filtro fallido ya devolvió `false`). M-R1: el Swift replica el **dominio** (oráculo), no el WinForms; confirmar con golden (Abiertas A6).
+2. `hayFallosPronostico` solo mira hasta el último slot ≠ 0 y exige `pron[partido]` para cada uno (EXC si faltan); pronóstico no reconocido (`ConvPartidoStrToByte` = 0) falla salvo slot 0; un slot 0 interior pasa siempre.
+3. Orden: (pronóstico, solo grupo 0) → filtros → tolerancias del grupo, grupo por grupo; luego controles; luego If-Then. No usa el filtro parcial del grupo ni los flags de memoria `reCalcular*`.
+4. `conjuntos2` solo se evalúa dentro de `if conjuntos.Length > 1`.
+
+**Trampas Swift.** `(int)cg & 7` ⇒ `Int(truncatingIfNeeded: cg) & 7`; arrays locales por llamada; `Analizar` muta el estado de los filtros (clases por referencia, ESPEC_02/03).
+**Casos golden propuestos.** Una `.comb` con: (i) solo pronósticos (columna dentro/fuera), (ii) un filtro activo, (iii) tolerancia de grupo, (iv) `ControlGrupos` con `FallosPermitidos = [false,true]` y una columna que viola un filtro de un grupo secundario (el dominio devuelve `false`), (v) If-Then activo; lista de ≥ 200 columnas; volcar el booleano por columna. **Evidencia.** `A/AnalizadorColumnaCombinacion.cs:34-160`; `Escrutinio/EscrutadorComb.cs:100-130`; `Free1X2/Analisis/AnalisisCombinacion.cs:198-202,237,447-457`.
+
+---
+
+### 3.4 ContenedorAnalisisGlobal — `Free1X2.Domain/Analisis/ContenedorAnalisisGlobal.cs`
+
+**Propósito.** Raíz de los resultados del análisis (Flujo 4 de MANUAL_FLUJOS): un `ContenedorAnalisis` más contadores por nº de fallos de grupos/conjuntos.
+**Tipos y datos.** `AnalisisGrupos: ContenedorAnalisis` (creado en el ctor con `partidos`, `:39-42`), `ColumnasPorFallosDeGrupos: [Int](noGrupos)`, `ColumnasPorFallosDeConjuntos: [Int](noConjuntos)` (`:30-37`), `NoGrupos`, `NoConjuntos`, `EsAnalisisExterno: Bool`. Ctor `(noGrupos, noConjuntos, partidos)`. Construcción en `MC/Analizador.cs:356,405` (`CtrlGrupos.GruposPartidos.Count`, `CtrlGrupos.ControlesGrupos.Count`, `NumeroPartidos` o `numPartidos` del análisis externo). Swift: `final class` (compartido por referencia con `ControlGrupos`, `ControladorGrupos` y el visor).
+**Algoritmo.** Sin lógica: `VaciarInformacion()` ⇒ `AnalisisGrupos.VaciarFiltrosTemp()` (`:48-52`). Los contadores los incrementan `MC/ControlGrupos.cs:131` (`ColumnasPorFallosDeGrupos[noFallosEnAnalisis]++`) y `MC/ControladorGrupos.cs:263-264` (`ColumnasPorFallosDeConjuntos[n]++` y `ColumnasPorFallosDeGrupos[n]++`).
+**Estado global.** Ninguno. **Peculiaridades.** El 2.º parámetro del ctor se llama `noConjuntos` pero recibe `ControlesGrupos.Count`; índices fuera de los arrays ⇒ EXC. **Golden.** Volcado de ambos arrays tras un cálculo con control de grupos y de conjuntos. **Evidencia.** `A/ContenedorAnalisisGlobal.cs:20-79`.
+
+---
+
+### 3.5 ContenedorAnalisis — `Free1X2.Domain/Analisis/ContenedorAnalisis.cs`
+
+**Propósito.** Acumula, para cada **columna aceptada**, los valores de las condiciones del grupo base (histogramas por condición) que luego muestra el visor de análisis. Núcleo de `AnalizaCombinacion(true)`.
+
+**Tipos y datos** (N = `numPartidos` del ctor; `int[,]` ⇒ matriz plana fila-mayor `[Int]`; `int` de C# no desborda aquí):
+
+| Campo | Dimensiones | Evidencia |
+|-------|-------------|-----------|
+| `vx2` | `3 × (N+1)` | `:354` |
+| `distancias` | `4 × N` | `:356` |
+| `interrupciones` | `10 × (N+1)` | `:357` |
+| `pesos` | `5 × 10` (fijo) | `:358` |
+| `seguidos` | `4 × (N+1)` | `:362` |
+| `dibujos` | `(N+1) × (N+1)` | `:363` |
+| `contactos` | `10 × N` | `:364` |
+| `sortedFigurasV1X2_V/_1/_X/_2`, `sortedFigurasContactos`, `sortedFigurasPesos` | `SortedList<long,int>` (orden **ascendente por clave**) | `:54-57,63,77` |
+| `valoracionGlobal/Unos/Equis/Doses` | `List<int>` (vacías hasta `InicializarValoraciones`) | `:81-84` |
+| `novaloresValoracion{Global,Unos,Equis,Doses}` | `List<int>` (los asigna el Analizador desde `ObtenerArrayAciertos`) | `:86-89` |
+| `noAciertosSimetrias` / `contenedorSim` | `List<int>` / `List<ContenedorSimetrias>` | `:92-93` |
+| `contenedorRep` | `List<ContenedorDiferencias>` | `:96` |
+| `contColumnasProbables` | `List<ContenedorColumnasProbables>` | `:101` |
+| `contenedorFormatosSignos` | `List<ContenedorFormatos>` | `:102` |
+| `tipoValoracion: String` (`:85`), `usaSimetrias/Valoraciones/CPs/Formatos = false`, **`usaDiferencias = true`** | — | `:29-33` |
+| `filtrosTemp: [IFiltro]` + `filtrosTempSet` (identidad de referencia) | orden de inserción | `:35,42` |
+
+**Entradas / salidas.** `IncrementarContador(columna: Int64)` (llamado por `MC/Analizador.AnalizaColumna` solo si la columna es válida, `MC/Analizador.cs:161`), `AñadirFiltroTemp(f)` (llamado por `MC/Grupo.AnalizaColumna(long, ContenedorAnalisis)` para filtros con `AnalisisActivo` **solo en el grupo base**, `MC/Grupo.cs:238-262`), `VaciarFiltrosTemp()`, `Inicializa*`, `Incrementar*`, y las propiedades de lectura.
+
+**Algoritmo.**
+```
+IncrementarContador(columna):                                                      // :109-334
+  para f en FiltrosTemp (orden de inserción) donde f.AnalisisActivo:
+     según f.NombreFiltro:
+       NoVariantes:   vx2[0][NoEquis+NoDoses]++;  vx2[1][NoEquis]++;  vx2[2][NoDoses]++                                         // :118-123
+       Contactos:     contactos[k][v]++ con (k, v) = (0,NoContactos1X) (1,NoContactos12) (2,NoContactosX2) (3,NoContactos11) (4,NoContactosXX)
+                      (5,NoContactos22) (6,NoContactos1V) (7,NoContactosXV) (8,NoContactos2V) (9,NoContactosVV)
+                      si AnalizarFigurasContactos: fig = f.ObtenerFiguraLongValor();  sortedFigurasContactos[fig] += 1 (o = 1 si no existe)  // :124-154
+       Distancias:    distancias[0][NoDistanciasVariantes]++; [1][NoDistanciasUnos]++; [2][NoDistanciasEquis]++; [3][NoDistanciasDoses]++     // :155-161
+       NoInterrupciones: interrupciones[0..9][ NoInterrupciones, …Variantes, …Unos, …Equis, …Doses,
+                      …GlobalesSeguidas, …VariantesSeguidas, NoInterrupcionesUnosSeguidos, …EquisSeguidas, …DosesSeguidas ]++          // :162-176
+       PesosNumericos: pesos[0..4][ PesoGlobal, PesoVariantes, PesoUnos, PesoEquis, PesoDoses ]++
+                      si AnalizarFigurasPesos: f.ObtenerFiguraLong(); fig = f.FiguraPesos.Figura; sortedFigurasPesos[fig] += 1            // :177-199
+       SignosSeguidos: seguidos[0..3][ NoVariantesSeguidas, NoUnosSeguidos, NoEquisSeguidas, NoDosesSeguidos ]++
+                      si AnalizarFigurasV1X2: para (lista, valor) en (V, ObtenFiguraV(columna)) (1, ObtenFigura1(columna)) (X, ObtenFiguraX(columna)) (2, ObtenFigura2(columna)): lista[valor] += 1   // :200-254
+       Dibujos:       dibujos[NoEquisCol][NoDosesCol]++                                                                               // :255-258
+       Simetrias:     IncrementarColumnasSimetrias(f.AciertosSimetria)                                                                // :259-262
+       ValoracionSignos: si f.IsActive { IncrementarColumnasValoracion(Float(f.ValoracionResultado), Float(f.ValoracionUnos), Float(f.ValoracionEquis), Float(f.ValoracionDoses)); TipoValoracion = f.TipoValoracion }   // :263-270
+       ColProbables:  si f.IsActive: para j en 0..<f.ColProbables.count: ContColumnasProbables[j].IncrementarAC(cp.NoAC); .IncrementarACS(cp.NoACS); .IncrementarFS(cp.NoFS)        // :271-284
+       FormatosSignos: si f.IsActive: para j en 0..<f.FormatosSignos.count: contenedorFormatosSignos[j].AciertosFormatosSignos[fS.NoLineasValidas]++; IncrementarAciertosGlobalesFormatos(contenedorFormatosSignos[j].AciertosGlobalesFormatos, fS.NoAparicionesGlobal)   // :285-302
+       Diferencias:   si f.IsActive: para j: d = f.Diferencias[j];  si d.AnalizaVX2Dib { rep[j].Variantes[d.NoVariantes]++; .Equis[d.NoEquis]++; .Doses[d.NoDoses]++; .Dibujos[d.NoDibujos]++ }
+                      si d.AnalizaInterrupciones { rep[j].Interrupciones[d.NoInterrupciones]++ };  si d.AnalizaFormatos { rep[j].Formatos[d.NoFormatos]++ }   // :303-331
+  VaciarFiltrosTemp()                                                              // :333
+AñadirFiltroTemp(f): si filtrosTempSet.insert(f) { filtrosTemp.append(f) }          // :338-344 (equivale a !Contains + Add)
+InicializaFormatosSignos(noFormatos):   para i: c = ContenedorFormatos(); c.AciertosFormatosSignos = [0]×(noFormatos[i]+1); c.AciertosGlobalesFormatos = {0: 0}; contenedorFormatosSignos.append(c)     // :366-374 (no vacía la lista previa)
+InicializarSimetrias():                 para i en NoAciertosSimetrias: c = ContenedorSimetrias(Aciertos = NoAciertosSimetrias[i], Columnas = 0); contenedorSim.append(c)     // :376-383
+InicializarValoraciones():              cada una de las 4 listas = (listaNoValores.last + 1) ceros, AÑADIDOS a la lista actual                                               // :385-403
+InicializarCPs(cps):                    para cp en cps: ContColumnasProbables.append(ContenedorColumnasProbables(cp.Pronosticos.count))                                           // :404-411
+IncrementarColumnasSimetrias(a):        primer contenedor con Aciertos == a ⇒ Columnas += 1 y break                                                                              // :412-422
+IncrementarColumnasValoracion(g,u,x,d): clave = Int( Double(valor).rounded(.toNearestOrEven) ) para cada uno; valoracionGlobal[kg] += 1; …Unos[ku] += 1; …Equis[kx] += 1; …Doses[kd] += 1   // :424-435
+IncrementarAciertosGlobalesFormatos(sorted, a): sorted[a] = (sorted[a] ?? 0) + 1                                                                                                 // :437-447
+```
+**Estado global.** `VariablesGlobales.AnalizarFigurasContactos` (`:138`), `AnalizarFigurasPesos` (`:184`), `AnalizarFigurasV1X2` (`:206`). Swift: banderas en la configuración de análisis inyectada.
+
+**Peculiaridades a preservar.**
+1. **Valoración: `Double → Float → Double → redondeo a par → Int`.** `FiltroValoracionSignos.Valoracion*` son `double` (`MC/FiltroValoracionSignos.cs:350-362`); el `(float)` de `:267` puede cruzar un `.5` (p. ej. `2.4999999999 ⇒ 2.5f ⇒ 2`) y `Math.Round(float→double, 0)` es **ToEven** (T3, T4): `0.5→0, 1.5→2, 2.5→2, 3.5→4`; `−0.5 → −0 → 0` (válido) y `−0.6 → −1` ⇒ EXC (índice negativo). Clave fuera de `[0, last]` ⇒ EXC.
+2. `InicializarValoraciones` dimensiona con el **último** elemento de cada lista de valores (no el máximo; asume lista ordenada) y lista vacía ⇒ EXC; invocarla dos veces **duplica** el tamaño (no limpia).
+3. `FiltrosTemp` acumula los filtros también de columnas **rechazadas** y solo se vacía al aceptar una columna (`:333`) o con `VaciarInformacion`; `IncrementarContador` lee el **estado actual** de cada filtro (el de la última columna analizada, que es la aceptada). Dedupe por identidad (`HashSet<IFiltro>` sin `Equals` propio).
+4. `SortedList<long,int>`: clave única, iteración **ascendente por clave**; consumidores lo leen por índice (`SortedFigurasContactos.Keys[i]`, `Values[i]`, `VisorAnalisisColumnasFrm.cs:385-397`). Swift: array ordenado de pares con inserción por búsqueda binaria, o diccionario + ordenar al leer.
+5. `pesos` tiene siempre 10 columnas; `PesoGlobal…` > 9 ⇒ EXC. `contactos`/`distancias` tienen `N` columnas (valor máximo `N−1`).
+6. `usaDiferencias` vale `true` por defecto (los demás `false`); el Analizador los fija con `filtro.IsActive` en análisis de combinación (`MC/Analizador.cs:362-367`); en análisis **externo** (archivo) el contenedor se crea sin tocar esas banderas (`:405-406`).
+7. `ContenedorDiferencias`, `ContenedorFormatos` y `ContColumnasProbables` los crea `MC/Analizador.InicializarContenedorAnalisis` (`MC/Analizador.cs:351-407`), con tamaños `PartidosSimetricos.Count`, `LineasFormatos.Count` y `Pronosticos.Length`.
+
+**Trampas Swift.** `final class` (referencia compartida); matrices planas con índice `fila*cols+col`; los accesos fuera de rango en C# lanzan: en Swift validar o usar `throws` (no confiar en `precondition`); `Float` intermedio de la valoración (T3); `rounded(.toNearestOrEven)` (T4); `SortedList` (T5/T6: orden por clave, no por inserción).
+**Casos golden propuestos.** (1) `MC/Analizador` sobre las 3 combinaciones de `ManualFuncionalTests` + una con cada filtro activo, con las 3 banderas de figuras a `true` y a `false`; volcar todas las matrices, listas y `SortedList`. (2) Unitarios directos: `IncrementarColumnasValoracion(Float)` con `0.5, 1.5, 2.5, 3.5, −0.5, 2.4999999f, 2.5000002f`; `IncrementarColumnasSimetrias` con `Aciertos` duplicados `[3,3]`; `InicializarValoraciones` con lista vacía (EXC) y dos veces seguidas; `IncrementarAciertosGlobalesFormatos` con claves `0,5,5,2`. (3) Análisis con control de grupos/conjuntos (`ColumnasPorFallos*`).
+**Evidencia.** `A/ContenedorAnalisis.cs:25-684`; `MC/Analizador.cs:137-163,351-407`; `MC/Grupo.cs:238-262`; `MC/FiltroValoracionSignos.cs:316-362`.
+
+---
+
+### 3.6 Contenedores simples — `ContenedorColumnasProbables`, `ContenedorDiferencias`, `ContenedorFormatos`, `ContenedorSimetrias`, `ContenedorValoraciones`
+
+Estructuras de datos sin lógica (todas con getters/setters públicos; Swift: `final class` con propiedades `var`).
+
+| Tipo | Campos | Construcción | Evidencia |
+|------|--------|--------------|-----------|
+| `ContenedorColumnasProbables(partidos)` | `NoAC`, `NoACS`, `NoFS: [Int]` de `partidos+1` | arrays a 0; `IncrementarAC/ACS/FS(a)` ⇒ `arr[a] += 1` (a > partidos ⇒ EXC) | `A/ContenedorColumnasProbables.cs:30-51` |
+| `ContenedorDiferencias(n)` | `Variantes`, `Equis`, `Doses`, `Dibujos`, `Interrupciones`, `Formatos: [Int]` de `n+1`; `NumDiferenciasPosibles` devuelve **`n+1`** (no `n`) | arrays a 0 | `A/ContenedorDiferencias.cs:9-18` |
+| `ContenedorFormatos` | `AciertosFormatosSignos: [Int]` (sin inicializar hasta que lo asigna `InicializaFormatosSignos`), `AciertosGlobalesFormatos: SortedList<Int,Int>` (vacía; `InicializaFormatosSignos` añade `(0,0)`) | — | `A/ContenedorFormatos.cs:24-36` |
+| `ContenedorSimetrias` | `Aciertos`, `Columnas: Int` | `Columnas` = 0 | `A/ContenedorSimetrias.cs:20-35` |
+| `ContenedorValoraciones` | `Columnas: Int`, `Valor: Float` | — | `A/ContenedorValoraciones.cs:20-35` — **muerto** (0 referencias) |
+
+**Estado global.** Ninguno. **Peculiaridades.** `NumDiferenciasPosibles = n+1`; `Valor` es `float` (T3). **Golden.** Solo vía los volcados de §3.5. 
+
+---
+
+### 3.7 Structs de apuesta — `ApuestaProbable`, `ApuestaProbableCentral`, `ApuestaProbEscrutada`
+
+Registros usados en matrices de **4 782 969** elementos (3^14) por Rentabilidad (`RentabilidadFrmViewModel.cs:116`), Banco de pruebas (`BancoPruebasFrmViewModel.cs:537`) y Tramificar (`TramificarFormViewModel.cs:315`); sin lógica.
+
+| Tipo C# | Campos (tipo C# ⇒ tipo Swift) | Tamaño Swift |
+|---------|-------------------------------|--------------|
+| `ApuestaProbable` (`A/ApuestaProbable.cs:24-28`) | `Probabilidad: float ⇒ Float`, `Columna: int ⇒ Int32` | 8 B |
+| `ApuestaProbableCentral` (`A/ApuestaProbableCentral.cs:24-29`) | `Probabilidad: float ⇒ Float`, `ProbabilidadDiferencial: float ⇒ Float`, `Columna: int ⇒ Int32` | 12 B |
+| `ApuestaProbEscrutada` (`A/ApuestaProbEscrutada.cs:24-29`) | `Probabilidad: double ⇒ Double`, `Columna: int ⇒ Int32`, `Aciertos: byte ⇒ UInt8` | 16 B (relleno) |
+
+`Columna` es el número base-3 de `ConvertidorDeBases` (§1.7), no el `long` empaquetado. **T3:** respetar `Float` vs `Double` por tipo. El orden (quicksort propio de los ViewModels sobre estos arrays) se especifica en ESPEC_08/09. Golden: ninguno propio.
+
+---
+
+### 3.8 FigurasComparer — `Free1X2.Domain/Analisis/FigurasComparer.cs`
+
+**Propósito.** `IComparer<FiguraCondicion>` para ordenar las figuras del visor de análisis por **nº de apariciones ascendente**.
+**Tipos y datos.** `FiguraCondicion { Figura: long, Apariciones: int }` (`MC/FiguraCondicion.cs:20-34`).
+**Algoritmo.** `Compare(x, y)`: si alguno es `null` ⇒ `ArgumentException`; devuelve `x.Apariciones.CompareTo(y.Apariciones)` (`:27-32`). Uso: `List<FiguraCondicion>.Sort(new FigurasComparer())` sobre la lista construida recorriendo la `SortedList` por clave ascendente (`Free1X2/UI/VisorAnalisisColumnasFrm.cs:385-397` y ×5 más hasta `:482`).
+**Estado global.** Ninguno. **Peculiaridades.** (T5) `List.Sort` es **introsort inestable**: los empates de `Apariciones` quedan en un orden determinista pero no igual al de un ordenamiento estable. Solo lo usa el visor WinForms legacy; el visor WinUI/mac puede ordenar como decida el diseño, pero si se exige idéntico orden con empates hay que portar el introsort de .NET o fijar el criterio con el dueño (Abiertas A9).
+**Trampas Swift.** `sort(by:)` de Swift no garantiza estabilidad documentada; `sorted` con clave secundaria (`figura`) hace el resultado determinista pero distinto del C# en empates. **Golden.** Lista de ≥ 20 figuras con empates repetidos (volcar el orden resultante del C#). **Evidencia.** `A/FigurasComparer.cs:24-33`; `VisorAnalisisColumnasFrm.cs:385-482`.
+
+---
+
+### 3.9 InformeColumnasABDON — `Free1X2.Domain/Analisis/InformeColumnasABDON_UnaColTodasGan.cs`
+
+**Propósito.** Fachada de solo lectura sobre `RelacionCP3(serie)` para los informes ABDON de EstuCol (`EstucolFrmViewModel.cs:35,257`).
+**Tipos y datos / algoritmo.** El ctor crea `new RelacionCP3(int[] serie)` (`:9-13`) y las propiedades delegan 1:1: `AgrupacionesPasoFijo`, `AgrupacionesSolapadas` (`int[,]`), `MinimoAciertos`, `MaximoAciertos`, `SumaTotalDeAciertos`, `Escaleras` (`List<EscaleraAciertos>`), `Sandwichs` (`List<SandwichAciertos>`), `SerieAciertos` (`int[]`), `NumeroDeEscaleras`, `NumeroDeEscalerasAscendentes`, `NumeroDeEscalerasDescendentes`. **Toda la lógica está en `RelacionCP3` → ESPEC_04.** Swift: `struct InformeColumnasABDON { let relacion: RelacionCP3 }` con propiedades calculadas.
+**Estado global.** Ninguno. **Golden.** Los de ESPEC_04 para `RelacionCP3`. **Evidencia.** `A/InformeColumnasABDON_UnaColTodasGan.cs:7-62`.
+
+---
+
+### 3.10 TransponedorAutomatico — `Free1X2.Domain/Analisis/TransponedorAutomatico.cs`
+
+**Propósito.** Rotación automática de signos: empareja los 14 partidos ordenados por «concentración» de valoración con los ordenados por frecuencia y devuelve la permutación (usado por `RotacionDeSignosFrm.cs`, solo WinForms).
+**Tipos y datos.** Siempre **14 partidos**: `valoraciones`, `frecuencias: [[Double]] 14×3`, `pmediaV`, `pmediaF: [[Double]] 14×2` (columna 0 = valor, columna 1 = índice del partido) (`:29-32`). Todo `Double` (a diferencia de `Porcentajes.ValoresBase100`, que es `Float`).
+**Algoritmo.**
+```
+init(v, f):                                                        // :34-42
+   valoraciones = base100(v);  frecuencias = base100(f)
+   pmediaV = pmedia(valoraciones);  pmediaF = pmedia(frecuencias)
+   ordenar(&pmediaV);  ordenar(&pmediaF)
+base100(x): para cada fila i: factor = x[i][0] + x[i][1] + x[i][2]; out[i][j] = x[i][j] / factor        // Double       :61-69
+pmedia(p):  para i en 0..<14: m[i][0] = pow(p[i][0],2) + pow(p[i][1],2) + pow(p[i][2],2) (suma izq→der); m[i][1] = Double(i)     // :53-60
+ordenar(&m):   // intercambio, descendente, estricto            :71-89
+   para x en 0..<13: para y en (x+1)..<14: si m[y][0] > m[x][0] { intercambiar filas m[x] y m[y] }
+Trasposicion() -> [Int](14):                                       // :44-52
+   para i en 0..<14: resultado[Int(pmediaF[i][1])] = Int(pmediaV[i][1])
+```
+**Estado global.** Ninguno.
+**Peculiaridades a preservar.** (1) El orden es un **ordenamiento por intercambio** (no estable): hay que copiar los dos bucles exactos, no usar `sorted`; los empates salen en el orden que producen esos intercambios. (2) `factor == 0` ⇒ NaN/∞ y las comparaciones con NaN son `false`. (3) 14 filas fijas, `v`/`f` deben tener ≥ 14×3. (4) `Math.Pow(x,2)`: en Swift usar `x*x` y confirmar con golden (IEEE: `pow(x,2)` y `x*x` coinciden en las implementaciones habituales; no verificado, Abiertas A8).
+**Trampas Swift.** T3 (Double puro, sin `Float`), T5 (copiar el algoritmo de ordenación), `Int(Double)` truncado exacto (los índices son enteros representables).
+**Casos golden propuestos.** (1) `v` = 14 filas distintas, `f` = otras 14 → permutación. (2) `v == f` ⇒ identidad. (3) Dos partidos con idéntica `pmedia` (empate) en `v` y en `f`. (4) Una fila `[0,0,0]` (NaN). **Evidencia.** `A/TransponedorAutomatico.cs:27-89`; `Free1X2/UI/RotacionDeSignosFrm.cs`.
+
+---
+
+### 3.11 clAnalisisColumnas — `Free1X2.Domain/Analisis/clAnalisisColumnas.cs`
+
+**Propósito.** Descriptor de una tabla de análisis por condición (nombres de filas, nº máximo de aciertos, matriz de recuentos y porcentaje). **Sin consumidores** (0 referencias): especificado por completitud; portar solo si el dueño lo pide.
+**Tipos y datos.** `filtro: Filtro` (enum `EnumFiltros.cs:22-37`), `maxAciertos = 14` (valor inicial del campo), `aciertos: [[Int]]`, `nombreCondicion: [String]`, `numCols: Int`.
+**Algoritmo** (`inicializa(filtro, numPartidos)` `:27-62`; ctor sin `numPartidos` ⇒ 14, `:17-20`):
+
+| `Filtro` | `maxAciertos` | `nombreCondicion` (textos exactos) |
+|----------|---------------|------------------------------------|
+| `NoVariantes` | `N` | `"Cantidad de Variantes"`, `"Cantidad de X"`, `"Cantidad de 2"` |
+| `Contactos` | `N−1` | `"1X"`, `"12"`, `"X2"`, `"11"`, `"XX"`, `"22"`, `"1V"`, `"XV"`, `"2V"`, `"VV"` |
+| `Distancias` | `N−1` | `"Distancia de Variantes"`, `"Distancia de 1"`, `"Distancia de X"`, `"Distancia de 2"` |
+| `NoInterrupciones` | `N−1` | `"Interrupciones Globales"`, `"Interrupciones de Variantes"`, `"Interrupciones de 1"`, `"Interrupciones de X"`, `"Interrupciones de 2"`, `"Interrupciones Seguidas Globales"`, `"Interrupciones Seguidas de Variantes"`, `"Interrupciones Seguidas de 1"`, `"Interrupciones Seguidas de X"`, `"Interrupciones Seguidas de 2"` |
+| `PesosNumericos` | **9** (fijo) | `"Peso Numérico Global"`, `"Peso Numérico de Variantes"`, `"Peso Numérico de 1"`, `"Peso Numérico de X"`, `"Peso Numérico de 2"` |
+| `SignosSeguidos` | `N` | `"Variantes Seguidas"`, `"1 Seguidos"`, `"X Seguidos"`, `"2 Seguidos"` |
+
+`aciertos = [Int](MaxCondiciones × (maxAciertos+1))`, `MaxCondiciones = nombreCondicion.count`. `Porcentaje(c, v)` (`:96-106`): `numCols > 0 ? Double(aciertos[c][v] * 100) / Double(numCols) : 0` — el producto `aciertos·100` es `int` (desborda a partir de 21 474 836: usar `&*` para reproducir).
+**Peculiaridades.** Los otros `Filtro` (Dibujos, ColProbables, ValoracionSignos, GruposEquipos, FormatosSignos, Formatos123, Simetrias, Diferencias) no tienen `case`: `nombreCondicion` y `aciertos` quedan `null` ⇒ `MaxCondiciones` lanza NRE. **Estado global.** Ninguno. **Golden.** Un descriptor por filtro con N=14 y N=15; `Porcentaje(c, v)` con `numCols` = 0 y 3, y con `aciertos[c][v] = 21 474 837` (el producto `·100` desborda `int`).
+
+---
+
+## 4. Requisitos del oráculo (`tools/GoldenGen`) para esta espec
+
+1. **Fijar la cultura**: `CultureInfo.CurrentCulture = CurrentUICulture = new CultureInfo("es-ES")` antes de ejecutar `Porcentajes`, `LAE`, `UtilColumnas.ConvStrToLongDosBits`, `ArchivoColumnasTexto.LeeColumnaSinComas` y `PonerEnMayuscula` (el C# no fija cultura: `Free1X2.Domain.csproj:3-11` sin `InvariantGlobalization`; el resultado depende de la configuración regional de Windows/Linux). `Free1X2.Domain` en Mac/Linux necesita ICU para `es-ES`.
+2. **Igualdad exacta de números**: serializar `double` con `BitConverter.DoubleToInt64Bits` y `float` con `SingleToInt32Bits` (hex) además del texto; las columnas `long` en decimal.
+3. **Casos de error**: cada golden admite `{"error":"<TipoDeExcepción>"}` (no se compara el mensaje). Las EXC listadas en §1.4 y las fichas son casos obligatorios.
+4. **Ficheros**: UTF-8 sin BOM; comparar el contenido de salida **byte a byte** tras normalizar fin de línea (T8); los fixtures existentes (`T/Fixtures/cols_a.txt`, `cols_b.txt`, `cols_con_repetidas.txt`, `ganadora.txt`) se reutilizan.
+5. **ZIP**: no comparar bytes del `.z3q` (la fecha DOS varía); comparar el **bitmap descomprimido** en ambos sentidos (C#→Swift y Swift→C#) y, una vez, un volcado hexadecimal de las cabeceras que genere SharpZipLib 1.4.2 para cerrar Abiertas A1.
+6. **Orden de portado recomendado** (cada paso con su golden): `UtilColumnas` → `ConvertidorDeBases` → `Comparador` → `RangosHelper` + `UtilidadesEntradasValores` → `Porcentajes` → `SumadorCombinaciones` → `CompresorZ3Q` → `LAE` + `Tramo` → `ProbabilidadesPremios` + `Analizador` (Análisis) → contenedores + `ContenedorAnalisis` (necesita los filtros de ESPEC_02/03/04) → `AnalizadorColumnaCombinacion` (necesita ESPEC_01).
+
+---
+
+## 5. Abiertas (no verificado o pendiente de decisión)
+
+| # | Tema | Qué falta / por qué |
+|---|------|---------------------|
+| A1 | **Cabeceras exactas de SharpZipLib 1.4.2** (§2.14) | El entorno no tiene `dotnet` ni el paquete: no se ha podido inspeccionar un `.z3q`. Del código solo consta: 1 entrada, `Deflated`, `Size` y `Crc` fijados antes de `PutNextEntry` (`CompresorZip.cs:69-76`). Lo que se asume de la librería (versión de la entrada = 20, banderas = 0, tamaños/CRC parcheados en la cabecera local sin descriptor de datos porque el flujo es *seekable*, fecha DOS = hora local actual, nombre en la codificación por defecto de la librería, nivel 0 = bloques *stored* dentro de un flujo Deflate) es conocimiento de la librería, **no verificado**. Cierre: volcado hexadecimal de un `.z3q` real (GoldenGen) y prueba cruzada de lectura. Tampoco se ha verificado que `ZipInputStream` valide el CRC al cerrar la entrada, ni la codificación de nombres no ASCII. |
+| A2 | **Formato de `double.ToString()` y símbolos de infinito/NaN** (§2.7, §2.8) | `LAE.MontaLinea` y `Porcentajes` formatean con `ToString()` de la cultura. Reglas asumidas (BCL, no del repo): dígitos más cortos de ida y vuelta (.NET ≥ 3.0), notación fija si el exponente decimal ∈ [−5, 15) y científica `E+XX` fuera; el símbolo de `+∞`/NaN en `es-ES` (¿`∞`? ¿`Infinito`?) y el de `en-US` (`Infinity`). Importes reales (0,01…10⁹) caen en notación fija; el caso `acertantes = 0` ⇒ ∞ no está cubierto por ningún test y la UI podría impedirlo. Cierre: golden con 30 valores representativos y con ∞/NaN. |
+| A3 | **Cultura del oráculo y de los usuarios** | `Porcentajes` (`Convert.ToDouble` + `Replace(".",",")`, `ToString`) y `LAE` (`ToString`) dependen de la cultura actual; el C# asume coma decimal. Un usuario con otra región (p. ej. `en-US`) obtendría resultados distintos (p. ej. `"1,5"` ⇒ 15). Decisión pendiente: el Swift fija `es-ES` (propuesto, = comportamiento del público objetivo) o acepta ambos separadores. |
+| A4 | **Parser numérico .NET** (`Convert.ToDouble`, `Convert.ToInt32`, §2.5–2.7) | Las reglas descritas (espacios en blanco admitidos `9–13, 32`, signo único, separador de millares `.` solo entre dígitos y antes del decimal en `es-ES`, exponente `E/e`, aceptación de `NaN`/`Infinity`/`∞`) son conocimiento de la BCL, no verificadas. Impacta a `EsNumero`/detección de formato de `Porcentajes` (`"1.5"` ⇒ 15 es válido para `EsNumero`) y a `RangosHelper`/`UtilidadesEntradasValores`. Cierre: golden de ~100 cadenas límite por función. |
+| A5 | **Funciones de cadena de la BCL** | `Trim()` (qué espacios Unicode recorta), `ToUpper()` (mapeo simple 1:1 por carácter UTF-16; `ß`, `ŉ`, ligaduras no se expanden), `StreamReader.ReadLine` (separadores `\n`, `\r`, `\r\n`), detección de BOM: asumidos de la BCL. Swift `uppercased()` aplica mapeo completo (`ß→SS`). Impacta a `LeeColumnaSinComas` (lo usan Sumador, LAE, Analizador, Porcentajes histórico) y `PonerEnMayuscula`. |
+| A6 | **`AnalizadorColumnaCombinacion` corta al primer fallo y nunca marca `grupos`/`conjuntos`** (§3.3) | Verificado en el código, pero diverge del WinForms (`AnalisisCombinacion.cs:198-202,237`) y deja inoperantes las tolerancias de control de grupos/conjuntos en el escrutinio de combinaciones. M-R1 obliga a replicar el dominio; confirmar con el dueño si es un defecto a corregir **después** de la paridad (R2), y con un golden que lo ejercite (`ControlGrupos` con `FallosPermitidos` ≠ todo-false). |
+| A7 | **Código muerto** (§0, §2.1, §3.1, §3.6, §3.11) | `UtilColumnas.{ObtenerSigno, ConvStrToInt32, PonerPartidoATriple, ObtenerMascaraParcial, CambiarSignoPartido, ConvStrToLongDosBits, ObtenerLongFromTxtApuestaMultiple, Compara, Compara(max)}`, `ConvertidorDeBases.ConvLongANumero`, `Comparador2`, `CompresorZip.{CreateZip, ExtractZip}`, `A/Analizador.IteraCols`, `ContenedorValoraciones`, `clAnalisisColumnas`, `UtilidadesEntradasValores.{ValidarCamposDeTexto, ObtenerRangosSeparadosPorGuion}`, `FigurasComparer` y `TransponedorAutomatico` (solo WinForms). Decisión del dueño (R2): portar, portar solo con golden mínimo, o descartar. Comprobado por búsqueda de símbolos en `Free1X2.Domain`, `Free1X2.WinUI`, `Free1X2` (no en `docs/` ni `tools/`). |
+| A8 | **`Math.Log` / `Math.Pow` multiplataforma** | `ValoresNeperianos` usa `Math.Log` (resultado a `Float`) y `TransponedorAutomatico` `Math.Pow(x,2)`; .NET delega en la libm de la plataforma (UCRT en Windows, la del sistema en Mac/Linux). Se espera igualdad tras `Float(...)` para `log` y con `x*x` para `pow(x,2)`, **no verificado**. Cierre: golden con 10⁴ valores aleatorios generados en Windows **y** en Mac. |
+| A9 | **Orden de empates en `List.Sort`** (`FigurasComparer`, §3.8) | .NET usa introsort (inserción para ≤ 16 elementos, con casos especiales para 2 y 3): no es estable. No se ha verificado el orden exacto de empates. Solo afecta al visor WinForms; decisión del dueño: ordenar de forma estable/determinista en el visor Mac o portar el introsort de .NET. |
+| A10 | **Llamadores de `Comparador` con 15 signos** (§2.2) | No se ha verificado si XFSF/xfsfV3 o la UI pasan columnas de 15 signos (pleno) al `Comparador`; si lo hacen, el resultado `14 − difs(15)` (incluido el wrap a 255) forma parte del comportamiento observable. |
+| A11 | **Propiedades de filtros y rangos que consume `ContenedorAnalisis`** (§3.5) | Los nombres y rangos (`NoEquis`, `NoContactos*`, `Peso*`, `AciertosSimetria`, `NoLineasValidas`, …) se tomaron de `ContenedorAnalisis.cs` y de los declarados en `MC/*`, sin leer cada filtro (ESPEC_02/03/04). Falta contrastar los límites (p. ej. que `Peso*` ≤ 9, `NoContactos* ≤ N−1`) con esas espec.; un valor fuera de rango es EXC en C#. |
+| A12 | **Fichero `Jornadas/InfoJornadasLAE.txt` y `parametros.free1x2`** (§2.8) | El fichero de jornadas no está en el repo (se distribuye con la app); su formato solo consta por `MontaLinea` (9 campos separados por tabulador). El parseo de `PrecioApuesta`/`PorcentajeDestinadoAl14`/`Recaudacion` como `float` es-ES vive en `AConfiguracion` (ESPEC_07). |
+| A13 | **`tools/GoldenGen` no existe aún** | Los «esperado (modelo)» de esta espec salen de un modelo Python de la propia espec (no del C#); son una guía, no oráculo. Se verificaron contra el fuente: constantes de `columnaInicial` (16/16), tablas de `Comparador` (243 cadenas y 59 049 celdas). |
+| A14 | **Fin de línea y codificación de ficheros escritos** (T8) | El C# escribe con `Environment.NewLine` (`\r\n` en Windows) y UTF-8 sin BOM. Decisión pendiente para el Swift: `\n` (nativo Mac) o `\r\n` (byte a byte con el histórico de Windows). Los lectores de ambos lados aceptan ambos. |
+| A15 | **`Porcentajes` con `NumeroPartidos` ≠ 14** (§2.7) | Los formatos 42/43/44 leen siempre 14 partidos (`for i < 42`); con N=15/16 las filas 15/16 quedan en 0 y los de 45/46/47 campos ignoran el pleno. No hay test; falta decidir si es el comportamiento deseado (R2) y un golden con N=15. |
+| A16 | **`ConvLongToStr` con dobles/triples** (§1.1) | Lanza para slots 6/7 y degrada 3→`X`, 5→`1`. Se asume que ningún llamador le pasa pronósticos múltiples (solo `MC/Analizador.cs:115` con columnas simples); no se ha verificado el resto de rutas (`Escrutinio`, `Reduccion`). |
+| A17 | **Pleno al 15 real** (§1.6) | Marcador por equipo (0/1/2/M) no se modela en Utils/Análisis; la jornada online lo transporta aparte (`Online/JornadaQuiniela.cs:35-36`). Falta confirmar en ESPEC_07/01 cómo se convierte a un signo `1/X/2` para el 15.º slot. |
+| A18 | **Alternativas Swift para DEFLATE** (§2.14) | Que `Compression.framework` (`COMPRESSION_ZLIB`) emita DEFLATE crudo con nivel fijo, y que `libz` esté disponible para SPM como `systemLibrary` en macOS, es conocimiento de la plataforma Apple, no verificable en este entorno (Linux, sin Swift). Cierre: spike en M3 leyendo/escribiendo un `.z3q` real. |
+| A19 | **Desfase de documentación** | `docs/MANUAL_FLUJOS.md:66` cita `ConvLongToStr` en la línea 25; hoy está en `U/UtilColumnas.cs:27-44` (optimización P-15). Las líneas de esta espec son las vigentes en la fecha de redacción. |

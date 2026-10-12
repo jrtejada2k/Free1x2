@@ -390,7 +390,7 @@ grupo.ActivaFiltro(filtro); AppState.NotificarCambio(); volver
 ```
 Nota: `ReinicializaValores` borra antes, de modo que al reaceptar con datos **conserva** el estado `IsActive` previo del filtro (no lo reactiva si el usuario lo había desactivado desde Inicio).
 
-*CU-03 `EstadisticasDeFiltro`* (`:192-201`): `filtroTemp = ObtenerFiltroTemporal()`; `lista = CalculadorEstadisticas().EstadisticasFiltro(filtroTemp, <AppDir>/Ganadoras/)`; entrega `lista` al visor (pantalla 107). Genérico para todas las condiciones.
+*CU-03 `EstadisticasDeFiltro`* (`:192-201`): `filtroTemp = ObtenerFiltroTemporal()`; `lista = CalculadorEstadisticas().EstadisticasFiltro(filtroTemp, <AppDir>/Ganadoras/)`; entrega `lista` al visor (pantalla 103). Genérico para todas las condiciones.
 
 *CU-04 `GuardarCondicion` / `AbrirCondicion`* (`:170-187`): `ArchivoCondiciones{NombreArchivo}.GuardaArchivo(filtroTemp)`; abrir: si `AbrirArchivoCombinacion(ruta)` devuelve true → `g = LeeCondicion()`; `MarcarValores((FiltroNoVariantes)g.GetFiltro("NoVariantes"))` (pone los tres textos). Si devuelve false, **no hace nada ni avisa**.
 
@@ -671,7 +671,7 @@ Orden del resumen (`D:Escrutinio/PosiblesPremiosComparer.cs:12-47`): **descenden
 *Navegación*: `▶` solo si `boleto < nBoletos`; `◀` solo si `boleto > 1` (`:202-217`).
 *Copiar* (`:287-304`): texto `"Posibles premios a falta de {noDefinitivos} partidos:"` + `\r\n` + «Optando a 16: n» (solo si N ≥ 16) + «Optando a 15: n» (solo si N ≥ 15) + 14, 13, 12, 11, 10 (todas con `\r\n` explícito) al portapapeles (`DataPackage` directo, no el hook).
 *Guardar resumen* (`:307-349`): picker «Resumen» `.txt`; contenido: `Posibles Premios a falta de {noDefinitivos} partidos` / por cada contenedor: línea de 46 guiones, `Columna Ganadora: {g}`, 46 guiones, y para las categorías **14, 13, 12, 11, 10** (no 16/15) una línea `"{14 primeros signos} {n} aciertos"` por columna (`prefix(min(14,len))`), 46 guiones, línea `" "`. Saltos de línea con `AppendLine` (= `\r\n` en Windows); escrito con `FileIO.WriteTextAsync` (UTF-8).
-*Ver* (`:267-284`): copia `resumen` a `VisorPosiblesPremiosViewModel.UltimoResumen` y navega a `VisorPosiblesPremiosPage` (pantalla 106); sin resumen → aviso.
+*Ver* (`:267-284`): copia `resumen` a `VisorPosiblesPremiosViewModel.UltimoResumen` y navega a `VisorPosiblesPremiosPage` (pantalla 104); sin resumen → aviso.
 *Mis mejores opciones* (`:352-375`): `ObtenGanadora()`; navega a `MejoresOpcionesFrmPage` con `MejoresOpcionesContexto(ganadora, copia(columnas), pleno)`.
 
 **Peculiaridades a preservar.** (a) El bucle de `Escrutar` se detiene si ya no pueden alcanzarse 10 aciertos (`posibles < 10`), y el último partido se evalúa después (T9: solo enteros). (b) Con `pleno=false` y N=15/16 el último partido cuenta igual que los demás; con `pleno=true` solo si los anteriores son todos aciertos. (c) El sufijo numérico se concatena al final de la columna (`c + "14"`), y todo el código posterior asume `prefix(N)`. (d) El «*» escrito en pantalla es un efecto lateral de `ObtenGanadora`. (e) Los `ToUpper()` y `==` son ordinales. (f) Complejidad del resumen: 3^k combinaciones × columnas (k = nº de «*»); sin límite ni cancelación en el C#.
@@ -1450,5 +1450,262 @@ AcCb(col):  r = 0
 **Peculiaridades / trampas Swift.** (a) `"F0"/"F2"` de .NET Core ≥ 3.0 redondean el valor binario exacto **«half away from zero»** (12,5 → `13`); `String(format:"%.0f")` da `12` en empates exactos: usar `Decimal`/`NumberFormatter(.halfUp)` y probar con golden (T4). (b) La columna ganadora/aspiración solo filtran la **contabilización**; el contador «Procesadas» cuenta todas las columnas con longitud suficiente. (c) `AcCb` usa el último carácter de la columna real (no el partido `N-1`), igual que `PosiblesPremios`. (d) El bucle se ejecuta en `Task.Run` sin cancelación ni progreso. (e) Un fichero con `N<10` se trata como 15 partidos.
 **Área Mac propuesta.** **Análisis** · vista principal con la rejilla de recuentos a la izquierda y panel de parámetros a la derecha (inspector); clic en celda fija el signo de la ganadora.
 **Evidencia.** `P:VSignosFrmViewModel.cs:20-463`, `P:VSignosFrmPage.xaml:33-289`, `P:VSignosFrmPage.xaml.cs:12-20`.
+
+---
+
+### 98. `ValoracionFrm` — Valoración de signos (condición)
+
+**Propósito.** Condición que asigna a cada partido unas valoraciones 1/X/2 (rejilla de porcentajes) y exige que la valoración **Global** de la columna y la de sus **unos, equis y doses** caigan en rangos dados, en modo «suma» o «producto». Escribe sobre `FiltroValoracionSignos`. **Se abre** desde el botón «Valoración» de `MainPage` (`W:Views/MainPageViewModel.cs:168`); patrón §1.10.
+
+**Entradas** (`P:ValoracionFrmPage.xaml`): rejilla `PorcentajesControl` `:26` (`NumeroPartidos × 3`, defecto 0) + «Guardar valoración» `:33`; `ComboBox` «Modo» `:45` («Por sumas» | «Por productos x 3E7», defecto «Por sumas»; **cambiarlo borra los 4 rangos**, `VM:54-63`); «Mín-Máx Sumas» `:64` y «Mín-Máx Productos» `:72` (solo lectura); rangos «Global» `:103` (placeholder `100-200#200-600`), «1» `:111`, «X» `:119`, «2» `:127` (placeholder `0-100`; **`#` separa varios rangos**, `:84`); «Columna» `:148` (mayúsculas) + «Calcula» `:168` + «Valor» `:164`; «Buscar límite» `:183`; «Columnas base» `:186` + cuadro multilínea `:191`; botones Aceptar/Estadísticas/Guardar/Abrir/Copiar/Pegar/Borrar/Cancelar `:205-227`. Guardar: sugerido «Valoracion»; tipos «Valoración de Signos» `.valor` y «(XML)» `.xml`; temporal `Temp/tmp.valor` (`VM:122-129`).
+
+**Acciones.** *Entrar*: si no es `Back` y `filtro.ContieneDatos` → `InicializarPantalla` (tipo según `filtro.TipoValoracion == "suma"`, rejilla ← `Valores1/ValoresX/Valores2`, rangos ← `ValorGlobal/Unos/Equis/Doses`; `VM:143-168`). *Buscar límite* → navega a `BuscaLimsFrmPage` sin datos (`:358-366`). *Guardar valoración* → `GuardarValoracionFrmPage.ValoresIniciales = matriz` y navega (`:368-379`). Resto: §1.10.
+
+**Lógica en el ViewModel.**
+*CU-42 `PrepararValoracion`* (`PrepararValores` `VM:225-290`) — siempre con `NumeroPartidos` filas y `Double`:
+```
+v1[i], vX[i], v2[i] = rejilla[i][0], [1], [2]
+sumaMin = Σ min(v1,vX,v2) ; sumaMax = Σ max(v1,vX,v2) ; suma1 = Σ v1 ; sumaX = Σ vX ; suma2 = Σ v2
+K = 0.03420425138                                                  // = 1/29.236 ; "productos x 3E7"
+prodMax = Π_{i: v1+vX+v2 > 0} max(...)*K ; prodMin = Π_{i: ...} min(...)*K                       // producto inicial 1
+prod1 = Π_{i: v1[i] > 29.236} v1[i]*K ; prodX = Π_{vX>29.236} vX*K ; prod2 = Π_{v2>29.236} v2*K     // solo valores > 29,236 aumentan
+prodMax = Round(prodMax + 0.000999999, 3) ; prodMin = Round(prodMin - 0.000999999, 3) ; si prodMin < 0 { prodMin = 0 }        // Math.Round(x,3): ToEven
+MinMaxSumas = "\(sumaMin)-\(sumaMax)" ; MinMaxProductos = "\(prodMin)-\(prodMax)"                  // Double.ToString() de la cultura actual
+rangos vacíos se RELLENAN:   Global ← esSuma ? "\(sumaMin)-\(sumaMax)" : "\(prodMin)-\(prodMax)"
+                             Unos   ← esSuma ? "0-\(suma1)" : "0-\(Round(prod1 + 0.000999999, 3))"      (X con sumaX/prodX ; Doses con suma2/prod2)
+```
+*CU-43 `AplicarCondicionValoracion`* (`VolcarA` `:388-406`, `Aceptar` `:417-430`):
+```
+PrepararValores()                                       // (rellena rangos vacíos y refresca Mín-Máx)
+filtro.ReinicializaValores()
+filtro.TipoValoracion = esSuma ? "suma" : "multiplo" ; filtro.Valores1/ValoresX/Valores2 = arrays ; filtro.ValorGlobal/Unos/Equis/Doses = textos de los rangos
+si !filtro.ContieneDatos { filtro.IsActive = true } ; filtro.ContieneDatos = true                // SIEMPRE hay datos: no existe la rama "vacío"
+grupo.ActivaFiltro(filtro) ; NotificarCambio ; volver
+```
+Estadísticas (CU-03) y Guardar/Abrir (CU-04, `GetFiltro("ValoracionSignos")`) usan el mismo `VolcarA` sobre un filtro temporal.
+*CU-44 `ValorarColumna`* (`Calcular` `:171-196`): si `Columna.count < NumeroPartidos` solo ejecuta `PrepararValores()` (refresca Mín-Máx y rellena rangos; **sin aviso**); si no: `PrepararValores()`; escribe **en el filtro real del grupo** `Valores1/X/2` y `TipoValoracion` (efecto lateral aunque luego se cancele); `filtro.Analizar(ConvStrToLong(Columna))`; `Resultado = filtro.ValoracionResultado.ToString("r")` (Double, ida y vuelta, cultura actual).
+*CU-45 `ColumnasBase`* (`ObtenerColsBase` `:293-314`, `ordenarValoracionPartido` `:317-339`): por partido, ordena los tres signos por valoración descendente con estos desempates: si `v1 >= v2 && v1 >= vX` → mayor `1`, y `vX >= v2 ? (X,2) : (2,X)`; si no, si `vX >= v2` → mayor `X`, y `v1 >= v2 ? (1,2) : (2,1)`; si no → mayor `2`, y `vX > v1 ? (X,1) : (1,X)`. Las 3 columnas base son: columna 0 = «mayor» de cada partido, columna 1 = «medio», columna 2 = «menor»; se muestran `col0 + "\r\n" + col1 + "\r\n" + col2`.
+*Borrar* (`:466-477`): vacía los 4 rangos y los dos Mín-Máx y anula los arrays internos (la rejilla **no** se borra).
+
+**Peculiaridades / trampas Swift.** (a) `Math.Round` (bancario) y `ToString()` de `Double` con cultura: el texto de rangos/Mín-Máx cambia con la configuración regional (T4, T7); para el golden fijar `es-ES` o la cultura que se decida. (b) `29.236` y `0.03420425138` son literales de dominio (comparación `>` estricta). (c) El filtro del dominio parsea los rangos `a-b#c-d` (→ ESPEC_03). (d) «Valor» se calcula sobre el filtro vivo del grupo, no sobre un temporal (R1: preservar o corregir con decisión del dueño). (e) `Aceptar` nunca desactiva el filtro.
+**Área Mac propuesta.** **Condiciones y filtros** · hoja modal; rejilla de porcentajes en pestaña lateral; calculadora de valoración de columna y «Columnas base» como secciones del propio panel.
+**Evidencia.** `P:ValoracionFrmViewModel.cs:31-485`, `P:ValoracionFrmPage.xaml:11-227`, `P:ValoracionFrmPage.xaml.cs:15-36`.
+
+---
+
+### 99. `VerBoletosEnEditorFrm` — Ver boletos en editor de texto
+
+**Propósito.** Muestra las columnas de un fichero formateadas como **boletos verticales** en texto monoespaciado de solo lectura (8 columnas por boleto), y permite exportar ese texto como imagen. **Se abre** desde Combinación ▸ Ver boletos en editor de texto… (`W:MainWindow.xaml.cs:218`); no tiene botón de barra.
+
+**Entradas** (`P:VerBoletosEnEditorFrmPage.xaml`): «Cargar columnas…» `:58` (picker `.txt`/`*`) y «Imprimir / Exportar imagen» `:62`; `TextBox` multilínea de solo lectura `:38` (en el WinForms la lista de columnas llegaba por constructor; aquí se pide por botón, `P:…Page.xaml.cs:32-35`).
+**Mensajes**: «No se ha podido leer el fichero de columnas: {msg}», «No se ha podido generar la imagen de los boletos.», «No se ha podido exportar los boletos: {msg}».
+
+**Lógica en el ViewModel.**
+*CU-46 `FormatearBoletosEnTexto`* (`CargarColumnas` `P:VerBoletosEnEditorFrmViewModel.cs:73-128`, `TransformarColumnas` `:131-146`):
+```
+cols = ArchivoColumnasTexto(ruta).LeerTodasCols(false)           // [String] sin comas ; vacío → texto ""
+long = cols[0].count                                              // la longitud de la PRIMERA columna fija la matriz (una columna más larga lanza)
+numBoletos = cols.count / 8 (división entera) ; si numBoletos < cols.count { numBoletos += 1 }      // ¡siempre suma 1! : n=8 → 2 boletos (el 2º vacío) ; idéntico al legacy (Free1X2/UI/VerBoletosEnEditorFrm.cs:17-18)
+NL = fin de línea (Environment.NewLine = "\r\n" en Windows) ; sep = VariablesGlobales.Separador            // p. ej. ["5","9","12"] de parametros.free1x2 (D:VariablesGlobales.cs:224-227, `Datos/parametros.free1x2:17`); por defecto ["1","X","2"] (`VariablesGlobales.cs:157`)
+para i en 0..<numBoletos: n = i+1
+    texto += (n==1 ? "Boleto 1" : NL+NL+"Boleto n") + NL + "__________________"           // 18 guiones bajos
+    para z en 0..<long:  texto += NL ; si String(z+1) ∈ {sep[0], sep[1], sep[2]} { texto += NL }       // línea en blanco ANTES de la fila z+1 (si hay ≥3 separadores)
+        para j en (i*8)..<(n*8): si j < cols.count { texto += cols[j][z] + " " }                        // un signo por columna, separados por espacio (con espacio final)
+```
+*Imprimir / Exportar* (`:155-163`, `P:…Page.xaml.cs:45-107`): sin texto no hace nada; si no, la Page dibuja el texto en un `TextBlock` Consolas 13, negro sobre blanco fijo (fondo «papel», sin tema), lo renderiza a bitmap BGRA8, lo copia al portapapeles como imagen y ofrece guardarlo (picker en *Imágenes*, sugerido «boletos», tipo «Imagen PNG»).
+**Peculiaridades / trampas Swift.** El número de boletos tiene un exceso de 1 cuando `n` es múltiplo de 8 (y siempre `⌊n/8⌋+1`); una columna posterior más larga que la primera provoca `IndexOutOfRange` (en Swift: acceso seguro); `Separador` puede tener menos de 3 elementos (entonces no se insertan blancos). Saltos de línea `\r\n` vs `\n` (T8). Equivale funcionalmente a `ImageRenderer(content: Text(...).font(.system(.body, design: .monospaced)))` + `NSPasteboard`/`NSSavePanel`; la impresión nativa (`NSPrintOperation`) sería la evolución natural.
+**Área Mac propuesta.** **Escrutinio** (o Boleto) · vista principal con `TextEditor` de solo lectura monoespaciado y botón «Imprimir…» (`⌘P`) / «Exportar imagen…».
+**Evidencia.** `P:VerBoletosEnEditorFrmViewModel.cs:22-165`, `P:VerBoletosEnEditorFrmPage.xaml:14-78`, `P:VerBoletosEnEditorFrmPage.xaml.cs:23-125`.
+
+---
+
+### 100. `VerBoletos` — Ver boletos (selector de fichero y orden)
+
+**Propósito.** Elegir un fichero de columnas y un criterio/sentido de ordenación y **mostrar las columnas dispuestas en boletos** (8 columnas por boleto, visor `BoletoMatrizControl`, §1.9). **Se abre** desde Ver ▸ Ver boletos…, Combinación ▸ Ver boletos… o el botón «Ver boletos» (`W:MainWindow.xaml.cs:188,214,391`).
+
+**Entradas** (`P:VerBoletosPage.xaml`): «Seleccionar archivo…» `:33` (picker `.txt`, `.cols`, `*`, `VM:123`; defecto «(falta selección)»); radios «Ordenar por …» `:68-91`: «No ordenar» (defecto, `OrdenarMatriz.Signo`), «Variantes», «X», «2», «Interrupciones» y «Signos seguidos» (**deshabilitado**); radios «Tipo de ordenamiento» `:104-107`: «ascendente» (defecto) / «descendente»; «Ok» `:183` (habilitado tras elegir fichero), «Cancelar» `:178` (`Frame.GoBack`, `P:VerBoletosPage.xaml.cs:44-49`); navegación embebida `|<`, `<`, «Boleto nº» (`NumberBox` ≥ 1) + «Ir», `de {total}`, `>`, `>|` `:124-151` y visor `:156` (solo visibles con `BoletoVisible`).
+**Estados**: «Seleccione un fichero de columnas», «Fichero seleccionado», «Mostrando boleto», «Cancelado», «Error al seleccionar el fichero: {msg}» (+ diálogo «No se pudo seleccionar el fichero: {msg}»), y después el `Estado` del `BoletoFrmViewModel`.
+
+**Lógica en el ViewModel.**
+*Resolución de orden* (`P:VerBoletosViewModel.cs:96-112`): criterio = primero marcado entre Variantes→`OrdenarMatriz.Variantes`, X→`Equis`, 2→`Doses`, Interrupciones→`Interrupciones`, Signos seguidos→`SignosSeguidos`, si ninguno `Signo`; sentido = `desc` si «descendente», si no `asc`.
+*`Ok`* (`MostrarBoletoAsync` `:143-166`): si no hay fichero → «Seleccione un fichero de columnas»; configura el `BoletoFrmViewModel` embebido (`ArchivoCombinacion/OrdenarPor/TipoOrden`), dispara `AbrirBoletoSolicitado(fichero, orden, tipo)` y ejecuta `Boleto.CargarCommand`. **La Page responde navegando a `BoletoFrmPage`** con `BoletoFrmPage.ParametrosBoleto = (fichero, orden, tipo)` (`P:VerBoletosPage.xaml.cs:33-37`), de modo que en la práctica `Ok` **abre la pantalla Boleto** y el visor embebido de esta página nunca llega a verse (la página se sustituye; al volver con «atrás» se recrea sin estado) → «Abiertas».
+*CU-47 `CargarYOrdenarBoletos`* (lógica real, en `P:BoletoFrmViewModel.cs:91-160,235-310`, común a esta pantalla y a `BoletoFrm`):
+```
+n = ObtenNumCols() ; cols = las n columnas del fichero (LeeColumnaSinComas) ; línea ausente → ""
+totalBoletos = (n % 8 == 0) ? n/8 : Int(n/8 + 0.5000001) (= ceil(n/8)) ; mínimo 1 ; Estado = "{nombre}: {total} boleto(s)."
+ordenar(cols, orden, sentido):
+   Signo:  Array.Sort(cols) (comparación de cadenas) ; si desc → invertir                    // ¡orden de .NET por cultura! (T11)
+   si no:  clave[i] = Variantes→FiltroNoVariantes.AnalizaColumna(c).NoVariantes ; Equis→.NoEquis ; Doses→.NoDoses ; Interrupciones→FiltroInterrupciones.AnalizaColumna(c).NoInterrupciones ; SignosSeguidos→0 (cálculo desactivado)
+           salida = cubos por clave: asc: k = 0…longitud(cols[0]) ; desc: k = longitud…0 ; dentro de cada cubo, orden de aparición en el fichero (ordenación estable por conteo)
+           (columnas cuya clave quede fuera de 0…longitud no se emiten → quedan nulas)
+boleto b (1-based) = cols[(b-1)*8 ..< b*8] → BoletoMatrizViewModel.Llenar(signos[8], numerosColumna[8]) donde número de columna = posición+1 en el orden ya aplicado
+```
+Navegación de boletos: `|<`, `<`, `>`, `>|` y «Ir» (`IrABoleto` entre 1 y `Total`, si no «El número de boleto está fuera de rango.»).
+**Peculiaridades.** (a) El orden «Signo» usa el comparador de cadenas de .NET (cultura) — en Swift usar comparación ordinal si el contenido es solo `1X2` (equivalente), documentarlo. (b) Cubos ⇒ ordenación **estable** por clave; en Swift `sorted(by:)` no es estable garantizado: usar conteo o `enumerated()` con desempate por índice. (c) `SignosSeguidos` está deshabilitado en la UI y desactivado en el cálculo.
+**Área Mac propuesta.** **Escrutinio** (o Boleto) · vista principal: selector de fichero + `Picker` de orden + `BoletoMatrizView` con paginación (`⌘←/⌘→`); fusionar con la pantalla *Boleto* (`BoletoFrm`) en un solo visor.
+**Evidencia.** `P:VerBoletosViewModel.cs:29-175`, `P:VerBoletosPage.xaml:16-183`, `P:VerBoletosPage.xaml.cs:13-50`, `P:BoletoFrmViewModel.cs:91-160,235-310`.
+
+---
+
+### 101. `VisorAnalisisColumnasAbdonFrm` — EstuCol · Visor de informe (ABDON)
+
+**Propósito.** Visor del informe que genera la pantalla *EstuCol*: análisis ABDON de las **columnas generadas** frente a las **columnas ganadoras** del fichero. Dos modos (**Global**: rangos sobre todas las ganadoras; **Individual**: una ganadora cada vez), con rango de aciertos, agrupaciones *paso fijo* y *solapadas*, escaleras, sandwichs y suma total de aciertos; permite generar un fichero de condición de columnas probables. **Se abre** desde *EstuCol* (`P:EstucolFrmPage.xaml.cs:24`).
+
+**Datos de entrada (handoff).** `EstucolFrmViewModel.UltimoInforme` = `(porCols: [InformeColumnasABDON], porGans: [InformeColumnasABDON], columnas: [Int64])`; el ctor lo **consume y borra** (sin informe → estado vacío) (`P:VisorAnalisisColumnasAbdonFrmViewModel.cs:186-190`). `InformeColumnasABDON` (dominio, `D:Analisis/InformeColumnasABDON_UnaColTodasGan.cs:6-62`, envuelve `RelacionCP3(serie)`): `MinimoAciertos`, `MaximoAciertos`, `SumaTotalDeAciertos`, `AgrupacionesPasoFijo[,]`, `AgrupacionesSolapadas[,]` (Int32[elementos, aciertos]), `Escaleras`, `NumeroDeEscalerasAscendentes/Descendentes/NumeroDeEscaleras`, `Sandwichs`, `SerieAciertos[]` (cálculo → ESPEC_04).
+
+**Entradas** (`P:VisorAnalisisColumnasAbdonFrmPage.xaml`): botón de modo «Cambiar a modo individual / global» `:31`; `◀ ▶` columna generada `:57,69` y ganadora (solo Individual) `:116,130`; `NumberBox` ≥ 0 «Mostrar sólo agrupaciones de» + «Mostrar» para paso fijo `:213,221` y solapadas `:325,333` (0 = todas); `TextBox` «Suma de Aciertos de las columnas» (placeholder `1-5,8`, solo Individual) + «Sumar» `:416,423`; «Generar Condición» `:486` (solo Global).
+**Salidas.** «n / total» de columna `:62` y de ganadora `:122`; «Mín»/«Máx» de aciertos `:86,95`; listas de agrupaciones (columnas «Número · Elementos · Aciertos») `:178,290`; «Hay {x} agrupaciones de {tipo} elementos» `:241-256,353-368`; «Suma Total de la serie de Aciertos» `:395`; «Escaleras Ascendentes/Descendentes/Totales», «Sandwichs» `:450-477`. Valores por defecto «-» o vacío.
+
+**Lógica en el ViewModel.**
+*Presentación por columna* (`MostrarInformePorCols` `VM:211-239`): con informes: `ColumnaTexto = "\(n+1) / \(total)"`, Mín/Máx = `informe.Minimo/MaximoAciertos`; sin informes: `"- / -"`, `"-"`. Botones `◀ ▶` acotan `0…total-1` (`:599-619`).
+*Presentación por ganadora* (`MostrarInformePorGans` `:243-261`): sin informes `"- / -"`; **Individual**: `GanadoraTexto = "\(g+1) / \(total)"` y `ObtenInfoPorGans` = agrupaciones (tipo 0) paso fijo y solapadas, suma total (`informe.SumaTotalDeAciertos`), escaleras (`NumeroDeEscalerasDescendentes/Ascendentes/NumeroDeEscaleras`) y sandwichs (`Sandwichs.Count`); **Global**: ver abajo. Cambiar de ganadora recrea los contenedores individuales (`new List<Int>[columnas+1, 15]`) y repite (`:621-646`).
+*CU-48 `ResumenGlobalAbdon`* (`MostrarEscalerasGlobal` `:314-337`, `MostrarSandwichsGlobal` `:339-353`, `MostrarSumaAciertosGlobal` `:355-367`):
+```
+escaleras{Asc,Desc,Tot} = "\(min)-\(max)" sobre todas las ganadoras (aunque min==max, p. ej. "3-3" ; sin informes → "0-0")
+sandwichs               = "\(min)-\(max)" del Count de Sandwichs ; sumaTotal = ordenar(sumas) → "\(primero)-\(último)" ; sin informes "-"
+```
+*CU-49 `AgrupacionesAbdon`* (`ObtenerListaAgrupacionesPasoFijo/Solapadas[Global]` `:409-548`, `ObtenTextoAgrupaciones` `:550-577`):
+```
+contenedor[elementos][aciertos] : lista de enteros (distintos) ; dimensión [columnas+1][15]
+INDIVIDUAL(tipo): inf = porGans[g] ; para j en filas de inf.Agrup (j==tipo || tipo==0 ; desde j=0) , k en columnas:
+        num = inf.Agrup[j][k] ; si no está en contenedor[j][k]: noAgrup += num ; añadir        // devuelve noAgrup
+GLOBAL(tipo):     para cada ganadora i: para j = 1..<filas (j==tipo||tipo==0), k: num = inf.Agrup[j][k] ; noAgrup += num ; añadir si distinta ;
+                  para j desde filas(inf) hasta filas(contenedor): garantizar que contenedor[j][k] contiene 0 ;
+                  valores.append(noAgrup) ; noAgrup = 0                                       // un total por ganadora
+                  devuelve ObtenerRangos(valores) = [min, max]  (ordena la lista ; vacía → [0,0])
+texto(contenedor): para i = 1..<filas, j = 0..<15: si lista != nil :
+        si lista.count > 1 { ordenar ; "\(primero)-\(último)+\(i)+\(j)" } sino si lista[0] != 0 { "\(lista[0])+\(i)+\(j)" }
+fila mostrada: partes = texto.split("+") → Número = partes[0] (cantidad o rango), Elementos = i, Aciertos = j
+```
+«Mostrar» (`:652-694`): recrea el contenedor del modo activo; `tipo = Int(NumberBox)`; Individual → `Hay = noAgrup.ToString()`; Global → `Hay = "\(r0)-\(r1)"` (o vacío) y `NumElementos = tipo`.
+*Suma opcional* (`CalcularSumaOpcional` `:700-715`): `columnas = ObtenerListaFromTxt(texto)` (admite `a-b`, `a,b`; **entrada 1-based → índices 0-based**, error → lista vacía); `suma = Σ SerieAciertos[i] ∀ i ∈ columnas`.
+*Cambiar modo* (`CambiarModo` `:585-597`): invierte `ModoGlobal`, borra «Hay…/Nº elementos» y los NumberBox de tipo (a 0) y repite `MostrarInformePorGans()` (sin reiniciar contenedores).
+*CU-50 `GenerarCondicionColumnasProbables`* (`GenerarCondicion` `:722-802`): requiere `columnas.count > 0 && porCols.count >= columnas.count` (si no, «No hay informe de columnas para generar la condición.»); picker «Condicion» (tipos «Columnas probables» `.cps` y «(XML)» `.xml`); construye `FiltroColProbables`:
+```
+todos = ObtenerTodosValores() ("0…NumeroPartidos")
+para i en columnas: cp = ColumnaProbable{ Pronosticos = ObtenerStringFromLongApuestaMultiple(columnas[i]).split(","),
+        NoAciertos = ObtenerTodosValores(porCols[i].Min, porCols[i].Max), NoAciertosSeguidos = todos, NoFallosSeguidos = todos, Puntos = "" } ; filtro.ColProbables.append(cp)
+RelacionCP1{ Columnas: "1-n", SumaAciertos: SumaTotalAciertos(texto mostrado), Recorridos: "", CantidadCP: "", CuantosAC: "" }
+RelacionCP3{ ColumnasImplicadasString: "1-n", Columnas: cps, Concepto: "AC", EscalerasAsc/Desc/Totales (texto + ObtenerBoolArrayFromTxt(texto, n/3)), Sandwichs (texto + bool[](texto, n/4)),
+             AgrupacionesPasoFijoPermitidasString = texto(contenedorPasoFijoGlobal), AgrupacionesSolapadasPermitidasString = texto(contenedorSolapadasGlobal) }
+filtro.ContieneDatos = true ; ArchivoCondiciones.GuardaArchivo(filtro) → aviso "Filtro guardado"       // errores: "No se pudo generar la condición: {msg}"
+```
+Usa **siempre valores globales** (textos «min-max» del modo Global y contenedores globales; los de Individual no intervienen). Si algún texto es «-» o inválido, `ObtenerBoolArrayFromTxt` lanza (captura general → diálogo de error).
+**Peculiaridades / trampas Swift.** `List<int>[,]` con celdas `null` → en Swift `[[ [Int]? ]]`; `Sort()` de enteros (T5 no afecta); fila 0 (elementos = 0) se recorre en Individual pero no en Global ni al generar texto; los `.ToString()` de enteros sin cultura relevante; `Contains` lineal. `Sandwichs`/`Escaleras` son listas de objetos del dominio cuyo cálculo vive en `RelacionCP3` (ESPEC_04).
+**Área Mac propuesta.** **Columnas probables** · vista principal con segmented «Global/Individual», inspector de rangos y `Table` de agrupaciones; «Generar condición…» como acción de exportación (`.cps`).
+**Evidencia.** `P:VisorAnalisisColumnasAbdonFrmViewModel.cs:23-803`, `P:VisorAnalisisColumnasAbdonFrmPage.xaml:12-486`, `P:VisorAnalisisColumnasAbdonFrmPage.xaml.cs:12-20`, `D:Analisis/InformeColumnasABDON_UnaColTodasGan.cs`, `D:Utils/UtilidadesEntradasValores.cs:42-106,255-290,383-392`.
+
+---
+
+### 102. `VisorAnalisisColumnasFrm` — Visor de análisis de columnas (por secciones)
+
+**Propósito.** Visor **de solo lectura** con una lista de secciones («pestañas» del WinForms) que vuelca el `ContenedorAnalisisGlobal` producido al **calcular con análisis** (VX2, signos seguidos, dibujos, interrupciones, contactos, pesos, distancias, control de grupos/conjuntos, simetrías, diferencias, valoración, columnas probables y formatos). **Se abre solo desde el motor**, nunca desde menú ni barra: `Analizador.AnalizaCombinacion(bool)` (`D:MotorCalculo/Analizador.cs:256,296-301`; la sobrecarga `(int)` de `:196-200` delega en ella con `true`) y `AnalizaCombinacion(bool,bool)` (`:304,341-346`), cuando `ContenedorAnalisisColumnasGlobal != null && noColsAceptadas > 0`, llaman al gancho `AnalisisUi.MostrarVisor(contenedor, GruposPartidos[0])` (`D:Abstractions/UiHooks.cs:35`); la app lo cablea en `W:App.xaml.cs:170-205` (ver §1.7). Se dispara, p. ej., desde CalculaColumnas en modo *Analizar* (`P:CalculaColumnasFrmViewModel.cs:330`) y AnalizarFichero (`P:AnalizarFicheroFrmViewModel.cs:128`).
+
+**Datos de entrada (handoff).** `VisorAnalisisColumnasFrmViewModel.UltimoContenedor`/`UltimoGrupo` (`P:VisorAnalisisColumnasFrmViewModel.cs:103-104`). El hook los publica **en el hilo de UI justo antes de navegar** (`W:App.xaml.cs:185-196`; la cola de UI evita que un segundo visor pise el payload del primero). El ctor del VM **consume y borra** ambos (`VM:112-114`); `UltimoGrupo` no se usa para nada más. Abrir el visor sin análisis previo (no hay entrada de menú; solo por navegación directa/smoke) muestra el estado vacío. En Swift: `AnalisisColumnasVista(contenedor:)` recibido por parámetro/`Sesion`, sin estáticos.
+
+**Entradas** (`P:VisorAnalisisColumnasFrmPage.xaml`): lista «Secciones» `ListView` de selección única `:44-62` (cada fila = título + marcador «●» si la sección está activa, `VM:77`); botón «Refrescar» `:71`. Sin campos editables, sin validaciones.
+
+**Salidas.** Cabecera «Análisis / Visor de análisis de columnas por secciones» `:17-18`; a la derecha título y texto de detalle de la sección (`DetalleTitulo`/`DetalleTexto` `:89,94`, `VM:128-131`) y, según `Tipo`, el presentador de **matrices** (`ItemsControl` de bloques con título opcional + `MatrizAnalisisView` `:110-121`, §1.9) o el de **valoración** (4 columnas «Valor / Columnas» `:128-185`). El título de bloque se oculta si está vacío (`P:VisorAnalisisColumnasFrmPage.xaml.cs:28-29`). Todas las celdas son **enteros con `ToString()`** (nº de columnas) sin formato adicional.
+
+**Lógica en el ViewModel.**
+*CU-51 `ConstruirSeccionesDeAnalisis`* (`ConstruirSecciones` `VM:180-270` y constructores `:276-593`). Las secciones se añaden **en este orden** y solo si el flag global correspondiente está activo (`VariablesGlobales.Analizar*`, leídos de `Datos/parametros.free1x2` en `D:VariablesGlobales.cs:100`, getters `:266-338`):
+```
+c = contenedor?.AnalisisGrupos (ContenedorAnalisis)
+1 VX2              (AnalizarVX2)         matriz c.VX2 [3][N+1]            filas "Variantes","Equis","Doses"
+2 Signos Seguidos  (AnalizarSeguidos)    c.Seguidos [4][N+1]              "Variantes seguidas","Unos seguidos","Equis seguidas","Doses seguidos"
+3 Dibujos          (AnalizarDibujos)     c.Dibujos [maxAciertos][N+1]     etiqueta "Fila i" (sin etiquetas)
+4 Interrupciones   (AnalizarInterrupciones) c.Interrupciones [10][N+1]    "Globales","Variantes","Unos","Equis","Doses" + las mismas "… seguidas/seguidos"
+5 Contactos        (AnalizarContactos)   c.Contactos [10][N]              "1X","12","X2","11","XX","22","1V","XV","2V","VV"
+6 Pesos Numéricos  (AnalizarPesos)       c.Pesos [5][10]                  "Global","Variantes","Unos","Equis","Doses"
+7 Distancias       (AnalizarDistancias)  c.Distancias [4][N]              "Variantes","Unos","Equis","Doses"
+8 Control Grupos   (AnalizarControlGrupos)    vector contenedor.ColumnasPorFallosDeGrupos   filas "Fallos"(cabecera 0…n-1)/"Columnas"
+9 Control Conjuntos(AnalizarControlConjuntos) vector ColumnasPorFallosDeConjuntos
+10 Simetrías       (AnalizarSimetrias)   c.ContenedorSim
+11 Diferencias     (AnalizarSimetriasII) c.ContenedorDiferencias
+12 Valoración      (AnalizarValoracion)  c.ValoracionesGlobales/Unos/Equis/Doses
+13 Columnas Probables (AnalizarCPs)      c.ContColumnasProbables
+14 Formatos        (AnalizarFormatos)    c.ContenedorFormatosSignos
+si no se añadió ninguna → una sección "Sin análisis activos" (detalle: contenedor nulo → "No se ha recibido ningún análisis. Ejecuta un análisis para ver los datos."; si no → "No hay ningún tipo de análisis activo …")
+```
+(dimensiones de las matrices en `D:Analisis/ContenedorAnalisis.cs:354-364`; `N = NumeroPartidos`.) Los flags `AnalizarTodo`, `AnalizarFigurasV1X2`, `AnalizarFormatos123`, `AnalizarFigurasContactos/Pesos` y `AnalizarGruposEquipos` **no** crean sección en este visor.
+*Matriz genérica* (`SeccionMatriz`/`ConstruirMatriz` `VM:276-321`): si la matriz es nula → sección `Vacia` con detalle «{título}: no hay datos para analizar»; si no, detalle «{título}: {filas} conceptos × {cols} valores (cada celda = nº de columnas).» y **una** matriz = fila de cabecera (etiqueta vacía, celdas `0…cols-1`, estilo cabecera) + una fila por concepto (etiqueta o «Fila i», celdas `matriz[i][j]`).
+*Vector* (`SeccionVector` `:324-348`): dos filas: «Fallos»/«Columnas», cabecera `0…len-1` y valores; nulo → «…: no hay datos para analizar».
+*Simetrías* (`:352-379`): lista vacía → «Simetrías: No hay datos para analizar»; si no, matriz de 2 filas: «Nº Aciertos» (cabecera = `Aciertos` de cada `ContenedorSimetrias`) y «Columnas» (= `Columnas`).
+*Diferencias* (`:384-433`): un bloque «Conjunto n» (n 1-based) por `ContenedorDiferencias`; `cuantos = NumDiferenciasPosibles`; fila de cabecera «Nº» con `1…cuantos-1` y seis filas «Variantes, Equis, Dibujos, Doses, Interrupciones, Formatos» con `array[i]` para `i = 1 ..< min(cuantos, array.count)` (el índice 0 **no** se muestra; array nulo → fila vacía).
+*Valoración* (`:437-478`): requiere `c != nil && c.UsaValoraciones` (si no «Valoración: No hay datos para analizar»). Detalle: «Valoración: distribución de columnas por valor ({tipo}).» con `tipo = "Por Sumas"` si `TipoValoracion == "suma"`, `"Por Productos"` si `"multiplo"`, si no el texto tal cual. Cuatro columnas (Global, Unos, Equis, Doses): `inicio = max(0, noValores.first ?? 0)`; para `i = inicio ..< valores.count` con `valores[i] != 0` → entrada (`Clave = String(i)`, `Columnas = String(valores[i])`).
+*Columnas probables* (`:482-532`): requiere `UsaCPs`; tres bloques «Aciertos», «Aciertos seguidos», «Fallos seguidos» (= `NoAC`, `NoACS`, `NoFS` de cada `ContenedorColumnasProbables`); cada matriz tiene cabecera «Nº» con `0…NumeroPartidos` (inclusive) y una fila «CP i» (i 1-based) con `datos[j]` (si el array es nulo o corto → `"0"`). Detalle «Columnas probables: {n} columnas (aciertos / aciertos seguidos / fallos seguidos).».
+*Formatos* (`:536-593`): requiere `UsaFormatos`; por cada grupo `i` (1-based): si `AciertosFormatosSignos != nil` → bloque «Grupo i — Líneas» (cabecera «Líneas» `0…len-1`, fila «Columnas»); si `AciertosGlobalesFormatos` (SortedList clave→nº) no está vacío → bloque «Grupo i — Globales» (cabecera «Global» con el **índice de posición** `0…count-1`, **no** la clave; valores = `globales[claves[j]]` en orden de clave). Detalle «Formatos: {n} grupos de formatos.».
+*CU-52 `RefrescarVisorAnalisis`* (`Refrescar` `VM:160-174`): guarda la clave de la sección seleccionada, vuelve a ejecutar CU-51 sobre **el mismo** contenedor (los datos no cambian; solo se releen los flags `Analizar*`), vuelve a seleccionar la sección con esa clave y, si ya no existe, la primera. La selección inicial es la primera sección (`VM:119`).
+**Peculiaridades / trampas Swift.** (a) El texto de detalle y los títulos son literales en español fijos (no localizados). (b) Una sección con datos nulos sigue **listada** pero muestra solo el mensaje (Tipo `Vacia`). (c) `Seleccion = null` + reasignación en Refrescar dispara dos notificaciones (sin efecto visible). (d) La cabecera de Diferencias y Formatos/Globales usa índices de posición, no claves de dominio: replicar tal cual. (e) `SortedList` de Formatos → en Swift un diccionario ordenado por clave (`[Int: Int]` + `keys.sorted()`).
+**Área Mac propuesta.** **Cálculo** (resultado de «Calcular con análisis») · vista principal tras el cálculo (no es una pantalla de menú): `List` de secciones en una barra lateral secundaria + detalle con `Grid`/`Table` por bloque (`MatrizAnalisisView`) y botón «Actualizar» (`⌘R`); posible exportación a CSV como añadido (decisión del dueño).
+**Evidencia.** `P:VisorAnalisisColumnasFrmViewModel.cs:30-595`, `P:VisorAnalisisColumnasFrmPage.xaml:15-185`, `P:VisorAnalisisColumnasFrmPage.xaml.cs:11-30`, `W:App.xaml.cs:170-205`, `D:MotorCalculo/Analizador.cs:296-301,346`, `D:Analisis/ContenedorAnalisis.cs:354-364,450-678`, `D:Analisis/ContenedorAnalisisGlobal.cs:20-62`.
+
+---
+
+### 103. `VisorEstadisticas` — Estadísticas de cumplimiento por fichero
+
+**Propósito.** Visor de **solo lectura** que muestra, para el filtro que se está editando, el **porcentaje de cumplimiento** sobre cada fichero de columnas ganadoras de la carpeta `Ganadoras/`. **Se abre** únicamente desde el botón «Estadísticas» de las pantallas de condición (§1.10): 13 productores fijan `VisorEstadisticasViewModel.UltimasEstadisticas = lista` y navegan a `VisorEstadisticasPage` — NoVariantes (`P:NoVariantesFrmViewModel.cs:195-200`), PesosNum (`:326-327`), SignosSeguidos (`:302-303`), Simetrías (`:285-286`), Valoración (`:460-461`), Contactos (`:275-276`), Distancias (`:223-224`), Interrupciones (`:278-279`), Dibujos (`:297-298`), Diferencias (`:461-462`), Formatos (`:381-382`), Formatos123 (`:463-464`) y GruposEquipos (`:1125-1126`). Tiene entrada propia en `PortedPages` (`W:Navigation/PortedPages.cs:84`, «Visor Estadisticas») pero ninguna de menú ni de barra.
+
+**Datos de entrada (handoff).** `VisorEstadisticasViewModel.UltimasEstadisticas: List<Estadistica>?` (`P:VisorEstadisticasViewModel.cs:49`), leída en el constructor y **no borrada** (a diferencia de otros visores). `Estadistica` = `{Archivo: String, Cumplimiento: Float32}` (`D:MotorCalculo/Estadisticas/Estadistica.cs:4-19`). En Swift: pasar `[EstadisticaFichero]` como parámetro de la hoja, sin estático.
+
+**Entradas.** Ninguna: sin controles editables ni acciones (`P:VisorEstadisticasPage.xaml:15-91`).
+
+**Salidas** (`P:VisorEstadisticasPage.xaml`): cabecera «Estadísticas» + «Porcentaje de cumplimiento de cada fichero analizado.» `:17-20`; tabla con columnas «Archivo» (3*) · barra de progreso 0–100 (2*, `:86`) · «Cumplimiento» con sufijo «%» (`:43-50,91`); estado vacío «No hay estadísticas para mostrar.» cuando la lista es nula o vacía (`:57`, `VM:62,86`).
+
+**Lógica.**
+*CU-53 `EstadisticasDeCumplimiento`* (producida en el ViewModel de cada condición con el motor, p. ej. NoVariantes `P:NoVariantesFrmViewModel.cs:192-201`; ver CU-03):
+```
+filtroTemp = ObtenerFiltroTemporal()                          // filtro con lo que hay en pantalla, sin tocar el Grupo
+para cada fichero f de <AppDir>/Ganadoras/ que cumpla "*.txt" (orden de DirectoryInfo.GetFiles):
+    total = 0 ; validas = 0
+    para cada columna de f (ArchivoColumnasTexto.SiguienteColumna/LeeColumnaSinComas) :
+        total += 1 ; si filtroTemp.Analizar(ConvStrToLong(col)) { validas += 1 }
+    cumplimiento = (total == 0) ? 0 : (Float32(validas) / Float32(total)) * 100          // Float 32 bits
+    resultado.append(Estadistica(Archivo: nombre de f, Cumplimiento: cumplimiento))
+```
+(`D:MotorCalculo/Estadisticas/CalculadorEstadisticas.cs:11-52`; `Analizar` de cada filtro está en ESPEC_03/04.) La carpeta es `Path.Combine(AppContext.BaseDirectory,"Ganadoras") + separador` (`P:NoVariantesFrmViewModel.cs:57-58`; igual en los otros 12), y la ruta del fichero se arma por **concatenación** `directorio + nombre` (`CalculadorEstadisticas.cs:44`), por lo que el directorio debe acabar en separador. En la reescritura la carpeta pasa a `Application Support/Free1X2/Ganadoras/` (decisión del dueño; ver ESPEC_00).
+*CU-54 `PrepararFilasEstadisticas`* (ctor `P:VisorEstadisticasViewModel.cs:64-87`):
+```
+para cada e en lista (en orden de entrada):
+    valor = e.Cumplimiento (Double) ; acotar a [0, 100]                    // solo para la barra
+    fila = { Archivo: e.Archivo, Cumplimiento: e.Cumplimiento + "%", CumplimientoValor: valor }
+SinDatos = (filas.count == 0)
+```
+**Formato numérico (trampa).** `Cumplimiento + "%"` concatena un `Float32` con `ToString()` **sin cultura ni formato** (`VM:81`): da la representación más corta que reconstruye el `Float` (.NET Core ≥ 3.0) y con la cultura del usuario (coma decimal en es-ES), p. ej. `33,333336%` o `100%`, sin redondeo a 1 o 2 decimales. Es el comportamiento a replicar si se exige igualdad textual con la app actual (T7); en Swift `Float.description` produce `33.333336` (punto) → reemplazar el separador según el `Locale`. No hay ordenación en el visor: el orden es el que devuelve `GetFiles` (dependiente del sistema de ficheros; en macOS fijar orden alfabético por nombre, ver «Abiertas»).
+**Área Mac propuesta.** **Condiciones y filtros** · hoja modal (o panel inspector) abierta desde «Estadísticas» del editor de condición: `Table` con columnas Archivo / `ProgressView` / Cumplimiento.
+**Evidencia.** `P:VisorEstadisticasViewModel.cs:15-88`, `P:VisorEstadisticasPage.xaml:15-91`, `P:VisorEstadisticasPage.xaml.cs:12-20`, `D:MotorCalculo/Estadisticas/CalculadorEstadisticas.cs:9-54`, `D:MotorCalculo/Estadisticas/Estadistica.cs:4-19`, `W:Navigation/PortedPages.cs:84`.
+
+---
+
+### 104. `VisorPosiblesPremios` — Visor de posibles premios (resumen por grupos)
+
+**Propósito.** Visor de **solo lectura** del **resumen** generado por *Posibles premios* (pantalla 79): para cada **columna ganadora completa** posible (todas las formas de sustituir los «*» por 1/X/2) muestra esa ganadora en vertical y, a su lado, las columnas jugadas que obtendrían premio (16/15/14/13/12/11/10 aciertos), con los signos fallados marcados en rojo; navegación entre grupos con contador «X de N». **Se abre** solo desde el botón «Ver» de `PosiblesPremiosFrm` (`P:PosiblesPremiosFrmViewModel.cs:267-284`, `Navegar(typeof(VisorPosiblesPremiosPage), null)`); sin resumen muestra el aviso «No hay resumen que mostrar. Marca 'Generar resumen' y calcula.». No tiene entrada de menú ni de barra.
+
+**Datos de entrada (handoff).** `VisorPosiblesPremiosViewModel.UltimoResumen: List<PosiblesPremiosContenedor>?` (`P:VisorPosiblesPremiosViewModel.cs:82`) con una **copia** de la lista `resumen` de la pantalla 79 (`P:PosiblesPremiosFrmViewModel.cs:279`); no se borra al consumirlo. `PosiblesPremiosContenedor` = `{ColGanadora: String, Col16…Col10: [String], ValorTotal}` (`D:Escrutinio/PosiblesPremiosContenedor.cs:9-30`); cada elemento de `ColNN` es la columna jugada **seguida de dos dígitos con la categoría** (`columna + "14"`, `P:PosiblesPremiosFrmViewModel.cs:514-520`), y la lista llega ya ordenada por `PosiblesPremiosComparer` (descendente por tamaño de Col16, Col15, …; CU-13).
+
+**Entradas.** Sólo `◀` / `▶` (`P:VisorPosiblesPremiosPage.xaml:31,42`); sin campos editables ni validaciones.
+
+**Salidas** (`P:VisorPosiblesPremiosPage.xaml`): cabecera «Visor de Posibles Premios» + descripción `:19-22`; contador «X de N» (`:35`, `VM:224-230`; «0 de 0» si no hay grupos); panel «Columna ganadora (CG)» con un recuadro 28×28 por signo, en vertical (`:62-80`); panel «Columnas con premio» (`:96-100`) con, por cada columna premiada, una tarjeta horizontal: etiqueta de aciertos (`AciertosTexto`, tooltip «Aciertos de la columna», `:125`), categoría (`:133`) y un recuadro 24×24 por signo (`:138-157`), con fondo normal (`AppSurfaceAltBrush`) si acierta o **rojo de error** (`AppErrorBrush`) con texto blanco si falla (`P:VisorPosiblesPremiosPage.xaml.cs:30-50`).
+
+**Lógica en el ViewModel.**
+*CU-55 `MostrarGrupoDePremios`* (ctor y `MostrarGrupo` `P:VisorPosiblesPremiosViewModel.cs:87-102,157-222`):
+```
+resumen = UltimoResumen ?? [] ; total = resumen.count ; indice = 0
+si resumen no vacío: MostrarGrupo(0) sino Contador = "0 de 0"
+MostrarGrupo(g):
+    vaciar ColumnaGanadora y ColumnasPremiadas ; si g fuera de rango → solo actualizar contador
+    cont = resumen[g] ; gan = cont.ColGanadora ?? ""
+    ColumnaGanadora = [ SignoGanador(c) para c en gan ]                      // un recuadro por carácter
+    para (lista, categoria) en [(Col16,16),(Col15,15),(Col14,14),(Col13,13),(Col12,12),(Col11,11),(Col10,10)]:   // ese orden
+        para columna en lista (nula → "" ):
+            aciertosTexto = columna.count >= 2 ? últimos 2 caracteres de columna : ""
+            signos = [ (signo: columna[s], esAcierto: columna[s] == gan[s]) para s en 0 ..< min(gan.count, columna.count) ]   // comparación de caracteres, sensible a mayúsculas
+            ColumnasPremiadas.append({ Signos: signos, Categoria: categoria, AciertosTexto: aciertosTexto })
+    Contador = total == 0 ? "0 de 0" : "\(indice+1) de \(total)"
+```
+*Navegación* (`Adelante`/`Atras` `:132-152`): `▶` incrementa `indice` solo si `indice < total-1`; `◀` lo decrementa solo si `indice > 0`; en ambos casos llama a `MostrarGrupo(indice)`. Los botones **no se deshabilitan** en los extremos (simplemente no hacen nada).
+**Peculiaridades / trampas Swift.** (a) `AciertosTexto` es una subcadena del final del string almacenado, no se recalcula (siempre coincide con la categoría porque el sufijo se añadió en pantalla 79). (b) Un grupo contiene **todas** las columnas premiadas (no se pagina por 8 aquí). (c) El resumen puede ser enorme (producto cartesiano de los «*»; ver CU-13) y aquí se materializa un `ColumnaPremioItem` con N hijos por cada columna de un grupo: en SwiftUI usar `LazyVGrid`/`LazyVStack`. (d) Los signos se comparan como caracteres exactos; la pantalla 79 guarda columnas y ganadora en mayúsculas (`ToUpper()` en `P:PosiblesPremiosFrmViewModel.cs:186,391`). (e) `ValorTotal` **no** se muestra ni se calcula: `CalcularValorTotal` (`D:Escrutinio/PosiblesPremiosContenedor.cs:67-95`, con `+` donde cabría `*` en las categorías 13–16) no tiene ningún llamante; **código muerto, no portar**.
+**Área Mac propuesta.** **Escrutinio** · hoja modal (o panel secundario) abierta desde «Ver» en *Posibles premios*, con `Stepper`/`◀ ▶` y contador; mantiene el aviso de falta de resumen.
+**Evidencia.** `P:VisorPosiblesPremiosViewModel.cs:14-231`, `P:VisorPosiblesPremiosPage.xaml:17-157`, `P:VisorPosiblesPremiosPage.xaml.cs:17-51`, `P:PosiblesPremiosFrmViewModel.cs:267-284,502-530`, `D:Escrutinio/PosiblesPremiosContenedor.cs:9-97`.
 
 ---
