@@ -442,7 +442,7 @@ el resultado final no depende del orden (cada columna se alcanza una sola vez po
 5. Salida ordenada por índice numérico y **sin duplicados** (≠ JDC).
 6. Madre vacía ⇒ excepción (`validas[indices]`).
 
-**Complejidad / puntos calientes.** Cada reductora: `O(V(d) + V(2d))` (la zona de influenciadas crece hasta casi todo 3^n para d ≥ 5); barrido ascendente amortizado por `primera`; fase 2 barre 3^n. Cuello: `MarcaR` sobre vecindarios grandes. Bitsets/`Int8` para `flags`.
+**Complejidad / puntos calientes.** Cada reductora: `O(V(d) + V(2d))` (con 14 partidos, V(10) = 3 533 688 de 4 782 968 columnas posibles, así que para d ≥ 5 la zona de influenciadas es ya la mayor parte de 3^n); barrido ascendente amortizado por `primera`; fase 2 barre 3^n. Cuello: `MarcaR` sobre vecindarios grandes. Bitsets/`Int8` para `flags`.
 
 **Trampas Swift.** T1 (`ncent`), rangos `a ..< b`, `Int16` de `Profundidad` (irrelevante: usar `Int`), recursión con profundidad como parámetro.
 
@@ -516,7 +516,7 @@ bucle: Pump
     reductoras.append(ty[ret]) ; Finales++ ; acu += res
     si acu == ebet: break                                                   // IGUALDAD: puede saltarse
 ```
-**Peculiaridades.** `g0` no es un recuento real (parte del valor de la columna 0) ⇒ una columna con vecindario ya cubierto puede conservar `g0>0`, volver a elegirse indefinidamente (se añade repetida) y `acu` solo para si pisa exactamente `ebet`:
+**Peculiaridades.** `g0` no es un recuento real (parte del valor de la columna 0) ⇒ una columna con vecindario ya cubierto puede conservar `g0>0`, volver a elegirse indefinidamente (se añade repetida) y el bucle solo se detiene por `acu == ebet` exacto o por `res == 0`; si en una vuelta no queda ninguna `g1[i]` viva cerca de `ret`, el estado no cambia y la vuelta se repite eternamente mientras `acu` crece sin igualar `ebet`:
 la réplica **no termina** en `cols_a` con nivel 6 y en `cols_con_repetidas` con niveles 13, 10 y 6 **[réplica; sin test C#]**. `Procesadas` queda en 0. Complejidad `O(R·N²)`. **No portar** salvo orden expresa (**A5**).
 **Evidencia.** `JLPM.cs:35-45,47-129,131-144,146-176`.
 
@@ -580,7 +580,7 @@ Excepto(ini, pos, _)  (:221-254):
 6. `SubirUnaCategoria` (`:80-114`) es **código muerto** (no lo llama `Calcular`) y tiene `Partido < 14` literal: no portar.
 7. `Bits` mide 3^15 aunque `noPartidos=14`: `Grabar` recorre 14,3 M posiciones (anchura `noPartidos`).
 
-**Complejidad / puntos calientes.** Por columna de la madre: `M` arranques × `2^s` cadenas × `Σ_{k} C(M−s,k)·2^k` derivadas hasta `ProfMaxima` ⇒ explosivo con muchos involucrados/niveles altos; el cuello son los accesos a `Bits`/`ColumnasExternas` (2 bitsets de 1,8 MB: caben en caché L2).
+**Complejidad / puntos calientes.** Por columna de la madre: `M` arranques × `2^s` cadenas × `Σ_{k} C(M−s,k)·2^k` derivadas hasta `ProfMaxima` ⇒ explosivo con muchos involucrados/niveles altos; el cuello son los accesos a `Bits`/`ColumnasExternas` (2 bitsets de 1,8 MB).
 Una implementación por **conjuntos** (generar el conjunto de cambios y marcar) es admisible si el golden coincide.
 
 **Trampas Swift.** `a ..< b` con `b < a` aborta (`Partido = pos…`); campos de profundidad ⇒ parámetros; `ListaInvolucrados` como `[Int](repeating:0,count:29)` con comprobación de límites explícita para lanzar el mismo error; `BitArray(14348907)` ⇒ `[UInt64]` de 224 k palabras; T1: sin riesgo (índices < 14,3 M).
@@ -716,7 +716,7 @@ T2: la clave es índice base-3 en `Int64`; no mezclar con la codificación de 3 
 |---|---|---|
 | `ColumnasPremiadas` (`:7-52`) | `columna: String`, `fichero: String`, `jornada: Int`, `premio: Int`, `noColumna: Int`, `noBoleto: Int` | solo propiedades; las rellena `Escrutador.AñadeAGanadoras` |
 | `ColumnasPremiadasComb` (`:9-56`) | `columnaTexto: String`, `columna: Int64`, `fichero`, `jornada`, `premio` | **setters acoplados**: asignar `Columna` (índice base-3) recalcula `columnaTexto = ConvNumAColumna(columna)`; asignar `ColumnaTexto` recalcula `columna = ConvColumnaANumero(texto)`; la anchura del texto es `NumeroPartidos` **al construir el objeto** (`:16`) |
-| `ListaPremiadasComb` (`:9-60`) | `columnaTexto`, `columna: Int64`, `premio: Int`; 3 inits: `(String, Int)`, `(Int64, Int)`, vacío | mismo acoplamiento; solo se usa como tipo de un campo/propiedad sin uso real de `EscrutadorComb` (`EscComb.cs:38,65-69`) |
+| `ListaPremiadasComb` (`:9-60`) | `columnaTexto`, `columna: Int64`, `premio: Int`; 3 inits: `(String, Int)`, `(Int64, Int)`, vacío | mismo acoplamiento; solo aparece como tipo de un campo y su propiedad en `EscrutadorComb`, que nunca se rellenan ni se leen (`EscComb.cs:38,65-69`) |
 
 **Swift.** `struct` con inicializadores que mantengan el acoplamiento (o un único campo canónico + propiedad calculada) y `anchura` explícita en lugar del global.
 **Golden.** Triviales (`GE-06`); la conversión ya la cubre ESPEC_06.
@@ -736,7 +736,7 @@ CalcularValorTotal (:69-97):  valor ← Col10.count · 0.00001
     si Col13.count > 0: valor += Col13.count + 200000        // ¡ '+' no '*' !
     si Col14.count > 0: valor += Col14.count + 6000000 ;  Col15 → + 600000000 ;  Col16 → + 600000000000 (long)     ; valorTotal ← valor
 ```
-**Peculiaridades.** (1) **Empates totales** son habituales (muchos contenedores con los mismos recuentos) y el orden entre ellos lo decide `List<T>.Sort` (introsort **inestable** para > 16 elementos, T5): `PosiblesPremiosFrm.cs:3393`, `MejoresOpcionesFrm.cs:533`, `PosiblesPremiosFrmViewModel.cs:247`
+**Peculiaridades.** (1) **Empates totales** son habituales (muchos contenedores con los mismos recuentos) y el orden entre ellos lo decide `List<T>.Sort` (introsort **inestable** para > 16 elementos, T5): `Free1X2/UI/PosiblesPremiosFrm.cs:3393`, `Free1X2/UI/MejoresOpcionesFrm.cs:533`, `Free1X2.WinUI/Views/Ported/PosiblesPremiosFrmViewModel.cs:247`
 y las primeras N se muestran (`Free1X2/UI/MejoresOpcionesFrm.cs:535-542`) ⇒ **A3**. (2) `CalcularValorTotal`/`ValorTotal` **no tienen ningún llamador** (código muerto) y mezclan `+` con `*` (parece un error; no portar salvo orden). (3) Las listas guardan **texto**; cada llamador decide su formato (`Free1X2/UI/PosiblesPremiosFrm.cs:2737-2749` añade el nº de aciertos como sufijo).
 **Trampas Swift.** T5: `sort(by:)` de Swift **no** es estable garantizado; usar `sorted` con clave `(índiceOriginal)` como último criterio si se decide orden estable, o emular el introsort de .NET si se exige identidad (**A3**). T3: `Double` (no `float`) aquí.
 **Golden.** `GE-09`, `GE-10`.
@@ -825,7 +825,7 @@ Los valores **[réplica]** hay que confirmarlos con `tools/GoldenGen` (aún no e
 
 | ID | Tema | Qué se sabe / qué falta |
 |---|---|---|
-| **A1** (bloqueante para `EscrutadorComb`) | `Hashtable` con claves `Int32` e `Int64` y valores `int`/`byte`; índice base-3 pasado a un analizador de 3 bits | Por lectura: las claves de vecinos se insertan como `int` (`EscComb.cs:218-224`), la de la ganadora como `long` (`:243`) y se consultan con `long` (`:120`). `Hashtable` compara con `Equals` del objeto almacenado, y `Int32.Equals(object)` con un `Int64` devuelve falso ⇒ `aciertos[long]` devolvería `null` (`(int)null` lanza), y para la clave `long` el valor es `byte` boxeado (`(int)` sobre `byte` boxeado lanza `InvalidCastException`). Además se pasa un índice base-3 a `AnalizaColumna`, que espera un `long` de 3 bits (no hay conversor base-3 → 3 bits en el dominio; `grep ConvLongANumero` solo encuentra el inverso y sin uso). **No verificado por ejecución** (no hay tests ni se ha podido ejecutar .NET aquí). Hace falta: ejecutar `GE-08` con `GoldenGen` y decidir (R2) si el port replica el comportamiento (excepción/basura determinista) o implementa la semántica pretendida. |
+| **A1** (bloqueante para `EscrutadorComb`) | `Hashtable` con claves `Int32` e `Int64` y valores `int`/`byte`; índice base-3 pasado a un analizador de 3 bits | Por lectura: las claves de vecinos se insertan como `int` (`EscComb.cs:218-224`), la de la ganadora como `long` (`:243`) y se consultan con `long` (`:120`). `Hashtable` compara con `Equals` del objeto almacenado, y `Int32.Equals(object)` con un `Int64` devuelve falso ⇒ `aciertos[long]` devolvería `null` (`(int)null` lanza), y para la clave `long` el valor es `byte` boxeado (`(int)` sobre `byte` boxeado lanza `InvalidCastException`). Además se pasa un índice base-3 a `AnalizaColumna`, que espera un `long` de 3 bits (en el dominio no hay conversor base-3 → 3 bits; solo existe el inverso 3 bits → base-3, `Conv.cs:68`, sin ningún llamador). **No verificado por ejecución** (no hay tests ni se ha podido ejecutar .NET aquí). Hace falta: ejecutar `GE-08` con `GoldenGen` y decidir (R2) si el port replica el comportamiento (excepción/basura determinista) o implementa la semántica pretendida. |
 | **A2** | Orden de `ListaEscrutadasConPremio` | Es el orden de `Hashtable.Keys.CopyTo` (buckets de mayor a menor, `docs/PLAN_MEJORAS.md:800`). Su emulación exacta exige el algoritmo interno del framework (tabla de primos, doble hashing, factor de carga): **no está en el repo ni se ha verificado**. Opciones: orden canónico (p. ej. índice ascendente) + comparar golden como conjunto, o capturar el orden C# y emularlo. Depende de A1. |
 | **A3** | `PosiblesPremiosComparer` con empates | `List<T>.Sort` es inestable (para ≤ 16 elementos .NET usa inserción, para más introsort; **conocimiento del runtime, no verificado desde el repo**). Decidir: orden estable por posición original, o emular el introsort de .NET 8 y fijarlo con `GE-09`. |
 | **A4** | `EscrutadorComb.PonerPremios/AñadirPremiosGlobales` | Siempre `NullReferenceException` (`escrutinioDS` nunca asignado). La UI WinUI los omite. Proponer no portarlos. |
