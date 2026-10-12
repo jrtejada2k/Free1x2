@@ -93,8 +93,8 @@ Propuesta (decisión del dueño, R2): **no portarlos**; quedan documentados por 
   El **orden numérico** del índice ordena por el **último partido primero**.
 - **Inverso** (`Conv.cs:96-117`): dígito `d → "1X2"[d]` empezando por el menos significativo; relleno con `'1'` hasta `_NumPartidos`, que la
   constructora sin argumentos toma de **`VariablesGlobales.NumeroPartidos` en el momento de construir** (`:34-37`). Si el índice tiene más dígitos que `_NumPartidos`
-  `Append('1', negativo)` lanza excepción (fuera de contrato). ⇒ **La anchura de las líneas de salida de JDC/JDCdoble/Redu1305/Calculos(Grabar sin `numPartidos`) es
-  `NumeroPartidos`, no el nº de signos de la entrada** (preservar: pasar `Sesion.numeroPartidos` como parámetro de formato).
+  `Append('1', negativo)` lanza excepción (fuera de contrato). ⇒ **La anchura de las líneas de salida de JDC/JDCdoble/Redu1305 es
+  `NumeroPartidos`, no el nº de signos de la entrada** (`JDC.cs:242`, `JDCdoble.cs:336`, `R1305.cs:242`; preservar: pasar `Sesion.numeroPartidos` como parámetro de formato). `Calculos.Grabar` es la excepción: usa el `noPartidos` recibido en `Calcular` (`Calculos.cs:75`, `ACT.cs:156-166`).
 - **Lectura** (`ACT.cs`): `SiguienteColumna()` = `Peek() ≥ 0` (`:183-200`) ⇒ **las líneas en blanco intermedias o finales extra NO se saltan**: cada una es una columna
   de longitud 0 (en JDC/JDCdoble/Redu1305 equivale al índice 0 = `1111…`; en `ReductorTM` provoca excepción; en `Escrutador` suma un `0 aciertos`). El mensaje de la UI lo avisa
   (`VM-Red:144-145`). `LeeColumnaSinComas()` = `ReadLine().Trim().ToUpper()` (`:214-216`): **no quita comas** pese al nombre. Terminadores de línea .NET `\r\n`, `\n`, `\r`;
