@@ -33,7 +33,7 @@ Total: ~13 400 líneas; 108 pantallas (105 ViewModels + 3 sin ViewModel). Cada e
 
 | # | Decisión | Dónde |
 |---|----------|-------|
-| D1 | **Oráculo cuando port y WinForms legacy divergen**: ¿manda el motor actual o el legacy? | 06 (`AnalizadorColumnaCombinacion`), 09 (G-1, A-41, A-68), 08 (A2, A5, A17) |
+| ~~D1~~ | **Resuelta (2026-10-12):** la referencia es **solo la app actual** (WinUI + `Free1X2.Domain`). El WinForms legacy (`Free1X2/`) **no se usa** como referencia; las divergencias con él citadas en 06, 08 y 09 se ignoran. | — |
 | D2 | **Aparentes errores del C#: replicar (R1) o corregir.** If-Then sustituye en vez de AND al contar (01); `ReinicializarVariables` no hace nada tras la 1.ª carga (01, 07); `aciertosMax` de Formatos 1-2-3 no se guarda (03); Dibujos vía If-Then rechaza siempre (03); `FiltroDiferencias.ObtenNoAciertosTolerancias` lanza (01, 03); `EscrutadorComb` falla y orden por Hashtable (05); JDCDobleContador ignora el último partido (05); `ConvStrToLong` sin validar caracteres (06); deduplicado de `ObtenerListaFromTxt` (04, 06); Filtro Pim ejecuta el motor de aidomnou y `aidomnou.cfg` no se lee (09 A-57-1, 10); Grupos de equipos no llega al analizador tras «Abrir» (09 A-62-1) | ver espec. |
 | D3 | **Código sin uso**: reductores XFSF, XfsfV3, JLPM; fichero `.lang`; ~15 miembros sin consumidores | 05, 06 (A7), 07 |
 | D4 | **Cultura numérica** de referencia (propuesta: es-ES, decimal con coma) | 07 |
