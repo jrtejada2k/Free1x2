@@ -38,7 +38,7 @@ Total: ~13 400 líneas; 108 pantallas (105 ViewModels + 3 sin ViewModel). Cada e
 | D3 | **Código sin uso**: reductores XFSF, XfsfV3, JLPM; fichero `.lang`; ~15 miembros sin consumidores | 05, 06 (A7), 07 |
 | D4 | **Cultura numérica** de referencia (propuesta: es-ES, decimal con coma) | 07 |
 | D5 | **Fin de línea** al escribir en Mac: CRLF (compatible con ficheros Windows) o LF | 07 (A1) |
-| D6 | **Muestras reales** de `.comb` y condiciones desde Windows (no hay ninguna en el repo) | 07 (A2) |
+| ~~D6~~ | **Resuelta (2026-10-12):** no se piden muestras al dueño. Si M1 necesita `.comb`/condiciones de ejemplo, `tools/GoldenGen` los genera con el escritor actual. | — |
 | D7 | **Áreas y presentación Mac** de cada pantalla (propuestas en las tablas resumen) | 08 §3, 09 §2, 10 §3 |
 | D8 | Repo (`Free1X2.Mac/` aquí o repo aparte) y distribución (fuera/dentro de Mac App Store) | Plan §7 |
 
