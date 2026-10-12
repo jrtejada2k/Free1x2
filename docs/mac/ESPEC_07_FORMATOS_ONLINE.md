@@ -403,7 +403,7 @@ El lector despacha por `Name.ToUpper()` (`CP RELACION1 FALLOSCP CONTROLFALLOS RE
   <Configuracion_x0020_de_x0020_CPs d2p1:Tipo="1" d2p1:Desde="1" d2p1:Hasta="100" d2p1:Forzar_x0020_Fijos="true" d2p1:Num_x0020_Fijos="14" xmlns:d2p1="http://tempuri.org/ColumnasProbables.xsd" />
 </ColumnasProbables>
 ```
-  Obsérvese que la primera fila de configuración **no tiene `Tipo`** (nulo) [bytes]. Los atributos van **antes** de `xmlns:d2p1` en cada elemento.
+  Semilla: 626 B, 6 líneas, **LF**, sin BOM, sin salto final [bytes]. Obsérvese que la primera fila de configuración **no tiene `Tipo`** (nulo) [bytes]. Los atributos van **antes** de `xmlns:d2p1` en cada elemento.
 - **Uso**: `CPs.CrearCPs` accede a la fila por **posición de columna** (`Tipo`=0, `Desde`=1, `Hasta`=2, `Forzar Fijos`=3, `Num Fijos`=4, `Forzar Dobles`=5, `Num Dobles`=6, `Forzar Triples`=7) (`CP/CPs.cs:24-31`) tras filtrar `RowFilter="Tipo = N"` (`VM/GenerarCPsViewModel.cs:118-120`). Editor: `VM/ConfigCPsFrmViewModel.cs:91-201`.
 - **Tolerancia**: fichero ausente ⇒ DataSet vacío (sin filas ⇒ no se genera nada). Valores `null` en `Forzar*` se tratan como `false` (`CPs.cs:42-43`: `ToString().Length>0`).
 
@@ -479,7 +479,7 @@ El lector despacha por `Name.ToUpper()` (`CP RELACION1 FALLOSCP CONTROLFALLOS RE
 
 ### F12 · `Impresion/impresoras.cfg` (XML)
 
-- **Lee**: `MC/ControladoresImpresion.cs:26-61` (`XmlTextReader` + `GetElementsByTagName("impresoras")[0]`); no se escribe desde código (solo a mano; cabecera «No editar…»). Semilla `DT/Impresion/impresoras.cfg`: 18 impresoras, LF [bytes].
+- **Lee**: `MC/ControladoresImpresion.cs:26-61` (`XmlTextReader` + `GetElementsByTagName("impresoras")[0]`); no se escribe desde código (solo a mano; cabecera «No editar…»). Semilla `DT/Impresion/impresoras.cfg`: 18 impresoras, 26 líneas, LF, sin salto final [bytes].
 - **Gramática**: `<xml><impresoras><Controladores modelo="…" ms="N" mi="N" girar="true|false"/>…</impresoras></xml>`; `ms`/`mi` `Int32` (margen superior / izquierdo), `girar` `bool`; **todos los hijos** de `impresoras` se leen (un comentario interior fallaría). `impresoras.Contains(controlador)` compara por referencia (no hay `Equals`) ⇒ **no deduplica** (`:43-46`; `MC/ControladorImpresion.cs`). El XML puede llevar comentario antes de la raíz (permitido).
 - Ejemplo [bytes]: `<Controladores modelo="HP OFFICEJET 5510" ms="102" mi="32" girar="false" />`.
 
