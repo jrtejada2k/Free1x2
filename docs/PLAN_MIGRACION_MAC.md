@@ -4,6 +4,10 @@
 > Decisión del dueño (2026-10-11): **reescritura completa en Swift / Xcode**, sin portar código
 > C#. El código actual (`Free1X2.Domain` + `Free1X2.WinUI`) pasa a ser **especificación** y
 > **oráculo de pruebas**.
+>
+> **La app Mac es 100 % Swift nativo arm64: no contiene, no enlaza y no ejecuta C#.** El C# solo
+> se usa fuera del proyecto Mac para exportar una vez los datos de referencia (golden) que se
+> versionan como ficheros JSON/TXT de test.
 
 ## 0. Principios
 
@@ -53,7 +57,7 @@ Free1X2.Mac/                         (proyecto Xcode, en este mismo repo)
     ├─ Free1X2Formats   E/S compatible con los ficheros actuales
     ├─ Free1X2Online    URLSession async + caché offline-first
     └─ Tests/           Swift Testing: 138 tests portados + golden diferenciales
-tools/GoldenGen/                     consola C# (usa Free1X2.Domain) que genera los golden
+tools/GoldenGen/                     FUERA de la app: exporta los golden una vez (no se distribuye)
 ```
 
 Decisiones técnicas:
@@ -62,7 +66,7 @@ Decisiones técnicas:
   `AsyncStream` (sustituye `UiPump`/`IProgressNotifier`). Paralelismo con `TaskGroup` solo donde
   el orden de salida se preserve.
 - **Rendimiento**: bucles calientes sobre `[UInt64]` contiguos / `UnsafeBufferPointer`, sin
-  clases ni existenciales en el camino crítico. Benchmark obligatorio contra el C# en el mismo M1.
+  clases ni existenciales en el camino crítico. Objetivo: igual o más rápido que la versión Windows.
 - **Ficheros**: `fileImporter`/`fileExporter` (o `NSOpenPanel`); carpetas de trabajo en
   `~/Library/Application Support/Free1X2` (hoy se crean junto al `.exe`, `App.xaml.cs:106-112`;
   en Mac el bundle no es escribible).
@@ -73,11 +77,12 @@ Decisiones técnicas:
 
 ## 3. Estrategia de verificación (oráculo)
 
-1. `tools/GoldenGen` ejecuta el motor C# con entradas variadas y deterministas (semilla fija)
+1. `tools/GoldenGen` (herramienta de datos, fuera del proyecto Mac) ejecuta una vez el motor
+   actual con entradas variadas y deterministas (semilla fija)
    por módulo y escribe `entrada → salida` en `Packages/Free1X2Kit/Tests/Golden/`.
 2. Los tests Swift leen esos golden y exigen igualdad exacta.
-3. CI (GitHub Actions, runner macOS arm64): `dotnet run tools/GoldenGen` → `swift test` →
-   `xcodebuild build`. El C# corre en Mac porque `Free1X2.Domain` es `net8.0` puro.
+3. Los golden se versionan como datos. La CI del proyecto Mac (GitHub Actions, runner macOS
+   arm64) solo ejecuta `swift test` + `xcodebuild build`: **cero C# en la cadena Mac**.
 
 ## 4. UI
 
@@ -91,7 +96,7 @@ Escrutinio · Análisis · Columnas probables · Herramientas · Online**. El ma
 | Fase | Entregable | Cierre (evidencia) |
 |------|-----------|--------------------|
 | **M0 Especificación** | `docs/mac/ESPEC_*.md`: por módulo, entradas/salidas/algoritmo con `file:line`; mapa de las 108 pantallas a áreas | Revisión del dueño |
-| **M1 Oráculo** | `tools/GoldenGen` + golden de todos los módulos | Golden generados en CI macOS |
+| **M1 Oráculo** | `tools/GoldenGen` + golden de todos los módulos versionados como datos | Golden en `Packages/Free1X2Kit/Tests/Golden/` |
 | **M2 Esqueleto** | Proyecto Xcode + `Free1X2Kit` + CI macOS | CI verde (build + 0 tests) |
 | **M3 Motor** | Por orden: Columnas/Utils → Escrutinio → Generador+filtros → Reducción → Análisis → Subir categoría | Golden 100 % idénticos + 138 tests portados + benchmark |
 | **M4 Formatos y Online** | Lectura/escritura de todos los ficheros; cliente online | Round-trip con ficheros reales |
