@@ -17,7 +17,7 @@ Convenciones, plantilla y trampas C#→Swift en [`ESPEC_00_CONVENCIONES.md`](ESP
 | [09](ESPEC_09_UI_B.md) | Pantallas 41–73 | 2 084 | 33 pantallas, 41 casos de uso |
 | [10](ESPEC_10_UI_C.md) | Pantallas 74–105 + shell | 1 998 | 35 pantallas (incl. Acerca de/Ayuda/Créditos), 62 casos de uso, menú (64 entradas) |
 | [11](ESPEC_11_ARQUITECTURA_SWIFT.md) | **Arquitectura Swift** | — | Módulos, modelo configuración/ejecución, errores, concurrencia, `Entorno`, `Sesion`, persistencia, rendimiento; DP/DT |
-| [12](ESPEC_12_ORACULO.md) | **Oráculo** | — | GoldenGen (Windows x64), formato y carga de golden, suites `G-NET`, niveles O1/O2/O3, corpus |
+| [12](ESPEC_12_ORACULO.md) | **Oráculo** | — | GoldenGen en el Mac (.NET 8 x64 bajo Rosetta), formato y carga de golden, suites `G-NET`, niveles O1/O2/O3, corpus |
 | [13](ESPEC_13_CASOS_DE_USO.md) | **API de casos de uso** | — | 193 CU + 10 del shell: firma, dependencias, oráculo |
 | [14](ESPEC_14_PRUEBAS.md) | **Pruebas** | — | Niveles, dobles, cobertura, port de los 138 tests, rendimiento, CI |
 | [15](ESPEC_15_DISENO_UI.md) | **Diseño de UI** | — | Sistema de diseño, ventana, menús, mockups por plantilla, mapa de las 108 pantallas |
@@ -44,6 +44,6 @@ D1 = DP-15 · D2 = DP-09 + `G-D2` · D3 = DP-08 · D4 = DP-01 · D5 = DP-02 · D
 
 ## Siguiente fase
 
-**M1 — Oráculo**: `tools/GoldenGen` exporta una vez los golden de todos los módulos (en Windows x64,
-que fija cultura, CRLF y aritmética reales) y se versionan como datos en el paquete Swift. Procedimiento y
+**M1 — Oráculo**: `tools/GoldenGen` exporta una vez los golden de todos los módulos **en este Mac** (.NET 8 x64 bajo
+Rosetta 2, cultura `es-ES`, salida normalizada a CRLF; sin Windows) y se versionan como datos en el paquete Swift. Procedimiento y
 criterio de cierre en [ESPEC_12](ESPEC_12_ORACULO.md) §7.

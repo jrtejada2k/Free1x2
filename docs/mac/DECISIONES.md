@@ -50,13 +50,13 @@ orden expresa del dueño; no se implementa).
 | DT-11 | XML con `Foundation.XMLDocument` + `EscritorXMLNET`; ZIP con `Compression.framework` sin terceros | ESPEC_16 §2-3; 06 A18 (**V**: *spike* en M3) |
 | DT-12 | Convenciones de código y trazabilidad `// C#: fichero:línea` | ESPEC_11 §11 |
 | DT-13 | Mayúsculas ASCII invariantes para letras de tolerancia y columnas (la cultura turca no se emula) | 02 A5; 06 A5 |
-| DT-14 | Orden de ficheros de `DirectoryInfo.GetFiles`: por nombre, ordinal sin distinguir mayúsculas (orden de NTFS) — **O** | 03 A3; 10 A-19 |
+| DT-14 | Orden de ficheros de `DirectoryInfo.GetFiles`: por nombre, ordinal sin distinguir mayúsculas (orden de NTFS); GoldenGen reordena igual en el Mac (ESPEC_12 §1.1) — **O** | 03 A3; 10 A-19 |
 | DT-15 | Ordenaciones con empates o `NaN`: `IntrosortNET` / comparador «NaN primero» solo donde el golden muestre que el orden llega a la salida — **O** | 04 A-9; 05 A3; 06 A9 |
 | DT-16 | Cliente HTTP: `URLSession` efímera, timeout 10 s, `Accept: application/json`, `User-Agent: Free1X2/<versión> (macOS)`; redirecciones y descompresión por defecto | 07 A10 |
 | DT-17 | Mensaje genérico HTTP con los nombres de `HttpStatusCode` de .NET 8 (tabla de los códigos estándar) | 07 A11 |
 | DT-18 | Selector «Nuevo…» de valoraciones: se aplica la lógica C# al estado real del fichero; como `NSSavePanel` no crea un fichero vacío (a diferencia de WinUI), «inexistente» ⇒ nuevo | 09 A-64-1 |
 | DT-19 | Ayuda: el menú Ayuda que macOS crea siempre abre la página «Recursos de ayuda» actual (mismo contenido, avisos en inglés incluidos) además de `F1`/`⌘?` | 10 A-02, A-05 |
-| DT-20…27 | Oráculo GoldenGen (Windows x64, es-ES, JSONL, niveles O1/O2/O3, corpus) | ESPEC_12 |
+| DT-20…27 | Oráculo GoldenGen **en el Mac, sin Windows** (decisión del dueño 2026-10-14): .NET 8 x64 bajo Rosetta 2, `es-ES`, normalización LF→CRLF, ViewModels compilados desde su fuente con *shims*, prueba de equivalencia 138/138, JSONL, niveles O1/O2/O3, corpus | ESPEC_12 §1, §1.1, §5.1, §7 |
 | DT-30…39 | Pruebas, cobertura, CI y presupuestos de rendimiento | ESPEC_14 |
 | DT-40 | API de casos de uso (5 formas, `enum` por menú, unificaciones) | ESPEC_13 |
 | DT-50 | Iconos de la barra: SF Symbols en lugar de los PNG de 16×16 px (mismo tooltip y posición) | ESPEC_15 §1.4 |
@@ -161,7 +161,7 @@ Formato: `origen` → decisión (estado). Las que solo remitían a otra spec se 
 | DEC-603 | A3 cultura | DP-01 (D) |
 | DEC-604 | A6 `AnalizadorColumnaCombinacion` corta al primer fallo | replicar (O; R) |
 | DEC-605 | A7 código muerto | DP-08 (D) |
-| DEC-606 | A8 libm | `G-NET-LIBM`; si hay discrepancias, función propia correctamente redondeada para esos puntos (O) |
+| DEC-606 | A8 libm | la referencia es la libm de Darwin (la del producto Mac, la misma que usa Swift); diferencia de hasta 1 ulp frente a la UCRT de Windows aceptada (ESPEC_12 §1.1) (D) |
 | DEC-607 | A9 `FigurasComparer` | solo WinForms ⇒ DP-08 (D) |
 | DEC-608 | A10 `Comparador` con 15 signos | `Comparador` del dominio sin uso en la app ⇒ DP-08 (D) |
 | DEC-609 | A11 rangos de propiedades de `ContenedorAnalisis` | replicar; si el C# lanza, error tipado (O) |
@@ -185,7 +185,7 @@ Formato: `origen` → decisión (estado). Las que solo remitían a otra spec se 
 | DEC-705 | A6 enteros JSON y `Enum.TryParse` | `G-NET` + suite online (O) |
 | DEC-706 | A7 equipos `.txt` antiguos | DP-02: lectura UTF-8 como hoy, sin *fallback* cp1252 (D) |
 | DEC-707 | A8 `.lang` | DP-07: no se porta (D) |
-| DEC-708 | A9 `FileIO.WriteLinesAsync` | bytes capturados con O2 (O) |
+| DEC-708 | A9 `FileIO.WriteLinesAsync` | sin Windows no se puede capturar: el port escribe UTF-8 sin BOM con CRLF (regla general de DP-02); los lectores aceptan cualquier variante (D) |
 | DEC-709 | A10 valores por defecto de `HttpClient` | DT-16 (D) |
 | DEC-710 | A11 nombres de `HttpStatusCode` | DT-17 (D) |
 | DEC-711 | A12 `ToString("0.00")` | `G-NET-FMT` (O) |
@@ -266,7 +266,7 @@ Formato: `origen` → decisión (estado). Las que solo remitían a otra spec se 
 | DEC-932 | A-66-1 `ObtenNumCols` estimado | replicar (D) |
 | DEC-933 | A-68-1 unidades de impresión | DEC-407 (V) |
 | DEC-934 | A-68-2 `SetConfig` y «Girar boleto» | port: sin `SetConfig` inicial; girar sin efecto (DP-15) (R) |
-| DEC-935 | A-71-1 BOM de listados | bytes del port con O2 (O) |
+| DEC-935 | A-71-1 BOM de listados | = DEC-708: UTF-8 sin BOM, CRLF (D) |
 | DEC-936 | A-72-1 sin cancelación en Mejores opciones | DP-10 (D) |
 | DEC-937 | A-73-1 bucle infinito latente | DT-08 (D) |
 | DEC-938 | A-73-2 modo aleatorio | `Entorno.aleatorio` + O3 (D) |

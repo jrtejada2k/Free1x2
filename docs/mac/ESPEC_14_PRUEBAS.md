@@ -101,8 +101,9 @@ Fixtures `cols_a.txt`, `cols_b.txt`, `cols_con_repetidas.txt`, `ganadora.txt` y 
 
 - `Free1X2Bench` (Release, `-O`), reloj `ContinuousClock`; 2 ejecuciones de calentamiento + 10 medidas; se publica la **mediana** y el
   percentil 90; memoria = pico de RSS (`task_info`).
-- Referencia C#: GoldenGen mide los mismos datasets (mediana de 10) con el motor C# en el equipo Windows donde corre y lo guarda en
-  `manifest.json` (`tiempos`). La comparación «Mac vs Windows» se hace en el **Mac M1 del dueño** al cerrar M3 y M5.
+- Referencia C#: GoldenGen mide los mismos datasets (mediana de 10) con el motor C# compilado para **.NET 8 arm64 nativo** (`~/.dotnet8`,
+  ESPEC_12 §7 paso 0) en el **mismo Mac M1** y lo guarda en `manifest.json` (`tiempos`). Misma máquina para los dos lados: la comparación
+  es justa (bajo Rosetta el C# saldría penalizado). Se mide al cerrar M3 y M5.
 
 ### 6.3 Presupuestos (criterio de cierre de M3)
 
@@ -120,7 +121,7 @@ Fixtures `cols_a.txt`, `cols_b.txt`, `cols_con_repetidas.txt`, `ganadora.txt` y 
 |-------|-----------|--------|-------|
 | `mac.yml` | PR y push a `main` | `macos-15` arm64 (o el más reciente disponible) | `swift-format lint --strict` · lint de patrones prohibidos (`fatalError`, `try!`, `as!`, desempaquetado `!`, `print(`; ESPEC_11 §5.2) · `swift build -c release` · `swift test --parallel --skip .lento --enable-code-coverage` + umbrales §4 · `xcodebuild build` + `xcodebuild test` (N5 + smoke N6) |
 | `mac-nocturno.yml` | cron diario + manual | `macos` arm64 | todo `mac.yml` + `.lento` + `Free1X2Bench` en modo comparación con la línea base (§6.3) |
-| `golden.yml` | manual (`workflow_dispatch`) | `windows-latest` | GoldenGen ×2, comparación de SHA, artefacto (ESPEC_12 §1). **No** forma parte de la cadena Mac (PLAN:8-10) |
+| `golden.yml` | — | — | **No existe**: GoldenGen se ejecuta en el Mac del dueño con .NET 8 x64 bajo Rosetta (ESPEC_12 §1, §7) y sus resultados se versionan como datos. **No** forma parte de la cadena Mac (PLAN:8-10) |
 
 Comprobaciones obligatorias para fusionar: `mac.yml` verde. Ningún test se desactiva para hacer pasar el CI: un fallo de paridad se resuelve
 en el código o, si el golden estaba mal, regenerándolo con explicación (ESPEC_12 §3).

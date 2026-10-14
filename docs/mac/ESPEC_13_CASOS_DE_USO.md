@@ -334,6 +334,6 @@ Editores específicos (conversión pantalla ↔ `Condicion`; puros):
 
 - O3 solo en CU con azar sembrado por el reloj (A17, A19, A20, A22: 08 A19) y en cuatro acciones triviales del shell (S02, S07, S08, S09); ninguno escribe ficheros
   con cálculo masivo sin propiedad que lo cubra (ESPEC_12 §5).
-- Si la prueba de viabilidad O2 (ESPEC_12 §7 paso 3) descarta un ViewModel, sus CU pasan a O3 **con registro en `DECISIONES.md`**
+- Si la prueba de viabilidad O2 (ESPEC_12 §7 paso 4: compilar el ViewModel con los *shims* de §5.1) descarta un ViewModel, sus CU pasan a O3 **con registro en `DECISIONES.md`**
   (motivo + propiedades que los cubren).
 - Cada CU tiene al menos un test N4 (ESPEC_14) aunque su oráculo sea O1/O2.

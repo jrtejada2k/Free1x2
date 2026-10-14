@@ -88,7 +88,7 @@ Decisiones técnicas:
 2. Los tests Swift leen esos golden y exigen igualdad exacta.
 3. Los golden se versionan como datos. La CI del proyecto Mac (GitHub Actions, runner macOS
    arm64) solo ejecuta `swift test` + `xcodebuild build`: **cero C# en la cadena Mac**. GoldenGen corre aparte,
-   en Windows x64 (`mac/ESPEC_12_ORACULO.md`).
+   en el Mac con .NET 8 x64 bajo Rosetta 2, sin Windows (`mac/ESPEC_12_ORACULO.md`).
 
 ## 4. UI
 

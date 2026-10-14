@@ -12,20 +12,38 @@
 | Aspecto | Decisión (DT-20…DT-27) | Motivo |
 |---------|------------------------|--------|
 | Qué | Aplicación de consola C# `tools/GoldenGen/` (fuera de `Free1X2.Mac/` y de `Free1X2.sln`) | no toca la app actual (R1, R6) |
-| Proyectos | `GoldenGen.Motor` (`net8.0`, `ProjectReference` a `Free1X2.Domain`) · `GoldenGen.Pantallas` (`net8.0-windows10.0.19041.0`, x64, referencia al ensamblado de `Free1X2.WinUI` **sin modificarlo**) · `GoldenGen.Comun` (serialización, manifiesto) | el dominio es portable (`Free1X2.Domain.csproj:4`); los ViewModels exigen TFM Windows (60 de 105 usan `Windows.Storage.Pickers`) |
-| Dónde corre | **Windows x64**, una vez por versión del oráculo: flujo manual `.github/workflows/golden.yml` (`workflow_dispatch`, `windows-latest`) que publica los golden como artefacto; el dueño los revisa y los incorpora con un commit. Alternativa equivalente: un PC Windows 10/11 x64 con .NET 8 SDK | resuelve la contradicción «Windows vs Mac» (README «Siguiente fase» frente a 05:837, 07:1195): Windows da CRLF, `(int)NaN` y libm (UCRT) **reales** de la app (T8, T13, 06 A8); no hace falta normalizar EOL al comparar |
+| Proyectos | `GoldenGen.Motor` (`net8.0`, `ProjectReference` a `Free1X2.Domain`) · `GoldenGen.Pantallas` (`net8.0`: compila en el Mac los **fuentes de los ViewModels enlazados en solo lectura** —`<Compile Include="../../Free1X2.WinUI/Views/Ported/XxxViewModel.cs" Link=…>`— más los servicios y controles portables y una capa de *shims* para las APIs de WinUI/WinRT, §5.1) · `GoldenGen.Comun` (serialización, normalización §1.1, manifiesto) | el dominio es portable (`Free1X2.Domain.csproj:4`; ninguna ruta con `\` literal); ningún fuente de la app se modifica |
+| Dónde corre | **En el Mac del dueño (Apple Silicon)**, con el **SDK de .NET 8 x64 ejecutado por Rosetta 2**, instalado aparte en `~/.dotnet-x64` (no toca los .NET 6/10 ya instalados). Una vez por versión del oráculo; el resultado se revisa y se incorpora con un commit | la app real es .NET 8 x64 (`Free1X2.WinUI.csproj`: `win-x64`); desde .NET 9, y en arm64, la conversión `double→int` satura: solo .NET 8 x64 reproduce T13. Rosetta ejecuta el mismo JIT x64 y la misma BCL que la app. Las demás diferencias Mac/Windows se neutralizan en §1.1. Sin Windows (decisión del dueño, 2026-10-14) |
 | Cultura | `Main` fija `CultureInfo.DefaultThreadCurrentCulture`, `DefaultThreadCurrentUICulture`, `CurrentCulture` y `CurrentUICulture` = `es-ES` antes de nada | oráculo `es-ES` (07:567; 06:1017; DP-01) |
 | Zona horaria y reloj | Ninguna salida golden contiene la hora actual; los campos «Tiempo»/fechas de ejecución se excluyen (se listan en cada suite) | determinismo |
 | Determinismo | Las entradas variadas se generan con `new Random(20261013)` **dentro de GoldenGen** y se **guardan** en el golden (Swift no necesita reproducir ese generador). Cada ejecución corre **dos veces** y compara SHA-256 de toda la salida; si difieren, falla | regeneración idéntica |
 | Versión | `manifest.json` registra: commit del repo C#, versión de .NET (`RuntimeInformation`), SO, cultura, fecha, SHA-256 por fichero y nº de casos por suite | trazabilidad (R4) |
 
-Comando (Windows):
+Comando (Mac):
 
-```powershell
-dotnet run -c Release --project tools/GoldenGen/GoldenGen.Pantallas -- --salida Free1X2.Mac/Packages/Free1X2Kit/Tests/Golden --todas
+```bash
+~/.dotnet-x64/dotnet run -c Release --project tools/GoldenGen/GoldenGen.Pantallas -- --salida Free1X2.Mac/Packages/Free1X2Kit/Tests/Golden --todas
 ```
 
 (`GoldenGen.Pantallas` incluye las suites de `GoldenGen.Motor`; `--suite <id>` ejecuta una sola.)
+
+### 1.1 Diferencias Mac/Windows y cómo se neutralizan
+
+| Diferencia | Efecto en el C# ejecutado en el Mac | Neutralización |
+|------------|-------------------------------------|----------------|
+| `Environment.NewLine` = `\n` | `WriteLine`, `StreamWriter`, `XmlTextWriter` (sangría) escriben LF | `GoldenGen.Comun` convierte toda salida de escritores de texto del C# a CRLF (`\n` → `\r\n`) antes de guardarla: son los bytes que escribe la app en Windows (DP-02). No se aplica a JSON de caché (sin EOL propio) ni a ZIP. Ningún dato de la app contiene un `\n` propio (columnas, XML, TSV). Igual para mensajes que concatenan `Environment.NewLine` |
+| Conversión `double→int` (`(int)NaN`, fuera de rango) | arm64 y .NET 9+ saturan | .NET 8 **x64** bajo Rosetta: `Int32.MinValue` como en Windows x64 (`G-NET-CAST` lo comprueba) |
+| Cultura | Windows usa ICU desde .NET 5 (Windows 10 1903+); el Mac, el ICU del sistema | `es-ES` forzado; `G-NET-PARSE/FMT` fijan cada resultado. Una diferencia de versión de ICU solo afectaría a símbolos raros (∞, NaN) que la app no escribe en ficheros |
+| libm (`Math.Log`, `Exp`, `Pow`) | Darwin libm en vez de la UCRT de Windows (posible diferencia de 1 ulp) | El producto es Mac: la referencia es Darwin libm, la misma que usará Swift. Diferencia aceptada frente a Windows; como mucho afecta al último bit antes de convertir a `Float` (06 A8, DEC-606) |
+| Orden de `Directory.GetFiles` | NTFS devuelve por nombre; APFS no garantiza orden | Donde la salida depende de la enumeración (estadísticas sobre `Ganadoras/`), GoldenGen reordena por nombre (ordinal sin distinguir mayúsculas = NTFS, DT-14) las entradas por fichero |
+| Rutas | separador `/` | El dominio usa `/` y `Path.Combine`. El corpus incluye a propósito rutas de estilo Windows (`C:\…`) dentro de `.comb` para probar las rutas heredadas (ESPEC_11 §9) |
+| Sistema de ficheros | APFS sin distinción de mayúsculas por defecto | igual que NTFS |
+| `Hashtable`, ordenaciones, aritmética IEEE | código gestionado | idéntico |
+| WinRT `FileIO.*` (solo en algunos ViewModels) | no existe fuera de Windows | *shim* con la regla de DEC-708/DEC-935 (UTF-8 sin BOM, CRLF); son los únicos bytes no verificables sin Windows |
+
+**Prueba de equivalencia de plataforma** (antes de generar nada): los **138 tests** actuales (`Free1X2.Domain.Tests`, `net8.0`) se ejecutan en el Mac con
+.NET 8 x64 y deben dar **138/138**. Sus valores esperados salen de ejecuciones en Windows, así que pasarlos en el Mac demuestra que el dominio
+se comporta igual en el código que cubren. Si alguno falla, se investiga antes de seguir (la diferencia pasaría a §1.1).
 
 ## 2. Formato y layout de los golden
 
@@ -56,7 +74,7 @@ Free1X2.Mac/Packages/Free1X2Kit/Tests/Golden/
 | `double` | `{"bits":"0x3FE199999999999A","texto":"0,55"}` (`BitConverter.DoubleToInt64Bits`) | igualdad de **bits** (06:1018) |
 | `float` | `{"bits":"0x3F0CCCCD","texto":"0,55"}` (`SingleToInt32Bits`) | igualdad de bits |
 | Texto | cadena JSON (escapes estándar) | `==` sobre `utf16` |
-| Fichero de salida ≤ 1 MiB | fichero hermano con los bytes exactos (`*.out.<ext>`) + `sha256` | bytes idénticos (sin normalizar: GoldenGen corre en Windows y Swift escribe los mismos bytes, DP-02) |
+| Fichero de salida ≤ 1 MiB | fichero hermano con los bytes exactos (`*.out.<ext>`, ya con CRLF por §1.1) + `sha256` | bytes idénticos (Swift escribe CRLF, DP-02) |
 | Fichero de salida > 1 MiB | **no se versiona**: `sha256`, `bytes`, `lineas` y `muestra` (primeras y últimas 50 líneas) | SHA-256 de lo que escribe Swift |
 | ZIP `.z3q` | bitmap descomprimido (`sha256`) + nombre de la entrada; una vez, volcado hex de cabeceras (06:1020) | contenido descomprimido en ambos sentidos |
 | Error | `"error":"<TipoDeExcepción .NET>"` (+ `"mensaje"` si es un literal del código, no de .NET) | `ErrorDominio.excepcion.rawValue` (ESPEC_11 §5.2); mensaje solo si está presente |
@@ -136,8 +154,24 @@ Hoy no tienen tests ni golden (README «Estado de la verificación»). Cada CU r
 | Nivel | Cuándo | Cómo |
 |-------|--------|------|
 | **O1 — dominio directo** | El CU es una orquestación fina de `Free1X2.Domain` (llama al motor, reductores, escrutinio, E/S) | `GoldenGen.Motor` llama a las mismas funciones del dominio con los mismos argumentos que el ViewModel (según el pseudocódigo de la spec) y vuelca entradas y salidas. |
-| **O2 — ViewModel real** | El algoritmo vive en el ViewModel (`Lógica en el ViewModel`, 10:17-20) y es de cálculo o fichero→fichero | `GoldenGen.Pantallas` carga el **ensamblado de `Free1X2.WinUI` sin modificarlo**, instancia el ViewModel, fija sus propiedades, invoca el método del CU (por reflexión si no es público), **sin selectores**: usa los métodos con ruta (`GuardarEn`, `AbrirDesde`, …) y un directorio temporal. Captura propiedades resultantes, ficheros escritos y mensajes (sin ventana, `AppServices` los manda al log: 10:230; GoldenGen lee `log.txt`). Las salidas con hora se excluyen. |
+| **O2 — ViewModel real** | El algoritmo vive en el ViewModel (`Lógica en el ViewModel`, 10:17-20) y es de cálculo o fichero→fichero | `GoldenGen.Pantallas` compila en el Mac el **fuente real del ViewModel** (enlazado, sin modificarlo) con los *shims* de §5.1, lo instancia, fija sus propiedades e invoca el método del CU (por reflexión si no es público), **sin selectores**: usa los métodos con ruta (`GuardarEn`, `AbrirDesde`, …) y un directorio temporal. Captura propiedades resultantes, ficheros escritos y los mensajes que recibe el *shim* de `AppServices`. Las salidas con hora se excluyen. |
 | **O3 — especificación** | CU de pura presentación (navegar, rellenar listas, habilitar botones), aleatorios con semilla de reloj no separable (08 A19, 09 A-73-2), o CU cuyo ViewModel no pueda ejecutarse sin ventana (lo determina el paso 3 de §7) | Pruebas de ejemplo con los valores de la spec + **pruebas de propiedades** (ESPEC_14 §3) + revisión del dueño en M5. |
+
+### 5.1 *Shims* de `GoldenGen.Pantallas`
+
+Sustituyen **solo** interfaz e infraestructura de Windows; nunca lógica de negocio.
+
+| API de Windows | *Shim* |
+|----------------|--------|
+| `Windows.Storage.Pickers.*` | no se invoca: el arnés llama a los métodos con ruta; si un CU solo es alcanzable por selector, devuelve la ruta preparada por el caso |
+| `Windows.Storage.StorageFile`, `FileIO.Read/Write*Async` | sobre `System.IO`, con la regla de DEC-708/DEC-935 |
+| `Microsoft.UI.Xaml` (`Visibility`, …), `Microsoft.UI.Dispatching.DispatcherQueue`, `UiHilo` | tipos mínimos; la ejecución «en el hilo de UI» es inmediata en el hilo actual |
+| `AppServices` (`MostrarError/Info`, `ConfirmarAsync`) | registra cada mensaje (título, texto) y responde a cada confirmación con lo que fije el caso |
+| `PickerHelper` | devuelve rutas fijadas por el caso |
+| `AppState`, `Log`, `ColeccionUi`, `PorcentajesHelper`, `FilaPorcentaje` y demás de `Services/` y `Controls/` | **fuente real enlazado** si compila sin XAML; si no, *shim* mínimo con la misma interfaz |
+
+Un ViewModel es apto para O2 si compila con estos *shims* **sin editar su fuente**; si no, sus CU pasan a O3 y se registra el motivo en
+`DECISIONES.md` (ESPEC_13 §5).
 
 Reglas: un CU con **cálculo masivo o escritura de ficheros** nunca queda en O3 salvo imposibilidad técnica documentada en
 `DECISIONES.md`; los CU aleatorios con semilla explícita usan O1/O2 con la semilla fijada; con semilla de reloj, O3 con
@@ -160,26 +194,29 @@ Criterio de cierre de M4 (sustituye «round-trip con ficheros reales», PLAN §5
 
 ## 7. Procedimiento M1 y criterio de cierre (R3)
 
-1. Crear `tools/GoldenGen` (3 proyectos) y `golden.yml`. Build sin avisos.
-2. Implementar `G-NET` y `base/` (no dependen del motor): primera ejecución y revisión de formato.
-3. **Prueba de viabilidad O2**: cargar el ensamblado WinUI y ejecutar un CU de cada tipo (cálculo, fichero→fichero, condición). Resultado por
-   ViewModel (ejecutable / no ejecutable y por qué) → columna «Oráculo» de ESPEC_13 y `DECISIONES.md`.
-4. Suites de motor, formatos y online (§4.2), `G-D2`, `G-ERR` y corpus (§6).
-5. Suites de CU O1/O2 (§5).
-6. Dos ejecuciones idénticas; `manifest.json`; artefacto revisado por el dueño y commit en `Tests/Golden/`.
-7. Actualizar las specs donde el golden desmiente una lectura o un valor de réplica, y cerrar en `DECISIONES.md` las entradas «pendiente de oráculo».
+0. Instalar .NET 8 SDK **x64** en `~/.dotnet-x64` (script oficial `dotnet-install.sh --channel 8.0 --architecture x64 --install-dir ~/.dotnet-x64`,
+   sin `sudo`; no toca los .NET instalados) y .NET 8 SDK **arm64** en `~/.dotnet8` (solo para medir tiempos nativos, ESPEC_14 §6.2).
+1. **Prueba de equivalencia** (§1.1): `~/.dotnet-x64/dotnet test Free1X2.Domain.Tests` ⇒ 138/138.
+2. Crear `tools/GoldenGen` (3 proyectos). Build sin avisos.
+3. Implementar `G-NET` y `base/` (no dependen del motor): primera ejecución y revisión de formato.
+4. **Prueba de viabilidad O2**: compilar con los *shims* de §5.1 un ViewModel de cada tipo (cálculo, fichero→fichero, condición) y luego todos.
+   Resultado por ViewModel (apto / no apto y por qué) → columna «Oráculo» de ESPEC_13 y `DECISIONES.md`.
+5. Suites de motor, formatos y online (§4.2), `G-D2`, `G-ERR` y corpus (§6).
+6. Suites de CU O1/O2 (§5).
+7. Dos ejecuciones idénticas; `manifest.json`; revisión del dueño y commit en `Tests/Golden/`.
+8. Actualizar las specs donde el golden desmiente una lectura o un valor de réplica, y cerrar en `DECISIONES.md` las entradas «pendiente de oráculo».
 
-**M1 cerrado** cuando: GoldenGen compila y es determinista; están todas las suites de §4 y §6 y las O1/O2 de ESPEC_13 con su nº de
-casos en el manifiesto; ninguna entrada de `DECISIONES.md` queda «pendiente de oráculo».
+**M1 cerrado** cuando: 138/138 en el Mac; GoldenGen compila y es determinista; están todas las suites de §4 y §6 y las O1/O2 de ESPEC_13
+con su nº de casos en el manifiesto; ninguna entrada de `DECISIONES.md` queda «pendiente de oráculo».
 
 ## 8. Abiertas que este documento cierra
 
 | Abierta | Cierre |
 |---------|--------|
 | 01 A1, 04 A-13, 05 A11, 06 A13, README «Estado de la verificación» | GoldenGen definido (§1-§7); valores de réplica = ilustrativos (§4.2.1) |
-| 05 A10, 06 A14, 07 A1 (EOL de los golden) | GoldenGen en Windows: los golden ya tienen los bytes reales; Swift escribe CRLF (DP-02) |
+| 05 A10, 06 A14, 07 A1 (EOL de los golden) | GoldenGen normaliza a CRLF (§1.1): los golden tienen los bytes de Windows; Swift escribe CRLF (DP-02) |
 | 06 A1 (cabeceras ZIP) | volcado hex una vez (§2, fila ZIP) |
-| 06 A2, A4, A5, A8; 04 A-6; 07 A6, A12 | `G-NET` (§4.1) |
+| 06 A2, A4, A5, A8; 04 A-6; 07 A6, A12 | `G-NET` (§4.1); libm del Mac como referencia (§1.1) |
 | 05 A1-A3 (EscrutadorComb, Hashtable, comparer) | `G-NET-HASH`, `G-NET-SORT`, `GE-07…GE-09` |
 | 07 A2-A3, A15 (corpus, exactitud XmlTextWriter, cultura de muestras) | corpus §6 (generado con los escritores reales) |
 | 08 A19, 09 A-73-2 (aleatoriedad) | `G-NET-RND` + regla de §5 |
