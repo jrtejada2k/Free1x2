@@ -59,6 +59,10 @@ orden expresa del dueño; no se implementa).
 | DT-20…27 | Oráculo GoldenGen (Windows x64, es-ES, JSONL, niveles O1/O2/O3, corpus) | ESPEC_12 |
 | DT-30…39 | Pruebas, cobertura, CI y presupuestos de rendimiento | ESPEC_14 |
 | DT-40 | API de casos de uso (5 formas, `enum` por menú, unificaciones) | ESPEC_13 |
+| DT-50 | Iconos de la barra: SF Symbols en lugar de los PNG de 16×16 px (mismo tooltip y posición) | ESPEC_15 §1.4 |
+| DT-51 | Las acciones de la barra «Archivo» (Nueva, Abrir, Guardar, Guardar como, equipos, online, borrar) también en el menú Archivo, donde macOS pone los atajos `⌘N/⌘O/⌘S` (como ya indica el manual) | ESPEC_15 §2.2; 10:140-142 |
+| DT-52 | Cambiar de idioma no recrea la página (la recarga de WinUI era una limitación técnica) | ESPEC_15 §2.4; 10:66 |
+| DT-53 | Los contadores de progreso se refrescan con el progreso limitado (≤ 100 ms) en vez de un temporizador de 3 s; mismos campos y valores finales | ESPEC_15 T3; 10:808 |
 | DT-41 | Piezas transversales `FormatoNET`, `TextoNET`, `AleatorioNET`, ayudantes únicos | ESPEC_16 |
 
 ## 3. Registro de las «Abiertas» por spec

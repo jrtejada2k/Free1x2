@@ -247,3 +247,24 @@ Opciones resumidas; la recomendación es solo una sugerencia (R2).
 - No se ejecutó nada (ni C# ni Python): las observaciones «por lectura» de las specs siguen sin verificar.
 - No se comprobó contra el código C# cada `fichero:línea` citado por las specs; solo la coherencia entre documentos y con el plan.
 - No se evaluó la viabilidad del calendario por fases.
+
+---
+
+## 7. Seguimiento (2026-10-13)
+
+Por mandato del dueño (producto = app actual; técnica = buenas prácticas; revisión final del dueño) se cerraron todos los hallazgos:
+
+| Hallazgo | Cerrado en |
+|----------|-----------|
+| H-01 arquitectura · H-02 modelo de datos · H-04 errores · H-05 concurrencia · H-14 datos de usuario | `ESPEC_11_ARQUITECTURA_SWIFT.md` (+ PLAN §2 corregido) |
+| H-03 nombres | `GLOSARIO.md` (+ `CU-nn` → `CU-Cnn` en ESPEC_10; referencia A-24 → A-23) |
+| H-06 oráculo | `ESPEC_12_ORACULO.md` |
+| H-07 decisiones repetidas · H-08 texto desfasado | `DECISIONES.md` (+ encabezados de «Abiertas», README, PLAN) |
+| H-09 trampas | `ESPEC_00_CONVENCIONES.md` §3 (T1–T18 y equivalencias) |
+| H-10 piezas transversales | `ESPEC_16_PIEZAS_TRANSVERSALES.md` (+ unificaciones de ESPEC_13 §3) |
+| H-11 casos de uso | `ESPEC_13_CASOS_DE_USO.md` |
+| H-12 diseño de UI | `ESPEC_15_DISENO_UI.md` |
+| H-13 pruebas | `ESPEC_14_PRUEBAS.md` |
+
+Las 14 decisiones de §5 quedan tomadas en `DECISIONES.md` (1 = ESPEC_12 + regla del dueño; 2 = ESPEC_12 §5; 3 = DT-03; 4 = DT-02;
+5 = DP-01; 6 = DP-02; 7 = DP-03; 8 = DP-06; 9 = DP-05; 10 = DP-09; 11 = DP-10; 12 = DP-07; 13 = DP-08; 14 = DP-11 + ESPEC_15).
