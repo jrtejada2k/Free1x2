@@ -45,18 +45,23 @@ oráculo antes de reescribirlos (fase M1).
 
 ## 2. Arquitectura destino
 
+> **Definición normativa: [`mac/ESPEC_11_ARQUITECTURA_SWIFT.md`](mac/ESPEC_11_ARQUITECTURA_SWIFT.md)** (módulos, modelo de
+> datos, errores, concurrencia, inyección, estado de app). Este apartado es un resumen; si discrepan, manda ESPEC_11.
+
 ```
 Free1X2.Mac/                         (proyecto Xcode, en este mismo repo)
-├─ Free1X2.xcodeproj                 app macOS, arm64 (+ x86_64 opcional), SwiftUI
-├─ App/                              @main, ventanas, menús (Commands), ajustes, idiomas
-│   ├─ Funciones/<Área>/             Vista + ViewModel (@Observable) por área funcional
+├─ Free1X2.xcodeproj                 app macOS, arm64 (+ x86_64 opcional), SwiftUI, una ventana
+├─ App/                              @main, Sesion, Router, menús (Commands), barra, adaptadores de plataforma
+│   ├─ Pantallas/<Menú>/             Vista + <Pantalla>Modelo (@Observable) por pantalla
 │   └─ Compartido/                   Boleto, porcentajes, semáforo, gráficos (Swift Charts)
 └─ Packages/Free1X2Kit/              Swift Package (sin dependencia de AppKit/SwiftUI)
-    ├─ Free1X2Core      motor: Columnas, Motor (generador+filtros), Reduccion,
-    │                   Escrutinio, Analisis, CasosDeUso. Structs Sendable, sin estado global.
-    ├─ Free1X2Formats   E/S compatible con los ficheros actuales
-    ├─ Free1X2Online    URLSession async + caché offline-first
-    └─ Tests/           Swift Testing: 138 tests portados + golden diferenciales
+    ├─ Free1X2Base       columna y codificaciones, FormatoNET, texto, errores, Entorno, progreso
+    ├─ Free1X2Motor      motor completo: configuración en structs Sendable (públicos) y ejecución
+    │                    en clases internas confinadas a una tarea; sin estado global
+    ├─ Free1X2Formatos   E/S compatible con los ficheros actuales
+    ├─ Free1X2Online     URLSession async + caché offline-first
+    ├─ Free1X2CasosDeUso los 193 casos de uso (lógica que hoy vive en los ViewModels)
+    └─ Tests/            Swift Testing: 138 tests portados + golden diferenciales
 tools/GoldenGen/                     FUERA de la app: exporta los golden una vez (no se distribuye)
 ```
 
@@ -65,8 +70,8 @@ Decisiones técnicas:
 - **Concurrencia**: Swift 6 estricto. Cálculos largos como `async` cancelables con progreso por
   `AsyncStream` (sustituye `UiPump`/`IProgressNotifier`). Paralelismo con `TaskGroup` solo donde
   el orden de salida se preserve.
-- **Rendimiento**: bucles calientes sobre `[UInt64]` contiguos / `UnsafeBufferPointer`, sin
-  clases ni existenciales en el camino crítico. Objetivo: igual o más rápido que la versión Windows.
+- **Rendimiento**: bucles calientes sobre `[UInt64]` contiguos, sin existenciales, closures ni
+  asignaciones por columna (clases `final` con despacho estático). Objetivo medible en ESPEC_14 §6.
 - **Ficheros**: `fileImporter`/`fileExporter` (o `NSOpenPanel`); carpetas de trabajo en
   `~/Library/Application Support/Free1X2` (hoy se crean junto al `.exe`, `App.xaml.cs:106-112`;
   en Mac el bundle no es escribible).
