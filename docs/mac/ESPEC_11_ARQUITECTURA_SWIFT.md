@@ -43,7 +43,7 @@
 | DP-03 | Nº de partidos | **Igual que hoy**: `NumeroPartidos` de `parametros.free1x2` (defecto 14); el motor admite lo que admite hoy (1…16 en el generador) con los **límites por componente** de 06 §1.5; superar un límite produce el mismo error que el C# (§5). | 06:158-178; 01 §3.1 |
 | DP-04 | Recarga de configuración | **Igual que hoy**: `parametros.free1x2` se lee **una vez** al arrancar (todo-o-nada); guardar desde Ajustes escribe el fichero pero no recarga (aviso «Algunos cambios pueden requerir reiniciar»). Excepción conservada: puntos CP y `NumeroPartidos` de `Grupo` se releen del fichero en cada cálculo. | 01 §3.2 (puntos 1-2), 01 §7 (A8) |
 | DP-05 | Ventana y documento | **Igual que hoy**: una sola ventana, un solo estado de sesión (`Sesion` ≡ `AppState`), sin modelo de documento (sin marca «editado», «Nueva» sin confirmación). Escena `Window` única. | 10:56-81 (§1.2) |
-| DP-06 | Distribución / sandbox (D8) | **Igual que hoy** (app portable con acceso libre a ficheros): **fuera de la Mac App Store, sin App Sandbox**, firma Developer ID + notarización (PLAN M6). Sin *security-scoped bookmarks*: las rutas se guardan absolutas, como hoy. | PLAN:104,116; 07:1210 (A16) |
+| DP-06 | Distribución / sandbox (D8) | **Igual que hoy** (app portable con acceso libre a ficheros): **fuera de la Mac App Store, sin App Sandbox**, firma Developer ID + notarización (PLAN M6). Sin *security-scoped bookmarks*: las rutas se guardan absolutas, como hoy. | PLAN §5 (M6), §7.3; 07:1210 (A16) |
 | DP-07 | Localización | **Igual que hoy**: interfaz en español; selector Español/English que solo traduce Créditos (6 claves). Infraestructura `.xcstrings` con `es` base para crecer sin rehacer. El `.lang` no se aplica hoy → no se porta. | 10:212-216; 07:660-669 |
 | DP-08 | Código sin uso (D3) | **No se porta lo que la app actual no alcanza** (resultado idéntico): reductores `XFSF`, `XfsfV3`, `JLPM`; `.lang`; `IAppPaths`, `IProgressNotifier`; `aidomnou.cfg`; `Comunicaciones/`; `EscrutadorComb.PonerPremios/AñadirPremiosGlobales`; funciones con «0 consumidores» de 06 §1.4. | 05:831-832 (A4-A5); 01 §2.21-2.22; 06:130-156 |
 | DP-09 | Defectos aparentes (D2 y «Defecto aparente» de 08/09/10) | **Se replican** (motor y pantallas), tras confirmarlos con el oráculo (ESPEC_12). Los que en C# acaban en el manejador global se replican como **error tipado con el mismo efecto visible** (diálogo «Se produjo un error inesperado:…»), nunca como cierre de la app (A5). | README:36; 10:32 |
@@ -145,7 +145,7 @@ la comprobación de exclusividad salvo en ficheros del camino caliente medidos, 
 - Las specs exigen **estado mutable compartido** durante el cálculo: cada filtro guarda los contadores de su último
   `analizar` que leen tolerancias, `ContenedorAnalisis` y «Analizar combinación» (02 §0.3, 03 §0.2); las CP se comparten
   por referencia con las relaciones (04 §0.2); hay memos por columna (01 §1.4). Un núcleo «solo structs» rompería la paridad.
-- El plan exige `Sendable` y sin estado global (PLAN:56,69) para poder probar y paralelizar.
+- El plan exigía «structs `Sendable`, sin clases ni existenciales» (PLAN §2, texto anterior a la fase A) para poder probar y paralelizar.
 - **Solución (DT-02):** lo que se **edita, guarda y compara** es un valor; lo que **calcula** es un grafo de clases que se
   construye a partir de ese valor al empezar cada ejecución, vive dentro de una sola tarea y se descarta al terminar.
   El grafo nunca cruza dominios de aislamiento: no necesita `Sendable`, ni locks.
@@ -324,7 +324,7 @@ public struct Avisos: Sendable { … }            // mensajes no fatales que hoy
 
 ### 6.3 Paralelismo (DT-04)
 
-Solo donde **no cambia el resultado**, con orden de salida preservado (PLAN:66):
+Solo donde **no cambia el resultado**, con orden de salida preservado (PLAN §2):
 
 - **Generación en modo pronóstico (rutas A/B/C):** el espacio de columnas se parte por prefijos del DFS (01 §2.1) en `P`
   particiones (`P` = núcleos de rendimiento); cada partición construye **su propio** `Analizador` (grafo independiente) y
@@ -488,11 +488,11 @@ Objetivo y medición en ESPEC_14 §6. Reglas de construcción del camino calient
 
 | Tema | Decisión | Motivo |
 |------|----------|--------|
-| macOS mínimo | **14 Sonoma** (PLAN:76) | `@Observable`; corre en el M1 del dueño. Nada que exija macOS 15+ (p. ej. `Synchronization.Mutex` → `OSAllocatedUnfairLock`). |
-| Arquitectura | `arm64` (x86_64 opcional sin coste: no hay código específico) | PLAN:50 |
+| macOS mínimo | **14 Sonoma** (PLAN §2) | `@Observable`; corre en el M1 del dueño. Nada que exija macOS 15+ (p. ej. `Synchronization.Mutex` → `OSAllocatedUnfairLock`). |
+| Arquitectura | `arm64` (x86_64 opcional sin coste: no hay código específico) | PLAN §2 |
 | Swift / Xcode | Swift 6.2+ (Xcode 26+), modo de lenguaje 6 | concurrencia estricta, `throws(E)`, `@concurrent` |
 | Pruebas | Swift Testing (`@Test`, `#expect`) + XCTest solo para UI tests | ESPEC_14 |
-| CI | GitHub Actions, runner macOS arm64: `swift build`, `swift test`, `xcodebuild test` (UI smoke), lint, benchmarks en modo comparación | PLAN:85; ESPEC_14 §7 |
+| CI | GitHub Actions, runner macOS arm64: `swift build`, `swift test`, `xcodebuild test` (UI smoke), lint, benchmarks en modo comparación | PLAN §3; ESPEC_14 §7 |
 | Terceros | solo `swift-collections` | §3.3 |
 
 ---
@@ -502,7 +502,7 @@ Objetivo y medición en ESPEC_14 §6. Reglas de construcción del camino calient
 | Hallazgo | Dónde se cierra |
 |----------|-----------------|
 | H-01 arquitectura | §1–§12 |
-| H-02 modelo de datos | §4 (DT-02); `PLAN:56,69` corregidos |
+| H-02 modelo de datos | §4 (DT-02); PLAN §2 corregido |
 | H-03 nombres | `GLOSARIO.md` (+ §3-§8 de aquí usan los canónicos) |
 | H-04 errores | §5 |
 | H-05 concurrencia | §6 |
