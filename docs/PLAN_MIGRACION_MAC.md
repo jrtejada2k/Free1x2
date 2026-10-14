@@ -13,9 +13,9 @@
 
 | # | Principio | Consecuencia |
 |---|-----------|--------------|
-| M-R1 | **Mismos resultados que hoy.** Se reescribe el código, no la lógica de negocio. | Cada módulo Swift se acepta solo si reproduce **byte a byte** las salidas del motor C# (golden files), además de los 138 tests actuales portados. |
-| M-R2 | **Diseño nativo Mac**, no calco de las 108 ventanas Windows. | Mockups aprobados por el dueño antes de escribir cada pantalla (R2). |
-| M-R3 | **Compatibilidad de ficheros.** | Los `.txt`, `.comb`, condiciones, `parametros.free1x2`, `.dat`, `.lang`, `.xml` existentes se leen y escriben igual. |
+| M-R1 | **Mismos resultados que hoy.** Se reescribe el código, no la lógica de negocio. | Cada módulo Swift se acepta solo si reproduce **byte a byte** las salidas del motor C# (golden files), además de los tests actuales aplicables portados (85 de 138: `mac/ESPEC_14_PRUEBAS.md` §5). |
+| M-R2 | **Estructura de la app actual con convenciones nativas Mac** (decisión del dueño 2026-10-13: «lo define la app actual»). | Mismos menús, barra, pantallas y comportamiento; controles, atajos y ventanas nativos. Mockups en `mac/ESPEC_15_DISENO_UI.md`, revisados por el dueño antes de M5. |
+| M-R3 | **Compatibilidad de ficheros.** | Los `.txt`, `.comb`, condiciones, `parametros.free1x2`, `.dat`, `.xml` existentes se leen y escriben igual (mismos bytes que la app Windows: DP-02). |
 | M-R4 | **Sin estado global.** | `VariablesGlobales` (44 miembros `public static`) se sustituye por valores explícitos (`Sesion`). |
 | M-R5 | **Evidencia** (R3/R4 vigentes). | Un ítem se cierra con CI verde en runner macOS arm64 + `file:line`. |
 
@@ -75,7 +75,7 @@ Decisiones técnicas:
 - **Ficheros**: `fileImporter`/`fileExporter` (o `NSOpenPanel`); carpetas de trabajo en
   `~/Library/Application Support/Free1X2` (hoy se crean junto al `.exe`, `App.xaml.cs:106-112`;
   en Mac el bundle no es escribible).
-- **Idiomas**: String Catalog (`.xcstrings`) es/en; `en-US.lang` como fuente de traducciones.
+- **Idiomas**: String Catalog (`.xcstrings`) con `es` base; como hoy, solo Créditos se traduce al inglés; el `.lang` no se porta (DP-07).
 - **Impresión**: `NSPrintOperation` sobre vista renderizada.
 - **Online**: mismo contrato `docs/API_CLUBPROGOL.md`; caché `jornada-{es,mx}.json`.
 - **Plataforma mínima**: macOS 14 Sonoma (Observation + Swift Charts maduros; soportado por M1).
@@ -87,25 +87,25 @@ Decisiones técnicas:
    por módulo y escribe `entrada → salida` en `Packages/Free1X2Kit/Tests/Golden/`.
 2. Los tests Swift leen esos golden y exigen igualdad exacta.
 3. Los golden se versionan como datos. La CI del proyecto Mac (GitHub Actions, runner macOS
-   arm64) solo ejecuta `swift test` + `xcodebuild build`: **cero C# en la cadena Mac**.
+   arm64) solo ejecuta `swift test` + `xcodebuild build`: **cero C# en la cadena Mac**. GoldenGen corre aparte,
+   en Windows x64 (`mac/ESPEC_12_ORACULO.md`).
 
 ## 4. UI
 
-No se replican las 108 ventanas: se agrupan en áreas con barra lateral (`NavigationSplitView`),
-inspector y hojas modales, p. ej.: **Boleto · Condiciones y filtros · Cálculo · Reducción ·
-Escrutinio · Análisis · Columnas probables · Herramientas · Online**. El mapa
-«ventana Windows → área Mac» y los mockups se entregan en M0/M4 para aprobación.
+Se conserva la estructura de la app actual (DP-11): una ventana con la barra de menús (7 menús, 53 destinos),
+la barra de herramientas (6 grupos) y las pantallas apiladas con «Atrás», traducidas a convenciones Mac.
+Sistema de diseño, mockups por plantilla y mapa de las 108 pantallas en `mac/ESPEC_15_DISENO_UI.md` (M0).
 
 ## 5. Fases
 
 | Fase | Entregable | Cierre (evidencia) |
 |------|-----------|--------------------|
-| **M0 Especificación** | `docs/mac/ESPEC_*.md`: por módulo, entradas/salidas/algoritmo con `file:line`; mapa de las 108 pantallas a áreas | Revisión del dueño |
+| **M0 Especificación** | `docs/mac/ESPEC_00…16`, `GLOSARIO`, `DECISIONES`: comportamiento con `file:line`, arquitectura, oráculo, casos de uso, pruebas, diseño de UI | Revisión del dueño |
 | **M1 Oráculo** | `tools/GoldenGen` + golden de todos los módulos versionados como datos | Golden en `Packages/Free1X2Kit/Tests/Golden/` |
 | **M2 Esqueleto** | Proyecto Xcode + `Free1X2Kit` + CI macOS | CI verde (build + 0 tests) |
-| **M3 Motor** | Por orden: Columnas/Utils → Escrutinio → Generador+filtros → Reducción → Análisis → Subir categoría | Golden 100 % idénticos + 138 tests portados + benchmark |
-| **M4 Formatos y Online** | Lectura/escritura de todos los ficheros; cliente online | Round-trip con ficheros reales |
-| **M5 UI** | Mockups aprobados → áreas SwiftUI, empezando por el flujo principal | Smoke de todas las áreas en M1 |
+| **M3 Motor** | Por orden: Columnas/Utils → Escrutinio → Generador+filtros → Reducción → Análisis → Subir categoría | Golden 100 % idénticos + 85 tests portados + benchmark dentro de presupuesto (ESPEC_14 §6) |
+| **M4 Formatos y Online** | Lectura/escritura de todos los ficheros; cliente online | Round-trip del corpus de GoldenGen (ESPEC_12 §6) |
+| **M5 UI** | Mockups de ESPEC_15 revisados → pantallas SwiftUI, empezando por el flujo principal | Smoke de las 109 superficies en el Mac M1 (ESPEC_14 §9) |
 | **M6 Distribución** | Firma Developer ID + notarización + `.dmg` | Instalable verificado en un Mac limpio |
 
 ## 6. Requisitos del dueño
@@ -114,8 +114,10 @@ Escrutinio · Análisis · Columnas probables · Herramientas · Online**. El ma
   verificación se hace en CI macOS y en tu Mac).
 - Cuenta Apple Developer (99 USD/año) solo para M6 (firma/notarización).
 
-## 7. Decisiones pendientes (R2)
+## 7. Decisiones
 
-1. Aprobar este plan y la arquitectura §2.
-2. Ubicación: carpeta `Free1X2.Mac/` en este repo (propuesto, junto al oráculo) o repo aparte.
-3. Distribución: fuera de la Mac App Store (propuesto) o dentro (exige App Sandbox).
+Tomadas el 2026-10-13 y registradas en [`mac/DECISIONES.md`](mac/DECISIONES.md) (revisión final del dueño):
+
+1. Plan y arquitectura: definidos en `mac/ESPEC_11_ARQUITECTURA_SWIFT.md`.
+2. Ubicación: carpeta `Free1X2.Mac/` en este repo (DP-14).
+3. Distribución: fuera de la Mac App Store, sin App Sandbox (DP-06).

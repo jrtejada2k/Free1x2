@@ -138,7 +138,7 @@ Dependencias de `Entorno` (columna «Dep.»): **A** archivos/rutas · **R** relo
 | CU-A32 | `calcularLoteDeCombinaciones` | `CalcularLoteDeCombinaciones` | 14 | `[URL]`, carpeta destino → `[ResumenLote]` | L | A | O1 |
 | CU-A33 | `nombreSalidaDeCombinacion` | `NombreSalidaDeCombinacion` | 14 | `URL`, carpeta → `URL` | P | — | O2 |
 | CU-C18 | `validarFicheroEntradaReductor` | `ValidarFicheroDeEntradaReductor` | 82 | `URL` → () o error (14 signos exactos) | F | A | O2 |
-| CU-C19 | `reducirColumnas` | `ReducirColumnas` | 82 | `EntradaReduccion` (algoritmo, nivel, maxCol, percent, externas) → `ResultadoReduccion` | L | A | O1 |
+| CU-C19 | `reducirColumnas` | `ReducirColumnas` | 82 | `EntradaReduccion` (algoritmo: JDC «menos tiempo» · JDCDobleContador «menos columnas» · Redu1305Xfsf «grandes archivos»; nivel, maxCol, percent, externas) → `ResultadoReduccion` | L | A | O1 |
 | CU-B07 | `escrutarColumnas` | `EscrutinioColumnas` | 45 | `EntradaEscrutinio` (columnas, ganadora o histórico) → `ResultadoEscrutinio` | L | A | O1 |
 | CU-B08 | `columnasPremiadasPorBoleto` | `ColumnasPremiadas` | 45 | resultado → filas (`ceil(n/8)` boletos) | P | — | O2 |
 | CU-A52 | `exportarColumnasPremiadas` | `ExportarColumnasPremiadas` | 20 | filas, selección, `URL` → () | F | A | O2 |

@@ -1945,7 +1945,7 @@ Casos de uso compartidos que consumen varias pantallas: **CU-C03** (`Estadistica
 
 ---
 
-## 4. Abiertas
+## 4. Abiertas — estado y decisión de cada entrada en [`DECISIONES.md`](DECISIONES.md) §3
 
 Puntos que no se han podido verificar con el código o que requieren decisión del dueño (R2). Se citan con `fichero:línea` cuando hay evidencia; «no verificado» = no comprobado (regla de esta fase: sin builds ni ejecución).
 

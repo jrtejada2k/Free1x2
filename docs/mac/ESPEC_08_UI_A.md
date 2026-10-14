@@ -2028,7 +2028,7 @@ Firma lógica de cada caso de uso (entradas y salidas detalladas en la sección 
 
 ---
 
-## 4. Abiertas
+## 4. Abiertas — estado y decisión de cada entrada en [`DECISIONES.md`](DECISIONES.md) §3
 
 Dudas, defectos aparentes y puntos no verificados. Ninguno se resuelve aquí: los de tipo «divergencia» exigen decisión del dueño (R2) y los de tipo «no verificado» no se afirman (R4). Cada uno remite a la sección de la pantalla donde está la evidencia.
 

@@ -70,14 +70,15 @@ El CI falla si un módulo baja de su umbral. La cobertura funcional se comprueba
 | `RangosHelperTests.cs`, `RangosHelperBoolTests.cs` | 1 + 5, 5 | `Free1X2MotorTests/RangosHelperTests` | |
 | `SumadorCombinacionesTests.cs`, `TramoTests.cs` | 5, 6 | `Free1X2MotorTests/Utils/` | |
 | `FlujosClaveTests.cs`, `ManualFuncionalTests.cs` | 4, 2 + 3 | `Free1X2MotorTests/FlujosTests` | E2E del generador y NoVariantes |
-| `EscrutinioReduccionFixtureTests.cs`, `JDCDobleContadorGoldenTests.cs`, `ReductorTMGoldenTests.cs` | 2, 5, 6 | `Free1X2MotorTests/Reduccion/`, `Escrutinio/` | golden existentes |
+| `EscrutinioReduccionFixtureTests.cs`, `JDCDobleContadorGoldenTests.cs` | 2, 5 | `Free1X2MotorTests/Reduccion/`, `Escrutinio/` | golden existentes |
 | `RelacionCP1GoldenTests.cs` | 2 | `Free1X2MotorTests/CP/` | |
 | `CompresorZipTests.cs` | 1 | `Free1X2FormatosTests/Z3QTests` | |
 | `JornadaQuinielaParserTests.cs`, `JornadaQuinielaParserRealBackendTests.cs`, `CatalogoEquiposParserTests.cs`, `JornadaCacheRoundTripTests.cs` | 6, 2, 8, 2 | `Free1X2OnlineTests/` | fixtures `online/*.json` copiados como recursos |
-| **Total portado** | **91** | | |
+| **Total portado** | **85** | | |
 | `ComparadorTests.cs`, `ComparadorBytesTests.cs`, `Comparador2Tests.cs` | 4, 6 + 15, 9 + 5 | **no se portan** | `Comparador`/`Comparador2` del dominio no tienen uso en la app actual (solo XFSF/xfsfV3 huérfanos y `Analisis.Analizador.IteraCols` muerto; SelectorMS usa su copia local, `Free1X2.WinUI/Views/Ported/SelectorMSViewModel.cs:404-405`) → DP-08 |
+| `ReductorTMGoldenTests.cs` | 6 | **no se porta** | `ReductorTM` no es seleccionable en la app actual (`Free1X2.WinUI/Views/Ported/ReductorFrmViewModel.cs:43-44`; DEC-507) → DP-08 |
 | `AbstractionsTests.cs` | 8 | **sustituido** | `UiHooks` desaparece (ESPEC_11 §7); su intención (dependencias no-op por defecto) la cubren los tests de `Entorno.pruebas` |
-| **Total no portado** | **47** | | 91 + 47 = 138 |
+| **Total no portado** | **53** | | 85 + 53 = 138 |
 
 Fixtures `cols_a.txt`, `cols_b.txt`, `cols_con_repetidas.txt`, `ganadora.txt` y `online/*.json` se copian **byte a byte** a `Tests/Fixtures/`.
 
@@ -91,7 +92,7 @@ Fixtures `cols_a.txt`, `cols_b.txt`, `cols_con_repetidas.txt`, `ganadora.txt` y 
 | B2 | 14 triples + combinación `corpus/comb/completa.comb` (todas las condiciones), ruta A | coste de los 14 filtros + CP + If-Then |
 | B3 | B2 por la ruta B (grabar `.txt`) | E/S de salida |
 | B4 | B2 por la ruta C (análisis) | contenedores de análisis |
-| B5 | Reductores `JDC`, `JDCDobleContador`, `ReductorTM`, `Redu1305Xfsf` sobre el universo 9T, nivel 12 | reducción |
+| B5 | Reductores `JDC`, `JDCDobleContador`, `Redu1305Xfsf` sobre el universo 9T, nivel 12 | reducción |
 | B6 | Escrutinio de 100 000 columnas contra 1 ganadora y temporada de 38 ganadoras | escrutinio |
 | B7 | Lectura + escritura de un `.txt` de 1 000 000 columnas | formatos |
 | B8 | 3 CU pesados de pantalla (los de mayor coste según ESPEC_13: p. ej. ordenar por probabilidad con 4,78 M entradas, 10:532) | CU |

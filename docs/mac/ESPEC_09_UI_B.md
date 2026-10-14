@@ -17,7 +17,7 @@ mensajes literales) · acciones, llamadas al motor y ficheros · **lógica de ne
 `Round` = redondeo bancario salvo que se diga lo contrario (T4); donde el C# usa `Convert.ToInt32` sobre `double` se indica (redondea
 a par). «Preservar» marca peculiaridades que afectan a la salida (R1); las que parecen defectos se recogen en «Abiertas» (§3).
 Los índices son 0-based salvo que se indique lo contrario. Cuando el port WinUI y el WinForms legacy difieren, **se documenta el port**
-(es lo que hoy se ejecuta y donde vive la lógica) y se cita el legacy; la elección del oráculo es una decisión abierta (G-1).
+(es lo que hoy se ejecuta y donde vive la lógica) y se cita el legacy; **oráculo = el port** (D1 resuelta 2026-10-12; `DECISIONES.md` DP-15).
 
 ---
 
@@ -2031,7 +2031,7 @@ Todos son funciones puras o `async` cancelables sobre valores explícitos (`Sesi
 | CU-B40 | `MejoresOpciones` | 72 | Genera ganadoras posibles, escruta, resume, ordena y formatea el resumen. |
 | CU-B41 | `ModificadorPorcentajes` | 73 | Lee columnas y frecuencias, modifica un partido según porcentajes y modo, ordena signos y exporta. |
 
-## 3. Abiertas
+## 3. Abiertas — estado y decisión de cada entrada en [`DECISIONES.md`](DECISIONES.md) §3
 
 Dudas, defectos aparentes y puntos no verificados. Ninguno se resuelve aquí: los de tipo «Divergencia» o «Decisión» exigen decisión del dueño (R2) y los «No verificado» no se afirman (R4). Cada uno remite a la sección de la pantalla donde está la evidencia. Primero las 41 de pantalla (A-NN-k) y después las globales (G-n).
 

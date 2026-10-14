@@ -821,7 +821,7 @@ Los valores **[réplica]** hay que confirmarlos con `tools/GoldenGen` (aún no e
 
 ---
 
-## Abiertas
+## Abiertas — estado y decisión de cada entrada en [`DECISIONES.md`](DECISIONES.md) §3
 
 | ID | Tema | Qué se sabe / qué falta |
 |---|---|---|

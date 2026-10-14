@@ -1293,7 +1293,7 @@ dependiente de cultura en `Porcentajes` (ESPEC_06) — fijar `Locale` al importa
 
 ---
 
-## Abiertas
+## Abiertas — estado y decisión de cada entrada en [`DECISIONES.md`](DECISIONES.md) §3
 
 | Id | Pregunta / riesgo | Referencia |
 |----|-------------------|------------|

@@ -1023,7 +1023,7 @@ Trasposicion() -> [Int](14):                                       // :44-52
 
 ---
 
-## 5. Abiertas (no verificado o pendiente de decisión)
+## 5. Abiertas (no verificado o pendiente de decisión) — estado y decisión de cada entrada en [`DECISIONES.md`](DECISIONES.md) §3
 
 | # | Tema | Qué falta / por qué |
 |---|------|---------------------|

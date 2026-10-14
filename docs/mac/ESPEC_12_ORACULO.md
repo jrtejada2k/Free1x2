@@ -13,7 +13,7 @@
 |---------|------------------------|--------|
 | Qué | Aplicación de consola C# `tools/GoldenGen/` (fuera de `Free1X2.Mac/` y de `Free1X2.sln`) | no toca la app actual (R1, R6) |
 | Proyectos | `GoldenGen.Motor` (`net8.0`, `ProjectReference` a `Free1X2.Domain`) · `GoldenGen.Pantallas` (`net8.0-windows10.0.19041.0`, x64, referencia al ensamblado de `Free1X2.WinUI` **sin modificarlo**) · `GoldenGen.Comun` (serialización, manifiesto) | el dominio es portable (`Free1X2.Domain.csproj:4`); los ViewModels exigen TFM Windows (60 de 105 usan `Windows.Storage.Pickers`) |
-| Dónde corre | **Windows x64**, una vez por versión del oráculo: flujo manual `.github/workflows/golden.yml` (`workflow_dispatch`, `windows-latest`) que publica los golden como artefacto; el dueño los revisa y los incorpora con un commit. Alternativa equivalente: un PC Windows 10/11 x64 con .NET 8 SDK | resuelve la contradicción «Windows vs Mac» (README:47-48 frente a 05:837, 07:1195): Windows da CRLF, `(int)NaN` y libm (UCRT) **reales** de la app (T8, T13, 06 A8); no hace falta normalizar EOL al comparar |
+| Dónde corre | **Windows x64**, una vez por versión del oráculo: flujo manual `.github/workflows/golden.yml` (`workflow_dispatch`, `windows-latest`) que publica los golden como artefacto; el dueño los revisa y los incorpora con un commit. Alternativa equivalente: un PC Windows 10/11 x64 con .NET 8 SDK | resuelve la contradicción «Windows vs Mac» (README «Siguiente fase» frente a 05:837, 07:1195): Windows da CRLF, `(int)NaN` y libm (UCRT) **reales** de la app (T8, T13, 06 A8); no hace falta normalizar EOL al comparar |
 | Cultura | `Main` fija `CultureInfo.DefaultThreadCurrentCulture`, `DefaultThreadCurrentUICulture`, `CurrentCulture` y `CurrentUICulture` = `es-ES` antes de nada | oráculo `es-ES` (07:567; 06:1017; DP-01) |
 | Zona horaria y reloj | Ninguna salida golden contiene la hora actual; los campos «Tiempo»/fechas de ejecución se excluyen (se listan en cada suite) | determinismo |
 | Determinismo | Las entradas variadas se generan con `new Random(20261013)` **dentro de GoldenGen** y se **guardan** en el golden (Swift no necesita reproducir ese generador). Cada ejecución corre **dos veces** y compara SHA-256 de toda la salida; si difieren, falla | regeneración idéntica |
@@ -114,10 +114,16 @@ el ID que allí figura (`G-E2E-*`, `G-GEN-*`, `G-IFTHEN-OVR`, `G-GRP-MASK`, `G-C
 `COLS-A` y las de cada filtro de 02; las de cada componente de 03 y 04; `GR-*`, `GS-*`, `GE-*` de 05 §6; las de 06; las de 07 §6-7).
 Reglas añadidas:
 
-1. Los **valores «esperado»** de las specs que salen de réplicas Python (README:25-28; 02:8; 03:30) son **ilustrativos**: manda el
+0. **No se generan** suites de los componentes que no se portan (`DECISIONES.md` §4: p. ej. `GR-08…GR-10` de `ReductorTM`, `GR-13` de XFSF/V3/JLPM).
+1. Los **valores «esperado»** de las specs que salen de réplicas Python (README «Estado de la verificación»; 02:8; 03:30) son **ilustrativos**: manda el
    golden. Si difieren, se corrige la spec citando el golden (R4) y se anota en `DECISIONES.md`.
-2. **`G-D2`**: un caso por cada comportamiento «por lectura» de la decisión D2 (README:37) y de cada «Defecto aparente» de 08/09/10:
-   el golden confirma o desmiente la lectura **antes** de portar (DP-09).
+2. **`G-D2`**: un caso por cada comportamiento «por lectura» de la antigua decisión D2 y por cada «Defecto aparente» de 08/09/10;
+   el golden confirma o desmiente la lectura **antes** de portar (DP-09). Lista D2 (índice M0 en `1e39740`): If-Then asigna en vez de
+   combinar al contar (`Analizador.cs:100` frente a `:150`, 01); `ReinicializarVariables` no hace nada tras la 1.ª carga (01, 07);
+   `aciertosMax` de Formatos 1-2-3 no se guarda (03); Dibujos vía If-Then rechaza siempre (03); `FiltroDiferencias.ObtenNoAciertosTolerancias`
+   lanza (01, 03); `EscrutadorComb` falla y orden por `Hashtable` (05); `JDCDobleContador` ignora el último partido (05); `ConvStrToLong` sin
+   validar caracteres (06); deduplicado de `ObtenerListaFromTxt` (04, 06); Filtro Pim ejecuta el motor de aidomnou (09 A-57-1, 10);
+   Grupos de equipos no llega al analizador tras «Abrir» (09 A-62-1).
 3. **`G-ERR`**: cada excepción que las specs documentan en el camino de datos (06 §1.4, 04 S4, 03 B7, 07 §0.2-3) tiene al menos un caso.
 4. Los **138 tests** existentes se portan a Swift a mano (ESPEC_14 §5); sus datos se exportan también como golden para no duplicar fixtures.
 5. Rutas A/B/C/D del analizador (01 §1.1) se generan para cada combinación del corpus que lo admita.
@@ -125,7 +131,7 @@ Reglas añadidas:
 
 ## 5. Casos de uso de pantalla (193 CU; cierra H-06.5)
 
-Hoy no tienen tests ni golden (README:30). Cada CU recibe **un** nivel de oráculo; ESPEC_13 asigna el nivel de los 193.
+Hoy no tienen tests ni golden (README «Estado de la verificación»). Cada CU recibe **un** nivel de oráculo; ESPEC_13 asigna el nivel de los 193.
 
 | Nivel | Cuándo | Cómo |
 |-------|--------|------|
@@ -139,7 +145,7 @@ Reglas: un CU con **cálculo masivo o escritura de ficheros** nunca queda en O3 
 
 ## 6. Corpus de ficheros (cierra H-06.7; D6)
 
-No hay ficheros del dueño (README:41). GoldenGen genera el corpus **con los escritores C# actuales**:
+No hay ficheros del dueño (D6, resuelta 2026-10-12). GoldenGen genera el corpus **con los escritores C# actuales**:
 
 - **`.comb` (F02)**: ≥ 1 por característica — cada uno de los 14 filtros con datos, grupos con partidos parciales, controles de grupos con
   fallos, conjuntos, If-Then (condiciones y grupos), tolerancias con letras, CP con las 4 relaciones, archivo-filtro, filtro parcial, comentarios
@@ -177,4 +183,4 @@ casos en el manifiesto; ninguna entrada de `DECISIONES.md` queda «pendiente de 
 | 05 A1-A3 (EscrutadorComb, Hashtable, comparer) | `G-NET-HASH`, `G-NET-SORT`, `GE-07…GE-09` |
 | 07 A2-A3, A15 (corpus, exactitud XmlTextWriter, cultura de muestras) | corpus §6 (generado con los escritores reales) |
 | 08 A19, 09 A-73-2 (aleatoriedad) | `G-NET-RND` + regla de §5 |
-| 09:2084 G-4, README:30 (ViewModels sin oráculo) | niveles O1/O2/O3 (§5) |
+| 09:2084 G-4, README «Estado de la verificación» (ViewModels sin oráculo) | niveles O1/O2/O3 (§5) |

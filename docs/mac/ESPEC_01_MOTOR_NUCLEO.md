@@ -862,7 +862,7 @@ protocol FiltroProtocol: AnyObject {                       // clases con identid
 
 ---
 
-## 7. Abiertas (dudas no verificadas)
+## 7. Abiertas (dudas no verificadas) — estado y decisión de cada entrada en [`DECISIONES.md`](DECISIONES.md) §3
 
 - **A1.** `tools/GoldenGen` no existe aún (solo `tools/*.py`): las trazas marcadas «derivado por lectura» (orden de las 27 columnas, `2513169434708`, G-IFTHEN-OVR) están sin ejecutar.
 - **A2.** `ES/ArchivoCombinacion.cs:221-232`: tras `GetGrupoFromXmlNode`, `EsGrupoBase` queda `true` solo si el nodo del grupo tiene **exactamente un** hijo (`i==0` es la última iteración) y `false` en caso contrario; además `todosPartidosActivos` ya quedó a `true` en `i==0`. No se verificó el efecto en el guardado (`ES/ArchivoCombinacion.cs:386` usa `EsGrupoBase`) ni en estadísticas (un subgrupo con un único hijo registraría filtros en `FiltrosTemp`). Tampoco si el índice `i` cuenta comentarios XML (`:195-211`: el primer hijo no comentario podría no ser tratado como control base).

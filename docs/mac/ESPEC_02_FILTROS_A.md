@@ -988,7 +988,7 @@ Más: `m3` con `LlenarTodosValores` para fijar S2; `obtenFiguraV/1/X/2` aisladas
 
 ---
 
-## 5. Abiertas
+## 5. Abiertas — estado y decisión de cada entrada en [`DECISIONES.md`](DECISIONES.md) §3
 
 | # | Pregunta | Por qué no se cierra aquí |
 |---|----------|---------------------------|

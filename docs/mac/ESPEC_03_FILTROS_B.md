@@ -897,7 +897,7 @@ Matriz `rsl[15][15]` de enteros. Validación previa `VerColumna`: exactamente 14
 
 ---
 
-## 21. Abiertas
+## 21. Abiertas — estado y decisión de cada entrada en [`DECISIONES.md`](DECISIONES.md) §3
 
 - **A1 · Cultura de `double`.** `RangosOpciones.PonerRangos` (`RangosOpciones.cs:44-50`), `FFormatos123Data.cs:42` (lee) y `:188` (escribe), `FValoracionData.cs:50-52,92-94` y los mensajes de `FiltroValoracionSignos.AnalizarFallos` (`:174-180`) dependen de la cultura del sistema; `FValoracionData` asume coma decimal (`Replace(".",",")`) al leer y escribe con `.` (`Replace(",",".")`). Con cultura de punto decimal el valor se leería multiplicado. Decisión pendiente (ESPEC_07/dueño, R2): qué locale fija el port Swift para ficheros (propuesta: aceptar ambos separadores al leer) y para los textos de fallo.
 - **A2 · `aciertosMax` de `FiltroFormatos123` no se persiste** (`FFormatos123Data.cs:18-68`): tras cargar de fichero vale 0 y el paso libre satura `ag` en 1. ¿Replicar (R1, propuesto) o derivar de `ArrayAciertos` al cargar? Cambia el resultado de los `.comb` existentes.

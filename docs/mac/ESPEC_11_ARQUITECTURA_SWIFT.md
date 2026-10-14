@@ -45,12 +45,14 @@
 | DP-05 | Ventana y documento | **Igual que hoy**: una sola ventana, un solo estado de sesión (`Sesion` ≡ `AppState`), sin modelo de documento (sin marca «editado», «Nueva» sin confirmación). Escena `Window` única. | 10:56-81 (§1.2) |
 | DP-06 | Distribución / sandbox (D8) | **Igual que hoy** (app portable con acceso libre a ficheros): **fuera de la Mac App Store, sin App Sandbox**, firma Developer ID + notarización (PLAN M6). Sin *security-scoped bookmarks*: las rutas se guardan absolutas, como hoy. | PLAN §5 (M6), §7.3; 07:1210 (A16) |
 | DP-07 | Localización | **Igual que hoy**: interfaz en español; selector Español/English que solo traduce Créditos (6 claves). Infraestructura `.xcstrings` con `es` base para crecer sin rehacer. El `.lang` no se aplica hoy → no se porta. | 10:212-216; 07:660-669 |
-| DP-08 | Código sin uso (D3) | **No se porta lo que la app actual no alcanza** (resultado idéntico): reductores `XFSF`, `XfsfV3`, `JLPM`; `.lang`; `IAppPaths`, `IProgressNotifier`; `aidomnou.cfg`; `Comunicaciones/`; `EscrutadorComb.PonerPremios/AñadirPremiosGlobales`; funciones con «0 consumidores» de 06 §1.4. | 05:831-832 (A4-A5); 01 §2.21-2.22; 06:130-156 |
-| DP-09 | Defectos aparentes (D2 y «Defecto aparente» de 08/09/10) | **Se replican** (motor y pantallas), tras confirmarlos con el oráculo (ESPEC_12). Los que en C# acaban en el manejador global se replican como **error tipado con el mismo efecto visible** (diálogo «Se produjo un error inesperado:…»), nunca como cierre de la app (A5). | README:36; 10:32 |
-| DP-10 | Mejoras de UX (cancelar real, validación en vivo, confirmaciones) | **Ninguna**: cada pantalla conserva sus botones, mensajes y efectos. Donde hoy «Cancelar» no detiene el cálculo (p. ej. `ReductorTM`), el port tampoco lo hace; la arquitectura queda preparada (§6) para activarlo con una línea si el dueño lo pide. | 05:834 (A7); 09:2056; 10:1976 |
+| DP-08 | Código sin uso (D3) | **No se porta lo que la app actual no alcanza** (resultado idéntico): reductores `XFSF`, `XfsfV3`, `JLPM` y `ReductorTM` (no seleccionable: `Free1X2.WinUI/Views/Ported/ReductorFrmViewModel.cs:43-44`); `.lang`; `IAppPaths`, `IProgressNotifier`; `aidomnou.cfg`; `Comunicaciones/`; `EscrutadorComb.PonerPremios/AñadirPremiosGlobales`; funciones con «0 consumidores» de 06 §1.4. | 05:831-832 (A4-A5); 01 §2.21-2.22; 06:130-156 |
+| DP-09 | Defectos aparentes (D2 y «Defecto aparente» de 08/09/10) | **Se replican** (motor y pantallas), tras confirmarlos con el oráculo (ESPEC_12). Los que en C# acaban en el manejador global se replican como **error tipado con el mismo efecto visible** (diálogo «Se produjo un error inesperado:…»), nunca como cierre de la app (A5). | README «Decisiones» (D2); 10:32 |
+| DP-10 | Mejoras de UX (cancelar real, validación en vivo, confirmaciones) | **Ninguna**: cada pantalla conserva sus botones, mensajes y efectos. Donde hoy «Cancelar» no detiene el cálculo (p. ej. aidomnou, 10:1976 A-16), el port tampoco lo hace; la arquitectura queda preparada (§6) para activarlo con una línea si el dueño lo pide. | 09:2056; 10:1976 |
 | DP-11 | Navegación y áreas (D7) | **La estructura actual**: 7 menús con sus 53 destinos y 6 grupos de barra; páginas que se apilan en la ventana con «Atrás». Se traduce a convenciones Mac (barra de menús, barra de herramientas personalizable, atajos `⌘`) sin cambiar qué hay ni dónde está. Detalle en ESPEC_15. | 10:92-183 |
 | DP-12 | Preferencias | Tema `Sistema/Claro/Oscuro` (defecto Sistema) e idioma `Español/English` (defecto Español) como hoy; visibilidad de grupos de barra se sigue leyendo/escribiendo en `parametros.free1x2` (`GuardarToolBarsVisibles`), con el grupo Filtros siempre visible al arrancar. | 10:164-168,187-216 |
 | DP-13 | Carpetas de trabajo | Las **10 carpetas de hoy**, creadas al arrancar, bajo **una sola carpeta base** (hoy, la del `.exe`). En Mac la base es `~/Library/Application Support/Free1X2/` (el bundle no es escribible). Los selectores de fichero empiezan en Documentos, como hoy. | 10:33; 07:612-638 |
+| DP-14 | Ubicación del proyecto | Carpeta `Free1X2.Mac/` en este repo, junto al oráculo. | PLAN §7.2 |
+| DP-15 | Referencia de comportamiento | **Solo la app actual** (WinUI + `Free1X2.Domain`); toda divergencia con el WinForms legacy se resuelve a favor del port. Lista completa en `DECISIONES.md`. | README D1 |
 
 ---
 
@@ -252,6 +254,7 @@ compararla con el oráculo); la app **muestra** el error por el mismo canal y co
 | Excepción **no capturada** que hoy acaba en el manejador global (`App.UnhandledException`, 10:32) | `throw` hasta el modelo de pantalla, que lo entrega a `Alertas.errorInesperado(_:)`: «Se produjo un error inesperado:\n\n{mensaje}» + log. Mismo efecto visible, la app sigue viva. |
 | `UserDialogs.ShowError/ShowInfo` dentro del motor (01 §2.23) | El motor **no** muestra nada: devuelve el aviso en el resultado (`avisos: [Aviso]`) o lo emite como evento de progreso; la app lo presenta igual. |
 | Comportamiento indefinido en C# sin excepción (`(int)NaN`, 10:381) | Se fija el valor que da el C# en x64 (`Int32.min`), documentado en T13; si no es conocido, el oráculo lo fija. |
+| Bucle que en C# **no termina** (09 A-73-1; 10:1341) | Se detecta la falta de progreso y se lanza `ErrorDominio(.operacionInvalida)`; en los casos que terminan, mismo resultado (DT-08). |
 
 ### 5.2 Tipos
 
@@ -318,7 +321,7 @@ public struct Avisos: Sendable { … }            // mensajes no fatales que hoy
 - **Cancelación cooperativa:** comprobación de `Task.isCancelled` cada 4 096 iteraciones del bucle externo; al detectarla,
   `throw ErrorDominio(.operacionCancelada)` **o**, donde el C# deja salida parcial (05:836, A9), se cierra el fichero con lo
   escrito hasta ese punto y se devuelve el resultado parcial, igual que hoy (DP-09/DP-10). Donde el C# no es cancelable
-  (`ReductorTM`, 05:834) no se comprueba (DP-10); activar la cancelación es cambiar un parámetro, sin rediseño.
+  (p. ej. aidomnou, 10:1976 A-16) no se comprueba (DP-10); activar la cancelación es cambiar un parámetro, sin rediseño.
 - **Salida a fichero durante el cálculo** (ruta B, reductores): escritura secuencial en la propia tarea con búfer de 64 KiB;
   se crea el fichero al escribir la primera línea, como el C# (05 §1.2).
 

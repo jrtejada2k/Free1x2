@@ -1186,7 +1186,7 @@ Casos mínimos adicionales: ficheros con **BOM**, con **CRLF/LF/CR**, con **decl
 
 ---
 
-## 8. Abiertas
+## 8. Abiertas — estado y decisión de cada entrada en [`DECISIONES.md`](DECISIONES.md) §3
 
 > Cosas **no verificadas** o que requieren decisión del dueño (R2). Cada una afecta a bytes o a comportamiento observable.
 
