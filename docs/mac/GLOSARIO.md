@@ -32,7 +32,7 @@
 | Parseo/formato .NET | `FormatoNET` + `struct Cultura` | `parsearEs`, `formatearDouble`, `formatearFloatNET` sueltos | ESPEC_16 §1 |
 | Escritor XML compatible | `EscritorXMLNET` | `DocumentoXML` (REVISION H-10) | ESPEC_16 §2 |
 | `System.Random(semilla)` | `struct AleatorioNET` | «RNG inyectable» | ESPEC_16 §5 |
-| Codificación «X=0, primer partido = dígito más significativo» (`S14N/N14S`…) | `CodificacionX0MSB` (un único helper) | 5 copias en pantallas (10:578,741,1002,1064,1804; 08 §1.4) | ESPEC_16 §6 |
+| Codificación «X=0, primer partido = dígito más significativo» (`S14N/N14S`…) | `CodificacionX0MSB` (un único helper) | copias en 9 pantallas (08 §1.4; 10:578,741,1002,1064,1804) | ESPEC_16 §6 |
 | Quicksort propio de pantallas | `ordenarComoQuicksortCSharp` (una implementación) | 3 copias (10:523, 10:885, 10:1297) | ESPEC_16 §6 |
 
 ## 2. Identificadores de los documentos
@@ -43,7 +43,7 @@
 | `Dn` | Decisión pendiente del índice M0 (D1…D8) | `README.md`; todas cerradas en `DECISIONES.md` |
 | `DP-nn` / `DT-nn` | Decisión de producto (= app actual) / técnica | ESPEC_11 §2 y `DECISIONES.md` |
 | `DEC-nnn` | Entrada del registro único de decisiones (fusiona las «Abiertas») | `DECISIONES.md` |
-| `CU-Ann` · `CU-Bnn` · `CU-Cnn` | Caso de uso de las pantallas 1–40 · 41–73 · 74–108 (+ shell) | ESPEC_08 · 09 · 10; firmas en ESPEC_13. **`CU-nn` sin prefijo de ESPEC_10 = `CU-Cnn`** (renombrado) |
+| `CU-Ann` · `CU-Bnn` · `CU-Cnn` · `CU-Snn` | Caso de uso de las pantallas 1–40 · 41–73 · 74–108 · Inicio y arranque (shell, definidos en ESPEC_13 §4.1) | ESPEC_08 · 09 · 10; firmas en ESPEC_13. **`CU-nn` sin prefijo de ESPEC_10 = `CU-Cnn`** (renombrado) |
 | `Tn` | Trampa C#→Swift (catálogo único T1–T14) | ESPEC_00 §3 (incluye la equivalencia de B1–B7, S1–S12 y la tabla T de 05) |
 | `Pn` | Peculiaridad crítica de CP y relaciones | 04 §0.6 |
 | `Cn` | Punto dependiente de cultura | 07 §2.1 |
