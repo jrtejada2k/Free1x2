@@ -141,6 +141,10 @@
     {
       "ruta": "motor/reduccion/subircategoria.jsonl",
       "casos": 9
+    },
+    {
+      "ruta": "motor/utils/probabilidades.jsonl",
+      "casos": 7
     }
   ],
   "fixtures": [
