@@ -54,6 +54,7 @@
 		98072ABB41C7731FA4A919D3 /* Grafico.swift in Sources */ = {isa = PBXBuildFile; fileRef = 072990B529D8F72247B228E0 /* Grafico.swift */; };
 		9F5AC6DC839F0C36F0095960 /* Algebra.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB2647216F2F309E14997C05 /* Algebra.swift */; };
 		9F830797A2556C971E0020FC /* DistanciasInterrupciones.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2771D91198F31E3165598E0F /* DistanciasInterrupciones.swift */; };
+		A083342500A59748D3FEAF85 /* Listado.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40F8C35868B973B36D282D97 /* Listado.swift */; };
 		A22660CDC4DA522F2F0A9F85 /* SelectorFicheros.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF9B1577FF3F685F277AE21A /* SelectorFicheros.swift */; };
 		A2726AB4F195A838EB96C12F /* GEPT.swift in Sources */ = {isa = PBXBuildFile; fileRef = B87EB26772D235A990F0A016 /* GEPT.swift */; };
 		A666D0BE2B4F6C79C0F127C9 /* Ajustes.swift in Sources */ = {isa = PBXBuildFile; fileRef = A94115EF8DA5A34AD2C8B2A7 /* Ajustes.swift */; };
@@ -94,6 +95,7 @@
 		31447562034E5D6106CA5C63 /* Probabilidades.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Probabilidades.swift; sourceTree = "<group>"; };
 		36A9EE697724FB734F137E9F /* AnalizarFichero.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalizarFichero.swift; sourceTree = "<group>"; };
 		39BF9252187A13E9703C8EF5 /* Formatos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Formatos.swift; sourceTree = "<group>"; };
+		40F8C35868B973B36D282D97 /* Listado.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Listado.swift; sourceTree = "<group>"; };
 		4141061D9A72DF1F7F7A688B /* Pleno15.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pleno15.swift; sourceTree = "<group>"; };
 		49BDD4273F4F33E1C72948C9 /* PortapapelesSistema.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortapapelesSistema.swift; sourceTree = "<group>"; };
 		4D1FDE491ECE78D5FA7B7822 /* PosiblesPremios.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PosiblesPremios.swift; sourceTree = "<group>"; };
@@ -362,6 +364,7 @@
 				8504D37A077B74C14229C301 /* Boletos.swift */,
 				7557238225C25A7785E15537 /* Estadisticas.swift */,
 				072990B529D8F72247B228E0 /* Grafico.swift */,
+				40F8C35868B973B36D282D97 /* Listado.swift */,
 				8E15404EEE589D02ABCA7585 /* VisorAnalisisColumnas.swift */,
 			);
 			path = Ver;
@@ -481,6 +484,7 @@
 				37FE5F0B35E38EBA447AF89B /* IfThen.swift in Sources */,
 				2DC3BB187522B279A533428F /* Impresion.swift in Sources */,
 				714BC945F34FEFDF70D35500 /* Informativas.swift in Sources */,
+				A083342500A59748D3FEAF85 /* Listado.swift in Sources */,
 				CCA14C8EE480990172F61B7E /* MatrizAnalisisView.swift in Sources */,
 				5C9D30F2113E8B54EA846093 /* Menus.swift in Sources */,
 				94A1733E4FA9A2940C25BC3E /* Modificador.swift in Sources */,

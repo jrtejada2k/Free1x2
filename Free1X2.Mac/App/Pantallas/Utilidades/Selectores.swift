@@ -172,8 +172,8 @@ struct VistaSelecJM: View {
                             tarea = nil
                         }
                     }
-                    .buttonStyle(.borderedProminent).disabled(tarea != nil)
-                    Button("Cancelar") { tarea?.cancel() }.disabled(tarea == nil)
+                    .buttonStyle(.borderedProminent)
+                    Button("Cancelar") { tarea?.cancel() }
                     Button("Grabar columnas") {
                         Task {
                             guard let u = await SelectorFicheros.guardar("ResultadosJM", [("Resultados", ".txt")]) else { return }
@@ -185,7 +185,6 @@ struct VistaSelecJM: View {
                             }
                         }
                     }
-                    .disabled(tarea != nil)
                 }
                 HStack(spacing: 24) {
                     Text(procesadas)
@@ -273,8 +272,8 @@ struct VistaSelectorMS: View {
                             tarea = nil
                         }
                     }
-                    .buttonStyle(.borderedProminent).disabled(tarea != nil)
-                    Button("Cancelar") { tarea?.cancel() }.disabled(tarea == nil)
+                    .buttonStyle(.borderedProminent)
+                    Button("Cancelar") { tarea?.cancel() }
                 }
                 HStack(spacing: 24) {
                     Text("Fichero de entrada: " + fichero)

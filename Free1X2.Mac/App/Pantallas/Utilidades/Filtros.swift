@@ -15,7 +15,6 @@ struct VistaFiltroPorcenJB: View {
     @State private var ficheroRangos = "fichero"
     @State private var ganadoras = GanadorasSelector(fichero: "fichero ganadoras")
     @State private var analisis = Array(repeating: "-", count: 8)
-    @State private var tarea: Task<Void, Never>?
 
     private func bandas() -> BandasJB? {
         guard let b = CasosUtilidades.bandasJB(porcentajes: valores, limites: limites, rangos: rangos) else {
@@ -131,14 +130,9 @@ struct VistaFiltroPorcenJB: View {
             }
             Tarjeta("Filtrado") {
                 HStack {
-                    Button("Calcular") {
-                        tarea = Task {
-                            await calcular()
-                            tarea = nil
-                        }
-                    }
-                    .buttonStyle(.borderedProminent).disabled(tarea != nil)
-                    Button("Cancelar") { tarea?.cancel() }.disabled(tarea == nil)
+                    Button("Calcular") { Task { await calcular() } }.buttonStyle(.borderedProminent)
+                    // DEC-915: como hoy, «Cancelar» no interrumpe el cálculo.
+                    Button("Cancelar") {}
                     Button("Grabar Resultado") {
                         guard !admitidas.isEmpty else {
                             return sesion.alertas.info("No hay columnas admitidas que grabar. Ejecute primero Calcular.")
@@ -281,9 +275,8 @@ struct VistaDiFiltros: View {
                 }
             }
             HStack {
-                Button("Iniciar Proceso") { iniciar(analisis: false) }.buttonStyle(.borderedProminent).disabled(
-                    tarea != nil || filas.isEmpty)
-                Button("Cancelar") { tarea?.cancel() }.disabled(tarea == nil)
+                Button("Iniciar Proceso") { iniciar(analisis: false) }.buttonStyle(.borderedProminent)
+                Button("Cancelar") { tarea?.cancel() }
                 Button("Grabar") {
                     Task {
                         guard let u = await SelectorFicheros.guardar("Columnas", [("Columnas", ".txt")]) else { return }
@@ -296,7 +289,6 @@ struct VistaDiFiltros: View {
                         }
                     }
                 }
-                .disabled(tarea != nil)
                 Text("Tiempo: " + tiempo).monospacedDigit()
                 Text(archivoSalida).foregroundStyle(Color.textoSecundario)
             }
