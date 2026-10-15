@@ -7,20 +7,42 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1BC9BF8E43FAD9D0944F9BD5 /* Raiz.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBAE789B419FCD7BEEAB015 /* Raiz.swift */; };
 		47BC0D63D514F9EBEDBF7D85 /* Sesion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 901BDD3D79E749E8ECCBA7CC /* Sesion.swift */; };
+		5436B5E3D154C360A12B1875 /* logo.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 8AB7CAABF6E86A07C2401496 /* logo.jpg */; };
+		55C40B4180561113677179BE /* Estilo.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB842ABB38595FAE44A7140D /* Estilo.swift */; };
+		5C9D30F2113E8B54EA846093 /* Menus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04868F81389E8058D7698462 /* Menus.swift */; };
 		5CBF4AEFEDF4E37ACDC318FA /* PortapapelesSistema.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49BDD4273F4F33E1C72948C9 /* PortapapelesSistema.swift */; };
 		6F9073A11E8EAD8BC585C162 /* VistaInicio.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10592D8E03A3123EC36606C /* VistaInicio.swift */; };
+		7DB9103104D30CDBFDA1A0B7 /* VistaDestino.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19B6A06520278BAB278E48F4 /* VistaDestino.swift */; };
+		7F4DD590BD5BE0C07A837A48 /* Barra.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756B21FEC97FD0FC66703A9C /* Barra.swift */; };
+		880E2FE4269643F3F9B71C6B /* Destino.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72B74ECC82B203A8A366A93E /* Destino.swift */; };
+		A22660CDC4DA522F2F0A9F85 /* SelectorFicheros.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF9B1577FF3F685F277AE21A /* SelectorFicheros.swift */; };
+		A6D5F1F1F2140D94F94F21A2 /* Router.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850A5E66731FABDDC2D9FD72 /* Router.swift */; };
 		BFBC10F002A9AD96099FC3D8 /* Free1X2Kit in Frameworks */ = {isa = PBXBuildFile; productRef = 6F000FF4E643EABD960549DE /* Free1X2Kit */; };
+		C4D8549A87B89CF5F06A0F09 /* Datos in Resources */ = {isa = PBXBuildFile; fileRef = C0344B454C66C01D3073E748 /* Datos */; };
+		D55851FF07C4F9C15C9ABDEA /* Alertas.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62B44320D069342A326F7B49 /* Alertas.swift */; };
 		ECD7E7BCABC8A4DABE96FEBF /* Free1X2App.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3FF8E5909D62572635C6B70 /* Free1X2App.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		04868F81389E8058D7698462 /* Menus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Menus.swift; sourceTree = "<group>"; };
+		19B6A06520278BAB278E48F4 /* VistaDestino.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VistaDestino.swift; sourceTree = "<group>"; };
 		25CCF7EA617679CACFA9AACF /* Free1X2Kit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Free1X2Kit; path = Packages/Free1X2Kit; sourceTree = SOURCE_ROOT; };
 		49BDD4273F4F33E1C72948C9 /* PortapapelesSistema.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortapapelesSistema.swift; sourceTree = "<group>"; };
+		62B44320D069342A326F7B49 /* Alertas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alertas.swift; sourceTree = "<group>"; };
+		72B74ECC82B203A8A366A93E /* Destino.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Destino.swift; sourceTree = "<group>"; };
+		756B21FEC97FD0FC66703A9C /* Barra.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Barra.swift; sourceTree = "<group>"; };
+		850A5E66731FABDDC2D9FD72 /* Router.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Router.swift; sourceTree = "<group>"; };
+		8AB7CAABF6E86A07C2401496 /* logo.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = logo.jpg; sourceTree = "<group>"; };
 		901BDD3D79E749E8ECCBA7CC /* Sesion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sesion.swift; sourceTree = "<group>"; };
+		9FBAE789B419FCD7BEEAB015 /* Raiz.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Raiz.swift; sourceTree = "<group>"; };
+		AF9B1577FF3F685F277AE21A /* SelectorFicheros.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectorFicheros.swift; sourceTree = "<group>"; };
 		B8C08A00BAF58381E06F1D70 /* Free1X2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Free1X2.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C0344B454C66C01D3073E748 /* Datos */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Datos; path = App/Recursos/Datos; sourceTree = SOURCE_ROOT; };
 		D10592D8E03A3123EC36606C /* VistaInicio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VistaInicio.swift; sourceTree = "<group>"; };
 		D3FF8E5909D62572635C6B70 /* Free1X2App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Free1X2App.swift; sourceTree = "<group>"; };
+		DB842ABB38595FAE44A7140D /* Estilo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Estilo.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -35,6 +57,26 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		07418446D507AA8084A5ED52 /* Compartido */ = {
+			isa = PBXGroup;
+			children = (
+				DB842ABB38595FAE44A7140D /* Estilo.swift */,
+			);
+			path = Compartido;
+			sourceTree = "<group>";
+		};
+		17B2087F4CAA2BCB85F2B1AF /* Navegacion */ = {
+			isa = PBXGroup;
+			children = (
+				756B21FEC97FD0FC66703A9C /* Barra.swift */,
+				72B74ECC82B203A8A366A93E /* Destino.swift */,
+				04868F81389E8058D7698462 /* Menus.swift */,
+				850A5E66731FABDDC2D9FD72 /* Router.swift */,
+				19B6A06520278BAB278E48F4 /* VistaDestino.swift */,
+			);
+			path = Navegacion;
+			sourceTree = "<group>";
+		};
 		28B3B6413499C010D50789E8 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -43,10 +85,20 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		292847A72B8CF137BAD5A713 /* Recursos */ = {
+			isa = PBXGroup;
+			children = (
+				C0344B454C66C01D3073E748 /* Datos */,
+				8AB7CAABF6E86A07C2401496 /* logo.jpg */,
+			);
+			path = Recursos;
+			sourceTree = "<group>";
+		};
 		394EEBBB2592B5EDFFE85299 /* Arranque */ = {
 			isa = PBXGroup;
 			children = (
 				D3FF8E5909D62572635C6B70 /* Free1X2App.swift */,
+				9FBAE789B419FCD7BEEAB015 /* Raiz.swift */,
 				901BDD3D79E749E8ECCBA7CC /* Sesion.swift */,
 			);
 			path = Arranque;
@@ -55,7 +107,9 @@
 		55FE6F3CE034679DD92FC7DE /* Plataforma */ = {
 			isa = PBXGroup;
 			children = (
+				62B44320D069342A326F7B49 /* Alertas.swift */,
 				49BDD4273F4F33E1C72948C9 /* PortapapelesSistema.swift */,
+				AF9B1577FF3F685F277AE21A /* SelectorFicheros.swift */,
 			);
 			path = Plataforma;
 			sourceTree = "<group>";
@@ -89,8 +143,11 @@
 			isa = PBXGroup;
 			children = (
 				394EEBBB2592B5EDFFE85299 /* Arranque */,
+				07418446D507AA8084A5ED52 /* Compartido */,
+				17B2087F4CAA2BCB85F2B1AF /* Navegacion */,
 				D6972A4E93208901677BDAC4 /* Pantallas */,
 				55FE6F3CE034679DD92FC7DE /* Plataforma */,
+				292847A72B8CF137BAD5A713 /* Recursos */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -111,6 +168,7 @@
 			buildConfigurationList = A9AEAF2D1DBA6B6115AF2A67 /* Build configuration list for PBXNativeTarget "Free1X2" */;
 			buildPhases = (
 				63D798A02848B8AB4EBEE72F /* Sources */,
+				8E99A52C41E0FD73C99C1CF2 /* Resources */,
 				7E29E69E85FA636745A6F896 /* Frameworks */,
 			);
 			buildRules = (
@@ -140,11 +198,11 @@
 				};
 			};
 			buildConfigurationList = 0E4E3BD5B0507F2BD2182A7C /* Build configuration list for PBXProject "Free1X2" */;
-			developmentRegion = en;
+			developmentRegion = es;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				Base,
-				en,
+				es,
 			);
 			mainGroup = E4BB80554D806750B2B6FE5E;
 			minimizedProjectReferenceProxies = 1;
@@ -161,14 +219,35 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXResourcesBuildPhase section */
+		8E99A52C41E0FD73C99C1CF2 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C4D8549A87B89CF5F06A0F09 /* Datos in Resources */,
+				5436B5E3D154C360A12B1875 /* logo.jpg in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		63D798A02848B8AB4EBEE72F /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D55851FF07C4F9C15C9ABDEA /* Alertas.swift in Sources */,
+				7F4DD590BD5BE0C07A837A48 /* Barra.swift in Sources */,
+				880E2FE4269643F3F9B71C6B /* Destino.swift in Sources */,
+				55C40B4180561113677179BE /* Estilo.swift in Sources */,
 				ECD7E7BCABC8A4DABE96FEBF /* Free1X2App.swift in Sources */,
+				5C9D30F2113E8B54EA846093 /* Menus.swift in Sources */,
 				5CBF4AEFEDF4E37ACDC318FA /* PortapapelesSistema.swift in Sources */,
+				1BC9BF8E43FAD9D0944F9BD5 /* Raiz.swift in Sources */,
+				A6D5F1F1F2140D94F94F21A2 /* Router.swift in Sources */,
+				A22660CDC4DA522F2F0A9F85 /* SelectorFicheros.swift in Sources */,
 				47BC0D63D514F9EBEDBF7D85 /* Sesion.swift in Sources */,
+				7DB9103104D30CDBFDA1A0B7 /* VistaDestino.swift in Sources */,
 				6F9073A11E8EAD8BC585C162 /* VistaInicio.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

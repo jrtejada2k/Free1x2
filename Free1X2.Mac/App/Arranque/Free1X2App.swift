@@ -1,5 +1,4 @@
 import AppKit
-import Free1X2Base
 import Free1X2CasosDeUso
 import SwiftUI
 
@@ -11,12 +10,13 @@ struct Free1X2App: App {
 
     var body: some Scene {
         Window("Free1X2", id: "principal") {
-            VistaInicio()
+            Raiz()
                 .frame(minWidth: 900, minHeight: 600)
                 .environment(sesion)
         }
         .defaultSize(width: 1020, height: 760)
         .windowResizability(.contentMinSize)
+        .commands { Menus(sesion: sesion) }
     }
 }
 

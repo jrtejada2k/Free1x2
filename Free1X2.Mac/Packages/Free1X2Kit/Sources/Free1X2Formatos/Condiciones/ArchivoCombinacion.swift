@@ -10,6 +10,10 @@ public struct CombinacionLeida: Sendable {
     public var combinacion: Combinacion
     public var equipos: [String]
     public var filtroColumnas: String
+
+    public init(combinacion: Combinacion, equipos: [String], filtroColumnas: String) {
+        (self.combinacion, self.equipos, self.filtroColumnas) = (combinacion, equipos, filtroColumnas)
+    }
 }
 
 /// Ficheros de combinación `.comb` (XML).

@@ -5,6 +5,7 @@ options:
   deploymentTarget:
     macOS: "14.0"
   createIntermediateGroups: true
+  developmentLanguage: es
 settings:
   base:
     SWIFT_VERSION: "6.0"
@@ -21,7 +22,12 @@ targets:
   Free1X2:
     type: application
     platform: macOS
-    sources: [App]
+    sources:
+      - path: App
+        excludes: [Recursos/Datos]
+      # Semillas y recursos de solo lectura (ESPEC_11 §9): carpeta tal cual en Resources/Datos.
+      - path: App/Recursos/Datos
+        type: folder
     dependencies:
       - package: Free1X2Kit
         product: Free1X2Kit

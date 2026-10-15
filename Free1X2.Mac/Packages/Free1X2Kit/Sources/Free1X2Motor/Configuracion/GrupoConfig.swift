@@ -92,3 +92,31 @@ public struct GrupoConfig: Sendable, Hashable {
 
     public var hayPartidosActivos: Bool { partidosActivos.contains(true) }
 }
+
+extension CondicionesGrupo {
+    /// `IsActive` y `ContieneDatos` de un filtro (los de Simetrías y Diferencias se recalculan al leerlos, sobre una copia).
+    public func estado(_ tipo: TipoFiltro) -> (activa: Bool, contieneDatos: Bool) {
+        switch tipo {
+        case .noVariantes: (noVariantes.activa, noVariantes.contieneDatos)
+        case .valoracionSignos: (valoracionSignos.activa, valoracionSignos.contieneDatos)
+        case .signosSeguidos: (signosSeguidos.activa, signosSeguidos.contieneDatos)
+        case .interrupciones: (interrupciones.activa, interrupciones.contieneDatos)
+        case .dibujos: (dibujos.activa, dibujos.contieneDatos)
+        case .pesosNumericos: (pesosNumericos.activa, pesosNumericos.contieneDatos)
+        case .distancias: (distancias.activa, distancias.contieneDatos)
+        case .gruposEquipos: (gruposEquipos.activa, gruposEquipos.contieneDatos)
+        case .contactos: (contactos.activa, contactos.contieneDatos)
+        case .formatosSignos: (formatosSignos.activa, formatosSignos.contieneDatos)
+        case .colProbables: (colProbables.activa, colProbables.contieneDatos)
+        case .formatos123: (formatos123.activa, formatos123.contieneDatos)
+        case .simetrias:
+            {
+                var s = simetrias; return (s.activa, s.contieneDatos())
+            }()
+        case .diferencias:
+            {
+                var d = diferencias; return (d.activa, d.contieneDatos())
+            }()
+        }
+    }
+}
