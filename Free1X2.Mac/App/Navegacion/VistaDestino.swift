@@ -53,6 +53,12 @@ struct VistaDestino: View {
         case .verBoletos: VistaVerBoletos()
         case .boleto: VistaBoleto()
         case .verBoletosEnEditor: VistaVerBoletosEnEditor()
+        case .anastatics: VistaAnastatics()
+        case .dib: VistaDibForm()
+        case .dibRep: VistaDibRep()
+        case .staInter: VistaStaInter()
+        case .staSS: VistaStaSS()
+        case .gEPT: VistaGEPT()
         default: PantallaPendiente(destino: destino)
         }
     }

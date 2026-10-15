@@ -19,6 +19,8 @@ public struct MatrizAnalisis: Sendable, Hashable {
 public struct BloqueAnalisis: Sendable, Hashable {
     public let titulo: String
     public let matriz: MatrizAnalisis
+
+    public init(titulo: String, matriz: MatrizAnalisis) { (self.titulo, self.matriz) = (titulo, matriz) }
 }
 
 /// Columna «Valor / Columnas» de la sección Valoración.
