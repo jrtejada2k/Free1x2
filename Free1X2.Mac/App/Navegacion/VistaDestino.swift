@@ -104,6 +104,7 @@ struct VistaDestino: View {
         case .filtroPorcenJB: VistaFiltroPorcenJB()
         case .diFiltros: VistaDiFiltros()
         case .listadoCondiciones: VistaListadoCondiciones()
+        case .escrutarCombinaciones: VistaEscrutarCombinaciones()
         default: PantallaPendiente(destino: destino)
         }
     }
