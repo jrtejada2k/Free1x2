@@ -77,6 +77,8 @@ struct VistaDestino: View {
         case .calculoFormatos: VistaCalculoFormatos()
         case .analisisFormatos123: VistaAnalisisFormatos123()
         case .premiadas: VistaPremiadas()
+        case .anaCombi: VistaAnaCombi()
+        case .analizadorJPM: VistaAnalizadorJPM()
         default: PantallaPendiente(destino: destino)
         }
     }

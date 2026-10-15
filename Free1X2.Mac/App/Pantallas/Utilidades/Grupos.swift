@@ -285,3 +285,276 @@ struct VistaTrios: View {
         }
     }
 }
+
+/// `TimeSpan.ToString() + "0…0"` recortado (`FormatearTiempo`).
+private func tiempoRecortado(_ desde: Date, _ sesion: Sesion, _ largo: Int = 10) -> String {
+    String((FormatoNET.toStringTimeSpan(sesion.entorno.reloj.ahora().timeIntervalSince(desde)) + "00000000000").prefix(largo))
+}
+
+/// «Análisis de grupos en combinación» (pantalla 4, `AnaCombi`).
+struct VistaAnaCombi: View {
+    @Environment(Sesion.self) private var sesion
+    @State private var fichero: URL?
+    @State private var seleccion = Array(repeating: "-", count: 14)
+    @State private var fallos = 0.0
+    @State private var filas: [FilaAnaCombi] = []
+    @State private var marcados: Set<String> = []
+    @State private var procesadas = "0"
+    @State private var tiempo = "0"
+    @State private var tarea: Task<Void, Never>?
+
+    private func calcular() async {
+        guard tarea == nil else { return }
+        guard !CasosUtilidades.grupoAnaCombi(seleccion).isEmpty else { return sesion.alertas.error("Falta grupo") }
+        guard let url = fichero, sesion.entorno.archivos.existe(url) else { return sesion.alertas.error("Falta fichero") }
+        (filas, marcados, procesadas, tiempo) = ([], [], "0", "0")
+        let (sel, f, t0) = (seleccion, Int(FormatoNET.castInt32(fallos)), sesion.entorno.reloj.ahora())
+        let t = Task {
+            do throws(ErrorDominio) {
+                let r = try await CasosUtilidades.analizarGrupos(url, seleccion: sel, fallos: f, entorno: sesion.entorno)
+                // ponytail: «Procesadas» y «Tiempo» solo al terminar (el C# los refresca cada 1024 líneas).
+                (filas, procesadas, tiempo) = (r.filas, String(r.procesadas), tiempoRecortado(t0, sesion))
+            } catch {
+                sesion.alertas.error("Error al calcular: " + error.mensajeUsuario)
+            }
+        }
+        tarea = t
+        await t.value
+        tarea = nil
+    }
+
+    private func grabar() async {
+        guard !filas.isEmpty else { return }
+        guard let url = fichero, sesion.entorno.archivos.existe(url) else { return sesion.alertas.error("Falta fichero") }
+        guard !marcados.isEmpty else { return sesion.alertas.info("No hay ningún grupo marcado para grabar.") }
+        guard let s = await SelectorFicheros.guardar("Resultados", [("Resultados", ".txt")]) else { return }
+        do throws(ErrorDominio) {
+            try CasosUtilidades.grabarGrupos(url, grupos: marcados, seleccion: seleccion, en: s, entorno: sesion.entorno)
+            sesion.alertas.info("Resultados grabados en " + s.lastPathComponent)
+        } catch {
+            sesion.alertas.error("No se pudieron grabar los resultados: " + error.mensajeUsuario)
+        }
+    }
+
+    var body: some View {
+        Pagina(destino: .anaCombi) {
+            Text("Define un grupo de partidos, carga un fichero de columnas y cuenta cuántas encajan en cada combinación.")
+                .foregroundStyle(Color.textoSecundario)
+            Tarjeta("Fichero de entrada") {
+                HStack {
+                    Button("Seleccionar fichero…") { Task { if let u = await SelectorFicheros.abrir(".txt", "*") { fichero = u } } }
+                    Text(fichero?.lastPathComponent ?? "Fichero a procesar").foregroundStyle(Color.textoSecundario)
+                }
+            }
+            Tarjeta("Patrón del grupo (14 partidos)") {
+                Text("Por partido: 1 / X / 2 fija el signo, G lo añade al grupo, - lo ignora.").foregroundStyle(Color.textoSecundario)
+                Grid(alignment: .leading, horizontalSpacing: 8, verticalSpacing: 4) {
+                    ForEach(0..<2, id: \.self) { f in
+                        GridRow {
+                            ForEach(0..<7, id: \.self) { c in
+                                let i = f * 7 + c
+                                Picker(String(i + 1), selection: $seleccion[i]) {
+                                    ForEach(["-", "1", "X", "2", "G"], id: \.self) { Text($0).tag($0) }
+                                }
+                                .frame(width: 90)
+                            }
+                        }
+                    }
+                }
+                HStack {
+                    CampoNumero(etiqueta: "Fallos admitidos", valor: $fallos, minimo: 0, ancho: 60)
+                    Button("Limpiar patrón") { seleccion = Array(repeating: "-", count: 14) }
+                }
+            }
+            HStack {
+                Button("Calcular") { Task { await calcular() } }.buttonStyle(.borderedProminent).disabled(tarea != nil)
+                Button("Cancelar") { tarea?.cancel() }
+                LabeledContent("Procesadas", value: procesadas)
+                LabeledContent("Tiempo", value: tiempo)
+            }
+            Tarjeta("Resultados") {
+                List(filas, id: \.grupo) { f in
+                    HStack {
+                        Toggle(
+                            "",
+                            isOn: Binding(
+                                get: { marcados.contains(f.grupo) },
+                                set: { if $0 { marcados.insert(f.grupo) } else { marcados.remove(f.grupo) } })
+                        )
+                        .labelsHidden()
+                        Text(f.grupo).monospaced().frame(width: 160, alignment: .leading)
+                        Text(String(f.columnas)).monospacedDigit()
+                    }
+                }
+                .frame(minHeight: 240)
+                Button("Grabar resultados") { Task { await grabar() } }.disabled(filas.isEmpty)
+            }
+        }
+    }
+}
+
+/// «Sumas Pares Naturales (JPM)» (pantalla 6, `AnalizadorJPM`).
+struct VistaAnalizadorJPM: View {
+    @Environment(Sesion.self) private var sesion
+    @State private var valores: [Double] = [0, 1, 2, 1, 3, 4, 2, 4, 5]
+    @State private var marcadas = Array(repeating: false, count: 36)
+    @State private var clasificacion: ClasificacionJPM?
+    @State private var entrada = "-"
+    @State private var salida = "-"
+    @State private var tiempo = "-"
+    @State private var suma = ""
+    @State private var ganadoras: [String] = []
+    @State private var fichGanadoras = "-"
+    @State private var indice = 0
+    @State private var ganadora = "COL.GANADORA"
+    @State private var puntuacion = "-"
+    @State private var premios = Array(repeating: "0", count: 5)
+    @State private var tarea: Task<Void, Never>?
+
+    private static let pares = ["11", "1X", "12", "X1", "XX", "X2", "21", "2X", "22"]
+
+    private func iniciar() async {
+        guard let u = await SelectorFicheros.abrir(".txt", "*") else { return }
+        entrada = u.lastPathComponent
+        let v: [Int]
+        do throws(ErrorDominio) { v = try CasosUtilidades.valoresJPM(valores) } catch { return sesion.alertas.inesperado(error) }
+        let t0 = sesion.entorno.reloj.ahora()
+        let t = Task {
+            do throws(ErrorDominio) {
+                let c = try await CasosUtilidades.clasificarJPM(u, valores: v, entorno: sesion.entorno)
+                if let corta = c.columnaCorta { sesion.alertas.error("error de longitud=" + corta) }
+                clasificacion = c
+                tiempo = tiempoRecortado(t0, sesion, 11)
+            } catch {
+                sesion.alertas.error("Error al procesar el fichero: " + error.mensajeUsuario)
+            }
+        }
+        tarea = t
+        await t.value
+        tarea = nil
+    }
+
+    private func grabar() async {
+        guard let c = clasificacion else { return sesion.alertas.error("Inicia primero el proceso de columnas.") }
+        guard let u = await SelectorFicheros.guardar("ColumnasSalida", [("ColumnasSalida", ".txt")]) else { return }
+        do throws(ErrorDominio) {
+            try CasosUtilidades.grabarJPM(c.validas, marcadas: marcadas, en: u, entorno: sesion.entorno)
+            salida = u.lastPathComponent
+        } catch {
+            sesion.alertas.error("Error al grabar: " + error.mensajeUsuario)
+        }
+    }
+
+    private func cargarGanadoras() async {
+        guard let u = await SelectorFicheros.abrir(".txt", "*") else { return }
+        do throws(ErrorDominio) {
+            guard let g = try CasosUtilidades.ganadorasJPM(u, entorno: sesion.entorno) else {
+                return sesion.alertas.error("col.G. errónea")
+            }
+            (ganadoras, indice, fichGanadoras) = (g, g.count, u.lastPathComponent)
+            if let ultima = g.last { ganadora = ultima }
+        } catch {
+            sesion.alertas.error("Error al leer ganadoras: " + error.mensajeUsuario)
+        }
+    }
+
+    private func analizar() async {
+        let v: [Int]
+        do throws(ErrorDominio) { v = try CasosUtilidades.valoresJPM(valores) } catch { return sesion.alertas.inesperado(error) }
+        let col = FormatoNET.mayusculas(FormatoNET.recortar(ganadora))
+        guard col.utf16.count >= 14 else { return sesion.alertas.error("error de longitud=" + col) }
+        let m = marcadas
+        let t = Task {
+            do throws(ErrorDominio) {
+                let r = try await CasosUtilidades.premiosJPM(col, valores: v, marcadas: m)
+                (puntuacion, premios) = (String(r.puntuacion), r.premios.map(String.init))
+            } catch {
+                sesion.alertas.error("Error al analizar: " + error.mensajeUsuario)
+            }
+        }
+        tarea = t
+        await t.value
+        tarea = nil
+    }
+
+    var body: some View {
+        Pagina(destino: .analizadorJPM) {
+            Text(
+                "Puntúa cada par de signos, clasifica las columnas de un fichero en 36 casillas de suma y analiza los premios de la columna ganadora."
+            )
+            .foregroundStyle(Color.textoSecundario)
+            HStack(alignment: .top) {
+                VStack(spacing: 10) {
+                    Tarjeta("Valores a usar (máx. 5)") {
+                        Text("Puntos por cada par de signos consecutivos.").foregroundStyle(Color.textoSecundario)
+                        Grid(alignment: .leading, horizontalSpacing: 8, verticalSpacing: 4) {
+                            ForEach(0..<3, id: \.self) { f in
+                                GridRow {
+                                    ForEach(0..<3, id: \.self) { c in
+                                        CampoNumero(
+                                            etiqueta: Self.pares[f * 3 + c], valor: $valores[f * 3 + c], minimo: 0, maximo: 5, ancho: 44)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    Tarjeta("Proceso de columnas") {
+                        HStack {
+                            Button("Iniciar") { Task { await iniciar() } }.buttonStyle(.borderedProminent).disabled(tarea != nil)
+                            Button("Grabar") { Task { await grabar() } }
+                            Button("Cancelar") { tarea?.cancel() }
+                        }
+                        LabeledContent("Fichero entrada:", value: entrada)
+                        LabeledContent("Fichero salida:", value: salida)
+                        LabeledContent("Total columnas:", value: String(clasificacion?.total ?? 0))
+                        LabeledContent("Tiempo:", value: tiempo)
+                    }
+                    Tarjeta("Análisis de resultados") {
+                        HStack {
+                            Button("Cargar ganadoras") { Task { await cargarGanadoras() } }
+                            Button("-") {
+                                if indice > 1 {
+                                    indice -= 1
+                                    ganadora = ganadoras[indice - 1]
+                                }
+                            }
+                            Button("+") {
+                                if indice < ganadoras.count {
+                                    indice += 1
+                                    ganadora = ganadoras[indice - 1]
+                                }
+                            }
+                        }
+                        LabeledContent("Fichero ganadoras:", value: fichGanadoras)
+                        LabeledContent("Índice:", value: String(indice))
+                        CampoTexto(etiqueta: "Columna ganadora", texto: $ganadora, ancho: 160)
+                        Button("Analizar") { Task { await analizar() } }.disabled(tarea != nil)
+                        LabeledContent("Puntuación:", value: puntuacion)
+                        ForEach(0..<5, id: \.self) { LabeledContent("\(14 - $0) aciertos:", value: premios[$0]) }
+                    }
+                }
+                Tarjeta("Casillas de suma (0..35)") {
+                    Text("Marca las casillas a grabar o sumar. El conteo se rellena tras iniciar.").foregroundStyle(Color.textoSecundario)
+                    Grid(alignment: .leading, horizontalSpacing: 14, verticalSpacing: 2) {
+                        ForEach(0..<12, id: \.self) { f in
+                            GridRow {
+                                ForEach(0..<3, id: \.self) { c in
+                                    let i = c * 12 + f
+                                    Toggle(isOn: $marcadas[i]) {
+                                        Text("\(i): " + (clasificacion.map { String($0.casillas[i]) } ?? "0")).monospacedDigit()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    HStack {
+                        Button("Sumar") {
+                            suma = String(marcadas.indices.filter { marcadas[$0] }.reduce(0) { $0 + (clasificacion?.casillas[$1] ?? 0) })
+                        }
+                        Text("Suma: " + suma)
+                    }
+                }
+            }
+        }
+    }
+}

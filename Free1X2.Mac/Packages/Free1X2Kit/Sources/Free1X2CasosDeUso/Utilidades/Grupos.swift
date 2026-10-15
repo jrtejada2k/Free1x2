@@ -195,3 +195,177 @@ extension CasosUtilidades {
         try entorno.archivos.escribir(TextoNET.codificarLineas(cols), en: url, atomico: false)
     }
 }
+
+// C#: Views/Ported/AnaCombiViewModel.cs (08 pantalla 4; CU-A04, CU-A05). Codificación propia (la de Pares).
+
+/// Una fila de «Resultados»: combinación de signos del grupo y columnas que caen en ella.
+public struct FilaAnaCombi: Sendable, Hashable {
+    public let grupo: String
+    public let columnas: Int
+}
+
+extension CasosUtilidades {
+    /// `Normaliza`: mayúsculas y solo `1`, `2`, `X`.
+    static func normalizaAnaCombi(_ linea: String) -> [UInt16] {
+        FormatoNET.mayusculas(linea).utf16.filter { $0 == 0x31 || $0 == 0x32 || $0 == 0x58 }
+    }
+
+    /// Partidos marcados con «G», en orden.
+    public static func grupoAnaCombi(_ seleccion: [String]) -> [Int] { seleccion.indices.filter { seleccion[$0] == "G" } }
+
+    /// CU-A04 `Calcular`: por cada columna (normalizada) con a lo sumo `fallos` diferencias con los signos fijados, +1 a
+    /// la combinación de sus partidos «G». Filas: las 3^G combinaciones en orden base 3 (X < 1 < 2). Una columna de menos
+    /// de 14 signos lanza «Columna errónea = n»; la cancelación corta entre líneas.
+    @concurrent public static func analizarGrupos(
+        _ url: URL, seleccion: [String], fallos: Int, entorno: Entorno
+    ) async throws(ErrorDominio) -> (filas: [FilaAnaCombi], procesadas: Int) {
+        let grupo = grupoAnaCombi(seleccion)
+        let patron: [UInt16?] = seleccion.map { ["1", "X", "2"].contains($0) ? $0.utf16.first : nil }
+        var cuentas = [Int](repeating: 0, count: Int(pow(3.0, Double(grupo.count))))
+        var procesadas = 0
+        for l in TextoNET.lineas(try entorno.archivos.leer(url)) {
+            if Task.isCancelled { break }
+            let c = normalizaAnaCombi(l)
+            procesadas += 1
+            guard c.count >= 14 else { throw ErrorDominio(.general, "Columna errónea = \(procesadas)") }
+            let errores = (0..<14).filter { i in patron[i].map { c[i] != $0 } ?? false }.count
+            guard errores <= fallos else { continue }
+            cuentas[grupo.reduce(0) { $0 * 3 + (c[$1] == 0x31 ? 1 : c[$1] == 0x32 ? 2 : 0) }] += 1
+        }
+        let filas = cuentas.indices.map { i in
+            FilaAnaCombi(grupo: String(FiltroPorGrupos.n1s(i).suffix(grupo.count)), columnas: cuentas[i])
+        }
+        return (filas, procesadas)
+    }
+
+    /// CU-A05 `Grabar` (el del port, DEC-802): las columnas normalizadas del fichero, en su orden y con repetidas, cuya
+    /// combinación de grupo esté marcada; no se vuelve a aplicar el patrón.
+    public static func grabarGrupos(
+        _ url: URL, grupos: Set<String>, seleccion: [String], en salida: URL, entorno: Entorno
+    ) throws(ErrorDominio) {
+        let grupo = grupoAnaCombi(seleccion)
+        var lineas: [String] = []
+        for l in TextoNET.lineas(try entorno.archivos.leer(url)) {
+            let c = normalizaAnaCombi(l)
+            guard c.count >= 14, grupos.contains(String(decoding: grupo.map { c[$0] }, as: UTF16.self)) else { continue }
+            lineas.append(String(decoding: c, as: UTF16.self))
+        }
+        try entorno.archivos.escribir(TextoNET.codificarLineas(lineas), en: salida, atomico: false)
+    }
+}
+
+// C#: Views/Ported/AnalizadorJPMViewModel.cs (08 pantalla 6; CU-A09…A11). Codificación propia (la de Pares).
+
+/// Resultado de «Iniciar»: casilla (0…35) de cada columna única (−1 = ausente), recuentos y la columna corta si la hubo.
+public struct ClasificacionJPM: Sendable {
+    public let validas: [Int8]
+    public let casillas: [Int]
+    public let total: Int
+    public let columnaCorta: String?
+}
+
+extension CasosUtilidades {
+    /// `RecuperaValores`: `Convert.ToInt32` (a par; NaN lanza) recortado a 0…5.
+    public static func valoresJPM(_ v: [Double]) throws(ErrorDominio) -> [Int] {
+        var r: [Int] = []
+        for x in v { r.append(min(5, max(0, Int(try FormatoNET.convertToInt32(x))))) }
+        return r
+    }
+
+    /// `Puntuar`: suma de los 7 pares (posiciones 0-1, 2-3…); sensible a mayúsculas (`1x` no suma).
+    static func puntuarJPM(_ c: [UInt16], _ vals: [Int]) -> Int {
+        func s(_ u: UInt16) -> Int? { u == 0x31 ? 0 : u == 0x58 ? 1 : u == 0x32 ? 2 : nil }
+        return stride(from: 0, to: 14, by: 2).reduce(0) { r, i in
+            guard let a = s(c[i]), let b = s(c[i + 1]) else { return r }
+            return r + vals[a * 3 + b]
+        }
+    }
+
+    /// `Puntuar(N1s(n))` sin pasar por texto: pares desde el final (dígito 0 = X, 1 = 1, 2 = 2).
+    static func puntuarIndiceJPM(_ n: Int, _ vals: [Int]) -> Int {
+        let m = [1, 0, 2]
+        var (x, r) = (n, 0)
+        for _ in 0..<7 {
+            let b = m[x % 3]
+            x /= 3
+            r += vals[m[x % 3] * 3 + b]
+            x /= 3
+        }
+        return r
+    }
+
+    /// CU-A09 `Iniciar`: columnas (recortadas, sin pasar a mayúsculas) sin repetir, por casilla de suma. Una de menos de
+    /// 14 caracteres corta la lectura y se devuelve; la cancelación también corta.
+    @concurrent public static func clasificarJPM(_ url: URL, valores: [Int], entorno: Entorno) async throws(ErrorDominio)
+        -> ClasificacionJPM
+    {
+        var validas = [Int8](repeating: -1, count: 4_782_969)
+        var casillas = [Int](repeating: 0, count: 36)
+        var (total, corta): (Int, String?) = (0, nil)
+        for l in lineasPeek(try entorno.archivos.leer(url)) {
+            if Task.isCancelled { break }
+            let col = FormatoNET.recortar(l)
+            let u = Array(col.utf16)
+            guard u.count >= 14 else {
+                corta = col
+                break
+            }
+            let n = try FiltroPorGrupos.s1n(col)
+            guard validas[n] < 0 else { continue }
+            let p = puntuarJPM(u, valores)
+            (validas[n], total) = (Int8(p), total + 1)
+            casillas[p] += 1
+        }
+        return ClasificacionJPM(validas: validas, casillas: casillas, total: total, columnaCorta: corta)
+    }
+
+    /// CU-A10 `Grabar`: `N1s` de las columnas de casillas marcadas, por índice (el fichero se crea siempre).
+    public static func grabarJPM(_ validas: [Int8], marcadas: [Bool], en url: URL, entorno: Entorno) throws(ErrorDominio) {
+        let cols = validas.indices.filter { validas[$0] >= 0 && marcadas[Int(validas[$0])] }.map(FiltroPorGrupos.n1s)
+        try entorno.archivos.escribir(TextoNET.codificarLineas(cols), en: url, atomico: false)
+    }
+
+    /// «Cargar ganadoras»: `VerColumna` de cada línea (14 primeros de `12xX` tras recortar); `nil` si alguna no vale.
+    public static func ganadorasJPM(_ url: URL, entorno: Entorno) throws(ErrorDominio) -> [String]? {
+        var r: [String] = []
+        for l in lineasPeek(try entorno.archivos.leer(url)) {
+            let u = Array(FormatoNET.recortar(l).utf16.prefix(14))
+            guard u.count == 14, u.allSatisfy({ [0x31, 0x32, 0x78, 0x58].contains($0) }) else { return nil }
+            r.append(String(decoding: u, as: UTF16.self))
+        }
+        return r
+    }
+
+    /// CU-A11 `Analizar` (columna ya recortada y en mayúsculas, ≥ 14): puntuación y los 5 contadores tal como se muestran
+    /// (14, 13 y las restas de acumulados 12-13, 11-12, 10-11). `BuscaPremios` recorre en el orden del C#, con la
+    /// recursión incondicional que puede contar una columna en varios niveles.
+    @concurrent public static func premiosJPM(_ columna: String, valores: [Int], marcadas: [Bool]) async throws(ErrorDominio) -> (
+        puntuacion: Int, premios: [Int]
+    ) {
+        let pot = (0..<14).map { Int(pow(3.0, Double($0))) }
+        var colprs = [Int8](repeating: 0, count: 4_782_969)
+        var nprs = [Int](repeating: 0, count: 5)
+        let ncol = try FiltroPorGrupos.s1n(columna)
+        let p = puntuarJPM(Array(columna.utf16), valores)
+        if marcadas[p] {
+            colprs[ncol] = 14
+            nprs[0] += 1
+        }
+        func busca(_ c0: Int, _ prof: Int) {
+            if Task.isCancelled { return }
+            for nr in 0..<14 {
+                let s = c0 / pot[nr] % 3
+                for z in 0..<3 {
+                    let c1 = c0 + pot[nr] * (z - s)
+                    if colprs[c1] < prof {
+                        colprs[c1] = Int8(prof)
+                        if marcadas[puntuarIndiceJPM(c1, valores)] { nprs[14 - prof] += 1 }
+                    }
+                    if prof > 10 { busca(c1, prof - 1) }
+                }
+            }
+        }
+        busca(ncol, 13)
+        return (p, [nprs[0], nprs[1], nprs[2] - nprs[1], nprs[3] - nprs[2], nprs[4] - nprs[3]])
+    }
+}

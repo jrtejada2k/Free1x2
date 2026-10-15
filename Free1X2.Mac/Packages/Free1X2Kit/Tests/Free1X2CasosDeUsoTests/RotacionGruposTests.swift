@@ -68,3 +68,50 @@ struct RotacionGruposTests {
         #expect(d.hasSuffix("1,270\r\n"))
     }
 }
+
+/// ESPEC_08 §4 (CU-A04, CU-A05) y §6 (CU-A09…A11).
+@Suite("Análisis de grupos y JPM")
+struct AnaCombiJPMTests {
+    let entorno = Entorno.pruebas()
+
+    func fichero(_ nombre: String, _ texto: String) throws -> URL {
+        let url = URL(filePath: "/tmp/aj/" + nombre)
+        try entorno.archivos.crearCarpeta(url.deletingLastPathComponent())
+        try entorno.archivos.escribir(Data(texto.utf8), en: url, atomico: true)
+        return url
+    }
+
+    @Test func anaCombi() async throws {
+        let sel = ["G", "1"] + Array(repeating: "-", count: 12)
+        let e = try fichero("a.txt", "1,1,1,1,1,1,1,1,1,1,1,1,1,1\r\nx1111111111111\r\n12111111111111\r\n")
+        let r = try await CasosUtilidades.analizarGrupos(e, seleccion: sel, fallos: 0, entorno: entorno)
+        #expect(r.procesadas == 3 && r.filas.map(\.grupo) == ["X", "1", "2"] && r.filas.map(\.columnas) == [1, 1, 0])
+        let s = URL(filePath: "/tmp/aj/s.txt")
+        try CasosUtilidades.grabarGrupos(e, grupos: ["1", "2"], seleccion: sel, en: s, entorno: entorno)
+        #expect(String(decoding: try entorno.archivos.leer(s), as: UTF8.self) == "11111111111111\r\n12111111111111\r\n")
+        await #expect(throws: ErrorDominio.self) {
+            try await CasosUtilidades.analizarGrupos(try fichero("c.txt", "111\r\n"), seleccion: sel, fallos: 0, entorno: entorno)
+        }
+    }
+
+    @Test func jpm() async throws {
+        let v = try CasosUtilidades.valoresJPM([0, 1, 2, 1, 3, 4, 2, 4, 5.5])
+        #expect(v == [0, 1, 2, 1, 3, 4, 2, 4, 5])
+        #expect(throws: ErrorDominio.self) { try CasosUtilidades.valoresJPM([.nan]) }
+        let e = try fichero("j.txt", "11111111111111\r\n11111111111111\r\n22222222222222\r\n1X1X1X1X1X1X1X\r\ncorta\r\n22222222222221\r\n")
+        let c = try await CasosUtilidades.clasificarJPM(e, valores: v, entorno: entorno)
+        #expect(c.total == 3 && c.casillas[0] == 1 && c.casillas[35] == 1 && c.casillas[7] == 1 && c.columnaCorta == "corta")
+        var marcadas = Array(repeating: false, count: 36)
+        marcadas[0] = true
+        let s = URL(filePath: "/tmp/aj/js.txt")
+        try CasosUtilidades.grabarJPM(c.validas, marcadas: marcadas, en: s, entorno: entorno)
+        #expect(String(decoding: try entorno.archivos.leer(s), as: UTF8.self) == "11111111111111\r\n")
+        #expect(try CasosUtilidades.ganadorasJPM(try fichero("g.txt", " 1X2x1X2x1X2x1Xzz\r\n"), entorno: entorno) == ["1X2x1X2x1X2x1X"])
+        #expect(try CasosUtilidades.ganadorasJPM(try fichero("g2.txt", "1X2\r\n"), entorno: entorno) == nil)
+        let p = try await CasosUtilidades.premiosJPM("11111111111111", valores: v, marcadas: marcadas)
+        #expect(p.puntuacion == 0 && p.premios == [1, 0, 0, 0, 0])
+        marcadas[1] = true  // «1X» o «X1» en un par: puntuación 1, a distancia 1.
+        let q = try await CasosUtilidades.premiosJPM("11111111111111", valores: v, marcadas: marcadas)
+        #expect(q.premios[1] == 14)
+    }
+}
