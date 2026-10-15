@@ -13,6 +13,11 @@ struct VistaDestino: View {
         case .configuracion: VistaConfiguracion()
         case .configuracionAnalisis: VistaConfiguracionAnalisis()
         case .cambioPuntos: VistaCambioPuntos()
+        case .visorEstadisticas: VistaVisorEstadisticas()
+        case .noVariantes: VistaNoVariantes()
+        case .signosSeguidos: VistaSignosSeguidos()
+        case .figurasFiltros: VistaFigurasFiltros()
+        case .simetrias: VistaSimetrias()
         default: PantallaPendiente(destino: destino)
         }
     }

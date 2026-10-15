@@ -31,6 +31,9 @@ final class Alertas {
         }
     }
 
+    /// Excepción no capturada en el C#: llega al manejador global de `App` (10 §1.1).
+    func inesperado(_ e: ErrorDominio) { error("Se produjo un error inesperado:\n\n" + e.mensajeUsuario) }
+
     /// `ConfirmarAsync`: `true` solo con «Sí».
     func confirmar(_ mensaje: String, titulo: String = "Free1X2") async -> Bool {
         await withCheckedContinuation { c in cola.append(Alerta(titulo: titulo, mensaje: mensaje, respuesta: c)) }

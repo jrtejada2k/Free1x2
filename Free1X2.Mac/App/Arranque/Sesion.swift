@@ -33,6 +33,10 @@ final class Sesion {
     /// `AppState.UsarAnalizadorCompartido`: «Calcular» desde Inicio usa la combinación en pantalla.
     var usarCombinacionCompartida = false
     var barras: [Bool]
+    /// `VisorEstadisticasViewModel.UltimasEstadisticas` (no se borra al leerla).
+    var ultimasEstadisticas: [Estadistica]?
+    /// `FigurasFiltrosFrmViewModel.FigurasEnEdicion`/`NombreCondicion` (DT-58: copia; `resultado` al aceptar).
+    var figuras: FigurasEnEdicion?
     /// `TemaApp` (10 §1.5): «Sistema» (defecto), «Claro», «Oscuro»; en `UserDefaults` (ESPEC_11 §9).
     var tema = UserDefaults.standard.string(forKey: "tema") ?? "Sistema" {
         didSet {
@@ -183,6 +187,11 @@ final class Sesion {
     }
 }
 
-extension Array {
-    subscript(safe i: Int) -> Element? { indices.contains(i) ? self[i] : nil }
+/// Lista de figuras que edita la pantalla 49 por encargo de una condición.
+struct FigurasEnEdicion {
+    var lista: [Int64]
+    let condicion: String
+    /// Cuál de las listas del padre (0…3 en Signos Seguidos).
+    let clave: Int
+    var resultado: [Int64]?
 }
