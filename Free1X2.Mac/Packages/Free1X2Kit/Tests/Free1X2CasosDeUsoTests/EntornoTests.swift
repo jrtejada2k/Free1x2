@@ -48,3 +48,19 @@ struct SistemaArchivosLocalTests {
         #expect(sinCarpeta?.excepcion == .directorioNoEncontrado)
     }
 }
+
+/// 07 F22: formato de `log.txt`, BOM al crear y rotación a 1 MiB (`SV/Log.cs:88-132`).
+@Test func registroEnFichero() throws {
+    let fecha = try #require(ISO8601DateFormatter().date(from: "2026-01-01T12:00:00Z"))
+    #expect(RegistroSistema.linea(fecha, .aviso, "hola") == "2026-01-01 12:00:00.000Z [WARN] hola\r\n")
+    let carpeta = FileManager.default.temporaryDirectory.appending(path: "Free1X2-log-\(UUID().uuidString)")
+    defer { try? FileManager.default.removeItem(at: carpeta) }
+    RegistroSistema.anadir("a\r\n", en: carpeta)
+    RegistroSistema.anadir("b\r\n", en: carpeta)
+    let log = carpeta.appending(path: "log.txt")
+    #expect([UInt8](try Data(contentsOf: log)) == [0xEF, 0xBB, 0xBF] + Array("a\r\nb\r\n".utf8))
+    try Data(count: 1_048_576).write(to: log)
+    RegistroSistema.anadir("c\r\n", en: carpeta)
+    #expect(try Data(contentsOf: carpeta.appending(path: "log.1.txt")).count == 1_048_576)
+    #expect(String(decoding: try Data(contentsOf: log).dropFirst(3), as: UTF8.self) == "c\r\n")
+}

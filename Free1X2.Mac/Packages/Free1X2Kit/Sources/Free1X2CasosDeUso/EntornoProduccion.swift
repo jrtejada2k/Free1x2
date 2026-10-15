@@ -5,13 +5,14 @@ import os
 extension Entorno {
     /// Entorno real de la app. El portapapeles lo aporta la app, porque AppKit no entra en el paquete (ESPEC_11 §3.2).
     public static func produccion(portapapeles: any Portapapeles) -> Entorno {
-        Entorno(
+        let rutas = RutasApp.produccion()
+        return Entorno(
             reloj: RelojSistema(),
             archivos: SistemaArchivosLocal(),
-            rutas: .produccion(),
+            rutas: rutas,
             red: ClienteHTTPSistema(),
             portapapeles: portapapeles,
-            registro: RegistroSistema(),
+            registro: RegistroSistema(carpeta: rutas.logs),
             cultura: .sistema()
         )
     }
@@ -125,12 +126,16 @@ package struct ClienteHTTPSistema: ClienteHTTP {
     }
 }
 
-/// Registro en `os.Logger`. ponytail: el fichero `~/Library/Logs/Free1X2/log.txt` con el formato y la rotación de
-/// 07:1166-1173 llega con su caso de uso en M4.
-package struct RegistroSistema: Registro {
+/// Registro en `os.Logger` y en `log.txt` (`SV/Log.cs`, 07 F22): `{UTC aaaa-MM-dd HH:mm:ss.fff}Z [NIVEL] mensaje` + CRLF;
+/// BOM UTF-8 solo al crear el fichero; con 1 MiB o más pasa a `log.1.txt` (sobrescribe). Nunca lanza; un candado global.
+package final class RegistroSistema: Registro {
     private let logger = Logger(subsystem: "com.free1x2.app", category: "app")
+    private let carpeta: URL?
+    private let candado = OSAllocatedUnfairLock()
 
-    package init() {}
+    package init(carpeta: URL? = nil) {
+        self.carpeta = carpeta
+    }
 
     package func registrar(_ mensaje: String, nivel: NivelRegistro) {
         switch nivel {
@@ -138,5 +143,40 @@ package struct RegistroSistema: Registro {
         case .aviso: logger.warning("\(mensaje, privacy: .public)")
         case .error: logger.error("\(mensaje, privacy: .public)")
         }
+        guard let carpeta else { return }
+        let linea = Self.linea(Date(), nivel, mensaje)
+        candado.withLock { Self.anadir(linea, en: carpeta) }
+    }
+
+    package static func linea(_ fecha: Date, _ nivel: NivelRegistro, _ mensaje: String) -> String {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "en_US_POSIX")
+        f.timeZone = TimeZone(identifier: "UTC")
+        f.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS"
+        let n =
+            switch nivel {
+            case .info: "INFO"
+            case .aviso: "WARN"
+            case .error: "ERROR"
+            }
+        return "\(f.string(from: fecha))Z [\(n)] \(mensaje)\r\n"
+    }
+
+    package static func anadir(_ linea: String, en carpeta: URL) {
+        let fm = FileManager.default
+        let log = carpeta.appending(path: "log.txt")
+        try? fm.createDirectory(at: carpeta, withIntermediateDirectories: true)
+        if let tam = (try? fm.attributesOfItem(atPath: log.path))?[.size] as? Int, tam >= 1_048_576 {
+            let viejo = carpeta.appending(path: "log.1.txt")
+            try? fm.removeItem(at: viejo)
+            try? fm.moveItem(at: log, to: viejo)
+        }
+        guard let h = try? FileHandle(forWritingTo: log) else {
+            try? (Data([0xEF, 0xBB, 0xBF]) + Data(linea.utf8)).write(to: log)
+            return
+        }
+        defer { try? h.close() }
+        _ = try? h.seekToEnd()
+        try? h.write(contentsOf: Data(linea.utf8))
     }
 }
