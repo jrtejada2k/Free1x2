@@ -42,3 +42,40 @@ struct FormatosPremiadasTests {
         #expect(String(decoding: try entorno.archivos.leer(s), as: UTF8.self) == "11111111111112\r\n")
     }
 }
+
+/// ESPEC_10 §79 (CU-C11…C13), §104 (CU-C57) y ESPEC_09 §72 (CU-B40).
+@Suite("Posibles premios y mejores opciones")
+struct PosiblesPremiosTests {
+    let cols = ["11111111111111", "X1111111111111"]
+    let unos = String(repeating: "1", count: 13)
+
+    @Test func posibles() async throws {
+        let p = CasosCombinacion.ganadoraParcial(Array(repeating: "1", count: 13) + ["", "x", ""], partidos: 14)
+        #expect(p.ganadora == unos + "*X" && p.noDefinitivos == 1 && p.signos[13] == "*" && p.signos[15] == "")
+        let r = await CasosCombinacion.posiblesPremios(cols, ganadora: unos + "*", partidos: 14, pleno: false, generarResumen: true)
+        #expect(r.categorias[2] == [cols[0] + "14"] && r.categorias[3] == [cols[1] + "13"] && r.premiadas.count == 2)
+        #expect(r.resumen.map(\.colGanadora) == [unos + "1", unos + "X", unos + "2"])
+        let o = CasosCombinacion.textosOptando(r.categorias, pleno: false)
+        #expect(o[2] == "Optando a 14: 1" && o[3] == "Optando a 13: 1")
+        let c = CasosCombinacion.textoCopiarPosibles(o, noDefinitivos: 1, partidos: 14)
+        #expect(c.hasPrefix("Posibles premios a falta de 1 partidos:\r\nOptando a 14: 1\r\n") && c.hasSuffix("Optando a 10: 0"))
+        let g = CasosCombinacion.textoResumenPosibles(Array(r.resumen.prefix(1)), noDefinitivos: 1)
+        #expect(g.contains("Columna Ganadora: " + unos + "1\r\n") && g.contains(cols[0] + " 14 aciertos\r\n") && g.hasSuffix(" \r\n"))
+        let v = CasosCombinacion.grupoVisor(r.resumen[0])
+        #expect(v.ganadora.count == 14 && v.columnas.map(\.categoria) == [14, 13] && v.columnas[0].aciertosTexto == "14")
+        #expect(v.columnas[1].aciertos.first == false && v.columnas[1].signos.count == 14)
+    }
+
+    @Test func mejores() async throws {
+        let inv = Array(repeating: false, count: 13) + [true, false, false]
+        #expect(CasosCombinacion.ganadorasPosibles(unos + "*", involucrados: inv).count == 3)
+        #expect(CasosCombinacion.ganadorasPosibles("*1", involucrados: [false, false]) == ["*1"])
+        let t = try await CasosCombinacion.mejoresOpciones(ganadora: unos + "*", columnas: cols, pleno: false, involucrados: inv, limite: 2)
+        #expect(
+            t == "Mis mejores opciones son: \r\n------------------------\r\n\r\n" + unos
+                + "1: 0 de 14 + 1 de 13 + 1 de 12 + 0 de 11 + 0 de 10\r\n"
+                + unos + "X: 0 de 14 + 1 de 13 + 1 de 12 + 0 de 11 + 0 de 10\r\n")
+        let p = try await CasosCombinacion.mejoresOpciones(ganadora: unos + "1", columnas: cols, pleno: true, involucrados: inv, limite: 1)
+        #expect(p.contains(": 2 de 14 + 0 de 13 + 1 de 12"), "pleno: 14 de 14 cuenta dos veces")
+    }
+}

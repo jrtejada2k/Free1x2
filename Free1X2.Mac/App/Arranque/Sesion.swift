@@ -59,6 +59,10 @@ final class Sesion {
     var estadisticas: [Anastatics.Modo: MatrizEstadistica] = [:]
     /// `HistoriaValoracionesFrmPage.Contexto` (lo deja Tramificar).
     var historiaValoraciones: (valores: [[Double]], temporada: Int, jornada: Int, archivo: URL?)?
+    /// `VisorPosiblesPremiosViewModel.UltimoResumen` (no se vacía al leerlo).
+    var resumenPosiblesPremios: [PosiblesPremiosContenedor] = []
+    /// `MejoresOpcionesContexto` (parámetro de navegación).
+    var contextoMejoresOpciones: (ganadora: String, columnas: [String], pleno: Bool)?
     /// `TemaApp` (10 §1.5): «Sistema» (defecto), «Claro», «Oscuro»; en `UserDefaults` (ESPEC_11 §9).
     var tema = UserDefaults.standard.string(forKey: "tema") ?? "Sistema" {
         didSet {

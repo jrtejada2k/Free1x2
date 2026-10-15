@@ -79,6 +79,9 @@ struct VistaDestino: View {
         case .premiadas: VistaPremiadas()
         case .anaCombi: VistaAnaCombi()
         case .analizadorJPM: VistaAnalizadorJPM()
+        case .posiblesPremios: VistaPosiblesPremios()
+        case .visorPosiblesPremios: VistaVisorPosiblesPremios()
+        case .mejoresOpciones: VistaMejoresOpciones()
         default: PantallaPendiente(destino: destino)
         }
     }

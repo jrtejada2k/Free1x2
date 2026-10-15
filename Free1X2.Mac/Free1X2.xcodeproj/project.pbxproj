@@ -59,6 +59,7 @@
 		CCA14C8EE480990172F61B7E /* MatrizAnalisisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E06E5841AB3F270318467C6F /* MatrizAnalisisView.swift */; };
 		D55851FF07C4F9C15C9ABDEA /* Alertas.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62B44320D069342A326F7B49 /* Alertas.swift */; };
 		D74346F69FC619A5D54C16CA /* Herramientas.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAAB662470D449B33E236941 /* Herramientas.swift */; };
+		DAF3A71B63B5153C46D68BAF /* PosiblesPremios.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D1FDE491ECE78D5FA7B7822 /* PosiblesPremios.swift */; };
 		DFEDAA659E9D9C67DBA1BE13 /* CrearGrupos.swift in Sources */ = {isa = PBXBuildFile; fileRef = B21DE7E700E486F0520CD1B4 /* CrearGrupos.swift */; };
 		E693C7E6AC98476F326288A5 /* ControlGrupos.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0FC64BC0051E3917F7CD08 /* ControlGrupos.swift */; };
 		E6F65D76BA0A88DBA6646F2A /* PesosNumericos.swift in Sources */ = {isa = PBXBuildFile; fileRef = E57437FEB0766E67A1F55EF1 /* PesosNumericos.swift */; };
@@ -81,6 +82,7 @@
 		36A9EE697724FB734F137E9F /* AnalizarFichero.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalizarFichero.swift; sourceTree = "<group>"; };
 		39BF9252187A13E9703C8EF5 /* Formatos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Formatos.swift; sourceTree = "<group>"; };
 		49BDD4273F4F33E1C72948C9 /* PortapapelesSistema.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortapapelesSistema.swift; sourceTree = "<group>"; };
+		4D1FDE491ECE78D5FA7B7822 /* PosiblesPremios.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PosiblesPremios.swift; sourceTree = "<group>"; };
 		572A8CBF196CF469733FD84F /* PantallaCondicion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PantallaCondicion.swift; sourceTree = "<group>"; };
 		60C5C48A12ADB096F03ECDAD /* GuardarValoracion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuardarValoracion.swift; sourceTree = "<group>"; };
 		62B44320D069342A326F7B49 /* Alertas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alertas.swift; sourceTree = "<group>"; };
@@ -203,6 +205,7 @@
 				6805A7570CD734755BDCAD8E /* CalculaColumnasMultiple.swift */,
 				B21DE7E700E486F0520CD1B4 /* CrearGrupos.swift */,
 				0FB1E51964635F385BCD932C /* Escrutinios.swift */,
+				4D1FDE491ECE78D5FA7B7822 /* PosiblesPremios.swift */,
 				31447562034E5D6106CA5C63 /* Probabilidades.swift */,
 				FD3A18E29DB9A8DC9CA942BE /* Reductor.swift */,
 			);
@@ -446,6 +449,7 @@
 				0C696D7C2FF48FB69126C194 /* PantallaCondicion.swift in Sources */,
 				E6F65D76BA0A88DBA6646F2A /* PesosNumericos.swift in Sources */,
 				5CBF4AEFEDF4E37ACDC318FA /* PortapapelesSistema.swift in Sources */,
+				DAF3A71B63B5153C46D68BAF /* PosiblesPremios.swift in Sources */,
 				454FF50D9FD1FD6C40264CED /* Premiadas.swift in Sources */,
 				4B02FDAF6E68B30A27659E26 /* Probabilidades.swift in Sources */,
 				1BC9BF8E43FAD9D0944F9BD5 /* Raiz.swift in Sources */,
