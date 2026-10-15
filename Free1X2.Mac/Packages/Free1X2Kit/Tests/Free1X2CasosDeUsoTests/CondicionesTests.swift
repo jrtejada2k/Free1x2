@@ -99,4 +99,30 @@ struct CondicionesTests {
         #expect(try CasosCondiciones.valorarColumna("1X222222222222", p, esSuma: true, en: &f, numeroPartidos: 14, cultura: .esES) == "110")
         #expect(CasosCondiciones.columnasBase([[50, 30, 20], [10, 60, 30], [1, 1, 5], [5, 5, 5]]) == "1X21\r\nX21X\r\n21X2")
     }
+
+    @Test func distanciasEInterrupciones() throws {
+        var d = CondicionDistancias(numeroPartidos: 14)
+        try CasosCondiciones.aplicarDistancias(["", "2,3b", "", ""], en: &d)
+        #expect(d.activa && d.getInt1 == "2,3b" && d.getIntVar == CasosCondiciones.todosValores(14))
+        var i = CondicionInterrupciones(numeroPartidos: 14)
+        try CasosCondiciones.aplicarInterrupciones(["", "", "", "", "", "1"], en: &i)
+        #expect(i.activa && i.get(.globalSeg) == "1" && i.get(.global) == CasosCondiciones.todosValores(14))
+        try CasosCondiciones.aplicarInterrupciones([], en: &i)
+        #expect(!i.activa && !i.contieneDatos)
+    }
+
+    @Test func contactosYDibujos() throws {
+        var c = CondicionContactos(numeroPartidos: 15)
+        try CasosCondiciones.aplicarContactos(["0,1", "", "", "", "", "", "", "", "", ""], figuras: [0x21], en: &c)
+        #expect(c.activa && c.get(.unoX) == "0,1" && c.get(.vv) == CasosCondiciones.todosValores(15) && c.figuras == [0x21])
+        var c14 = CondicionContactos(numeroPartidos: 14)
+        #expect(throws: ErrorDominio.self) { try CasosCondiciones.aplicarContactos(["0"], figuras: nil, en: &c14) }
+        #expect(CasosCondiciones.casillasDibujos(2) == ["0+0", "0+1", "0+2", "1+0", "1+1", "2+0"])
+        #expect(CasosCondiciones.casillasDibujos(14).count == 120)
+        var d = CondicionDibujos()
+        try CasosCondiciones.aplicarDibujos(["2+3", "0+0"], en: &d)
+        #expect(d.activa && d.contieneDatos && d.getDibujos == "2+3,0+0")
+        try CasosCondiciones.aplicarDibujos([], en: &d)
+        #expect(!d.activa && !d.contieneDatos && d.dibujos.isEmpty)
+    }
 }

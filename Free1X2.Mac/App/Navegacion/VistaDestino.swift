@@ -20,6 +20,10 @@ struct VistaDestino: View {
         case .simetrias: VistaSimetrias()
         case .pesosNum: VistaPesosNumericos()
         case .valoracion: VistaValoracion()
+        case .distancias: VistaDistancias()
+        case .interrupciones: VistaInterrupciones()
+        case .contactos: VistaContactos()
+        case .dibujos: VistaDibujos()
         default: PantallaPendiente(destino: destino)
         }
     }

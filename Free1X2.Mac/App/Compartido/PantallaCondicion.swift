@@ -34,6 +34,8 @@ struct PantallaCondicion<Contenido: View>: View {
     let borrar: () -> Void
     /// `MarcarValores` al abrir o pegar, si no es igual que `cargar`.
     var marcar: ((CondicionesGrupo) -> Void)? = nil
+    /// Lo que Guardar/Copiar escriben, si no es el filtro temporal (Contactos vuelca antes en el grupo).
+    var exportable: ((Int) throws(ErrorDominio) -> CondicionesGrupo?)? = nil
     @ViewBuilder var contenido: Contenido
     @State private var cargado = false
 
@@ -65,6 +67,11 @@ struct PantallaCondicion<Contenido: View>: View {
 
     private var n: Int { sesion.numeroPartidos }
 
+    private func exportar() throws(ErrorDominio) -> CondicionesGrupo? {
+        if let exportable { return try exportable(n) }
+        return try temporal(n)
+    }
+
     private func botonAceptar() {
         guard sesion.combinacion.grupos.indices.contains(sesion.grupoEnEdicion) else { return sesion.router.atras() }
         do throws(ErrorDominio) {
@@ -92,7 +99,7 @@ struct PantallaCondicion<Contenido: View>: View {
     private func guardar() async {
         guard let url = await SelectorFicheros.guardar(archivo.nombreSugerido, archivo.tipos) else { return }
         do throws(ErrorDominio) {
-            guard let t = try temporal(n) else { return }
+            guard let t = try exportar() else { return }
             try CasosCondiciones.exportarCondicion(tipo, t, en: url, entorno: sesion.entorno)
         } catch {
             sesion.alertas.error("No se pudo guardar: " + error.mensajeUsuario)
@@ -114,7 +121,7 @@ struct PantallaCondicion<Contenido: View>: View {
 
     private func copiar() {
         do throws(ErrorDominio) {
-            guard let t = try temporal(n) else { return }
+            guard let t = try exportar() else { return }
             try CasosCondiciones.exportarCondicion(
                 tipo, t, en: CasosCondiciones.rutaTemporal(archivo.extensionTemporal, entorno: sesion.entorno),
                 entorno: sesion.entorno)
