@@ -97,6 +97,8 @@ struct VistaDestino: View {
         case .visorAnalisisColumnasAbdon: VistaVisorAbdon()
         case .imprimirBoleto: VistaImprimirBoleto()
         case .listaImpresoras: VistaListaImpresoras()
+        case .dependenciaLineal: VistaDependenciaLineal()
+        case .reducidasPerfectas: VistaReducidasPerfectas()
         default: PantallaPendiente(destino: destino)
         }
     }
