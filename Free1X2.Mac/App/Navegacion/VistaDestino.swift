@@ -91,6 +91,8 @@ struct VistaDestino: View {
         case .vSignos: VistaVSignos()
         case .difCols: VistaDifCols()
         case .subirCategoria: VistaSubirCategoria()
+        case .agregaP15: VistaAgregaP15()
+        case .graficoColumnas: VistaGraficoColumnas()
         default: PantallaPendiente(destino: destino)
         }
     }
