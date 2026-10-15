@@ -108,7 +108,7 @@ Fixtures `cols_a.txt`, `cols_b.txt`, `cols_con_repetidas.txt`, `ganadora.txt` y 
 
 | Regla | Umbral |
 |-------|--------|
-| Techo absoluto | mediana en un M1 (Release): B1 ≤ 1 s, B6 ≤ 1 s, B7 ≤ 3 s; B2–B5 y B8 sin techo fijo hasta su primera medición (línea base) |
+| Techo absoluto | mediana en un M1 (Release): B1 ≤ 1 s · B2 ≤ 10 s · B3 ≤ B2 + 3 s · B4 ≤ 2 × B2 · B5 ≤ 10 s · B6 ≤ 1 s · B7 ≤ 3 s · B8 ≤ 5 s por CU. Son techos de usabilidad (DT-30…39); la línea base de la primera medición solo puede endurecerlos |
 | Paralelismo | B1/B2 con particiones ≥ 2× más rápido que con P = 1 en un M1 (8 núcleos) |
 | Memoria | pico ≤ 64 MB en B1–B3; ≤ 128 MB en B8 (10:532 estimaba 57 MB) |
 | Regresión (CI) | > 15 % más lento que `bench/linea-base.json` del mismo tipo de runner ⇒ falla el nocturno |

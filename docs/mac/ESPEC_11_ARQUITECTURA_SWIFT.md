@@ -268,6 +268,7 @@ public enum ExcepcionNET: String, Sendable, Codable {         // el TIPO de exce
     case archivoNoEncontrado = "FileNotFoundException", directorioNoEncontrado = "DirectoryNotFoundException"
     case entradaSalida = "IOException", accesoDenegado = "UnauthorizedAccessException"
     case xml = "XmlException", operacionCancelada = "OperationCanceledException"
+    case general = "Exception"                                  // `throw new Exception(…)` literal (DEC-104)
 }
 public struct ErrorDominio: Error, Sendable, Equatable {
     public let excepcion: ExcepcionNET

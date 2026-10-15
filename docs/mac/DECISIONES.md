@@ -6,10 +6,12 @@
 >
 > **Mandato del dueño (2026-10-13):** (1) las decisiones de producto las define la app actual («usar eso»); (2) las técnicas las
 > toma Claude con buenas prácticas de velocidad, mantenimiento, arquitectura y pruebas; (3) el dueño revisa todo al final.
-> Todas las entradas están **tomadas** y quedan **sujetas a esa revisión final**.
+>
+> **Cierre de M0 (dueño, 2026-10-14):** el dueño delegó en Claude cerrar todo lo pendiente con buenas prácticas. Todas las entradas
+> están **cerradas** (D, o D con candidata R). El valor exacto de cada «replicar» lo fija su caso `lectura` en M1 (ESPEC_12): es
+> trabajo de M1, no una decisión abierta.
 
-Estados: **D** decidida (se aplica) · **O** decidida: replicar lo que muestre el oráculo en M1 (ESPEC_12) · **V** decidida, con
-verificación física o de plataforma en M4/M5 · **R** se replica hoy; **candidata a corrección después de la paridad** (solo con
+Estados: **D** decidida (se aplica) · **R** se replica hoy; **candidata a corrección después de la paridad** (solo con
 orden expresa del dueño; no se implementa).
 
 ## 1. Decisiones de producto (= app actual) — detalle en ESPEC_11 §2
@@ -17,7 +19,7 @@ orden expresa del dueño; no se implementa).
 | ID | Tema | Decisión | Fusiona |
 |----|------|----------|---------|
 | DP-01 | Cultura numérica | C1–C2 `es-ES` fija; C3–C13 cultura del sistema; golden con `es-ES` | D4; 01 A9; 03 A1; 05 §7 T7; 06 A3; 07 A15; 09 G-3; 10 A-15 (formato: G-NET) |
-| DP-02 | EOL, BOM, codificación | mismos bytes que hoy en Windows (CRLF; BOM y Latin-1 por formato); lectura tolerante como el C# | D5; 05 A10, A14; 06 A14; 07 A1, A7; 09 A-60-1, A-71-1 (este, **O**: bytes de WinRT `FileIO`) |
+| DP-02 | EOL, BOM, codificación | mismos bytes que hoy en Windows (CRLF; BOM y Latin-1 por formato); lectura tolerante como el C# | D5; 05 A10, A14; 06 A14; 07 A1, A7; 09 A-60-1, A-71-1 (este: UTF-8 sin BOM con CRLF, DEC-708) |
 | DP-03 | Nº de partidos | `NumeroPartidos` de configuración (defecto 14); límites por componente como hoy; superarlos = mismo error tipado | 02 A2; 03 A7; 04 A-2, A-11; 06 A15; 10 A-14 |
 | DP-04 | Recarga de configuración | lectura única al arrancar; guardar no recarga (salvo puntos CP y N de `Grupo`) | 01 A8; 08 A6 |
 | DP-05 | Ventana/documento | una ventana, una `Sesion`, sin modelo de documento | 10 A-01 |
@@ -47,11 +49,11 @@ orden expresa del dueño; no se implementa).
 | DT-08 | Bucles que en C# **no terminan** (09 A-73-1; 10:1341 `ColumnasPorTramo ≤ 0`) ⇒ se detecta la falta de progreso y se lanza `ErrorDominio(.operacionInvalida)` con un mensaje; los casos que terminan dan el mismo resultado | — |
 | DT-09 | Reglas de rendimiento del camino caliente | ESPEC_11 §10 |
 | DT-10 | macOS 14+, arm64, Swift 6.2+, Swift Testing | ESPEC_11 §12 |
-| DT-11 | XML con `Foundation.XMLDocument` + `EscritorXMLNET`; ZIP con `Compression.framework` sin terceros | ESPEC_16 §2-3; 06 A18 (**V**: *spike* en M3) |
+| DT-11 | XML con `Foundation.XMLDocument` + `EscritorXMLNET`; ZIP con `Compression.framework` sin terceros | ESPEC_16 §2-3; 06 A18 (DEC-616) |
 | DT-12 | Convenciones de código y trazabilidad `// C#: fichero:línea` | ESPEC_11 §11 |
 | DT-13 | Mayúsculas ASCII invariantes para letras de tolerancia y columnas (la cultura turca no se emula) | 02 A5; 06 A5 |
-| DT-14 | Orden de ficheros de `DirectoryInfo.GetFiles`: por nombre, ordinal sin distinguir mayúsculas (orden de NTFS); fijado por lectura (`bcl`, ESPEC_12 §1.1) — **O** | 03 A3; 10 A-19 |
-| DT-15 | Ordenaciones con empates o `NaN`: `IntrosortNET` / comparador «NaN primero» solo donde el golden muestre que el orden llega a la salida — **O** | 04 A-9; 05 A3; 06 A9 |
+| DT-14 | Orden de ficheros de `DirectoryInfo.GetFiles`: por nombre, ordinal sin distinguir mayúsculas (orden de NTFS); fijado por lectura (`bcl`, ESPEC_12 §1.1) | 03 A3; 10 A-19 |
+| DT-15 | Ordenaciones: **toda** `Array.Sort`/`List<T>.Sort` del C# se porta con `IntrosortNET` (mismo algoritmo de .NET 8, con la pasada previa que pone los `NaN` primero en claves `double`/`float`); los quicksorts escritos a mano en pantallas se transcriben tal cual. Regla única, sin depender de si el orden llega a la salida (el C# no usa `OrderBy`) | 04 A-9; 05 A3; 06 A9 |
 | DT-16 | Cliente HTTP: `URLSession` efímera, timeout 10 s, `Accept: application/json`, `User-Agent: Free1X2/<versión> (macOS)`; redirecciones y descompresión por defecto | 07 A10 |
 | DT-17 | Mensaje genérico HTTP con los nombres de `HttpStatusCode` de .NET 8 (tabla de los códigos estándar) | 07 A11 |
 | DT-18 | Selector «Nuevo…» de valoraciones: se aplica la lógica C# al estado real del fichero; como `NSSavePanel` no crea un fichero vacío (a diferencia de WinUI), «inexistente» ⇒ nuevo | 09 A-64-1 |
@@ -74,29 +76,29 @@ Formato: `origen` → decisión (estado). Las que solo remitían a otra spec se 
 | DEC | Origen | Decisión |
 |-----|--------|----------|
 | DEC-101 | A1 GoldenGen inexistente | ESPEC_12 (D) |
-| DEC-102 | A2 `EsGrupoBase` tras cargar | replicar (O) |
-| DEC-103 | A3 `VaciarInformacion` descarta lo del control 0 | replicar (O) |
-| DEC-104 | A4 Diferencias + tolerancias lanza | error tipado `.operacionInvalida`/el tipo que dé el golden, en el mismo punto (O; DT-03) |
-| DEC-105 | A5 formato de `Valor*` con negativos | replicar (O) |
-| DEC-106 | A6 tamaños de `ColumnasPorFallos*` | replicar; si el C# lanza, error tipado (O) |
+| DEC-102 | A2 `EsGrupoBase` tras cargar | replicar el bucle tal cual (`ES/ArchivoCombinacion.cs:221-232`): el índice `i` cuenta también los comentarios XML, así que `EsGrupoBase` queda `true` solo si el grupo tiene exactamente un hijo (D) |
+| DEC-103 | A3 `VaciarInformacion` descarta lo del control 0 | replicar: `VaciarInformacion()` antes de cada control libre `j>0` (`MC/ControladorGrupos.cs:224`) (D) |
+| DEC-104 | A4 Diferencias + tolerancias lanza | `throw new Exception("The method or operation is not implemented.")` (`MC/FiltroDiferencias.cs:124-127`) ⇒ `ErrorDominio(.general)` con ese mensaje, en el mismo punto (D; DT-03) |
+| DEC-105 | A5 formato de `Valor*` con negativos | replicar (`MC/Analizador.cs:234-249`): un valor negativo contiene `-` y se trata como intervalo; `Split('-')` deja un trozo vacío y `Convert.ToDouble("")` ⇒ `ErrorDominio(.formato)`; los extremos de intervalo se redondean a par (D) |
+| DEC-106 | A6 tamaños de `ColumnasPorFallos*` | replicar los índices literales; un `nFallados` fuera de rango ⇒ `ErrorDominio(.indiceFueraDeRango)` en el mismo punto (D) |
 | DEC-107 | A7 estructura de errores | DT-03 (D) |
 | DEC-108 | A8 reinicializar = no-op | DP-04 (D) |
 | DEC-109 | A9 cultura | DP-01 (D) |
 | DEC-110 | A10 `ObtenNumCols` supone CRLF | replicar; coherente con DP-02 (D) |
 | DEC-111 | A11 `Signo`, `ReduccionTipo`, `AlgoritmoReduccion`, `IAppPaths`, `IProgressNotifier` sin uso | DP-08 (D) |
-| DEC-112 | A12 alcance de lectura de `ContenedorAnalisis` | cubierto por ESPEC_06 §3.5 + golden (O) |
+| DEC-112 | A12 alcance de lectura de `ContenedorAnalisis` | cubierto por ESPEC_06 §3.5 (D) |
 
 ### ESPEC_02 (filtros A)
 
 | DEC | Origen | Decisión |
 |-----|--------|----------|
-| DEC-201 | A1 celdas multi-signo | replicar el `switch` (O) |
+| DEC-201 | A1 celdas multi-signo | replicar el `switch` literal para cualquier valor de celda, incluidas las multi-signo (D) |
 | DEC-202 | A2 rango de N | DP-03 (D) |
-| DEC-203 | A3 If-Then con Peso numérico siempre `false` | replicar (O; R) |
-| DEC-204 | A4 `values=""` no se relee | replicar: error tipado al abrir (O) |
+| DEC-203 | A3 If-Then con Peso numérico siempre `false` | replicar (D; R) |
+| DEC-204 | A4 `values=""` no se relee | replicar: el lector lanza ⇒ `ErrorDominio(.indiceFueraDeRango)` al abrir, que llega al mismo `catch` que en C# (D) |
 | DEC-205 | A5 letras de tolerancia y `ToUpper` | DT-13 (D) |
 | DEC-206 | A6 `isLetter` vs `IsLetter` | `FormatoNET.esLetra` con categorías Unicode (D; `G-NET-TXT`) |
-| DEC-207 | A7 máscara del grupo base en análisis | replicar (O) |
+| DEC-207 | A7 máscara del grupo base en análisis | replicar (`GRP:39`, `GRP:232-233`) (D) |
 | DEC-208 | A8 caracteres ≠ `1/X/2/*` en Interrupciones | replicar (rama «X») (D) |
 | DEC-209 | A9 figuras ≥ 16 · A10 duplicados en figuras · A11 tolerancia sin 0 | replicar lo que permita la UI actual (D) |
 
@@ -105,14 +107,14 @@ Formato: `origen` → decisión (estado). Las que solo remitían a otra spec se 
 | DEC | Origen | Decisión |
 |-----|--------|----------|
 | DEC-301 | A1 cultura de `double` | DP-01 (D) |
-| DEC-302 | A2 `aciertosMax` no se persiste | replicar (O; R) |
-| DEC-303 | A3 orden de `GetFiles` | DT-14 (O) |
-| DEC-304 | A4 `Convert.ToInt32/ToDouble` | `FormatoNET` + `G-NET-PARSE` (O) |
+| DEC-302 | A2 `aciertosMax` no se persiste | replicar (D; R) |
+| DEC-303 | A3 orden de `GetFiles` | DT-14 (D) |
+| DEC-304 | A4 `Convert.ToInt32/ToDouble` | `FormatoNET` con la semántica de .NET 8 (`bcl`) + `G-NET-PARSE` (D) |
 | DEC-305 | A5 Diferencias + tolerancias | = DEC-104 |
-| DEC-306 | A6 Dibujos vía If-Then rechaza siempre | replicar (O; R) |
+| DEC-306 | A6 Dibujos vía If-Then rechaza siempre | replicar (D; R) |
 | DEC-307 | A7 N ≠ 14 | DP-03 (D) |
 | DEC-308 | A8 `Diferencia.AnalizarFallos` sin llamadores | DP-08 (D) |
-| DEC-309 | A9 elemento `""` en textos de fallo / «Columna Fuera de Límites» | replicar; `Substring(0,1)` sobre vacío ⇒ error tipado como el C# (O) |
+| DEC-309 | A9 elemento `""` en textos de fallo / «Columna Fuera de Límites» | replicar; `Substring(0,1)` sobre vacío ⇒ error tipado como el C# (D) |
 | DEC-310 | A10 líneas no válidas en históricos | replicar (D) |
 | DEC-311 | A11 `RelacionGE1` · A12 `IsLetter` · A13 cobertura | ESPEC_04 · DEC-206 · ESPEC_12 (D) |
 
@@ -121,13 +123,13 @@ Formato: `origen` → decisión (estado). Las que solo remitían a otra spec se 
 | DEC | Origen | Decisión |
 |-----|--------|----------|
 | DEC-401 | A-1 política de errores | DT-03: se replican los fallos del C# (no se valida al fijar) (D) |
-| DEC-402 | A-2 N = 15 en RelacionCP1/CP3 | DP-03: con `noAC = 15` el mismo error que el C#, tipado (O) |
-| DEC-403 | A-3, A-4 `values=""` en CP y tolerancias | replicar (O) |
-| DEC-404 | A-5 caché obsoleta de RelacionCP3 (P16) | replicar (O; R) |
-| DEC-405 | A-6 BCL | `G-NET` (O) |
-| DEC-406 | A-7 RelacionCP3 desde el informe ABDON | replicar el port (O2) (O) |
-| DEC-407 | A-8 unidades de `impresoras.cfg` | centésimas de pulgada → puntos (×0,72); comprobación con un boleto impreso por el dueño en M5 (V) |
-| DEC-408 | A-9 `NaN` en `OrdenarValoracion` | DT-15 (O) |
+| DEC-402 | A-2 N = 15 en RelacionCP1/CP3 | DP-03: con `noAC = 15`, `ErrorDominio(.indiceFueraDeRango)` como el C# (D) |
+| DEC-403 | A-3, A-4 `values=""` en CP y tolerancias | replicar: el lector lanza `IndexOutOfRange` (`str[-1]`) ⇒ error tipado (D) |
+| DEC-404 | A-5 caché obsoleta de RelacionCP3 (P16) | replicar (D; R) |
+| DEC-405 | A-6 BCL | `G-NET` (`bcl`) (D) |
+| DEC-406 | A-7 RelacionCP3 desde el informe ABDON | replicar el ViewModel (`Columnas = cols`) (O2) (D) |
+| DEC-407 | A-8 unidades de `impresoras.cfg` | centésimas de pulgada → puntos ×0,72 (exacto: 1 pt = 1/72 in); el boleto impreso por el dueño en M5 es prueba de aceptación, no una decisión (D) |
+| DEC-408 | A-9 `NaN` en `OrdenarValoracion` | DT-15: `IntrosortNET` con los `NaN` primero (D) |
 | DEC-409 | A-10 `IO`/`GCP` muertos | DP-08 (D) |
 | DEC-410 | A-11 N cambia durante la vida de una CP | imposible: `Configuracion` inmutable por ejecución (D) |
 | DEC-411 | A-12 `Relaciones.Add` directo | replicar (solo serializa) (D) |
@@ -137,41 +139,41 @@ Formato: `origen` → decisión (estado). Las que solo remitían a otra spec se 
 
 | DEC | Origen | Decisión |
 |-----|--------|----------|
-| DEC-501 | A1 `EscrutadorComb` (Hashtable, índice base-3) | replicar lo que haga el C# con `GE-08` (excepción incluida) (O) |
-| DEC-502 | A2 orden de `ListaEscrutadasConPremio` | solo si DEC-501 produce salida: emular el orden de `Hashtable` con `G-NET-HASH` (O) |
-| DEC-503 | A3 `PosiblesPremiosComparer` con empates | DT-15 (O) |
+| DEC-501 | A1 `EscrutadorComb` (Hashtable, índice base-3) | replicar (`Escrutinio/EscrutadorComb.cs:114,120,224,243`): las claves de vecinos son `Int32` y la de la ganadora `Int64` con valor `byte`; `Keys.CopyTo(long[])` ensancha, pero la búsqueda con clave `long` no encuentra las `Int32` (`(int)null` ⇒ `NullReferenceException`) y en la ganadora `(int)` sobre un `byte` encajado ⇒ `InvalidCastException`. La primera columna que acepte `AnalizaColumna` (que recibe el índice base 3 como si fuera de 3 bits) lanza; si ninguna la acepta, los premios quedan a 0. El port recorre las claves en el orden de `HashtableNET` (`G-NET-HASH`) y lanza `ErrorDominio(.referenciaNula)` o `(.conversionInvalida)`, que la pantalla muestra como «No se pudo completar el escrutinio:…» (`EscrutarCombinacionesFrmViewModel.cs:496-499`) (D; R) |
+| DEC-502 | A2 orden de `ListaEscrutadasConPremio` | `ListaEscrutadasConPremio` nunca recibe elementos (el `Add` va tras el cast que siempre falla, DEC-501): siempre vacía; su orden no aplica (D) |
+| DEC-503 | A3 `PosiblesPremiosComparer` con empates | DT-15 (D) |
 | DEC-504 | A4 `PonerPremios`/`AñadirPremiosGlobales` | DP-08 (D) |
 | DEC-505 | A5 XFSF, XfsfV3, JLPM | DP-08 (D) |
-| DEC-506 | A6 último partido de `JDCDobleContador.Marca` | replicar (`GR-06`) (O) |
+| DEC-506 | A6 último partido de `JDCDobleContador.Marca` | replicar `Partido < noPartidos` (`GR-06`) (D) |
 | DEC-507 | A7 `ReductorTM` | **no se porta**: la app no lo ofrece (`Free1X2.WinUI/Views/Ported/ReductorFrmViewModel.cs:43-44`; 10 A-11) (DP-08) |
 | DEC-508 | A8 `nivel ≥ noPartidos` | replicar (inalcanzable desde la UI) (D) |
 | DEC-509 | A9 salida tras cancelar | replicar la salida parcial (DP-09/DP-10) (D) |
 | DEC-510 | A10 EOL | DP-02 (D) |
 | DEC-511 | A11 valores de réplica | ESPEC_12 §4.2 regla 1 (D) |
 | DEC-512 | A12 esquema de `Resultados` | modelo de filas propio del port (O2) (D) |
-| DEC-513 | A13 bordes de `Calculos` (`GS-03`) | replicar (O) |
+| DEC-513 | A13 bordes de `Calculos` (`GS-03`) | replicar (D) |
 | DEC-514 | A14 `ObtenNumCols` | replicar (D) |
 
 ### ESPEC_06 (utils y análisis)
 
 | DEC | Origen | Decisión |
 |-----|--------|----------|
-| DEC-601 | A1 cabeceras SharpZipLib | volcado hex una vez (ESPEC_12) (O) |
-| DEC-602 | A2 `ToString()` e infinito/NaN · A4 parser numérico · A5 funciones de cadena | `G-NET-FMT`, `G-NET-PARSE`, `G-NET-TXT` (O) |
+| DEC-601 | A1 cabeceras SharpZipLib | no se exigen los bytes de SharpZipLib: escritor estándar y lector tolerante (ESPEC_16 §3); se compara el contenido descomprimido en ambos sentidos (D) |
+| DEC-602 | A2 `ToString()` e infinito/NaN · A4 parser numérico · A5 funciones de cadena | `G-NET-FMT`, `G-NET-PARSE`, `G-NET-TXT` (`bcl`) (D) |
 | DEC-603 | A3 cultura | DP-01 (D) |
-| DEC-604 | A6 `AnalizadorColumnaCombinacion` corta al primer fallo | replicar (O; R) |
+| DEC-604 | A6 `AnalizadorColumnaCombinacion` corta al primer fallo | replicar (D; R) |
 | DEC-605 | A7 código muerto | DP-08 (D) |
 | DEC-606 | A8 libm | la referencia es la libm de Darwin (la del producto Mac, la misma que usa Swift); diferencia de hasta 1 ulp frente a la UCRT de Windows aceptada (ESPEC_12 §1.1) (D) |
 | DEC-607 | A9 `FigurasComparer` | solo WinForms ⇒ DP-08 (D) |
 | DEC-608 | A10 `Comparador` con 15 signos | `Comparador` del dominio sin uso en la app ⇒ DP-08 (D) |
-| DEC-609 | A11 rangos de propiedades de `ContenedorAnalisis` | replicar; si el C# lanza, error tipado (O) |
+| DEC-609 | A11 rangos de propiedades de `ContenedorAnalisis` | replicar; si el C# lanza, error tipado (D) |
 | DEC-610 | A12 `InfoJornadasLAE.txt` | corpus generado (ESPEC_12 §6) (D) |
 | DEC-611 | A13 GoldenGen | ESPEC_12 (D) |
 | DEC-612 | A14 EOL | DP-02 (D) |
-| DEC-613 | A15 `Porcentajes` con N ≠ 14 | replicar (O) |
+| DEC-613 | A15 `Porcentajes` con N ≠ 14 | replicar (D) |
 | DEC-614 | A16 `ConvLongToStr` con dobles/triples | replicar (error tipado) (D) |
-| DEC-615 | A17 pleno al 15 real | replicar lo que hace hoy el boleto con la jornada online (O2) (O) |
-| DEC-616 | A18 DEFLATE en Swift | DT-11 (V) |
+| DEC-615 | A17 pleno al 15 real | replicar lo que hace hoy el boleto con la jornada online (O2) (D) |
+| DEC-616 | A18 DEFLATE en Swift | ESPEC_16 §3: DEFLATE crudo con `Compression.framework` (`COMPRESSION_ZLIB`, RFC 1951) y contenedor ZIP propio; lector tolerante (método 0/8, descriptor de datos, campos extra y Zip64) (D) |
 | DEC-617 | A19 desfase de documentación | sin efecto en la app Mac (D) |
 
 ### ESPEC_07 (formatos y online)
@@ -179,48 +181,48 @@ Formato: `origen` → decisión (estado). Las que solo remitían a otra spec se 
 | DEC | Origen | Decisión |
 |-----|--------|----------|
 | DEC-701 | A1 EOL/BOM | DP-02 (D) |
-| DEC-702 | A2 sin `.comb` reales · A3 exactitud de `XmlTextWriter` | corpus generado con los escritores C# (ESPEC_12 §6) (O) |
+| DEC-702 | A2 sin `.comb` reales · A3 exactitud de `XmlTextWriter` | corpus `fixture` + `lectura` (ESPEC_12 §6); exactitud de `XmlTextWriter` según `EscritorXMLNET` (ESPEC_16 §2) (D) |
 | DEC-703 | A4 gramáticas delegadas | ESPEC_01–04 (D) |
-| DEC-704 | A5 propiedades JSON duplicadas | caso añadido a la suite online; el parser Swift hace lo que muestre el golden (O) |
-| DEC-705 | A6 enteros JSON y `Enum.TryParse` | `G-NET` + suite online (O) |
+| DEC-704 | A5 propiedades JSON duplicadas | gana la **última** definición, como `JsonElement.TryGetProperty` de .NET 8 (`Online/JornadaQuinielaParser.cs:63,87,129,146`; `bcl`); el parser Swift igual, con caso en la suite online (D) |
+| DEC-705 | A6 enteros JSON y `Enum.TryParse` | `TryGetInt32` rechaza `38.0`, `1e2` y valores fuera de `Int32` (`Online/JornadaQuinielaParser.cs:154`); `Enum.TryParse(…, ignoreCase: true)` acepta cifras no definidas (`"99"`) (`WinUI/Services/TemaApp.cs:76`, `IdiomaApp.cs:77`) (`bcl`) (D) |
 | DEC-706 | A7 equipos `.txt` antiguos | DP-02: lectura UTF-8 como hoy, sin *fallback* cp1252 (D) |
 | DEC-707 | A8 `.lang` | DP-07: no se porta (D) |
 | DEC-708 | A9 `FileIO.WriteLinesAsync` | sin Windows no se puede capturar: el port escribe UTF-8 sin BOM con CRLF (regla general de DP-02); los lectores aceptan cualquier variante (D) |
 | DEC-709 | A10 valores por defecto de `HttpClient` | DT-16 (D) |
 | DEC-710 | A11 nombres de `HttpStatusCode` | DT-17 (D) |
-| DEC-711 | A12 `ToString("0.00")` | `G-NET-FMT` (O) |
+| DEC-711 | A12 `ToString("0.00")` | `G-NET-FMT` (`bcl`) (D) |
 | DEC-712 | A13 semillas ya editadas | sin fusión: copia solo si falta, como hoy (D) |
 | DEC-713 | A14 rutas absolutas heredadas | se conservan; semáforo rojo si no existen (ESPEC_11 §9) (D) |
 | DEC-714 | A15 cultura de las muestras | DP-01 + corpus en `es-ES` (D) |
 | DEC-715 | A16 sandbox | DP-06 (D) |
 | DEC-716 | A17 impresión | se conservan `imprebol.cfg`/`impresoras.cfg` (los usa la app) con `NSPrintOperation` (D; DEC-407) |
 | DEC-717 | A18 `Resultados.txt` | lector de las pantallas (O2) (D) |
-| DEC-718 | A19 `DataSet.ReadXml` | corpus F05 (O) |
+| DEC-718 | A19 `DataSet.ReadXml` | `DataSet.ReadXml` con esquema ignora elementos y atributos que no están en él (`bcl`); el lector Swift lee el esquema conocido y se prueba con `Free1X2.WinUI/Datos/ColumnasProbables.xml` (`fixture`) (D) |
 | DEC-719 | A20 desfase de `API_CLUBPROGOL.md` | fuera del alcance Mac (D) |
 | DEC-720 | A21 carpeta `Idioma/` ausente | no aplica (`.lang` no se porta) (D) |
 | DEC-721 | A22 DTD · A23 espacios en blanco | ESPEC_16 §2.2 (D) |
-| DEC-722 | A24 NoVariantes `values=""` | replicar: error tipado (O) |
+| DEC-722 | A24 NoVariantes `values=""` | replicar: error tipado (D) |
 
 ### ESPEC_08 (pantallas 1–40)
 
 | DEC | Origen | Decisión |
 |-----|--------|----------|
-| DEC-801 | A1 modos combinados de Pleno al 15 | replicar (O; R) |
+| DEC-801 | A1 modos combinados de Pleno al 15 | replicar (D; R) |
 | DEC-802 | A2 `Grabar` de Análisis de grupos | port (DP-15) (D) |
-| DEC-803 | A3 índices fuera de rango en Formatos 123 | replicar: error tipado (O) |
-| DEC-804 | A4 estado «Pronóstico» pisado | replicar (O; R) |
+| DEC-803 | A3 índices fuera de rango en Formatos 123 | replicar: error tipado (D) |
+| DEC-804 | A4 estado «Pronóstico» pisado | replicar (D; R) |
 | DEC-805 | A5 Banco de pruebas LN↔Premio | port (DP-15) (D) |
 | DEC-806 | A6 puntos CP tras guardar | DP-04 (D) |
-| DEC-807 | A7 peculiaridades de Coincidencias | replicar (O) |
+| DEC-807 | A7 peculiaridades de Coincidencias | replicar (D) |
 | DEC-808 | A8 `IncluirPleno` sin efecto | replicar: se muestra y no actúa (R) |
 | DEC-809 | A9 propiedades sin uso | no se portan las propiedades; nada visible cambia (DP-08) (D) |
-| DEC-810 | A10 pronósticos CP de un carácter | replicar (O; R) |
-| DEC-811 | A11 parseo de tolerancias/aciertos CP | replicar: error tipado (O) |
-| DEC-812 | A12 `N2s` con ≠ 14 | replicar (O) |
-| DEC-813 | A13 ZIP | DEC-601/DEC-616 (O) |
+| DEC-810 | A10 pronósticos CP de un carácter | replicar (D; R) |
+| DEC-811 | A11 parseo de tolerancias/aciertos CP | replicar: error tipado (D) |
+| DEC-812 | A12 `N2s` con ≠ 14 | replicar (D) |
+| DEC-813 | A13 ZIP | DEC-601/DEC-616 (D) |
 | DEC-814 | A14 ruta `.lst` en mayúsculas | replicar: en macOS (APFS sin distinción de mayúsculas por defecto) la ruta sigue resolviéndose (D) |
 | DEC-815 | A15 diálogos 34/37 sin consumidor | replicar (R) |
-| DEC-816 | A16 fila 10 de «Filtrar por límites» | replicar (O; R) |
+| DEC-816 | A16 fila 10 de «Filtrar por límites» | replicar (D; R) |
 | DEC-817 | A17 rejilla de Dibujos con 15 partidos | port: 15 fijo (DP-15) (D) |
 | DEC-818 | A18 formatos de condición y TSV de 44 columnas | ESPEC_07 + corpus (D) |
 | DEC-819 | A19 `System.Random` | `AleatorioNET` + O3 para semillas de reloj (D) |
@@ -239,9 +241,9 @@ Formato: `origen` → decisión (estado). Las que solo remitían a otra spec se 
 | DEC-905 | A-44-1 comodín `*` → `X` | replicar (D) |
 | DEC-906 | A-44-2 carpeta inicial | Documentos, como el port (D) |
 | DEC-907 | A-45-1 `Detener` sin control | no se expone, como hoy (D) |
-| DEC-908 | A-45-2 `S: Suspendido` | replicar (O) |
+| DEC-908 | A-45-2 `S: Suspendido` | replicar (D) |
 | DEC-909 | A-45-3 fila TOTALES exportable | replicar (R) |
-| DEC-910 | A-46-1 redondeo bancario · A-46-2 dependencia de la recaudación previa | replicar (O) |
+| DEC-910 | A-46-1 redondeo bancario · A-46-2 dependencia de la recaudación previa | replicar: `Math.Round(x, n)` de .NET 8 = `x·10ⁿ` redondeado a par ÷ `10ⁿ` (`bcl`, `Math.cs`); la dependencia de la recaudación previa se replica (D) |
 | DEC-911 | A-46-3 «Destinado a premios» sin uso | se muestra y no calcula (D) |
 | DEC-912 | A-46-4 premios guardados ≠ tecleados | replicar (R) |
 | DEC-913 | A-47-1 caracteres ≠ `1/X/2` | replicar con la receta T1 (D) |
@@ -249,22 +251,22 @@ Formato: `origen` → decisión (estado). Las que solo remitían a otra spec se 
 | DEC-915 | A-50-1 «Cancelar» inoperante | DP-10: igual que hoy (D) |
 | DEC-916 | A-50-2 sin entrada de menú | igual que hoy: se abre desde el Generador de CPs (D) |
 | DEC-917 | A-51-1 dos `TransformarValoracion` | una implementación, mismo resultado (NaN incluido) (ESPEC_13 §3) (D) |
-| DEC-918 | A-53-1 tramos pierden sobrantes | replicar (O; R) |
+| DEC-918 | A-53-1 tramos pierden sobrantes | replicar (D; R) |
 | DEC-919 | A-54-1 salida por defecto = entrada | replicar (R) |
 | DEC-920 | A-54-2 comparación con legacy | no aplica (DP-15) (D) |
-| DEC-921 | A-55-1 dígitos por redondeo | replicar (O; R) |
+| DEC-921 | A-55-1 dígitos por redondeo | replicar (D; R) |
 | DEC-922 | A-57-1 Filtro Pim = motor aidomnou | port: mismo motor (DP-15; ESPEC_13 §3) (D) |
 | DEC-923 | A-57-2 `aidomnou.cfg` | constantes como el port; no se expone (D) |
-| DEC-924 | A-58-1 desalineamiento de `cM` | replicar (O; R) |
-| DEC-925 | A-59-1 `Porcentajes`/tablas CP | versión del cuerpo del VM (O2) (O) |
+| DEC-924 | A-58-1 desalineamiento de `cM` | replicar (D; R) |
+| DEC-925 | A-59-1 `Porcentajes`/tablas CP | versión del cuerpo del VM (O2) (D) |
 | DEC-926 | A-60-1 codificación de `equipos*.dat` | Latin-1 como el port (DP-02) (D) |
 | DEC-927 | A-62-1 «Abrir» no llega al analizador · A-62-2 confirmaciones omitidas | port (DP-15) (R) |
-| DEC-928 | A-63-1 escritura de valoraciones doble y formato 1 | una implementación; inconsistencia del formato 1 replicada (O; R) |
+| DEC-928 | A-63-1 escritura de valoraciones doble y formato 1 | una implementación; inconsistencia del formato 1 replicada (D; R) |
 | DEC-929 | A-64-1 «Nuevo…» crea fichero vacío | DT-18 (D) |
 | DEC-930 | A-64-2 `LeeColumnaSinComas` | replicar (D) |
-| DEC-931 | A-65-1 contrato textual If-Then | ESPEC_01 + golden (O) |
+| DEC-931 | A-65-1 contrato textual If-Then | replicar el parser de `ControladorIfThen` tal cual (ESPEC_01) (D) |
 | DEC-932 | A-66-1 `ObtenNumCols` estimado | replicar (D) |
-| DEC-933 | A-68-1 unidades de impresión | DEC-407 (V) |
+| DEC-933 | A-68-1 unidades de impresión | DEC-407 (D) |
 | DEC-934 | A-68-2 `SetConfig` y «Girar boleto» | port: sin `SetConfig` inicial; girar sin efecto (DP-15) (R) |
 | DEC-935 | A-71-1 BOM de listados | = DEC-708: UTF-8 sin BOM, CRLF (D) |
 | DEC-936 | A-72-1 sin cancelación en Mejores opciones | DP-10 (D) |
@@ -288,12 +290,12 @@ Formato: `origen` → decisión (estado). Las que solo remitían a otra spec se 
 | DEC-1010 | A-11 `ReductorTM` no seleccionable | DP-08 (= DEC-507) (D) |
 | DEC-1011 | A-12 ganadora fija en Tríos | replicar (R) |
 | DEC-1012 | A-13 estado sobrescrito en Rotación | replicar (R) |
-| DEC-1013 | A-14 límite de 15 signos y niveles | replicar (O) |
-| DEC-1014 | A-15 formato .NET | `G-NET-FMT` (O) |
+| DEC-1013 | A-14 límite de 15 signos y niveles | replicar (D) |
+| DEC-1014 | A-15 formato .NET | `G-NET-FMT` (`bcl`) (D) |
 | DEC-1015 | A-16 cancelación | DP-10 (D) |
-| DEC-1016 | A-17 boletos +1 con múltiplos de 8 | replicar (O; R) |
+| DEC-1016 | A-17 boletos +1 con múltiplos de 8 | replicar (D; R) |
 | DEC-1017 | A-18 «Valor» sobre el filtro vivo | replicar (CU-C46) (D) |
-| DEC-1018 | A-19 formato y orden en Estadísticas | `Float.ToString()` como hoy; orden DT-14 (O) |
+| DEC-1018 | A-19 formato y orden en Estadísticas | `Float.ToString()` como hoy (ida y vuelta más corta, `bcl`) + orden DT-14 (D) |
 | DEC-1019 | A-20 `CalcularValorTotal` | DP-08 (D) |
 | DEC-1020 | A-21 `aidomnou.cfg` | = DEC-923 (D) |
 | DEC-1021 | A-22 diferencias port/legacy | DP-15 (D) |
@@ -320,7 +322,7 @@ DEC-203, 302, 306, 404, 604, 801, 804, 808, 810, 815, 816, 822, 902, 904, 909, 9
 | Origen | Estado |
 |--------|--------|
 | README D1 | resuelta (2026-10-12) = DP-15 |
-| README D2 | DP-09 + suite `G-D2` (O) |
+| README D2 | DP-09 + suite `G-D2` (D) |
 | README D3 · D4 · D5 · D7 · D8 | DP-08 · DP-01 · DP-02 · DP-11 · DP-06 |
 | README D6 | resuelta (2026-10-12; 2026-10-14): corpus = ficheros del repo + ficheros escritos a mano leyendo los escritores (ESPEC_12 §6) |
 | PLAN §7.1 aprobar plan y arquitectura | arquitectura en ESPEC_11; revisión final del dueño |

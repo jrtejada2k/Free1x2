@@ -271,3 +271,5 @@ Las 14 decisiones de §5 quedan tomadas en `DECISIONES.md` (1 = ESPEC_12 + regla
 
 **2026-10-14 (dueño, definitivo):** la decisión 1 queda en «sin C#»: el original solo se lee y nunca se ejecuta (ni app, ni tests, ni
 GoldenGen). ESPEC_12 se reescribió como oráculo por lectura (esperados con `fuente` por caso).
+
+**2026-10-14 — M0 cerrado:** por delegación del dueño se cerraron todas las entradas «O» y «V» de `DECISIONES.md` (ahora D o D+R).

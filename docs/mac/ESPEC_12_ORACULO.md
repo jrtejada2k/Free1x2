@@ -118,7 +118,7 @@ Todas con `fuente` = `bcl` (valores calculados por un `modelo` que transcribe el
 | `G-NET-CAST` | `(int)` y `Convert.ToInt32` sobre `double` no finitos, ±2^31, ±0,5, 2,5, 3,5 | §1.1 | T13 |
 | `G-NET-RND` | `new Random(s)` para `s ∈ {0, 1, 42, −1, Int32.MaxValue, Int32.MinValue}`: secuencias de `Next()`, `Next(n)`, `Next(a,b)`, `NextDouble()` | `Random.Net5CompatImpl.cs` (algoritmo sustractivo de Knuth, ESPEC_16 §5) | `AleatorioNET`; 08 A19 |
 | `G-NET-TXT` | `Trim()`, `ToUpper()`, `Char.IsLetter`, `StreamReader.ReadLine` (`\n`, `\r`, `\r\n`, BOM), `Encoding.Latin1` con caracteres > U+00FF | `String.Manipulation.cs`, `StreamReader.cs`, `Latin1Encoding.cs` | T7, T8, T15; 06 A5 |
-| `G-NET-SORT` | `List<T>.Sort`/`Array.Sort` con los comparadores con empates de la app (`PosiblesPremiosComparer`, `FigurasComparer`, quicksorts de pantallas), ≤ 16 y > 16 elementos, y `double[]` con `NaN` | `ArraySortHelper.cs` | T5; 05 A3; 06 A9; 04 A-9 |
+| `G-NET-SORT` | `List<T>.Sort`/`Array.Sort` con los comparadores con empates de la app (`PosiblesPremiosComparer` y demás `Array.Sort`/`List<T>.Sort` portados; los quicksorts de pantallas van aparte, `ordenarComoQuicksortCSharp`), ≤ 16 y > 16 elementos, y `double[]` con `NaN` | `ArraySortHelper.cs` | T5; 05 A3; 06 A9; 04 A-9 |
 | `G-NET-HASH` | Orden de `Hashtable.Keys` en `EscrutadorComb` para las claves que produce la app | `Hashtable.cs`, `HashHelpers.cs` | T6; 05 A2 |
 
 ### 4.2 Motor, formatos y online
@@ -187,10 +187,10 @@ No se instala ni se ejecuta nada de .NET.
 4. Suites de motor, formatos y online (§4.2), `G-D2`, `G-ERR` y corpus (§6): trazas `lectura` primero, `modelo` después.
 5. Casos de los CU O1/O2 (§5).
 6. Revisión del dueño y commit en `Tests/Golden/`.
-7. Actualizar las specs donde una traza desmienta una lectura previa o un valor de modelo, y cerrar en `DECISIONES.md` las entradas «pendiente de oráculo».
+7. Si una traza desmiente una lectura previa o un valor de modelo, se corrige la spec y se anota en `DECISIONES.md` (entrada nueva con `file:line`).
 
 **M1 cerrado** cuando: están todas las suites de §4 y §6 y los casos O1/O2 de ESPEC_13, con su nº de casos en `indice.json`; cada caso tiene
-`fuente` válida; cada suite `modelo` tiene su caso `lectura` de contraste; ninguna entrada de `DECISIONES.md` queda «pendiente de oráculo».
+`fuente` válida; cada suite `modelo` tiene su caso `lectura` de contraste.
 
 ## 8. Abiertas que este documento cierra
 
