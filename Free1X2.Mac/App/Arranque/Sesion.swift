@@ -41,6 +41,8 @@ final class Sesion {
     var valoracionInicial: [[Double]]?
     /// `AnalisisFormatos123FrmPage.FormatosEntrada`.
     var formatos123Entrada: [Formato123]?
+    /// Estáticos de las pantallas 30, 67 y 48 con «Columnas Probables» (`Resultado`, `ListaParaExportar`).
+    var traspasoCP = TraspasoCP()
     /// `TemaApp` (10 §1.5): «Sistema» (defecto), «Claro», «Oscuro»; en `UserDefaults` (ESPEC_11 §9).
     var tema = UserDefaults.standard.string(forKey: "tema") ?? "Sistema" {
         didSet {
@@ -198,4 +200,16 @@ struct FigurasEnEdicion {
     /// Cuál de las listas del padre (0…3 en Signos Seguidos).
     let clave: Int
     var resultado: [Int64]?
+}
+
+/// Ida y vuelta de «Columnas Probables» con Copiar datos (30), Importador (67) y Exportador (48).
+struct TraspasoCP {
+    /// `(Desde, Hasta)` con que se abre la pantalla 30.
+    var rango = (desde: 1, hasta: 1)
+    /// `CopiarDatosCPFrmViewModel.Resultado`; `nil` = sin confirmar.
+    var copia: (desde: Int, hasta: Int)?
+    /// `ImportadorCPsFrmViewModel.Resultado`.
+    var importadas: [ColumnaProbableConfig]?
+    /// `ExportadorCPsFrmViewModel.ListaParaExportar`.
+    var exportar: [ColumnaProbableConfig] = []
 }

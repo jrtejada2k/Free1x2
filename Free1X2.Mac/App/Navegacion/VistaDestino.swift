@@ -31,6 +31,11 @@ struct VistaDestino: View {
         case .ifThen: VistaIfThen()
         case .controlGrupos: VistaControlGrupos()
         case .controlTol: VistaControlTol()
+        case .colProbables: VistaColProbables()
+        case .copiarDatosCP: VistaCopiarDatosCP()
+        case .copiarCP: VistaCopiarCP()
+        case .importadorCPs: VistaImportadorCPs()
+        case .exportadorCPs: VistaExportadorCPs()
         default: PantallaPendiente(destino: destino)
         }
     }
