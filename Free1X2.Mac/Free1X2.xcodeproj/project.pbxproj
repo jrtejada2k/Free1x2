@@ -46,6 +46,7 @@
 		79FFA6EEE06F09D70C9E6B35 /* GruposEquipos.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7ACEF1BC5AA3C33883A3EC3 /* GruposEquipos.swift */; };
 		7DB9103104D30CDBFDA1A0B7 /* VistaDestino.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19B6A06520278BAB278E48F4 /* VistaDestino.swift */; };
 		7F4DD590BD5BE0C07A837A48 /* Barra.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756B21FEC97FD0FC66703A9C /* Barra.swift */; };
+		8348B63E32AC12ED6B426AD0 /* Filtros.swift in Sources */ = {isa = PBXBuildFile; fileRef = E33629D7469560C3A35A648B /* Filtros.swift */; };
 		8545A138DED37032B5496C78 /* ConfigCPs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90DD8B574876B96A97AF570C /* ConfigCPs.swift */; };
 		880E2FE4269643F3F9B71C6B /* Destino.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72B74ECC82B203A8A366A93E /* Destino.swift */; };
 		93A56EEB7CDCAF9A90CBA541 /* Pleno15.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4141061D9A72DF1F7F7A688B /* Pleno15.swift */; };
@@ -137,6 +138,7 @@
 		DB842ABB38595FAE44A7140D /* Estilo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Estilo.swift; sourceTree = "<group>"; };
 		E02D397D0432FFA13A97ABB8 /* Impresion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Impresion.swift; sourceTree = "<group>"; };
 		E06E5841AB3F270318467C6F /* MatrizAnalisisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatrizAnalisisView.swift; sourceTree = "<group>"; };
+		E33629D7469560C3A35A648B /* Filtros.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Filtros.swift; sourceTree = "<group>"; };
 		E57437FEB0766E67A1F55EF1 /* PesosNumericos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PesosNumericos.swift; sourceTree = "<group>"; };
 		EA1F973C46AE268ACDB5A698 /* Modificador.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Modificador.swift; sourceTree = "<group>"; };
 		EB2647216F2F309E14997C05 /* Algebra.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Algebra.swift; sourceTree = "<group>"; };
@@ -267,6 +269,7 @@
 				EB2647216F2F309E14997C05 /* Algebra.swift */,
 				6ED3FD641C09DF7323A080DD /* Dependencia.swift */,
 				AB29F4F6E7C47D4E02CDB38A /* EstuCol.swift */,
+				E33629D7469560C3A35A648B /* Filtros.swift */,
 				B87EB26772D235A990F0A016 /* GEPT.swift */,
 				180A7A586EA6E5884322C901 /* Grupos.swift */,
 				FAAB662470D449B33E236941 /* Herramientas.swift */,
@@ -466,6 +469,7 @@
 				5454DC2FC4A00D04935C816B /* Estadisticas.swift in Sources */,
 				55C40B4180561113677179BE /* Estilo.swift in Sources */,
 				2ECCB00B199C84C356827A00 /* EstuCol.swift in Sources */,
+				8348B63E32AC12ED6B426AD0 /* Filtros.swift in Sources */,
 				01389C1F95A7E68AA3A1E828 /* Formatos.swift in Sources */,
 				ECD7E7BCABC8A4DABE96FEBF /* Free1X2App.swift in Sources */,
 				A2726AB4F195A838EB96C12F /* GEPT.swift in Sources */,

@@ -101,6 +101,8 @@ struct VistaDestino: View {
         case .reducidasPerfectas: VistaReducidasPerfectas()
         case .selecJM: VistaSelecJM()
         case .selectorMS: VistaSelectorMS()
+        case .filtroPorcenJB: VistaFiltroPorcenJB()
+        case .diFiltros: VistaDiFiltros()
         default: PantallaPendiente(destino: destino)
         }
     }
