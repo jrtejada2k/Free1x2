@@ -34,3 +34,28 @@ public struct ApuestaProbEscrutada: Sendable, Hashable {
         self.aciertos = aciertos
     }
 }
+
+/// `ordena(izq, der)` de Rentabilidad, Ordenar por probabilidad, Banco de pruebas y Tramificar: quicksort propio
+/// ascendente por `clave`, pivote central y las guardas `j <= der` / `j > izq` tal cual; no estable (T5).
+public enum OrdenacionPropia {
+    public static func ordenar<T>(_ a: inout [T], clave: (T) -> Float) {
+        guard a.count > 1 else { return }
+        a.withUnsafeMutableBufferPointer { ordena($0, 0, $0.count - 1, clave) }
+    }
+
+    static func ordena<T>(_ b: UnsafeMutableBufferPointer<T>, _ izq: Int, _ der: Int, _ clave: (T) -> Float) {
+        var (i, j) = (izq, der)
+        let x = clave(b[(izq + der) / 2])
+        repeat {
+            while clave(b[i]) < x && j <= der { i += 1 }
+            while x < clave(b[j]) && j > izq { j -= 1 }
+            if i <= j {
+                b.swapAt(i, j)
+                i += 1
+                j -= 1
+            }
+        } while i <= j
+        if izq < j { ordena(b, izq, j, clave) }
+        if i < der { ordena(b, i, der, clave) }
+    }
+}

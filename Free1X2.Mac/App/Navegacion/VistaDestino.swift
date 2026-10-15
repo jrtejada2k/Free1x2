@@ -82,6 +82,8 @@ struct VistaDestino: View {
         case .posiblesPremios: VistaPosiblesPremios()
         case .visorPosiblesPremios: VistaVisorPosiblesPremios()
         case .mejoresOpciones: VistaMejoresOpciones()
+        case .estimadorPremios: VistaEstimadorPremios()
+        case .rentabilidad: VistaRentabilidad()
         default: PantallaPendiente(destino: destino)
         }
     }
