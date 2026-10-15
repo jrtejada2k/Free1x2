@@ -315,3 +315,42 @@ extension FormatoNET {
         return abs(x) < 1e16 ? (x * p).rounded(.toNearestOrEven) / p : x
     }
 }
+
+extension FormatoNET {
+    /// Formato personalizado `"<prefijo>#,##0[.00];0[.0]"` de las pantallas de cálculo: miles de 3 en 3 y redondeo de
+    /// `toStringFijo`; un negativo usa la 2.ª sección (`0` con `decimalesNegativo`, sin signo ni prefijo).
+    /// ponytail: el prefijo (`Moneda`) va literal; .NET interpretaría `0 # . , %` dentro de él.
+    public static func toStringMiles(
+        _ d: Double, decimales: Int, decimalesNegativo: Int, prefijo: String = "", cultura: Cultura
+    ) -> String {
+        if d < 0 { return toStringFijo(-d, decimales: decimalesNegativo, cultura: cultura) }
+        let (entera, fraccion) = redondeado(d, decimales: decimales)
+        var grupos: [Substring] = []
+        var resto = Substring(entera)
+        while resto.count > 3 {
+            grupos.insert(resto.suffix(3), at: 0)
+            resto = resto.dropLast(3)
+        }
+        grupos.insert(resto, at: 0)
+        return prefijo + grupos.joined(separator: cultura.separadorMiles) + (decimales > 0 ? cultura.separadorDecimal + fraccion : "")
+    }
+
+    /// `DateTime.ToLongTimeString()` con el patrón de hora larga de la cultura (`tt` = AM/PM).
+    public static func horaLarga(_ fecha: Date, cultura: Cultura) -> String {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "en_US_POSIX")
+        f.dateFormat = cultura.patronHoraLarga.replacingOccurrences(of: "tt", with: "a")
+        return f.string(from: fecha)
+    }
+
+    /// `TimeSpan.ToString()` (formato `c`): `[-][d.]hh:mm:ss[.fffffff]` en *ticks* de 100 ns.
+    public static func toStringTimeSpan(_ segundos: TimeInterval) -> String {
+        let ticks = Int64(segundos * 10_000_000)
+        let a = ticks.magnitude
+        let (dias, h, m, s, f) = (a / 864_000_000_000, a / 36_000_000_000 % 24, a / 600_000_000 % 60, a / 10_000_000 % 60, a % 10_000_000)
+        func dos(_ v: UInt64) -> String { v < 10 ? "0\(v)" : "\(v)" }
+        var t = (ticks < 0 ? "-" : "") + (dias > 0 ? "\(dias)." : "") + "\(dos(h)):\(dos(m)):\(dos(s))"
+        if f > 0 { t += "." + String(repeating: "0", count: 7 - String(f).count) + String(f) }
+        return t
+    }
+}
