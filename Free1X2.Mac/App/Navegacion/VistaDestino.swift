@@ -112,6 +112,7 @@ struct VistaDestino: View {
         case .dialogoFiltrarPorLimites: VistaDialogoFiltrarPorLimites()
         case .dialogoGrabarTramos: VistaDialogoGrabarTramos()
         case .dialogoAnalisisMultipleDeTramos: VistaDialogoAnalisisMultipleDeTramos()
+        case .coincidencias: VistaCoincidencias()
         default: PantallaPendiente(destino: destino)
         }
     }

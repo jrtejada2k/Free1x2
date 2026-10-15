@@ -50,6 +50,7 @@
 		8348B63E32AC12ED6B426AD0 /* Filtros.swift in Sources */ = {isa = PBXBuildFile; fileRef = E33629D7469560C3A35A648B /* Filtros.swift */; };
 		8545A138DED37032B5496C78 /* ConfigCPs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90DD8B574876B96A97AF570C /* ConfigCPs.swift */; };
 		880E2FE4269643F3F9B71C6B /* Destino.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72B74ECC82B203A8A366A93E /* Destino.swift */; };
+		88101D6E184E877D980AC7A3 /* Coincidencias.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6B6E1B2290815086A050CBD /* Coincidencias.swift */; };
 		92E81E805F529C3121E93BF3 /* Tramificar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D3B0EDBE8CFB7274625A418 /* Tramificar.swift */; };
 		93A56EEB7CDCAF9A90CBA541 /* Pleno15.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4141061D9A72DF1F7F7A688B /* Pleno15.swift */; };
 		94A1733E4FA9A2940C25BC3E /* Modificador.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1F973C46AE268ACDB5A698 /* Modificador.swift */; };
@@ -137,6 +138,7 @@
 		BE0E06AC14A0BE4304B55E90 /* Transposicion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transposicion.swift; sourceTree = "<group>"; };
 		C0344B454C66C01D3073E748 /* Datos */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Datos; path = App/Recursos/Datos; sourceTree = SOURCE_ROOT; };
 		C696EFF7CCBB8094796CE6BF /* Signos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Signos.swift; sourceTree = "<group>"; };
+		C6B6E1B2290815086A050CBD /* Coincidencias.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Coincidencias.swift; sourceTree = "<group>"; };
 		CFB83F809F4CB74BF11BC114 /* EscrutarCombinaciones.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EscrutarCombinaciones.swift; sourceTree = "<group>"; };
 		D10592D8E03A3123EC36606C /* VistaInicio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VistaInicio.swift; sourceTree = "<group>"; };
 		D2B7B322A4FC10DFEC1CD265 /* Diferencias.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Diferencias.swift; sourceTree = "<group>"; };
@@ -277,6 +279,7 @@
 			children = (
 				EB2647216F2F309E14997C05 /* Algebra.swift */,
 				A52CD04B7C4B89829615BAE3 /* BancoPruebas.swift */,
+				C6B6E1B2290815086A050CBD /* Coincidencias.swift */,
 				6ED3FD641C09DF7323A080DD /* Dependencia.swift */,
 				AB29F4F6E7C47D4E02CDB38A /* EstuCol.swift */,
 				E33629D7469560C3A35A648B /* Filtros.swift */,
@@ -467,6 +470,7 @@
 				4AA16EE893778D4B89BE0158 /* Boletos.swift in Sources */,
 				402E355C75B4DC361848FFF1 /* CalculaColumnas.swift in Sources */,
 				AEB6B00B853531C1FDE4ECE9 /* CalculaColumnasMultiple.swift in Sources */,
+				88101D6E184E877D980AC7A3 /* Coincidencias.swift in Sources */,
 				48CC0F422CAE86233426E41F /* ColProbables.swift in Sources */,
 				8545A138DED37032B5496C78 /* ConfigCPs.swift in Sources */,
 				6A45F9467CF363B37502AC86 /* ContactosDibujos.swift in Sources */,
