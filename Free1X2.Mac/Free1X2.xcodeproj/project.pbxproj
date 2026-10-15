@@ -10,11 +10,13 @@
 		01389C1F95A7E68AA3A1E828 /* Formatos.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39BF9252187A13E9703C8EF5 /* Formatos.swift */; };
 		0C696D7C2FF48FB69126C194 /* PantallaCondicion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 572A8CBF196CF469733FD84F /* PantallaCondicion.swift */; };
 		1BC9BF8E43FAD9D0944F9BD5 /* Raiz.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBAE789B419FCD7BEEAB015 /* Raiz.swift */; };
+		274C1481E8D14C51556ED194 /* AnalisisFallos.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6958E688A2AFDF4D1A8AF51 /* AnalisisFallos.swift */; };
 		2D7F774CEE1FC2BF7F0F2D11 /* Diferencias.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2B7B322A4FC10DFEC1CD265 /* Diferencias.swift */; };
 		34C0E8FA830D344704D343F4 /* VisorAnalisisColumnas.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E15404EEE589D02ABCA7585 /* VisorAnalisisColumnas.swift */; };
 		37FE5F0B35E38EBA447AF89B /* IfThen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 099FDA1F7F262E151C82CEA9 /* IfThen.swift */; };
 		3B928D5C44C6801D853CB072 /* AnalizarFichero.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36A9EE697724FB734F137E9F /* AnalizarFichero.swift */; };
 		402E355C75B4DC361848FFF1 /* CalculaColumnas.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A57939A2138CDE1A9AB1891 /* CalculaColumnas.swift */; };
+		420C868CA513AED97894FAFE /* DescargaBoleto.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51549ABC83DCBE156B15470 /* DescargaBoleto.swift */; };
 		47BC0D63D514F9EBEDBF7D85 /* Sesion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 901BDD3D79E749E8ECCBA7CC /* Sesion.swift */; };
 		48CC0F422CAE86233426E41F /* ColProbables.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63A4CC16ED67BB5897B13668 /* ColProbables.swift */; };
 		4F40D091DF0E20513BD6C4D2 /* NoVariantes.swift in Sources */ = {isa = PBXBuildFile; fileRef = A085DB9039F2B28F57E897A4 /* NoVariantes.swift */; };
@@ -80,6 +82,7 @@
 		A94115EF8DA5A34AD2C8B2A7 /* Ajustes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ajustes.swift; sourceTree = "<group>"; };
 		AF9B1577FF3F685F277AE21A /* SelectorFicheros.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectorFicheros.swift; sourceTree = "<group>"; };
 		B21DE7E700E486F0520CD1B4 /* CrearGrupos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrearGrupos.swift; sourceTree = "<group>"; };
+		B51549ABC83DCBE156B15470 /* DescargaBoleto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DescargaBoleto.swift; sourceTree = "<group>"; };
 		B8C08A00BAF58381E06F1D70 /* Free1X2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Free1X2.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C0344B454C66C01D3073E748 /* Datos */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Datos; path = App/Recursos/Datos; sourceTree = SOURCE_ROOT; };
 		D10592D8E03A3123EC36606C /* VistaInicio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VistaInicio.swift; sourceTree = "<group>"; };
@@ -91,6 +94,7 @@
 		E57437FEB0766E67A1F55EF1 /* PesosNumericos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PesosNumericos.swift; sourceTree = "<group>"; };
 		EE0FC64BC0051E3917F7CD08 /* ControlGrupos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlGrupos.swift; sourceTree = "<group>"; };
 		F2237869C6EB3EFFB9EDAF19 /* Valoracion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Valoracion.swift; sourceTree = "<group>"; };
+		F6958E688A2AFDF4D1A8AF51 /* AnalisisFallos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalisisFallos.swift; sourceTree = "<group>"; };
 		F7ACEF1BC5AA3C33883A3EC3 /* GruposEquipos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GruposEquipos.swift; sourceTree = "<group>"; };
 		FD3A18E29DB9A8DC9CA942BE /* Reductor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reductor.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -120,6 +124,7 @@
 		0C88D007D0C978162FA6D7E6 /* Archivo */ = {
 			isa = PBXGroup;
 			children = (
+				B51549ABC83DCBE156B15470 /* DescargaBoleto.swift */,
 				D3CC092B73F3F68B73A15275 /* Equipos.swift */,
 			);
 			path = Archivo;
@@ -160,6 +165,7 @@
 		24E8E6A3594C896827EE8CC7 /* Combinacion */ = {
 			isa = PBXGroup;
 			children = (
+				F6958E688A2AFDF4D1A8AF51 /* AnalisisFallos.swift */,
 				36A9EE697724FB734F137E9F /* AnalizarFichero.swift */,
 				1A57939A2138CDE1A9AB1891 /* CalculaColumnas.swift */,
 				6805A7570CD734755BDCAD8E /* CalculaColumnasMultiple.swift */,
@@ -353,6 +359,7 @@
 			files = (
 				A666D0BE2B4F6C79C0F127C9 /* Ajustes.swift in Sources */,
 				D55851FF07C4F9C15C9ABDEA /* Alertas.swift in Sources */,
+				274C1481E8D14C51556ED194 /* AnalisisFallos.swift in Sources */,
 				3B928D5C44C6801D853CB072 /* AnalizarFichero.swift in Sources */,
 				7F4DD590BD5BE0C07A837A48 /* Barra.swift in Sources */,
 				402E355C75B4DC361848FFF1 /* CalculaColumnas.swift in Sources */,
@@ -361,6 +368,7 @@
 				6A45F9467CF363B37502AC86 /* ContactosDibujos.swift in Sources */,
 				E693C7E6AC98476F326288A5 /* ControlGrupos.swift in Sources */,
 				DFEDAA659E9D9C67DBA1BE13 /* CrearGrupos.swift in Sources */,
+				420C868CA513AED97894FAFE /* DescargaBoleto.swift in Sources */,
 				880E2FE4269643F3F9B71C6B /* Destino.swift in Sources */,
 				2D7F774CEE1FC2BF7F0F2D11 /* Diferencias.swift in Sources */,
 				9F830797A2556C971E0020FC /* DistanciasInterrupciones.swift in Sources */,

@@ -29,4 +29,21 @@ struct EquiposTests {
         #expect(try !CasosArchivo.anadirEquipo("Osasuna", categoria: .segundaB, entorno: entorno))
         #expect(try CasosArchivo.anadirEquipo("osasuna", categoria: .segundaB, entorno: entorno))
     }
+
+    @Test func descargaDeJornada() async throws {
+        let json = """
+            {"pais":"ES","temporada":"2025/26","jornada":38,"fecha":"2026-06-21","partidos":[\((1...14).map { "{\"n\":\($0),\"local\":\"L\($0)\",\"visitante\":\"V\($0)\"}" }.joined(separator: ","))]}
+            """
+        let url = try #require(URL(string: "https://clubprogol.com/wp-json/clubprogol/v1/quiniela/es/actual"))
+        let conRed = Entorno.pruebas(red: ClienteHTTPGrabado(respuestas: [url: .init(cuerpo: Data(json.utf8))]))
+        let ok = await CasosArchivo.descargarJornada(.es, servicio: CasosArchivo.servicioOnline(entorno: conRed), entorno: conRed)
+        #expect(ok.jornada?.jornada == 38 && ok.mensaje.hasPrefix("Jornada 38 · 14 partidos cargados · Última actualización: "))
+        #expect(CasosArchivo.paisInicial(entorno: conRed) == .es)
+
+        let sinRed = Entorno.pruebas(archivos: conRed.archivos)
+        let cacheada = await CasosArchivo.descargarJornada(.es, servicio: CasosArchivo.servicioOnline(entorno: sinRed), entorno: sinRed)
+        #expect(cacheada.jornada?.jornada == 38 && cacheada.mensaje.hasPrefix("Sin conexión: mostrando la jornada guardada (actualizada "))
+        let nada = await CasosArchivo.descargarJornada(.mx, servicio: CasosArchivo.servicioOnline(entorno: sinRed), entorno: sinRed)
+        #expect(nada.jornada == nil && nada.mensaje.hasSuffix(" El boleto sigue en modo manual."))
+    }
 }

@@ -132,3 +132,47 @@ public enum CasosArchivo {
             base: ProcessInfo.processInfo.environment["FREE1X2_API_BASE"])
     }
 }
+
+// C#: Views/Ported/DescargaBoletoFrmViewModel.cs (08 pantalla 32).
+extension CasosArchivo {
+    static func cache(_ entorno: Entorno) -> CacheJornada {
+        CacheJornada(archivos: entorno.archivos, carpeta: entorno.rutas.base, registro: entorno.registro)
+    }
+
+    /// `ResolverPaisInicial`: el de la caché más reciente o España.
+    public static func paisInicial(entorno: Entorno) -> PaisQuiniela { cache(entorno).paisMasReciente() ?? .es }
+
+    /// `FormatearFechaLocal`: `dd/MM/yyyy HH:mm` en hora local.
+    static func fechaLocal(_ d: Date) -> String {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "en_US_POSIX")
+        f.dateFormat = "dd/MM/yyyy HH:mm"
+        return f.string(from: d)
+    }
+
+    /// `Descargar` (:62-118): jornada nueva (o la de la caché si falla la red) y el mensaje de la pantalla.
+    public static func descargarJornada(
+        _ pais: PaisQuiniela, servicio: ServicioQuiniela, entorno: Entorno
+    ) async -> (jornada: JornadaQuiniela?, mensaje: String) {
+        func sufijo(_ d: Date?, _ a: String, _ b: String) -> String { d.map { a + fechaLocal($0) + b } ?? "" }
+        do {
+            let r = try await servicio.obtenerJornada(pais: pais.rawValue)
+            let resumen = "Jornada \(r.jornada.jornada) · \(r.jornada.partidos.count) partidos cargados"
+            return (
+                r.jornada,
+                r.desdeCache
+                    ? resumen + " — mostrando la última guardada" + sufijo(r.guardado, " (", ")") + "."
+                    : resumen + sufijo(r.guardado, " · Última actualización: ", "")
+            )
+        } catch {
+            if let c = cache(entorno).cargar(pais) {
+                entorno.registro.registrar(
+                    "Descarga de jornada fallida (\(pais.rawValue)); se usa la caché de \(fechaLocal(c.guardado)). Causa: \(error)",
+                    nivel: .aviso)
+                return (c.jornada, "Sin conexión: mostrando la jornada guardada (actualizada " + fechaLocal(c.guardado) + ").")
+            }
+            let detalle = (error as? ErrorOnline)?.mensaje ?? "No se pudo descargar la jornada: \(error.localizedDescription)"
+            return (nil, detalle + " El boleto sigue en modo manual.")
+        }
+    }
+}
