@@ -69,6 +69,8 @@ orden expresa del dueño; no se implementa).
 | DT-45 | `ClienteHTTP` es transporte (`throws` sin tipar, `URLError`); el cliente online lo traduce a `ErrorOnline` con los textos del C#. `Portapapeles` es asíncrono y la app lo implementa con `NSPasteboard` en el hilo principal | ESPEC_11 §7 |
 | DT-46 | `ReportadorProgreso` limita por tiempo (≥ 100 ms entre eventos; el final siempre sale); el bucle caliente informa cada 65 536 columnas | ESPEC_11 §6.2; ESPEC_17 NF-06 |
 | DT-47 | Versión `0.1.0` (build 1), solo `arm64`, firma ad hoc y runtime endurecido hasta M6; CI en `macos-26` (Swift ≥ 6.2) | `project.yml`; ESPEC_14 §7 |
+| DT-48 | El motor no lee ficheros: recibe las líneas ya leídas (`ArchivoColumnasTexto.columnas`) y devuelve filas como valores (`FilaEscrutinio`) en lugar de escribir en un `DataSet`; el escrutinio por temporada lee una vez el fichero que el C# relee por jornada (ESPEC_05 §4.1.6) | ESPEC_05 §4.1; ESPEC_11 §3.3 |
+| DT-49 | Valores esperados de `IntrosortNET` y `HashtableNET` (`net/colecciones`, GE-07, GE-09): fuente `modelo`, transcripción en Python de `ArraySortHelper.cs` y `Hashtable.cs` de .NET 8 leídos, independiente del código Swift | ESPEC_12 §1; ESPEC_16 §6 |
 | DT-50 | Iconos de la barra: SF Symbols en lugar de los PNG de 16×16 px (mismo tooltip y posición) | ESPEC_15 §1.4 |
 | DT-51 | Las acciones de la barra «Archivo» (Nueva, Abrir, Guardar, Guardar como, equipos, online, borrar) también en el menú Archivo, donde macOS pone los atajos `⌘N/⌘O/⌘S` (como ya indica el manual) | ESPEC_15 §2.2; 10:140-142 |
 | DT-52 | Cambiar de idioma no recrea la página (la recarga de WinUI era una limitación técnica) | ESPEC_15 §2.4; 10:66 |

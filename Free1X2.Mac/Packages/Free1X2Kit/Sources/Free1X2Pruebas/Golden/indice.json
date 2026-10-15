@@ -32,7 +32,7 @@
     },
     {
       "ruta": "motor/escrutinio/escrutador.jsonl",
-      "casos": 2
+      "casos": 24
     },
     {
       "ruta": "formatos/z3q.jsonl",
@@ -44,7 +44,7 @@
     },
     {
       "ruta": "base/utilcolumnas.jsonl",
-      "casos": 32
+      "casos": 33
     },
     {
       "ruta": "motor/utils/entradas.jsonl",
@@ -53,6 +53,10 @@
     {
       "ruta": "net/formato.jsonl",
       "casos": 47
+    },
+    {
+      "ruta": "net/colecciones.jsonl",
+      "casos": 10
     }
   ],
   "fixtures": [

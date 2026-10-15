@@ -1,3 +1,4 @@
+import CryptoKit
 import Foundation
 import Free1X2Formatos
 
@@ -66,6 +67,11 @@ public enum Golden {
     /// Columnas de un fixture leídas como `LeeColumnaSinComas` (lector real de Free1X2Formatos).
     public static func columnas(_ rutaRelativa: String) throws -> [String] {
         ArchivoColumnasTexto.columnas(try bytes(rutaRelativa))
+    }
+
+    /// SHA-256 en hexadecimal (minúsculas) de los bytes UTF-8 de `texto`: resume salidas largas en el golden.
+    public static func sha256(_ texto: String) -> String {
+        SHA256.hash(data: Data(texto.utf8)).map { String(format: "%02x", $0) }.joined()
     }
 
     /// Líneas no vacías de una suite (`"motor/flujos"` → `Golden/motor/flujos.jsonl`).

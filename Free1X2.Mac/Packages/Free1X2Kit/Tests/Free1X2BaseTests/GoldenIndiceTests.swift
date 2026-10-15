@@ -51,6 +51,20 @@ struct GoldenIndiceTests {
         }
     }
 
+    @Test("INF-03: todo componente con casos `modelo` tiene un caso `lectura` o `test` que lo contrasta (ESPEC_12 §1)")
+    func modelosContrastados() throws {
+        var fuentes: [String: Set<String>] = [:]
+        for suite in indice.suites {
+            for linea in try Golden.lineas(String(suite.ruta.dropLast(".jsonl".count))) {
+                let caso = try #require(try JSONSerialization.jsonObject(with: linea) as? [String: Any])
+                fuentes[caso["componente"] as? String ?? "", default: []].insert(caso["fuente"] as? String ?? "")
+            }
+        }
+        for (componente, f) in fuentes where f.contains("modelo") {
+            #expect(f.contains("lectura") || f.contains("test"), "\(componente): solo `modelo`, falta un caso `lectura`")
+        }
+    }
+
     @Test("INF-01: todo .jsonl de Golden/ está en el índice")
     func sinSuitesHuerfanas() throws {
         let raiz = try Golden.url("Golden")
