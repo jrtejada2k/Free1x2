@@ -45,6 +45,7 @@
 		7F4DD590BD5BE0C07A837A48 /* Barra.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756B21FEC97FD0FC66703A9C /* Barra.swift */; };
 		8545A138DED37032B5496C78 /* ConfigCPs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90DD8B574876B96A97AF570C /* ConfigCPs.swift */; };
 		880E2FE4269643F3F9B71C6B /* Destino.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72B74ECC82B203A8A366A93E /* Destino.swift */; };
+		94A1733E4FA9A2940C25BC3E /* Modificador.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1F973C46AE268ACDB5A698 /* Modificador.swift */; };
 		9F5AC6DC839F0C36F0095960 /* Algebra.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB2647216F2F309E14997C05 /* Algebra.swift */; };
 		9F830797A2556C971E0020FC /* DistanciasInterrupciones.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2771D91198F31E3165598E0F /* DistanciasInterrupciones.swift */; };
 		A22660CDC4DA522F2F0A9F85 /* SelectorFicheros.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF9B1577FF3F685F277AE21A /* SelectorFicheros.swift */; };
@@ -123,6 +124,7 @@
 		DB842ABB38595FAE44A7140D /* Estilo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Estilo.swift; sourceTree = "<group>"; };
 		E06E5841AB3F270318467C6F /* MatrizAnalisisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatrizAnalisisView.swift; sourceTree = "<group>"; };
 		E57437FEB0766E67A1F55EF1 /* PesosNumericos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PesosNumericos.swift; sourceTree = "<group>"; };
+		EA1F973C46AE268ACDB5A698 /* Modificador.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Modificador.swift; sourceTree = "<group>"; };
 		EB2647216F2F309E14997C05 /* Algebra.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Algebra.swift; sourceTree = "<group>"; };
 		EE0FC64BC0051E3917F7CD08 /* ControlGrupos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlGrupos.swift; sourceTree = "<group>"; };
 		F15E315B1873261A597D4962 /* Rotacion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Rotacion.swift; sourceTree = "<group>"; };
@@ -250,6 +252,7 @@
 				B87EB26772D235A990F0A016 /* GEPT.swift */,
 				180A7A586EA6E5884322C901 /* Grupos.swift */,
 				FAAB662470D449B33E236941 /* Herramientas.swift */,
+				EA1F973C46AE268ACDB5A698 /* Modificador.swift */,
 				10D2D0BE1AEC6E69DA88153E /* OrdenarPorProbabilidad.swift */,
 				D9C6AA148CA19F1F72000C48 /* Premiadas.swift */,
 				61FF07E693D4BC6A8149F8F3 /* Premios.swift */,
@@ -451,6 +454,7 @@
 				714BC945F34FEFDF70D35500 /* Informativas.swift in Sources */,
 				CCA14C8EE480990172F61B7E /* MatrizAnalisisView.swift in Sources */,
 				5C9D30F2113E8B54EA846093 /* Menus.swift in Sources */,
+				94A1733E4FA9A2940C25BC3E /* Modificador.swift in Sources */,
 				4F40D091DF0E20513BD6C4D2 /* NoVariantes.swift in Sources */,
 				D93D82225B7F39A7411D38AB /* OrdenarPorProbabilidad.swift in Sources */,
 				0C696D7C2FF48FB69126C194 /* PantallaCondicion.swift in Sources */,
