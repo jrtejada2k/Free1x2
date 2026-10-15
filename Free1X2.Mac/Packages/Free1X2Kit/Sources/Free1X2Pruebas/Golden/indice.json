@@ -129,6 +129,10 @@
     {
       "ruta": "motor/analisis.jsonl",
       "casos": 9
+    },
+    {
+      "ruta": "motor/escrutinio/escrutadorcomb.jsonl",
+      "casos": 4
     }
   ],
   "fixtures": [

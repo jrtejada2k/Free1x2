@@ -64,9 +64,7 @@ public struct EscrutadorComb: Sendable {
                 let indice = Int32(truncatingIfNeeded: inicial + Self.pot[partido] * (z - signo))
                 if let previa = aciertos[.int32(indice)] {
                     guard case .int(let n) = previa else {
-                        throw ErrorDominio(
-                            .conversionInvalida, "Unable to cast object of type 'System.Byte' to type 'System.Int32'.",
-                            origen: "EscrutadorComb.cs:222")
+                        throw .conversionInvalida(de: "System.Byte", a: "System.Int32", "EscrutadorComb.cs:222")
                     }
                     if n < actual { try aciertos.asignar(.int(actual), a: .int32(indice)) }
                 } else {
@@ -74,6 +72,40 @@ public struct EscrutadorComb: Sendable {
                 }
                 if actual > Int(ultimo) { try vecinos(Int64(indice), partido + 1, ultimo, actual - 1) }
             }
+        }
+    }
+}
+
+extension EscrutadorComb {
+    /// `EscrutarCombinacion(jornada)` (:100-134). El `Analizador` solo carga grupos, controles y conjuntos
+    /// (`CargaControladorGrupos`), sin If-Then; la clave base 3 se analiza como si fuera una columna de 3 bits y se busca
+    /// como `long` (DEC-501): un vecino (`Int32`) no se encuentra ⇒ `NullReference`; la ganadora guarda un `byte` ⇒
+    /// `InvalidCast`. Si ninguna candidata cumple, los premios quedan a 0. `ListaEscrutadasConPremio` nunca recibe
+    /// elementos (DEC-502).
+    public mutating func escrutarCombinacion(
+        _ combinacion: Combinacion, configuracion: Configuracion, cultura: Cultura = .esES
+    ) throws(ErrorDominio) {
+        var sinIfThen = combinacion
+        sinIfThen.ifThen = nil
+        let a = Analizador(sinIfThen, configuracion: configuracion, cultura: cultura, leerLineas: { _ in [] })
+        guard let p = combinacion.pronosticos else { throw .referenciaNula("EscrutadorComb.cs:106") }
+        var pronosticos: [String] = []
+        for x in p {
+            guard let x else { throw .referenciaNula("EscrutadorComb.cs:110") }
+            pronosticos.append(x.filter { $0 != "," })
+        }
+        for k in aciertos.claves {
+            let clave: Int64 =
+                switch k {
+                case .int32(let v): Int64(v)
+                case .int64(let v): v
+                }
+            guard try AnalizadorColumnaCombinacion.analizaColumna(clave, a, pronosticos) else { continue }
+            guard let v = aciertos[.int64(clave)] else { throw .referenciaNula("EscrutadorComb.cs:120") }
+            guard case .int(let premio) = v else {
+                throw .conversionInvalida(de: "System.Byte", a: "System.Int32", "EscrutadorComb.cs:120")
+            }
+            if let orden = premios.firstIndex(of: premio) { premiosTotales[orden] += 1 }
         }
     }
 }

@@ -119,6 +119,8 @@ final class Grupo {
         return valida
     }
 
+    var hayTolerancias: Bool { !tolerancias.isEmpty }
+
     /// `EsGrupoBase = true` (`ControlGrupos` en el análisis, :112,150): también activa todos los partidos.
     func marcarBase() {
         esGrupoBase = true

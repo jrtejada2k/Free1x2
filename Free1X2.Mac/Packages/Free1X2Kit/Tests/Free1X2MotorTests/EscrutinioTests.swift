@@ -125,6 +125,42 @@ struct EscrutinioTests {
         #expect(e?.excepcion == .indiceFueraDeRango)
     }
 
+    struct EntradaComb: Decodable, Sendable {
+        var ganadora: String
+        var categorias: [Int]
+        var pronosticos: [String]
+        var noVariantes: String?
+    }
+    struct SalidaComb: Decodable, Sendable {
+        var error: String?
+        var premiosTotales: [Int]?
+    }
+
+    /// GE-08 (DEC-501): la primera candidata que cumple lanza; si ninguna cumple, los premios quedan a 0.
+    @Test func escrutarCombinacion() throws {
+        for caso in try Golden.casos("motor/escrutinio/escrutadorcomb", EntradaComb.self, SalidaComb.self) {
+            let e = caso.entrada
+            var c = Combinacion(numeroPartidos: 14)
+            c.ponerPronosticos(e.pronosticos)
+            if let v = e.noVariantes {
+                try c.modificarGrupo(0) { (g: inout GrupoConfig) throws(ErrorDominio) in
+                    g.condiciones.noVariantes.activa = true
+                    try g.condiciones.noVariantes.setNoVariantes(v)
+                }
+            }
+            var esc = EscrutadorComb(premios: e.categorias, numeroPartidos: 14)
+            try esc.obtenerPosiblesPremios(e.ganadora)
+            let s = try #require(caso.salida)
+            do {
+                try esc.escrutarCombinacion(c, configuracion: .porDefecto)
+                #expect(s.error == nil, "\(caso.id): se esperaba \(s.error ?? "")")
+                #expect(esc.premiosTotales == s.premiosTotales, "\(caso.id)")
+            } catch {
+                #expect(error.excepcion.rawValue == s.error, "\(caso.id)")
+            }
+        }
+    }
+
     @Test func candidatasDeEscrutadorComb() throws {
         for caso in try Self.casos("EscrutadorComb.posiblesPremios") {
             var esc = EscrutadorComb(premios: caso.entrada.categorias ?? [], numeroPartidos: 14)

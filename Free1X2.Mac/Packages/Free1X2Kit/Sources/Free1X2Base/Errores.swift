@@ -66,6 +66,11 @@ extension ErrorDominio {
         ErrorDominio(.formato, "La cadena de entrada no tiene el formato correcto.", origen: origen)
     }
 
+    /// `(T)objeto` sobre un valor encajado de otro tipo.
+    public static func conversionInvalida(de: String, a: String, _ origen: String) -> ErrorDominio {
+        ErrorDominio(.conversionInvalida, "No se puede convertir un objeto de tipo '\(de)' al tipo '\(a)'.", origen: origen)
+    }
+
     public static func desbordamiento(_ origen: String) -> ErrorDominio {
         ErrorDominio(.desbordamiento, "La operación aritmética ha provocado un desbordamiento.", origen: origen)
     }
