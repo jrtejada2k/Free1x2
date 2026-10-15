@@ -213,4 +213,40 @@ struct CondicionesTests {
         #expect(try e.aceptar() == nil && e.contadorGrupos == (1, 2))
         #expect(EditorGruposEquipos.equipos(nil)[1] == ("Equipo casa 2", "Equipo fuera 2"))
     }
+
+    @Test func ifThen() throws {
+        #expect(
+            CasosCondiciones.especificasIfThen("Dibujos", numeroPartidos: 2) == (
+                ["Dibujo 0+0", "Dibujo 0+1", "Dibujo 0+2", "Dibujo 1+0", "Dibujo 1+1", "Dibujo 2+0"], false
+            ))
+        #expect(
+            CasosCondiciones.componerCondicionIfThen(
+                generica: "Cantidad de signos", especifica: "Cantidad de X", valor: 5.9, usaValor: true, negado: true)
+                == "(NO) Cantidad de X: 5")
+        #expect(
+            CasosCondiciones.componerCondicionIfThen(
+                generica: "Dibujos", especifica: "Dibujo 3+4", valor: 2, usaValor: false, negado: false) == "Dibujo 3+4")
+        #expect(
+            CasosCondiciones.componerCondicionIfThen(generica: "Contactos", especifica: nil, valor: 1, usaValor: true, negado: false)
+                == "Contactos: 1")
+        #expect(throws: ErrorDominio.self) { _ = try CasosCondiciones.relacionIfThen("Dibujo 1+0", "Dibujo 0+1") }
+        var c = Combinacion(numeroPartidos: 14)
+        _ = try CasosInicio.cambiarGrupo(&c, a: 1)
+        _ = try CasosInicio.cambiarGrupo(&c, a: 2)
+        #expect(CasosCondiciones.gruposIfThen(c) == ["1 - ", "2 - "])
+        var p = PantallaIfThen()
+        p.relaciones = [RelacionIfThen("Cantidad de X: 5", "(NO) Distancia de 1: 2")]
+        p.grupos = [try #require(try CasosCondiciones.relacionGruposIfThen("1 - ", negadoSi: true, "2 - ", negadoEntonces: false))]
+        #expect(throws: ErrorDominio.self) { _ = try CasosCondiciones.construirIfThen(p, combinacion: c) }
+        p.rangoCondiciones = "1"
+        p.rangoGrupos = "1"
+        let it = try CasosCondiciones.construirIfThen(p, combinacion: c)
+        #expect(it.condiciones.count == 1 && it.condiciones[0].noThen && it.grupos[0].numGrupoIf == 1 && it.grupos[0].noIf)
+        let url = CasosCondiciones.rutaTemporal("if", entorno: entorno)
+        try CasosCondiciones.exportarIfThen(it, en: url, entorno: entorno)
+        let leido = try #require(try CasosCondiciones.importarIfThen(url, entorno: entorno))
+        let q = CasosCondiciones.cargarIfThen(leido, combinacion: c)
+        #expect(q.relaciones == p.relaciones && q.grupos == p.grupos && q.rangoGrupos == "1" && q.gruposQuitados == 0)
+        #expect(CasosCondiciones.cargarIfThen(leido, combinacion: Combinacion(numeroPartidos: 14)).gruposQuitados == 1)
+    }
 }

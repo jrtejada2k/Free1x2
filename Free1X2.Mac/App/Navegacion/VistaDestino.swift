@@ -28,6 +28,7 @@ struct VistaDestino: View {
         case .formatos123: VistaFormatos123()
         case .formatos: VistaFormatos()
         case .gruposEquipos: VistaGruposEquipos()
+        case .ifThen: VistaIfThen()
         default: PantallaPendiente(destino: destino)
         }
     }

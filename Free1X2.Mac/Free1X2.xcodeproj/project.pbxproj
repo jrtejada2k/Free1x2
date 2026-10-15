@@ -11,6 +11,7 @@
 		0C696D7C2FF48FB69126C194 /* PantallaCondicion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 572A8CBF196CF469733FD84F /* PantallaCondicion.swift */; };
 		1BC9BF8E43FAD9D0944F9BD5 /* Raiz.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBAE789B419FCD7BEEAB015 /* Raiz.swift */; };
 		2D7F774CEE1FC2BF7F0F2D11 /* Diferencias.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2B7B322A4FC10DFEC1CD265 /* Diferencias.swift */; };
+		37FE5F0B35E38EBA447AF89B /* IfThen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 099FDA1F7F262E151C82CEA9 /* IfThen.swift */; };
 		47BC0D63D514F9EBEDBF7D85 /* Sesion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 901BDD3D79E749E8ECCBA7CC /* Sesion.swift */; };
 		4F40D091DF0E20513BD6C4D2 /* NoVariantes.swift in Sources */ = {isa = PBXBuildFile; fileRef = A085DB9039F2B28F57E897A4 /* NoVariantes.swift */; };
 		5436B5E3D154C360A12B1875 /* logo.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 8AB7CAABF6E86A07C2401496 /* logo.jpg */; };
@@ -40,6 +41,7 @@
 
 /* Begin PBXFileReference section */
 		04868F81389E8058D7698462 /* Menus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Menus.swift; sourceTree = "<group>"; };
+		099FDA1F7F262E151C82CEA9 /* IfThen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IfThen.swift; sourceTree = "<group>"; };
 		14C149043FCB6537B8F6385D /* SignosSeguidos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignosSeguidos.swift; sourceTree = "<group>"; };
 		19B6A06520278BAB278E48F4 /* VistaDestino.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VistaDestino.swift; sourceTree = "<group>"; };
 		25CCF7EA617679CACFA9AACF /* Free1X2Kit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Free1X2Kit; path = Packages/Free1X2Kit; sourceTree = SOURCE_ROOT; };
@@ -112,6 +114,7 @@
 				2771D91198F31E3165598E0F /* DistanciasInterrupciones.swift */,
 				39BF9252187A13E9703C8EF5 /* Formatos.swift */,
 				F7ACEF1BC5AA3C33883A3EC3 /* GruposEquipos.swift */,
+				099FDA1F7F262E151C82CEA9 /* IfThen.swift */,
 				A085DB9039F2B28F57E897A4 /* NoVariantes.swift */,
 				E57437FEB0766E67A1F55EF1 /* PesosNumericos.swift */,
 				14C149043FCB6537B8F6385D /* SignosSeguidos.swift */,
@@ -302,6 +305,7 @@
 				01389C1F95A7E68AA3A1E828 /* Formatos.swift in Sources */,
 				ECD7E7BCABC8A4DABE96FEBF /* Free1X2App.swift in Sources */,
 				79FFA6EEE06F09D70C9E6B35 /* GruposEquipos.swift in Sources */,
+				37FE5F0B35E38EBA447AF89B /* IfThen.swift in Sources */,
 				714BC945F34FEFDF70D35500 /* Informativas.swift in Sources */,
 				5C9D30F2113E8B54EA846093 /* Menus.swift in Sources */,
 				4F40D091DF0E20513BD6C4D2 /* NoVariantes.swift in Sources */,
