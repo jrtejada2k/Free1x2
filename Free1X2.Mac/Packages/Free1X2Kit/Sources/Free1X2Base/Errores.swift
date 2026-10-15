@@ -44,3 +44,29 @@ public struct ErrorOnline: Error, Sendable, Equatable {
         self.mensaje = mensaje
     }
 }
+
+// Excepciones que genera .NET (no el código del C#): mismo tipo y su texto en español (ESPEC_11 §5.2).
+extension ErrorDominio {
+    public static func fueraDeRango(_ origen: String) -> ErrorDominio {
+        ErrorDominio(.indiceFueraDeRango, "Índice fuera de los límites de la matriz.", origen: origen)
+    }
+
+    public static func fueraDeRangoLista(_ origen: String) -> ErrorDominio {
+        ErrorDominio(
+            .argumentoFueraDeRango,
+            "El índice estaba fuera del intervalo. Debe ser un valor no negativo e inferior al tamaño de la colección.",
+            origen: origen)
+    }
+
+    public static func referenciaNula(_ origen: String) -> ErrorDominio {
+        ErrorDominio(.referenciaNula, "Referencia a objeto no establecida como instancia de un objeto.", origen: origen)
+    }
+
+    public static func formato(_ origen: String) -> ErrorDominio {
+        ErrorDominio(.formato, "La cadena de entrada no tiene el formato correcto.", origen: origen)
+    }
+
+    public static func desbordamiento(_ origen: String) -> ErrorDominio {
+        ErrorDominio(.desbordamiento, "La operación aritmética ha provocado un desbordamiento.", origen: origen)
+    }
+}

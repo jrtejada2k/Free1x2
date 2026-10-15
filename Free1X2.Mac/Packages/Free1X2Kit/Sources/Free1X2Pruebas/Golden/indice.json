@@ -57,6 +57,10 @@
     {
       "ruta": "net/colecciones.jsonl",
       "casos": 10
+    },
+    {
+      "ruta": "motor/nucleo.jsonl",
+      "casos": 15
     }
   ],
   "fixtures": [
