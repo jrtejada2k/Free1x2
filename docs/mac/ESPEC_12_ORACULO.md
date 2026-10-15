@@ -43,15 +43,17 @@ y se marca así en el JSON.
 ## 2. Formato y layout de los golden
 
 ```
-Free1X2.Mac/Packages/Free1X2Kit/Tests/Golden/
-├─ indice.json               suites, nº de casos por suite y por `fuente`, SHA-256 de cada fichero
-├─ net/                      G-NET: FormatoNET, Convert.*, T13, T14, AleatorioNET, Trim/ToUpper/ReadLine, sort, Hashtable   (§4.1)
-├─ base/                     columnas y codificaciones (06 §1-2)
-├─ motor/<componente>/       generador, analizador, grupos, filtros, CP, If-Then, tolerancias, análisis, reducción, escrutinio
-├─ formatos/<Fnn>/           lectura (fichero → modelo) y escritura (modelo → bytes) de 07 §1
-├─ online/                   parsers F18/F19, caché, cliente (respuestas HTTP como datos)
-├─ casosdeuso/<CU-ID>/       casos de los CU (§5)
-└─ corpus/                   ficheros de entrada de formatos (§6)
+Free1X2.Mac/Packages/Free1X2Kit/Sources/Free1X2Pruebas/   (recursos del target de apoyo: SwiftPM solo admite recursos dentro de su target, DT-28)
+├─ Fixtures/                 copias byte a byte de `Free1X2.Domain.Tests/Fixtures/**` (y del resto de `fixture`)
+└─ Golden/
+    ├─ indice.json               suites con su nº de casos; fixtures con su origen y SHA-256
+    ├─ net/                      G-NET: FormatoNET, Convert.*, T13, T14, AleatorioNET, Trim/ToUpper/ReadLine, sort, Hashtable   (§4.1)
+    ├─ base/                     columnas y codificaciones (06 §1-2)
+    ├─ motor/<componente>/       generador, analizador, grupos, filtros, CP, If-Then, tolerancias, análisis, reducción, escrutinio
+    ├─ formatos/<Fnn>/           lectura (fichero → modelo) y escritura (modelo → bytes) de 07 §1
+    ├─ online/                   parsers F18/F19, caché, cliente (respuestas HTTP como datos)
+    ├─ casosdeuso/<CU-ID>/       casos de los CU (§5)
+    └─ corpus/                   ficheros de entrada de formatos (§6)
 ```
 
 **Casos** en JSON Lines (`<suite>.jsonl`, un caso por línea, UTF-8 sin BOM, `\n`):
@@ -61,7 +63,12 @@ Free1X2.Mac/Packages/Free1X2Kit/Tests/Golden/
  "salida":{"columnas":["111","11X","112"]},"traza":["MC/GeneradorColumnas.cs:88 i=0 …","…"]}
 {"id":"G-ERR-07","fuente":"lectura","componente":"FiltroNoVariantes","entrada":{"values":""},"error":"IndexOutOfRangeException",
  "traza":["MC/FiltroNoVariantes.cs:41 Split(\"\") ⇒ [\"\"] …"]}
+{"id":"CP-COL-01-1","fuente":"test","cita":"Free1X2.Domain.Tests/UtilColumnasTests.cs:29","componente":"UtilColumnas.convStrToLong",
+ "entrada":{"columna":"1"},"salida":{"valor":4}}
 ```
+
+Campos: `id` (el de ESPEC_17 o el de la spec), `fuente`, `componente`, `entrada`, `salida` **o** `error`; `cita` obligatoria si `fuente` = `test`;
+`traza` obligatoria si `fuente` = `lectura`; `nota` opcional (p. ej. cómo se calcula un SHA-256).
 
 | Dato | Codificación en el golden | Comparación en Swift |
 |------|---------------------------|----------------------|
@@ -86,6 +93,8 @@ public struct CasoGolden<Entrada: Decodable & Sendable, Salida: Decodable & Send
     public let entrada: Entrada
     public let salida: Salida?
     public let error: String?
+    public let cita: String?                 // obligatoria si fuente == .test
+    public let traza: [String]?              // obligatoria si fuente == .lectura
     public var testDescription: String { id }
 }
 public enum Golden {
@@ -102,8 +111,8 @@ func rutasDelAnalizador(_ caso: CasoGolden<EntradaRuta, SalidaRuta>) async throw
 }
 ```
 
-`indice.json` se valida en un test previo: todos los ficheros existen, su SHA-256 coincide y ningún caso carece de `fuente` (ni de
-`traza` si es `lectura`). Si un golden cambia, el commit explica por qué con la cita `file:line` que lo justifica.
+`indice.json` se valida en un test previo (ESPEC_17 INF-01/02): cada suite existe con su nº de casos, todo `.jsonl` está listado, los IDs
+son únicos, ningún caso carece de `fuente` (ni de `cita` si es `test`, ni de `traza` si es `lectura`) y cada fixture conserva su SHA-256. Si un golden cambia, el commit explica por qué con la cita `file:line` que lo justifica.
 
 ## 4. Qué cubre (suites obligatorias)
 
@@ -139,8 +148,7 @@ de 02; las de cada componente de 03 y 04; `GR-*`, `GS-*`, `GE-*` de 05 §6; las 
    caracteres (06); deduplicado de `ObtenerListaFromTxt` (04, 06); Filtro Pim ejecuta el motor de aidomnou (09 A-57-1, 10); Grupos de
    equipos no llega al analizador tras «Abrir» (09 A-62-1).
 3. **`G-ERR`**: cada excepción que las specs documentan en el camino de datos (06 §1.4, 04 S4, 03 B7, 07 §0.2-3) tiene al menos un caso.
-4. Los **138 tests** existentes se portan a Swift a mano (85 aplicables, ESPEC_14 §5); sus literales entran como `test` y sus ficheros
-   como `fixture`.
+4. Los **138 tests** existentes se leyeron y su expectativa funcional se conserva (ESPEC_17 §1): 104 casos `test` y 10 `fixture`.
 5. Rutas A/B/C/D del analizador (01 §1.1): casos `lectura` pequeños para cada ruta, más `propiedad` (las cuatro rutas aceptan las
    mismas columnas) sobre combinaciones del corpus.
 6. Online: los 6 JSON de `Free1X2.Domain.Tests/Fixtures/online/` y los 4 de `docs/ejemplos-api/` (`fixture`) + los casos sintéticos de
@@ -181,16 +189,18 @@ Criterio de cierre de M4 (sustituye «round-trip con ficheros reales», PLAN §5
 
 No se instala ni se ejecuta nada de .NET.
 
-1. Crear `Tests/Golden/` con `indice.json` y el cargador de §3 (compila en M2 con el paquete).
-2. Portar los literales de los 85 tests aplicables (`test`) y copiar los `fixture`.
-3. `G-NET`: leer el fuente de `dotnet/runtime` `release/8.0` citado en §4.1, transcribir los algoritmos en `tools/ModeloSpec/` y generar los valores.
-4. Suites de motor, formatos y online (§4.2), `G-D2`, `G-ERR` y corpus (§6): trazas `lectura` primero, `modelo` después.
-5. Casos de los CU O1/O2 (§5).
-6. Revisión del dueño y commit en `Tests/Golden/`.
-7. Si una traza desmiente una lectura previa o un valor de modelo, se corrige la spec y se anota en `DECISIONES.md` (entrada nueva con `file:line`).
+**M1** (DT-29; cerrado el 2026-10-14):
+1. Catálogo funcional de casos de prueba: [ESPEC_17](ESPEC_17_CASOS_DE_PRUEBA.md).
+2. Tests heredados leídos: 104 casos `test` en `Golden/` y 10 fixtures copiados byte a byte.
+3. `indice.json`, cargador de §3 y test de infraestructura (ESPEC_17 INF-01…03), que compilan con el esqueleto (M2).
 
-**M1 cerrado** cuando: están todas las suites de §4 y §6 y los casos O1/O2 de ESPEC_13, con su nº de casos en `indice.json`; cada caso tiene
-`fuente` válida; cada suite `modelo` tiene su caso `lectura` de contraste.
+**Por componente** (M3, M4, M5), **antes de su código**:
+1. Su suite JSONL con los CP «C» de ESPEC_17: trazas `lectura` primero, `modelo` después (con su caso de contraste).
+2. `G-NET`: leer el fuente de `dotnet/runtime` `release/8.0` citado en §4.1 y transcribir los algoritmos en `tools/ModeloSpec/`.
+3. Si una traza desmiente una lectura previa o un valor de modelo, se corrige la spec y se anota en `DECISIONES.md` (entrada nueva con `file:line`).
+
+Un componente se cierra cuando su suite está completa (cada caso con `fuente` válida; cada suite `modelo` con su caso `lectura` de
+contraste) y en verde.
 
 ## 8. Abiertas que este documento cierra
 

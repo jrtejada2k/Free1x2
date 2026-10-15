@@ -22,6 +22,7 @@ Convenciones, plantilla y trampas C#→Swift en [`ESPEC_00_CONVENCIONES.md`](ESP
 | [14](ESPEC_14_PRUEBAS.md) | **Pruebas** | — | Niveles, dobles, cobertura, port de los 138 tests, rendimiento, CI |
 | [15](ESPEC_15_DISENO_UI.md) | **Diseño de UI** | — | Sistema de diseño, ventana, menús, mockups por plantilla, mapa de las 108 pantallas |
 | [16](ESPEC_16_PIEZAS_TRANSVERSALES.md) | **Piezas transversales** | — | `FormatoNET`, XML, ZIP, texto, `AleatorioNET`, ayudantes únicos |
+| [17](ESPEC_17_CASOS_DE_PRUEBA.md) | **Casos de prueba** | — | Catálogo funcional por área, tests heredados aprovechados, cuándo se escribe cada suite |
 | [GLOSARIO](GLOSARIO.md) · [DECISIONES](DECISIONES.md) · [REVISION_SPECS](REVISION_SPECS.md) | Nombres e IDs · registro único de decisiones · revisión que originó 11–16 | — | |
 
 01–10: ~13 400 líneas de comportamiento; 108 pantallas (105 ViewModels + 3 sin ViewModel). Cada espec termina en

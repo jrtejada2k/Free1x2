@@ -59,6 +59,8 @@ orden expresa del dueño; no se implementa).
 | DT-18 | Selector «Nuevo…» de valoraciones: se aplica la lógica C# al estado real del fichero; como `NSSavePanel` no crea un fichero vacío (a diferencia de WinUI), «inexistente» ⇒ nuevo | 09 A-64-1 |
 | DT-19 | Ayuda: el menú Ayuda que macOS crea siempre abre la página «Recursos de ayuda» actual (mismo contenido, avisos en inglés incluidos) además de `F1`/`⌘?` | 10 A-02, A-05 |
 | DT-20…27 | Oráculo **por lectura** (decisión del dueño 2026-10-14: el original solo se lee, nunca se ejecuta; no hay GoldenGen): golden JSONL escritos a mano con `fuente` por caso (`test`, `fixture`, `lectura`, `modelo`, `bcl`, `propiedad`), plataforma fijada por lectura (CRLF, T13, `es-ES`), niveles O1/O2/O3, corpus `fixture` + `lectura`, instantáneas solo para regresión | ESPEC_12 §1, §1.1, §2, §5, §6 |
+| DT-28 | Golden y fixtures como recursos de `Free1X2Pruebas` (`Sources/Free1X2Pruebas/{Golden,Fixtures}`): SwiftPM no admite recursos fuera de su target (`.copy("../Golden")` de ESPEC_11 §3.3 no compila); el cargador lee `Bundle.module` | ESPEC_12 §2; ESPEC_11 §3 |
+| DT-29 | M1 = catálogo funcional (ESPEC_17) + 104 casos heredados + infraestructura; cada componente escribe su suite JSONL **antes** de su código (*test-first*) | ESPEC_17 §4; ESPEC_12 §7 |
 | DT-30…39 | Pruebas, cobertura, CI y presupuestos de rendimiento | ESPEC_14 |
 | DT-40 | API de casos de uso (5 formas, `enum` por menú, unificaciones) | ESPEC_13 |
 | DT-50 | Iconos de la barra: SF Symbols en lugar de los PNG de 16×16 px (mismo tooltip y posición) | ESPEC_15 §1.4 |

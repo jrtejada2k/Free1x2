@@ -75,12 +75,12 @@ El CI falla si un módulo baja de su umbral. La cobertura funcional se comprueba
 | `CompresorZipTests.cs` | 1 | `Free1X2FormatosTests/Z3QTests` | |
 | `JornadaQuinielaParserTests.cs`, `JornadaQuinielaParserRealBackendTests.cs`, `CatalogoEquiposParserTests.cs`, `JornadaCacheRoundTripTests.cs` | 6, 2, 8, 2 | `Free1X2OnlineTests/` | fixtures `online/*.json` copiados como recursos |
 | **Total portado** | **85** | | |
-| `ComparadorTests.cs`, `ComparadorBytesTests.cs`, `Comparador2Tests.cs` | 4, 6 + 15, 9 + 5 | **no se portan** | `Comparador`/`Comparador2` del dominio no tienen uso en la app actual (solo XFSF/xfsfV3 huérfanos y `Analisis.Analizador.IteraCols` muerto; SelectorMS usa su copia local, `Free1X2.WinUI/Views/Ported/SelectorMSViewModel.cs:404-405`) → DP-08 |
+| `ComparadorTests.cs`, `ComparadorBytesTests.cs`, `Comparador2Tests.cs` | 4, 6 + 15, 9 + 5 | **clases no; expectativas sí** (ESPEC_17 §1: 23 casos para `Aciertos` y `CodificacionX0MSB`) | `Comparador`/`Comparador2` del dominio no tienen uso en la app actual (solo XFSF/xfsfV3 huérfanos y `Analisis.Analizador.IteraCols` muerto; SelectorMS usa su copia local, `Free1X2.WinUI/Views/Ported/SelectorMSViewModel.cs:404-405`) → DP-08 |
 | `ReductorTMGoldenTests.cs` | 6 | **no se porta** | `ReductorTM` no es seleccionable en la app actual (`Free1X2.WinUI/Views/Ported/ReductorFrmViewModel.cs:43-44`; DEC-507) → DP-08 |
 | `AbstractionsTests.cs` | 8 | **sustituido** | `UiHooks` desaparece (ESPEC_11 §7); su intención (dependencias no-op por defecto) la cubren los tests de `Entorno.pruebas` |
-| **Total no portado** | **53** | | 85 + 53 = 138 |
+| **Total no portado** | **53** | | 85 + 53 = 138. Revisión M1 (ESPEC_17 §1): de estos 53, 23 aportan expectativas; en total, 104 casos golden `test` |
 
-Fixtures `cols_a.txt`, `cols_b.txt`, `cols_con_repetidas.txt`, `ganadora.txt` y `online/*.json` se copian **byte a byte** a `Tests/Fixtures/`.
+Fixtures `cols_a.txt`, `cols_b.txt`, `cols_con_repetidas.txt`, `ganadora.txt` y `online/*.json` se copian **byte a byte** a `Sources/Free1X2Pruebas/Fixtures/` (DT-28; hecho en M1, SHA-256 en `Golden/indice.json`).
 
 ## 6. Rendimiento (cierra «igual o más rápido que Windows» sin métrica, PLAN §2)
 
@@ -128,7 +128,7 @@ en el código o, si el golden estaba mal, corrigiéndolo con la cita `file:line`
 ## 8. Definición de «hecho» para cada componente o pantalla (R3)
 
 Un ítem del plan Mac solo se marca hecho con **todo** esto:
-1. Suite golden de su componente 100 % verde (N2), con el número de casos de `indice.json`.
+1. Suite golden de su componente escrita **antes** del código (ESPEC_17 §4) y 100 % verde (N2), con el número de casos de `indice.json`.
 2. Tests N1/N3 (y N4/N5 si es CU o pantalla) verdes; peculiaridades `[PRESERVAR]` fijadas.
 3. Umbral de cobertura del módulo cumplido.
 4. Para el motor: benchmark dentro de presupuesto (§6.3).

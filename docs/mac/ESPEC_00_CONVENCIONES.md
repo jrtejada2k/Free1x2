@@ -24,6 +24,7 @@
 | `ESPEC_14_PRUEBAS.md` | Pirámide de pruebas, dobles, cobertura, CI y presupuesto de rendimiento |
 | `ESPEC_15_DISENO_UI.md` | Sistema de diseño, estructura de ventana, mockups por tipo de pantalla, estados, accesibilidad, atajos |
 | `ESPEC_16_PIEZAS_TRANSVERSALES.md` | `FormatoNET`, `EscritorXMLNET`, ZIP `.z3q`, codificaciones de texto, `AleatorioNET`, helpers únicos |
+| `ESPEC_17_CASOS_DE_PRUEBA.md` | Catálogo funcional de casos de prueba (CP-*), tests heredados aprovechados, calendario de las suites |
 | `GLOSARIO.md` · `DECISIONES.md` | Nombres canónicos e IDs · registro único de decisiones (cierra todas las «Abiertas») |
 
 **Precedencia.** Comportamiento: ESPEC_01–10 (y el oráculo). Estructura, tipos, errores, concurrencia y nombres:

@@ -1,0 +1,18 @@
+{
+  "pais": "ES",
+  "actualizado": "2026-06-18T10:30:00Z",
+  "divisiones": [
+    {
+      "id": "all",
+      "nombre": "Equipos (jornadas recientes)",
+      "equipos": [
+        "Real Madrid", "FC Barcelona", "Atlético de Madrid", "Athletic Club",
+        "Real Sociedad", "Real Betis", "Villarreal", "Valencia", "Sevilla",
+        "Girona", "Celta", "Osasuna", "Rayo Vallecano", "Getafe", "Mallorca",
+        "Las Palmas", "Alavés", "Espanyol", "Leganés", "Valladolid",
+        "Real Oviedo", "Sporting", "Racing", "Eibar", "Almería", "Granada",
+        "Levante", "Elche", "Cádiz", "Tenerife", "Burgos", "Albacete"
+      ]
+    }
+  ]
+}

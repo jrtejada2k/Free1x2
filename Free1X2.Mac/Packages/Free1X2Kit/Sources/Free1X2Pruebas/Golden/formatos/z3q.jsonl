@@ -1,0 +1,1 @@
+{"id":"CP-Z3Q-01","fuente":"test","cita":"Free1X2.Domain.Tests/CompresorZipTests.cs:21-59","componente":"CompresorZip","entrada":{"tamano":4782969,"bitsActivos":[0,1,7,8,9,1234,100000,2391484,4782968],"nivel":6},"salida":{"bytesDatos":597872,"tamanoDescomprimido":4782969,"bitsActivos":[0,1,7,8,9,1234,100000,2391484,4782968]}}

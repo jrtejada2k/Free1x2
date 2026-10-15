@@ -28,6 +28,8 @@ bld/
 
 # NuGet
 packages/
+# core.ignorecase=true en macOS: la regla anterior también cazaría el paquete Swift de la app Mac
+!/Free1X2.Mac/Packages/
 *.nupkg
 *.snupkg
 .nuget/

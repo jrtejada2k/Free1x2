@@ -15,7 +15,7 @@
 
 | # | Principio | Consecuencia |
 |---|-----------|--------------|
-| M-R1 | **Mismos resultados que hoy.** Se reescribe el código, no la lógica de negocio. | Cada módulo Swift se acepta solo si reproduce **byte a byte** las salidas que da el código C# según su lectura (golden, `mac/ESPEC_12_ORACULO.md`), además de los tests actuales aplicables portados (85 de 138: `mac/ESPEC_14_PRUEBAS.md` §5). |
+| M-R1 | **Mismos resultados que hoy.** Se reescribe el código, no la lógica de negocio. | Cada módulo Swift se acepta solo si reproduce **byte a byte** las salidas que da el código C# según su lectura (golden, `mac/ESPEC_12_ORACULO.md`), además de los tests actuales aplicables portados (expectativas de los 138 tests leídos: `mac/ESPEC_17_CASOS_DE_PRUEBA.md` §1). |
 | M-R2 | **Estructura de la app actual con convenciones nativas Mac** (decisión del dueño 2026-10-13: «lo define la app actual»). | Mismos menús, barra, pantallas y comportamiento; controles, atajos y ventanas nativos. Mockups en `mac/ESPEC_15_DISENO_UI.md`, revisados por el dueño antes de M5. |
 | M-R3 | **Compatibilidad de ficheros.** | Los `.txt`, `.comb`, condiciones, `parametros.free1x2`, `.dat`, `.xml` existentes se leen y escriben igual (mismos bytes que la app Windows: DP-02). |
 | M-R4 | **Sin estado global.** | `VariablesGlobales` (44 miembros `public static`) se sustituye por valores explícitos (`Sesion`). |
@@ -63,7 +63,7 @@ Free1X2.Mac/                         (proyecto Xcode, en este mismo repo)
     ├─ Free1X2Formatos   E/S compatible con los ficheros actuales
     ├─ Free1X2Online     URLSession async + caché offline-first
     ├─ Free1X2CasosDeUso los 193 casos de uso (lógica que hoy vive en los ViewModels)
-    └─ Tests/            Swift Testing: 138 tests portados + golden diferenciales
+    └─ Tests/            Swift Testing; golden y fixtures en Sources/Free1X2Pruebas (mac/ESPEC_12 §2)
 tools/ModeloSpec/                    FUERA de la app: modelos Python de la spec para calcular esperados (no tocan el C#)
 ```
 
@@ -102,7 +102,7 @@ Sistema de diseño, mockups por plantilla y mapa de las 108 pantallas en `mac/ES
 | Fase | Entregable | Cierre (evidencia) |
 |------|-----------|--------------------|
 | **M0 Especificación** | `docs/mac/ESPEC_00…16`, `GLOSARIO`, `DECISIONES`: comportamiento con `file:line`, arquitectura, oráculo, casos de uso, pruebas, diseño de UI | **Cerrado** 2026-10-14 (decisiones delegadas por el dueño) |
-| **M1 Oráculo** | Golden de todos los módulos escritos por lectura del C# (con `fuente` por caso), versionados como datos | Golden en `Packages/Free1X2Kit/Tests/Golden/` |
+| **M1 Casos de prueba** | Catálogo funcional (`mac/ESPEC_17`), 104 casos heredados como golden, fixtures e infraestructura; cada componente escribe su suite antes del código (DT-29) | **Cerrado** 2026-10-14 |
 | **M2 Esqueleto** | Proyecto Xcode + `Free1X2Kit` + CI macOS | CI verde (build + 0 tests) |
 | **M3 Motor** | Por orden: Columnas/Utils → Escrutinio → Generador+filtros → Reducción → Análisis → Subir categoría | Golden 100 % idénticos + 85 tests portados + benchmark dentro de presupuesto (ESPEC_14 §6) |
 | **M4 Formatos y Online** | Lectura/escritura de todos los ficheros; cliente online | Round-trip del corpus (ESPEC_12 §6) |
