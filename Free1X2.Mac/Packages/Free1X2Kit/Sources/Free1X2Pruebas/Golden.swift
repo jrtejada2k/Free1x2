@@ -1,4 +1,5 @@
 import Foundation
+import Free1X2Formatos
 
 // Cargador del oráculo por lectura (ESPEC_12 §2-3). Los datos son recursos de este target (DT-28).
 
@@ -62,6 +63,11 @@ public enum Golden {
         try Data(contentsOf: url(rutaRelativa))
     }
 
+    /// Columnas de un fixture leídas como `LeeColumnaSinComas` (lector real de Free1X2Formatos).
+    public static func columnas(_ rutaRelativa: String) throws -> [String] {
+        ArchivoColumnasTexto.columnas(try bytes(rutaRelativa))
+    }
+
     /// Líneas no vacías de una suite (`"motor/flujos"` → `Golden/motor/flujos.jsonl`).
     public static func lineas(_ suite: String) throws -> [Data] {
         try bytes("Golden/\(suite).jsonl").split(separator: UInt8(ascii: "\n")).map { Data($0) }
@@ -74,7 +80,10 @@ public enum Golden {
         _: E.Type = E.self,
         _: S.Type = S.self
     ) throws -> [CasoGolden<E, S>] {
-        try decodificar(suite) { componente == nil || $0.componente == componente }
+        let casos: [CasoGolden<E, S>] = try decodificar(suite) { componente == nil || $0.componente == componente }
+        // Un componente mal escrito daría un bucle vacío y un test verde en falso.
+        if casos.isEmpty { throw Fallo.recursoNoEncontrado("\(suite) → \(componente ?? "*")") }
+        return casos
     }
 
     /// Un caso concreto por su `id`.

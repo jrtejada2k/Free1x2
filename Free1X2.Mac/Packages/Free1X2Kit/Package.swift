@@ -30,7 +30,7 @@ let package = Package(
         // Dobles de prueba y oráculo por lectura; los datos van como recursos del propio target (DT-28).
         .target(
             name: "Free1X2Pruebas",
-            dependencies: ["Free1X2CasosDeUso"],
+            dependencies: ["Free1X2Base", "Free1X2Motor", "Free1X2Formatos", "Free1X2Online", "Free1X2CasosDeUso"],
             resources: [.copy("Golden"), .copy("Fixtures")],
             swiftSettings: ajustes
         ),
