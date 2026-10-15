@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		0C696D7C2FF48FB69126C194 /* PantallaCondicion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 572A8CBF196CF469733FD84F /* PantallaCondicion.swift */; };
 		1BC9BF8E43FAD9D0944F9BD5 /* Raiz.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBAE789B419FCD7BEEAB015 /* Raiz.swift */; };
+		2D7F774CEE1FC2BF7F0F2D11 /* Diferencias.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2B7B322A4FC10DFEC1CD265 /* Diferencias.swift */; };
 		47BC0D63D514F9EBEDBF7D85 /* Sesion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 901BDD3D79E749E8ECCBA7CC /* Sesion.swift */; };
 		4F40D091DF0E20513BD6C4D2 /* NoVariantes.swift in Sources */ = {isa = PBXBuildFile; fileRef = A085DB9039F2B28F57E897A4 /* NoVariantes.swift */; };
 		5436B5E3D154C360A12B1875 /* logo.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 8AB7CAABF6E86A07C2401496 /* logo.jpg */; };
@@ -59,6 +60,7 @@
 		B8C08A00BAF58381E06F1D70 /* Free1X2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Free1X2.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C0344B454C66C01D3073E748 /* Datos */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Datos; path = App/Recursos/Datos; sourceTree = SOURCE_ROOT; };
 		D10592D8E03A3123EC36606C /* VistaInicio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VistaInicio.swift; sourceTree = "<group>"; };
+		D2B7B322A4FC10DFEC1CD265 /* Diferencias.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Diferencias.swift; sourceTree = "<group>"; };
 		D3FF8E5909D62572635C6B70 /* Free1X2App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Free1X2App.swift; sourceTree = "<group>"; };
 		DB842ABB38595FAE44A7140D /* Estilo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Estilo.swift; sourceTree = "<group>"; };
 		E57437FEB0766E67A1F55EF1 /* PesosNumericos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PesosNumericos.swift; sourceTree = "<group>"; };
@@ -102,6 +104,7 @@
 			isa = PBXGroup;
 			children = (
 				93ACDCA8FCA710B3A83DAB92 /* ContactosDibujos.swift */,
+				D2B7B322A4FC10DFEC1CD265 /* Diferencias.swift */,
 				2771D91198F31E3165598E0F /* DistanciasInterrupciones.swift */,
 				A085DB9039F2B28F57E897A4 /* NoVariantes.swift */,
 				E57437FEB0766E67A1F55EF1 /* PesosNumericos.swift */,
@@ -287,6 +290,7 @@
 				7F4DD590BD5BE0C07A837A48 /* Barra.swift in Sources */,
 				6A45F9467CF363B37502AC86 /* ContactosDibujos.swift in Sources */,
 				880E2FE4269643F3F9B71C6B /* Destino.swift in Sources */,
+				2D7F774CEE1FC2BF7F0F2D11 /* Diferencias.swift in Sources */,
 				9F830797A2556C971E0020FC /* DistanciasInterrupciones.swift in Sources */,
 				55C40B4180561113677179BE /* Estilo.swift in Sources */,
 				ECD7E7BCABC8A4DABE96FEBF /* Free1X2App.swift in Sources */,

@@ -9,11 +9,11 @@ struct ArchivoCondicion {
     let extensionTemporal: String
     var extensionesAbrir: [String] { tipos.map(\.ext) }
 
-    /// Los de las 14 condiciones de filtro: propia + `(XML)`.
-    init(_ nombre: String, _ etiqueta: String, _ tipo: TipoFiltro) {
+    /// Los de las 14 condiciones de filtro: propia + `(XML)`; el temporal suele llevar la propia.
+    init(_ nombre: String, _ etiqueta: String, _ tipo: TipoFiltro, temporal: String? = nil) {
         nombreSugerido = nombre
-        tipos = [(etiqueta, "." + tipo.extensionCondicion), ("(XML)", ".xml")]
-        extensionTemporal = tipo.extensionCondicion
+        tipos = [(etiqueta, "." + tipo.extensionCondicion), (etiqueta + " (XML)", ".xml")]
+        extensionTemporal = temporal ?? tipo.extensionCondicion
     }
 }
 

@@ -125,4 +125,26 @@ struct CondicionesTests {
         try CasosCondiciones.aplicarDibujos([], en: &d)
         #expect(!d.activa && !d.contieneDatos && d.dibujos.isEmpty)
     }
+
+    @Test func diferencias() throws {
+        var t = TextosDiferencia()
+        #expect(CasosCondiciones.crearDiferencia(t, numeroPartidos: 14) == nil)
+        t.lineas[0] = "1,2"
+        t.lineas[1] = "3-4"
+        t.conceptos[1] = "1-2"
+        let d = try #require(CasosCondiciones.crearDiferencia(t, numeroPartidos: 14))
+        #expect(d.partidosSimetricos.count == 2 && d.analizaVX2Dib && !d.analizaInterrupciones && d.acV == [false, true, true])
+        #expect(d.acX == [false, true, true, false])  // tamaño longitud + 1 si longitud > mayor
+        let v = CasosCondiciones.textosDiferencia(d)
+        #expect(v.lineas[0] == "1,2" && v.lineas[1] == "3,4" && v.conceptos[0] == "1,2" && v.conceptos[4].isEmpty)
+        var f = CondicionDiferencias()
+        let r = try #require(CasosCondiciones.siguienteDiferencia(&f, indice: 0, t, numeroPartidos: 14))
+        #expect(r.indice == 1 && r.mostrar == nil && f.diferencias.count == 1)
+        #expect(CasosCondiciones.siguienteDiferencia(&f, indice: 1, TextosDiferencia(), numeroPartidos: 14) == nil)
+        let a = try #require(CasosCondiciones.anteriorDiferencia(&f, indice: 1, TextosDiferencia(), numeroPartidos: 14))
+        #expect(a.indice == 0 && a.mostrar == d)
+        #expect(CasosCondiciones.eliminarDiferencia(&f, indice: 0) == nil && f.diferencias.isEmpty)
+        #expect(
+            CasosCondiciones.atajosDiferencias("Tríos", pasoFijo: true, lineas: ["x", "", ""], numeroPartidos: 7) == ["x", "1-3", "4-6"])
+    }
 }

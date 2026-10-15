@@ -24,6 +24,7 @@ struct VistaDestino: View {
         case .interrupciones: VistaInterrupciones()
         case .contactos: VistaContactos()
         case .dibujos: VistaDibujos()
+        case .diferencias: VistaDiferencias()
         default: PantallaPendiente(destino: destino)
         }
     }
