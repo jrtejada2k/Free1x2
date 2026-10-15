@@ -96,4 +96,4 @@
 | **Escrutinio** | Contar aciertos de cada columna contra la ganadora y asignar premios/categorías | 05 §4 |
 | **Reducción** / **madre** / **nivel** / **reductora** | Elegir un subconjunto (reductoras) que garantice `nivel` aciertos para toda columna de la madre | 05 §1.4 |
 | **Jornada** | Partidos de una semana; se descarga de clubprogol.com (F18) | 07 §5 |
-| **Golden** / **oráculo** | Salidas de referencia generadas con el C# actual que el Swift debe igualar | ESPEC_12 |
+| **Golden** / **oráculo** | Casos de referencia que el Swift debe igualar; el esperado sale de **leer** el C# (nunca de ejecutarlo), con `fuente` por caso | ESPEC_12 |

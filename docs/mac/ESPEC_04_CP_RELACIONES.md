@@ -12,8 +12,8 @@
 > **Origen de los valores esperados** en los casos golden: `TST` = golden vigente en el repo
 > (autoritativo); `SIM` = cálculo por simulación Python independiente escrita desde este
 > pseudocódigo (que además reproduce exactamente las dos cadenas de validez de
-> `TST/RelacionCP1GoldenTests.cs:140,158`); aún **no** ejecutada contra el C#, debe ratificarse
-> con GoldenGen; `CALC` = aritmética directa.
+> `TST/RelacionCP1GoldenTests.cs:140,158`); el C# original no se ejecuta: entra como `modelo` y se
+> contrasta con una traza `lectura` (ESPEC_12 §1); `CALC` = aritmética directa.
 
 ## Índice de componentes (16)
 
@@ -954,7 +954,7 @@ siempre se recorre.
 **Trampas Swift.** S3 (reproducir exactamente quién invalida las cachés), S4.
 
 **Casos golden propuestos.** G04-RC3-01: dos columnas distintas evaluadas en este orden con `AnalizaRelaciones` ⇒ las series se refrescan cada vez. G04-RC3-02: `Analiza(&txt)` llamado dos veces con CPs distintas
-sin `AnalizaRelaciones` entre medias ⇒ el segundo texto usa la serie de la **primera** llamada (Origen: CALC; ratificar con GoldenGen, Abiertas A-5).
+sin `AnalizaRelaciones` entre medias ⇒ el segundo texto usa la serie de la **primera** llamada (Origen: CALC; contrastar con una traza `lectura`, Abiertas A-5).
 
 **Evidencia.** `MC/ControladorRelacionesCP3.cs:7-45`; `MC/RelacionCP3.cs:204-212`.
 
@@ -1302,7 +1302,7 @@ dependiente de cultura en `Porcentajes` (ESPEC_06) — fijar `Locale` al importa
 | A-3 | El escritor puede emitir `values=""` en `standard/aciertos`, `aciertosSeguidos` o `fallosSeguidos` y el lector lanza (`SetNoAciertos("")` ⇒ `str[-1]`). No verificado si la UI impide guardar una CP sin AC/ACS/FS ni si `ArchivoCombinacion` captura la excepción. | `ES/FColProbablesData.cs:292-316,661-688` |
 | A-4 | Idem para `tolerancias`: `SetACTol("")`/`SetTolerancias("")` lanzan, pero el escritor emite siempre los tres hijos (`:690-712`). | `MC/ColumnaProbable.cs:470-511` |
 | A-5 | Caché obsoleta de `RelacionCP3` en el camino de texto (P16): se documenta como se comporta hoy; ¿replicar (golden R1) o corregir llamando a `ActualizaValores` (decisión del dueño)? | §9, §10 |
-| A-6 | Comportamiento BCL no verificable en el repo y que condiciona el parseo: `Convert.ToInt32` (espacios, signo, cultura), `Char.IsLetter`, `string.ToUpper()`, `Convert.ToBoolean`, `Array.Sort` con NaN. Proponer casos GoldenGen que fijen cada uno. | D4, S2, S6, S7 |
+| A-6 | Comportamiento BCL no verificable en el repo y que condiciona el parseo: `Convert.ToInt32` (espacios, signo, cultura), `Char.IsLetter`, `string.ToUpper()`, `Convert.ToBoolean`, `Array.Sort` con NaN. Casos `G-NET` (`bcl`, ESPEC_12 §4.1) que fijen cada uno. | D4, S2, S6, S7 |
 | A-7 | `RelacionCP3` generada por la UI/informe ABDON: `Columnas = cols` se asigna directamente (no `grupoCP[i]`) en `VisorAnalisisColumnasAbdonFrm.cs:602-606` y su ViewModel (`:765`); no se ha comprobado si ahí la lista puede no ser el prefijo de las CPs. Afecta solo a quien construya relaciones fuera de la carga XML. | P12 |
 | A-8 | Unidad de `ms`/`mi` en `impresoras.cfg` (la geometría de `ImprimirBoletoFrmViewModel.cs:224-250` usa constantes como 19,685 y 44,291, compatibles con centésimas de pulgada, **no verificado**). Decidir si macOS reutiliza el catálogo de impresoras o lo sustituye por `NSPrintInfo`. | §13, §14 |
 | A-9 | `OrdenarValoracion` con valoraciones `NaN` (p. ej. una celda con «NaN» importada): el orden de `Array.Sort` de C# (NaN primero) no es reproducible con `sort()` de Swift sin comparador total. ¿Se acepta rechazar NaN al importar? | §16 |

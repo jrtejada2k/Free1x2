@@ -46,7 +46,7 @@
 | DP-06 | Distribución / sandbox (D8) | **Igual que hoy** (app portable con acceso libre a ficheros): **fuera de la Mac App Store, sin App Sandbox**, firma Developer ID + notarización (PLAN M6). Sin *security-scoped bookmarks*: las rutas se guardan absolutas, como hoy. | PLAN §5 (M6), §7.3; 07:1210 (A16) |
 | DP-07 | Localización | **Igual que hoy**: interfaz en español; selector Español/English que solo traduce Créditos (6 claves). Infraestructura `.xcstrings` con `es` base para crecer sin rehacer. El `.lang` no se aplica hoy → no se porta. | 10:212-216; 07:660-669 |
 | DP-08 | Código sin uso (D3) | **No se porta lo que la app actual no alcanza** (resultado idéntico): reductores `XFSF`, `XfsfV3`, `JLPM` y `ReductorTM` (no seleccionable: `Free1X2.WinUI/Views/Ported/ReductorFrmViewModel.cs:43-44`); `.lang`; `IAppPaths`, `IProgressNotifier`; `aidomnou.cfg`; `Comunicaciones/`; `EscrutadorComb.PonerPremios/AñadirPremiosGlobales`; funciones con «0 consumidores» de 06 §1.4. | 05:831-832 (A4-A5); 01 §2.21-2.22; 06:130-156 |
-| DP-09 | Defectos aparentes (D2 y «Defecto aparente» de 08/09/10) | **Se replican** (motor y pantallas), tras confirmarlos con el oráculo (ESPEC_12). Los que en C# acaban en el manejador global se replican como **error tipado con el mismo efecto visible** (diálogo «Se produjo un error inesperado:…»), nunca como cierre de la app (A5). | README «Decisiones» (D2); 10:32 |
+| DP-09 | Defectos aparentes (D2 y «Defecto aparente» de 08/09/10) | **Se replican** (motor y pantallas), cada uno con su caso `lectura` (`G-D2`, ESPEC_12 §4.2). Los que en C# acaban en el manejador global se replican como **error tipado con el mismo efecto visible** (diálogo «Se produjo un error inesperado:…»), nunca como cierre de la app (A5). | README «Decisiones» (D2); 10:32 |
 | DP-10 | Mejoras de UX (cancelar real, validación en vivo, confirmaciones) | **Ninguna**: cada pantalla conserva sus botones, mensajes y efectos. Donde hoy «Cancelar» no detiene el cálculo (p. ej. aidomnou, 10:1976 A-16), el port tampoco lo hace; la arquitectura queda preparada (§6) para activarlo con una línea si el dueño lo pide. | 09:2056; 10:1976 |
 | DP-11 | Navegación y áreas (D7) | **La estructura actual**: 7 menús con sus 53 destinos y 6 grupos de barra; páginas que se apilan en la ventana con «Atrás». Se traduce a convenciones Mac (barra de menús, barra de herramientas personalizable, atajos `⌘`) sin cambiar qué hay ni dónde está. Detalle en ESPEC_15. | 10:92-183 |
 | DP-12 | Preferencias | Tema `Sistema/Claro/Oscuro` (defecto Sistema) e idioma `Español/English` (defecto Español) como hoy; visibilidad de grupos de barra se sigue leyendo/escribiendo en `parametros.free1x2` (`GuardarToolBarsVisibles`), con el grupo Filtros siempre visible al arrancar. | 10:164-168,187-216 |
@@ -79,7 +79,7 @@ Free1X2.Mac/                               (carpeta en este repo; PLAN §7.2)
 │   ├─ Tests/<Módulo>Tests/                Swift Testing (ESPEC_14)
 │   ├─ Tests/Golden/                       datos del oráculo (ESPEC_12)
 │   └─ Sources/Free1X2Bench/               ejecutable de benchmarks (ESPEC_14 §6)
-└─ tools/GoldenGen/  (en la raíz del repo, fuera de Free1X2.Mac)  C#, se ejecuta una vez (ESPEC_12)
+└─ tools/ModeloSpec/ (en la raíz del repo, fuera de Free1X2.Mac)  modelos Python de la spec (ESPEC_12 §1); no tocan el C#
 ```
 
 ### 3.2 Grafo de dependencias (acíclico; una flecha = «importa»)
@@ -221,7 +221,7 @@ protocol FiltroColumna: AnyObject {                           // contrato IFiltr
 - **Desviación conocida y aceptada (DT-02b):** el C# reutiliza el mismo `Analizador` entre cálculos (`AppState.Analizador`,
   07:1160), así que el memo de un `Grupo` no controlado (01:127, «nunca se invalida») puede arrastrarse de una ejecución a
   la siguiente. Con grafo por ejecución eso no ocurre. El oráculo (ESPEC_12) define la paridad **por ejecución desde estado
-  limpio**, que es como trabajan los 138 tests y GoldenGen. Anotada en `DECISIONES.md` para revisión.
+  limpio**, que es como trabajan los 138 tests C# leídos. Anotada en `DECISIONES.md` para revisión.
 - `ContenedorAnalisis` deduplica filtros por identidad (01 §4.1, regla 4): con clases internas se mantiene `ObjectIdentifier`.
 
 ### 4.4 Tipos base
@@ -253,7 +253,7 @@ compararla con el oráculo); la app **muestra** el error por el mismo canal y co
 | Excepción que **sube a la pantalla** y esta la convierte en mensaje (`"No se pudo abrir: " + msg`, 08:118) | `throw ErrorDominio`; el modelo de pantalla hace `catch` y muestra el **mismo literal** + `mensajeUsuario`. |
 | Excepción **no capturada** que hoy acaba en el manejador global (`App.UnhandledException`, 10:32) | `throw` hasta el modelo de pantalla, que lo entrega a `Alertas.errorInesperado(_:)`: «Se produjo un error inesperado:\n\n{mensaje}» + log. Mismo efecto visible, la app sigue viva. |
 | `UserDialogs.ShowError/ShowInfo` dentro del motor (01 §2.23) | El motor **no** muestra nada: devuelve el aviso en el resultado (`avisos: [Aviso]`) o lo emite como evento de progreso; la app lo presenta igual. |
-| Comportamiento indefinido en C# sin excepción (`(int)NaN`, 10:381) | Se fija el valor que da el C# en x64 (`Int32.min`), documentado en T13; si no es conocido, el oráculo lo fija. |
+| Comportamiento indefinido en C# sin excepción (`(int)NaN`, 10:381) | Se fija el valor que da el C# en x64 (`Int32.min`), documentado en T13; si no es conocido, se fija leyendo el fuente de .NET 8 (ESPEC_12 §1, `bcl`). |
 | Bucle que en C# **no termina** (09 A-73-1; 10:1341) | Se detecta la falta de progreso y se lanza `ErrorDominio(.operacionInvalida)`; en los casos que terminan, mismo resultado (DT-08). |
 
 ### 5.2 Tipos

@@ -27,8 +27,8 @@
   (`UtilColumnas.cs:196-204`).
 - **Columna de ejemplo C\*** = `1X2112X1X2211X` = `1409999751252` (0x1484A88C854). Signos por partido: 1=`1`, 2=`X`, 3=`2`, 4=`1`, 5=`1`,
   6=`2`, 7=`X`, 8=`1`, 9=`X`, 10=`2`, 11=`2`, 12=`1`, 13=`1`, 14=`X`. Recuentos: seis `1` (p 1,4,5,8,12,13), cuatro `X` (p 2,7,9,14), cuatro `2` (p 3,6,10,11).
-- Tabla de columnas golden comunes (G1..G9); los valores «ref.» se calcularon con un port Python externo del C# (no versionado) y **GoldenGen debe
-  regenerarlos**:
+- Tabla de columnas golden comunes (G1..G9); los valores «ref.» se calcularon con un port Python externo del C# (no versionado): entran como `modelo` y
+  necesitan su caso `lectura` de contraste (ESPEC_12 §1):
 
 | Id | Columna | NoVar (v,x,2) | Dibujo (x+2) | Distancia (var,1,X,2) | StaSigSeg (mv,m1,mx,m2) | StaInter (ng,nv,n1,nx,n2) |
 |----|---------|---------------|--------------|-----------------------|--------------------------|---------------------------|
@@ -911,4 +911,4 @@ Matriz `rsl[15][15]` de enteros. Validación previa `VerColumna`: exactamente 14
 - **A10 · Líneas no válidas en históricos** (`ConvStrToLong` con caracteres ajenos y B3): la estadística no filtra líneas erróneas ni en blanco (§16).
 - **A11 · `RelacionGE1`/`AnalizaRelaciones`** (sólo el último texto de relación) se especifican en ESPEC_04; aquí solo se enlaza.
 - **A12 · `Char.IsLetter`** (Unicode, cualquier categoría de letra) vs `Character.isLetter` de Swift para la letra de tolerancia; en la práctica A-Z. Confirmar con `ToleranciaFiltros.LetrasTol` (ESPEC_01).
-- **A13 · Cobertura de tests existente.** Para estos componentes sólo hay `ManualFuncionalTests.cs:28-45` (NoVariantes, 3 casos) y `RangosHelperBoolTests.cs`; el resto de «ref.» de este documento proviene de un port Python externo no versionado: **GoldenGen es la única fuente válida** de los valores esperados.
+- **A13 · Cobertura de tests existente.** Para estos componentes sólo hay `ManualFuncionalTests.cs:28-45` (NoVariantes, 3 casos) y `RangosHelperBoolTests.cs`; el resto de «ref.» de este documento proviene de un port Python externo no versionado: entran como `modelo` y necesitan su caso `lectura` de contraste (ESPEC_12 §1).

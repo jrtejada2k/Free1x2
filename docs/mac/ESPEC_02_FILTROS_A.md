@@ -8,8 +8,8 @@
 > ejemplos y de las tablas golden salen de un *port de verificación* en Python escrito para este documento
 > (transcripción literal de los algoritmos; la lectura «por cadenas» de las rachas de Interrupciones se
 > contrastó de forma exhaustiva contra el port con todas las columnas de hasta 10 partidos). **El oráculo
-> es `tools/GoldenGen` sobre el C#**: si un número de este documento discrepa de GoldenGen, manda GoldenGen
-> y se corrige el documento. No existen tests actuales que toquen estos cuatro filtros
+> es la lectura del C#** (ESPEC_12 §1): estos números entran como `modelo`; si una traza `lectura` los desmiente,
+> manda la traza y se corrige el documento. No existen tests actuales que toquen estos cuatro filtros
 > (`Free1X2.Domain.Tests` solo usa `FiltroNoVariantes` y `FiltroColProbables`: `Free1X2.Domain.Tests/ManualFuncionalTests.cs:38,59`).
 
 ---
@@ -185,7 +185,7 @@ Swift (T10): pasar `numeroPartidos` y los 4 flags `analizar*` por el inicializad
 
 ### 0.10 Columnas golden compartidas (COLS-A)
 
-14 partidos; `*` = hueco (en GoldenGen: `UtilColumnas.ConvStrToLong(s, partidosMarcados)` con
+14 partidos; `*` = hueco (codificación: `UtilColumnas.ConvStrToLong(s, partidosMarcados)` con
 `marcados[i] = (s[i] != '*')`, `UC:205-220`). Los `long` permiten verificar la codificación.
 
 | id | columna (partido 1 → 14) | `long` |
@@ -453,7 +453,7 @@ Sobre `m5 = 1*1*1*1*X*X*X1` (pesos 9,9,0,9,9; patrón 4,1): PN-K1 G{9} V{9} U{9}
 Sobre `m0` (columna 0, pesos 0,0,0,0,0; «5 iguales» → figura 0): PN-L1 todos {0}, tols "0", figuras {0} →
 `true`; PN-L2 figuras {50} → `false`/`["Fallo en Figuras  (0)"]`; PN-L3 con 5 figuras cualesquiera → `true`.
 
-**(c) Errores** (registrar excepción en GoldenGen): `PonerTolerancia(6,true)` → `IndexOutOfRange`;
+**(c) Errores** (casos `G-ERR` con la excepción): `PonerTolerancia(6,true)` → `IndexOutOfRange`;
 `SetPNUnos("10")` con N = 14 → válido (índice ≤ N) pero inalcanzable; `SetPNUnos("15")` → `IndexOutOfRange`;
 carga XML con `noTolerancias=""` → `NullReferenceException`; `SetPNGlobal("")` → sin efecto.
 

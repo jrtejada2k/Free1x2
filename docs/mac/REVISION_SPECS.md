@@ -268,3 +268,6 @@ Por mandato del dueño (producto = app actual; técnica = buenas prácticas; rev
 
 Las 14 decisiones de §5 quedan tomadas en `DECISIONES.md` (1 = ESPEC_12 + regla del dueño; 2 = ESPEC_12 §5; 3 = DT-03; 4 = DT-02;
 5 = DP-01; 6 = DP-02; 7 = DP-03; 8 = DP-06; 9 = DP-05; 10 = DP-09; 11 = DP-10; 12 = DP-07; 13 = DP-08; 14 = DP-11 + ESPEC_15).
+
+**2026-10-14 (dueño, definitivo):** la decisión 1 queda en «sin C#»: el original solo se lee y nunca se ejecuta (ni app, ni tests, ni
+GoldenGen). ESPEC_12 se reescribió como oráculo por lectura (esperados con `fuente` por caso).

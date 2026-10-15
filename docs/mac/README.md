@@ -17,7 +17,7 @@ Convenciones, plantilla y trampas C#→Swift en [`ESPEC_00_CONVENCIONES.md`](ESP
 | [09](ESPEC_09_UI_B.md) | Pantallas 41–73 | 2 084 | 33 pantallas, 41 casos de uso |
 | [10](ESPEC_10_UI_C.md) | Pantallas 74–105 + shell | 1 998 | 35 pantallas (incl. Acerca de/Ayuda/Créditos), 62 casos de uso, menú (64 entradas) |
 | [11](ESPEC_11_ARQUITECTURA_SWIFT.md) | **Arquitectura Swift** | — | Módulos, modelo configuración/ejecución, errores, concurrencia, `Entorno`, `Sesion`, persistencia, rendimiento; DP/DT |
-| [12](ESPEC_12_ORACULO.md) | **Oráculo** | — | GoldenGen en el Mac (.NET 8 x64 bajo Rosetta), formato y carga de golden, suites `G-NET`, niveles O1/O2/O3, corpus |
+| [12](ESPEC_12_ORACULO.md) | **Oráculo** | — | Oráculo **por lectura** (el original nunca se ejecuta): origen de cada esperado, formato y carga de golden, suites `G-NET`, niveles O1/O2/O3, corpus |
 | [13](ESPEC_13_CASOS_DE_USO.md) | **API de casos de uso** | — | 193 CU + 10 del shell: firma, dependencias, oráculo |
 | [14](ESPEC_14_PRUEBAS.md) | **Pruebas** | — | Niveles, dobles, cobertura, port de los 138 tests, rendimiento, CI |
 | [15](ESPEC_15_DISENO_UI.md) | **Diseño de UI** | — | Sistema de diseño, ventana, menús, mockups por plantilla, mapa de las 108 pantallas |
@@ -31,8 +31,8 @@ Convenciones, plantilla y trampas C#→Swift en [`ESPEC_00_CONVENCIONES.md`](ESP
 
 - Los valores «esperado» de los ejemplos y casos golden salen de **réplicas Python** hechas al
   redactar, **no** del motor C#. Excepción: las réplicas de `JDCDobleContador`, `ReductorTM` y
-  `RelacionCP1` reproducen exactamente los golden existentes. **Todos se regeneran en M1** con
-  `tools/GoldenGen`.
+  `RelacionCP1` reproducen exactamente los golden existentes. En M1 entran como `modelo` y cada
+  suite lleva su caso `lectura` de contraste (ESPEC_12 §1).
 - Las afirmaciones «por lectura» (no ejecutadas) están marcadas así en cada espec.
 - La lógica de los ViewModels no tiene hoy tests ni golden (el proyecto de tests solo usa Domain).
 
@@ -40,10 +40,10 @@ Convenciones, plantilla y trampas C#→Swift en [`ESPEC_00_CONVENCIONES.md`](ESP
 
 Todas las decisiones D1–D8 y las «Abiertas» de 01–10 están **tomadas** en [`DECISIONES.md`](DECISIONES.md)
 (mandato del dueño del 2026-10-13: producto = app actual; técnica = buenas prácticas; revisión final del dueño).
-D1 = DP-15 · D2 = DP-09 + `G-D2` · D3 = DP-08 · D4 = DP-01 · D5 = DP-02 · D6 = corpus de GoldenGen · D7 = DP-11 · D8 = DP-06 + DP-14.
+D1 = DP-15 · D2 = DP-09 + `G-D2` · D3 = DP-08 · D4 = DP-01 · D5 = DP-02 · D6 = corpus `fixture` + `lectura` (ESPEC_12 §6) · D7 = DP-11 · D8 = DP-06 + DP-14.
 
 ## Siguiente fase
 
-**M1 — Oráculo**: `tools/GoldenGen` exporta una vez los golden de todos los módulos **en este Mac** (.NET 8 x64 bajo
-Rosetta 2, cultura `es-ES`, salida normalizada a CRLF; sin Windows) y se versionan como datos en el paquete Swift. Procedimiento y
+**M1 — Oráculo por lectura**: los golden de todos los módulos se escriben a mano leyendo el C# (nunca ejecutándolo), cada caso con
+su `fuente`, y se versionan como datos en el paquete Swift. Procedimiento y
 criterio de cierre en [ESPEC_12](ESPEC_12_ORACULO.md) §7.

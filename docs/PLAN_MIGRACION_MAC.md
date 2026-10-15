@@ -5,15 +5,16 @@
 > C#. El código actual (`Free1X2.Domain` + `Free1X2.WinUI`) pasa a ser **especificación** y
 > **oráculo de pruebas**.
 >
-> **La app Mac es 100 % Swift nativo arm64: no contiene, no enlaza y no ejecuta C#.** El C# solo
-> se usa fuera del proyecto Mac para exportar una vez los datos de referencia (golden) que se
+> **La app Mac es 100 % Swift nativo arm64: no contiene, no enlaza y no ejecuta C#.** El C# **solo
+> se lee** (requisitos, especificación, diseño); nunca se ejecuta, ni la app ni sus tests (regla del
+> dueño 2026-10-14). Los datos de referencia (golden) se escriben a mano leyendo el código y se
 > versionan como ficheros JSON/TXT de test.
 
 ## 0. Principios
 
 | # | Principio | Consecuencia |
 |---|-----------|--------------|
-| M-R1 | **Mismos resultados que hoy.** Se reescribe el código, no la lógica de negocio. | Cada módulo Swift se acepta solo si reproduce **byte a byte** las salidas del motor C# (golden files), además de los tests actuales aplicables portados (85 de 138: `mac/ESPEC_14_PRUEBAS.md` §5). |
+| M-R1 | **Mismos resultados que hoy.** Se reescribe el código, no la lógica de negocio. | Cada módulo Swift se acepta solo si reproduce **byte a byte** las salidas que da el código C# según su lectura (golden, `mac/ESPEC_12_ORACULO.md`), además de los tests actuales aplicables portados (85 de 138: `mac/ESPEC_14_PRUEBAS.md` §5). |
 | M-R2 | **Estructura de la app actual con convenciones nativas Mac** (decisión del dueño 2026-10-13: «lo define la app actual»). | Mismos menús, barra, pantallas y comportamiento; controles, atajos y ventanas nativos. Mockups en `mac/ESPEC_15_DISENO_UI.md`, revisados por el dueño antes de M5. |
 | M-R3 | **Compatibilidad de ficheros.** | Los `.txt`, `.comb`, condiciones, `parametros.free1x2`, `.dat`, `.xml` existentes se leen y escriben igual (mismos bytes que la app Windows: DP-02). |
 | M-R4 | **Sin estado global.** | `VariablesGlobales` (44 miembros `public static`) se sustituye por valores explícitos (`Sesion`). |
@@ -62,7 +63,7 @@ Free1X2.Mac/                         (proyecto Xcode, en este mismo repo)
     ├─ Free1X2Online     URLSession async + caché offline-first
     ├─ Free1X2CasosDeUso los 193 casos de uso (lógica que hoy vive en los ViewModels)
     └─ Tests/            Swift Testing: 138 tests portados + golden diferenciales
-tools/GoldenGen/                     FUERA de la app: exporta los golden una vez (no se distribuye)
+tools/ModeloSpec/                    FUERA de la app: modelos Python de la spec para calcular esperados (no tocan el C#)
 ```
 
 Decisiones técnicas:
@@ -82,13 +83,12 @@ Decisiones técnicas:
 
 ## 3. Estrategia de verificación (oráculo)
 
-1. `tools/GoldenGen` (herramienta de datos, fuera del proyecto Mac) ejecuta una vez el motor
-   actual con entradas variadas y deterministas (semilla fija)
-   por módulo y escribe `entrada → salida` en `Packages/Free1X2Kit/Tests/Golden/`.
-2. Los tests Swift leen esos golden y exigen igualdad exacta.
-3. Los golden se versionan como datos. La CI del proyecto Mac (GitHub Actions, runner macOS
-   arm64) solo ejecuta `swift test` + `xcodebuild build`: **cero C# en la cadena Mac**. GoldenGen corre aparte,
-   en el Mac con .NET 8 x64 bajo Rosetta 2, sin Windows (`mac/ESPEC_12_ORACULO.md`).
+1. **El original nunca se ejecuta.** Cada esperado sale de leer el código: literales de los tests C#,
+   ficheros de datos del repo, trazas a mano con `file:line`, modelos de la spec contrastados con una
+   traza, y el fuente público de .NET 8 para la BCL (`mac/ESPEC_12_ORACULO.md` §1).
+2. Los casos se escriben como `entrada → salida` en `Packages/Free1X2Kit/Tests/Golden/`, con su `fuente`.
+3. Los tests Swift leen esos golden y exigen igualdad exacta. La CI del proyecto Mac (GitHub Actions,
+   runner macOS arm64) solo ejecuta `swift test` + `xcodebuild build`: **cero C# en toda la cadena**.
 
 ## 4. UI
 
@@ -101,10 +101,10 @@ Sistema de diseño, mockups por plantilla y mapa de las 108 pantallas en `mac/ES
 | Fase | Entregable | Cierre (evidencia) |
 |------|-----------|--------------------|
 | **M0 Especificación** | `docs/mac/ESPEC_00…16`, `GLOSARIO`, `DECISIONES`: comportamiento con `file:line`, arquitectura, oráculo, casos de uso, pruebas, diseño de UI | Revisión del dueño |
-| **M1 Oráculo** | `tools/GoldenGen` + golden de todos los módulos versionados como datos | Golden en `Packages/Free1X2Kit/Tests/Golden/` |
+| **M1 Oráculo** | Golden de todos los módulos escritos por lectura del C# (con `fuente` por caso), versionados como datos | Golden en `Packages/Free1X2Kit/Tests/Golden/` |
 | **M2 Esqueleto** | Proyecto Xcode + `Free1X2Kit` + CI macOS | CI verde (build + 0 tests) |
 | **M3 Motor** | Por orden: Columnas/Utils → Escrutinio → Generador+filtros → Reducción → Análisis → Subir categoría | Golden 100 % idénticos + 85 tests portados + benchmark dentro de presupuesto (ESPEC_14 §6) |
-| **M4 Formatos y Online** | Lectura/escritura de todos los ficheros; cliente online | Round-trip del corpus de GoldenGen (ESPEC_12 §6) |
+| **M4 Formatos y Online** | Lectura/escritura de todos los ficheros; cliente online | Round-trip del corpus (ESPEC_12 §6) |
 | **M5 UI** | Mockups de ESPEC_15 revisados → pantallas SwiftUI, empezando por el flujo principal | Smoke de las 109 superficies en el Mac M1 (ESPEC_14 §9) |
 | **M6 Distribución** | Firma Developer ID + notarización + `.dmg` | Instalable verificado en un Mac limpio |
 

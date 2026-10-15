@@ -24,12 +24,12 @@ orden expresa del dueño; no se implementa).
 | DP-06 | Distribución | fuera de la Mac App Store, sin sandbox, Developer ID + notarización; rutas absolutas como hoy | D8; PLAN §7.3; 07 A16 |
 | DP-07 | Localización | UI en español; selector es/en que solo traduce Créditos; `.lang` no se porta | PLAN §2 «Idiomas»; 07 A8; 10 A-04 |
 | DP-08 | Código sin uso | no se porta lo inalcanzable desde la app actual (lista en §4) | D3; 01 A11; 03 A8; 04 A-10; 05 A4, A5, A7; 06 A7, A9, A10; 08 A9; 09 A-46-3 (el campo se muestra, no calcula); 10 A-11, A-20 |
-| DP-09 | Defectos aparentes | se replican tras confirmarlos con el oráculo (`G-D2`) | D2 y todos los «Defecto aparente» (§3) |
+| DP-09 | Defectos aparentes | se replican; cada uno con su caso `lectura` (`G-D2`, ESPEC_12 §4.2) | D2 y todos los «Defecto aparente» (§3) |
 | DP-10 | Mejoras de UX | ninguna; la arquitectura deja preparada la cancelación | 10 A-16; 09 A-50-1, A-72-1; 05 A9 |
 | DP-11 | Navegación y áreas | estructura actual de 7 menús y 6 grupos de barra, traducida a convenciones Mac (ESPEC_15) | D7; PLAN §4 |
 | DP-12 | Preferencias | tema/idioma con las opciones de hoy en `UserDefaults`; barras en `parametros.free1x2` | 10 A-03 |
 | DP-13 | Carpetas | las 10 de hoy bajo `~/Library/Application Support/Free1X2/`; selectores en Documentos; `Ganadoras/` se llena a mano | 08 A20; 09 G-2, A-44-2; 10 A-06 |
-| DP-14 | Ubicación del proyecto | carpeta `Free1X2.Mac/` en este repo (junto al oráculo) | PLAN §7.2 |
+| DP-14 | Ubicación del proyecto | carpeta `Free1X2.Mac/` en este repo (junto al código original, que solo se lee) | PLAN §7.2 |
 | DP-15 | Referencia de comportamiento | **solo la app actual** (WinUI + `Free1X2.Domain`); toda divergencia con el WinForms legacy se resuelve a favor del port | D1; 09 G-1, A-41-1, A-41-2, A-57-1, A-62-1, A-62-2, A-68-2; 08 A2, A5, A17; 10 A-10 (manda el código, no el manual), A-22 |
 
 ## 2. Decisiones técnicas — detalle en el documento indicado
@@ -50,13 +50,13 @@ orden expresa del dueño; no se implementa).
 | DT-11 | XML con `Foundation.XMLDocument` + `EscritorXMLNET`; ZIP con `Compression.framework` sin terceros | ESPEC_16 §2-3; 06 A18 (**V**: *spike* en M3) |
 | DT-12 | Convenciones de código y trazabilidad `// C#: fichero:línea` | ESPEC_11 §11 |
 | DT-13 | Mayúsculas ASCII invariantes para letras de tolerancia y columnas (la cultura turca no se emula) | 02 A5; 06 A5 |
-| DT-14 | Orden de ficheros de `DirectoryInfo.GetFiles`: por nombre, ordinal sin distinguir mayúsculas (orden de NTFS); GoldenGen reordena igual en el Mac (ESPEC_12 §1.1) — **O** | 03 A3; 10 A-19 |
+| DT-14 | Orden de ficheros de `DirectoryInfo.GetFiles`: por nombre, ordinal sin distinguir mayúsculas (orden de NTFS); fijado por lectura (`bcl`, ESPEC_12 §1.1) — **O** | 03 A3; 10 A-19 |
 | DT-15 | Ordenaciones con empates o `NaN`: `IntrosortNET` / comparador «NaN primero» solo donde el golden muestre que el orden llega a la salida — **O** | 04 A-9; 05 A3; 06 A9 |
 | DT-16 | Cliente HTTP: `URLSession` efímera, timeout 10 s, `Accept: application/json`, `User-Agent: Free1X2/<versión> (macOS)`; redirecciones y descompresión por defecto | 07 A10 |
 | DT-17 | Mensaje genérico HTTP con los nombres de `HttpStatusCode` de .NET 8 (tabla de los códigos estándar) | 07 A11 |
 | DT-18 | Selector «Nuevo…» de valoraciones: se aplica la lógica C# al estado real del fichero; como `NSSavePanel` no crea un fichero vacío (a diferencia de WinUI), «inexistente» ⇒ nuevo | 09 A-64-1 |
 | DT-19 | Ayuda: el menú Ayuda que macOS crea siempre abre la página «Recursos de ayuda» actual (mismo contenido, avisos en inglés incluidos) además de `F1`/`⌘?` | 10 A-02, A-05 |
-| DT-20…27 | Oráculo GoldenGen **en el Mac, sin Windows** (decisión del dueño 2026-10-14): .NET 8 x64 bajo Rosetta 2, `es-ES`, normalización LF→CRLF, ViewModels compilados desde su fuente con *shims*, prueba de equivalencia 138/138, JSONL, niveles O1/O2/O3, corpus | ESPEC_12 §1, §1.1, §5.1, §7 |
+| DT-20…27 | Oráculo **por lectura** (decisión del dueño 2026-10-14: el original solo se lee, nunca se ejecuta; no hay GoldenGen): golden JSONL escritos a mano con `fuente` por caso (`test`, `fixture`, `lectura`, `modelo`, `bcl`, `propiedad`), plataforma fijada por lectura (CRLF, T13, `es-ES`), niveles O1/O2/O3, corpus `fixture` + `lectura`, instantáneas solo para regresión | ESPEC_12 §1, §1.1, §2, §5, §6 |
 | DT-30…39 | Pruebas, cobertura, CI y presupuestos de rendimiento | ESPEC_14 |
 | DT-40 | API de casos de uso (5 formas, `enum` por menú, unificaciones) | ESPEC_13 |
 | DT-50 | Iconos de la barra: SF Symbols en lugar de los PNG de 16×16 px (mismo tooltip y posición) | ESPEC_15 §1.4 |
@@ -322,7 +322,7 @@ DEC-203, 302, 306, 404, 604, 801, 804, 808, 810, 815, 816, 822, 902, 904, 909, 9
 | README D1 | resuelta (2026-10-12) = DP-15 |
 | README D2 | DP-09 + suite `G-D2` (O) |
 | README D3 · D4 · D5 · D7 · D8 | DP-08 · DP-01 · DP-02 · DP-11 · DP-06 |
-| README D6 | resuelta (2026-10-12): corpus generado por GoldenGen (ESPEC_12 §6) |
+| README D6 | resuelta (2026-10-12; 2026-10-14): corpus = ficheros del repo + ficheros escritos a mano leyendo los escritores (ESPEC_12 §6) |
 | PLAN §7.1 aprobar plan y arquitectura | arquitectura en ESPEC_11; revisión final del dueño |
 | PLAN §7.2 ubicación | DP-14 |
 | PLAN §7.3 distribución | DP-06 |

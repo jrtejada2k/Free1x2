@@ -14,7 +14,7 @@
     «externas»; ReductorTM: los 4 casos de salida exacta). El pseudocódigo de esos dos queda, por tanto, **validado contra el oráculo**.
   - `Escrutador` reproduce el histograma golden de `cols_a` (`EscrutinioReduccionFixtureTests.cs:46-53`).
   - `JDC`, `Redu1305Xfsf`, `XFSF`, `xfsfV3`, `JLPM`, `Calculos`: sin golden de salida exacta en el repo; los valores marcados **[réplica]**
-    salen de la réplica y **no son oráculo** (regenerar con `tools/GoldenGen` antes de usarlos como aceptación).
+    salen de la réplica y **no son oráculo** (entran como `modelo`: cada uno necesita su caso `lectura` de contraste antes de usarse como aceptación, ESPEC_12 §1).
 - Toda cifra de línea (`fichero:N`) se verificó leyendo el fichero. Lo no verificado está en **«Abiertas»** (final).
 
 **Abreviaturas de ruta** (todas relativas a la raíz del repo):
@@ -768,7 +768,7 @@ solo **9** fijan una salida completa no trivial (5 JDCDoble + 4 TM); **el resto*
 
 Entradas disponibles en `Free1X2.Domain.Tests/Fixtures/`: `cols_a.txt` (10 columnas reales distintas), `cols_b.txt` (10; 5 comparten con A), `cols_con_repetidas.txt` (10 líneas, 6 distintas), `ganadora.txt` (= 1.ª de `cols_a`: `21122X1X111122`).
 «Universo kT» = fichero que genera `Analizador` con `k` triples `1,X,2` en los primeros partidos y el resto fijo `1` (3^k columnas, orden del generador), como en `T-JDCD:23-31`.
-Los valores **[réplica]** hay que confirmarlos con `tools/GoldenGen` (aún no existe).
+Los valores **[réplica]** entran como `modelo` y se contrastan con una traza `lectura` (ESPEC_12 §1).
 
 | ID | Componente | Entrada y parámetros | Salida a capturar | Valor esperado **[réplica]** |
 |---|---|---|---|---|
@@ -825,7 +825,7 @@ Los valores **[réplica]** hay que confirmarlos con `tools/GoldenGen` (aún no e
 
 | ID | Tema | Qué se sabe / qué falta |
 |---|---|---|
-| **A1** (bloqueante para `EscrutadorComb`) | `Hashtable` con claves `Int32` e `Int64` y valores `int`/`byte`; índice base-3 pasado a un analizador de 3 bits | Por lectura: las claves de vecinos se insertan como `int` (`EscComb.cs:218-224`), la de la ganadora como `long` (`:243`) y se consultan con `long` (`:120`). `Hashtable` compara con `Equals` del objeto almacenado, y `Int32.Equals(object)` con un `Int64` devuelve falso ⇒ `aciertos[long]` devolvería `null` (`(int)null` lanza), y para la clave `long` el valor es `byte` boxeado (`(int)` sobre `byte` boxeado lanza `InvalidCastException`). Además se pasa un índice base-3 a `AnalizaColumna`, que espera un `long` de 3 bits (en el dominio no hay conversor base-3 → 3 bits; solo existe el inverso 3 bits → base-3, `Conv.cs:68`, sin ningún llamador). **No verificado por ejecución** (no hay tests ni se ha podido ejecutar .NET aquí). Hace falta: ejecutar `GE-08` con `GoldenGen` y decidir (R2) si el port replica el comportamiento (excepción/basura determinista) o implementa la semántica pretendida. |
+| **A1** (bloqueante para `EscrutadorComb`) | `Hashtable` con claves `Int32` e `Int64` y valores `int`/`byte`; índice base-3 pasado a un analizador de 3 bits | Por lectura: las claves de vecinos se insertan como `int` (`EscComb.cs:218-224`), la de la ganadora como `long` (`:243`) y se consultan con `long` (`:120`). `Hashtable` compara con `Equals` del objeto almacenado, y `Int32.Equals(object)` con un `Int64` devuelve falso ⇒ `aciertos[long]` devolvería `null` (`(int)null` lanza), y para la clave `long` el valor es `byte` boxeado (`(int)` sobre `byte` boxeado lanza `InvalidCastException`). Además se pasa un índice base-3 a `AnalizaColumna`, que espera un `long` de 3 bits (en el dominio no hay conversor base-3 → 3 bits; solo existe el inverso 3 bits → base-3, `Conv.cs:68`, sin ningún llamador). **No verificado por ejecución** (no hay tests ni se ha podido ejecutar .NET aquí). Hace falta: traza `lectura` de `GE-08` (ESPEC_12 §4.2) y decidir (R2) si el port replica el comportamiento (excepción/basura determinista) o implementa la semántica pretendida. |
 | **A2** | Orden de `ListaEscrutadasConPremio` | Es el orden de `Hashtable.Keys.CopyTo` (buckets de mayor a menor, `docs/PLAN_MEJORAS.md:800`). Su emulación exacta exige el algoritmo interno del framework (tabla de primos, doble hashing, factor de carga): **no está en el repo ni se ha verificado**. Opciones: orden canónico (p. ej. índice ascendente) + comparar golden como conjunto, o capturar el orden C# y emularlo. Depende de A1. |
 | **A3** | `PosiblesPremiosComparer` con empates | `List<T>.Sort` es inestable (para ≤ 16 elementos .NET usa inserción, para más introsort; **conocimiento del runtime, no verificado desde el repo**). Decidir: orden estable por posición original, o emular el introsort de .NET 8 y fijarlo con `GE-09`. |
 | **A4** | `EscrutadorComb.PonerPremios/AñadirPremiosGlobales` | Siempre `NullReferenceException` (`escrutinioDS` nunca asignado). La UI WinUI los omite. Proponer no portarlos. |
@@ -835,7 +835,7 @@ Los valores **[réplica]** hay que confirmarlos con `tools/GoldenGen` (aún no e
 | **A8** | `nivel ≥ noPartidos` y `14` literal | Con `nivel == noPartidos` JDC/JDCDoble/Redu1305 se comportan como `nivel−1` (§1.3); `Dispersa` usa `14 − nivel` fijo; `Redu1305Xfsf` usa `NumeroPartidos` global para la profundidad. Inalcanzable desde la UI (niveles 13…1, 14 signos obligatorios, `VM-Red:36-37,114-130`); decidir si la API Swift lo valida o lo replica. |
 | **A9** | Salida tras `Cancelar` | JDC/JDCDoble/Redu1305/V3/XFSF escriben la cobertura **parcial** (no es una reducción válida) o no crean fichero si no hay reductoras. Decidir si el port conserva eso o descarta la salida al cancelar. |
 | **A10** | Fin de línea y codificación de salida | `WriteLine` ⇒ `\r\n` en Windows, `\n` en macOS; los ficheros de usuarios Windows usan `\r\n`; los golden C# generados en Mac tendrán `\n`. Decidir en ESPEC_07 (formatos). Lectura: aceptar `\r\n`, `\n` y `\r`. |
-| **A11** | Valores **[réplica]** | Salen de re-implementaciones propias (validadas solo donde hay golden: JDCDoble y TM). Deben regenerarse con `GoldenGen` antes de usarse como aceptación. |
+| **A11** | Valores **[réplica]** | Salen de re-implementaciones propias (validadas solo donde hay golden: JDCDoble y TM). Entran como `modelo` con su caso `lectura` de contraste (ESPEC_12 §1). |
 | **A12** | `Escrutador`: esquema real de `Resultados` | Solo se conoce el esquema de los tests (`T-FIX:17-29`); el real lo crea la UI (`VM-Esc`, `CrearDataSetResultados`), fuera de este alcance. El port debe devolver un modelo de filas propio. |
 | **A13** | `Calculos`: `seguidos` > involucrados y estado residual | Comportamiento descrito por lectura; no hay réplica ni test de esos bordes (`GS-03`). |
 | **A14** | `ArchivoColumnasTexto.ObtenNumCols()` | Estima `longitud del fichero / (len 1.ª línea + 2)` (supone CRLF); no lo usa ninguno de estos algoritmos, pero lo calcula el constructor (`ACT.cs:47-57,314-340`). Revisar en ESPEC_07 si sigue haciendo falta. |

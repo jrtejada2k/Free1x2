@@ -2,7 +2,9 @@
 
 > Fase **M0** de [`../PLAN_MIGRACION_MAC.md`](../PLAN_MIGRACION_MAC.md). Estas especificaciones
 > describen **qué hace hoy** el código C# con el detalle suficiente para reescribirlo en Swift
-> **sin mirar el C#** y obtener resultados idénticos (M-R1). El C# sigue siendo el oráculo.
+> **sin mirar el C#** y obtener resultados idénticos (M-R1). El C# **leído** sigue siendo el oráculo: el original nunca se ejecuta
+> (regla del dueño 2026-10-14, ESPEC_12). Las menciones a `tools/GoldenGen` que quedan en las «Abiertas» de 01–10 son históricas (M0);
+> su cierre vigente está en ESPEC_12 y `DECISIONES.md`.
 
 ## 1. Índice de especificaciones
 
@@ -17,7 +19,7 @@
 | `ESPEC_07_FORMATOS_ONLINE.md` | Todos los formatos de fichero, datos iniciales, idioma, online y caché |
 | `ESPEC_08_UI_A.md` · `09_UI_B` · `10_UI_C` | Las 108 pantallas: comportamiento, casos de uso, área Mac propuesta; shell |
 | `ESPEC_11_ARQUITECTURA_SWIFT.md` | **Cómo** se construye: módulos, modelo de datos, errores, concurrencia, inyección, estado de app, persistencia, rendimiento |
-| `ESPEC_12_ORACULO.md` | GoldenGen: qué genera, formato y layout de los golden, cómo los carga Swift, casos de uso y aleatoriedad |
+| `ESPEC_12_ORACULO.md` | Oráculo por lectura: origen de cada esperado, formato y layout de los golden, cómo los carga Swift, casos de uso y corpus |
 | `ESPEC_13_CASOS_DE_USO.md` | Firma Swift de los 193 casos de uso (entradas, salidas, errores, progreso, dependencias) |
 | `ESPEC_14_PRUEBAS.md` | Pirámide de pruebas, dobles, cobertura, CI y presupuesto de rendimiento |
 | `ESPEC_15_DISENO_UI.md` | Sistema de diseño, estructura de ventana, mockups por tipo de pantalla, estados, accesibilidad, atajos |
@@ -43,7 +45,7 @@ desempates, redondeos, divisiones enteras, condiciones de corte y contadores.
 **Trampas Swift.** Las de §3 que aplican aquí, concretas.
 **Diseño Swift.** Módulo (ESPEC_11 §3), capa (configuración `struct` / ejecución `final class`, §4),
 visibilidad, casos de `ExcepcionNET` que lanza (§5) y dependencias de `Entorno` que necesita (§7).
-**Casos golden propuestos.** Entradas concretas para que `tools/GoldenGen` genere la salida (formato: ESPEC_12).
+**Casos golden propuestos.** Entradas concretas con su esperado y su `fuente` (formato y reglas: ESPEC_12).
 **Evidencia.** `fichero:línea` de cada afirmación (R4).
 ```
 
@@ -66,7 +68,7 @@ Los componentes ya escritos en 01–10 sin el apartado «Diseño Swift» lo here
 | T10 | **Estado global** (`VariablesGlobales`, 44 miembros estáticos; `AppState`; hooks estáticos). | `VariablesGlobales.cs`; 01 §3; 10 §1.7 | `Configuracion` (valor) + `Sesion` (app) + `Entorno` (ESPEC_11 §4, §7, §8). Valores que el C# **captura al construir** (p. ej. `NumeroPartidos` en `ConvertidorDeBases()`, 05 §1.2) se pasan al construir. |
 | T11 | **Comparación de cadenas**: `CompareTo`/`string.Compare` culturales; `==`, `switch`, `IndexOf(char)` ordinales sobre UTF-16; Swift `==` usa equivalencia canónica Unicode y cuenta `Character`. | 8 usos de `CompareTo`/`string.Compare`; 04 S8; 06:216-218 | Documentar ordinal/cultural en cada caso; índices y longitudes con `utf16`; literales con tilde precompuesta (NFC). |
 | T12 | **Bombeo de UI** (`UiPump.Pump`, `IProgressNotifier`) y diálogos dentro de bucles largos. | `Abstractions/UiHooks.cs:12-14`, `Abstractions/IProgressNotifier.cs` | `ReportadorProgreso` + cancelación cooperativa (ESPEC_11 §6.2); avisos devueltos en el resultado (§5.1). |
-| **T13** | **`Double` no finito o fuera de rango → entero.** `(int)x` con `NaN`/`±∞`/fuera de rango es «indefinido» en C#; en el runtime x64 de .NET 8 (el de la app, `win-x64`) da `Int32.MinValue` (`0x80000000`). `Convert.ToInt32(double)` redondea a par (T4) y **lanza `OverflowException`** con `NaN`/fuera de rango. Swift `Int(x)` aborta. Casos reales: `NumberBox` vacío entrega `NaN` (08 §1.5; 10:381, 10:829, 10:1341, 10:1375). | 10:381, 10:829, 10:1341, 10:1375; 08 §1.5 | `FormatoNET.castInt32NET(_:)` (= `(int)`: trunca; no finito o fuera de rango ⇒ `Int32.min`) y `FormatoNET.convertToInt32NET(_:) throws(ErrorDominio)` (= `Convert.ToInt32(double)`). El valor de `castInt32NET` lo confirma GoldenGen en x64 (ESPEC_12 G-NET). Nunca `Int(_:)` ni `Int(exactly:)` sobre datos de usuario. |
+| **T13** | **`Double` no finito o fuera de rango → entero.** `(int)x` con `NaN`/`±∞`/fuera de rango es «indefinido» en C#; en el runtime x64 de .NET 8 (el de la app, `win-x64`) da `Int32.MinValue` (`0x80000000`). `Convert.ToInt32(double)` redondea a par (T4) y **lanza `OverflowException`** con `NaN`/fuera de rango. Swift `Int(x)` aborta. Casos reales: `NumberBox` vacío entrega `NaN` (08 §1.5; 10:381, 10:829, 10:1341, 10:1375). | 10:381, 10:829, 10:1341, 10:1375; 08 §1.5 | `FormatoNET.castInt32NET(_:)` (= `(int)`: trunca; no finito o fuera de rango ⇒ `Int32.min`) y `FormatoNET.convertToInt32NET(_:) throws(ErrorDominio)` (= `Convert.ToInt32(double)`). El valor de `castInt32NET` está fijado por lectura (ESPEC_12 §1.1, `G-NET-CAST`). Nunca `Int(_:)` ni `Int(exactly:)` sobre datos de usuario. |
 | **T14** | **Formato numérico y de tiempo de .NET más allá de la cultura**: `double.ToString()`/`float.ToString()` = representación de ida y vuelta **más corta** (.NET Core 3.0+), científica fuera de `[1e-5, 1e15)` con `E+XX`; `"F0"`, `"F2"`, `"{0:f2}"`, `"0.00"` redondean el valor binario exacto **«half away from zero»** (no ToEven); patrones con secciones `#,##0.00;0.00`; `"r"`; `TimeSpan.ToString()` = `[-][d.]hh:mm:ss[.fffffff]`; `ToLongTimeString()`/`ToShortDateString()` dependen de la cultura. | 07 §2.1 (`formatearDouble`); 10:588, 10:782, 10:808, 10:899, 10:1048, 10:1477, 10:1513, 10:1701 | Implementar en `FormatoNET` (ESPEC_16 §1) con tabla golden propia (ESPEC_12 G-NET); prohibido `String(format:)`, `description` y `formatted()` para texto que compara con la app actual. |
 | **T15** | **API de colecciones y cadenas**: `string.Split(',')` conserva vacíos (Swift `split` los omite); `char[]` sin inicializar = `'\0'`; `Char.IsLetter` = categorías L*; `a ..< b` con `a > b` aborta; índices fuera de rango abortan; `bool[]` puede ser `null`; `bool[,]`; parámetros mutados (`columna >>= 3`); `switch` sin `default`; listas con duplicados significativos. | 04 S1, S5, S6, S11; 03 B6; 02 §0.9.1-3, 5-6; 05 §7 fila «Swift» | `split(separator:omittingEmptySubsequences: false)`; centinela `"\0"` solo donde el C# no inicializa; categoría Unicode explícita; `stride`/`while` en vez de rangos con extremos de datos; `[Bool]?`; array plano `[Bool]` con `e*ancho+d`; `var c = columna`; `default: break`; `[Int]`, nunca `Set`, cuando hay duplicados. |
 | **T16** | **Semántica de referencia y estado por instancia**: filtros, CP, `GrupoEquipos`, `Diferencia`, `FormatoSignos`, `Simetria` comparten referencias y guardan contadores de su último `Analizar`; no son reentrantes. | 03 B5; 04 S3, §0.2-0.3; 02 §0.3; 01 §4.1 regla 8 | Capa de ejecución de ESPEC_11 §4.3: `final class` internas, un grafo por ejecución/tarea; la configuración es valor (§4.2). |

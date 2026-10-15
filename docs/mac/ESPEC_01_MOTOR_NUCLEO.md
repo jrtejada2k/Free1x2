@@ -8,7 +8,7 @@
 > `DOM/` = `Free1X2.Domain/` · `UT/` = `Free1X2.Domain/Utils/` · `ES/` = `Free1X2.Domain/EntradaSalida/` ·
 > `AN/` = `Free1X2.Domain/Analisis/` · `WIN/` = `Free1X2.WinUI/Views/Ported/` · `TST/` = `Free1X2.Domain.Tests/`.
 > Marca **[PRESERVAR]** = comportamiento raro/aparente bug que afecta a la salida y se replica.
-> Las trazas «derivado por lectura» no se han ejecutado: `tools/GoldenGen` (aún inexistente) debe confirmarlas.
+> Las trazas «derivado por lectura» son el oráculo: el original no se ejecuta (ESPEC_12 §1, regla del dueño 2026-10-14).
 
 **Ficheros cubiertos (24):** `MC/{GeneradorColumnas, Analizador, IFiltro, Grupo, GrupoPartidos, ControlGrupos,
 ControladorGrupos, ControlConjuntos, ToleranciaFiltros, ControladorTol, RangosOpciones, FiguraCondicion,
@@ -845,7 +845,7 @@ protocol FiltroProtocol: AnyObject {                       // clases con identid
 
 ---
 
-## 6. Casos golden transversales (para `tools/GoldenGen`)
+## 6. Casos golden transversales (ESPEC_12 §4.2)
 
 | Id | Escenario | Qué volcar |
 |----|-----------|------------|

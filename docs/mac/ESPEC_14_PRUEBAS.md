@@ -8,7 +8,7 @@
 | Nivel | Qué prueba | Dónde | Herramienta | Peso |
 |-------|-----------|-------|-------------|------|
 | **N1 Unitarias** | Cada función/tipo: ejemplos de las specs, bordes, errores | `Tests/<Módulo>Tests` | Swift Testing (`@Test`, `#expect`, `#require`) | muchos, rápidos (< 1 ms) |
-| **N2 Paridad (golden)** | Igualdad exacta con el oráculo C# (ESPEC_12) | `Tests/<Módulo>Tests/Paridad/` | `@Test(arguments: Golden.casos(…))` | **criterio de aceptación** de cada componente |
+| **N2 Paridad (golden)** | Igualdad exacta con los golden (esperados por lectura, ESPEC_12) | `Tests/<Módulo>Tests/Paridad/` | `@Test(arguments: Golden.casos(…))` | **criterio de aceptación** de cada componente |
 | **N3 Propiedades** | Invariantes con entradas generadas (semilla fija, reproducible) | junto a N1 | `GeneradorPruebas` (SplitMix64 con semilla) + bucle de N casos | medio |
 | **N4 Casos de uso** | Cada CU de ESPEC_13 sin UI, con `Entorno.pruebas` (ficheros en memoria, reloj fijo, red grabada) | `Tests/Free1X2CasosDeUsoTests` | Swift Testing | uno o más por CU |
 | **N5 Modelos de pantalla** | Estado, habilitación, mensajes literales y navegación de cada `<Pantalla>Modelo` | target `Free1X2AppTests` (Xcode) | Swift Testing en `@MainActor` | uno por pantalla |
@@ -59,7 +59,7 @@ Un único test de integración por adaptador de producción (`URLSession` con `U
 | `Free1X2CasosDeUso` | los 193 CU (N4) con su oráculo O1/O2/O3 | ≥ 85 % |
 | App (modelos de pantalla) | las 108 pantallas + Inicio (N5) | ≥ 70 % |
 
-El CI falla si un módulo baja de su umbral. La cobertura funcional se comprueba con `manifest.json` (nº de casos por suite) y con la tabla de ESPEC_13.
+El CI falla si un módulo baja de su umbral. La cobertura funcional se comprueba con `indice.json` (nº de casos por suite) y con la tabla de ESPEC_13.
 
 ## 5. Port de los 138 tests actuales (`Free1X2.Domain.Tests`)
 
@@ -101,15 +101,14 @@ Fixtures `cols_a.txt`, `cols_b.txt`, `cols_con_repetidas.txt`, `ganadora.txt` y 
 
 - `Free1X2Bench` (Release, `-O`), reloj `ContinuousClock`; 2 ejecuciones de calentamiento + 10 medidas; se publica la **mediana** y el
   percentil 90; memoria = pico de RSS (`task_info`).
-- Referencia C#: GoldenGen mide los mismos datasets (mediana de 10) con el motor C# compilado para **.NET 8 arm64 nativo** (`~/.dotnet8`,
-  ESPEC_12 §7 paso 0) en el **mismo Mac M1** y lo guarda en `manifest.json` (`tiempos`). Misma máquina para los dos lados: la comparación
-  es justa (bajo Rosetta el C# saldría penalizado). Se mide al cerrar M3 y M5.
+- Sin referencia C#: el original no se ejecuta (ESPEC_12). La primera medición aceptada de cada dataset fija `bench/linea-base.json`;
+  se mide de nuevo al cerrar M3 y M5.
 
 ### 6.3 Presupuestos (criterio de cierre de M3)
 
 | Regla | Umbral |
 |-------|--------|
-| Paridad de velocidad | mediana Swift (M1, Release) ≤ mediana C# (referencia) en B1–B7 |
+| Techo absoluto | mediana en un M1 (Release): B1 ≤ 1 s, B6 ≤ 1 s, B7 ≤ 3 s; B2–B5 y B8 sin techo fijo hasta su primera medición (línea base) |
 | Paralelismo | B1/B2 con particiones ≥ 2× más rápido que con P = 1 en un M1 (8 núcleos) |
 | Memoria | pico ≤ 64 MB en B1–B3; ≤ 128 MB en B8 (10:532 estimaba 57 MB) |
 | Regresión (CI) | > 15 % más lento que `bench/linea-base.json` del mismo tipo de runner ⇒ falla el nocturno |
@@ -121,15 +120,15 @@ Fixtures `cols_a.txt`, `cols_b.txt`, `cols_con_repetidas.txt`, `ganadora.txt` y 
 |-------|-----------|--------|-------|
 | `mac.yml` | PR y push a `main` | `macos-15` arm64 (o el más reciente disponible) | `swift-format lint --strict` · lint de patrones prohibidos (`fatalError`, `try!`, `as!`, desempaquetado `!`, `print(`; ESPEC_11 §5.2) · `swift build -c release` · `swift test --parallel --skip .lento --enable-code-coverage` + umbrales §4 · `xcodebuild build` + `xcodebuild test` (N5 + smoke N6) |
 | `mac-nocturno.yml` | cron diario + manual | `macos` arm64 | todo `mac.yml` + `.lento` + `Free1X2Bench` en modo comparación con la línea base (§6.3) |
-| `golden.yml` | — | — | **No existe**: GoldenGen se ejecuta en el Mac del dueño con .NET 8 x64 bajo Rosetta (ESPEC_12 §1, §7) y sus resultados se versionan como datos. **No** forma parte de la cadena Mac (PLAN:8-10) |
+| `golden.yml` | — | — | **No existe**: los golden se escriben a mano por lectura y se versionan como datos (ESPEC_12 §7); no hay C# que ejecutar |
 
 Comprobaciones obligatorias para fusionar: `mac.yml` verde. Ningún test se desactiva para hacer pasar el CI: un fallo de paridad se resuelve
-en el código o, si el golden estaba mal, regenerándolo con explicación (ESPEC_12 §3).
+en el código o, si el golden estaba mal, corrigiéndolo con la cita `file:line` que lo justifica (ESPEC_12 §1).
 
 ## 8. Definición de «hecho» para cada componente o pantalla (R3)
 
 Un ítem del plan Mac solo se marca hecho con **todo** esto:
-1. Suite golden de su componente 100 % verde (N2), con el número de casos del manifiesto.
+1. Suite golden de su componente 100 % verde (N2), con el número de casos de `indice.json`.
 2. Tests N1/N3 (y N4/N5 si es CU o pantalla) verdes; peculiaridades `[PRESERVAR]` fijadas.
 3. Umbral de cobertura del módulo cumplido.
 4. Para el motor: benchmark dentro de presupuesto (§6.3).

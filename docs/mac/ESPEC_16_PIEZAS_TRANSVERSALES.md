@@ -2,8 +2,8 @@
 
 > Cierra H-10 de [`REVISION_SPECS.md`](REVISION_SPECS.md) y las trampas T7, T8, T13, T14 de [ESPEC_00](ESPEC_00_CONVENCIONES.md) §3.
 > Son piezas que usan muchos componentes y que hoy están descritas en trozos (07 §1.0-2, 06 §1-2, 10 por pantalla). Todas se
-> aceptan con las suites `G-NET` de [ESPEC_12](ESPEC_12_ORACULO.md) §4.1. Lo marcado **[.NET]** es conocimiento de la BCL que el
-> golden confirma; si el golden difiere, manda el golden.
+> aceptan con las suites `G-NET` de [ESPEC_12](ESPEC_12_ORACULO.md) §4.1. Lo marcado **[.NET]** es conocimiento de la BCL que se
+> fija leyendo el fuente de .NET 8 (`dotnet/runtime` `release/8.0`; `fuente` = `bcl`, ESPEC_12 §1).
 
 ## 1. `FormatoNET` — parseo y formato con semántica .NET (Base)
 

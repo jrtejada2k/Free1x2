@@ -4,7 +4,7 @@
 > [`ESPEC_00_CONVENCIONES.md`](ESPEC_00_CONVENCIONES.md) (plantilla §2, trampas T1–T12) y cubre
 > M-R3 («los `.txt`, `.comb`, condiciones, `parametros.free1x2`, `.dat`, `.lang`, `.xml` existentes se
 > leen y escriben igual»). Objetivo: reescribir en Swift **sin mirar el C#** y leer/escribir los
-> mismos ficheros byte a byte. El C# sigue siendo el oráculo.
+> mismos ficheros byte a byte. El C# **leído** sigue siendo el oráculo (no se ejecuta: ESPEC_12).
 >
 > Criterio de evidencia (R4): cada afirmación lleva `fichero:línea`. «**[bytes]**» = comprobado
 > inspeccionando el fichero real del repo (`od`/`python -I`). «**[.NET]**» = comportamiento del
@@ -1176,8 +1176,8 @@ public enum CatalogoEquiposParser { public static func parse(_ json: String) thr
 
 | Qué | Cómo | Comparador |
 |-----|------|-----------|
-| Lectores (F01–F03, F05, F09–F13, F17–F21, F24) | `tools/GoldenGen` lee los ficheros reales con las clases C# y vuelca el modelo a JSON; el test Swift lee los mismos ficheros y compara el modelo | igualdad exacta (`Double` por bits) |
-| Escritores (F01–F06, F08, F10, F13, F16, F17, F20–F21) | GoldenGen construye el modelo, escribe con C# y guarda los bytes; Swift escribe el mismo modelo | **bytes**, tras normalizar EOL si GoldenGen corre en macOS (`Environment.NewLine=="\n"`, §8-A1); F16: payload descomprimido |
+| Lectores (F01–F03, F05, F09–F13, F17–F21, F24) | el modelo esperado de cada fichero del corpus (ESPEC_12 §6) se escribe a mano leyendo el lector C#; el test Swift lee el fichero y compara el modelo | igualdad exacta (`Double` por bits) |
+| Escritores (F01–F06, F08, F10, F13, F16, F17, F20–F21) | los bytes esperados se escriben a mano leyendo el escritor C# (CRLF, ESPEC_12 §1.1); Swift escribe el mismo modelo | **bytes**; F16: payload descomprimido |
 | Errores de lectura | pares (entrada defectuosa → tipo de fallo) | mismo punto de fallo (error tipado) |
 | Online | los 6 JSON + casos sintéticos de 6.9; servidor local falso para 6.10 | mensajes exactos |
 | Corpus real | ≥3 `.comb`, ≥1 fichero de cada extensión F03, `parametros.free1x2` de usuarios, `.dat`/`.txt` con acentos, `InfoJornadasLAE.txt` real | round-trip lectura→escritura |
@@ -1192,7 +1192,7 @@ Casos mínimos adicionales: ficheros con **BOM**, con **CRLF/LF/CR**, con **decl
 
 | ID | Tema | Detalle |
 |----|------|---------|
-| **A1** | Política de EOL/BOM al escribir | Windows escribe `\r\n` y el repo/semillas están en LF (`.gitattributes:2`). `ObtenNumCols` depende de CRLF (F04). Propuesta: CRLF en `.txt` y XML, UTF-8 sin BOM salvo equipos `.txt` (con BOM, como WinUI). Si GoldenGen se ejecuta en un runner macOS (plan §3) el C# emite LF: hay que normalizar EOL al comparar o generar golden en Windows. |
+| **A1** | Política de EOL/BOM al escribir | Windows escribe `\r\n` y el repo/semillas están en LF (`.gitattributes:2`). `ObtenNumCols` depende de CRLF (F04). Propuesta: CRLF en `.txt` y XML, UTF-8 sin BOM salvo equipos `.txt` (con BOM, como WinUI). Cerrada: los golden llevan CRLF escrito a mano (ESPEC_12 §1.1). |
 | **A2** | No existe ningún `.comb` real en el repo | `git ls-files` no lista ninguno; la gramática de F02/F03 sale de lector+escritor. Hay que aportar `.comb` reales (con If-Then, tolerancias, ColProbables, FormatosSignos, Formatos123, Diferencias) para validar. El ejemplo de F02 es **derivado**. |
 | **A3** | Exactitud de `XmlTextWriter` | Ausencia de declaración en `.comb`, `\r\n` en la sangría, `" />"`, escapes y ausencia de salto final están confirmados solo en parte por los bytes de `parametros.free1x2`/`ColumnasProbables.xml` (que además pasaron por `XmlDocument`/`DataSet`). Verificar con un `.comb` generado en Windows. |
 | **A4** | Gramáticas delegadas | El texto canónico de `values` de cada filtro (getters `Get*`) y las líneas `If`/`Then` están en ESPEC_01–04; aquí solo se trataron como cadenas opacas, salvo NoVariantes (`n[L],…`) y Dibujos (`a+b`). |
