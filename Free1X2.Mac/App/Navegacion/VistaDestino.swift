@@ -107,6 +107,11 @@ struct VistaDestino: View {
         case .escrutarCombinaciones: VistaEscrutarCombinaciones()
         case .bancoPruebas: VistaBancoPruebas()
         case .dialogoGrabarBancoPruebas: VistaDialogoGrabarBancoPruebas()
+        case .tramificar: VistaTramificar()
+        case .tramificarGraficas: VistaTramificarGraficas()
+        case .dialogoFiltrarPorLimites: VistaDialogoFiltrarPorLimites()
+        case .dialogoGrabarTramos: VistaDialogoGrabarTramos()
+        case .dialogoAnalisisMultipleDeTramos: VistaDialogoAnalisisMultipleDeTramos()
         default: PantallaPendiente(destino: destino)
         }
     }

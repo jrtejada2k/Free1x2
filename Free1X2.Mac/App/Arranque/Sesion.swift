@@ -67,6 +67,8 @@ final class Sesion {
     var informeAbdon: InformeEstuCol?
     /// `ListaImpresorasViewModel.SeleccionResultado`: Impresión de boletos lo aplica al volver y lo vacía.
     var impresoraSeleccionada: ArchivoImpresoras.Impresora?
+    /// `TramificarGraficasFrmViewModel.TramosAnalizados` (no se vacía al leerlo).
+    var tramosAnalizados: [Tramo] = []
     /// `TemaApp` (10 §1.5): «Sistema» (defecto), «Claro», «Oscuro»; en `UserDefaults` (ESPEC_11 §9).
     var tema = UserDefaults.standard.string(forKey: "tema") ?? "Sistema" {
         didSet {
