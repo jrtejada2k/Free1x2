@@ -113,18 +113,8 @@ struct VistaDestino: View {
         case .dialogoGrabarTramos: VistaDialogoGrabarTramos()
         case .dialogoAnalisisMultipleDeTramos: VistaDialogoAnalisisMultipleDeTramos()
         case .coincidencias: VistaCoincidencias()
-        default: PantallaPendiente(destino: destino)
-        }
-    }
-}
-
-/// ponytail: hueco de las pantallas que aún no están portadas (M5 en curso); desaparece con la última.
-struct PantallaPendiente: View {
-    let destino: Destino
-
-    var body: some View {
-        Pagina(destino: destino) {
-            ContentUnavailableView(destino.titulo, systemImage: "hammer", description: Text(destino.clase))
+        case .generaPim: VistaGeneraPim()
+        case .aidomnou: VistaAidomnou()
         }
     }
 }
