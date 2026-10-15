@@ -16,8 +16,10 @@ let package = Package(
         // La app solo ve casos de uso y tipos base; importar Free1X2Motor está prohibido (ESPEC_11 §3.2).
         .library(name: "Free1X2Kit", targets: ["Free1X2CasosDeUso", "Free1X2Base"])
     ],
-    // ponytail: swift-collections (único tercero permitido) y Free1X2Bench se añaden con su primer uso en M3.
+    // ponytail: swift-collections (único tercero permitido) se añade con su primer uso (DT-44).
     targets: [
+        // Benchmarks de ESPEC_14 §6: `swift run -c release Free1X2Bench`.
+        .executableTarget(name: "Free1X2Bench", dependencies: ["Free1X2Base", "Free1X2Motor"], swiftSettings: ajustes),
         .target(name: "Free1X2Base", swiftSettings: ajustes),
         .target(name: "Free1X2Motor", dependencies: ["Free1X2Base"], swiftSettings: ajustes),
         .target(name: "Free1X2Formatos", dependencies: ["Free1X2Base", "Free1X2Motor"], swiftSettings: ajustes),

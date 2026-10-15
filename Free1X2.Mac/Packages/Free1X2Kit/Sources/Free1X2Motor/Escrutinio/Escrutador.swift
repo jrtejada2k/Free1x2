@@ -53,7 +53,7 @@ public struct Escrutador: Sendable {
         -> FilaEscrutinio
     {
         numJornada = 1
-        return ponerPremios(try escrutarColumna(ganadora, columnas), 1, ganadora, archivo)
+        return ponerPremios(try escrutarColumna(ganadora, Self.preparar(columnas)), 1, ganadora, archivo)
     }
 
     /// `EscrutaCombConTemporada` (:117-137): una fila por ganadora. Cancelar (`PararEscrutinio`) corta entre jornadas y
@@ -62,6 +62,7 @@ public struct Escrutador: Sendable {
         -> [FilaEscrutinio]
     {
         var filas: [FilaEscrutinio] = []
+        let columnas = Self.preparar(columnas)
         for (i, ganadora) in ganadoras.enumerated() {
             numJornada = i + 1
             if Task.isCancelled { break }
@@ -88,15 +89,13 @@ public struct Escrutador: Sendable {
 
     /// `EscrutaColumna` (:159-203): histograma de aciertos. `*` en la ganadora acierta siempre; solo se comparan los
     /// signos que tienen las dos; las líneas en blanco cuentan (0 aciertos).
-    private mutating func escrutarColumna(_ ganadora: String, _ columnas: [String]) throws(ErrorDominio) -> [Int] {
+    private mutating func escrutarColumna(_ ganadora: String, _ columnas: [[UInt16]]) throws(ErrorDominio) -> [Int] {
         var nc = Array(repeating: 0, count: numeroPartidos + 1)
         let g = Array(Self.xMayuscula(ganadora).utf16)
-        for (i, columna) in columnas.enumerated() {
-            let col = Self.xMayuscula(columna)
-            let c = Array(col.utf16)
+        for (i, c) in columnas.enumerated() {
             var na = 0
             for k in 0..<min(c.count, g.count) where g[k] == 0x2A || g[k] == c[k] { na += 1 }
-            if anadirAGanadoras { anadirAGanadora(col, i + 1, na) }
+            if anadirAGanadoras { anadirAGanadora(c, i + 1, na) }
             guard na < nc.count else {
                 throw ErrorDominio(.indiceFueraDeRango, "Índice fuera de los límites de la matriz.", origen: "Escrutador.cs:199")
             }
@@ -106,11 +105,12 @@ public struct Escrutador: Sendable {
     }
 
     /// `AñadeAGanadoras` + `ObtenBoleto` (:205-226): 8 apuestas por boleto.
-    private mutating func anadirAGanadora(_ columna: String, _ numCol: Int, _ aciertos: Int) {
+    private mutating func anadirAGanadora(_ columna: [UInt16], _ numCol: Int, _ aciertos: Int) {
         guard premios.contains(aciertos) else { return }
         listaPremiadas.append(
             ColumnaPremiada(
-                columna: columna, fichero: archivoColumnas, jornada: numJornada, premio: aciertos, noColumna: numCol,
+                columna: String(decoding: columna, as: UTF16.self), fichero: archivoColumnas, jornada: numJornada, premio: aciertos,
+                noColumna: numCol,
                 noBoleto: (numCol + 7) / 8))
     }
 
@@ -123,6 +123,11 @@ public struct Escrutador: Sendable {
         }
         return FilaEscrutinio(
             lineaID: linea, columna: columna, archivo: Self.nombreDeArchivo(archivo), premios: prems, aciertosTotales: String(total))
+    }
+
+    /// Columnas con `Replace('x', 'X')` en UTF-16, una sola vez por escrutinio (no por ganadora).
+    private static func preparar(_ columnas: [String]) -> [[UInt16]] {
+        columnas.map { $0.utf16.map { $0 == 0x78 ? 0x58 : $0 } }
     }
 
     /// `Replace('x', 'X')`: solo esa letra.
