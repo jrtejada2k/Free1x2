@@ -53,6 +53,7 @@
 		93A56EEB7CDCAF9A90CBA541 /* Pleno15.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4141061D9A72DF1F7F7A688B /* Pleno15.swift */; };
 		94A1733E4FA9A2940C25BC3E /* Modificador.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1F973C46AE268ACDB5A698 /* Modificador.swift */; };
 		98072ABB41C7731FA4A919D3 /* Grafico.swift in Sources */ = {isa = PBXBuildFile; fileRef = 072990B529D8F72247B228E0 /* Grafico.swift */; };
+		9F1CB3C66E62468AA056D842 /* BancoPruebas.swift in Sources */ = {isa = PBXBuildFile; fileRef = A52CD04B7C4B89829615BAE3 /* BancoPruebas.swift */; };
 		9F5AC6DC839F0C36F0095960 /* Algebra.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB2647216F2F309E14997C05 /* Algebra.swift */; };
 		9F830797A2556C971E0020FC /* DistanciasInterrupciones.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2771D91198F31E3165598E0F /* DistanciasInterrupciones.swift */; };
 		A083342500A59748D3FEAF85 /* Listado.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40F8C35868B973B36D282D97 /* Listado.swift */; };
@@ -123,6 +124,7 @@
 		9FBAE789B419FCD7BEEAB015 /* Raiz.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Raiz.swift; sourceTree = "<group>"; };
 		A085DB9039F2B28F57E897A4 /* NoVariantes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoVariantes.swift; sourceTree = "<group>"; };
 		A32B5D9100363B5F58545ECD /* AnalisisFormatos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalisisFormatos.swift; sourceTree = "<group>"; };
+		A52CD04B7C4B89829615BAE3 /* BancoPruebas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BancoPruebas.swift; sourceTree = "<group>"; };
 		A94115EF8DA5A34AD2C8B2A7 /* Ajustes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ajustes.swift; sourceTree = "<group>"; };
 		AB29F4F6E7C47D4E02CDB38A /* EstuCol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EstuCol.swift; sourceTree = "<group>"; };
 		AF9B1577FF3F685F277AE21A /* SelectorFicheros.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectorFicheros.swift; sourceTree = "<group>"; };
@@ -272,6 +274,7 @@
 			isa = PBXGroup;
 			children = (
 				EB2647216F2F309E14997C05 /* Algebra.swift */,
+				A52CD04B7C4B89829615BAE3 /* BancoPruebas.swift */,
 				6ED3FD641C09DF7323A080DD /* Dependencia.swift */,
 				AB29F4F6E7C47D4E02CDB38A /* EstuCol.swift */,
 				E33629D7469560C3A35A648B /* Filtros.swift */,
@@ -455,6 +458,7 @@
 				274C1481E8D14C51556ED194 /* AnalisisFallos.swift in Sources */,
 				4FC41DC94046A6ACD47ABB4B /* AnalisisFormatos.swift in Sources */,
 				3B928D5C44C6801D853CB072 /* AnalizarFichero.swift in Sources */,
+				9F1CB3C66E62468AA056D842 /* BancoPruebas.swift in Sources */,
 				7F4DD590BD5BE0C07A837A48 /* Barra.swift in Sources */,
 				3E2842331F53FE771C58CF93 /* BoletoMatrizView.swift in Sources */,
 				4AA16EE893778D4B89BE0158 /* Boletos.swift in Sources */,

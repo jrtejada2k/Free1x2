@@ -105,6 +105,8 @@ struct VistaDestino: View {
         case .diFiltros: VistaDiFiltros()
         case .listadoCondiciones: VistaListadoCondiciones()
         case .escrutarCombinaciones: VistaEscrutarCombinaciones()
+        case .bancoPruebas: VistaBancoPruebas()
+        case .dialogoGrabarBancoPruebas: VistaDialogoGrabarBancoPruebas()
         default: PantallaPendiente(destino: destino)
         }
     }
