@@ -187,4 +187,30 @@ struct CondicionesTests {
         try CasosCondiciones.aplicarFormatosSignos([], en: &f, numeroPartidos: 14)
         #expect(!f.activa && !f.contieneDatos && CasosCondiciones.relacionesFormatos(f).count == 1)
     }
+
+    @Test func gruposEquipos() throws {
+        var e = EditorGruposEquipos(CondicionGruposEquipos())
+        #expect(e.contadorGrupos == (1, 1) && e.estado == "Preparado")
+        try e.grupoSiguiente()  // sin equipos marcados no avanza
+        #expect(e.noGE == 0)
+        e.casa[0] = true
+        e.fuera[0] = true
+        e.fuera[2] = true
+        e.victorias = "1-2"
+        try e.grupoSiguiente()
+        #expect(e.noGE == 1 && e.grupos.count == 2 && e.grupos[0].pronosticos.hasPrefix("302") && e.grupos[0].victorias.texto == "1-2")
+        #expect(e.casa.allSatisfy { !$0 } && e.victorias.isEmpty)
+        e.casa[1] = true
+        try e.grupoAnterior()
+        #expect(e.estado == "Hay errores en la entrada de datos del grupo" && e.victorias == "1-2")
+        e.relGrupos = "1-2"
+        e.relPuntos = "3"
+        let f = try #require(try e.aceptar())
+        #expect(f.activa && f.contieneDatos && f.grupos.count == 2 && f.relaciones.count == 1)
+        try e.borrar()
+        #expect(!e.ligado && e.grupoReal && e.grupos.isEmpty && e.estado == "Datos del filtro borrados")
+        e.abrir(f)
+        #expect(try e.aceptar() == nil && e.contadorGrupos == (1, 2))
+        #expect(EditorGruposEquipos.equipos(nil)[1] == ("Equipo casa 2", "Equipo fuera 2"))
+    }
 }

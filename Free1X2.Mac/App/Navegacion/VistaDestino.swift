@@ -27,6 +27,7 @@ struct VistaDestino: View {
         case .diferencias: VistaDiferencias()
         case .formatos123: VistaFormatos123()
         case .formatos: VistaFormatos()
+        case .gruposEquipos: VistaGruposEquipos()
         default: PantallaPendiente(destino: destino)
         }
     }
