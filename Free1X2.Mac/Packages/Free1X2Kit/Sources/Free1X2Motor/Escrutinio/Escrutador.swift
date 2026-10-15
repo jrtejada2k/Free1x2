@@ -136,7 +136,7 @@ public struct Escrutador: Sendable {
     }
 
     /// `Path.GetFileName`: tras la última `\` o `/`.
-    static func nombreDeArchivo(_ ruta: String) -> String {
+    public static func nombreDeArchivo(_ ruta: String) -> String {
         guard let i = ruta.utf16.lastIndex(where: { $0 == 0x5C || $0 == 0x2F }) else { return ruta }
         return String(ruta[ruta.utf16.index(after: i)...])
     }

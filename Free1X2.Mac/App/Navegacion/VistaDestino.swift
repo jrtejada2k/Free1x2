@@ -39,6 +39,8 @@ struct VistaDestino: View {
         case .calculaColumnas: VistaCalculaColumnas()
         case .visorAnalisisColumnas: VistaVisorAnalisisColumnas()
         case .reductor: VistaReductor()
+        case .escrutinios: VistaEscrutinios()
+        case .columnasPremiadas: VistaColumnasPremiadas()
         default: PantallaPendiente(destino: destino)
         }
     }

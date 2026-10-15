@@ -43,11 +43,13 @@
 		E693C7E6AC98476F326288A5 /* ControlGrupos.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0FC64BC0051E3917F7CD08 /* ControlGrupos.swift */; };
 		E6F65D76BA0A88DBA6646F2A /* PesosNumericos.swift in Sources */ = {isa = PBXBuildFile; fileRef = E57437FEB0766E67A1F55EF1 /* PesosNumericos.swift */; };
 		ECD7E7BCABC8A4DABE96FEBF /* Free1X2App.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3FF8E5909D62572635C6B70 /* Free1X2App.swift */; };
+		EDDD269273EB817E07833D3D /* Escrutinios.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FB1E51964635F385BCD932C /* Escrutinios.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		04868F81389E8058D7698462 /* Menus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Menus.swift; sourceTree = "<group>"; };
 		099FDA1F7F262E151C82CEA9 /* IfThen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IfThen.swift; sourceTree = "<group>"; };
+		0FB1E51964635F385BCD932C /* Escrutinios.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Escrutinios.swift; sourceTree = "<group>"; };
 		14C149043FCB6537B8F6385D /* SignosSeguidos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignosSeguidos.swift; sourceTree = "<group>"; };
 		19B6A06520278BAB278E48F4 /* VistaDestino.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VistaDestino.swift; sourceTree = "<group>"; };
 		1A57939A2138CDE1A9AB1891 /* CalculaColumnas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculaColumnas.swift; sourceTree = "<group>"; };
@@ -143,6 +145,7 @@
 			isa = PBXGroup;
 			children = (
 				1A57939A2138CDE1A9AB1891 /* CalculaColumnas.swift */,
+				0FB1E51964635F385BCD932C /* Escrutinios.swift */,
 				FD3A18E29DB9A8DC9CA942BE /* Reductor.swift */,
 			);
 			path = Combinacion;
@@ -338,6 +341,7 @@
 				880E2FE4269643F3F9B71C6B /* Destino.swift in Sources */,
 				2D7F774CEE1FC2BF7F0F2D11 /* Diferencias.swift in Sources */,
 				9F830797A2556C971E0020FC /* DistanciasInterrupciones.swift in Sources */,
+				EDDD269273EB817E07833D3D /* Escrutinios.swift in Sources */,
 				55C40B4180561113677179BE /* Estilo.swift in Sources */,
 				01389C1F95A7E68AA3A1E828 /* Formatos.swift in Sources */,
 				ECD7E7BCABC8A4DABE96FEBF /* Free1X2App.swift in Sources */,

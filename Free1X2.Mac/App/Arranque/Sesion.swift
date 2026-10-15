@@ -45,6 +45,8 @@ final class Sesion {
     var traspasoCP = TraspasoCP()
     /// `VisorAnalisisColumnasFrmViewModel.UltimoContenedor/UltimoGrupo` (`AnalisisUi.MostrarVisor`).
     var visorAnalisis: (contenedor: ContenedorAnalisisGlobal, grupo: GrupoConfig)?
+    /// `ColumnasPremiadasFrmPage.Entrada`.
+    var premiadasEntrada: [FilaPremiada]?
     /// `TemaApp` (10 §1.5): «Sistema» (defecto), «Claro», «Oscuro»; en `UserDefaults` (ESPEC_11 §9).
     var tema = UserDefaults.standard.string(forKey: "tema") ?? "Sistema" {
         didSet {
