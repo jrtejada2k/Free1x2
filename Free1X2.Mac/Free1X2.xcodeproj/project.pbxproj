@@ -19,6 +19,7 @@
 		4F40D091DF0E20513BD6C4D2 /* NoVariantes.swift in Sources */ = {isa = PBXBuildFile; fileRef = A085DB9039F2B28F57E897A4 /* NoVariantes.swift */; };
 		5436B5E3D154C360A12B1875 /* logo.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 8AB7CAABF6E86A07C2401496 /* logo.jpg */; };
 		55C40B4180561113677179BE /* Estilo.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB842ABB38595FAE44A7140D /* Estilo.swift */; };
+		5707A0F8EBADA5D4C6F28742 /* Reductor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD3A18E29DB9A8DC9CA942BE /* Reductor.swift */; };
 		5C9D30F2113E8B54EA846093 /* Menus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04868F81389E8058D7698462 /* Menus.swift */; };
 		5CBF4AEFEDF4E37ACDC318FA /* PortapapelesSistema.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49BDD4273F4F33E1C72948C9 /* PortapapelesSistema.swift */; };
 		6A45F9467CF363B37502AC86 /* ContactosDibujos.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93ACDCA8FCA710B3A83DAB92 /* ContactosDibujos.swift */; };
@@ -81,6 +82,7 @@
 		EE0FC64BC0051E3917F7CD08 /* ControlGrupos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlGrupos.swift; sourceTree = "<group>"; };
 		F2237869C6EB3EFFB9EDAF19 /* Valoracion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Valoracion.swift; sourceTree = "<group>"; };
 		F7ACEF1BC5AA3C33883A3EC3 /* GruposEquipos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GruposEquipos.swift; sourceTree = "<group>"; };
+		FD3A18E29DB9A8DC9CA942BE /* Reductor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reductor.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -141,6 +143,7 @@
 			isa = PBXGroup;
 			children = (
 				1A57939A2138CDE1A9AB1891 /* CalculaColumnas.swift */,
+				FD3A18E29DB9A8DC9CA942BE /* Reductor.swift */,
 			);
 			path = Combinacion;
 			sourceTree = "<group>";
@@ -348,6 +351,7 @@
 				E6F65D76BA0A88DBA6646F2A /* PesosNumericos.swift in Sources */,
 				5CBF4AEFEDF4E37ACDC318FA /* PortapapelesSistema.swift in Sources */,
 				1BC9BF8E43FAD9D0944F9BD5 /* Raiz.swift in Sources */,
+				5707A0F8EBADA5D4C6F28742 /* Reductor.swift in Sources */,
 				A6D5F1F1F2140D94F94F21A2 /* Router.swift in Sources */,
 				A22660CDC4DA522F2F0A9F85 /* SelectorFicheros.swift in Sources */,
 				47BC0D63D514F9EBEDBF7D85 /* Sesion.swift in Sources */,
