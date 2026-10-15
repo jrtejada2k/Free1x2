@@ -37,6 +37,7 @@ struct VistaDestino: View {
         case .importadorCPs: VistaImportadorCPs()
         case .exportadorCPs: VistaExportadorCPs()
         case .calculaColumnas: VistaCalculaColumnas()
+        case .visorAnalisisColumnas: VistaVisorAnalisisColumnas()
         default: PantallaPendiente(destino: destino)
         }
     }

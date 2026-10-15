@@ -11,6 +11,7 @@
 		0C696D7C2FF48FB69126C194 /* PantallaCondicion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 572A8CBF196CF469733FD84F /* PantallaCondicion.swift */; };
 		1BC9BF8E43FAD9D0944F9BD5 /* Raiz.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBAE789B419FCD7BEEAB015 /* Raiz.swift */; };
 		2D7F774CEE1FC2BF7F0F2D11 /* Diferencias.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2B7B322A4FC10DFEC1CD265 /* Diferencias.swift */; };
+		34C0E8FA830D344704D343F4 /* VisorAnalisisColumnas.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E15404EEE589D02ABCA7585 /* VisorAnalisisColumnas.swift */; };
 		37FE5F0B35E38EBA447AF89B /* IfThen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 099FDA1F7F262E151C82CEA9 /* IfThen.swift */; };
 		402E355C75B4DC361848FFF1 /* CalculaColumnas.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A57939A2138CDE1A9AB1891 /* CalculaColumnas.swift */; };
 		47BC0D63D514F9EBEDBF7D85 /* Sesion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 901BDD3D79E749E8ECCBA7CC /* Sesion.swift */; };
@@ -36,6 +37,7 @@
 		BCE842585A26ABC2E7A87807 /* SignosSeguidos.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14C149043FCB6537B8F6385D /* SignosSeguidos.swift */; };
 		BFBC10F002A9AD96099FC3D8 /* Free1X2Kit in Frameworks */ = {isa = PBXBuildFile; productRef = 6F000FF4E643EABD960549DE /* Free1X2Kit */; };
 		C4D8549A87B89CF5F06A0F09 /* Datos in Resources */ = {isa = PBXBuildFile; fileRef = C0344B454C66C01D3073E748 /* Datos */; };
+		CCA14C8EE480990172F61B7E /* MatrizAnalisisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E06E5841AB3F270318467C6F /* MatrizAnalisisView.swift */; };
 		D55851FF07C4F9C15C9ABDEA /* Alertas.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62B44320D069342A326F7B49 /* Alertas.swift */; };
 		E693C7E6AC98476F326288A5 /* ControlGrupos.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0FC64BC0051E3917F7CD08 /* ControlGrupos.swift */; };
 		E6F65D76BA0A88DBA6646F2A /* PesosNumericos.swift in Sources */ = {isa = PBXBuildFile; fileRef = E57437FEB0766E67A1F55EF1 /* PesosNumericos.swift */; };
@@ -61,6 +63,7 @@
 		7F59B3CEA1AEBEAD252C31AD /* Simetrias.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Simetrias.swift; sourceTree = "<group>"; };
 		850A5E66731FABDDC2D9FD72 /* Router.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Router.swift; sourceTree = "<group>"; };
 		8AB7CAABF6E86A07C2401496 /* logo.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = logo.jpg; sourceTree = "<group>"; };
+		8E15404EEE589D02ABCA7585 /* VisorAnalisisColumnas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisorAnalisisColumnas.swift; sourceTree = "<group>"; };
 		901BDD3D79E749E8ECCBA7CC /* Sesion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sesion.swift; sourceTree = "<group>"; };
 		93ACDCA8FCA710B3A83DAB92 /* ContactosDibujos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactosDibujos.swift; sourceTree = "<group>"; };
 		9FBAE789B419FCD7BEEAB015 /* Raiz.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Raiz.swift; sourceTree = "<group>"; };
@@ -73,6 +76,7 @@
 		D2B7B322A4FC10DFEC1CD265 /* Diferencias.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Diferencias.swift; sourceTree = "<group>"; };
 		D3FF8E5909D62572635C6B70 /* Free1X2App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Free1X2App.swift; sourceTree = "<group>"; };
 		DB842ABB38595FAE44A7140D /* Estilo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Estilo.swift; sourceTree = "<group>"; };
+		E06E5841AB3F270318467C6F /* MatrizAnalisisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatrizAnalisisView.swift; sourceTree = "<group>"; };
 		E57437FEB0766E67A1F55EF1 /* PesosNumericos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PesosNumericos.swift; sourceTree = "<group>"; };
 		EE0FC64BC0051E3917F7CD08 /* ControlGrupos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlGrupos.swift; sourceTree = "<group>"; };
 		F2237869C6EB3EFFB9EDAF19 /* Valoracion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Valoracion.swift; sourceTree = "<group>"; };
@@ -95,6 +99,7 @@
 			isa = PBXGroup;
 			children = (
 				DB842ABB38595FAE44A7140D /* Estilo.swift */,
+				E06E5841AB3F270318467C6F /* MatrizAnalisisView.swift */,
 				572A8CBF196CF469733FD84F /* PantallaCondicion.swift */,
 			);
 			path = Compartido;
@@ -201,6 +206,7 @@
 				21C7F6F290DE6CFC56F6CE62 /* Condiciones */,
 				8A3B57CC2C581FCF3DE161B0 /* Free */,
 				F86284744B9AA6923D239377 /* Inicio */,
+				FE32DAB852F7C308A910398A /* Ver */,
 			);
 			path = Pantallas;
 			sourceTree = "<group>";
@@ -233,6 +239,14 @@
 				D10592D8E03A3123EC36606C /* VistaInicio.swift */,
 			);
 			path = Inicio;
+			sourceTree = "<group>";
+		};
+		FE32DAB852F7C308A910398A /* Ver */ = {
+			isa = PBXGroup;
+			children = (
+				8E15404EEE589D02ABCA7585 /* VisorAnalisisColumnas.swift */,
+			);
+			path = Ver;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -327,6 +341,7 @@
 				79FFA6EEE06F09D70C9E6B35 /* GruposEquipos.swift in Sources */,
 				37FE5F0B35E38EBA447AF89B /* IfThen.swift in Sources */,
 				714BC945F34FEFDF70D35500 /* Informativas.swift in Sources */,
+				CCA14C8EE480990172F61B7E /* MatrizAnalisisView.swift in Sources */,
 				5C9D30F2113E8B54EA846093 /* Menus.swift in Sources */,
 				4F40D091DF0E20513BD6C4D2 /* NoVariantes.swift in Sources */,
 				0C696D7C2FF48FB69126C194 /* PantallaCondicion.swift in Sources */,
@@ -339,6 +354,7 @@
 				BCE842585A26ABC2E7A87807 /* SignosSeguidos.swift in Sources */,
 				6B09A62AB48B822A6834CA4A /* Simetrias.swift in Sources */,
 				6F16D69E9CF62A153746710D /* Valoracion.swift in Sources */,
+				34C0E8FA830D344704D343F4 /* VisorAnalisisColumnas.swift in Sources */,
 				7DB9103104D30CDBFDA1A0B7 /* VistaDestino.swift in Sources */,
 				6F9073A11E8EAD8BC585C162 /* VistaInicio.swift in Sources */,
 			);
