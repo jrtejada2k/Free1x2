@@ -133,6 +133,14 @@
     {
       "ruta": "motor/escrutinio/escrutadorcomb.jsonl",
       "casos": 4
+    },
+    {
+      "ruta": "motor/reduccion/reductores.jsonl",
+      "casos": 32
+    },
+    {
+      "ruta": "motor/reduccion/subircategoria.jsonl",
+      "casos": 9
     }
   ],
   "fixtures": [
