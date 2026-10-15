@@ -37,6 +37,8 @@ final class Sesion {
     var ultimasEstadisticas: [Estadistica]?
     /// `FigurasFiltrosFrmViewModel.FigurasEnEdicion`/`NombreCondicion` (DT-58: copia; `resultado` al aceptar).
     var figuras: FigurasEnEdicion?
+    /// `GuardarValoracionFrmPage.ValoresIniciales`.
+    var valoracionInicial: [[Double]]?
     /// `TemaApp` (10 §1.5): «Sistema» (defecto), «Claro», «Oscuro»; en `UserDefaults` (ESPEC_11 §9).
     var tema = UserDefaults.standard.string(forKey: "tema") ?? "Sistema" {
         didSet {

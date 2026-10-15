@@ -69,4 +69,34 @@ struct CondicionesTests {
         #expect(e.map(\.cumplimiento) == [0, Float(2) / Float(3) * 100])
         #expect(CasosCondiciones.textoCumplimiento(e[1], cultura: .esES) == "66,66667")
     }
+
+    @Test func pesosNumericos() throws {
+        var f = CondicionPesosNumericos(numeroPartidos: 14)
+        try CasosCondiciones.aplicarPesosNumericos(
+            pesos: ["", "", "", "", ""], tolerados: ["1", "", "", "", ""], numTolerancias: [false, true, false, false, false, false],
+            figuras: [false, true, false, false, false], en: &f, numeroPartidos: 14)
+        #expect(f.activa && f.figuras == [0x311] && f.getPN(.global) == CasosCondiciones.todosValores(14))
+        #expect(f.getPNTol(.global) == "1" && f.getTolerancias == "1")
+        #expect(CasosCondiciones.figurasMarcadasPesos(f) == [false, true, false, false, false])
+        #expect(CasosCondiciones.toleranciasMarcadasPesos(f) == [false, true, false, false, false, false])
+        try CasosCondiciones.aplicarPesosNumericos(
+            pesos: ["3"], tolerados: [], numTolerancias: [], figuras: [], en: &f, numeroPartidos: 14)
+        #expect(f.getTolerancias == "0" && f.figuras.isEmpty && f.getPN(.global) == "3")
+    }
+
+    @Test func valoracion() throws {
+        var m = Array(repeating: [0.0, 0.0, 0.0], count: 14)
+        m[0] = [50, 30, 20]
+        m[1] = [10, 60, 30]
+        let p = CasosCondiciones.prepararValoracion(m, esSuma: true, rangos: ["", "5-9", "", ""], cultura: .esES)
+        #expect(p.minMaxSumas == "30-110" && p.rangos == ["30-110", "5-9", "0-90", "0-50"])
+        let q = CasosCondiciones.prepararValoracion(m, esSuma: false, rangos: [], cultura: .esES)
+        #expect(q.minMaxProductos == "0,233-3,511" && q.rangos[1] == "0-1,711")
+        var f = CondicionValoracionSignos(numeroPartidos: 14)
+        try CasosCondiciones.aplicarValoracion(p, esSuma: true, en: &f, cultura: .esES)
+        #expect(f.activa && f.contieneDatos && f.valorGlobal == "30-110")
+        #expect(try CasosCondiciones.valorarColumna("1X", p, esSuma: true, en: &f, numeroPartidos: 14, cultura: .esES) == nil)
+        #expect(try CasosCondiciones.valorarColumna("1X222222222222", p, esSuma: true, en: &f, numeroPartidos: 14, cultura: .esES) == "110")
+        #expect(CasosCondiciones.columnasBase([[50, 30, 20], [10, 60, 30], [1, 1, 5], [5, 5, 5]]) == "1X21\r\nX21X\r\n21X2")
+    }
 }

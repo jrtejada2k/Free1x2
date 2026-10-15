@@ -307,3 +307,11 @@ public enum FormatoNET {
         ErrorDominio(.formato, "La cadena de entrada no tiene el formato correcto.")
     }
 }
+
+extension FormatoNET {
+    /// `Math.Round(x, decimales)` de .NET: `·10ⁿ`, redondeo a par y `/10ⁿ` si `|x| < 1e16` (T4).
+    public static func round(_ x: Double, decimales: Int) -> Double {
+        let p = pow(10.0, Double(decimales))
+        return abs(x) < 1e16 ? (x * p).rounded(.toNearestOrEven) / p : x
+    }
+}

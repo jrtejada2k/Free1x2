@@ -100,3 +100,12 @@ final class FiltroValoracionSignos: FiltroColumna {
 
     func obtenNoAciertosTolerancias(_ letras: String) throws(ErrorDominio) -> Int { 0 }
 }
+
+extension CondicionValoracionSignos {
+    /// `Analizar` + `ValoracionResultado` (la valoración global de la columna; pantalla 98, CU-C46).
+    public func valoracionResultado(_ columna: Columna, cultura: Cultura) throws(ErrorDominio) -> Double {
+        let f = FiltroValoracionSignos(self, analisisActivo: false, cultura: cultura)
+        _ = try f.analizar(columna)
+        return f.valoracion
+    }
+}

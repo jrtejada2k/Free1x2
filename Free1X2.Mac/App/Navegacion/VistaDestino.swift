@@ -18,6 +18,8 @@ struct VistaDestino: View {
         case .signosSeguidos: VistaSignosSeguidos()
         case .figurasFiltros: VistaFigurasFiltros()
         case .simetrias: VistaSimetrias()
+        case .pesosNum: VistaPesosNumericos()
+        case .valoracion: VistaValoracion()
         default: PantallaPendiente(destino: destino)
         }
     }

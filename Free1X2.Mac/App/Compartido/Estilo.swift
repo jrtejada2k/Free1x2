@@ -165,3 +165,32 @@ struct CampoNumero: View {
         texto = Self.mostrar(valor)
     }
 }
+
+/// `PorcentajesControl` (10 §1.9): «Part. / 1 / X / 2», una fila por partido, `NumberBox` ≥ 0 sin máximo; alto máx. 260.
+struct PorcentajesGrid: View {
+    @Binding var valores: [[Double]]
+
+    var body: some View {
+        ScrollView {
+            Grid(alignment: .trailing, horizontalSpacing: 6, verticalSpacing: 3) {
+                GridRow {
+                    Text("Part.")
+                    Text("1")
+                    Text("X")
+                    Text("2")
+                }
+                .font(.caption).foregroundStyle(Color.textoSecundario)
+                ForEach(valores.indices, id: \.self) { i in
+                    GridRow {
+                        Text("\(i + 1)").monospacedDigit()
+                        ForEach(0..<3, id: \.self) { j in
+                            CampoNumero(etiqueta: "", valor: $valores[i][j], minimo: 0, ancho: 64).labelsHidden()
+                        }
+                    }
+                }
+            }
+            .controlSize(.small)
+        }
+        .frame(maxHeight: 260)
+    }
+}
