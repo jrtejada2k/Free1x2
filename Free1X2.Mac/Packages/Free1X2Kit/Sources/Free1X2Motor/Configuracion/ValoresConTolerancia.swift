@@ -10,10 +10,10 @@ public struct ValoresConTolerancia: Sendable, Hashable {
 
     public static let sinLetra: UInt16 = 0x20
 
-    /// `new bool[n]` y `new char[n]` rellenos con `false` y `' '`.
-    public init(tamano: Int) {
+    /// `new bool[n]` y `new char[n]` rellenos con `false` y `' '` (o `'\0'` donde el C# no los inicializa).
+    public init(tamano: Int, letraInicial: UInt16 = sinLetra) {
         permitidos = Array(repeating: false, count: tamano)
-        letras = Array(repeating: Self.sinLetra, count: tamano)
+        letras = Array(repeating: letraInicial, count: tamano)
     }
 
     public var hayValores: Bool { permitidos.contains(true) }

@@ -62,11 +62,16 @@ final class Grupo {
         filtros = [
             FiltroNoVariantes(c.noVariantes, analisisActivo: a.activo(.noVariantes)),
             FiltroValoracionSignos(c.valoracionSignos, analisisActivo: a.activo(.valoracionSignos), cultura: x.cultura),
+            FiltroSignosSeguidos(c.signosSeguidos, analisisActivo: a.activo(.signosSeguidos)),
+            FiltroInterrupciones(c.interrupciones, analisisActivo: a.activo(.interrupciones)),
             FiltroDibujos(c.dibujos, analisisActivo: a.activo(.dibujos)),
+            FiltroPesosNumericos(c.pesosNumericos, analisisActivo: a.activo(.pesosNumericos)),
             FiltroDistancias(c.distancias, analisisActivo: a.activo(.distancias)),
+            FiltroContactos(c.contactos, analisisActivo: a.activo(.contactos)),
             FiltroFormatosSignos(c.formatosSignos, analisisActivo: a.activo(.formatosSignos)),
             FiltroFormatos123(c.formatos123, analisisActivo: a.activo(.formatos123), numeroPartidos: x.numeroPartidos),
             FiltroSimetrias(c.simetrias, analisisActivo: a.activo(.simetrias)),
+            FiltroDiferencias(c.diferencias, analisisActivo: a.activo(.diferencias)),
         ]
         activos = filtros.filter(\.activa)
         tolerancias = g.tolerancias.tolerancias.map(Tolerancia.init)

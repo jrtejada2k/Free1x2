@@ -19,6 +19,7 @@ struct FiltrosTests {
         var dobles: [[DoubleGolden]]?
         var tolerancias: [String: Int]?
         var fallos: [String]?
+        var sinFallos: Bool?
         var get: [String: String]?
     }
 
@@ -31,7 +32,8 @@ struct FiltrosTests {
 
     static let suites = [
         "motor/filtros/novariantes", "motor/filtros/distancias", "motor/filtros/valoracion", "motor/filtros/formatos123",
-        "motor/filtros/simetrias", "motor/filtros/dibujos", "motor/filtros/formatossignos",
+        "motor/filtros/simetrias", "motor/filtros/dibujos", "motor/filtros/formatossignos", "motor/filtros/pesos",
+        "motor/filtros/interrupciones", "motor/filtros/contactos", "motor/filtros/seguidos", "motor/filtros/diferencias",
     ]
 
     /// Columna de texto con `*` = partido fuera del grupo (`000`).
@@ -52,6 +54,11 @@ struct FiltrosTests {
 
     static func enteros(_ texto: String) throws -> [Int] {
         try texto.split(separator: ",").map { Int(try FormatoNET.convertToInt32(String($0))) }
+    }
+
+    static func largo(_ texto: String) throws -> Int64 {
+        guard let v = Int64(texto) else { throw ErrorDominio(.formato, texto) }
+        return v
     }
 
     static func prueba(_ componente: String, _ config: [[String]]) throws -> Prueba {
@@ -181,6 +188,120 @@ struct FiltrosTests {
             c.ponerFormatosSignos(grupos)
             let f = FiltroFormatosSignos(c, analisisActivo: false)
             return Prueba(filtro: f, contadores: { f.aparicionesGrupo.map(Double.init) }, get: [:])
+        case "FiltroPesosNumericos":
+            typealias P = CondicionPesosNumericos.Peso
+            let pesos: [String: P] = ["G": .global, "V": .variantes, "U": .unos, "E": .equis, "D": .doses]
+            var c = CondicionPesosNumericos(numeroPartidos: n)
+            c.activa = true
+            for p in config {
+                if let peso = pesos[p[0]] {
+                    try c.setPN(peso, p[1])
+                } else if p[0].hasPrefix("tol"), p[0].count == 4, let peso = pesos[String(p[0].suffix(1))] {
+                    try c.setPNTol(peso, p[1])
+                } else {
+                    switch p[0] {
+                    case "tolerancias": try c.ponerTolerancia(p[1])
+                    case "figura": c.figuras.append(try largo(p[1]))
+                    case "llenar": try c.llenarTodosValores()
+                    default: Issue.record("setter desconocido \(p[0])")
+                    }
+                }
+            }
+            let f = FiltroPesosNumericos(c, analisisActivo: false)
+            return Prueba(
+                filtro: f,
+                contadores: {
+                    f.obtenerFigura()
+                    return [f.pesos[2], f.pesos[3], f.pesos[4], f.pesos[1], f.pesos[0]].map(Double.init) + [Double(f.figura)]
+                }, get: [:])
+        case "FiltroInterrupciones":
+            typealias K = CondicionInterrupciones.Contador
+            let nombres: [String: K] = [
+                "Glob": .global, "Var": .variantes, "1": .unos, "X": .equis, "2": .doses, "GlobSeg": .globalSeg,
+                "VarSeg": .variantesSeg, "1Seg": .unosSeg, "XSeg": .equisSeg, "2Seg": .dosesSeg,
+            ]
+            var c = CondicionInterrupciones(numeroPartidos: n)
+            c.activa = true
+            for p in config {
+                if let k = nombres[p[0]] {
+                    try c.set(k, p[1])
+                } else if p[0] == "llenar" {
+                    try c.llenarTodosValores()
+                } else {
+                    Issue.record("setter desconocido \(p[0])")
+                }
+            }
+            let f = FiltroInterrupciones(c, analisisActivo: false)
+            return Prueba(filtro: f, contadores: { f.contadores.map(Double.init) }, get: [:])
+        case "FiltroContactos":
+            let pares = Dictionary(uniqueKeysWithValues: CondicionContactos.Contacto.allCases.map { ($0.par, $0) })
+            var c = CondicionContactos(numeroPartidos: n)
+            c.activa = true
+            for p in config {
+                if let k = pares[p[0]] {
+                    try c.set(k, p[1])
+                } else {
+                    switch p[0] {
+                    case "inicializa": c.reinicializaValores()
+                    case "llenar": try c.llenarTodosValores()
+                    case "figura": c.figuras = (c.figuras ?? []) + [try largo(p[1])]
+                    default: Issue.record("setter desconocido \(p[0])")
+                    }
+                }
+            }
+            let f = FiltroContactos(c, analisisActivo: false)
+            return Prueba(filtro: f, contadores: { f.contadores.map(Double.init) + [Double(f.figura)] }, get: [:])
+        case "FiltroSignosSeguidos":
+            typealias K = CondicionSignosSeguidos.Clase
+            let clases: [String: K] = ["V": .variantes, "1": .unos, "X": .equis, "2": .doses]
+            var c = CondicionSignosSeguidos(numeroPartidos: n)
+            c.activa = true
+            for p in config {
+                if let k = clases[p[0]] {
+                    try c.set(k, p[1])
+                } else if p[0].hasPrefix("fig"), let k = clases[String(p[0].dropFirst(3))] {
+                    c.figuras[k.rawValue].append(try largo(p[1]))
+                } else if p[0] == "llenar" {
+                    try c.llenarTodosValores()
+                } else {
+                    Issue.record("setter desconocido \(p[0])")
+                }
+            }
+            let f = FiltroSignosSeguidos(c, analisisActivo: false)
+            var ultima: Columna = 0
+            return Prueba(
+                filtro: Espia(f) { ultima = $0 },
+                contadores: {
+                    f.rachas.map(Double.init) + K.allCases.map { Double(FiltroSignosSeguidos.figura(ultima, $0)) }
+                }, get: [:])
+        case "FiltroDiferencias":
+            var d = Diferencia()
+            for p in config {
+                let tamano = d.partidosSimetricos.count + 1
+                func marcas(_ t: Int) throws -> [Bool] {
+                    var m = [Bool](repeating: false, count: t)
+                    for i in try enteros(p[1]) { m[i] = true }
+                    return m
+                }
+                switch p[0] {
+                case "sub": d.partidosSimetricos.append(try marcas(n + 1))
+                case "acV": d.acV = try marcas(tamano)
+                case "acX": d.acX = try marcas(tamano)
+                case "acDoses": d.acDoses = try marcas(tamano)
+                case "acDib": d.acDib = try marcas(tamano)
+                case "acInt": d.acInt = try marcas(tamano)
+                case "acFormatos": d.acFormatos = try marcas(tamano)
+                default: Issue.record("setter desconocido \(p[0])")
+                }
+            }
+            var c = CondicionDiferencias()
+            c.activa = true
+            c.diferencias = [d]
+            let f = FiltroDiferencias(c, analisisActivo: false)
+            return Prueba(
+                filtro: f,
+                contadores: { f.recuentos.flatMap { [$0.v, $0.x, $0.doses, $0.dib, $0.int, $0.formatos] }.map(Double.init) },
+                get: [:])
         default:
             throw ErrorDominio(.argumento, "componente \(componente)")
         }
@@ -207,6 +328,9 @@ struct FiltrosTests {
             }
             if let fallos = s.fallos, let ultima = caso.entrada.columnas.last {
                 #expect(try p.filtro.analizarFallos(Self.columna(ultima)) == fallos, "\(caso.id)")
+            }
+            if s.sinFallos == true, let ultima = caso.entrada.columnas.last {
+                #expect(try p.filtro.analizarFallos(Self.columna(ultima)) == nil, "\(caso.id) sin fallos")
             }
             for (k, v) in s.get ?? [:] { #expect(p.get[k] == v, "\(caso.id) get \(k)") }
         }

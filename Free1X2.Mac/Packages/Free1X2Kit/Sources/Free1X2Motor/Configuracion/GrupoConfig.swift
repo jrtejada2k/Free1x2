@@ -6,23 +6,33 @@ import Free1X2Base
 public struct CondicionesGrupo: Sendable, Hashable {
     public var noVariantes: CondicionNoVariantes
     public var valoracionSignos: CondicionValoracionSignos
+    public var signosSeguidos: CondicionSignosSeguidos
+    public var interrupciones: CondicionInterrupciones
     public var dibujos = CondicionDibujos()
+    public var pesosNumericos: CondicionPesosNumericos
     public var distancias: CondicionDistancias
+    public var contactos: CondicionContactos
     public var formatosSignos = CondicionFormatosSignos()
     public var formatos123: CondicionFormatos123
     public var simetrias = CondicionSimetrias()
+    public var diferencias = CondicionDiferencias()
 
-    public init(numeroPartidos: Int) {
-        noVariantes = CondicionNoVariantes(numeroPartidos: numeroPartidos)
-        valoracionSignos = CondicionValoracionSignos(numeroPartidos: numeroPartidos)
-        distancias = CondicionDistancias(numeroPartidos: numeroPartidos)
-        formatos123 = CondicionFormatos123(numeroPartidos: numeroPartidos)
+    public init(numeroPartidos n: Int) {
+        noVariantes = CondicionNoVariantes(numeroPartidos: n)
+        valoracionSignos = CondicionValoracionSignos(numeroPartidos: n)
+        signosSeguidos = CondicionSignosSeguidos(numeroPartidos: n)
+        interrupciones = CondicionInterrupciones(numeroPartidos: n)
+        pesosNumericos = CondicionPesosNumericos(numeroPartidos: n)
+        distancias = CondicionDistancias(numeroPartidos: n)
+        contactos = CondicionContactos(numeroPartidos: n)
+        formatos123 = CondicionFormatos123(numeroPartidos: n)
     }
 
     /// `EsActivo`: algún filtro activo.
     public var hayActivas: Bool {
-        noVariantes.activa || valoracionSignos.activa || dibujos.activa || distancias.activa || formatosSignos.activa
-            || formatos123.activa || simetrias.activa
+        noVariantes.activa || valoracionSignos.activa || signosSeguidos.activa || interrupciones.activa || dibujos.activa
+            || pesosNumericos.activa || distancias.activa || contactos.activa || formatosSignos.activa || formatos123.activa
+            || simetrias.activa || diferencias.activa
     }
 }
 

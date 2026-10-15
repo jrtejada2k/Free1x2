@@ -89,6 +89,26 @@
     {
       "ruta": "motor/filtros/formatossignos.jsonl",
       "casos": 4
+    },
+    {
+      "ruta": "motor/filtros/pesos.jsonl",
+      "casos": 16
+    },
+    {
+      "ruta": "motor/filtros/interrupciones.jsonl",
+      "casos": 6
+    },
+    {
+      "ruta": "motor/filtros/contactos.jsonl",
+      "casos": 7
+    },
+    {
+      "ruta": "motor/filtros/seguidos.jsonl",
+      "casos": 6
+    },
+    {
+      "ruta": "motor/filtros/diferencias.jsonl",
+      "casos": 2
     }
   ],
   "fixtures": [

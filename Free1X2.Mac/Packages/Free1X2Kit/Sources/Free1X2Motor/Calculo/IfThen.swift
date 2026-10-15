@@ -64,9 +64,48 @@ final class CondicionIfThen {
             c.contieneDatos = true
             return FiltroDibujos(c, analisisActivo: false)
         }
-        for nombre in ["Signos Seguidos", "Interrupciones", "Peso numérico"]
-        where texto.contains(nombre) {
-            throw ErrorDominio(.general, "Filtro de If-Then pendiente de portar: \(nombre)", origen: "CondicionIfThen.cs:95-250")
+        if texto.contains("Signos Seguidos") {
+            let nombre = try nombreCondicion(texto)
+            let valor = try ultimaPalabra(texto)
+            var c = CondicionSignosSeguidos(numeroPartidos: n)
+            let opciones: [(String, CondicionSignosSeguidos.Clase)] = [
+                ("Variantes", .variantes), ("1", .unos), ("X", .equis), ("2", .doses),
+            ]
+            if let clase = Self.primera(nombre, opciones) {
+                try c.set(clase, valor)
+            }
+            try c.llenarTodosValores()
+            c.activa = true
+            c.contieneDatos = true
+            return FiltroSignosSeguidos(c, analisisActivo: false)
+        }
+        if texto.contains("Interrupciones") {
+            let nombre = try nombreCondicion(texto)
+            let valor = try ultimaPalabra(texto)
+            var c = CondicionInterrupciones(numeroPartidos: n)
+            typealias K = CondicionInterrupciones.Contador
+            let opciones: [(String, K)] =
+                nombre.contains("Seguidas")
+                ? [("Globales", .globalSeg), ("Variantes", .variantesSeg), ("1", .unosSeg), ("X", .equisSeg), ("2", .dosesSeg)]
+                : [("Globales", .global), ("Variantes", .variantes), ("1", .unos), ("X", .equis), ("2", .doses)]
+            if let k = Self.primera(nombre, opciones) { try c.set(k, valor) }
+            try c.llenarTodosValores()
+            c.activa = true
+            c.contieneDatos = true
+            return FiltroInterrupciones(c, analisisActivo: false)
+        }
+        if texto.contains("Peso numérico") {
+            // Sin `PonerTolerancia`: `tolerancias[0]` es falso y el filtro rechaza siempre (DEC-203) [PRESERVAR].
+            let nombre = try nombreCondicion(texto)
+            let valor = try ultimaPalabra(texto)
+            var c = CondicionPesosNumericos(numeroPartidos: n)
+            typealias P = CondicionPesosNumericos.Peso
+            let opciones: [(String, P)] = [("Global", .global), ("Variantes", .variantes), ("1", .unos), ("X", .equis), ("2", .doses)]
+            if let p = Self.primera(nombre, opciones) { try c.setPN(p, valor) }
+            try c.llenarTodosValores()
+            c.activa = true
+            c.contieneDatos = true
+            return FiltroPesosNumericos(c, analisisActivo: false)
         }
         if texto.contains("Distancia") {
             let nombre = try nombreCondicion(texto)
@@ -86,11 +125,23 @@ final class CondicionIfThen {
             c.contieneDatos = true
             return FiltroDistancias(c, analisisActivo: false)
         }
-        for nombre in ["Contactos"]
-        where texto.contains(nombre) {
-            throw ErrorDominio(.general, "Filtro de If-Then pendiente de portar: \(nombre)", origen: "CondicionIfThen.cs:95-250")
+        if texto.contains("Contactos") {
+            let nombre = try nombreCondicion(texto)
+            let valor = try ultimaPalabra(texto)
+            var c = CondicionContactos(numeroPartidos: n)
+            let opciones = CondicionContactos.Contacto.allCases.map { ($0.par, $0) }
+            if let k = Self.primera(nombre, opciones) { try c.set(k, valor) }
+            try c.llenarTodosValores()
+            c.activa = true
+            c.contieneDatos = true
+            return FiltroContactos(c, analisisActivo: false)
         }
         throw .referenciaNula("CondicionIfThen.cs:247")
+    }
+
+    /// Primera opción cuyo texto aparece en `nombre` (cadena de `else if` del C#).
+    static func primera<T>(_ nombre: String, _ opciones: [(String, T)]) -> T? {
+        opciones.first { nombre.contains($0.0) }?.1
     }
 
     /// `texto.Substring(texto.LastIndexOf(" ")).Trim()`; sin espacio ⇒ `Substring(-1)` lanza.
