@@ -7,6 +7,12 @@ struct VistaDestino: View {
     var body: some View {
         switch destino {
         case .inicio: VistaInicio()
+        case .acercaDe: VistaAcercaDe()
+        case .ayuda: VistaAyuda()
+        case .creditos: VistaCreditos()
+        case .configuracion: VistaConfiguracion()
+        case .configuracionAnalisis: VistaConfiguracionAnalisis()
+        case .cambioPuntos: VistaCambioPuntos()
         default: PantallaPendiente(destino: destino)
         }
     }

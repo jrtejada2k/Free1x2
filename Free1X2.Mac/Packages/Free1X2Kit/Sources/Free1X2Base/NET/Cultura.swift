@@ -23,6 +23,12 @@ public struct Cultura: Sendable, Hashable {
         simboloInfinitoPositivo: "∞", simboloInfinitoNegativo: "-∞", patronFechaCorta: "M/d/yyyy",
         patronHoraLarga: "h:mm:ss tt")
 
+    /// `CultureInfo.InvariantCulture`.
+    public static let invariante = Cultura(
+        separadorDecimal: ".", separadorMiles: ",", signoNegativo: "-", signoPositivo: "+", simboloNaN: "NaN",
+        simboloInfinitoPositivo: "Infinity", simboloInfinitoNegativo: "-Infinity", patronFechaCorta: "MM/dd/yyyy",
+        patronHoraLarga: "HH:mm:ss")
+
     /// Separadores de la región del Mac; el resto, los de `es-ES`.
     public static func sistema(_ locale: Locale = .autoupdatingCurrent) -> Cultura {
         var cultura = Cultura.esES

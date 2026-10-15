@@ -128,3 +128,40 @@ struct CampoFichero: View {
         }
     }
 }
+
+/// `NumberBox` (ESPEC_15 §1.3): cultura del sistema; vacío ⇒ `NaN`; texto no válido ⇒ se queda el valor anterior;
+/// fuera de rango ⇒ se ajusta a `minimo…maximo`.
+struct CampoNumero: View {
+    let etiqueta: String
+    @Binding var valor: Double
+    var minimo = -Double.infinity
+    var maximo = Double.infinity
+    var ancho: CGFloat = 110
+    @State private var texto = ""
+    @FocusState private var foco: Bool
+
+    var body: some View {
+        LabeledContent(etiqueta) {
+            TextField(etiqueta, text: $texto)
+                .labelsHidden()
+                .multilineTextAlignment(.trailing)
+                .frame(width: ancho)
+                .focused($foco)
+                .onSubmit(confirmar)
+                .onChange(of: foco) { if !foco { confirmar() } }
+                .onAppear { texto = Self.mostrar(valor) }
+                .onChange(of: valor) { texto = Self.mostrar(valor) }
+        }
+    }
+
+    static func mostrar(_ v: Double) -> String { v.isNaN ? "" : FormatoNET.toString(v, cultura: .sistema()) }
+
+    private func confirmar() {
+        if FormatoNET.recortar(texto).isEmpty {
+            valor = .nan
+        } else if let v = FormatoNET.tryParseDouble(texto, cultura: .sistema()) {
+            valor = min(max(v, minimo), maximo)
+        }
+        texto = Self.mostrar(valor)
+    }
+}
