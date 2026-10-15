@@ -59,6 +59,8 @@ struct VistaDestino: View {
         case .staInter: VistaStaInter()
         case .staSS: VistaStaSS()
         case .gEPT: VistaGEPT()
+        case .probabilidadPremios: VistaProbabilidadPremios()
+        case .transposicion: VistaTransposicion()
         default: PantallaPendiente(destino: destino)
         }
     }

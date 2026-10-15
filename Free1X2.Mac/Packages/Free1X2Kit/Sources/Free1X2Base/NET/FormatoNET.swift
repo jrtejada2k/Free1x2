@@ -323,6 +323,8 @@ extension FormatoNET {
     public static func toStringMiles(
         _ d: Double, decimales: Int, decimalesNegativo: Int, prefijo: String = "", cultura: Cultura
     ) -> String {
+        // NaN e infinitos: el símbolo de la cultura, sin formato ni prefijo (.NET).
+        if !d.isFinite { return toStringFijo(d, decimales: 0, cultura: cultura) }
         if d < 0 { return toStringFijo(-d, decimales: decimalesNegativo, cultura: cultura) }
         let (entera, fraccion) = redondeado(d, decimales: decimales)
         var grupos: [Substring] = []
