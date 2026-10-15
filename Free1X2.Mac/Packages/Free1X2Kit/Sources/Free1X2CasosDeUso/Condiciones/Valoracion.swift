@@ -1,5 +1,6 @@
 import Foundation
 import Free1X2Base
+import Free1X2Formatos
 import Free1X2Motor
 
 // C#: Views/Ported/ValoracionFrmViewModel.cs (10 pantalla 98; CU-C44…C47).
@@ -101,5 +102,35 @@ extension CasosCondiciones {
             for (j, s) in orden.enumerated() { c[j].append(s) }
         }
         return c.joined(separator: "\r\n")
+    }
+}
+
+// C#: Views/Ported/GuardarValoracionFrmViewModel.cs (09 pantalla 63; CU-B31) y HistoriaValoracionesFrmViewModel.cs
+// (09 pantalla 64; CU-B32).
+extension CasosCondiciones {
+    /// CU-B31 `Aceptar`: disposición 3, 42 o 1 (en la 1 el separador no se usa).
+    public static func guardarValoracion(
+        _ valores: [[Double]], formato: Int16, separador: Character, en url: URL, numeroPartidos n: Int, entorno: Entorno
+    ) throws(ErrorDominio) {
+        let datos = try ArchivoValoraciones.datos(
+            valores, formato: formato, separador: separador, numeroPartidos: n, cultura: entorno.cultura)
+        try entorno.archivos.escribir(datos, en: url, atomico: false)
+    }
+
+    /// CU-B32 `Guardar`: «T/T+1» y jornada a 2 cifras; un fichero existente fija el separador y debe ser de formato 44.
+    public static func guardarEnHistorico(
+        _ valores: [[Double]], temporada: Double, jornada: Double, en url: URL, numeroPartidos n: Int, entorno: Entorno
+    ) throws(ErrorDominio) -> (temporada: String, jornada: String) {
+        let t = FormatoNET.castInt32(temporada)
+        let tempo = "\(t)/\(t &+ 1)"
+        let j = String(FormatoNET.castInt32(jornada))
+        let jorna = String(repeating: "0", count: max(0, 2 - j.count)) + j
+        let existente = entorno.archivos.existe(url) ? try entorno.archivos.leer(url) : nil
+        let r = try ArchivoValoraciones.datosHistorico(
+            existente: existente, separador: "\t", valores: valores, temporada: tempo, jornada: jorna, numeroPartidos: n,
+            cultura: entorno.cultura)
+        guard let datos = r.datos else { throw ErrorDominio(.general, r.aviso ?? ArchivoValoraciones.avisoNoHistorico) }
+        try entorno.archivos.escribir(datos, en: url, atomico: false)
+        return (tempo, jorna)
     }
 }

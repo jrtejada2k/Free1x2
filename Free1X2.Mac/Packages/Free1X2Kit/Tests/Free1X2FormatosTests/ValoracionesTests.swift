@@ -87,5 +87,9 @@ struct ValoracionesTests {
             existente: Data("1 2 3".utf8), separador: "\t", valores: Self.catorce, temporada: "x", jornada: "1",
             numeroPartidos: 14, cultura: .esES)
         #expect(no.datos == nil && no.aviso == ArchivoValoraciones.avisoNoHistorico)
+        let suelta = try ArchivoValoraciones.datosHistorico(
+            existente: Data((linea + "\n2023/2024").utf8), separador: "\t", valores: Self.catorce, temporada: "2023/2024",
+            jornada: "5", numeroPartidos: 14, cultura: .esES)
+        #expect(suelta.datos.map { String(decoding: $0, as: UTF8.self).components(separatedBy: "\r\n").count } == 4)
     }
 }

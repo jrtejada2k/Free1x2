@@ -39,11 +39,13 @@
 		7DB9103104D30CDBFDA1A0B7 /* VistaDestino.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19B6A06520278BAB278E48F4 /* VistaDestino.swift */; };
 		7F4DD590BD5BE0C07A837A48 /* Barra.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756B21FEC97FD0FC66703A9C /* Barra.swift */; };
 		880E2FE4269643F3F9B71C6B /* Destino.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72B74ECC82B203A8A366A93E /* Destino.swift */; };
+		9F5AC6DC839F0C36F0095960 /* Algebra.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB2647216F2F309E14997C05 /* Algebra.swift */; };
 		9F830797A2556C971E0020FC /* DistanciasInterrupciones.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2771D91198F31E3165598E0F /* DistanciasInterrupciones.swift */; };
 		A22660CDC4DA522F2F0A9F85 /* SelectorFicheros.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF9B1577FF3F685F277AE21A /* SelectorFicheros.swift */; };
 		A2726AB4F195A838EB96C12F /* GEPT.swift in Sources */ = {isa = PBXBuildFile; fileRef = B87EB26772D235A990F0A016 /* GEPT.swift */; };
 		A666D0BE2B4F6C79C0F127C9 /* Ajustes.swift in Sources */ = {isa = PBXBuildFile; fileRef = A94115EF8DA5A34AD2C8B2A7 /* Ajustes.swift */; };
 		A6D5F1F1F2140D94F94F21A2 /* Router.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850A5E66731FABDDC2D9FD72 /* Router.swift */; };
+		AC0921747BD28CA6A7A37EC2 /* GuardarValoracion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60C5C48A12ADB096F03ECDAD /* GuardarValoracion.swift */; };
 		AEB6B00B853531C1FDE4ECE9 /* CalculaColumnasMultiple.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6805A7570CD734755BDCAD8E /* CalculaColumnasMultiple.swift */; };
 		B82BB00E3775718E4723B589 /* Equipos.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3CC092B73F3F68B73A15275 /* Equipos.swift */; };
 		BCE842585A26ABC2E7A87807 /* SignosSeguidos.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14C149043FCB6537B8F6385D /* SignosSeguidos.swift */; };
@@ -73,6 +75,7 @@
 		39BF9252187A13E9703C8EF5 /* Formatos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Formatos.swift; sourceTree = "<group>"; };
 		49BDD4273F4F33E1C72948C9 /* PortapapelesSistema.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortapapelesSistema.swift; sourceTree = "<group>"; };
 		572A8CBF196CF469733FD84F /* PantallaCondicion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PantallaCondicion.swift; sourceTree = "<group>"; };
+		60C5C48A12ADB096F03ECDAD /* GuardarValoracion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuardarValoracion.swift; sourceTree = "<group>"; };
 		62B44320D069342A326F7B49 /* Alertas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alertas.swift; sourceTree = "<group>"; };
 		63A4CC16ED67BB5897B13668 /* ColProbables.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColProbables.swift; sourceTree = "<group>"; };
 		6805A7570CD734755BDCAD8E /* CalculaColumnasMultiple.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculaColumnasMultiple.swift; sourceTree = "<group>"; };
@@ -104,6 +107,7 @@
 		DB842ABB38595FAE44A7140D /* Estilo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Estilo.swift; sourceTree = "<group>"; };
 		E06E5841AB3F270318467C6F /* MatrizAnalisisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatrizAnalisisView.swift; sourceTree = "<group>"; };
 		E57437FEB0766E67A1F55EF1 /* PesosNumericos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PesosNumericos.swift; sourceTree = "<group>"; };
+		EB2647216F2F309E14997C05 /* Algebra.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Algebra.swift; sourceTree = "<group>"; };
 		EE0FC64BC0051E3917F7CD08 /* ControlGrupos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlGrupos.swift; sourceTree = "<group>"; };
 		F2237869C6EB3EFFB9EDAF19 /* Valoracion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Valoracion.swift; sourceTree = "<group>"; };
 		F6958E688A2AFDF4D1A8AF51 /* AnalisisFallos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalisisFallos.swift; sourceTree = "<group>"; };
@@ -165,6 +169,7 @@
 				2771D91198F31E3165598E0F /* DistanciasInterrupciones.swift */,
 				39BF9252187A13E9703C8EF5 /* Formatos.swift */,
 				F7ACEF1BC5AA3C33883A3EC3 /* GruposEquipos.swift */,
+				60C5C48A12ADB096F03ECDAD /* GuardarValoracion.swift */,
 				099FDA1F7F262E151C82CEA9 /* IfThen.swift */,
 				A085DB9039F2B28F57E897A4 /* NoVariantes.swift */,
 				E57437FEB0766E67A1F55EF1 /* PesosNumericos.swift */,
@@ -220,6 +225,7 @@
 		3D1CEF9D6BB46FA97759CD63 /* Utilidades */ = {
 			isa = PBXGroup;
 			children = (
+				EB2647216F2F309E14997C05 /* Algebra.swift */,
 				B87EB26772D235A990F0A016 /* GEPT.swift */,
 				BE0E06AC14A0BE4304B55E90 /* Transposicion.swift */,
 			);
@@ -385,6 +391,7 @@
 			files = (
 				A666D0BE2B4F6C79C0F127C9 /* Ajustes.swift in Sources */,
 				D55851FF07C4F9C15C9ABDEA /* Alertas.swift in Sources */,
+				9F5AC6DC839F0C36F0095960 /* Algebra.swift in Sources */,
 				274C1481E8D14C51556ED194 /* AnalisisFallos.swift in Sources */,
 				3B928D5C44C6801D853CB072 /* AnalizarFichero.swift in Sources */,
 				7F4DD590BD5BE0C07A837A48 /* Barra.swift in Sources */,
@@ -408,6 +415,7 @@
 				ECD7E7BCABC8A4DABE96FEBF /* Free1X2App.swift in Sources */,
 				A2726AB4F195A838EB96C12F /* GEPT.swift in Sources */,
 				79FFA6EEE06F09D70C9E6B35 /* GruposEquipos.swift in Sources */,
+				AC0921747BD28CA6A7A37EC2 /* GuardarValoracion.swift in Sources */,
 				37FE5F0B35E38EBA447AF89B /* IfThen.swift in Sources */,
 				714BC945F34FEFDF70D35500 /* Informativas.swift in Sources */,
 				CCA14C8EE480990172F61B7E /* MatrizAnalisisView.swift in Sources */,

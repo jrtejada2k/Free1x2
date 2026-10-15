@@ -61,6 +61,9 @@ struct VistaDestino: View {
         case .gEPT: VistaGEPT()
         case .probabilidadPremios: VistaProbabilidadPremios()
         case .transposicion: VistaTransposicion()
+        case .guardarValoracion: VistaGuardarValoracion()
+        case .historiaValoraciones: VistaHistoriaValoraciones()
+        case .algebraColumnas: VistaAlgebraColumnas()
         default: PantallaPendiente(destino: destino)
         }
     }

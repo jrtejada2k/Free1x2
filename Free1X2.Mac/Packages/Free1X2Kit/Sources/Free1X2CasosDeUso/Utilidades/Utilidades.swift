@@ -1,5 +1,7 @@
 import Foundation
 import Free1X2Base
+import Free1X2Formatos
+import Free1X2Motor
 
 // C#: Views/Ported/GEPTFrmViewModel.cs (09 pantalla 56; CU-B23).
 
@@ -47,5 +49,27 @@ extension CasosUtilidades {
         }
         try entorno.archivos.escribir(datos, en: salida, atomico: false)
         if let fallo { throw fallo }
+    }
+}
+
+// C#: Views/Ported/AlgebraColumnasFrmViewModel.cs (08 pantalla 3; CU-A03).
+extension CasosUtilidades {
+    /// Al elegir un fichero: `ObtenNumSignos` (1.ª línea recortada) y `NumColumnas` (`ObtenNumCols`).
+    public static func resumenColumnas(_ url: URL, entorno: Entorno) throws(ErrorDominio) -> (signos: Int, columnas: Int) {
+        let d = try entorno.archivos.leer(url)
+        return (ArchivoColumnasTexto.numSignos(d), ArchivoColumnasTexto.numColumnas(d))
+    }
+
+    /// CU-A03 `Calcular`: `SumadorCombinaciones` (la combinación 2 solo si la operación la usa); sin columnas no se crea la
+    /// salida. Devuelve `MensajeFinCalculo`.
+    @concurrent public static func algebraDeColumnas(
+        _ tipo: AlgebraComb, _ c1: URL, _ c2: URL?, salida: URL, numeroPartidos: Int, entorno: Entorno
+    ) async throws(ErrorDominio) -> String {
+        let columnas1 = ArchivoColumnasTexto.columnas(try entorno.archivos.leer(c1))
+        var columnas2: [String] = []
+        if tipo != .eliminaRepetidas, let c2 { columnas2 = ArchivoColumnasTexto.columnas(try entorno.archivos.leer(c2)) }
+        let r = try SumadorCombinaciones.calcular(tipo, columnas1: columnas1, columnas2: columnas2, numeroPartidos: numeroPartidos)
+        if let d = ArchivoColumnasTexto.datos(r.columnas) { try entorno.archivos.escribir(d, en: salida, atomico: false) }
+        return r.mensaje
     }
 }

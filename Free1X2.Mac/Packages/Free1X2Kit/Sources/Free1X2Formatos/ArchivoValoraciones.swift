@@ -167,7 +167,8 @@ public enum ArchivoValoraciones {
 
     /// `GuardarValoraciones(nombre, sep, valores, temporada, jornada)` (:422-481): histórico (formato 44). Con fichero,
     /// su separador detectado manda; la línea de esa temporada y jornada se sustituye o se añade al final, y se reescribe
-    /// todo (líneas recortadas y en mayúsculas). Si el fichero no es de formato 44 devuelve el aviso y no escribe.
+    /// todo (líneas recortadas y en mayúsculas). Si el fichero no es de formato 44 devuelve el aviso y no escribe. Con la
+    /// guarda `Length >= 2` de la réplica viva (`HistoriaValoracionesFrmViewModel.cs:226`; la de `Porcentajes` no se llama).
     public static func datosHistorico(
         existente: Data?, separador: Character, valores: [[Double]], temporada: String, jornada: String,
         numeroPartidos n: Int, cultura: Cultura
@@ -192,7 +193,7 @@ public enum ArchivoValoraciones {
         var existe = false
         for l in existente.map(ArchivoColumnasTexto.columnas) ?? [] {
             let v = trozos(l, sep)
-            if v[0] == temporada, try v.leer(1, "Porcentajes.cs:454") == jornada {
+            if v.count >= 2, v[0] == temporada, v[1] == jornada {
                 existe = true
                 lineas.append(nueva)
             } else {

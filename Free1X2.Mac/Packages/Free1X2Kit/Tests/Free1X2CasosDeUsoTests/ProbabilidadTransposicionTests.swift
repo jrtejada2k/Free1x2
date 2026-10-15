@@ -48,3 +48,44 @@ struct ProbabilidadTransposicionTests {
         #expect(try entorno.archivos.leer(salida).isEmpty)
     }
 }
+
+/// ESPEC_09 §63 (CU-B31) y §64 (CU-B32).
+@Suite("Guardar valoración e histórico")
+struct GuardarValoracionTests {
+    @Test func guardarEHistorico() throws {
+        let entorno = Entorno.pruebas()
+        let v = Array(repeating: [45.5, 30, 24.5], count: 14)
+        let url = URL(filePath: "/tmp/gv/v.txt")
+        try entorno.archivos.crearCarpeta(url.deletingLastPathComponent())
+        try CasosCondiciones.guardarValoracion(v, formato: 3, separador: ",", en: url, numeroPartidos: 14, entorno: entorno)
+        #expect(String(decoding: try entorno.archivos.leer(url), as: UTF8.self).hasPrefix("45.5,30,24.5\r\n"))
+        let h = URL(filePath: "/tmp/gv/h.txt")
+        let r = try CasosCondiciones.guardarEnHistorico(v, temporada: 2004, jornada: 5, en: h, numeroPartidos: 14, entorno: entorno)
+        #expect(r.temporada == "2004/2005" && r.jornada == "05")
+        #expect(String(decoding: try entorno.archivos.leer(h), as: UTF8.self).hasPrefix("2004/2005\t05\t45,5\t30\t24,5\t"))
+        #expect(throws: ErrorDominio.self) {
+            try CasosCondiciones.guardarEnHistorico(v, temporada: 2004, jornada: 5, en: url, numeroPartidos: 14, entorno: entorno)
+        }
+    }
+}
+
+/// ESPEC_08 §3 (CU-A03).
+@Suite("Álgebra de columnas")
+struct AlgebraTests {
+    @Test func algebra() async throws {
+        let entorno = Entorno.pruebas()
+        let a = URL(filePath: "/tmp/al/a.txt")
+        let b = URL(filePath: "/tmp/al/b.txt")
+        let s = URL(filePath: "/tmp/al/s.txt")
+        try entorno.archivos.crearCarpeta(a.deletingLastPathComponent())
+        try entorno.archivos.escribir(Data("1X2\r\n1X2\r\n111\r\n".utf8), en: a, atomico: true)
+        try entorno.archivos.escribir(Data("111\r\n".utf8), en: b, atomico: true)
+        #expect(try CasosUtilidades.resumenColumnas(a, entorno: entorno) == (3, 3))
+        let m = try await CasosUtilidades.algebraDeColumnas(.eliminaRepetidas, a, b, salida: s, numeroPartidos: 3, entorno: entorno)
+        #expect(m == "Nº columnas final: 2\nNº col. repetidas: 1")
+        #expect(String(decoding: try entorno.archivos.leer(s), as: UTF8.self) == "1X2\r\n111\r\n")
+        let vacia = URL(filePath: "/tmp/al/v.txt")
+        _ = try await CasosUtilidades.algebraDeColumnas(.restaSegunda, b, b, salida: vacia, numeroPartidos: 3, entorno: entorno)
+        #expect(!entorno.archivos.existe(vacia))
+    }
+}

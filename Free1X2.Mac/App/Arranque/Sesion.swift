@@ -57,6 +57,8 @@ final class Sesion {
     var parametrosBoleto: (fichero: URL, orden: OrdenBoletos, descendente: Bool)?
     /// `MatrizEntrada` / `NumColEntrada` de cada visor de «Estadísticas» (estáticos que nunca se vacían).
     var estadisticas: [Anastatics.Modo: MatrizEstadistica] = [:]
+    /// `HistoriaValoracionesFrmPage.Contexto` (lo deja Tramificar).
+    var historiaValoraciones: (valores: [[Double]], temporada: Int, jornada: Int, archivo: URL?)?
     /// `TemaApp` (10 §1.5): «Sistema» (defecto), «Claro», «Oscuro»; en `UserDefaults` (ESPEC_11 §9).
     var tema = UserDefaults.standard.string(forKey: "tema") ?? "Sistema" {
         didSet {
