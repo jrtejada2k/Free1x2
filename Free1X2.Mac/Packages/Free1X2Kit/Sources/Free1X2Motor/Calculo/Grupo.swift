@@ -6,11 +6,13 @@ import Free1X2Base
 /// conservar el momento del error de E/S del C# (el filtro parcial se carga en la primera columna que llega a él).
 public typealias LectorLineas = @Sendable (String) throws(ErrorDominio) -> [String]
 
-/// Lo que los filtros leen del entorno al construirse: N, banderas de análisis y cultura de los `Convert.ToDouble`.
+/// Lo que los filtros leen del entorno al construirse: N, banderas de análisis, cultura de los `Convert.ToDouble` y
+/// puntos CP (`InicializaPuntosCP` en cada cálculo, 04 §0.4).
 struct ContextoFiltros {
     let numeroPartidos: Int
     let analisis: OpcionesAnalisis
     let cultura: Cultura
+    let puntosCP: PuntosCP
 }
 
 /// `ToleranciaFiltros` en ejecución: acumula coincidencias de letras.
@@ -67,8 +69,12 @@ final class Grupo {
             FiltroDibujos(c.dibujos, analisisActivo: a.activo(.dibujos)),
             FiltroPesosNumericos(c.pesosNumericos, analisisActivo: a.activo(.pesosNumericos)),
             FiltroDistancias(c.distancias, analisisActivo: a.activo(.distancias)),
+            FiltroGruposEquipos(c.gruposEquipos, analisisActivo: a.activo(.gruposEquipos)),
             FiltroContactos(c.contactos, analisisActivo: a.activo(.contactos)),
             FiltroFormatosSignos(c.formatosSignos, analisisActivo: a.activo(.formatosSignos)),
+            FiltroColProbables(
+                c.colProbables, analisisActivo: a.activo(.colProbables), numeroPartidos: x.numeroPartidos,
+                puntos: x.puntosCP),
             FiltroFormatos123(c.formatos123, analisisActivo: a.activo(.formatos123), numeroPartidos: x.numeroPartidos),
             FiltroSimetrias(c.simetrias, analisisActivo: a.activo(.simetrias)),
             FiltroDiferencias(c.diferencias, analisisActivo: a.activo(.diferencias)),

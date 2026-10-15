@@ -11,8 +11,10 @@ public struct CondicionesGrupo: Sendable, Hashable {
     public var dibujos = CondicionDibujos()
     public var pesosNumericos: CondicionPesosNumericos
     public var distancias: CondicionDistancias
+    public var gruposEquipos = CondicionGruposEquipos()
     public var contactos: CondicionContactos
     public var formatosSignos = CondicionFormatosSignos()
+    public var colProbables = CondicionColProbables()
     public var formatos123: CondicionFormatos123
     public var simetrias = CondicionSimetrias()
     public var diferencias = CondicionDiferencias()
@@ -31,8 +33,8 @@ public struct CondicionesGrupo: Sendable, Hashable {
     /// `EsActivo`: algún filtro activo.
     public var hayActivas: Bool {
         noVariantes.activa || valoracionSignos.activa || signosSeguidos.activa || interrupciones.activa || dibujos.activa
-            || pesosNumericos.activa || distancias.activa || contactos.activa || formatosSignos.activa || formatos123.activa
-            || simetrias.activa || diferencias.activa
+            || pesosNumericos.activa || distancias.activa || gruposEquipos.activa || contactos.activa
+            || formatosSignos.activa || colProbables.activa || formatos123.activa || simetrias.activa || diferencias.activa
     }
 }
 

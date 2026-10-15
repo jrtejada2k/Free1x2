@@ -60,7 +60,9 @@ final class Analizador {
     init(_ c: Combinacion, configuracion: Configuracion, cultura: Cultura, leerLineas: @escaping LectorLineas) {
         combinacion = c
         numeroPartidos = configuracion.boleto.numeroPartidos
-        let contexto = ContextoFiltros(numeroPartidos: numeroPartidos, analisis: configuracion.analisis, cultura: cultura)
+        let contexto = ContextoFiltros(
+            numeroPartidos: numeroPartidos, analisis: configuracion.analisis, cultura: cultura,
+            puntosCP: configuracion.puntosCP)
         grupos = c.grupos.map { Grupo($0, contexto: contexto, leerLineas: leerLineas) }
         controlador = ControladorGrupos(grupos: grupos, c)
         ifThen = c.ifThen.map { ControladorIfThen($0, numeroPartidos: configuracion.boleto.numeroPartidos) }

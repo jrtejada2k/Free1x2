@@ -34,6 +34,7 @@ struct FiltrosTests {
         "motor/filtros/novariantes", "motor/filtros/distancias", "motor/filtros/valoracion", "motor/filtros/formatos123",
         "motor/filtros/simetrias", "motor/filtros/dibujos", "motor/filtros/formatossignos", "motor/filtros/pesos",
         "motor/filtros/interrupciones", "motor/filtros/contactos", "motor/filtros/seguidos", "motor/filtros/diferencias",
+        "motor/filtros/gruposequipos",
     ]
 
     /// Columna de texto con `*` = partido fuera del grupo (`000`).
@@ -301,6 +302,37 @@ struct FiltrosTests {
             return Prueba(
                 filtro: f,
                 contadores: { f.recuentos.flatMap { [$0.v, $0.x, $0.doses, $0.dib, $0.int, $0.formatos] }.map(Double.init) },
+                get: [:])
+        case "FiltroGruposEquipos":
+            var c = CondicionGruposEquipos()
+            c.activa = true
+            var grupos: [GrupoEquiposConfig] = []
+            for p in config {
+                switch p[0] {
+                case "grupo":
+                    var g = GrupoEquiposConfig(numeroPartidos: n)
+                    g.pronosticos = p[1]
+                    grupos.append(g)
+                case "puntos": try grupos[grupos.count - 1].ponerSumaPuntos(p[1])
+                case "victorias": try grupos[grupos.count - 1].ponerVictorias(p[1])
+                case "empates": try grupos[grupos.count - 1].ponerEmpates(p[1])
+                case "derrotas": try grupos[grupos.count - 1].ponerDerrotas(p[1])
+                case "relacion":
+                    var r = RelacionGE1Config()
+                    try r.ponerGruposEquipos(p[1])
+                    c.relaciones.append(r)
+                case "rPuntos": try c.relaciones[c.relaciones.count - 1].ponerSumaPuntos(p[1])
+                case "rVictorias": try c.relaciones[c.relaciones.count - 1].ponerSumaVictorias(p[1])
+                case "rEmpates": try c.relaciones[c.relaciones.count - 1].ponerSumaEmpates(p[1])
+                case "rDerrotas": try c.relaciones[c.relaciones.count - 1].ponerSumaDerrotas(p[1])
+                default: Issue.record("setter desconocido \(p[0])")
+                }
+            }
+            c.ponerGrupos(grupos)
+            let f = FiltroGruposEquipos(c, analisisActivo: false)
+            return Prueba(
+                filtro: f,
+                contadores: { f.grupos.flatMap { [$0.noSumaPuntos, $0.noVictorias, $0.noEmpates, $0.noDerrotas] }.map(Double.init) },
                 get: [:])
         default:
             throw ErrorDominio(.argumento, "componente \(componente)")

@@ -109,6 +109,22 @@
     {
       "ruta": "motor/filtros/diferencias.jsonl",
       "casos": 2
+    },
+    {
+      "ruta": "motor/cp/columnaprobable.jsonl",
+      "casos": 17
+    },
+    {
+      "ruta": "motor/cp/filtro.jsonl",
+      "casos": 28
+    },
+    {
+      "ruta": "motor/cp/relacioncp3.jsonl",
+      "casos": 9
+    },
+    {
+      "ruta": "motor/filtros/gruposequipos.jsonl",
+      "casos": 17
     }
   ],
   "fixtures": [

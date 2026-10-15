@@ -17,6 +17,7 @@ struct NucleoTests {
             var noVariantes: NoVar?
             var tolerancias: [Tol]?
             var fallosTolerancias: String?
+            var colProbables: ColProbablesTests.CondJ?
         }
         struct Tol: Decodable, Sendable {
             var letras, aciertos: String
@@ -115,6 +116,7 @@ struct NucleoTests {
     }
 
     static func configurar(_ gc: inout GrupoConfig, _ g: Entrada.Grupo) throws(ErrorDominio) {
+        if let cp = g.colProbables { gc.condiciones.colProbables = try ColProbablesTests.condicion(cp) }
         if let nv = g.noVariantes {
             gc.condiciones.noVariantes.activa = nv.activa ?? true
             try gc.condiciones.noVariantes.setNoVariantes(nv.variantes)
@@ -155,7 +157,7 @@ struct NucleoTests {
 
     @Test func flujosHeredados() throws {
         for caso in try Golden.casos("motor/flujos", componente: "Analizador", Entrada.self, Salida.self)
-        where caso.id.hasPrefix("CP-GEN") {
+        where caso.id.hasPrefix("CP-GEN") || caso.id.hasPrefix("CP-CP") {
             let (r, cols) = try Self.ejecutar(caso.entrada)
             let s = try #require(caso.salida)
             if let n = s.colsAnalizadas { #expect(r.analizadas == n, "\(caso.id)") }

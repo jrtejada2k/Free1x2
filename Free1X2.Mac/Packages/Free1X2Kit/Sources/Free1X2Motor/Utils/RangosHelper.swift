@@ -57,6 +57,32 @@ public enum RangosHelper {
     }
 }
 
+/// Texto de rangos y su `[Bool]` (D2/P4): el par `strX`/`x` de CP, GE y controles. `""` ⇒ `nil` = sin restricción.
+public struct ConjuntoRangos: Sendable, Hashable {
+    public private(set) var texto = ""
+    public private(set) var valores: [Bool]?
+
+    public init() {}
+
+    /// El texto se fija antes de parsear: si lanza, queda el texto nuevo con el array anterior, como en C#.
+    public mutating func poner(_ s: String) throws(ErrorDominio) {
+        texto = s
+        if s.isEmpty {
+            valores = nil
+        } else {
+            valores = try RangosHelper.obtenBoolArray(s)
+        }
+    }
+
+    public var activo: Bool { !texto.isEmpty }
+
+    /// `arr.Length >= n+1 && arr[n]`.
+    func permite(_ n: Int) -> Bool {
+        guard let v = valores, v.indices.contains(n) else { return false }
+        return v[n]
+    }
+}
+
 /// `string.Split(char)` de .NET: conserva los trozos vacíos.
 @inline(__always)
 func trozos(_ texto: some StringProtocol, _ separador: Character) -> [String] {
