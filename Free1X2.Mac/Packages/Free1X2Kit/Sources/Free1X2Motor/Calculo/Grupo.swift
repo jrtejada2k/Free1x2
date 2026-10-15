@@ -58,10 +58,19 @@ final class Grupo {
         todosPartidosActivos = g.todosPartidosActivos
         mascara = g.mascara
         partidosActivos = g.partidosActivos
-        let c = g.condiciones
-        // Orden fijo de `Grupo.filtros` (:94-134).
+        filtros = Self.filtros(g.condiciones, x)
+        activos = filtros.filter(\.activa)
+        tolerancias = g.tolerancias.tolerancias.map(Tolerancia.init)
+        fallosTolerancias = g.tolerancias.fallosPermitidos
+        arrayFallosTolerancias = g.tolerancias.arrayFallos
+        archivoFiltro = g.archivoFiltro
+        self.leerLineas = leerLineas
+    }
+
+    /// Los 14 filtros en el orden fijo de `Grupo.filtros` (:94-134).
+    static func filtros(_ c: CondicionesGrupo, _ x: ContextoFiltros) -> [any FiltroColumna] {
         let a = x.analisis
-        filtros = [
+        return [
             FiltroNoVariantes(c.noVariantes, analisisActivo: a.activo(.noVariantes)),
             FiltroValoracionSignos(c.valoracionSignos, analisisActivo: a.activo(.valoracionSignos), cultura: x.cultura),
             FiltroSignosSeguidos(c.signosSeguidos, analisisActivo: a.activo(.signosSeguidos)),
@@ -79,12 +88,6 @@ final class Grupo {
             FiltroSimetrias(c.simetrias, analisisActivo: a.activo(.simetrias)),
             FiltroDiferencias(c.diferencias, analisisActivo: a.activo(.diferencias)),
         ]
-        activos = filtros.filter(\.activa)
-        tolerancias = g.tolerancias.tolerancias.map(Tolerancia.init)
-        fallosTolerancias = g.tolerancias.fallosPermitidos
-        arrayFallosTolerancias = g.tolerancias.arrayFallos
-        archivoFiltro = g.archivoFiltro
-        self.leerLineas = leerLineas
     }
 
     /// `GetFiltro(nombre)` (:415-431): si ninguno coincide, el último (`Diferencias`).

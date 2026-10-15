@@ -145,6 +145,10 @@
     {
       "ruta": "motor/utils/probabilidades.jsonl",
       "casos": 7
+    },
+    {
+      "ruta": "motor/estadisticas/anastatics.jsonl",
+      "casos": 4
     }
   ],
   "fixtures": [
