@@ -74,6 +74,9 @@ struct VistaDestino: View {
         case .rotacionDeSignos: VistaRotacionDeSignos()
         case .parejas: VistaParejas()
         case .trios: VistaTrios()
+        case .calculoFormatos: VistaCalculoFormatos()
+        case .analisisFormatos123: VistaAnalisisFormatos123()
+        case .premiadas: VistaPremiadas()
         default: PantallaPendiente(destino: destino)
         }
     }

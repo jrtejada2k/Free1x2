@@ -135,3 +135,63 @@ extension CasosUtilidades {
                 + limites.map { "\(FormatoNET.castInt32($0[0])),\(FormatoNET.castInt32($0[1]))" })
     }
 }
+
+// C#: Views/Ported/PremiadasFrmViewModel.cs (10 §80; CU-C14…C16). Misma codificación propia que Pares.
+extension CasosUtilidades {
+    /// Columnas a distancia exacta `d` (1…4 ⇔ 13…10 aciertos) de `n`, en el orden de los bucles anidados (`Genera`).
+    static func distantes(_ n: Int, _ d: Int, _ accion: (Int) -> Void) {
+        let pot = (0..<14).map { Int(pow(3.0, Double($0))) }
+        func visitar(_ col: Int, _ desde: Int, _ nivel: Int) {
+            for nr in desde..<14 {
+                let s = col / pot[nr] % 3
+                for z in 0..<3 where z != s {
+                    let c = col + pot[nr] * (z - s)
+                    if nivel == d { accion(c) } else { visitar(c, nr + 1, nivel + 1) }
+                }
+            }
+        }
+        visitar(n, 0, 1)
+    }
+
+    /// Ganadoras del fichero: las líneas de al menos 14 caracteres, codificadas con `S1n`.
+    static func ganadoras(_ url: URL, entorno: Entorno) throws(ErrorDominio) -> [Int] {
+        var r: [Int] = []
+        for l in TextoNET.lineas(try entorno.archivos.leer(url)) where l.utf16.count >= 14 { r.append(try FiltroPorGrupos.s1n(l)) }
+        return r
+    }
+
+    /// CU-C14 `Calcular`: veces que cada columna tiene `premio` aciertos con alguna ganadora y la lista «qdc = n veces».
+    @concurrent public static func frecuenciasPremiadas(
+        _ url: URL, premio: Int, entorno: Entorno
+    ) async throws(ErrorDominio) -> (validas: [Int32], frecuencias: [String], procesadas: Int) {
+        let g = try ganadoras(url, entorno: entorno)
+        var validas = [Int32](repeating: 0, count: 4_782_969)
+        var nmax: Int32 = 0
+        for n in g {
+            distantes(n, 14 - premio) {
+                validas[$0] &+= 1
+                nmax = max(nmax, validas[$0])
+            }
+        }
+        var qdc = [Int](repeating: 0, count: Int(nmax))
+        for v in validas where v > 0 { qdc[Int(v) - 1] += 1 }
+        return (validas, qdc.enumerated().map { "\($1) = \($0 + 1) veces" }, g.count)
+    }
+
+    /// CU-C15 `Analizar`: «sem.k» (k = nº de ganadora) por cada columna a esa distancia con frecuencia `n`.
+    @concurrent public static func jornadasDeFrecuencia(
+        _ url: URL, validas: [Int32], premio: Int, n: Int, entorno: Entorno
+    ) async throws(ErrorDominio) -> [String] {
+        var r: [String] = []
+        for (j, g) in try ganadoras(url, entorno: entorno).enumerated() {
+            distantes(g, 14 - premio) { if validas[$0] == n { r.append("sem.\(j + 1)") } }
+        }
+        return r
+    }
+
+    /// CU-C16 `Grabar`: las columnas con frecuencia `n`, por índice (el fichero se crea aunque no haya ninguna).
+    public static func grabarColumnasConFrecuencia(_ validas: [Int32], n: Int, en url: URL, entorno: Entorno) throws(ErrorDominio) {
+        let cols = validas.indices.filter { validas[$0] == n }.map(FiltroPorGrupos.n1s)
+        try entorno.archivos.escribir(TextoNET.codificarLineas(cols), en: url, atomico: false)
+    }
+}
