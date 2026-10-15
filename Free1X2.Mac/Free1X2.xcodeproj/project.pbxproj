@@ -35,6 +35,7 @@
 		BFBC10F002A9AD96099FC3D8 /* Free1X2Kit in Frameworks */ = {isa = PBXBuildFile; productRef = 6F000FF4E643EABD960549DE /* Free1X2Kit */; };
 		C4D8549A87B89CF5F06A0F09 /* Datos in Resources */ = {isa = PBXBuildFile; fileRef = C0344B454C66C01D3073E748 /* Datos */; };
 		D55851FF07C4F9C15C9ABDEA /* Alertas.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62B44320D069342A326F7B49 /* Alertas.swift */; };
+		E693C7E6AC98476F326288A5 /* ControlGrupos.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0FC64BC0051E3917F7CD08 /* ControlGrupos.swift */; };
 		E6F65D76BA0A88DBA6646F2A /* PesosNumericos.swift in Sources */ = {isa = PBXBuildFile; fileRef = E57437FEB0766E67A1F55EF1 /* PesosNumericos.swift */; };
 		ECD7E7BCABC8A4DABE96FEBF /* Free1X2App.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3FF8E5909D62572635C6B70 /* Free1X2App.swift */; };
 /* End PBXBuildFile section */
@@ -69,6 +70,7 @@
 		D3FF8E5909D62572635C6B70 /* Free1X2App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Free1X2App.swift; sourceTree = "<group>"; };
 		DB842ABB38595FAE44A7140D /* Estilo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Estilo.swift; sourceTree = "<group>"; };
 		E57437FEB0766E67A1F55EF1 /* PesosNumericos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PesosNumericos.swift; sourceTree = "<group>"; };
+		EE0FC64BC0051E3917F7CD08 /* ControlGrupos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlGrupos.swift; sourceTree = "<group>"; };
 		F2237869C6EB3EFFB9EDAF19 /* Valoracion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Valoracion.swift; sourceTree = "<group>"; };
 		F7ACEF1BC5AA3C33883A3EC3 /* GruposEquipos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GruposEquipos.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -110,6 +112,7 @@
 			isa = PBXGroup;
 			children = (
 				93ACDCA8FCA710B3A83DAB92 /* ContactosDibujos.swift */,
+				EE0FC64BC0051E3917F7CD08 /* ControlGrupos.swift */,
 				D2B7B322A4FC10DFEC1CD265 /* Diferencias.swift */,
 				2771D91198F31E3165598E0F /* DistanciasInterrupciones.swift */,
 				39BF9252187A13E9703C8EF5 /* Formatos.swift */,
@@ -298,6 +301,7 @@
 				D55851FF07C4F9C15C9ABDEA /* Alertas.swift in Sources */,
 				7F4DD590BD5BE0C07A837A48 /* Barra.swift in Sources */,
 				6A45F9467CF363B37502AC86 /* ContactosDibujos.swift in Sources */,
+				E693C7E6AC98476F326288A5 /* ControlGrupos.swift in Sources */,
 				880E2FE4269643F3F9B71C6B /* Destino.swift in Sources */,
 				2D7F774CEE1FC2BF7F0F2D11 /* Diferencias.swift in Sources */,
 				9F830797A2556C971E0020FC /* DistanciasInterrupciones.swift in Sources */,

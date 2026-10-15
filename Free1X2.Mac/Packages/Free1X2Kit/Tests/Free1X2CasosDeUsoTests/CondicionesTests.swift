@@ -249,4 +249,35 @@ struct CondicionesTests {
         #expect(q.relaciones == p.relaciones && q.grupos == p.grupos && q.rangoGrupos == "1" && q.gruposQuitados == 0)
         #expect(CasosCondiciones.cargarIfThen(leido, combinacion: Combinacion(numeroPartidos: 14)).gruposQuitados == 1)
     }
+
+    @Test func controlGruposYTolerancias() throws {
+        var c = Combinacion(numeroPartidos: 14)
+        for g in 1...3 { _ = try CasosInicio.cambiarGrupo(&c, a: g) }
+        var e = EditorControlGrupos(c)
+        #expect(e.contadorGrupos == "1/1" && e.grupos.isEmpty)
+        e.grupos = "1,2"
+        e.fallosGrupos = "0,1"
+        try e.gruposSiguiente()
+        #expect(e.contadorGrupos == "2/2" && e.controles.count == 3)
+        e.conjuntos = "1"
+        e.fallosConjuntos = "0"
+        try e.aceptar(en: &c)
+        #expect(c.controlesGrupos.count == 2 && c.controlesGrupos[0].textoGruposControlados == "0,3")
+        #expect(!c.controlesGrupos[0].usaControlGrupos && c.controlesGrupos[1].usaControlGrupos)
+        #expect(c.controlesConjuntos.count == 2 && c.controlesConjuntos[0].textoCtrlGruposControlados == "0" && c.usaControlConjuntos)
+        #expect(e.estado == "Guardado" && e.errores == 0)
+        var e2 = EditorControlGrupos(c)
+        #expect(e2.grupos == "1,2" && e2.contadorGrupos == "1/1")
+        e2.fallosGrupos = "x"
+        try e2.gruposSiguiente()
+        #expect(e2.errores == 1)
+
+        var t = ControladorTolConfig()
+        var f = CasosCondiciones.filasTolerancias(t)
+        #expect(f.count == 30)
+        f[0] = ("ab", "1,3")
+        f[1] = ("c", "")
+        try CasosCondiciones.aplicarTolerancias(f, fallos: "0-1", en: &t)
+        #expect(t.tolerancias.count == 1 && t.tolerancias[0].letrasTol == "AB" && t.fallosPermitidos == "0-1")
+    }
 }
