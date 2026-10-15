@@ -59,6 +59,7 @@
 		A6D5F1F1F2140D94F94F21A2 /* Router.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850A5E66731FABDDC2D9FD72 /* Router.swift */; };
 		AC0921747BD28CA6A7A37EC2 /* GuardarValoracion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60C5C48A12ADB096F03ECDAD /* GuardarValoracion.swift */; };
 		AEB6B00B853531C1FDE4ECE9 /* CalculaColumnasMultiple.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6805A7570CD734755BDCAD8E /* CalculaColumnasMultiple.swift */; };
+		B398D30966D9ACCB67324892 /* Selectores.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B4374796EEEBD757AB0F231 /* Selectores.swift */; };
 		B82BB00E3775718E4723B589 /* Equipos.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3CC092B73F3F68B73A15275 /* Equipos.swift */; };
 		BCE842585A26ABC2E7A87807 /* SignosSeguidos.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14C149043FCB6537B8F6385D /* SignosSeguidos.swift */; };
 		BFBC10F002A9AD96099FC3D8 /* Free1X2Kit in Frameworks */ = {isa = PBXBuildFile; productRef = 6F000FF4E643EABD960549DE /* Free1X2Kit */; };
@@ -114,6 +115,7 @@
 		90D6532FA4A25F28807EA09D /* BoletoMatrizView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoletoMatrizView.swift; sourceTree = "<group>"; };
 		90DD8B574876B96A97AF570C /* ConfigCPs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigCPs.swift; sourceTree = "<group>"; };
 		93ACDCA8FCA710B3A83DAB92 /* ContactosDibujos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactosDibujos.swift; sourceTree = "<group>"; };
+		9B4374796EEEBD757AB0F231 /* Selectores.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Selectores.swift; sourceTree = "<group>"; };
 		9FBAE789B419FCD7BEEAB015 /* Raiz.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Raiz.swift; sourceTree = "<group>"; };
 		A085DB9039F2B28F57E897A4 /* NoVariantes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoVariantes.swift; sourceTree = "<group>"; };
 		A32B5D9100363B5F58545ECD /* AnalisisFormatos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalisisFormatos.swift; sourceTree = "<group>"; };
@@ -273,6 +275,7 @@
 				D9C6AA148CA19F1F72000C48 /* Premiadas.swift */,
 				61FF07E693D4BC6A8149F8F3 /* Premios.swift */,
 				F15E315B1873261A597D4962 /* Rotacion.swift */,
+				9B4374796EEEBD757AB0F231 /* Selectores.swift */,
 				C696EFF7CCBB8094796CE6BF /* Signos.swift */,
 				BE0E06AC14A0BE4304B55E90 /* Transposicion.swift */,
 			);
@@ -492,6 +495,7 @@
 				086C602C16A164B522BE1FB4 /* Rotacion.swift in Sources */,
 				A6D5F1F1F2140D94F94F21A2 /* Router.swift in Sources */,
 				A22660CDC4DA522F2F0A9F85 /* SelectorFicheros.swift in Sources */,
+				B398D30966D9ACCB67324892 /* Selectores.swift in Sources */,
 				47BC0D63D514F9EBEDBF7D85 /* Sesion.swift in Sources */,
 				D2EAFD6CA7F7EB1211DDE25C /* Signos.swift in Sources */,
 				BCE842585A26ABC2E7A87807 /* SignosSeguidos.swift in Sources */,

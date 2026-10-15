@@ -99,6 +99,8 @@ struct VistaDestino: View {
         case .listaImpresoras: VistaListaImpresoras()
         case .dependenciaLineal: VistaDependenciaLineal()
         case .reducidasPerfectas: VistaReducidasPerfectas()
+        case .selecJM: VistaSelecJM()
+        case .selectorMS: VistaSelectorMS()
         default: PantallaPendiente(destino: destino)
         }
     }
