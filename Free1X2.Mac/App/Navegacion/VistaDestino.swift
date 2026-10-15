@@ -44,6 +44,9 @@ struct VistaDestino: View {
         case .crearGrupos: VistaCrearGrupos()
         case .calculaColumnasMultiple: VistaCalculaColumnasMultiple()
         case .resultadosCalculoMultiple: VistaResultadosCalculoMultiple()
+        case .analizarFichero: VistaAnalizarFichero()
+        case .gestorEquipos: VistaGestorEquipos()
+        case .agregarEquipo: VistaAgregarEquipo()
         default: PantallaPendiente(destino: destino)
         }
     }

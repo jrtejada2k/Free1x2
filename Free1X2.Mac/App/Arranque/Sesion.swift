@@ -15,6 +15,8 @@ final class Sesion {
     let entorno: Entorno
     let router = Router()
     let alertas = Alertas()
+    /// `QuinielaOnlineService.Instancia`: una por sesión (la guarda anti-doble vive en memoria).
+    @ObservationIgnored let servicioOnline: ServicioQuiniela
     /// DP-04: leída una vez al arrancar.
     let configuracion: Configuracion
     var combinacion: Combinacion
@@ -65,6 +67,7 @@ final class Sesion {
 
     init(entorno: Entorno) {
         self.entorno = entorno
+        servicioOnline = CasosArchivo.servicioOnline(entorno: entorno)
         let inicial = CasosInicio.arrancar(entorno: entorno)
         configuracion = inicial.configuracion
         jornadaActual = inicial.jornada

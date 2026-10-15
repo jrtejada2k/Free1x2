@@ -166,3 +166,26 @@ extension CasosCombinacion {
         return (c, estimarColumnasMaximas(c, entorno: entorno), aviso)
     }
 }
+
+extension CasosCombinacion {
+    /// «Examinar…» de la pantalla 8: columnas del fichero (`LeerTodasCols(false)`).
+    public static func columnasDeFichero(_ url: URL, entorno: Entorno) throws(ErrorDominio) -> [String] {
+        ArchivoColumnasTexto.columnas(try entorno.archivos.leer(url))
+    }
+
+    /// CU-A14 `Analizar` (`AnalizarFicheroFrmViewModel.cs:99-135`): ruta D con un analizador de `ObtenNumSignos` partidos
+    /// a «1,X,2» y el fichero como columnas base. «Incluir pleno al 15» no interviene (DEC-808). Contenedor solo si hay
+    /// aceptadas (el visor se abre entonces).
+    @concurrent public static func analizarFicheroDeColumnas(
+        _ url: URL, configuracion: Configuracion, entorno: Entorno
+    ) async throws(ErrorDominio) -> ContenedorAnalisisGlobal? {
+        let partidos = ArchivoColumnasTexto.numSignos(try entorno.archivos.leer(url))
+        var c = Combinacion(numeroPartidos: configuracion.boleto.numeroPartidos)
+        c.archivoColumnasBase = url.path(percentEncoded: false)
+        c.ponerPronosticos(Array(repeating: "1,X,2", count: partidos))
+        let r = try MotorCalculo.analizar(
+            c, configuracion: configuracion, cultura: entorno.cultura, externo: true, numeroPartidosExterno: partidos,
+            leerLineas: lectorLineas(entorno))
+        return r.calculo.aceptadas > 0 ? r.contenedor : nil
+    }
+}

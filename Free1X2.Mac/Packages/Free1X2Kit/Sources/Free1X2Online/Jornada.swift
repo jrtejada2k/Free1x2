@@ -124,7 +124,7 @@ public struct CatalogoEquipos: Sendable, Hashable {
     }
 
     /// Clave de `OrdinalIgnoreCase`: mayúscula **simple** por escalar (`ß` no pasa a `SS`).
-    static func mayusculaSimple(_ s: String) -> String {
+    public static func mayusculaSimple(_ s: String) -> String {
         var r = String.UnicodeScalarView()
         for u in s.unicodeScalars {
             let m = u.properties.uppercaseMapping.unicodeScalars

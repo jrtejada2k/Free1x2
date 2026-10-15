@@ -31,4 +31,13 @@ struct LoteTests {
             p.combinacion, modo: .grabar(destino), configuracion: .porDefecto, entorno: entorno)
         #expect(r.calculo.aceptadas == 9 && entorno.archivos.existe(destino))
     }
+
+    @Test func analizarFichero() async throws {
+        let url = URL(filePath: "/tmp/analizar/cols.txt")
+        try entorno.archivos.crearCarpeta(url.deletingLastPathComponent())
+        try entorno.archivos.escribir(Data("11111111111111\r\nX1111111111111\r\n".utf8), en: url, atomico: true)
+        #expect(try CasosCombinacion.columnasDeFichero(url, entorno: entorno).count == 2)
+        let g = try await CasosCombinacion.analizarFicheroDeColumnas(url, configuracion: .porDefecto, entorno: entorno)
+        #expect(g?.esAnalisisExterno == true)
+    }
 }
