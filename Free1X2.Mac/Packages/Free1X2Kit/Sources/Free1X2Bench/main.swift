@@ -1,19 +1,26 @@
 import Darwin
+import Foundation
 import Free1X2Base
+import Free1X2CasosDeUso
+import Free1X2Formatos
 import Free1X2Motor
+import Free1X2Pruebas
 
 // ESPEC_14 §6: datasets fijos, Release; 2 calentamientos + 10 medidas; mediana, p90 y pico de RSS del proceso.
 // Uso: `swift run -c release Free1X2Bench [B1 B5 B6 …]` (sin argumentos: todos).
-// ponytail: B2–B4, B7 y B8 llegan con el cargador `.comb` y los formatos (M4).
+// ponytail: no hay `corpus/comb/completa.comb`; B2–B4 usan los 6 filtros con «todos los valores» (DT-74).
 
 let pedidos = Set(CommandLine.arguments.dropFirst())
 
-func medir(_ id: String, techo: Duration, _ cuerpo: () throws -> Void) throws {
-    guard pedidos.isEmpty || pedidos.contains(String(id.prefix(2))) else { return }
+/// Un argumento elige los datasets cuyo nombre empieza por él («B8» o «B8 tramificar»).
+func quiere(_ id: String) -> Bool { pedidos.isEmpty || pedidos.contains { $0.hasPrefix(id) || id.hasPrefix($0) } }
+
+func medir(_ id: String, techo: Duration, _ cuerpo: () async throws -> Void) async throws {
+    guard pedidos.isEmpty || pedidos.contains(where: { id.hasPrefix($0) }) else { return }
     let reloj = ContinuousClock()
     var t: [Duration] = []
     for i in 0..<12 {
-        let d = try reloj.measure(cuerpo)
+        let d = try await reloj.measure(cuerpo)
         if i >= 2 { t.append(d) }
     }
     t.sort()
@@ -51,31 +58,109 @@ func aleatorias(_ n: Int, semilla: Int32) throws -> [String] {
 // B1: 14 triples, sin condiciones, ruta A.
 var b1 = Combinacion(numeroPartidos: 14)
 b1.ponerPronosticos(Array(repeating: "1,X,2", count: 14))
-try medir("B1 14T ruta A", techo: .seconds(1)) {
+try await medir("B1 14T ruta A", techo: .seconds(1)) {
     let r = try MotorCalculo.calcular(b1, configuracion: .porDefecto, leerLineas: { _ in [] })
     precondition(r.analizadas == 4_782_969)
 }
 
 // B5: reductores sobre el universo 9T, nivel 12.
-if pedidos.isEmpty || pedidos.contains("B5") {
+if quiere("B5") {
     let madre = try universo(triples: 9)
     for (nombre, a) in [("JDC", AlgoritmoReduccion.menosTiempo), ("JDCD", .menosColumnas), ("1305", .grandesArchivos)] {
-        try medir("B5 9T nivel 12 \(nombre)", techo: .seconds(10)) {
+        try await medir("B5 9T nivel 12 \(nombre)", techo: .seconds(10)) {
             _ = try Reduccion.reducir(a, lineas: madre, nivel: 12, numeroPartidos: 14)
         }
     }
 }
 
 // B6: escrutinio de 100 000 columnas contra 1 ganadora y contra una temporada de 38.
-if pedidos.isEmpty || pedidos.contains("B6") {
+if quiere("B6") {
     let columnas = try aleatorias(100_000, semilla: 1)
     let ganadoras = try aleatorias(38, semilla: 2)
-    try medir("B6 1 ganadora", techo: .seconds(1)) {
+    try await medir("B6 1 ganadora", techo: .seconds(1)) {
         var e = Escrutador(premios: [14, 13, 12, 11, 10], numeroPartidos: 14)
         _ = try e.escrutarConColumna(ganadoras[0], columnas: columnas, archivo: "")
     }
-    try medir("B6 temporada 38", techo: .seconds(1)) {
+    try await medir("B6 temporada 38", techo: .seconds(1)) {
         var e = Escrutador(premios: [14, 13, 12, 11, 10], numeroPartidos: 14)
         _ = try e.escrutarTemporada(ganadoras: ganadoras, columnas: columnas, archivo: "")
     }
 }
+
+// B2–B4: 14 triples con los 6 filtros que admiten «todos los valores» activos en el grupo base (pasan todas: coste
+// máximo de esos filtros), por las rutas A (contar), B (grabar `.txt`) y C (análisis).
+var b2 = Combinacion(numeroPartidos: 14)
+b2.ponerPronosticos(Array(repeating: "1,X,2", count: 14))
+try b2.modificarGrupo(0) { (g: inout GrupoConfig) throws(ErrorDominio) in
+    try g.condiciones.noVariantes.llenarTodosValores()
+    try g.condiciones.signosSeguidos.llenarTodosValores()
+    try g.condiciones.interrupciones.llenarTodosValores()
+    try g.condiciones.pesosNumericos.llenarTodosValores()
+    try g.condiciones.distancias.llenarTodosValores()
+    try g.condiciones.contactos.llenarTodosValores()
+    g.condiciones.noVariantes.activa = true
+    g.condiciones.signosSeguidos.activa = true
+    g.condiciones.interrupciones.activa = true
+    g.condiciones.pesosNumericos.activa = true
+    g.condiciones.distancias.activa = true
+    g.condiciones.contactos.activa = true
+}
+try await medir("B2 14T 6 filtros ruta A", techo: .seconds(10)) {
+    let r = try MotorCalculo.calcular(b2, configuracion: .porDefecto, leerLineas: { _ in [] })
+    precondition(r.analizadas == 4_782_969)
+}
+let temporal = FileManager.default.temporaryDirectory.appending(path: "free1x2-bench.txt")
+try await medir("B3 14T 6 filtros ruta B", techo: .seconds(13)) {
+    FileManager.default.createFile(atPath: temporal.path, contents: nil)
+    let h = try FileHandle(forWritingTo: temporal)
+    var buf: [UInt8] = []
+    buf.reserveCapacity(1 << 20)
+    _ = try MotorCalculo.calcular(b2, configuracion: .porDefecto, leerLineas: { _ in [] }) { col throws(ErrorDominio) in
+        buf.append(contentsOf: try UtilColumnas.convLongToStr(col).utf8)
+        buf.append(contentsOf: [13, 10])
+        if buf.count >= 1 << 20 {
+            h.write(Data(buf))
+            buf.removeAll(keepingCapacity: true)
+        }
+    }
+    h.write(Data(buf))
+    try h.close()
+}
+try await medir("B4 14T 6 filtros ruta C", techo: .seconds(20)) {
+    _ = try MotorCalculo.analizar(b2, configuracion: .porDefecto, leerLineas: { _ in [] })
+}
+
+// B7: escribir y leer un `.txt` de 1 000 000 columnas.
+if quiere("B7") {
+    let millon = try aleatorias(1_000_000, semilla: 3)
+    try await medir("B7 1M columnas escribir+leer", techo: .seconds(3)) {
+        try TextoNET.codificarLineas(millon).write(to: temporal)
+        let leido = try Data(contentsOf: temporal)
+        precondition(ArchivoColumnasTexto.columnas(leido).count == 1_000_000)
+    }
+}
+
+// B8: tres CU pesados de pantalla sobre las 3^14 columnas.
+if quiere("B8") {
+    let entorno = Entorno.pruebas()
+    let valores = (0..<14).map { [40.0 + Double($0), 35, 25 - Double($0)] }
+    var p = ParametrosOrdenacion(entrada: nil, salida: URL(filePath: "/tmp/b8/s.txt"), valoraciones: valores)
+    (p.recaudacion, p.precio, p.porcentaje14, p.maxColumnas) = (15_000_000, 0.5, 15, 1000)
+    try entorno.archivos.crearCarpeta(URL(filePath: "/tmp/b8"))
+    try await medir("B8 ordenar por probabilidad", techo: .seconds(5)) {
+        _ = try await CasosUtilidades.ordenarPorProbabilidad(
+            p, centrales: ValoresCentrales(), numeroPartidos: 14, entorno: entorno
+        ) { _ in }
+    }
+    let t = ParametrosTramificar(
+        columnaInicial: 0, columnaFinal: 4_782_969, columnasPorTramo: 531_441, columnaPremiada: "1X1222X2X12121",
+        premios: ["1000", "100", "10", "1", "0,5"], valoraciones: valores, ln: -14.7, porProductos: true, acumular: false)
+    try await medir("B8 tramificar", techo: .seconds(5)) {
+        _ = try await CasosUtilidades.tramificar(EstadoTramificar(), t, cultura: .esES) { _ in }
+    }
+    try await medir("B8 banco valoración real", techo: .seconds(5)) {
+        _ = try await CasosUtilidades.valoracionReal(apostados: valores, ln: -14.7, columnas: 50_000)
+    }
+}
+
+try? FileManager.default.removeItem(at: temporal)

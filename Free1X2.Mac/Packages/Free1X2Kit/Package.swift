@@ -19,7 +19,9 @@ let package = Package(
     // ponytail: swift-collections (único tercero permitido) se añade con su primer uso (DT-44).
     targets: [
         // Benchmarks de ESPEC_14 §6: `swift run -c release Free1X2Bench`.
-        .executableTarget(name: "Free1X2Bench", dependencies: ["Free1X2Base", "Free1X2Motor"], swiftSettings: ajustes),
+        .executableTarget(
+            name: "Free1X2Bench", dependencies: ["Free1X2Base", "Free1X2Motor", "Free1X2Formatos", "Free1X2CasosDeUso", "Free1X2Pruebas"],
+            swiftSettings: ajustes),
         .target(name: "Free1X2Base", swiftSettings: ajustes),
         .target(name: "Free1X2Motor", dependencies: ["Free1X2Base"], swiftSettings: ajustes),
         .target(name: "Free1X2Formatos", dependencies: ["Free1X2Base", "Free1X2Motor"], swiftSettings: ajustes),
