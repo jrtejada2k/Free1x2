@@ -123,6 +123,10 @@
       "casos": 9
     },
     {
+      "ruta": "motor/cp/generador.jsonl",
+      "casos": 20
+    },
+    {
       "ruta": "motor/filtros/gruposequipos.jsonl",
       "casos": 17
     },
