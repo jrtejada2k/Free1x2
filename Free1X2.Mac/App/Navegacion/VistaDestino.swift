@@ -88,6 +88,9 @@ struct VistaDestino: View {
         case .modificador: VistaModificador()
         case .buscaLims: VistaBuscaLims()
         case .combinarFiltros: VistaCombinarFiltros()
+        case .vSignos: VistaVSignos()
+        case .difCols: VistaDifCols()
+        case .subirCategoria: VistaSubirCategoria()
         default: PantallaPendiente(destino: destino)
         }
     }
