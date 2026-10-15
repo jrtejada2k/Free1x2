@@ -39,6 +39,8 @@ final class Sesion {
     var figuras: FigurasEnEdicion?
     /// `GuardarValoracionFrmPage.ValoresIniciales`.
     var valoracionInicial: [[Double]]?
+    /// `AnalisisFormatos123FrmPage.FormatosEntrada`.
+    var formatos123Entrada: [Formato123]?
     /// `TemaApp` (10 §1.5): «Sistema» (defecto), «Claro», «Oscuro»; en `UserDefaults` (ESPEC_11 §9).
     var tema = UserDefaults.standard.string(forKey: "tema") ?? "Sistema" {
         didSet {

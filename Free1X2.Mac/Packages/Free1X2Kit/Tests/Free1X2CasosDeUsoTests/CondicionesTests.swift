@@ -147,4 +147,44 @@ struct CondicionesTests {
         #expect(
             CasosCondiciones.atajosDiferencias("Tríos", pasoFijo: true, lineas: ["x", "", ""], numeroPartidos: 7) == ["x", "1-3", "4-6"])
     }
+
+    @Test func formatos123() throws {
+        let filas = [
+            FilaFormato123(formato: "12", minimo: "1", maximo: "2"), FilaFormato123(formato: "14"),
+            FilaFormato123(formato: " 31 ", minimo: "x", maximo: "1"), FilaFormato123(formato: "12", minimo: "0", maximo: "3"),
+        ]
+        #expect(CasosCondiciones.formatos123(filas, ignorarRepeticiones: false).map(\.formato) == ["12", "12"])
+        #expect(CasosCondiciones.formatos123(filas, ignorarRepeticiones: true).map(\.formato) == ["12", "31", "12"])
+        #expect(CasosCondiciones.aciertosFormatos123("41,3, 1-2,x,5-4") == [3, 1, 2])
+        var m = Array(repeating: [50.0, 30, 20], count: 14)
+        m[1] = [10, 60, 30]
+        var f = CondicionFormatos123(numeroPartidos: 14)
+        try CasosCondiciones.aplicarFormatos123(filas, aciertos: "2,1", ignorarRepeticiones: false, valoracion: m, en: &f)
+        #expect(f.activa && f.aciertos == [1, 2] && f.aciertosMin == 1 && f.aciertosMax == 2 && f.aciertosFiltro == "2,1")
+        #expect(f.valoracionTransformada[1] == [1, 4, 2])
+        #expect(try CasosCondiciones.traducirFormatos123("1X2", valoracion: m, numeroPartidos: 14) == "Error!!!!")
+        #expect(
+            try CasosCondiciones.traducirFormatos123("1X" + String(repeating: "2", count: 12), valoracion: m, numeroPartidos: 14).hasPrefix(
+                "11"))
+    }
+
+    @Test func formatosSignos() throws {
+        var rel = RelacionFormatos()
+        rel.formatos[0] = "1x2"
+        rel.rangos[0] = "1-2"
+        rel.formatos[1] = "1A"
+        rel.rangos[1] = "1"
+        rel.lineas = "a"
+        var vacia = RelacionFormatos()
+        vacia.global = "3"
+        let l = try CasosCondiciones.construirFormatosSignos([rel, vacia], numeroPartidos: 14)
+        #expect(l.count == 1 && l[0].lineasFormatos.map(\.formato) == ["1X2"] && l[0].lineas.isEmpty)
+        var f = CondicionFormatosSignos()
+        try CasosCondiciones.aplicarFormatosSignos([rel], en: &f, numeroPartidos: 14)
+        #expect(f.activa && f.contieneDatos)
+        let r = CasosCondiciones.relacionesFormatos(f)
+        #expect(r.count == 1 && r[0].formatos[0] == "1X2" && r[0].rangos[0] == "1-2" && r[0].formatos.count == 30)
+        try CasosCondiciones.aplicarFormatosSignos([], en: &f, numeroPartidos: 14)
+        #expect(!f.activa && !f.contieneDatos && CasosCondiciones.relacionesFormatos(f).count == 1)
+    }
 }
