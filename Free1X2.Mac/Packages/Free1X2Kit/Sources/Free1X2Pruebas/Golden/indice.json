@@ -61,6 +61,34 @@
     {
       "ruta": "motor/nucleo.jsonl",
       "casos": 15
+    },
+    {
+      "ruta": "motor/filtros/novariantes.jsonl",
+      "casos": 4
+    },
+    {
+      "ruta": "motor/filtros/distancias.jsonl",
+      "casos": 3
+    },
+    {
+      "ruta": "motor/filtros/valoracion.jsonl",
+      "casos": 5
+    },
+    {
+      "ruta": "motor/filtros/formatos123.jsonl",
+      "casos": 5
+    },
+    {
+      "ruta": "motor/filtros/simetrias.jsonl",
+      "casos": 3
+    },
+    {
+      "ruta": "motor/filtros/dibujos.jsonl",
+      "casos": 3
+    },
+    {
+      "ruta": "motor/filtros/formatossignos.jsonl",
+      "casos": 4
     }
   ],
   "fixtures": [

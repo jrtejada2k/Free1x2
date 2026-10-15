@@ -6,6 +6,13 @@ import Free1X2Base
 /// conservar el momento del error de E/S del C# (el filtro parcial se carga en la primera columna que llega a él).
 public typealias LectorLineas = @Sendable (String) throws(ErrorDominio) -> [String]
 
+/// Lo que los filtros leen del entorno al construirse: N, banderas de análisis y cultura de los `Convert.ToDouble`.
+struct ContextoFiltros {
+    let numeroPartidos: Int
+    let analisis: OpcionesAnalisis
+    let cultura: Cultura
+}
+
 /// `ToleranciaFiltros` en ejecución: acumula coincidencias de letras.
 final class Tolerancia {
     let letras: String
@@ -44,13 +51,23 @@ final class Grupo {
     var reCalcular = true
     private var validoMemoria = true
 
-    init(_ g: GrupoConfig, analisis: OpcionesAnalisis, leerLineas: @escaping LectorLineas) {
+    init(_ g: GrupoConfig, contexto x: ContextoFiltros, leerLineas: @escaping LectorLineas) {
         esGrupoBase = g.esGrupoBase
         todosPartidosActivos = g.todosPartidosActivos
         mascara = g.mascara
         partidosActivos = g.partidosActivos
         let c = g.condiciones
-        filtros = [FiltroNoVariantes(c.noVariantes, analisisActivo: analisis.activo(.noVariantes))]
+        // Orden fijo de `Grupo.filtros` (:94-134).
+        let a = x.analisis
+        filtros = [
+            FiltroNoVariantes(c.noVariantes, analisisActivo: a.activo(.noVariantes)),
+            FiltroValoracionSignos(c.valoracionSignos, analisisActivo: a.activo(.valoracionSignos), cultura: x.cultura),
+            FiltroDibujos(c.dibujos, analisisActivo: a.activo(.dibujos)),
+            FiltroDistancias(c.distancias, analisisActivo: a.activo(.distancias)),
+            FiltroFormatosSignos(c.formatosSignos, analisisActivo: a.activo(.formatosSignos)),
+            FiltroFormatos123(c.formatos123, analisisActivo: a.activo(.formatos123), numeroPartidos: x.numeroPartidos),
+            FiltroSimetrias(c.simetrias, analisisActivo: a.activo(.simetrias)),
+        ]
         activos = filtros.filter(\.activa)
         tolerancias = g.tolerancias.tolerancias.map(Tolerancia.init)
         fallosTolerancias = g.tolerancias.fallosPermitidos

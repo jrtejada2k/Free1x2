@@ -5,13 +5,25 @@ import Free1X2Base
 /// Las condiciones de los 14 filtros de un grupo (orden fijo de `Grupo.filtros`).
 public struct CondicionesGrupo: Sendable, Hashable {
     public var noVariantes: CondicionNoVariantes
+    public var valoracionSignos: CondicionValoracionSignos
+    public var dibujos = CondicionDibujos()
+    public var distancias: CondicionDistancias
+    public var formatosSignos = CondicionFormatosSignos()
+    public var formatos123: CondicionFormatos123
+    public var simetrias = CondicionSimetrias()
 
     public init(numeroPartidos: Int) {
         noVariantes = CondicionNoVariantes(numeroPartidos: numeroPartidos)
+        valoracionSignos = CondicionValoracionSignos(numeroPartidos: numeroPartidos)
+        distancias = CondicionDistancias(numeroPartidos: numeroPartidos)
+        formatos123 = CondicionFormatos123(numeroPartidos: numeroPartidos)
     }
 
     /// `EsActivo`: algún filtro activo.
-    public var hayActivas: Bool { noVariantes.activa }
+    public var hayActivas: Bool {
+        noVariantes.activa || valoracionSignos.activa || dibujos.activa || distancias.activa || formatosSignos.activa
+            || formatos123.activa || simetrias.activa
+    }
 }
 
 /// Un grupo de partidos (el 0 es el boleto base) con sus filtros, tolerancias y filtro parcial.

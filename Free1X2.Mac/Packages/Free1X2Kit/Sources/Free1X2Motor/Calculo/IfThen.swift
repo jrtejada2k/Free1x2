@@ -56,7 +56,37 @@ final class CondicionIfThen {
             c.contieneDatos = true
             return FiltroNoVariantes(c, analisisActivo: false)
         }
-        for nombre in ["Dibujo", "Signos Seguidos", "Interrupciones", "Peso numérico", "Distancia", "Contactos"]
+        if texto.contains("Dibujo") {
+            // `Dibujos.Add(valor)` no rehace la tabla: el filtro rechaza siempre (DEC-306) [PRESERVAR].
+            var c = CondicionDibujos()
+            c.dibujos.append(try ultimaPalabra(texto))
+            c.activa = true
+            c.contieneDatos = true
+            return FiltroDibujos(c, analisisActivo: false)
+        }
+        for nombre in ["Signos Seguidos", "Interrupciones", "Peso numérico"]
+        where texto.contains(nombre) {
+            throw ErrorDominio(.general, "Filtro de If-Then pendiente de portar: \(nombre)", origen: "CondicionIfThen.cs:95-250")
+        }
+        if texto.contains("Distancia") {
+            let nombre = try nombreCondicion(texto)
+            let valor = try ultimaPalabra(texto)
+            var c = CondicionDistancias(numeroPartidos: n)
+            if nombre.contains("Variantes") {
+                try c.setDistVariantes(valor)
+            } else if nombre.contains("1") {
+                try c.setDistUnos(valor)
+            } else if nombre.contains("X") {
+                try c.setDistEquis(valor)
+            } else if nombre.contains("2") {
+                try c.setDistDoses(valor)
+            }
+            try c.llenarTodosValores()
+            c.activa = true
+            c.contieneDatos = true
+            return FiltroDistancias(c, analisisActivo: false)
+        }
+        for nombre in ["Contactos"]
         where texto.contains(nombre) {
             throw ErrorDominio(.general, "Filtro de If-Then pendiente de portar: \(nombre)", origen: "CondicionIfThen.cs:95-250")
         }

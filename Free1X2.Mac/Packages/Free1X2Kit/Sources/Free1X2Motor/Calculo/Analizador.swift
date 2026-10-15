@@ -26,10 +26,11 @@ public enum MotorCalculo {
     /// Rutas A/B. `aceptada` recibe cada columna aceptada en el orden de generación (ruta B: el llamador escribe
     /// `UtilColumnas.convLongToStr`). Cancelar corta la generación como `PararAnalisis` y devuelve los contadores parciales.
     public static func calcular(
-        _ combinacion: Combinacion, configuracion: Configuracion, leerLineas: @escaping LectorLineas,
-        progreso: ReportadorProgreso = .ninguno, aceptada: ((Columna) throws(ErrorDominio) -> Void)? = nil
+        _ combinacion: Combinacion, configuracion: Configuracion, cultura: Cultura = .esES,
+        leerLineas: @escaping LectorLineas, progreso: ReportadorProgreso = .ninguno,
+        aceptada: ((Columna) throws(ErrorDominio) -> Void)? = nil
     ) throws(ErrorDominio) -> ResultadoCalculo {
-        let a = Analizador(combinacion, configuracion: configuracion, leerLineas: leerLineas)
+        let a = Analizador(combinacion, configuracion: configuracion, cultura: cultura, leerLineas: leerLineas)
         a.aceptada = aceptada
         a.progreso = progreso
         try a.analizaCombinacion()
@@ -56,10 +57,11 @@ final class Analizador {
     private var noPartidos = 0
     private var enMarcha = false
 
-    init(_ c: Combinacion, configuracion: Configuracion, leerLineas: @escaping LectorLineas) {
+    init(_ c: Combinacion, configuracion: Configuracion, cultura: Cultura, leerLineas: @escaping LectorLineas) {
         combinacion = c
         numeroPartidos = configuracion.boleto.numeroPartidos
-        grupos = c.grupos.map { Grupo($0, analisis: configuracion.analisis, leerLineas: leerLineas) }
+        let contexto = ContextoFiltros(numeroPartidos: numeroPartidos, analisis: configuracion.analisis, cultura: cultura)
+        grupos = c.grupos.map { Grupo($0, contexto: contexto, leerLineas: leerLineas) }
         controlador = ControladorGrupos(grupos: grupos, c)
         ifThen = c.ifThen.map { ControladorIfThen($0, numeroPartidos: configuracion.boleto.numeroPartidos) }
         self.leerLineas = leerLineas
