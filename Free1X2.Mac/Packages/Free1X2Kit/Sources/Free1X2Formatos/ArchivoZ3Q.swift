@@ -1,9 +1,11 @@
 import Compression
 import Foundation
 import Free1X2Base
+import zlib
 
 // C#: Free1X2.Domain/Utils/CompresorZip.cs (06 §2.14; ESPEC_16 §3; F16). ZIP de una entrada con el bitmap de columnas:
-// contenedor propio y DEFLATE crudo de Compression.framework (nivel fijo: `nivel` no cambia el resultado, ESPEC_16 §3).
+// contenedor propio; escritura con `compress2` de la zlib del sistema (respeta el nivel, DT-62) y lectura con
+// Compression.framework.
 
 /// Ficheros `.z3q`.
 public enum ArchivoZ3Q {
@@ -13,13 +15,13 @@ public enum ArchivoZ3Q {
     /// `Comprimir(bs, fichZip, fichBin, tamano, nivel)` (:41-85): `⌊tamano/8⌋ + 1` bytes con el bit `i` en el bit `i % 8`
     /// del byte `i / 8`; devuelve el fichero y esa longitud sin comprimir (lo que devuelve el C#).
     public static func comprimir(
-        _ bits: ConjuntoBits, tamano: Int, nombreEntrada: String = "columnas.bin", fecha: Date
+        _ bits: ConjuntoBits, tamano: Int, nombreEntrada: String = "columnas.bin", fecha: Date, nivel: Int = 5
     ) throws(ErrorDominio) -> (datos: Data, tamano: Int) {
         var carga = [UInt8](repeating: 0, count: tamano / 8 + 1)
         // Los bits de más allá del `BitArray` lanzan y el `catch` vacío los deja a 0 (:52-61).
         for i in bits.indices where i < carga.count * 8 { carga[i >> 3] |= 1 << UInt8(i & 7) }
         let crc = crc32(carga)
-        let comprimido = try deflate(carga)
+        let comprimido = try deflate(carga, nivel: nivel)
         let nombre = Array(nombreEntrada.utf8)
         let (hora, dia) = fechaDOS(fecha)
         var z = Data()
@@ -116,12 +118,14 @@ public enum ArchivoZ3Q {
         return carga
     }
 
-    static func deflate(_ origen: [UInt8]) throws(ErrorDominio) -> [UInt8] {
-        let capacidad = origen.count + origen.count / 100 + 1024
-        var destino = [UInt8](repeating: 0, count: capacidad)
-        let n = compression_encode_buffer(&destino, capacidad, origen, origen.count, nil, COMPRESSION_ZLIB)
-        guard n > 0 else { throw error("no se pudo comprimir") }
-        return Array(destino.prefix(n))
+    /// `SetLevel(nivel)` + Deflate: flujo zlib sin la cabecera (2 bytes) ni el Adler-32 final (4) = DEFLATE crudo.
+    static func deflate(_ origen: [UInt8], nivel: Int) throws(ErrorDominio) -> [UInt8] {
+        var n = compressBound(uLong(origen.count))
+        var destino = [UInt8](repeating: 0, count: Int(n))
+        guard compress2(&destino, &n, origen, uLong(origen.count), Int32(nivel)) == Z_OK, n >= 6 else {
+            throw error("no se pudo comprimir")
+        }
+        return Array(destino[2..<Int(n) - 4])
     }
 
     static func inflate(_ origen: [UInt8], tamano: Int) throws(ErrorDominio) -> [UInt8] {

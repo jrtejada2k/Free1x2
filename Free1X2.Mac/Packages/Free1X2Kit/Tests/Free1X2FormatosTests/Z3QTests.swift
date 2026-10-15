@@ -34,6 +34,16 @@ struct Z3QTests {
         }
     }
 
+    /// `SetLevel(nivel)`: 0 guarda sin comprimir, 9 comprime; los dos se leen igual (DT-62).
+    @Test func niveles() throws {
+        var bits = ConjuntoBits(cantidad: 4_782_969)
+        for i in [0, 7, 1234, 4_782_968] { try bits.poner(i) }
+        let (z0, _) = try ArchivoZ3Q.comprimir(bits, tamano: bits.cantidad, fecha: Self.fecha, nivel: 0)
+        let (z9, _) = try ArchivoZ3Q.comprimir(bits, tamano: bits.cantidad, fecha: Self.fecha, nivel: 9)
+        #expect(z0.count > 597_871 && z9.count < 10_000)
+        #expect(try ArchivoZ3Q.descomprimir(z0).indices == bits.indices && ArchivoZ3Q.descomprimir(z9).indices == bits.indices)
+    }
+
     /// Compatibilidad con cualquier lector ZIP (ESPEC_16 §3): `unzip -t` del sistema.
     @Test func zipEstandar() throws {
         var bits = ConjuntoBits(cantidad: 4_782_969)

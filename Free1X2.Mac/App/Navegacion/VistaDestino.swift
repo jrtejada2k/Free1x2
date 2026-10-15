@@ -64,6 +64,9 @@ struct VistaDestino: View {
         case .guardarValoracion: VistaGuardarValoracion()
         case .historiaValoraciones: VistaHistoriaValoraciones()
         case .algebraColumnas: VistaAlgebraColumnas()
+        case .importExport: VistaImportExport()
+        case .compresor: VistaCompresor()
+        case .configCPs: VistaConfigCPs()
         default: PantallaPendiente(destino: destino)
         }
     }

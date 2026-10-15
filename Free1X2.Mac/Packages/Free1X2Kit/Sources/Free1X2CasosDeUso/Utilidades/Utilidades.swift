@@ -73,3 +73,70 @@ extension CasosUtilidades {
         return r.mensaje
     }
 }
+
+// C#: Views/Ported/ImportExportFrmViewModel.cs (09 pantalla 66; CU-B34).
+extension CasosUtilidades {
+    /// `AbrirEntrada`: CSV→TXT (`LeerTodasColsSeparadasPorComas`) o TXT→CSV (`LeerTodasCols(true)`) y la salida
+    /// propuesta: el nombre en minúsculas con `.csv`↔`.txt`, en la misma carpeta (DT-62).
+    public static func leerParaConvertir(_ url: URL, aTxt: Bool, entorno: Entorno) throws(ErrorDominio) -> (columnas: [String], salida: URL)
+    {
+        let d = try entorno.archivos.leer(url)
+        let columnas =
+            aTxt
+            ? ArchivoColumnasTexto.columnas(d).map { $0.replacingOccurrences(of: ",", with: "") }
+            : ArchivoColumnasTexto.columnasConFormato(d)
+        let nombre = url.lastPathComponent.lowercased()
+            .replacingOccurrences(of: aTxt ? ".csv" : ".txt", with: aTxt ? ".txt" : ".csv")
+        return (columnas, url.deletingLastPathComponent().appending(path: nombre))
+    }
+
+    /// `Hacer`: `GuardarTodasCols(columnas, conComa: TXT→CSV)` y `ObtenNumCols` de la salida.
+    public static func convertirColumnas(_ columnas: [String], aTxt: Bool, salida: URL, entorno: Entorno) throws(ErrorDominio) -> Int {
+        guard let d = aTxt ? ArchivoColumnasTexto.datos(columnas) : ArchivoColumnasTexto.datosConComa(columnas) else { return 0 }
+        try entorno.archivos.escribir(d, en: salida, atomico: false)
+        return ArchivoColumnasTexto.numColumnas(d)
+    }
+}
+
+// C#: Views/Ported/CompresorViewModel.cs (08 pantalla 22; CU-A58, CU-A59).
+extension CasosUtilidades {
+    /// CU-A58, lectura: conjunto de 3^L (L = longitud de la 1.ª línea) con cada columna; `nil` si alguna no mide 14 o 15
+    /// («Error leyendo columnas»). Fichero vacío ⇒ NRE; índice fuera del conjunto ⇒ error.
+    public static func bitmapDeColumnas(_ url: URL, entorno: Entorno) throws(ErrorDominio) -> ConjuntoBits? {
+        let lineas = ArchivoColumnasTexto.columnas(try entorno.archivos.leer(url))
+        guard let primera = lineas.first else { throw .referenciaNula("CompresorViewModel.cs:76") }
+        let conv = ConvertidorDeBases(numeroPartidos: primera.utf16.count)
+        var bits = ConjuntoBits(cantidad: try ConvertidorDeBases.tamanoConjunto(partidos: primera.utf16.count))
+        for c in lineas {
+            guard (14...15).contains(c.utf16.count) else { return nil }
+            try bits.poner(Int(try conv.numero(c)))
+        }
+        return bits
+    }
+
+    /// CU-A58: `.z3q` (extensión forzada) cuya entrada se llama como la ruta final; bytes de datos y del fichero.
+    @concurrent public static func comprimirZ3Q(
+        _ bits: ConjuntoBits, en url: URL, nivel: Int, entorno: Entorno
+    ) async throws(ErrorDominio) -> (ruta: URL, datos: Int, fichero: Int) {
+        let ruta = url.deletingPathExtension().appendingPathExtension("z3q")
+        let r = try ArchivoZ3Q.comprimir(
+            bits, tamano: bits.cantidad, nombreEntrada: ruta.path(percentEncoded: false), fecha: entorno.reloj.ahora(), nivel: nivel)
+        try entorno.archivos.escribir(r.datos, en: ruta, atomico: false)
+        return (ruta, r.tamano, r.datos.count)
+    }
+
+    /// CU-A59, lectura del `.z3q`.
+    @concurrent public static func descomprimirZ3Q(_ url: URL, entorno: Entorno) async throws(ErrorDominio) -> ConjuntoBits {
+        try ArchivoZ3Q.descomprimir(try entorno.archivos.leer(url))
+    }
+
+    /// CU-A59, escritura: una columna por bit activo en orden de índice (`ObtenNumeroPartidosColBin`); sin columnas no
+    /// se crea el fichero.
+    @concurrent public static func columnasDeBitmap(_ bits: ConjuntoBits, en url: URL, entorno: Entorno) async throws(ErrorDominio) -> Int {
+        let conv = ConvertidorDeBases(numeroPartidos: ConvertidorDeBases.numeroPartidos(tamanoConjunto: bits.cantidad))
+        var columnas: [String] = []
+        for i in bits.indices { columnas.append(try conv.columna(Int64(i))) }
+        if let d = ArchivoColumnasTexto.datos(columnas) { try entorno.archivos.escribir(d, en: url, atomico: false) }
+        return columnas.count
+    }
+}
