@@ -53,6 +53,8 @@ final class Sesion {
     var resultadosLote: [ResumenLote]?
     /// `AnalizarCombinacionFrmViewModel.UltimoAnalisis`.
     var analisisFallos: EntradaAnalisisFallos?
+    /// `BoletoFrmPage.ParametrosBoleto`.
+    var parametrosBoleto: (fichero: URL, orden: OrdenBoletos, descendente: Bool)?
     /// `TemaApp` (10 §1.5): «Sistema» (defecto), «Claro», «Oscuro»; en `UserDefaults` (ESPEC_11 §9).
     var tema = UserDefaults.standard.string(forKey: "tema") ?? "Sistema" {
         didSet {

@@ -50,6 +50,9 @@ struct VistaDestino: View {
         case .descargaBoleto: VistaDescargaBoleto()
         case .colGanadora: VistaColGanadora()
         case .analizarCombinacion: VistaAnalizarCombinacion()
+        case .verBoletos: VistaVerBoletos()
+        case .boleto: VistaBoleto()
+        case .verBoletosEnEditor: VistaVerBoletosEnEditor()
         default: PantallaPendiente(destino: destino)
         }
     }
