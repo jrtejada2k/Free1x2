@@ -179,3 +179,193 @@ struct VistaCompresor: View {
         }
     }
 }
+
+/// «Multiplicador» (pantalla 74, `MultiplicadorFrm`): producto de dos ficheros de columnas con plantilla de 28 cifras.
+struct VistaMultiplicador: View {
+    @Environment(Sesion.self) private var sesion
+    @State private var entradas: [[String]] = [[], []]
+    @State private var nombres = ["(selecciona)", "(selecciona)"]
+    @State private var cuentas = ["0", "0"]
+    @State private var plantilla: [Double] = [1, 2, 3, 4, 5, 15, 16, 17, 18, 19, 20, 21, 13, 13]
+    @State private var resultado: [String] = []
+    @State private var columnasResultado = "0"
+    @State private var mensaje = ""
+    @State private var ocupado = false
+
+    private func seleccionar(_ i: Int) async {
+        guard let u = await SelectorFicheros.abrir(".txt") else { return }
+        entradas[i] = []
+        do throws(ErrorDominio) {
+            entradas[i] = try CasosUtilidades.columnasMultiplicador(u, entorno: sesion.entorno)
+            nombres[i] = u.lastPathComponent
+            cuentas[i] = String(entradas[i].count)
+        } catch {
+            sesion.alertas.inesperado(error)
+        }
+    }
+
+    private func multiplicar() async {
+        guard let p = CasosUtilidades.plantillaMultiplicador(plantilla) else {
+            mensaje = "error en plantilla"
+            return sesion.alertas.error("error en plantilla")
+        }
+        mensaje = ""
+        ocupado = true
+        do throws(ErrorDominio) {
+            resultado = try await CasosUtilidades.multiplicarColumnas(entradas[0], entradas[1], plantilla: p)
+            columnasResultado = String(resultado.count)
+        } catch {
+            mensaje = "Error: " + error.mensajeUsuario
+        }
+        ocupado = false
+    }
+
+    private func grabar() async {
+        guard let url = await SelectorFicheros.guardar("Resultado", [("Fichero resultados", ".txt")]) else { return }
+        ocupado = true
+        do throws(ErrorDominio) {
+            try sesion.entorno.archivos.escribir(TextoNET.codificarLineas(resultado), en: url, atomico: false)
+            mensaje = "Resultado grabado."
+        } catch {
+            mensaje = "Error: " + error.mensajeUsuario
+        }
+        ocupado = false
+    }
+
+    private func entrada(_ i: Int, _ titulo: String, _ detalle: String) -> some View {
+        Tarjeta(titulo) {
+            Text(detalle).foregroundStyle(Color.textoSecundario)
+            HStack {
+                Button("Seleccionar archivo…") { Task { await seleccionar(i) } }.disabled(ocupado)
+                Text(nombres[i]).foregroundStyle(Color.textoSecundario)
+            }
+            Text("Columnas: " + cuentas[i])
+        }
+    }
+
+    var body: some View {
+        Pagina(destino: .multiplicador) {
+            Text(
+                "Multiplica (producto cartesiano) dos combinaciones de 14 signos en columnas de 28 cifras, reordenadas según una plantilla."
+            )
+            .foregroundStyle(Color.textoSecundario)
+            HStack(alignment: .top) {
+                entrada(0, "Entrada Comb-1", "Columnas numeradas de 1 a 14.")
+                entrada(1, "Entrada Comb-2", "Columnas numeradas de 15 a 28.")
+            }
+            Tarjeta("Plantilla de estructura") {
+                Text(
+                    "Plantilla de estructura de las columnas resultantes (cifras de ejemplo). El cambio de orden de estas cifras (1 a 28) permite transponer columnas al mismo tiempo."
+                )
+                .foregroundStyle(Color.textoSecundario)
+                Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 6) {
+                    ForEach(0..<2, id: \.self) { f in
+                        GridRow {
+                            ForEach(0..<7, id: \.self) { c in
+                                CampoNumero(etiqueta: String(f * 7 + c + 1), valor: $plantilla[f * 7 + c], minimo: 1, maximo: 28, ancho: 44)
+                            }
+                        }
+                    }
+                }
+            }
+            Tarjeta("Resultado") {
+                Text("Columnas resultantes: " + columnasResultado)
+                if !mensaje.isEmpty { Text(mensaje).foregroundStyle(mensaje.hasPrefix("Error") ? Color.error : Color.textoSecundario) }
+                HStack {
+                    Button("Grabar resultado") { Task { await grabar() } }.disabled(ocupado || resultado.isEmpty)
+                    Button("Multiplicar") { Task { await multiplicar() } }.buttonStyle(.borderedProminent).disabled(ocupado)
+                }
+            }
+        }
+    }
+}
+
+/// «Fraccionador» (pantalla 53, `FraccionadorFrm`): reparte un fichero de columnas en `BASE01.txt`, `BASE02.txt`…
+struct VistaFraccionador: View {
+    @Environment(Sesion.self) private var sesion
+    @State private var columnas: [String] = []
+    @State private var nombre = ""
+    @State private var cargada = false
+    @State private var porColumnas = true
+    @State private var cuotas = Array(repeating: 0.0, count: 20)
+    @State private var tramos = 0.0
+    @State private var archivos = 0
+    @State private var tiempo = ""
+
+    private func lapso(_ desde: Date) -> String {
+        String((FormatoNET.toStringTimeSpan(sesion.entorno.reloj.ahora().timeIntervalSince(desde)) + "0000000000").prefix(10))
+    }
+
+    private func entrada() async {
+        guard let u = await SelectorFicheros.abrir(".txt") else { return }
+        let t0 = sesion.entorno.reloj.ahora()
+        do throws(ErrorDominio) {
+            columnas = try CasosUtilidades.lineasFraccionador(u, entorno: sesion.entorno)
+            (nombre, cargada, tiempo) = (u.lastPathComponent, true, lapso(t0))
+        } catch {
+            sesion.alertas.error("Error al leer el archivo: " + error.mensajeUsuario)
+        }
+    }
+
+    private func fraccionar() async {
+        guard let u = await SelectorFicheros.guardar("BASE", [("Nombre BASE salida", ".txt")]) else { return }
+        let t0 = sesion.entorno.reloj.ahora()
+        do throws(ErrorDominio) {
+            archivos = try await CasosUtilidades.fraccionar(
+                columnas, base: u.deletingPathExtension(), cuotas: porColumnas ? cuotas.map { Int(FormatoNET.castInt32($0)) } : nil,
+                tramos: Int(FormatoNET.castInt32(tramos)), entorno: sesion.entorno)
+            tiempo = lapso(t0)
+        } catch {
+            sesion.alertas.error("Error al fraccionar: " + error.mensajeUsuario)
+        }
+    }
+
+    var body: some View {
+        Pagina(destino: .fraccionador) {
+            Text(
+                "Carga un archivo de columnas (*.txt) y divídelo en varios archivos de salida numerados, ya sea por cuotas fijas por columnas o en tramos iguales."
+            )
+            .foregroundStyle(Color.textoSecundario)
+            Tarjeta("Archivo de entrada") {
+                HStack {
+                    Button("Entrada…") { Task { await entrada() } }
+                    Text(nombre).foregroundStyle(Color.textoSecundario)
+                }
+            }
+            Tarjeta("Fraccionar por") {
+                Picker("", selection: $porColumnas) {
+                    Text("Columnas").tag(true)
+                    Text("Tramos").tag(false)
+                }
+                .pickerStyle(.radioGroup).horizontalRadioGroupLayout().labelsHidden()
+                CampoNumero(etiqueta: "¿Cuántos tramos?", valor: $tramos, minimo: 0, ancho: 70).disabled(porColumnas)
+            }
+            Tarjeta("Por columnas") {
+                Text(
+                    "Cantidad de columnas que recibe cada archivo de salida (1 a 20). El reparto se detiene en la primera cuota igual a 0."
+                )
+                .foregroundStyle(Color.textoSecundario)
+                Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 6) {
+                    ForEach(0..<4, id: \.self) { f in
+                        GridRow {
+                            ForEach(0..<5, id: \.self) { c in
+                                CampoNumero(etiqueta: String(f * 5 + c + 1), valor: $cuotas[f * 5 + c], minimo: 0, ancho: 70)
+                            }
+                        }
+                    }
+                }
+                .disabled(!porColumnas)
+            }
+            Tarjeta("Resultado") {
+                Text("Columnas: \(columnas.count)")
+                Text("Archivos: \(archivos)")
+                Text("Tiempo: " + tiempo)
+            }
+            HStack {
+                // «Cerrar» no hace nada en el C# (`VM:228-231`).
+                Button("Cerrar") {}
+                Button("Fraccionar") { Task { await fraccionar() } }.buttonStyle(.borderedProminent).disabled(!cargada)
+            }
+        }
+    }
+}

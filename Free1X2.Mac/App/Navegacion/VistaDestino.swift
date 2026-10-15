@@ -67,6 +67,10 @@ struct VistaDestino: View {
         case .importExport: VistaImportExport()
         case .compresor: VistaCompresor()
         case .configCPs: VistaConfigCPs()
+        case .generarCPs: VistaGenerarCPs()
+        case .generadorCPSDiferencias: VistaGeneradorCPSDiferencias()
+        case .multiplicador: VistaMultiplicador()
+        case .fraccionador: VistaFraccionador()
         default: PantallaPendiente(destino: destino)
         }
     }

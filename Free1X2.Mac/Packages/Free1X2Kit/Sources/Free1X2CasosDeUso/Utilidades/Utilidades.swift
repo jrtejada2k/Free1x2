@@ -6,6 +6,11 @@ import Free1X2Motor
 // C#: Views/Ported/GEPTFrmViewModel.cs (09 pantalla 56; CU-B23).
 
 public enum CasosUtilidades {
+    /// `while (sr.Peek() > 0) sr.ReadLine()`: también se detiene en una línea que empieza por NUL.
+    static func lineasPeek(_ datos: Data) -> [String] {
+        Array(TextoNET.lineas(datos).prefix { $0.utf16.first != 0 })
+    }
+
     /// `Traductor(primera, segunda)`: pronóstico por los dos últimos enfrentamientos (G/E/P); otro ⇒ `" "`.
     public static func traducirGEPT(_ primera: String, _ segunda: String) -> String {
         switch (primera + segunda).uppercased() {
@@ -29,17 +34,14 @@ extension CasosUtilidades {
     }
 
     /// `Transponer`: cada línea reordenada con `orden`, `\r\n`, UTF-8 sin BOM. Una línea de menos de 14 caracteres
-    /// aborta dejando la salida parcial (el `StreamWriter` ya estaba abierto); el bucle `Peek() > 0` también se detiene
-    /// en una línea que empieza por NUL.
+    /// aborta dejando la salida parcial (el `StreamWriter` ya estaba abierto).
     @concurrent public static func transponerColumnas(
         _ entrada: URL, salida: URL, orden: [Int], entorno: Entorno
     ) async throws(ErrorDominio) {
-        let lineas = TextoNET.lineas(try entorno.archivos.leer(entrada))
         var datos = Data()
         var fallo: ErrorDominio?
-        for l in lineas {
+        for l in lineasPeek(try entorno.archivos.leer(entrada)) {
             let u = Array(l.utf16)
-            if u.first == 0 { break }
             guard u.count >= 14 else {
                 fallo = .fueraDeRango("TransposicionFrmViewModel.cs:166")
                 break
@@ -138,5 +140,87 @@ extension CasosUtilidades {
         for i in bits.indices { columnas.append(try conv.columna(Int64(i))) }
         if let d = ArchivoColumnasTexto.datos(columnas) { try entorno.archivos.escribir(d, en: url, atomico: false) }
         return columnas.count
+    }
+}
+
+// C#: Views/Ported/MultiplicadorFrmViewModel.cs (10 §74; CU-C01).
+extension CasosUtilidades {
+    /// `CargarColumnas`: `(línea + "11111111111111").Substring(0, 14).Trim()`.
+    public static func columnasMultiplicador(_ url: URL, entorno: Entorno) throws(ErrorDominio) -> [String] {
+        lineasPeek(try entorno.archivos.leer(url)).map {
+            FormatoNET.recortar(String(decoding: Array(($0 + "11111111111111").utf16.prefix(14)), as: UTF16.self))
+        }
+    }
+
+    /// `(int)Indice` de los 14 en 1…28; `nil` = «error en plantilla».
+    public static func plantillaMultiplicador(_ valores: [Double]) -> [Int]? {
+        let p = valores.map { Int(FormatoNET.castInt32($0)) }
+        return p.allSatisfy { (1...28).contains($0) } ? p : nil
+    }
+
+    /// CU-C01: cada columna de la entrada 1 (fuera) con cada una de la 2 (dentro), 28 cifras reordenadas por la plantilla.
+    /// Una columna que el `Trim` dejó corta puede dejar un índice fuera ⇒ error.
+    @concurrent public static func multiplicarColumnas(_ e1: [String], _ e2: [String], plantilla: [Int]) async throws(ErrorDominio)
+        -> [String]
+    {
+        var r: [String] = []
+        r.reserveCapacity(e1.count * e2.count)
+        for a in e1 {
+            for b in e2 {
+                let s = Array((a + b).utf16)
+                var aux: [UInt16] = []
+                for i in plantilla {
+                    guard i - 1 < s.count else { throw .fueraDeRango("MultiplicadorFrmViewModel.cs:181") }
+                    aux.append(s[i - 1])
+                }
+                r.append(String(decoding: aux, as: UTF16.self))
+            }
+        }
+        return r
+    }
+}
+
+// C#: Views/Ported/FraccionadorFrmViewModel.cs (09 pantalla 53; CU-B20).
+extension CasosUtilidades {
+    /// «Entrada…»: las líneas tal cual (las vacías cuentan).
+    public static func lineasFraccionador(_ url: URL, entorno: Entorno) throws(ErrorDominio) -> [String] {
+        lineasPeek(try entorno.archivos.leer(url))
+    }
+
+    /// `fileBase + "{0:d2}.txt"`.
+    static func nombreFraccion(_ base: URL, _ k: Int) -> URL {
+        base.deletingLastPathComponent().appending(path: base.lastPathComponent + (k < 10 ? "0" : "") + String(k) + ".txt")
+    }
+
+    /// CU-B20 `FracCols` (con `cuotas`: para en la primera 0) o `FracTrams` (con las sobrantes perdidas si el resto no es
+    /// menor que la parte, se replica). Cada fichero se crea aunque quede vacío. Devuelve cuántos.
+    @concurrent public static func fraccionar(
+        _ columnas: [String], base: URL, cuotas: [Int]?, tramos: Int, entorno: Entorno
+    ) async throws(ErrorDominio) -> Int {
+        func escribir(_ k: Int, _ desde: Int, _ hasta: Int) throws(ErrorDominio) {
+            guard desde >= 0 else { throw .fueraDeRango("FraccionadorFrmViewModel.cs:184") }
+            let trozo = desde < hasta ? Array(columnas[desde..<hasta]) : []
+            try entorno.archivos.escribir(TextoNET.codificarLineas(trozo), en: nombreFraccion(base, k), atomico: false)
+        }
+        if let cuotas {
+            var (acum, n) = (0, 0)
+            for (i, q) in cuotas.enumerated() {
+                if q == 0 { break }
+                try escribir(i + 1, acum, min(acum + q, columnas.count))
+                acum += q
+                n = i + 1
+            }
+            return n
+        }
+        guard tramos > 0 else { return 0 }
+        let part = columnas.count / tramos
+        var (acum, lim) = (0, part)
+        for k in 0..<tramos {
+            try escribir(k + 1, acum, lim)
+            acum += part
+            lim = acum + part
+            if columnas.count - lim < part { lim = columnas.count }
+        }
+        return tramos
     }
 }

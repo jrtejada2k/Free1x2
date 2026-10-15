@@ -79,3 +79,160 @@ struct VistaConfigCPs: View {
         }
     }
 }
+
+/// «Generador de Columnas Probables» (pantalla 59, `GenerarCPs`): un fichero de CPs por tipo configurado.
+struct VistaGenerarCPs: View {
+    @Environment(Sesion.self) private var sesion
+    @State private var valoracion: [[Double]] = []
+    @State private var jornada = 0.0
+    @State private var estado = ""
+
+    private func generar() async {
+        let j = Int(FormatoNET.castInt32(jornada))
+        guard j > 0 else {
+            estado = "Especifique un número de jornada."
+            return sesion.alertas.error("Especifique un número de jornada")
+        }
+        estado = "Generando columnas..."
+        do throws(ErrorDominio) {
+            let n = try await CasosCondiciones.generarCPs(valoracion, jornada: j, entorno: sesion.entorno)
+            estado = "Fichero(s) guardado(s) correctamente en la carpeta Condiciones (\(n))."
+            sesion.alertas.info("Fichero(s) guardado(s) correctamente en la carpeta Condiciones")
+        } catch {
+            estado = "Error al generar las columnas: " + error.mensajeUsuario
+            sesion.alertas.error(estado)
+        }
+    }
+
+    private func importar() async {
+        guard let url = await SelectorFicheros.abrir(".txt", "*") else { return }
+        do throws(ErrorDominio) {
+            let r = try CasosCondiciones.importarValoracion(url, numeroPartidos: sesion.numeroPartidos, entorno: sesion.entorno)
+            if let aviso = r.aviso { sesion.alertas.error(aviso) }
+            valoracion = r.valores
+            estado = "Valoración importada de \(url.lastPathComponent)."
+        } catch {
+            estado = "Error al importar la valoración: " + error.mensajeUsuario
+            sesion.alertas.error(estado)
+        }
+    }
+
+    var body: some View {
+        Pagina(destino: .generarCPs) {
+            Text(
+                "Introduce la valoración 1 / X / 2 (en porcentaje) de cada partido y genera las columnas probables para una jornada."
+            )
+            .foregroundStyle(Color.textoSecundario)
+            HStack(alignment: .top) {
+                Tarjeta("Valoración") {
+                    PorcentajesGrid(valores: $valoracion)
+                    Button("Importar %") { Task { await importar() } }
+                }
+                VStack(spacing: 10) {
+                    Tarjeta("Generar columnas") {
+                        CampoNumero(etiqueta: "Jornada", valor: $jornada, minimo: 0, ancho: 70)
+                        Button("Generar (OK)") { Task { await generar() } }.buttonStyle(.borderedProminent)
+                    }
+                    Tarjeta("Herramientas") {
+                        Button("Configurar columnas") { sesion.router.navegar(.configCPs) }
+                        Button("Separador de porcentajes") { sesion.router.navegar(.filtroPorcenJB) }
+                        Button("CPs por diferencias") { sesion.router.navegar(.generadorCPSDiferencias) }
+                    }
+                }
+            }
+            Text(estado).foregroundStyle(Color.textoSecundario)
+        }
+        .onAppear { if valoracion.isEmpty { valoracion = Array(repeating: [0, 0, 0], count: sesion.numeroPartidos) } }
+    }
+}
+
+/// «Generador de CPs por diferencias» (pantalla 58, `GeneradorCPSDiferencias`).
+struct VistaGeneradorCPSDiferencias: View {
+    @Environment(Sesion.self) private var sesion
+    @State private var inicial = ""
+    @State private var alternativa = ""
+    @State private var dobles = true
+    @State private var diferencias = 2
+    @State private var destino = ""
+    @State private var estado = ""
+
+    private func columna(_ titulo: String, _ ejemplo: String, _ texto: Binding<String>) -> some View {
+        HStack {
+            Text(titulo).frame(width: 260, alignment: .leading)
+            TextField(ejemplo, text: texto).textFieldStyle(.roundedBorder).monospaced().frame(width: 180)
+                .onChange(of: texto.wrappedValue) { _, v in
+                    let u = String(v.uppercased().prefix(14))
+                    if u != v { texto.wrappedValue = u }
+                }
+        }
+    }
+
+    private func generar() {
+        guard CasosCondiciones.columnaCPValida(inicial) else {
+            estado = "La cadena inicial no es válida."
+            return sesion.alertas.error("La cadena inicial no es válida")
+        }
+        guard CasosCondiciones.columnaCPValida(alternativa) else {
+            estado = "La cadena alternativa no es válida."
+            return sesion.alertas.error("La cadena alternativa no es válida")
+        }
+        guard !destino.isEmpty else {
+            estado = "No se ha indicado el fichero."
+            return sesion.alertas.error("No se ha indicado el fichero.")
+        }
+        estado = "Generando..."
+        let filas = CasosCondiciones.cpsPorDiferencias(inicial, alternativa, dobles: dobles, diferencias: diferencias)
+        do throws(ErrorDominio) {
+            if let d = ArchivoColumnasTexto.datosConComa(filas) {
+                try sesion.entorno.archivos.escribir(d, en: URL(filePath: destino), atomico: false)
+            }
+            estado = "Columnas creadas."
+            sesion.alertas.info("Columnas creadas")
+        } catch {
+            sesion.alertas.error("No se pudieron generar las columnas en:\n" + destino + "\n\n" + error.mensajeUsuario)
+            estado = "No se pudieron crear las columnas: " + error.mensajeUsuario
+        }
+    }
+
+    var body: some View {
+        Pagina(destino: .generadorCPSDiferencias) {
+            Text("Genera columnas a partir de una columna inicial y una alternativa, según el tipo y el número de diferencias.")
+                .foregroundStyle(Color.textoSecundario)
+            Tarjeta("Columnas") {
+                columna("Columna inicial (14 signos 1/X/2)", "Ej. 1X21X21X21X21", $inicial)
+                columna("Columna alternativa (14 signos 1/X/2)", "Ej. X12X12X12X12X", $alternativa)
+            }
+            Tarjeta("Opciones") {
+                Picker("Tipo de columna", selection: $dobles) {
+                    Text("Fijos").tag(false)
+                    Text("Dobles").tag(true)
+                }
+                .fixedSize()
+                Picker("Número de diferencias", selection: $diferencias) {
+                    Text("1").tag(1)
+                    Text("2").tag(2)
+                }
+                .fixedSize()
+            }
+            Tarjeta("Archivo destino") {
+                HStack {
+                    TextField("Ruta del archivo de salida (.txt)", text: .constant(destino)).textFieldStyle(.roundedBorder).disabled(true)
+                    Button("Examinar…") {
+                        Task {
+                            if let u = await SelectorFicheros.guardar("doc1", [("Archivos de texto", ".txt"), ("Todos los archivos", ".")])
+                            {
+                                destino = u.path(percentEncoded: false)
+                            }
+                        }
+                    }
+                }
+            }
+            HStack {
+                Text(estado).foregroundStyle(Color.textoSecundario)
+                Spacer()
+                Button("Cancelar") { estado = "" }
+                Button("Generar", action: generar).buttonStyle(.borderedProminent)
+            }
+        }
+    }
+}
