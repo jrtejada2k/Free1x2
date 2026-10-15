@@ -33,6 +33,7 @@ class NoVariantes:
     def __init__(self, n, var='', eq='', do='', activa=True):
         self.n = n
         self.activa = activa
+        self.analisis = False  # AnalisisActivo (AnalizarVX2)
         self.sets = []
         for txt in (var, eq, do):
             flags, tol = [False] * (n + 1), [' '] * (n + 1)
@@ -76,13 +77,16 @@ def array_tol(s):
 class Grupo:
     def __init__(self, n, partidos=None, filtro=None, tolerancias=(), fallos_tol='', base=False):
         self.todos = base
+        self.base = base
         act = [False] * n
         for p in partidos or []:
             act[p - 1] = True
         self.mascara = 0
         for a in reversed(act):
             self.mascara = (self.mascara << 3) | (7 if a else 0)
-        self.filtro = filtro
+        # Todo Grupo tiene sus 14 filtros (Grupo.cs:94-134): sin condición, un NoVariantes inactivo, que en las rutas C/D
+        # se analiza y registra igualmente si AnalizarVX2 está activo.
+        self.filtro = filtro or NoVariantes(n, activa=False)
         self.tols = [(l.upper(), array_tol(a)) for l, a in tolerancias]
         self.fallos_tol = fallos_tol
         self.arr_fallos = array_tol(fallos_tol) if fallos_tol else None
@@ -95,6 +99,28 @@ class Grupo:
         ok = True
         if self.filtro and self.filtro.activa and not self.filtro.analizar(col):
             ok = False
+        if ok:
+            ok = self.tol_validas()
+        self.memo, self.recalc = ok, False
+        return ok
+
+    def analiza_an(self, c, reg):
+        """Grupo.AnalizaColumna(long, ContenedorAnalisis) (Grupo.cs:226-300): rutas C/D."""
+        if not self.recalc:
+            return self.memo
+        col = (c & self.mascara) or c
+        ok = True
+        f = self.filtro
+        if f:
+            if f.analisis:
+                if f.activa:
+                    ok = f.analizar(col)
+                else:
+                    f.analizar(col)
+                if ok and self.base:
+                    reg.anadir(f)
+            elif f.activa:
+                ok = f.analizar(col)
         if ok:
             ok = self.tol_validas()
         self.memo, self.recalc = ok, False
@@ -131,6 +157,43 @@ class Control:
             return self.memo
         return all(G[g].analiza(c) for g in self.grupos)
 
+    def analiza_an(self, c, G, reg):
+        """ControlGrupos.cs:105-161: con fallos evalúa sus grupos sin análisis; sin fallos, con análisis y corte."""
+        G[0].base = G[0].todos = True
+        if self.usa:
+            if not self.recalc:
+                return self.memo
+            nf = sum(1 for g in self.grupos if not G[g].analiza(c))
+            ok = self.arr[nf]
+            if ok:
+                reg.global_['porFallosGrupos'][nf] += 1
+            else:
+                reg.vaciar()
+            self.memo, self.recalc = ok, False
+            return ok
+        return all(G[g].analiza_an(c, reg) for g in self.grupos)
+
+
+class Registro:
+    """ContenedorAnalisisGlobal + FiltrosTemp (solo NoVariantes en este modelo)."""
+    def __init__(self, n, ngrupos, ncontroles):
+        self.global_ = dict(vx2=[[0] * (n + 1) for _ in range(3)], porFallosGrupos=[0] * ngrupos, porFallosConjuntos=[0] * ncontroles)
+        self.temp = []
+
+    def anadir(self, f):
+        if all(f is not x for x in self.temp):
+            self.temp.append(f)
+
+    def vaciar(self):
+        self.temp = []
+
+    def incrementar(self):
+        for f in self.temp:
+            if f.analisis:
+                for k in range(3):
+                    self.global_['vx2'][k][f.cont[k]] += 1
+        self.vaciar()
+
 
 def expand(s):
     out = []
@@ -165,6 +228,110 @@ def condicion_cantidad(texto, n):
     return nv
 
 
+def comprueba_ifthen(ifthen, c, G, n):
+    conds, rango_c, grs, rango_g = ifthen
+    fallos = 0
+    for si, entonces in conds:
+        v = condicion_cantidad(si, n).analizar(c) != ('(NO)' in si)
+        if v:
+            w = condicion_cantidad(entonces, n).analizar(c) != ('(NO)' in entonces)
+            fallos += 0 if w else 1
+    ok = True
+    if conds:
+        arr = [False] * (len(conds) + 1)
+        for x in expand(rango_c):
+            arr[x] = True
+        ok = arr[len(conds) - fallos]
+    if ok and grs:
+        fallos = 0
+        for gi, gt, nif, nth in grs:
+            v = G[gi].analiza(c) != nif
+            if v and (G[gt].analiza(c) != nth) is False:
+                fallos += 1
+        arr = [False] * (len(grs) + 1)
+        for x in expand(rango_g):
+            arr[x] = True
+        ok = arr[len(grs) - fallos]
+    return ok
+
+
+def columnas_generadas(pron, n):
+    """GeneradorColumnas: columna inicial y DFS en preorden (solo las que pasan el AND con el pronóstico)."""
+    base = col_de_pronosticos(pron)
+    np_ = len(pron)
+    out = []
+
+    def nueva(c):
+        if base & c == c:
+            out.append(c)
+
+    def genera(v, pos, prof):
+        m = 7 << (3 * pos)
+        for p in range(pos, np_):
+            for k in (3 * p + 1, 3 * p):
+                x = (v & ~m) ^ (1 << k)
+                nueva(x)
+                if prof < np_:
+                    genera(x, p + 1, prof + 1)
+            m <<= 3
+
+    nueva(4 * (8 ** n - 1) // 7)
+    genera(4 * (8 ** n - 1) // 7, 0, 1)
+    return out
+
+
+def analizar(n, pron=None, lineas=None, grupos=None, controles=None, conjuntos=None, ifthen=None, externo=False, vx2=False):
+    """Rutas C/D (Analizador.cs:137-165, 256-349): sin criba de pronóstico; If-Then hace AND."""
+    G = grupos or [Grupo(n, base=True)]
+    C = controles or [Control(list(range(len(G))))]
+    for g in G:
+        if g.filtro:
+            g.filtro.analisis = vx2
+    reg = Registro(n, len(G), len(C))
+    res = {'an': 0, 'ac': 0}
+
+    def analiza_columna(c):
+        for ctl in C:
+            ctl.recalc = True
+            for g in ctl.grupos:
+                G[g].recalc = True
+        if conjuntos:
+            valida = True
+            for j, i in enumerate(conjuntos[0][0]):
+                if j > 0:
+                    reg.vaciar()
+                if not C[i].analiza_an(c, G, reg):
+                    valida = False
+                    break
+            if valida:
+                for idx, fallos in conjuntos[1:]:
+                    nf = sum(1 for i in idx if not C[i].analiza(c, G))
+                    arr = lista_aciertos(fallos, len(idx))
+                    if len(arr) < nf + 1 or not arr[nf]:
+                        valida = False
+                        break
+                    reg.global_['porFallosConjuntos'][nf] += 1
+                    reg.global_['porFallosGrupos'][nf] += 1
+        else:
+            valida = all(ctl.analiza_an(c, G, reg) for ctl in C)
+        if ifthen and not comprueba_ifthen(ifthen, c, G, n):
+            valida = False
+        res['an'] += 1
+        if valida:
+            reg.incrementar()
+            res['ac'] += 1
+
+    if lineas is not None:
+        for l in lineas:
+            c = col_de_texto(l if externo or len(l) <= n else l[:n])
+            if (2 ** 48 - 1) & c == c:
+                analiza_columna(c)
+    else:
+        for c in columnas_generadas(pron, n):
+            analiza_columna(c)
+    return res['an'], res['ac'], reg.global_
+
+
 def calcular(n, pron=None, lineas=None, completar='', grupos=None, controles=None, conjuntos=None, ifthen=None):
     """Ruta A/B. Devuelve (analizadas, aceptadas, columnas aceptadas en orden)."""
     G = grupos or [Grupo(n, base=True)]
@@ -192,30 +359,7 @@ def calcular(n, pron=None, lineas=None, completar='', grupos=None, controles=Non
             else:
                 valida = all(ctl.analiza(c, G) for ctl in C)
         if ifthen:
-            conds, rango_c, grs, rango_g = ifthen
-            fallos = 0
-            for si, entonces in conds:
-                v = condicion_cantidad(si, n).analizar(c) != ('(NO)' in si)
-                if v:
-                    w = condicion_cantidad(entonces, n).analizar(c) != ('(NO)' in entonces)
-                    fallos += 0 if w else 1
-            ok = True
-            if conds:
-                arr = [False] * (len(conds) + 1)
-                for x in expand(rango_c):
-                    arr[x] = True
-                ok = arr[len(conds) - fallos]
-            if ok and grs:
-                fallos = 0
-                for gi, gt, nif, nth in grs:
-                    v = G[gi].analiza(c) != nif
-                    if v and (G[gt].analiza(c) != nth) is False:
-                        fallos += 1
-                arr = [False] * (len(grs) + 1)
-                for x in expand(rango_g):
-                    arr[x] = True
-                ok = arr[len(grs) - fallos]
-            valida = ok
+            valida = comprueba_ifthen(ifthen, c, G, n)
         res['an'] += 1
         if valida:
             res['ac'] += 1

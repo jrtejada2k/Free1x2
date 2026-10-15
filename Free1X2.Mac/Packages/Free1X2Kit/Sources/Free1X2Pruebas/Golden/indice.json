@@ -125,6 +125,10 @@
     {
       "ruta": "motor/filtros/gruposequipos.jsonl",
       "casos": 17
+    },
+    {
+      "ruta": "motor/analisis.jsonl",
+      "casos": 9
     }
   ],
   "fixtures": [

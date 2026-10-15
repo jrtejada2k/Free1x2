@@ -119,6 +119,39 @@ final class Grupo {
         return valida
     }
 
+    /// `EsGrupoBase = true` (`ControlGrupos` en el análisis, :112,150): también activa todos los partidos.
+    func marcarBase() {
+        esGrupoBase = true
+        todosPartidosActivos = true
+    }
+
+    /// `AnalizaColumna(long, ContenedorAnalisis)` (:226-300): rutas C/D. Analiza también los filtros inactivos con
+    /// análisis (resultado ignorado) y, en el grupo base, los registra; no usa el filtro parcial.
+    func analiza(_ columna: Columna, _ registro: RegistroAnalisis) throws(ErrorDominio) -> Bool {
+        guard reCalcular else { return validoMemoria }
+        var col = columna & mascara
+        if col == 0 { col = columna }
+        var valida = true
+        for f in filtros {
+            if f.analisisActivo {
+                if f.activa {
+                    valida = try f.analizar(col)
+                    if !valida { break }
+                } else {
+                    _ = try f.analizar(col)
+                }
+                if esGrupoBase { registro.anadirFiltroTemp(f) }
+            } else if f.activa {
+                valida = try f.analizar(col)
+                if !valida { break }
+            }
+        }
+        if valida { valida = try toleranciasValidas() }
+        validoMemoria = valida
+        reCalcular = false
+        return valida
+    }
+
     /// `FallosPermitidos == ""` elige la rama (:192-201).
     func toleranciasValidas() throws(ErrorDominio) -> Bool {
         if fallosTolerancias.isEmpty {

@@ -50,6 +50,8 @@ struct NucleoTests {
         var controles: [Control]?
         var conjuntos: [Conjunto]?
         var ifThen: IfThen?
+        /// Banderas de `OpcionesAnalisis` a `true` (rutas C/D).
+        var analisis: [String]?
     }
     struct Salida: Decodable, Sendable {
         var colsAnalizadas, colsAceptadas, lineasFichero: Int?
@@ -57,6 +59,8 @@ struct NucleoTests {
         var columnas: [String]?
         var valores: [String]?
         var sha256: String?
+        var vx2: [[Int]]?
+        var porFallosGrupos, porFallosConjuntos: [Int]?
     }
 
     static let n = 14
@@ -152,6 +156,28 @@ struct NucleoTests {
             if let esperadas = s.columnas { #expect(textos == esperadas, "\(caso.id)") }
             if let valores = s.valores { #expect(cols.map(String.init) == valores, "\(caso.id)") }
             if let sha = s.sha256 { #expect(Golden.sha256(textos.joined(separator: "\n")) == sha, "\(caso.id)") }
+        }
+    }
+
+    /// ESPEC_17 ANA: rutas C/D (`motor/analisis`).
+    @Test func analisis() throws {
+        for caso in try Golden.casos("motor/analisis", Entrada.self, Salida.self) {
+            let e = caso.entrada
+            var config = Configuracion.porDefecto
+            for bandera in e.analisis ?? [] {
+                switch bandera {
+                case "vx2": config.analisis.vx2 = true
+                default: Issue.record("bandera desconocida \(bandera)")
+                }
+            }
+            let lineas = e.lineas ?? []
+            let r = try MotorCalculo.analizar(
+                try Self.combinacion(e), configuracion: config, externo: e.ruta == "D", leerLineas: { _ in lineas })
+            let s = try #require(caso.salida)
+            #expect(r.calculo == ResultadoCalculo(analizadas: s.analizadas ?? -1, aceptadas: s.aceptadas ?? -1), "\(caso.id)")
+            if let v = s.vx2 { #expect(r.contenedor.analisisGrupos.vx2 == v, "\(caso.id)") }
+            if let v = s.porFallosGrupos { #expect(r.contenedor.columnasPorFallosDeGrupos == v, "\(caso.id)") }
+            if let v = s.porFallosConjuntos { #expect(r.contenedor.columnasPorFallosDeConjuntos == v, "\(caso.id)") }
         }
     }
 
