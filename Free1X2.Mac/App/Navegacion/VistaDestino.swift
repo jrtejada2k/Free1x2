@@ -71,6 +71,9 @@ struct VistaDestino: View {
         case .generadorCPSDiferencias: VistaGeneradorCPSDiferencias()
         case .multiplicador: VistaMultiplicador()
         case .fraccionador: VistaFraccionador()
+        case .rotacionDeSignos: VistaRotacionDeSignos()
+        case .parejas: VistaParejas()
+        case .trios: VistaTrios()
         default: PantallaPendiente(destino: destino)
         }
     }

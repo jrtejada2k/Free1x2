@@ -224,3 +224,54 @@ extension CasosUtilidades {
         return tramos
     }
 }
+
+// C#: Views/Ported/RotacionDeSignosFrmViewModel.cs (10 §85; CU-C22).
+extension CasosUtilidades {
+    /// Al elegir la entrada: `ObtenNumSignos` (≤ 0 ⇒ `numeroPartidos`) y la primera columna (para «Base»).
+    public static func entradaRotacion(
+        _ url: URL, numeroPartidos n: Int, entorno: Entorno
+    ) throws(ErrorDominio) -> (partidos: Int, primera: String?) {
+        let d = try entorno.archivos.leer(url)
+        let p = ArchivoColumnasTexto.numSignos(d)
+        return (p > 0 ? p : n, ArchivoColumnasTexto.columnas(d).first)
+    }
+
+    /// `IndiceSigno`: posición en «1X2» (desconocido ⇒ 0).
+    public static func indiceSigno(_ s: String) -> Int { ["1", "X", "2"].firstIndex(of: s) ?? 0 }
+
+    /// CU-C22 `Rotar`: `nuevos[partido][signo]` = índice del signo destino. Sin corrección, cada columna rota entera; con
+    /// ella, cada partido por separado. Salida por índice ascendente sin repetidas (sin columnas no se crea).
+    @concurrent public static func rotarSignos(
+        _ entrada: URL, salida: URL, nuevos: [[Int]], correccion: Bool, numeroPartidos: Int, entorno: Entorno
+    ) async throws(ErrorDominio) -> Int {
+        let total = 14_348_907
+        let pot = ConvertidorDeBases.potenciasDe3.map(Int.init)
+        let conv = ConvertidorDeBases(numeroPartidos: numeroPartidos)
+        var bits = ConjuntoBits(cantidad: total)
+        for c in ArchivoColumnasTexto.columnas(try entorno.archivos.leer(entrada)) { try bits.poner(Int(try conv.numero(c))) }
+        var cambiados = ConjuntoBits(cantidad: total)
+        let activos = bits.indices
+        if correccion {
+            for (p, n) in nuevos.enumerated() {
+                for i in activos {
+                    let s = i / pot[p] % 3
+                    try cambiados.poner(i + pot[p] * (n[s] - s))
+                }
+            }
+        } else {
+            for i in activos {
+                var indice = i
+                for (p, n) in nuevos.enumerated() {
+                    let s = indice / pot[p] % 3
+                    indice += pot[p] * (n[s] - s)
+                }
+                try cambiados.poner(indice)
+            }
+        }
+        let salidaConv = ConvertidorDeBases(numeroPartidos: nuevos.count)
+        var columnas: [String] = []
+        for i in cambiados.indices { columnas.append(try salidaConv.columna(Int64(i))) }
+        if let d = ArchivoColumnasTexto.datos(columnas) { try entorno.archivos.escribir(d, en: salida, atomico: false) }
+        return columnas.count
+    }
+}

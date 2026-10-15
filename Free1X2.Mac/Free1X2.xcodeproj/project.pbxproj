@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		01389C1F95A7E68AA3A1E828 /* Formatos.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39BF9252187A13E9703C8EF5 /* Formatos.swift */; };
+		086C602C16A164B522BE1FB4 /* Rotacion.swift in Sources */ = {isa = PBXBuildFile; fileRef = F15E315B1873261A597D4962 /* Rotacion.swift */; };
 		0B41554BA8056BE9A2A32C9F /* Transposicion.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0E06AC14A0BE4304B55E90 /* Transposicion.swift */; };
 		0C696D7C2FF48FB69126C194 /* PantallaCondicion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 572A8CBF196CF469733FD84F /* PantallaCondicion.swift */; };
 		1BC9BF8E43FAD9D0944F9BD5 /* Raiz.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBAE789B419FCD7BEEAB015 /* Raiz.swift */; };
@@ -30,6 +31,7 @@
 		5707A0F8EBADA5D4C6F28742 /* Reductor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD3A18E29DB9A8DC9CA942BE /* Reductor.swift */; };
 		5C9D30F2113E8B54EA846093 /* Menus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04868F81389E8058D7698462 /* Menus.swift */; };
 		5CBF4AEFEDF4E37ACDC318FA /* PortapapelesSistema.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49BDD4273F4F33E1C72948C9 /* PortapapelesSistema.swift */; };
+		63707C7EA6B6A0D5BEB0F881 /* Grupos.swift in Sources */ = {isa = PBXBuildFile; fileRef = 180A7A586EA6E5884322C901 /* Grupos.swift */; };
 		6A45F9467CF363B37502AC86 /* ContactosDibujos.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93ACDCA8FCA710B3A83DAB92 /* ContactosDibujos.swift */; };
 		6B09A62AB48B822A6834CA4A /* Simetrias.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F59B3CEA1AEBEAD252C31AD /* Simetrias.swift */; };
 		6F16D69E9CF62A153746710D /* Valoracion.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2237869C6EB3EFFB9EDAF19 /* Valoracion.swift */; };
@@ -67,6 +69,7 @@
 		099FDA1F7F262E151C82CEA9 /* IfThen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IfThen.swift; sourceTree = "<group>"; };
 		0FB1E51964635F385BCD932C /* Escrutinios.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Escrutinios.swift; sourceTree = "<group>"; };
 		14C149043FCB6537B8F6385D /* SignosSeguidos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignosSeguidos.swift; sourceTree = "<group>"; };
+		180A7A586EA6E5884322C901 /* Grupos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Grupos.swift; sourceTree = "<group>"; };
 		19B6A06520278BAB278E48F4 /* VistaDestino.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VistaDestino.swift; sourceTree = "<group>"; };
 		1A57939A2138CDE1A9AB1891 /* CalculaColumnas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculaColumnas.swift; sourceTree = "<group>"; };
 		25CCF7EA617679CACFA9AACF /* Free1X2Kit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Free1X2Kit; path = Packages/Free1X2Kit; sourceTree = SOURCE_ROOT; };
@@ -112,6 +115,7 @@
 		E57437FEB0766E67A1F55EF1 /* PesosNumericos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PesosNumericos.swift; sourceTree = "<group>"; };
 		EB2647216F2F309E14997C05 /* Algebra.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Algebra.swift; sourceTree = "<group>"; };
 		EE0FC64BC0051E3917F7CD08 /* ControlGrupos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlGrupos.swift; sourceTree = "<group>"; };
+		F15E315B1873261A597D4962 /* Rotacion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Rotacion.swift; sourceTree = "<group>"; };
 		F2237869C6EB3EFFB9EDAF19 /* Valoracion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Valoracion.swift; sourceTree = "<group>"; };
 		F6958E688A2AFDF4D1A8AF51 /* AnalisisFallos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalisisFallos.swift; sourceTree = "<group>"; };
 		F7ACEF1BC5AA3C33883A3EC3 /* GruposEquipos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GruposEquipos.swift; sourceTree = "<group>"; };
@@ -232,7 +236,9 @@
 			children = (
 				EB2647216F2F309E14997C05 /* Algebra.swift */,
 				B87EB26772D235A990F0A016 /* GEPT.swift */,
+				180A7A586EA6E5884322C901 /* Grupos.swift */,
 				FAAB662470D449B33E236941 /* Herramientas.swift */,
+				F15E315B1873261A597D4962 /* Rotacion.swift */,
 				BE0E06AC14A0BE4304B55E90 /* Transposicion.swift */,
 			);
 			path = Utilidades;
@@ -421,6 +427,7 @@
 				01389C1F95A7E68AA3A1E828 /* Formatos.swift in Sources */,
 				ECD7E7BCABC8A4DABE96FEBF /* Free1X2App.swift in Sources */,
 				A2726AB4F195A838EB96C12F /* GEPT.swift in Sources */,
+				63707C7EA6B6A0D5BEB0F881 /* Grupos.swift in Sources */,
 				79FFA6EEE06F09D70C9E6B35 /* GruposEquipos.swift in Sources */,
 				AC0921747BD28CA6A7A37EC2 /* GuardarValoracion.swift in Sources */,
 				D74346F69FC619A5D54C16CA /* Herramientas.swift in Sources */,
@@ -435,6 +442,7 @@
 				4B02FDAF6E68B30A27659E26 /* Probabilidades.swift in Sources */,
 				1BC9BF8E43FAD9D0944F9BD5 /* Raiz.swift in Sources */,
 				5707A0F8EBADA5D4C6F28742 /* Reductor.swift in Sources */,
+				086C602C16A164B522BE1FB4 /* Rotacion.swift in Sources */,
 				A6D5F1F1F2140D94F94F21A2 /* Router.swift in Sources */,
 				A22660CDC4DA522F2F0A9F85 /* SelectorFicheros.swift in Sources */,
 				47BC0D63D514F9EBEDBF7D85 /* Sesion.swift in Sources */,
