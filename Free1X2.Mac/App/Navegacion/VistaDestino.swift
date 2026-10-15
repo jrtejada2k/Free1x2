@@ -93,6 +93,8 @@ struct VistaDestino: View {
         case .subirCategoria: VistaSubirCategoria()
         case .agregaP15: VistaAgregaP15()
         case .graficoColumnas: VistaGraficoColumnas()
+        case .estucol: VistaEstuCol()
+        case .visorAnalisisColumnasAbdon: VistaVisorAbdon()
         default: PantallaPendiente(destino: destino)
         }
     }

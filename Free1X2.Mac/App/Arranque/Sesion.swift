@@ -63,6 +63,8 @@ final class Sesion {
     var resumenPosiblesPremios: [PosiblesPremiosContenedor] = []
     /// `MejoresOpcionesContexto` (parámetro de navegación).
     var contextoMejoresOpciones: (ganadora: String, columnas: [String], pleno: Bool)?
+    /// `EstucolFrmViewModel.UltimoInforme`: el visor ABDON lo consume y lo vacía.
+    var informeAbdon: InformeEstuCol?
     /// `TemaApp` (10 §1.5): «Sistema» (defecto), «Claro», «Oscuro»; en `UserDefaults` (ESPEC_11 §9).
     var tema = UserDefaults.standard.string(forKey: "tema") ?? "Sistema" {
         didSet {
