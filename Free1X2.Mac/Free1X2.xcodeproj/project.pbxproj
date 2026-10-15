@@ -60,6 +60,7 @@
 		CCA14C8EE480990172F61B7E /* MatrizAnalisisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E06E5841AB3F270318467C6F /* MatrizAnalisisView.swift */; };
 		D55851FF07C4F9C15C9ABDEA /* Alertas.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62B44320D069342A326F7B49 /* Alertas.swift */; };
 		D74346F69FC619A5D54C16CA /* Herramientas.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAAB662470D449B33E236941 /* Herramientas.swift */; };
+		D93D82225B7F39A7411D38AB /* OrdenarPorProbabilidad.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10D2D0BE1AEC6E69DA88153E /* OrdenarPorProbabilidad.swift */; };
 		DAF3A71B63B5153C46D68BAF /* PosiblesPremios.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D1FDE491ECE78D5FA7B7822 /* PosiblesPremios.swift */; };
 		DFEDAA659E9D9C67DBA1BE13 /* CrearGrupos.swift in Sources */ = {isa = PBXBuildFile; fileRef = B21DE7E700E486F0520CD1B4 /* CrearGrupos.swift */; };
 		E693C7E6AC98476F326288A5 /* ControlGrupos.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0FC64BC0051E3917F7CD08 /* ControlGrupos.swift */; };
@@ -72,6 +73,7 @@
 		04868F81389E8058D7698462 /* Menus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Menus.swift; sourceTree = "<group>"; };
 		099FDA1F7F262E151C82CEA9 /* IfThen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IfThen.swift; sourceTree = "<group>"; };
 		0FB1E51964635F385BCD932C /* Escrutinios.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Escrutinios.swift; sourceTree = "<group>"; };
+		10D2D0BE1AEC6E69DA88153E /* OrdenarPorProbabilidad.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrdenarPorProbabilidad.swift; sourceTree = "<group>"; };
 		14C149043FCB6537B8F6385D /* SignosSeguidos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignosSeguidos.swift; sourceTree = "<group>"; };
 		180A7A586EA6E5884322C901 /* Grupos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Grupos.swift; sourceTree = "<group>"; };
 		19B6A06520278BAB278E48F4 /* VistaDestino.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VistaDestino.swift; sourceTree = "<group>"; };
@@ -248,6 +250,7 @@
 				B87EB26772D235A990F0A016 /* GEPT.swift */,
 				180A7A586EA6E5884322C901 /* Grupos.swift */,
 				FAAB662470D449B33E236941 /* Herramientas.swift */,
+				10D2D0BE1AEC6E69DA88153E /* OrdenarPorProbabilidad.swift */,
 				D9C6AA148CA19F1F72000C48 /* Premiadas.swift */,
 				61FF07E693D4BC6A8149F8F3 /* Premios.swift */,
 				F15E315B1873261A597D4962 /* Rotacion.swift */,
@@ -449,6 +452,7 @@
 				CCA14C8EE480990172F61B7E /* MatrizAnalisisView.swift in Sources */,
 				5C9D30F2113E8B54EA846093 /* Menus.swift in Sources */,
 				4F40D091DF0E20513BD6C4D2 /* NoVariantes.swift in Sources */,
+				D93D82225B7F39A7411D38AB /* OrdenarPorProbabilidad.swift in Sources */,
 				0C696D7C2FF48FB69126C194 /* PantallaCondicion.swift in Sources */,
 				E6F65D76BA0A88DBA6646F2A /* PesosNumericos.swift in Sources */,
 				5CBF4AEFEDF4E37ACDC318FA /* PortapapelesSistema.swift in Sources */,

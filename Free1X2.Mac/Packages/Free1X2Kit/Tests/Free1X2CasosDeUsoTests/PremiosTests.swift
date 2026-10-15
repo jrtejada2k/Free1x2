@@ -60,3 +60,34 @@ struct PremiosTests {
         #expect(a.map(\.probabilidad) == [1, 1, 2, 3])
     }
 }
+
+/// ESPEC_10 §76 (CU-C05…C08).
+@Suite("Ordenar por probabilidad")
+struct OrdenarPorProbabilidadTests {
+    let entorno = Entorno.pruebas()
+
+    @Test func valorCentral() {
+        let v = Array(repeating: [50.0, 30, 20], count: 14)
+        var c = CasosUtilidades.valorCentral(
+            .acertantes, texto: "1.5", valoraciones: v, recaudacion: 15_000_000, precio: 0.5, porcentaje14: 15, previo: ValoresCentrales())
+        #expect(c.acertantes == 1.5 && c.premio == 1_500_000 && abs(c.probabilidad - 5e-8) < 1e-20)
+        c = CasosUtilidades.valorCentral(.ln, texto: "x", valoraciones: v, recaudacion: 1, precio: 1, porcentaje14: 1, previo: c)
+        #expect(abs(c.probabilidad - 5e-8) < 1e-18, "texto ilegible: se arrastra el LN anterior")
+        let col = CasosUtilidades.valorCentral(.columna, texto: "1", valoraciones: v, recaudacion: 1, precio: 1, porcentaje14: 1, previo: c)
+        #expect(col.probabilidad == 0.5)
+    }
+
+    @Test func ordenarFichero() async throws {
+        let e = URL(filePath: "/tmp/op/e.txt")
+        try entorno.archivos.crearCarpeta(e.deletingLastPathComponent())
+        try entorno.archivos.escribir(Data("11111111111111\r\n2222222222222X\r\n".utf8), en: e, atomico: true)
+        var p = ParametrosOrdenacion(
+            entrada: e, salida: URL(filePath: "/tmp/op/s.txt"), valoraciones: Array(repeating: [50.0, 30, 20], count: 14))
+        (p.recaudacion, p.precio, p.porcentaje14, p.pestana, p.valorCentralSumas) = (15_000_000, 0.5, 15, 1, 700)
+        _ = try await CasosUtilidades.ordenarPorProbabilidad(p, centrales: ValoresCentrales(), numeroPartidos: 14, entorno: entorno) { _ in
+        }
+        // Sumas: «1…1» = 700 (dif 0); «2…2X» = 13·20+30 = 290. Se graban las 2 del fichero primero.
+        let t = String(decoding: try entorno.archivos.leer(p.salida), as: UTF8.self).components(separatedBy: "\r\n")
+        #expect(t.prefix(2) == ["11111111111111", "2222222222222X"] && t.count == 3)
+    }
+}
