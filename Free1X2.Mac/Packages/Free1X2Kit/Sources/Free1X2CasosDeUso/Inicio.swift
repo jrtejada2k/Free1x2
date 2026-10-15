@@ -251,3 +251,14 @@ public enum CasosInicio {
         }
     }
 }
+
+extension CasosInicio {
+    /// «Crear nuevos grupos» (pantalla 31, `CrearGruposFrmViewModel.cs:Crear`): grupos con los partidos 1…14 activos.
+    public static func crearGrupos(_ c: inout Combinacion, cuantos: Int) throws(ErrorDominio) {
+        for _ in 0..<max(cuantos, 0) {
+            var g = GrupoConfig(numeroPartidos: c.numeroPartidos)
+            try g.ponerPartidosActivos("1,2,3,4,5,6,7,8,9,10,11,12,13,14")
+            try c.addGrupo(g)
+        }
+    }
+}

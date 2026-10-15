@@ -47,6 +47,8 @@ final class Sesion {
     var visorAnalisis: (contenedor: ContenedorAnalisisGlobal, grupo: GrupoConfig)?
     /// `ColumnasPremiadasFrmPage.Entrada`.
     var premiadasEntrada: [FilaPremiada]?
+    /// `ResultadosCalculoMultipleFrmViewModel.UltimosResultados`.
+    var resultadosLote: [ResumenLote]?
     /// `TemaApp` (10 §1.5): «Sistema» (defecto), «Claro», «Oscuro»; en `UserDefaults` (ESPEC_11 §9).
     var tema = UserDefaults.standard.string(forKey: "tema") ?? "Sistema" {
         didSet {

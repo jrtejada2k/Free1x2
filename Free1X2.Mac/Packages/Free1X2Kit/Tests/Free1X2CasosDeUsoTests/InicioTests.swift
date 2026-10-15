@@ -142,4 +142,12 @@ struct InicioTests {
         #expect(CasosInicio.signos("X,1") == [true, true, false])
         #expect(CasosInicio.pronostico([true, false, true]) == "1,2")
     }
+
+    @Test func crearGrupos() throws {
+        var c = Combinacion(numeroPartidos: 14)
+        try CasosInicio.crearGrupos(&c, cuantos: 2)
+        #expect(c.grupos.count == 3 && c.grupos[2].partidosActivos.allSatisfy { $0 } && !c.grupos[2].esGrupoBase)
+        try CasosInicio.crearGrupos(&c, cuantos: -1)
+        #expect(c.grupos.count == 3)
+    }
 }

@@ -119,3 +119,50 @@ public enum CasosCombinacion {
         return t
     }
 }
+
+// C#: Views/Ported/CalculaColumnasMultipleFrmViewModel.cs y ResultadosCalculoMultipleFrmViewModel.cs (08 pantallas 14 y 84;
+// CU-A32, CU-A33).
+
+/// Una fila de «Resultados de la Generación Múltiple».
+public struct ResumenLote: Sendable, Hashable {
+    public var archivoCombinacion: String
+    public var archivoColumnas: String
+    public var analizadas: String
+    public var aceptadas: String
+    public var tiempo: String
+
+    public init(archivoCombinacion: String, archivoColumnas: String, analizadas: String, aceptadas: String, tiempo: String) {
+        (self.archivoCombinacion, self.archivoColumnas, self.analizadas) = (archivoCombinacion, archivoColumnas, analizadas)
+        (self.aceptadas, self.tiempo) = (aceptadas, tiempo)
+    }
+}
+
+extension CasosCombinacion {
+    /// `SeleccionarArchivos`: orden ordinal de las rutas completas.
+    public static func ordenarLote(_ urls: [URL]) -> [URL] {
+        urls.sorted { $0.path(percentEncoded: false).utf16.lexicographicallyPrecedes($1.path(percentEncoded: false).utf16) }
+    }
+
+    /// CU-A33: `Columnas/<nombre>` con `.comb` y `.xml` cambiados por `.txt` (en cualquier parte del nombre).
+    public static func nombreSalidaDeCombinacion(_ origen: URL, carpeta: URL) -> URL {
+        let nombre = Escrutador.nombreDeArchivo(origen.path(percentEncoded: false))
+        return carpeta.appending(
+            path: nombre.replacingOccurrences(of: ".comb", with: ".txt").replacingOccurrences(of: ".xml", with: ".txt"))
+    }
+
+    /// CU-A32, un elemento (`ActualizaColumnasPrevistas`): abre la combinación con su filtro de columnas; si el filtro no
+    /// existe se calcula sin él y se devuelve el aviso.
+    public static func prepararCombinacionDeLote(
+        _ origen: URL, numeroPartidos: Int, entorno: Entorno
+    ) throws(ErrorDominio) -> (combinacion: Combinacion, maximas: Int64, aviso: String?) {
+        let leida = try ArchivoCombinacion.leer(try entorno.archivos.leer(origen), numeroPartidos: numeroPartidos, cultura: entorno.cultura)
+        var c = leida.combinacion
+        c.archivoColumnasBase = leida.filtroColumnas
+        var aviso: String?
+        if !c.archivoColumnasBase.isEmpty && !entorno.archivos.existe(URL(filePath: c.archivoColumnasBase)) {
+            aviso = "No se ha encontrado el filtro " + c.archivoColumnasBase + ". Se calculan las columnas sin filtro."
+            c.archivoColumnasBase = ""
+        }
+        return (c, estimarColumnasMaximas(c, entorno: entorno), aviso)
+    }
+}
