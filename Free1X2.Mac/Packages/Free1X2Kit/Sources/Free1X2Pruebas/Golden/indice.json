@@ -209,6 +209,51 @@
       "ruta": "Fixtures/online/real-mx.json",
       "origen": "Free1X2.Domain.Tests/Fixtures/online/real-mx.json",
       "sha256": "49415f56b8339bc92a72adfcc93488bf1c3d3c9b7fabd369d642deff48169c87"
+    },
+    {
+      "ruta": "Fixtures/datos/parametros.free1x2",
+      "origen": "Free1X2.WinUI/Datos/parametros.free1x2",
+      "sha256": "521eac59c8f1e44c142359568fddf3d5e21bf8ee0e8d48c078b5ac49791143a5"
+    },
+    {
+      "ruta": "Fixtures/datos/ColumnasProbables.xml",
+      "origen": "Free1X2.WinUI/Datos/ColumnasProbables.xml",
+      "sha256": "49377413fe09cdecd7554a0b05dbf9fdf0d8f62dd4f4ffa4042dc9c9e8b42203"
+    },
+    {
+      "ruta": "Fixtures/datos/Impresion/impresoras.cfg",
+      "origen": "Free1X2.WinUI/Datos/Impresion/impresoras.cfg",
+      "sha256": "610c49ff6f1bc4551ca6c60d2015447bdf38c1907c11e075e77b2dbe04e2c090"
+    },
+    {
+      "ruta": "Fixtures/datos/Impresion/imprebol.cfg",
+      "origen": "Free1X2.WinUI/Datos/Impresion/imprebol.cfg",
+      "sha256": "346459ecd41d800d9a3c2394ecfea650f1fee971f00ca0f26b022cf7c41fc2b1"
+    },
+    {
+      "ruta": "Fixtures/datos/Equipos/equipos1.dat",
+      "origen": "Free1X2.WinUI/Datos/Equipos/equipos1.dat",
+      "sha256": "cb080555ca76b9fbe9a4d3a2512f0c5465921cfdba83ded56d002b60a1ce41af"
+    },
+    {
+      "ruta": "Fixtures/datos/Equipos/equipos2.dat",
+      "origen": "Free1X2.WinUI/Datos/Equipos/equipos2.dat",
+      "sha256": "42b3c7f198a127dcf63c0f35d33836bdc54d89645438d1ea7854b30fa7b376c9"
+    },
+    {
+      "ruta": "Fixtures/datos/Equipos/equipos2b.dat",
+      "origen": "Free1X2.WinUI/Datos/Equipos/equipos2b.dat",
+      "sha256": "32265835d997760c4c59490276fb2841fbf7831689b60776d40792e4525cd520"
+    },
+    {
+      "ruta": "Fixtures/datos/Equipos/equiposInt.dat",
+      "origen": "Free1X2.WinUI/Datos/Equipos/equiposInt.dat",
+      "sha256": "38f1f03a03a268666869c05c27ef25e629e25f33a6b3e9c232f76f6c3b65f692"
+    },
+    {
+      "ruta": "Fixtures/datos/Idioma/en-US.lang",
+      "origen": "Free1X2.WinUI/Datos/Idioma/en-US.lang",
+      "sha256": "4d744cc4de3f3d02db5489ee75469f304798906d8fdf6073c9f6a779cb441752"
     }
   ]
 }
