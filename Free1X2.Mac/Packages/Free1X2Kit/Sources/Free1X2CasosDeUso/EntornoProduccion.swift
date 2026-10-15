@@ -11,7 +11,8 @@ extension Entorno {
             rutas: .produccion(),
             red: ClienteHTTPSistema(),
             portapapeles: portapapeles,
-            registro: RegistroSistema()
+            registro: RegistroSistema(),
+            cultura: .sistema()
         )
     }
 }

@@ -149,6 +149,10 @@
     {
       "ruta": "motor/estadisticas/anastatics.jsonl",
       "casos": 4
+    },
+    {
+      "ruta": "net/aleatorio.jsonl",
+      "casos": 6
     }
   ],
   "fixtures": [

@@ -78,24 +78,31 @@ public struct RutasApp: Sendable, Equatable {
 }
 
 /// Todo lo que un caso de uso necesita del mundo exterior. El bucle caliente del motor no lo toca.
-/// ponytail: `aleatorio` (AleatorioNET) y `cultura` (Cultura) se añaden con sus tipos en M3 (ESPEC_16 §1, §5).
 public struct Entorno: Sendable {
     public var reloj: any Reloj
+    /// `new System.Random(semilla)` (ESPEC_16 §5).
+    public var aleatorio: @Sendable (Int32) -> AleatorioNET
     public var archivos: any SistemaArchivos
     public var rutas: RutasApp
     public var red: any ClienteHTTP
     public var portapapeles: any Portapapeles
     public var registro: any Registro
+    /// DP-01: la cultura «del sistema» de C3–C13.
+    public var cultura: Cultura
 
     public init(
         reloj: any Reloj,
+        aleatorio: @escaping @Sendable (Int32) -> AleatorioNET = { AleatorioNET(semilla: $0) },
         archivos: any SistemaArchivos,
         rutas: RutasApp,
         red: any ClienteHTTP,
         portapapeles: any Portapapeles,
-        registro: any Registro
+        registro: any Registro,
+        cultura: Cultura
     ) {
         self.reloj = reloj
+        self.aleatorio = aleatorio
+        self.cultura = cultura
         self.archivos = archivos
         self.rutas = rutas
         self.red = red

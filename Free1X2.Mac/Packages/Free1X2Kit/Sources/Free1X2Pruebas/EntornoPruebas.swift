@@ -5,13 +5,15 @@ import os
 // Dobles de prueba de `Entorno` (ESPEC_14 §2). Deterministas por construcción.
 
 extension Entorno {
-    /// Reloj fijo 2026-01-01 12:00 UTC, ficheros en memoria, red sin respuestas, portapapeles y registro en memoria.
+    /// Reloj fijo 2026-01-01 12:00 UTC, ficheros en memoria, red sin respuestas, portapapeles y registro en memoria,
+    /// cultura `es-ES` (la de los golden, DP-01).
     public static func pruebas(
         reloj: RelojManual = RelojManual(),
         archivos: (any SistemaArchivos)? = nil,
         red: ClienteHTTPGrabado = ClienteHTTPGrabado(),
         portapapeles: PortapapelesEnMemoria = PortapapelesEnMemoria(),
-        registro: RegistroEnMemoria = RegistroEnMemoria()
+        registro: RegistroEnMemoria = RegistroEnMemoria(),
+        cultura: Cultura = .esES
     ) -> Entorno {
         Entorno(
             reloj: reloj,
@@ -19,7 +21,8 @@ extension Entorno {
             rutas: .pruebas,
             red: red,
             portapapeles: portapapeles,
-            registro: registro
+            registro: registro,
+            cultura: cultura
         )
     }
 }

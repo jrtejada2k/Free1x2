@@ -131,3 +131,56 @@ class Hashtable:
             if not (bk[2]&0x80000000 and ntry<n): return None
     def contains(s,key): return s.get(key) is not None
     def keys(s): return [bk[0] for bk in reversed(s.b) if bk[0] is not None]
+
+
+# --- System.Random(int seed): Random.Net5CompatSeedImpl (dotnet/runtime release/8.0), por lectura ---
+class RandomNet:
+    MBIG = 2**31 - 1
+    MSEED = 161803398
+
+    def __init__(s, seed):
+        def i32(x):
+            x &= 0xFFFFFFFF
+            return x - 2**32 if x >= 2**31 else x
+        s.t = [0] * 56
+        sub = 2**31 - 1 if seed == -2**31 else abs(seed)
+        mj = i32(s.MSEED - sub)
+        s.t[55] = mj
+        mk = 1
+        ii = 0
+        for i in range(1, 55):
+            ii += 21
+            if ii >= 55: ii -= 55
+            s.t[ii] = mk
+            mk = i32(mj - mk)
+            if mk < 0: mk += s.MBIG
+            mj = s.t[ii]
+        for k in range(1, 5):
+            for i in range(1, 56):
+                n = i + 30
+                if n >= 55: n -= 55
+                s.t[i] = i32(s.t[i] - s.t[1 + n])
+                if s.t[i] < 0: s.t[i] += s.MBIG
+        s.inext, s.inextp = 0, 21
+
+    def internal(s):
+        s.inext = 1 if s.inext + 1 >= 56 else s.inext + 1
+        s.inextp = 1 if s.inextp + 1 >= 56 else s.inextp + 1
+        r = s.t[s.inext] - s.t[s.inextp]
+        if r == s.MBIG: r -= 1
+        if r < 0: r += s.MBIG
+        s.t[s.inext] = r
+        return r
+
+    def sample(s): return s.internal() * (1.0 / s.MBIG)
+    def next(s): return s.internal()
+    def next_max(s, m): return int(s.sample() * m)
+    def next_rango(s, a, b):
+        rango = b - a
+        if rango <= 2**31 - 1:
+            return int(s.sample() * rango) + a
+        r = s.internal()
+        if s.internal() % 2 == 0: r = -r
+        d = (r + (2**31 - 2)) / (2 * (2**31 - 1) - 1)
+        return int(int(d * rango) + a)
+    def next_double(s): return s.sample()
