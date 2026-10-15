@@ -270,7 +270,7 @@ escribe con el CU (datos C). Casos ya fijados:
 | NF-03 | paralelismo | B1/B2 ≥ 2× con P ≥ 2 | N7 |
 | NF-04 | memoria | pico ≤ 64 MB (B1–B3), ≤ 128 MB (B8) | N7 |
 | NF-05 | cancelación | termina en ≤ 4 096 iteraciones del bucle externo con `.operacionCancelada`, o deja la salida parcial donde el C# la deja | N4 |
-| NF-06 | progreso | como mucho un evento cada 100 ms, salvo cada 65 536 columnas o al terminar | N1 |
+| NF-06 | progreso | como mucho un evento cada 100 ms, más el final; el bucle caliente informa cada 65 536 columnas (DT-46) | N1 |
 | NF-07 | sin abortos | lint: sin `fatalError`, `preconditionFailure`, `try!`, `as!` ni `!` de desempaquetado en `Sources/` | CI |
 | NF-08 | determinismo | dos ejecuciones con la misma entrada ⇒ bytes idénticos | N3 |
 | NF-09 | compilación | Swift 6 estricto; avisos = errores en CI | CI |

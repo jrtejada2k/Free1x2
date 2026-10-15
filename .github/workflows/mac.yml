@@ -1,0 +1,40 @@
+name: Mac
+
+# App Mac en Swift (docs/mac/ESPEC_14_PRUEBAS.md §7). Cero C# en esta cadena.
+on:
+  push:
+    branches: [main]
+    paths: ['Free1X2.Mac/**', '.github/workflows/mac.yml']
+  pull_request:
+    paths: ['Free1X2.Mac/**', '.github/workflows/mac.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  mac:
+    # Swift 6.2+ (swift-tools-version del paquete) => Xcode 26 o posterior.
+    runs-on: macos-26
+    defaults:
+      run:
+        working-directory: Free1X2.Mac
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Formato
+        run: swift format lint --strict --recursive --configuration .swift-format App Packages/Free1X2Kit/Sources Packages/Free1X2Kit/Tests Packages/Free1X2Kit/Package.swift
+
+      - name: Patrones prohibidos
+        run: scripts/lint-prohibidos.sh
+
+      - name: Compilar el paquete (Release)
+        run: swift build --package-path Packages/Free1X2Kit -c release -Xswiftc -warnings-as-errors
+
+      - name: Tests del paquete
+        run: swift test --package-path Packages/Free1X2Kit --parallel -Xswiftc -warnings-as-errors
+
+      - name: Compilar la app
+        run: >-
+          xcodebuild -project Free1X2.xcodeproj -scheme Free1X2 -configuration Release
+          -destination 'platform=macOS' -derivedDataPath .build/DerivedData
+          build CODE_SIGNING_ALLOWED=NO SWIFT_TREAT_WARNINGS_AS_ERRORS=YES

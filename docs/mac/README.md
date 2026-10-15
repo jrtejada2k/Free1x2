@@ -46,6 +46,7 @@ D1 = DP-15 · D2 = DP-09 + `G-D2` · D3 = DP-08 · D4 = DP-01 · D5 = DP-02 · D
 
 ## Siguiente fase
 
-**M1 — Oráculo por lectura**: los golden de todos los módulos se escriben a mano leyendo el C# (nunca ejecutándolo), cada caso con
-su `fuente`, y se versionan como datos en el paquete Swift. Procedimiento y
-criterio de cierre en [ESPEC_12](ESPEC_12_ORACULO.md) §7.
+M0 (specs), M1 (casos de prueba, [ESPEC_17](ESPEC_17_CASOS_DE_PRUEBA.md)) y M2 (esqueleto en `Free1X2.Mac/`) están cerrados.
+
+**M3 — Motor**, por orden (PLAN §5): Columnas/Utils → Escrutinio → Generador + filtros → Reducción → Análisis → Subir categoría.
+Cada componente empieza escribiendo su suite golden (ESPEC_17 §4) y se cierra con ella en verde (ESPEC_14 §8).

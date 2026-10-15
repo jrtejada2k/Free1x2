@@ -63,6 +63,12 @@ orden expresa del dueño; no se implementa).
 | DT-29 | M1 = catálogo funcional (ESPEC_17) + 104 casos heredados + infraestructura; cada componente escribe su suite JSONL **antes** de su código (*test-first*) | ESPEC_17 §4; ESPEC_12 §7 |
 | DT-30…39 | Pruebas, cobertura, CI y presupuestos de rendimiento | ESPEC_14 |
 | DT-40 | API de casos de uso (5 formas, `enum` por menú, unificaciones) | ESPEC_13 |
+| DT-42 | Proyecto Xcode como código: `Free1X2.Mac/project.yml` (XcodeGen) es la fuente; `Free1X2.xcodeproj` se genera y se versiona para abrirlo sin herramientas | ESPEC_11 §3.1 |
+| DT-43 | El producto `Free1X2Kit` expone `Free1X2CasosDeUso` y `Free1X2Base`; la app no puede importar Motor, Formatos ni Online | ESPEC_11 §3.2-3.3 |
+| DT-44 | Dependencias y targets se añaden con su primer uso: `swift-collections` y `Free1X2Bench` en M3; `aleatorio` y `cultura` del `Entorno` llegan con `AleatorioNET` y `Cultura` | ESPEC_11 §3.3, §7 |
+| DT-45 | `ClienteHTTP` es transporte (`throws` sin tipar, `URLError`); el cliente online lo traduce a `ErrorOnline` con los textos del C#. `Portapapeles` es asíncrono y la app lo implementa con `NSPasteboard` en el hilo principal | ESPEC_11 §7 |
+| DT-46 | `ReportadorProgreso` limita por tiempo (≥ 100 ms entre eventos; el final siempre sale); el bucle caliente informa cada 65 536 columnas | ESPEC_11 §6.2; ESPEC_17 NF-06 |
+| DT-47 | Versión `0.1.0` (build 1), solo `arm64`, firma ad hoc y runtime endurecido hasta M6; CI en `macos-26` (Swift ≥ 6.2) | `project.yml`; ESPEC_14 §7 |
 | DT-50 | Iconos de la barra: SF Symbols en lugar de los PNG de 16×16 px (mismo tooltip y posición) | ESPEC_15 §1.4 |
 | DT-51 | Las acciones de la barra «Archivo» (Nueva, Abrir, Guardar, Guardar como, equipos, online, borrar) también en el menú Archivo, donde macOS pone los atajos `⌘N/⌘O/⌘S` (como ya indica el manual) | ESPEC_15 §2.2; 10:140-142 |
 | DT-52 | Cambiar de idioma no recrea la página (la recarga de WinUI era una limitación técnica) | ESPEC_15 §2.4; 10:66 |

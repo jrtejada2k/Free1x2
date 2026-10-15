@@ -1,0 +1,43 @@
+# Fuente de verdad del proyecto Xcode (DT-42). Tras cambiarlo: `xcodegen generate` en esta carpeta.
+name: Free1X2
+options:
+  bundleIdPrefix: com.free1x2
+  deploymentTarget:
+    macOS: "14.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MACOSX_DEPLOYMENT_TARGET: "14.0"
+    ARCHS: arm64
+    SWIFT_STRICT_CONCURRENCY: complete
+    OTHER_SWIFT_FLAGS: "-enable-upcoming-feature ExistentialAny -enable-upcoming-feature NonisolatedNonsendingByDefault"
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    DEAD_CODE_STRIPPING: YES
+packages:
+  Free1X2Kit:
+    path: Packages/Free1X2Kit
+targets:
+  Free1X2:
+    type: application
+    platform: macOS
+    sources: [App]
+    dependencies:
+      - package: Free1X2Kit
+        product: Free1X2Kit
+    settings:
+      base:
+        PRODUCT_NAME: Free1X2
+        PRODUCT_BUNDLE_IDENTIFIER: com.free1x2.app
+        MARKETING_VERSION: 0.1.0
+        CURRENT_PROJECT_VERSION: 1
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: Free1X2
+        INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.utilities
+        INFOPLIST_KEY_NSHumanReadableCopyright: "Programa libre bajo GPLv3, derivado del Free1X2 original de Joan Duatis."
+        # DP-06: fuera de la Mac App Store, sin App Sandbox; runtime endurecido para la notarización de M6.
+        ENABLE_APP_SANDBOX: NO
+        ENABLE_HARDENED_RUNTIME: YES
+        # Firma local ad hoc hasta M6 (Developer ID).
+        CODE_SIGN_IDENTITY: "-"
+        CODE_SIGN_STYLE: Manual

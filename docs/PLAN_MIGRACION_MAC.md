@@ -103,7 +103,7 @@ Sistema de diseño, mockups por plantilla y mapa de las 108 pantallas en `mac/ES
 |------|-----------|--------------------|
 | **M0 Especificación** | `docs/mac/ESPEC_00…16`, `GLOSARIO`, `DECISIONES`: comportamiento con `file:line`, arquitectura, oráculo, casos de uso, pruebas, diseño de UI | **Cerrado** 2026-10-14 (decisiones delegadas por el dueño) |
 | **M1 Casos de prueba** | Catálogo funcional (`mac/ESPEC_17`), 104 casos heredados como golden, fixtures e infraestructura; cada componente escribe su suite antes del código (DT-29) | **Cerrado** 2026-10-14 |
-| **M2 Esqueleto** | Proyecto Xcode + `Free1X2Kit` + CI macOS | CI verde (build + 0 tests) |
+| **M2 Esqueleto** | Proyecto Xcode + `Free1X2Kit` + CI macOS | **Cerrado** 2026-10-14: paquete y app compilan sin avisos, 13 tests verdes en local; `mac.yml` se verifica en GitHub con el primer push |
 | **M3 Motor** | Por orden: Columnas/Utils → Escrutinio → Generador+filtros → Reducción → Análisis → Subir categoría | Golden 100 % idénticos + 85 tests portados + benchmark dentro de presupuesto (ESPEC_14 §6) |
 | **M4 Formatos y Online** | Lectura/escritura de todos los ficheros; cliente online | Round-trip del corpus (ESPEC_12 §6) |
 | **M5 UI** | Mockups de ESPEC_15 → pantallas SwiftUI, empezando por el flujo principal | Smoke de las 109 superficies en el Mac M1 (ESPEC_14 §9) |

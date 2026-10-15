@@ -62,7 +62,8 @@
 
 ```
 Free1X2.Mac/                               (carpeta en este repo; PLAN §7.2)
-├─ Free1X2.xcodeproj                       app macOS (arm64), SwiftUI, escena `Window` única
+├─ project.yml                             proyecto Xcode como código (XcodeGen, DT-42)
+├─ Free1X2.xcodeproj                       app macOS (arm64), SwiftUI, escena `Window` única (generado y versionado)
 ├─ App/                                    capa de presentación (único sitio con SwiftUI/AppKit)
 │   ├─ Arranque/      Free1X2App, AppDelegate, Sesion, Router, Comandos (menús + barra)
 │   ├─ Plataforma/    adaptadores de Entorno: Portapapeles (NSPasteboard), paneles de fichero, alertas, log
@@ -75,10 +76,9 @@ Free1X2.Mac/                               (carpeta en este repo; PLAN §7.2)
 │   ├─ Sources/Free1X2Formatos/            F01–F24 (07 §1), EscritorXMLNET, ZIP `.z3q`
 │   ├─ Sources/Free1X2Online/              cliente clubprogol, parsers JSON, caché
 │   ├─ Sources/Free1X2CasosDeUso/          los 193 casos de uso (ESPEC_13) + Configuracion/arranque
-│   ├─ Sources/Free1X2Pruebas/             dobles de prueba y cargador de golden (solo para tests)
+│   ├─ Sources/Free1X2Pruebas/             dobles de prueba, cargador de golden y, como recursos, `Golden/` y `Fixtures/` (DT-28)
 │   ├─ Tests/<Módulo>Tests/                Swift Testing (ESPEC_14)
-│   ├─ Tests/Golden/                       datos del oráculo (ESPEC_12)
-│   └─ Sources/Free1X2Bench/               ejecutable de benchmarks (ESPEC_14 §6)
+│   └─ Sources/Free1X2Bench/               ejecutable de benchmarks (ESPEC_14 §6; se crea en M3, DT-44)
 └─ tools/ModeloSpec/ (en la raíz del repo, fuera de Free1X2.Mac)  modelos Python de la spec (ESPEC_12 §1); no tocan el C#
 ```
 
@@ -120,10 +120,10 @@ let package = Package(
         .target(name: "Free1X2Formatos", dependencies: ["Free1X2Base", "Free1X2Motor"]),
         .target(name: "Free1X2Online", dependencies: ["Free1X2Base"]),
         .target(name: "Free1X2CasosDeUso", dependencies: ["Free1X2Motor", "Free1X2Formatos", "Free1X2Online"]),
-        .target(name: "Free1X2Pruebas", dependencies: ["Free1X2CasosDeUso"], path: "Sources/Free1X2Pruebas"),
+        .target(name: "Free1X2Pruebas", dependencies: ["Free1X2CasosDeUso"], resources: [.copy("Golden"), .copy("Fixtures")]),
         .executableTarget(name: "Free1X2Bench", dependencies: ["Free1X2CasosDeUso", "Free1X2Pruebas"]),
         .testTarget(name: "Free1X2BaseTests", dependencies: ["Free1X2Base", "Free1X2Pruebas"]),
-        .testTarget(name: "Free1X2MotorTests", dependencies: ["Free1X2Motor", "Free1X2Pruebas"], resources: [.copy("../Golden")]),
+        .testTarget(name: "Free1X2MotorTests", dependencies: ["Free1X2Motor", "Free1X2Pruebas"]),
         .testTarget(name: "Free1X2FormatosTests", dependencies: ["Free1X2Formatos", "Free1X2Pruebas"]),
         .testTarget(name: "Free1X2OnlineTests", dependencies: ["Free1X2Online", "Free1X2Pruebas"]),
         .testTarget(name: "Free1X2CasosDeUsoTests", dependencies: ["Free1X2CasosDeUso", "Free1X2Pruebas"]),
@@ -131,6 +131,10 @@ let package = Package(
     swiftLanguageModes: [.v6]
 )
 ```
+
+**Estado real (M2):** `Free1X2.Mac/Packages/Free1X2Kit/Package.swift` sigue este esqueleto con tres ajustes: el producto
+`Free1X2Kit` expone `Free1X2CasosDeUso` y `Free1X2Base` (DT-43); `swift-collections` y `Free1X2Bench` se añaden con su primer uso
+(DT-44); golden y fixtures son recursos de `Free1X2Pruebas` (DT-28).
 
 Ajustes de compilación (todos los targets): modo Swift 6 (concurrencia estricta completa), `-warnings-as-errors` en CI,
 `-enable-upcoming-feature ExistentialAny`, optimización `-O` + `-enforce-exclusivity=checked` en Release (no se desactiva
@@ -317,7 +321,7 @@ public struct Avisos: Sendable { … }            // mensajes no fatales que hoy
 ```
 
 - **Progreso:** `ReportadorProgreso` (`Sendable`) envuelve un `AsyncStream<Progreso>.Continuation` y **limita la frecuencia**
-  (como mucho cada 100 ms o cada 65 536 columnas, lo que ocurra después). El bucle caliente solo incrementa un entero local.
+  (como mucho un evento cada 100 ms, más el final, DT-46). El bucle caliente solo incrementa un entero local e informa cada 65 536 columnas.
   Sustituye `UiPump`/`IProgressNotifier` (T12) y los temporizadores que hoy sondean contadores sin sincronizar (10:808, 10:828).
 - **Cancelación cooperativa:** comprobación de `Task.isCancelled` cada 4 096 iteraciones del bucle externo; al detectarla,
   `throw ErrorDominio(.operacionCancelada)` **o**, donde el C# deja salida parcial (05:836, A9), se cierra el fichero con lo
@@ -361,7 +365,8 @@ public struct Entorno: Sendable {
     public var registro: any Registro               // log (07:1166)
     public var cultura: Cultura                     // DP-01: cultura «del sistema» para C3–C13
 }
-extension Entorno { public static func produccion() -> Entorno }        // en Free1X2CasosDeUso
+extension Entorno { public static func produccion(portapapeles: any Portapapeles) -> Entorno }   // en Free1X2CasosDeUso; el portapapeles lo da la app
+// Estado real (M2): `aleatorio` y `cultura` se añaden con AleatorioNET y Cultura en M3 (DT-44); `red` es transporte y lanza URLError (DT-45).
 // Free1X2Pruebas: Entorno.pruebas(reloj: .fijo(…), archivos: .enMemoria(…), red: .grabada(…), cultura: .esES)
 ```
 

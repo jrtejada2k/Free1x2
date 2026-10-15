@@ -118,7 +118,7 @@ Fixtures `cols_a.txt`, `cols_b.txt`, `cols_con_repetidas.txt`, `ganadora.txt` y 
 
 | Flujo | Disparador | Runner | Pasos |
 |-------|-----------|--------|-------|
-| `mac.yml` | PR y push a `main` | `macos-15` arm64 (o el más reciente disponible) | `swift-format lint --strict` · lint de patrones prohibidos (`fatalError`, `try!`, `as!`, desempaquetado `!`, `print(`; ESPEC_11 §5.2) · `swift build -c release` · `swift test --parallel --skip .lento --enable-code-coverage` + umbrales §4 · `xcodebuild build` + `xcodebuild test` (N5 + smoke N6) |
+| `mac.yml` | PR y push a `main` | `macos-26` arm64 (Swift ≥ 6.2, DT-47); `.github/workflows/mac.yml`, creado en M2 | `swift-format lint --strict` · lint de patrones prohibidos (`fatalError`, `try!`, `as!`, desempaquetado `!`, `print(`; ESPEC_11 §5.2) · `swift build -c release` · `swift test --parallel --skip .lento --enable-code-coverage` + umbrales §4 · `xcodebuild build` + `xcodebuild test` (N5 + smoke N6) |
 | `mac-nocturno.yml` | cron diario + manual | `macos` arm64 | todo `mac.yml` + `.lento` + `Free1X2Bench` en modo comparación con la línea base (§6.3) |
 | `golden.yml` | — | — | **No existe**: los golden se escriben a mano por lectura y se versionan como datos (ESPEC_12 §7); no hay C# que ejecutar |
 
