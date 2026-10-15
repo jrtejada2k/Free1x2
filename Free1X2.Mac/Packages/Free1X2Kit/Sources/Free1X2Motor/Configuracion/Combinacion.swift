@@ -52,6 +52,9 @@ public struct Combinacion: Sendable, Hashable {
 
     // MARK: GrupoPartidos (`GrupoPartidos.cs:37-59`)
 
+    /// `GruposPartidos = new GrupoPartidos()` (`ArchivoCombinacion.cs:149-151`): sin grupos; los controles no cambian.
+    public mutating func vaciarGrupos() { grupos = [] }
+
     /// `AddGrupo`: calcula la máscara, añade y lo pone en el control 0.
     public mutating func addGrupo(_ grupo: GrupoConfig) throws(ErrorDominio) {
         var g = grupo

@@ -157,6 +157,10 @@
     {
       "ruta": "net/aleatorio.jsonl",
       "casos": 6
+    },
+    {
+      "ruta": "formatos/condiciones.jsonl",
+      "casos": 30
     }
   ],
   "fixtures": [

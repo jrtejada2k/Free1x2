@@ -85,6 +85,6 @@ public struct ConjuntoRangos: Sendable, Hashable {
 
 /// `string.Split(char)` de .NET: conserva los trozos vacíos.
 @inline(__always)
-func trozos(_ texto: some StringProtocol, _ separador: Character) -> [String] {
+public func trozos(_ texto: some StringProtocol, _ separador: Character) -> [String] {
     texto.split(separator: separador, maxSplits: .max, omittingEmptySubsequences: false).map { String($0) }
 }

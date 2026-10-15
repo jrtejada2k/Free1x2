@@ -221,6 +221,14 @@ public struct RelacionCP3Config: Sendable, Hashable {
     public var sandwichs: [Bool]?
     public var agrupacionesPasoFijo: [AgrupacionColumnas]?
     public var agrupacionesSolapadas: [AgrupacionColumnas]?
+    /// Textos tal cual se leyeron (`*String` del C#), que son los que se reescriben; `nil` ⇒ `values=""`.
+    public var sandwichsTexto: String?
+    public var escalerasAscTexto: String?
+    public var escalerasDescTexto: String?
+    public var escalerasTexto: String?
+    public var conceptoTexto: String?
+    public var agrupacionesPasoFijoTexto: String?
+    public var agrupacionesSolapadasTexto: String?
 
     public init() {}
 }

@@ -5,8 +5,8 @@ import Free1X2Base
 /// Sub-grupos de partidos y cuántos valores distintos pueden tomar entre ellos variantes, X, 2, dibujos, interrupciones y
 /// formatos.
 public struct Diferencia: Sendable, Hashable {
-    /// Cada sub-grupo es un `bool[]` 1-based (`N + 1`).
-    public var partidosSimetricos: [[Bool]] = []
+    /// Cada sub-grupo es un `bool[]` 1-based (`N + 1`); `nil` = `<partidos valores="" />` (NRE al usarlo).
+    public var partidosSimetricos: [[Bool]?] = []
     public var acV: [Bool]?
     public var acX: [Bool]?
     public var acDoses: [Bool]?

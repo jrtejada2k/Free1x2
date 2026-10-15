@@ -32,6 +32,7 @@ final class FiltroDiferencias: FiltroColumna {
         var formatos = Set<Int64>()
         let o = "Diferencia.cs:30-119"
         for sel in d.partidosSimetricos {
+            guard let sel else { throw .referenciaNula(o) }
             let c = UtilColumnas.ignorarPartidos(sel, col)
             if d.analizaFormatos && formatos.insert(c).inserted { r.formatos += 1 }
             if d.analizaInterrupciones {
