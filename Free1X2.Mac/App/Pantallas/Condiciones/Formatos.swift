@@ -167,6 +167,7 @@ struct VistaFormatos: View {
                         Image(systemName: "chevron.left")
                     }
                     .disabled(indice < 1)
+                    .accessibilityLabel("Formato anterior")
                     Text("\(indice + 1)/\(relaciones.count)").monospacedDigit()
                     Button {
                         if indice + 1 >= relaciones.count { relaciones.append(RelacionFormatos()) }
@@ -174,6 +175,7 @@ struct VistaFormatos: View {
                     } label: {
                         Image(systemName: "chevron.right")
                     }
+                    .accessibilityLabel("Formato siguiente")
                     Button("Eliminar actual") {
                         relaciones.remove(at: indice)
                         if relaciones.isEmpty { relaciones.append(RelacionFormatos()) }

@@ -151,6 +151,7 @@ struct CampoCondicion: View {
     var body: some View {
         LabeledContent(etiqueta) {
             TextField(etiqueta, text: $texto, prompt: Text(ayuda)).labelsHidden().textFieldStyle(.roundedBorder)
+                .accessibilityIdentifier("campo-\(etiqueta)")
         }
     }
 }

@@ -250,6 +250,7 @@ struct BoletoBaseView: View {
                     Image(systemName: "arrow.counterclockwise")
                 }
                 .help("Reiniciar a 14 triples")
+                .accessibilityLabel("Reiniciar a 14 triples")
             }
             .bandaTarjeta()
             Grid(alignment: .leading, horizontalSpacing: 6, verticalSpacing: 3) {

@@ -32,7 +32,13 @@ jobs:
         run: swift build --package-path Packages/Free1X2Kit -c release -Xswiftc -warnings-as-errors
 
       - name: Tests del paquete
-        run: swift test --package-path Packages/Free1X2Kit --parallel -Xswiftc -warnings-as-errors
+        run: swift test --package-path Packages/Free1X2Kit -Xswiftc -warnings-as-errors --enable-code-coverage
+
+      # ESPEC_14 §3: cobertura de los casos de uso ≥ 85 % (C6 del plan de pruebas).
+      - name: Cobertura
+        run: >-
+          python3 scripts/cobertura.py
+          "$(swift test --package-path Packages/Free1X2Kit --enable-code-coverage --show-codecov-path)"
 
       - name: Compilar la app
         run: >-
