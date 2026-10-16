@@ -32,8 +32,9 @@ struct VistaGestorEquipos: View {
                 .foregroundStyle(Color.textoSecundario)
             Tarjeta {
                 HStack {
-                    TextField("Nombre", text: $nombre, prompt: Text("Nombre del equipo")).textFieldStyle(.roundedBorder).frame(
-                        maxWidth: 260)
+                    TextField("Nombre", text: $nombre, prompt: Text("Nombre del equipo")).textFieldStyle(.roundedBorder)
+                        .accessibilityIdentifier("equipo-nombre").frame(
+                            maxWidth: 260)
                     Picker("Categoría", selection: $categoria) {
                         ForEach(CategoriaEquipos.allCases, id: \.self) { Text($0.titulo).tag($0) }
                     }

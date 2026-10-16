@@ -248,7 +248,7 @@ final class FlujosUITests: XCTestCase {
         let app = lanzar(datos: datos)
         defer { app.terminate() }
         app.buttons["Gestión de Equipos"].firstMatch.click()
-        let nombre = app.textFields["Nombre"]
+        let nombre = app.textFields["equipo-nombre"]
         XCTAssertTrue(nombre.waitForExistence(timeout: 10))
         nombre.click()
         nombre.typeText("Equipo Prueba UI")
@@ -259,5 +259,53 @@ final class FlujosUITests: XCTestCase {
             (try? String(contentsOfFile: fichero, encoding: .isoLatin1))?.contains("Equipo Prueba UI") ?? false
         }
         wait(for: [XCTNSPredicateExpectation(predicate: hecho, object: nil)], timeout: 10)
+    }
+
+    /// Inicio ▸ condición `tile` ▸ `ajustar` ▸ Aceptar ▸ Calcular ⇒ `esperado` (boleto de JD-08).
+    @MainActor private func condicion(_ tile: String, esperado: String, _ ajustar: (XCUIApplication) -> Void) {
+        let app = lanzar()
+        defer { app.terminate() }
+        boletoSeisTriples(app)
+        app.buttons[tile].click()
+        ajustar(app)
+        pulsar(app, app.buttons["Aceptar"].firstMatch)
+        XCTAssertTrue(app.buttons["Calcular columnas"].waitForExistence(timeout: 10))
+        calcular(app, esperado: esperado)
+    }
+
+    /// F20 por la UI: Distancias «1 = 1» (todos los unos juntos): los partidos 1…j distintos de «1» y j+1…6 a «1»,
+    /// Σ 2ʲ (j = 0…6) = 127.
+    @MainActor func testF20Distancias() {
+        condicion("Distancias", esperado: "127") { app in
+            let campo = app.textFields["campo-1"]
+            XCTAssertTrue(campo.waitForExistence(timeout: 10))
+            campo.click()
+            campo.typeText("1")
+        }
+    }
+
+    /// F20 por la UI: Dibujos X+2 «1+1» y «0+0» ⇒ 6·5 + 1 = 31.
+    @MainActor func testF20Dibujos() {
+        condicion("Dibujos", esperado: "31") { app in
+            for d in ["1+1", "0+0"] {
+                let casilla = app.checkBoxes[d]
+                XCTAssertTrue(casilla.waitForExistence(timeout: 10), d)
+                casilla.click()
+            }
+        }
+    }
+
+    /// F48: abrir un `.comb` truncado muestra un error y la app sigue (el boleto no cambia).
+    @MainActor func testF48CombinacionCorrupta() throws {
+        let roto = try fichero("roto.comb", ["<?xml version=\"1.0\"?><combinacion><grupo"])
+        let app = lanzar()
+        defer { app.terminate() }
+        XCTAssertTrue(app.staticTexts["Fijos: 0 - Dobles: 0 - Triples: 14"].waitForExistence(timeout: 10))
+        app.buttons["Abrir combinación"].firstMatch.click()
+        panel(app, ruta: roto)
+        XCTAssertTrue(app.dialogs.firstMatch.waitForExistence(timeout: 10), "se esperaba el aviso de error")
+        app.typeKey(.return, modifierFlags: [])
+        XCTAssertTrue(app.staticTexts["Fijos: 0 - Dobles: 0 - Triples: 14"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["Calcular columnas"].isHittable)
     }
 }
