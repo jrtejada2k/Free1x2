@@ -136,8 +136,9 @@ final class FlujosUITests: XCTestCase {
         fijos.typeKey("a", modifierFlags: .command)
         fijos.typeText("7\r")
         pulsar(app, app.buttons["Guardar"])
-        let aceptar = app.buttons["Aceptar"].firstMatch
-        if aceptar.waitForExistence(timeout: 5) { aceptar.click() }
+        // Aviso «Configuración guardada»: «Aceptar» es su botón por defecto (el de la Touch Bar no se puede pulsar).
+        _ = app.dialogs.firstMatch.waitForExistence(timeout: 5)
+        app.typeKey(.return, modifierFlags: [])
         salir(app)
         app = lanzar(datos: datos)
         defer { app.terminate() }
@@ -221,5 +222,42 @@ final class FlujosUITests: XCTestCase {
         XCTAssertEqual(reducidas.count, n)
         let aciertos = { (a: String, b: String) in zip(a, b).filter { $0 == $1 }.count }
         XCTAssertTrue(Self.seisTriples.allSatisfy { c in reducidas.contains { aciertos($0, c) >= 13 } })
+    }
+
+    /// F06: Guardar la combinación, «Nueva» (vuelve a 14 triples) y Abrir lo guardado (vuelve el boleto de JD-08).
+    @MainActor func testF06GuardarNuevaAbrir() throws {
+        let carpeta = (try fichero("vacio.txt", []) as NSString).deletingLastPathComponent
+        let app = lanzar()
+        defer { app.terminate() }
+        boletoSeisTriples(app)
+        app.buttons["Guardar combinación"].firstMatch.click()
+        panel(app, ruta: carpeta)
+        let comb = carpeta + "/Combinacion.comb"
+        XCTAssertTrue(FileManager.default.fileExists(atPath: comb))
+        app.buttons["Nueva combinación"].firstMatch.click()
+        XCTAssertTrue(app.staticTexts["Fijos: 0 - Dobles: 0 - Triples: 14"].waitForExistence(timeout: 10))
+        app.buttons["Abrir combinación"].firstMatch.click()
+        panel(app, ruta: comb)
+        XCTAssertTrue(app.staticTexts["Fijos: 8 - Dobles: 0 - Triples: 6"].waitForExistence(timeout: 10))
+    }
+
+    /// F43: alta de un equipo en Gestión de Equipos y «Guardar archivos»: queda al final de `equipos1.dat` (Latin-1, como
+    /// en Windows) y la pantalla lo vuelve a cargar al reabrir. La lista es larga: se comprueba en el fichero.
+    @MainActor func testF43EquipoPersiste() throws {
+        let datos = FileManager.default.temporaryDirectory.appending(path: "Free1X2UI-\(UUID().uuidString)").path(percentEncoded: false)
+        let app = lanzar(datos: datos)
+        defer { app.terminate() }
+        app.buttons["Gestión de Equipos"].firstMatch.click()
+        let nombre = app.textFields["Nombre"]
+        XCTAssertTrue(nombre.waitForExistence(timeout: 10))
+        nombre.click()
+        nombre.typeText("Equipo Prueba UI")
+        app.buttons["Nuevo equipo"].click()
+        pulsar(app, app.buttons["Guardar archivos"])
+        let fichero = datos + "/Equipos/equipos1.dat"
+        let hecho = NSPredicate { _, _ in
+            (try? String(contentsOfFile: fichero, encoding: .isoLatin1))?.contains("Equipo Prueba UI") ?? false
+        }
+        wait(for: [XCTNSPredicateExpectation(predicate: hecho, object: nil)], timeout: 10)
     }
 }
