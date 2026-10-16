@@ -301,9 +301,9 @@ Leyenda: **I** = `Tests/Free1X2CasosDeUsoTests/FlujosTests.swift` (ficheros real
 | F46 tema e idioma | U `testF46Idioma` | ✔ |
 | F47 borrar temporales | I `f47BorrarTemporales` | ✔ |
 | F48 errores | I `f48Errores`; U `testF48CombinacionCorrupta` | ✔ |
-| F49 cargar jornada | N4 `equiposDeJornadaReal` (capturas reales ES con pleno y MX); U `testF49CargarJornada` | pendiente CI |
+| F49 cargar jornada | N4 `equiposDeJornadaReal` (capturas reales ES con pleno y MX); U `testF49CargarJornada` | ✔ |
 
-**CI:** run 38935274408 verde: 257 tests del paquete, cobertura de casos de uso 88,3 % y **16 flujos de UI**.
+**CI:** run 38970416309 verde: 258 tests del paquete, cobertura de casos de uso 88,3 % y **16 tests de UI** (con F49).
 
 **Defectos encontrados:** D-01 (ayuda que pedía espacios), D-02 y D-03 (accesibilidad), **D-04** (condición no válida que
 dejaba el cálculo a 0). Los cuatro corregidos, con su prueba. **Huecos completados:** C2, C3, C5, C6 (C4 no era hueco).
