@@ -182,7 +182,7 @@ struct VistaCalculaColumnas: View {
     private func fila(_ titulo: String, _ columnas: String, _ coste: String) -> some View {
         GridRow {
             Text(titulo).gridColumnAlignment(.leading)
-            Text(columnas).monospacedDigit()
+            Text(columnas).monospacedDigit().accessibilityIdentifier("calculo-\(titulo)")
             Text(coste).monospacedDigit()
         }
     }

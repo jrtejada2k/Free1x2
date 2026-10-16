@@ -23,7 +23,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Formato
-        run: swift format lint --strict --recursive --configuration .swift-format App Packages/Free1X2Kit/Sources Packages/Free1X2Kit/Tests Packages/Free1X2Kit/Package.swift
+        run: swift format lint --strict --recursive --configuration .swift-format App UITests Packages/Free1X2Kit/Sources Packages/Free1X2Kit/Tests Packages/Free1X2Kit/Package.swift
 
       - name: Patrones prohibidos
         run: scripts/lint-prohibidos.sh
@@ -39,3 +39,11 @@ jobs:
           xcodebuild -project Free1X2.xcodeproj -scheme Free1X2 -configuration Release
           -destination 'platform=macOS' -derivedDataPath .build/DerivedData
           build CODE_SIGNING_ALLOWED=NO SWIFT_TREAT_WARNINGS_AS_ERRORS=YES
+
+      # Plan de pruebas funcionales, Fase 2: la app de verdad pulsando sus controles. El runner permite activar el modo
+      # de automatización sin contraseña (en un Mac propio lo hace el dueño una vez).
+      - name: Flujos de UI (XCUITest)
+        run: |
+          sudo automationmodetool enable-automationmode-without-authentication
+          xcodebuild -project Free1X2.xcodeproj -scheme Free1X2 -configuration Debug -destination 'platform=macOS' \
+            -derivedDataPath .build/DerivedDataUI test -only-testing:Free1X2UITests

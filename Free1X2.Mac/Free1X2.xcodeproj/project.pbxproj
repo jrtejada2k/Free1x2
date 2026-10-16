@@ -131,6 +131,7 @@
 		E2B30E73654C0B1B34A3282F /* bAcercaDe.png in Resources */ = {isa = PBXBuildFile; fileRef = 0E66BC226DA1966B2E8326D6 /* bAcercaDe.png */; };
 		E693C7E6AC98476F326288A5 /* ControlGrupos.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0FC64BC0051E3917F7CD08 /* ControlGrupos.swift */; };
 		E6F65D76BA0A88DBA6646F2A /* PesosNumericos.swift in Sources */ = {isa = PBXBuildFile; fileRef = E57437FEB0766E67A1F55EF1 /* PesosNumericos.swift */; };
+		EC83552382BC9E2A86257D38 /* FlujosUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15172F803930284EDEF3C514 /* FlujosUITests.swift */; };
 		ECD7E7BCABC8A4DABE96FEBF /* Free1X2App.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3FF8E5909D62572635C6B70 /* Free1X2App.swift */; };
 		EDDD269273EB817E07833D3D /* Escrutinios.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FB1E51964635F385BCD932C /* Escrutinios.swift */; };
 		EF4D9335CEB7F920C1D23D80 /* bColumnasGEPT.png in Resources */ = {isa = PBXBuildFile; fileRef = 1818B87A9E67F08DC83CCF45 /* bColumnasGEPT.png */; };
@@ -138,6 +139,16 @@
 		FC1C5ADA95E5CEA9D26198B0 /* bAbrirCombinacion.png in Resources */ = {isa = PBXBuildFile; fileRef = 5C9F8D72B5FFCC0DD9B961B9 /* bAbrirCombinacion.png */; };
 		FD90AD4C9F2331645AFEE310 /* bBancoPruebas.png in Resources */ = {isa = PBXBuildFile; fileRef = F402F7C2F9E51B1E2F11B4CA /* bBancoPruebas.png */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		22D616E739E43DDF17713F66 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 399B40DEDF1EF20ADD59AE6D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B72C5944004B300ED194B130;
+			remoteInfo = Free1X2;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		04868F81389E8058D7698462 /* Menus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Menus.swift; sourceTree = "<group>"; };
@@ -150,6 +161,7 @@
 		10D2D0BE1AEC6E69DA88153E /* OrdenarPorProbabilidad.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrdenarPorProbabilidad.swift; sourceTree = "<group>"; };
 		12D871214F4F847AFC6EE8CB /* bAnalisisFallos.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bAnalisisFallos.png; sourceTree = "<group>"; };
 		14C149043FCB6537B8F6385D /* SignosSeguidos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignosSeguidos.swift; sourceTree = "<group>"; };
+		15172F803930284EDEF3C514 /* FlujosUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlujosUITests.swift; sourceTree = "<group>"; };
 		155B4C4BD9207486FB079F3E /* bCombinarFiltros.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bCombinarFiltros.png; sourceTree = "<group>"; };
 		15E4CB36F62981DF18AEA805 /* bSelectorJuanM.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bSelectorJuanM.png; sourceTree = "<group>"; };
 		180A7A586EA6E5884322C901 /* Grupos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Grupos.swift; sourceTree = "<group>"; };
@@ -170,6 +182,7 @@
 		41245E34DCDBCA89F8128D5A /* bCalcular.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bCalcular.png; sourceTree = "<group>"; };
 		4141061D9A72DF1F7F7A688B /* Pleno15.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pleno15.swift; sourceTree = "<group>"; };
 		44D82B5D4F127E3848F5C89B /* Aidomnou.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Aidomnou.swift; sourceTree = "<group>"; };
+		459DBE198B15308799FA33D4 /* Free1X2UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Free1X2UITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		47E9E8A7E5855E658223766E /* bMultiplicacion.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bMultiplicacion.png; sourceTree = "<group>"; };
 		48A82DBB21AD9055135905CD /* bDiferenciasFiltros.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bDiferenciasFiltros.png; sourceTree = "<group>"; };
 		49BDD4273F4F33E1C72948C9 /* PortapapelesSistema.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortapapelesSistema.swift; sourceTree = "<group>"; };
@@ -425,6 +438,7 @@
 			isa = PBXGroup;
 			children = (
 				B8C08A00BAF58381E06F1D70 /* Free1X2.app */,
+				459DBE198B15308799FA33D4 /* Free1X2UITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -494,6 +508,14 @@
 			path = Free;
 			sourceTree = "<group>";
 		};
+		C3AE7F64485A1A13F36DCF53 /* UITests */ = {
+			isa = PBXGroup;
+			children = (
+				15172F803930284EDEF3C514 /* FlujosUITests.swift */,
+			);
+			path = UITests;
+			sourceTree = "<group>";
+		};
 		D2FE64FBBE5D879E4214E6D4 /* Packages */ = {
 			isa = PBXGroup;
 			children = (
@@ -521,6 +543,7 @@
 			children = (
 				F5445EFE55304770FDADE307 /* App */,
 				D2FE64FBBE5D879E4214E6D4 /* Packages */,
+				C3AE7F64485A1A13F36DCF53 /* UITests */,
 				28B3B6413499C010D50789E8 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -561,6 +584,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		25A42B533CE9816A2B71E278 /* Free1X2UITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 54BFBE655CC9C0F4F7886741 /* Build configuration list for PBXNativeTarget "Free1X2UITests" */;
+			buildPhases = (
+				38882366E453DE41DE6B383B /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				852BEBD8CA4E6C374829F9BC /* PBXTargetDependency */,
+			);
+			name = Free1X2UITests;
+			packageProductDependencies = (
+			);
+			productName = Free1X2UITests;
+			productReference = 459DBE198B15308799FA33D4 /* Free1X2UITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		B72C5944004B300ED194B130 /* Free1X2 */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = A9AEAF2D1DBA6B6115AF2A67 /* Build configuration list for PBXNativeTarget "Free1X2" */;
@@ -590,6 +631,10 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
+					25A42B533CE9816A2B71E278 = {
+						ProvisioningStyle = Manual;
+						TestTargetID = B72C5944004B300ED194B130;
+					};
 					B72C5944004B300ED194B130 = {
 						ProvisioningStyle = Manual;
 					};
@@ -613,6 +658,7 @@
 			projectRoot = "";
 			targets = (
 				B72C5944004B300ED194B130 /* Free1X2 */,
+				25A42B533CE9816A2B71E278 /* Free1X2UITests */,
 			);
 		};
 /* End PBXProject section */
@@ -685,6 +731,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		38882366E453DE41DE6B383B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EC83552382BC9E2A86257D38 /* FlujosUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		63D798A02848B8AB4EBEE72F /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -765,6 +819,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		852BEBD8CA4E6C374829F9BC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B72C5944004B300ED194B130 /* Free1X2 */;
+			targetProxy = 22D616E739E43DDF17713F66 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		069F68C9862E4AA01C152147 /* Debug */ = {
@@ -921,6 +983,44 @@
 			};
 			name = Debug;
 		};
+		B9BD44335E0E85BF94BD6073 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.free1x2.app.uitests;
+				SDKROOT = macosx;
+				TEST_TARGET_NAME = Free1X2;
+			};
+			name = Debug;
+		};
+		D0B95F77486D8322737D3EAE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.free1x2.app.uitests;
+				SDKROOT = macosx;
+				TEST_TARGET_NAME = Free1X2;
+			};
+			name = Release;
+		};
 		FDD5EF278094B1A44985418A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -954,6 +1054,15 @@
 			buildConfigurations = (
 				069F68C9862E4AA01C152147 /* Debug */,
 				7A89E3DC65FA7A164EDBC56A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		54BFBE655CC9C0F4F7886741 /* Build configuration list for PBXNativeTarget "Free1X2UITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B9BD44335E0E85BF94BD6073 /* Debug */,
+				D0B95F77486D8322737D3EAE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

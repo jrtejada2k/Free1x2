@@ -273,6 +273,7 @@ struct BoletoBaseView: View {
                                 isOn: Binding(get: { sesion.signos(i)[k] }, set: { _ in sesion.alternar(i, k) })
                             )
                             .toggleStyle(EstiloSigno())
+                            .accessibilityIdentifier("signo-\(i + 1)-\(["1", "X", "2"][k])")
                             .accessibilityHint(["Signo 1 (gana el local)", "Signo X (empate)", "Signo 2 (gana el visitante)"][k])
                         }
                     }

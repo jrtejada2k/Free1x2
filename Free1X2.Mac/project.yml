@@ -47,3 +47,21 @@ targets:
         # Firma local ad hoc hasta M6 (Developer ID).
         CODE_SIGN_IDENTITY: "-"
         CODE_SIGN_STYLE: Manual
+    # Plan de pruebas funcionales, Fase 2 (ESPEC_14 N6): flujos de punta a punta con XCUITest.
+    scheme:
+      testTargets:
+        - Free1X2UITests
+  Free1X2UITests:
+    type: bundle.ui-testing
+    platform: macOS
+    sources:
+      - path: UITests
+    dependencies:
+      - target: Free1X2
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: com.free1x2.app.uitests
+        TEST_TARGET_NAME: Free1X2
+        CODE_SIGN_IDENTITY: "-"
+        CODE_SIGN_STYLE: Manual
