@@ -104,6 +104,7 @@ struct VistaEscrutinios: View {
                 HStack(spacing: 20) {
                     CampoCondicion(etiqueta: "Rango de aciertos a mostrar", texto: $rango, ayuda: "10-14").frame(maxWidth: 380)
                     Toggle("Registrar columnas premiadas", isOn: $registrar).toggleStyle(.switch)
+                        .accessibilityIdentifier("registrar-premiadas")
                 }
             }
             HStack(alignment: .top, spacing: 16) {

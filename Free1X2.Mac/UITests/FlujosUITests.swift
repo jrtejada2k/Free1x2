@@ -189,7 +189,7 @@ final class FlujosUITests: XCTestCase {
         panel(app, ruta: ruta)
         XCTAssertTrue(app.staticTexts["jd01.txt"].waitForExistence(timeout: 10))
         // «Ver premiadas» solo funciona con «Registrar columnas premiadas» activado (como el original).
-        if registrar { app.descendants(matching: .any)["Registrar columnas premiadas"].firstMatch.click() }
+        if registrar { app.switches["registrar-premiadas"].click() }
         let ganadora = app.textFields["campo-Columna ganadora"]
         ganadora.click()
         ganadora.typeText(String(repeating: "1", count: 14))
