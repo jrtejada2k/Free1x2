@@ -97,7 +97,7 @@ struct VistaReductor: View {
                     ForEach(Array(["Col. Iniciales", "Procesadas", "Admitidas", "Porcentaje"].enumerated()), id: \.offset) { i, t in
                         GridRow {
                             Text(t)
-                            Text(contadores[i]).monospacedDigit()
+                            Text(contadores[i]).monospacedDigit().accessibilityIdentifier("reduccion-\(t)")
                         }
                     }
                     GridRow {
@@ -109,6 +109,7 @@ struct VistaReductor: View {
             }
             HStack {
                 Button("Reducir", action: reducir).buttonStyle(EstiloPrincipal()).keyboardShortcut(.defaultAction)
+                    .accessibilityIdentifier("accion-reducir")
                     .disabled(entrada == nil || salida == nil || reduciendo)
                 Button("Cancelar") {
                     tarea?.cancel()

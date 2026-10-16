@@ -306,7 +306,7 @@ struct VistaEscrutinios: View {
                     GridRow {
                         Text(String(b.aciertos)).monospacedDigit()
                         Text("->")
-                        Text(String(b.columnas)).monospacedDigit()
+                        Text(String(b.columnas)).monospacedDigit().accessibilityIdentifier("histograma-\(b.aciertos)")
                     }
                 }
             }

@@ -20,6 +20,13 @@ final class FlujosUITests: XCTestCase {
         XCTAssertTrue(app.wait(for: .notRunning, timeout: 10))
     }
 
+    /// Desplaza la página hasta que `e` se pueda pulsar (en macOS XCUITest no desplaza solo).
+    @MainActor private func pulsar(_ app: XCUIApplication, _ e: XCUIElement) {
+        XCTAssertTrue(e.waitForExistence(timeout: 10))
+        for _ in 0..<10 where !e.isHittable { app.scrollViews.firstMatch.scroll(byDeltaX: 0, deltaY: -300) }
+        e.click()
+    }
+
     /// Menú de la app (Free1X2) ▸ `ruta`.
     @MainActor private func menu(_ app: XCUIApplication, _ ruta: String...) {
         app.menuBars.menuBarItems["Free1X2"].click()
@@ -28,6 +35,36 @@ final class FlujosUITests: XCTestCase {
             XCTAssertTrue(item.waitForExistence(timeout: 5), t)
             if i < ruta.count - 1 { item.hover() } else { item.click() }
         }
+    }
+
+    /// JD-01 del plan: partidos 1–6 ∈ {1, X, 2}, 7–14 = «1».
+    static let seisTriples: [String] = (0..<729).map { i in
+        var (n, s) = (i, "")
+        for _ in 0..<6 {
+            s += ["1", "X", "2"][n % 3]
+            n /= 3
+        }
+        return s + String(repeating: "1", count: 8)
+    }
+
+    /// Escribe un fichero de columnas (CRLF, como los de Windows) y devuelve su ruta.
+    private func fichero(_ nombre: String, _ lineas: [String]) throws -> String {
+        let url = FileManager.default.temporaryDirectory.appending(path: "Free1X2UI-ficheros-\(UUID().uuidString)/\(nombre)")
+        try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try Data(lineas.map { $0 + "\r\n" }.joined().utf8).write(to: url)
+        return url.path(percentEncoded: false)
+    }
+
+    /// En el panel de abrir o guardar que acaba de aparecer: ⇧⌘G, la ruta y aceptar (sin depender del idioma del sistema).
+    @MainActor private func panel(_ app: XCUIApplication, ruta: String) {
+        _ = app.dialogs.firstMatch.waitForExistence(timeout: 10)
+        Thread.sleep(forTimeInterval: 1)
+        app.typeKey("g", modifierFlags: [.command, .shift])
+        Thread.sleep(forTimeInterval: 1)
+        app.typeText(ruta + "\r")
+        Thread.sleep(forTimeInterval: 1)
+        app.typeKey(.return, modifierFlags: [])
+        Thread.sleep(forTimeInterval: 1)
     }
 
     /// Boleto de JD-08: partidos 1–6 a triple y 7–14 fijos a «1».
@@ -98,7 +135,7 @@ final class FlujosUITests: XCTestCase {
         fijos.doubleClick()
         fijos.typeKey("a", modifierFlags: .command)
         fijos.typeText("7\r")
-        app.buttons["Guardar"].click()
+        pulsar(app, app.buttons["Guardar"])
         let aceptar = app.buttons["Aceptar"].firstMatch
         if aceptar.waitForExistence(timeout: 5) { aceptar.click() }
         salir(app)
@@ -132,5 +169,57 @@ final class FlujosUITests: XCTestCase {
         menu(app, "Créditos…")
         XCTAssertTrue(app.staticTexts["Free1X2 Team"].waitForExistence(timeout: 10))
         menu(app, "Idioma", "Español")
+    }
+
+    /// F13: Escrutinios ▸ JD-01 contra la columna de unos, rango 10–14 ⇒ 14: 1, 13: 12, 12: 60, 11: 160, 10: 240.
+    @MainActor func testF13Escrutinio() throws {
+        let ruta = try fichero("jd01.txt", Self.seisTriples)
+        let app = lanzar()
+        defer { app.terminate() }
+        app.buttons["Escrutinio"].firstMatch.click()
+        let elegir = app.buttons["Seleccionar ficheros…"]
+        XCTAssertTrue(elegir.waitForExistence(timeout: 10))
+        elegir.click()
+        panel(app, ruta: ruta)
+        XCTAssertTrue(app.staticTexts["jd01.txt"].waitForExistence(timeout: 10))
+        let ganadora = app.textFields["campo-Columna ganadora"]
+        ganadora.click()
+        ganadora.typeText(String(repeating: "1", count: 14))
+        app.buttons["Escrutar"].firstMatch.click()
+        for (aciertos, columnas) in [(14, "1"), (13, "12"), (12, "60"), (11, "160"), (10, "240")] {
+            let t = app.staticTexts["histograma-\(aciertos)"]
+            XCTAssertTrue(t.waitForExistence(timeout: 30), "\(aciertos)")
+            XCTAssertEqual(t.value as? String ?? t.label, columnas, "\(aciertos) aciertos")
+        }
+    }
+
+    /// F11: Reductor, JD-01 a nivel 13 (menos tiempo) ⇒ entre 73 (K₃(6,1)) y 729 columnas, y todas las de JD-01 con 13
+    /// aciertos frente a alguna reducida.
+    @MainActor func testF11Reducir() throws {
+        let entrada = try fichero("jd01.txt", Self.seisTriples)
+        let carpeta = (entrada as NSString).deletingLastPathComponent
+        let app = lanzar()
+        defer { app.terminate() }
+        app.buttons["Reducir"].firstMatch.click()
+        let elegir = app.buttons["Archivo entrada"]
+        XCTAssertTrue(elegir.waitForExistence(timeout: 10))
+        elegir.click()
+        panel(app, ruta: entrada)
+        XCTAssertTrue(app.staticTexts["jd01.txt"].waitForExistence(timeout: 10))
+        app.buttons["Archivo salida"].click()
+        panel(app, ruta: carpeta)
+        XCTAssertTrue(app.staticTexts["Reducido.txt"].waitForExistence(timeout: 10))
+        app.buttons["accion-reducir"].click()
+        let admitidas = app.staticTexts["reduccion-Admitidas"]
+        let hecho = NSPredicate(format: "value BEGINSWITH ' = '")
+        wait(for: [XCTNSPredicateExpectation(predicate: hecho, object: admitidas)], timeout: 60)
+        let n = Int(((admitidas.value as? String) ?? "").replacingOccurrences(of: " = ", with: "")) ?? -1
+        XCTAssertTrue((73...729).contains(n), "admitidas \(n)")
+        let reducidas = try String(contentsOfFile: carpeta + "/Reducido.txt", encoding: .utf8).components(separatedBy: "\r\n").filter {
+            !$0.isEmpty
+        }
+        XCTAssertEqual(reducidas.count, n)
+        let aciertos = { (a: String, b: String) in zip(a, b).filter { $0 == $1 }.count }
+        XCTAssertTrue(Self.seisTriples.allSatisfy { c in reducidas.contains { aciertos($0, c) >= 13 } })
     }
 }
