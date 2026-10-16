@@ -269,4 +269,142 @@ struct FlujosTests {
         try Data("<?xml version=\"1.0\"?><combinacion><grupo".utf8).write(to: roto)
         #expect(throws: ErrorDominio.self) { try CasosInicio.abrirCombinacion(roto, numeroPartidos: 14, entorno: entorno) }
     }
+
+    /// F07: «grupo siguiente» crea el grupo 1; guardar y abrir conserva los 2 grupos; eliminarlo vuelve a 1.
+    @Test func f07Grupos() throws {
+        var c = Self.combinacion()
+        #expect(try CasosInicio.cambiarGrupo(&c, a: 1) == 1 && c.grupos.count == 2)
+        let url = carpeta.appending(path: "Combinaciones/grupos.comb")
+        let equipos = (1...14).map { "L\($0) - V\($0)" }
+        try CasosInicio.guardarCombinacion(c, equipos: equipos, filtroColumnas: "", en: url, entorno: entorno)
+        #expect(try CasosInicio.abrirCombinacion(url, numeroPartidos: 14, entorno: entorno).combinacion.grupos.count == 2)
+        _ = try CasosInicio.eliminarGrupo(&c, 1)
+        #expect(c.grupos.count == 1)
+    }
+
+    /// F16: «Ver premiadas ▸ Guardar todas» tras el escrutinio de JD-01: las 473 columnas con 10 o más aciertos.
+    @Test func f16ColumnasPremiadas() async throws {
+        let f = try fichero("Columnas/jd01.txt", Self.seisTriples)
+        let e = EntradaEscrutinio(
+            modo: .simple(ganadora: Self.unos), ficheros: [f], rangoAciertos: Array(10...14), registrarPremiadas: true)
+        let r = try await CasosCombinacion.escrutarColumnas(e, numeroPartidos: 14, entorno: entorno)
+        let s = carpeta.appending(path: "Columnas/premiadas.txt")
+        let columnas = CasosCombinacion.filasPremiadas(r.premiadas).map(\.columna)
+        try entorno.archivos.escribir(CasosCombinacion.datosColumnas(columnas, quitarComas: false), en: s, atomico: false)
+        let l = try lineas(s)
+        #expect(l.count == 473 && Set(l) == Set(Self.seisTriples.filter { Self.aciertos($0, Self.unos) >= 10 }))
+    }
+
+    /// F17: posibles premios de JD-02 frente a la columna de unos (categorías 16…10).
+    @Test func f17PosiblesPremios() async {
+        let r = await CasosCombinacion.posiblesPremios(Self.sinX, ganadora: Self.unos, partidos: 14, pleno: false, generarResumen: false)
+        #expect(r.categorias.map(\.count) == [0, 0, 1, 6, 15, 20, 15] && r.premiadas.count == 57)
+        let o = CasosCombinacion.textosOptando(r.categorias, pleno: false)
+        #expect(o[2] == "Optando a 14: 1" && o[6] == "Optando a 10: 15")
+    }
+
+    /// F35: `.txt` → `.csv` → `.txt` devuelve las mismas 729 columnas en el mismo orden.
+    @Test func f35ImportarExportar() throws {
+        let txt = try fichero("Columnas/jd01.txt", Self.seisTriples)
+        let a = try CasosUtilidades.leerParaConvertir(txt, aTxt: false, entorno: entorno)
+        #expect(a.columnas.count == 729 && a.salida.pathExtension == "csv")
+        #expect(try CasosUtilidades.convertirColumnas(a.columnas, aTxt: false, salida: a.salida, entorno: entorno) == 729)
+        let b = try CasosUtilidades.leerParaConvertir(a.salida, aTxt: true, entorno: entorno)
+        let vuelta = carpeta.appending(path: "Columnas/vuelta.txt")
+        #expect(try CasosUtilidades.convertirColumnas(b.columnas, aTxt: true, salida: vuelta, entorno: entorno) == 729)
+        #expect(try lineas(vuelta) == Self.seisTriples)
+    }
+
+    /// F41 y F42: «Actualizar jornada» con el servicio grabado deja la jornada en la caché del disco; sin red se usa la
+    /// caché, y el arranque la siembra sin tocar la red.
+    @Test func f41f42Online() async throws {
+        let url = try #require(URL(string: "https://clubprogol.com/wp-json/clubprogol/v1/quiniela/es/actual"))
+        var conRed = entorno
+        conRed.red = ClienteHTTPGrabado(respuestas: [url: .init(cuerpo: try Golden.bytes("Fixtures/online/quiniela-es-actual.json"))])
+        let ok = await CasosArchivo.descargarJornada(.es, servicio: CasosArchivo.servicioOnline(entorno: conRed), entorno: conRed)
+        let j = try #require(ok.jornada, "\(ok.mensaje)")
+        #expect(ok.mensaje.contains("14 partidos cargados"))
+        let cacheada = await CasosArchivo.descargarJornada(.es, servicio: CasosArchivo.servicioOnline(entorno: entorno), entorno: entorno)
+        #expect(cacheada.jornada?.jornada == j.jornada && cacheada.mensaje.hasPrefix("Sin conexión: mostrando la jornada guardada"))
+        #expect(CasosInicio.arrancar(entorno: entorno).jornada?.jornada == j.jornada)
+    }
+
+    /// F43: alta de un equipo con «Ñ» en 1.ª: se guarda en Latin-1 (como la app de Windows) y se relee; repetido ⇒ no.
+    @Test func f43Equipos() throws {
+        #expect(try CasosArchivo.anadirEquipo("Ñandú Cádiz", categoria: .primera, entorno: entorno))
+        #expect(try !CasosArchivo.anadirEquipo("Ñandú Cádiz", categoria: .primera, entorno: entorno))
+        let e = EditorEquipos.cargar(entorno: entorno)
+        #expect(e.lista(.primera).last == "Ñandú Cádiz" && e.lista(.primera).count > 1)
+        #expect(try Data(contentsOf: carpeta.appending(path: "Equipos/equipos1.dat")).contains(0xD1))
+    }
+
+    /// F44: la configuración guardada persiste en `parametros.free1x2` y la usa el siguiente arranque.
+    @Test func f44Configuracion() throws {
+        var e = CasosAjustes.leerConfiguracionEditable(entorno: entorno)
+        #expect(e.jb == [15, 22, 29, 36, 48, 61] && e.recaudacion == 14_000_000)
+        e.precioApuesta = 0.75
+        _ = try CasosAjustes.guardarConfiguracion(e, entorno: entorno)
+        #expect(CasosAjustes.leerConfiguracionEditable(entorno: entorno).precioApuesta == 0.75)
+        #expect(CasosInicio.arrancar(entorno: entorno).configuracion.lae.precioApuesta == 0.75)
+    }
+
+    /// F47: «Borrar archivos temporales» quita los `*_tmp.comb` de `Temp/` y deja lo demás.
+    @Test func f47BorrarTemporales() throws {
+        _ = try fichero("Temp/a_tmp.comb", ["x"])
+        _ = try fichero("Temp/b_tmp.comb", ["y"])
+        _ = try fichero("Temp/otro.txt", ["z"])
+        #expect(try CasosInicio.borrarTemporales(entorno: entorno) == 2)
+        #expect(
+            try FileManager.default.contentsOfDirectory(atPath: carpeta.appending(path: "Temp").path(percentEncoded: false)) == ["otro.txt"]
+        )
+    }
+
+    /// F20: condiciones del grupo sobre JD-08. El esperado sale de un oráculo de fuerza bruta escrito desde la definición
+    /// de la spec citada (independiente del motor), contado sobre las 729 columnas de JD-01.
+    @Test func f20Condiciones() async throws {
+        let cols = Self.seisTriples
+        func aceptadas(_ cambio: (inout CondicionesGrupo) throws(ErrorDominio) -> Void) async throws -> Int {
+            var c = Self.combinacion()
+            try c.modificarGrupo(0) { g throws(ErrorDominio) in try cambio(&g.condiciones) }
+            return try await calcular(c, en: "f20.txt").aceptadas
+        }
+        func esUno(_ c: Character) -> Bool { c == "1" }
+        // Interrupciones (ESPEC_02 §2.1): pares consecutivos con signo distinto ∈ {0, 1, 2}.
+        let cambios = { (s: String) in zip(s, s.dropFirst()).filter { $0 != $1 }.count }
+        let interrupciones = try await aceptadas { c throws(ErrorDominio) in
+            try CasosCondiciones.aplicarInterrupciones(["0,1,2"] + Array(repeating: "", count: 9), en: &c.interrupciones)
+        }
+        #expect(interrupciones == cols.filter { cambios($0) <= 2 }.count)
+        // Distancias (ESPEC_03 §1): mayor separación entre unos consecutivos = 1 (todos los unos juntos).
+        func distancia(_ s: String) -> Int {
+            let p = s.enumerated().filter { esUno($0.element) }.map(\.offset)
+            return zip(p, p.dropFirst()).map { $1 - $0 }.max() ?? 0
+        }
+        let distancias = try await aceptadas { c throws(ErrorDominio) in
+            try CasosCondiciones.aplicarDistancias(["", "1", "", ""], en: &c.distancias)
+        }
+        #expect(distancias == cols.filter { distancia($0) == 1 }.count)
+        // Signos seguidos (ESPEC_02 §4.1): racha más larga de «1» = 8 (el partido 6 no es «1»: 2·3⁵ = 486).
+        func racha(_ s: String) -> Int {
+            var (m, r) = (0, 0)
+            for ch in s {
+                r = esUno(ch) ? r + 1 : 0
+                m = max(m, r)
+            }
+            return m
+        }
+        let seguidos = try await aceptadas { c throws(ErrorDominio) in
+            try CasosCondiciones.aplicarSignosSeguidos(["", "8", "", ""], figuras: [nil, nil, nil, nil], en: &c.signosSeguidos)
+        }
+        #expect(seguidos == cols.filter { racha($0) == 8 }.count && seguidos == 486)
+        // Simetrías (ESPEC_03 §6): partidos 1 y 2 con el mismo signo (3⁵ = 243).
+        let simetrias = try await aceptadas { c throws(ErrorDominio) in
+            _ = try CasosCondiciones.aplicarSimetrias(filas: ["1,2"], aciertos: "1", en: &c.simetrias, numeroPartidos: 14)
+        }
+        #expect(simetrias == cols.filter { Array($0)[0] == Array($0)[1] }.count && simetrias == 243)
+        // Dibujos X+2 (ESPEC_03 §8): (nº de X, nº de 2) ∈ {(1, 1), (0, 0)} ⇒ 6·5 + 1 = 31.
+        let dibujos = try await aceptadas { c throws(ErrorDominio) in try CasosCondiciones.aplicarDibujos(["1+1", "0+0"], en: &c.dibujos) }
+        let dibujo = { (s: String) in "\(s.filter { $0 == "X" }.count)+\(s.filter { $0 == "2" }.count)" }
+        #expect(dibujos == cols.filter { ["1+1", "0+0"].contains(dibujo($0)) }.count && dibujos == 31)
+    }
 }

@@ -243,6 +243,7 @@ coinciden, se corrige el Swift (R1: sin tocar golden).
 |-------|-------|-----------|
 | 2026-10-16 | P3 `-datos`; Fase 1, lote 1: F01, F03, F04, F06, F11, F13, F14, F15, F27, F29, F30, F31, F32, F34, F48 (`Tests/Free1X2CasosDeUsoTests/FlujosTests.swift`, 13 tests verdes) | **D-01** (gravedad 2): Variantes, Signos seguidos y Distancias decían «separa con comas o espacios» y ponían `0 1 2` de ejemplo, pero el parser solo acepta comas (DEC-904) ⇒ el usuario que seguía la ayuda recibía «La cadena de entrada no tiene el formato correcto». Corregida la ayuda a comas (DT-78), sin tocar el motor. |
 | 2026-10-16 | C2 (Rotación: % combinación, valoraciones jornada, propuesta y transposición automática), C3, C5; C4 cerrado como comportamiento original; F33 | — |
+| 2026-10-16 | Fase 1, lote 2: F07, F16, F17, F20 (Interrupciones, Distancias, Signos seguidos, Simetrías, Dibujos con oráculo de fuerza bruta desde ESPEC_02/03), F35, F41, F42, F43, F44, F47 (FlujosTests: 23 tests). F37 (Tramificar 9 × 531 441) ya lo cubre `TramificarTests`. Fase 2: target `Free1X2UITests` con F02+F03; en local falta P7 (modo de automatización), en la CI lo activa el runner | — |
 
 ## 10. Orden de trabajo y consumo
 
