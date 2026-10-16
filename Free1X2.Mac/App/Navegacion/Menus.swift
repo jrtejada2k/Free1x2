@@ -71,60 +71,63 @@ struct Menus: Commands {
             Button("Atrás") { sesion.router.atras() }.keyboardShortcut("[")
             Divider()
         }
-        CommandMenu("Combinación") {
-            item("Calcular…", .calculaColumnas).keyboardShortcut(tecla(NSF5FunctionKey), modifiers: [])
-            item("Calcular varias…", .calculaColumnasMultiple)
-            item("Ver boletos…", .verBoletos)
-            item("Ver boletos en editor de texto…", .verBoletosEnEditor)
-            item("Imprimir boletos…", .imprimirBoleto)
-            item("Reducir…", .reductor)
-            item("Escrutinios…", .escrutinios)
-            item("Escrutar combinaciones…", .escrutarCombinaciones)
-            item("Analizar combinación…", .analizarCombinacion)
-            item("Gráfico de columnas…", .graficoColumnas)
-            item("Probabilidades…", .probabilidadPremios)
-            item("Estadísticas…", .anastatics)
-            item("Añadir Pleno al 15…", .agregaP15)
-        }
-        CommandMenu("Filtros") {
-            item("Combinar filtros…", .combinarFiltros)
-            item("Diferencias entre filtros…", .diFiltros)
-            item("Filtro Coincidencias…", .coincidencias)
-            item("Filtro Aidomnou…", .aidomnou)
-            item("Filtro Pim…", .generaPim)
-        }
-        CommandMenu("Operaciones") {
-            item("Álgebra de columnas…", .algebraColumnas)
-            item("Transposición…", .transposicion)
-            item("Multiplicador…", .multiplicador)
-            item("Fraccionador…", .fraccionador)
-            item("Rotación de signos…", .rotacionDeSignos)
-        }
-        CommandMenu("Utilidades") {
-            item("Sube categoría…", .subirCategoria)
-            item("Modificador %…", .modificador)
-            Divider()
-            item("Generador CP…", .generarCPs)
-            item("Columnas GEPT…", .gEPT)
-            Divider()
-            item("Diferencias entre columnas…", .difCols)
-            item("Ordenar por probabilidad…", .ordenarPorProbabilidad)
-            Divider()
-            item("Selector JuanM…", .selecJM)
-            item("Selector MarioSan…", .selectorMS)
-            Divider()
-            item("Rentabilidad…", .rentabilidad)
-            item("Tramificar…", .tramificar)
-            item("Premiadas…", .premiadas)
-            item("Estimación de premios…", .estimadorPremios)
-            item("Banco de pruebas…", .bancoPruebas)
-            Divider()
-            item("Compresor z3q…", .compresor)
-            item("EstuCol…", .estucol)
-        }
-        CommandGroup(replacing: .help) {
-            item("Recursos de ayuda", .ayuda).keyboardShortcut("?")
-            item("Ayuda (F1)", .ayuda).keyboardShortcut(tecla(NSF1FunctionKey), modifiers: [])
+        // El `@CommandsBuilder` del SDK de macOS 26 admite 10 elementos por bloque; aquí van 11.
+        Group {
+            CommandMenu("Combinación") {
+                item("Calcular…", .calculaColumnas).keyboardShortcut(tecla(NSF5FunctionKey), modifiers: [])
+                item("Calcular varias…", .calculaColumnasMultiple)
+                item("Ver boletos…", .verBoletos)
+                item("Ver boletos en editor de texto…", .verBoletosEnEditor)
+                item("Imprimir boletos…", .imprimirBoleto)
+                item("Reducir…", .reductor)
+                item("Escrutinios…", .escrutinios)
+                item("Escrutar combinaciones…", .escrutarCombinaciones)
+                item("Analizar combinación…", .analizarCombinacion)
+                item("Gráfico de columnas…", .graficoColumnas)
+                item("Probabilidades…", .probabilidadPremios)
+                item("Estadísticas…", .anastatics)
+                item("Añadir Pleno al 15…", .agregaP15)
+            }
+            CommandMenu("Filtros") {
+                item("Combinar filtros…", .combinarFiltros)
+                item("Diferencias entre filtros…", .diFiltros)
+                item("Filtro Coincidencias…", .coincidencias)
+                item("Filtro Aidomnou…", .aidomnou)
+                item("Filtro Pim…", .generaPim)
+            }
+            CommandMenu("Operaciones") {
+                item("Álgebra de columnas…", .algebraColumnas)
+                item("Transposición…", .transposicion)
+                item("Multiplicador…", .multiplicador)
+                item("Fraccionador…", .fraccionador)
+                item("Rotación de signos…", .rotacionDeSignos)
+            }
+            CommandMenu("Utilidades") {
+                item("Sube categoría…", .subirCategoria)
+                item("Modificador %…", .modificador)
+                Divider()
+                item("Generador CP…", .generarCPs)
+                item("Columnas GEPT…", .gEPT)
+                Divider()
+                item("Diferencias entre columnas…", .difCols)
+                item("Ordenar por probabilidad…", .ordenarPorProbabilidad)
+                Divider()
+                item("Selector JuanM…", .selecJM)
+                item("Selector MarioSan…", .selectorMS)
+                Divider()
+                item("Rentabilidad…", .rentabilidad)
+                item("Tramificar…", .tramificar)
+                item("Premiadas…", .premiadas)
+                item("Estimación de premios…", .estimadorPremios)
+                item("Banco de pruebas…", .bancoPruebas)
+                Divider()
+                item("Compresor z3q…", .compresor)
+                item("EstuCol…", .estucol)
+            }
+            CommandGroup(replacing: .help) {
+                item("Recursos de ayuda", .ayuda).keyboardShortcut("?")
+                item("Ayuda (F1)", .ayuda).keyboardShortcut(tecla(NSF1FunctionKey), modifiers: [])
+            }
         }
     }
 }
