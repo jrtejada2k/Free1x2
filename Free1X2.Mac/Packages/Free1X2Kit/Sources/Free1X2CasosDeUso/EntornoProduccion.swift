@@ -19,9 +19,17 @@ extension Entorno {
 }
 
 extension RutasApp {
-    /// `~/Library/Application Support/Free1X2/` y `~/Library/Logs/Free1X2/` (DP-13; ESPEC_11 §9).
-    public static func produccion(bundle: Bundle = .main) -> RutasApp {
-        RutasApp(
+    /// `~/Library/Application Support/Free1X2/` y `~/Library/Logs/Free1X2/` (DP-13; ESPEC_11 §9). Desarrollo y pruebas de
+    /// UI: `-datos <carpeta>` pone ahí los datos y los registros, sin tocar los del usuario (inerte sin el argumento, como
+    /// `-smoke`).
+    public static func produccion(bundle: Bundle = .main, argumentos: [String] = CommandLine.arguments) -> RutasApp {
+        if let i = argumentos.firstIndex(of: "-datos"), i + 1 < argumentos.count {
+            let base = URL(filePath: argumentos[i + 1], directoryHint: .isDirectory)
+            return RutasApp(
+                base: base, recursos: bundle.resourceURL ?? bundle.bundleURL,
+                logs: base.appending(path: "Logs", directoryHint: .isDirectory))
+        }
+        return RutasApp(
             base: URL.applicationSupportDirectory.appending(path: "Free1X2", directoryHint: .isDirectory),
             recursos: bundle.resourceURL ?? bundle.bundleURL,
             logs: URL.libraryDirectory.appending(path: "Logs/Free1X2", directoryHint: .isDirectory)

@@ -29,11 +29,11 @@ struct VistaNoVariantes: View {
             borrar: { (variantes, equis, doses) = ("", "", "") }
         ) {
             Tarjeta("Cantidades admitidas (0–15)") {
-                Text("Introduce las cantidades permitidas para cada concepto. Separa varios valores con comas o espacios.")
+                Text("Introduce las cantidades permitidas para cada concepto. Separa varios valores con comas (p. ej. 0,1,2).")
                     .font(.callout).foregroundStyle(Color.textoSecundario)
-                CampoCondicion(etiqueta: "Var", texto: $variantes, ayuda: "p. ej. 0 1 2")
-                CampoCondicion(etiqueta: "X", texto: $equis, ayuda: "p. ej. 0 1 2")
-                CampoCondicion(etiqueta: "2", texto: $doses, ayuda: "p. ej. 0 1 2")
+                CampoCondicion(etiqueta: "Var", texto: $variantes, ayuda: "p. ej. 0,1,2")
+                CampoCondicion(etiqueta: "X", texto: $equis, ayuda: "p. ej. 0,1,2")
+                CampoCondicion(etiqueta: "2", texto: $doses, ayuda: "p. ej. 0,1,2")
             }
         }
     }

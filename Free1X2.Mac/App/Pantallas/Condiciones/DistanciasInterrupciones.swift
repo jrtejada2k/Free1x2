@@ -22,10 +22,10 @@ struct VistaDistancias: View {
             borrar: { textos = ["", "", "", ""] }
         ) {
             Tarjeta("Valores admitidos (0–15)") {
-                Text("Introduce las distancias permitidas para cada tipo de signo. Separa varios valores con espacios o comas.")
+                Text("Introduce las distancias permitidas para cada tipo de signo. Separa varios valores con comas (p. ej. 0,1,2).")
                     .font(.callout).foregroundStyle(Color.textoSecundario)
                 ForEach(0..<4, id: \.self) { i in
-                    CampoCondicion(etiqueta: ["Var", "1", "X", "2"][i], texto: $textos[i], ayuda: "p. ej. 0 1 2")
+                    CampoCondicion(etiqueta: ["Var", "1", "X", "2"][i], texto: $textos[i], ayuda: "p. ej. 0,1,2")
                 }
             }
         }

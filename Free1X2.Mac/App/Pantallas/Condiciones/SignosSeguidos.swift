@@ -36,10 +36,10 @@ struct VistaSignosSeguidos: View {
             }
         ) {
             Tarjeta("Cantidades admitidas (0–15)") {
-                Text("Introduce las cantidades permitidas para cada concepto. Separa varios valores con comas o espacios.")
+                Text("Introduce las cantidades permitidas para cada concepto. Separa varios valores con comas (p. ej. 0,1,2).")
                     .font(.callout).foregroundStyle(Color.textoSecundario)
                 ForEach(0..<4, id: \.self) { i in
-                    CampoCondicion(etiqueta: ["Var", "1", "X", "2"][i], texto: $textos[i], ayuda: "p. ej. 0 1 2")
+                    CampoCondicion(etiqueta: ["Var", "1", "X", "2"][i], texto: $textos[i], ayuda: "p. ej. 0,1,2")
                 }
             }
             Tarjeta("Figuras") {
