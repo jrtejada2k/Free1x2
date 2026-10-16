@@ -27,6 +27,14 @@ final class FlujosUITests: XCTestCase {
         e.click()
     }
 
+    /// Espera un aviso (`.alert` de SwiftUI: hoja o diálogo según la versión) y lo acepta con Return (su botón por defecto).
+    @MainActor private func aceptarAviso(_ app: XCUIApplication) -> Bool {
+        let hay = NSPredicate { _, _ in app.sheets.count + app.dialogs.count > 0 }
+        let ok = XCTWaiter().wait(for: [XCTNSPredicateExpectation(predicate: hay, object: nil)], timeout: 10) == .completed
+        app.typeKey(.return, modifierFlags: [])
+        return ok
+    }
+
     /// Menú de la app (Free1X2) ▸ `ruta`.
     @MainActor private func menu(_ app: XCUIApplication, _ ruta: String...) {
         app.menuBars.menuBarItems["Free1X2"].click()
@@ -137,8 +145,7 @@ final class FlujosUITests: XCTestCase {
         fijos.typeText("7\r")
         pulsar(app, app.buttons["Guardar"])
         // Aviso «Configuración guardada»: «Aceptar» es su botón por defecto (el de la Touch Bar no se puede pulsar).
-        _ = app.dialogs.firstMatch.waitForExistence(timeout: 5)
-        app.typeKey(.return, modifierFlags: [])
+        XCTAssertTrue(aceptarAviso(app), "se esperaba «Configuración guardada»")
         salir(app)
         app = lanzar(datos: datos)
         defer { app.terminate() }
@@ -172,11 +179,9 @@ final class FlujosUITests: XCTestCase {
         menu(app, "Idioma", "Español")
     }
 
-    /// F13: Escrutinios ▸ JD-01 contra la columna de unos, rango 10–14 ⇒ 14: 1, 13: 12, 12: 60, 11: 160, 10: 240.
-    @MainActor func testF13Escrutinio() throws {
+    /// Escrutinios ▸ JD-01 contra la columna de unos (rango 10–14 por defecto) y espera el histograma.
+    @MainActor private func escrutarJD01(_ app: XCUIApplication) throws {
         let ruta = try fichero("jd01.txt", Self.seisTriples)
-        let app = lanzar()
-        defer { app.terminate() }
         app.buttons["Escrutinio"].firstMatch.click()
         let elegir = app.buttons["Seleccionar ficheros…"]
         XCTAssertTrue(elegir.waitForExistence(timeout: 10))
@@ -187,6 +192,14 @@ final class FlujosUITests: XCTestCase {
         ganadora.click()
         ganadora.typeText(String(repeating: "1", count: 14))
         app.buttons["Escrutar"].firstMatch.click()
+        XCTAssertTrue(app.staticTexts["histograma-14"].waitForExistence(timeout: 30))
+    }
+
+    /// F13: Escrutinios ▸ JD-01 contra la columna de unos, rango 10–14 ⇒ 14: 1, 13: 12, 12: 60, 11: 160, 10: 240.
+    @MainActor func testF13Escrutinio() throws {
+        let app = lanzar()
+        defer { app.terminate() }
+        try escrutarJD01(app)
         for (aciertos, columnas) in [(14, "1"), (13, "12"), (12, "60"), (11, "160"), (10, "240")] {
             let t = app.staticTexts["histograma-\(aciertos)"]
             XCTAssertTrue(t.waitForExistence(timeout: 30), "\(aciertos)")
@@ -303,9 +316,42 @@ final class FlujosUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Fijos: 0 - Dobles: 0 - Triples: 14"].waitForExistence(timeout: 10))
         app.buttons["Abrir combinación"].firstMatch.click()
         panel(app, ruta: roto)
-        XCTAssertTrue(app.dialogs.firstMatch.waitForExistence(timeout: 10), "se esperaba el aviso de error")
-        app.typeKey(.return, modifierFlags: [])
+        XCTAssertTrue(aceptarAviso(app), "se esperaba el aviso de error")
         XCTAssertTrue(app.staticTexts["Fijos: 0 - Dobles: 0 - Triples: 14"].waitForExistence(timeout: 10))
         XCTAssertTrue(app.buttons["Calcular columnas"].isHittable)
+    }
+
+    /// F16: tras el escrutinio de F13, «Ver premiadas…» ▸ «Guardar Todas» graba las 473 columnas con 10 o más aciertos.
+    @MainActor func testF16GuardarPremiadas() throws {
+        let carpeta = (try fichero("vacio.txt", []) as NSString).deletingLastPathComponent
+        let app = lanzar()
+        defer { app.terminate() }
+        try escrutarJD01(app)
+        pulsar(app, app.buttons["Ver premiadas…"])
+        pulsar(app, app.buttons["Guardar Todas"])
+        panel(app, ruta: carpeta)
+        let salida = carpeta + "/columnas.txt"
+        let hecho = NSPredicate { _, _ in FileManager.default.fileExists(atPath: salida) }
+        wait(for: [XCTNSPredicateExpectation(predicate: hecho, object: nil)], timeout: 10)
+        let lineas = try String(contentsOfFile: salida, encoding: .utf8).components(separatedBy: "\r\n").filter { !$0.isEmpty }
+        XCTAssertEqual(lineas.count, 473)
+        XCTAssertEqual(Set(lineas), Set(Self.seisTriples.filter { c in c.filter { $0 == "1" }.count >= 10 }))
+    }
+
+    /// F05: un valor no válido en Variantes («a») da error y no se aplica: el semáforo sigue vacío y Calcular da 729.
+    @MainActor func testF05CondicionNoValida() {
+        let app = lanzar()
+        defer { app.terminate() }
+        boletoSeisTriples(app)
+        app.buttons["Variantes X y 2"].click()
+        let campo = app.textFields["campo-Var"]
+        XCTAssertTrue(campo.waitForExistence(timeout: 10))
+        campo.click()
+        campo.typeText("a")
+        pulsar(app, app.buttons["Aceptar"].firstMatch)
+        XCTAssertTrue(aceptarAviso(app), "se esperaba el aviso de error")
+        pulsar(app, app.buttons["Cancelar"].firstMatch)
+        XCTAssertTrue(app.buttons["Calcular columnas"].waitForExistence(timeout: 10))
+        calcular(app, esperado: "729")
     }
 }
