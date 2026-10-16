@@ -136,13 +136,13 @@ struct VistaColProbables: View {
             }
             Tarjeta("Navegación") {
                 HStack {
-                    Button("|<") { hacer { try $0.primera() } }
-                    Button("<<") { hacer { try $0.atras() } }
-                    Button("<") { hacer { try $0.anterior() } }
+                    Button("|<") { hacer { try $0.primera() } }.accessibilityLabel("Primera")
+                    Button("<<") { hacer { try $0.atras() } }.accessibilityLabel("Retroceder")
+                    Button("<") { hacer { try $0.anterior() } }.accessibilityLabel("Anterior")
                     Text(e.paginacion).monospacedDigit().frame(minWidth: 50)
-                    Button(">") { hacer { try $0.siguiente() } }
-                    Button(">>") { hacer { try $0.adelante() } }
-                    Button(">|") { hacer { try $0.ultima() } }
+                    Button(">") { hacer { try $0.siguiente() } }.accessibilityLabel("Siguiente")
+                    Button(">>") { hacer { try $0.adelante() } }.accessibilityLabel("Avanzar")
+                    Button(">|") { hacer { try $0.ultima() } }.accessibilityLabel("Última")
                 }
             }
             Tarjeta("Acciones") {

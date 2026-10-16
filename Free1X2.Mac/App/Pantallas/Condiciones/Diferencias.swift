@@ -70,6 +70,7 @@ struct VistaDiferencias: View {
                         }
                     }
                     .disabled(indice < 1)
+                    .accessibilityLabel("Conjunto anterior")
                     Text("\(indice + 1)/\(guardados)").monospacedDigit()
                     Button("▶") {
                         if let r = enGrupo({ CasosCondiciones.siguienteDiferencia(&$0, indice: indice, t, numeroPartidos: n) }) ?? nil {
@@ -77,6 +78,7 @@ struct VistaDiferencias: View {
                             mostrar(r.mostrar)
                         }
                     }
+                    .accessibilityLabel("Conjunto siguiente")
                     Button("Eliminar actual") {
                         let d = enGrupo { CasosCondiciones.eliminarDiferencia(&$0, indice: indice) } ?? nil
                         indice = 0

@@ -106,9 +106,9 @@ struct VistaAnalisisFormatos123: View {
                             .foregroundStyle(Color.textoSecundario)
                         Button("Archivo de columnas") { Task { await leer() } }
                         HStack {
-                            Button("<") { indice -= 1 }.disabled(indice <= 0)
+                            Button("<") { indice -= 1 }.accessibilityLabel("Anterior").disabled(indice <= 0)
                             Text(columnas.isEmpty ? "0/0" : "\(indice + 1)/\(columnas.count)").monospacedDigit()
-                            Button(">") { indice += 1 }.disabled(indice >= columnas.count - 1)
+                            Button(">") { indice += 1 }.accessibilityLabel("Siguiente").disabled(indice >= columnas.count - 1)
                         }
                         HStack {
                             Text("Columna:")

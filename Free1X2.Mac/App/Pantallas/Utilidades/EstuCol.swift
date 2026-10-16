@@ -149,9 +149,9 @@ struct VistaVisorAbdon: View {
             }
             Tarjeta("Rango de aciertos de la columna generada") {
                 HStack(spacing: 12) {
-                    Button("◀") { visor.moverColumna(-1) }
+                    Button("◀") { visor.moverColumna(-1) }.accessibilityLabel("Columna anterior")
                     Text(visor.columnaTexto).monospacedDigit()
-                    Button("▶") { visor.moverColumna(1) }
+                    Button("▶") { visor.moverColumna(1) }.accessibilityLabel("Columna siguiente")
                     Text("Mín \(visor.aciertosMin)")
                     Text("Máx \(visor.aciertosMax)")
                 }

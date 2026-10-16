@@ -111,9 +111,9 @@ struct VistaPosiblesPremios: View {
                             Text(nombre).foregroundStyle(Color.textoSecundario)
                         }
                         HStack {
-                            Button("◀") { if boleto > 1 { boleto -= 1 } }
+                            Button("◀") { if boleto > 1 { boleto -= 1 } }.accessibilityLabel("Boleto anterior")
                             Text("\(premiadas.isEmpty ? 0 : boleto) / \(boletos)").monospacedDigit()
-                            Button("▶") { if boleto < boletos { boleto += 1 } }
+                            Button("▶") { if boleto < boletos { boleto += 1 } }.accessibilityLabel("Boleto siguiente")
                         }
                     }
                     Tarjeta("Opciones") {
@@ -168,9 +168,9 @@ struct VistaVisorPosiblesPremios: View {
             )
             .foregroundStyle(Color.textoSecundario)
             HStack {
-                Button("◀") { if indice > 0 { indice -= 1 } }
+                Button("◀") { if indice > 0 { indice -= 1 } }.accessibilityLabel("Grupo anterior")
                 Text(resumen.isEmpty ? "0 de 0" : "\(indice + 1) de \(resumen.count)").monospacedDigit()
-                Button("▶") { if indice < resumen.count - 1 { indice += 1 } }
+                Button("▶") { if indice < resumen.count - 1 { indice += 1 } }.accessibilityLabel("Grupo siguiente")
             }
             HStack(alignment: .top) {
                 Tarjeta("Columna ganadora (CG)") {

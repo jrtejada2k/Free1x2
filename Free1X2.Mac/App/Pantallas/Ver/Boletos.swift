@@ -107,8 +107,8 @@ struct VistaBoleto: View {
             }
             Tarjeta("Navegación") {
                 HStack {
-                    Button("|<") { llenar(0) }
-                    Button("<") { llenar(actual - 1) }
+                    Button("|<") { llenar(0) }.accessibilityLabel("Primera")
+                    Button("<") { llenar(actual - 1) }.accessibilityLabel("Anterior")
                     Text("Boleto nº")
                     CampoNumero(etiqueta: "", valor: $irA, minimo: 1, ancho: 60).labelsHidden()
                     Button("Ir") {
@@ -117,8 +117,8 @@ struct VistaBoleto: View {
                         llenar(d - 1)
                     }
                     Text("de \(total)")
-                    Button(">") { llenar(actual + 1) }
-                    Button(">|") { llenar(total - 1) }
+                    Button(">") { llenar(actual + 1) }.accessibilityLabel("Siguiente")
+                    Button(">|") { llenar(total - 1) }.accessibilityLabel("Última")
                 }
             }
             Tarjeta("Boleto actual") {

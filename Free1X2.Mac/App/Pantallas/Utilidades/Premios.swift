@@ -51,11 +51,13 @@ struct VistaEstimadorPremios: View {
                                 if jornada > 1 { jornada -= 1 }
                                 recargar()
                             }
+                            .accessibilityLabel("Jornada anterior")
                             CampoNumero(etiqueta: "Jornada", valor: $jornada, minimo: 0, ancho: 60)
                             Button("▶") {
                                 if jornada < 44 { jornada += 1 }
                                 recargar()
                             }
+                            .accessibilityLabel("Jornada siguiente")
                         }
                         CampoNumero(etiqueta: "Recaudación", valor: $recaudacion, minimo: 0, ancho: 140)
                         CampoNumero(etiqueta: "Bote", valor: $bote, minimo: 0, ancho: 140)
