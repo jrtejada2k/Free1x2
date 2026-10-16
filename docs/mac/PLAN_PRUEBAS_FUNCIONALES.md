@@ -249,7 +249,67 @@ coinciden, se corrige el Swift (R1: sin tocar golden).
 | 2026-10-16 | Fase 2 en la CI (run 38926368108): **12 flujos de UI verdes** pulsando la app real, con los paneles de abrir/guardar (⇧⌘G + ruta): F02+F03 (729), F04 (73), F06 (guardar ▸ nueva ▸ abrir), F07, F11 (Reductor: 73…729 con garantía de 13), F13 (histograma 1/12/60/160/240), F20 Distancias (127) y Dibujos (31), F43, F44, F45, F46. Añadidos F05, F16 y F48. **No se automatizan por la UI**: F09 (14 triples sin condiciones termina en ~0,13 s, antes de poder cancelar; la cancelación la cubren los casos de uso), F41 (necesitaría un servidor de prueba en la CI; el flujo lo cubren F41/F42 de la Fase 1), F29 y F40 (cubiertos en la Fase 1 y por `ImpresionTests`) | — |
 | 2026-10-16 | F48 por la UI verde (aviso de error y la app sigue). F05 por la UI destapó D-04 | **D-04** (gravedad 1, resultado erróneo): con un valor no válido en una condición (p. ej. Variantes «a») salía el error, pero el grupo se quedaba con la condición **activa y sin valores** y Calcular daba 0 columnas en silencio. Causa: `modificarGrupo` editaba el grupo por `inout` y Swift devuelve lo ya tocado aunque se lance; el original WinUI hace lo mismo (`NoVariantesFrmViewModel.cs:90-102` reinicia y activa el filtro antes de `SetNoVariantes`). Corregido en el punto común: `modificarGrupo` y `controlGrupoLibre` son atómicos (DT-80); prueba `f05CondicionNoValidaNoAltera` |
 
-## 10. Orden de trabajo y consumo
+## 10. Informe (Fase 4)
+
+Leyenda: **I** = `Tests/Free1X2CasosDeUsoTests/FlujosTests.swift` (ficheros reales); **U** = `UITests/FlujosUITests.swift`
+(la app pulsada en la CI, `mac.yml`); **N1/N4** = suites existentes del paquete; ✔ = verde.
+
+| Flujo | Cobertura | Estado |
+|-------|-----------|--------|
+| F01 primer arranque | I `f01PrimerArranque`; U implícito (cada prueba de UI arranca con `-datos` vacío) | ✔ |
+| F02 boleto | U `testF02F03BoletoYCalcular` | ✔ |
+| F03 calcular | I `f03f04Calcular`; U `testF02F03…` (729) | ✔ |
+| F04 condición | I `f03f04Calcular` (73 / 64 / 1); U `testF04…` (73) | ✔ |
+| F05 condición no válida | I `f05CondicionNoValidaNoAltera`; U `testF05…` (error y 729) | ✔ tras D-04 |
+| F06 guardar / abrir | I `f06GuardarYAbrir` (`completa.comb` byte a byte); U `testF06GuardarNuevaAbrir` | ✔ |
+| F07 grupos | I `f07Grupos`; U `testF07Grupos` | ✔ |
+| F08 cálculo múltiple | N4 `LoteTests` | ✔ |
+| F09 cancelar | N1 `ReduccionTests` (cancelación del motor); por la UI no es medible (§9) | ✔ parcial |
+| F10 rendimiento | `Free1X2Bench` B1 frente a `bench/linea-base.json` | ✔ |
+| F11 reducir | I `f11Reducir`; U `testF11Reducir` (73…729 con garantía de 13) | ✔ |
+| F12 subir categoría | N1 `ReduccionTests` | ✔ |
+| F13 escrutinio simple | I `f13EscrutinioSimple`; U `testF13Escrutinio` (1/12/60/160/240) | ✔ |
+| F14 contra fichero | I `f14EscrutinioContraFichero` | ✔ |
+| F15 contra jornadas | I `f15EscrutinioContraJornadas` | ✔ |
+| F16 columnas premiadas | I `f16ColumnasPremiadas` (473); U `testF16GuardarPremiadas` | ✔ |
+| F17 posibles premios | I `f17PosiblesPremios` (57) | ✔ |
+| F18 escrutar combinaciones | N4 `EscrutarCombinacionesTests` | ✔ |
+| F19 análisis de fallos | N4 `AnalisisFallosTests`, `VisorAnalisisTests` | ✔ |
+| F20 condiciones | I `f20Condiciones` (Interrupciones, Distancias, Signos seguidos 486, Simetrías 243, Dibujos 31) + Variantes; U Distancias 127, Dibujos 31; N4 `CondicionesTests` | ✔ |
+| F21 estadísticas de condición | N4 `EstadisticasTests`, `SignosTests` | ✔ |
+| F22 If-Then y tolerancias | N4 `CondicionesTests`, `ListadoTests`; `CondicionesXMLTests` | ✔ |
+| F23 auxiliares de condición | N4 `CondicionesTests`, `FormatosPremiadasTests`, `HerramientasTests` | ✔ |
+| F24–F26 columnas probables | N4 `ColumnasProbablesTests`, `EstuColTests`; N1 `ColProbablesTests`, `GeneradorCPsTests` | ✔ |
+| F27 combinar filtros | I `f27CombinarFiltros` | ✔ |
+| F28 filtros (diferencias, coincidencias, Aidomnou, Pim) | N4 `FiltrosTests`, `CoincidenciasTests`, `AidomnouTests`, `ModificadorFiltrosTests` | ✔ |
+| F29 álgebra | I `f29Algebra` | ✔ |
+| F30 transposición | I `f30Transponer` | ✔ |
+| F31–F32 multiplicar, fraccionar | I `f31f32MultiplicarYFraccionar` | ✔ |
+| F33 rotación (C2) | I `f33RotacionDeSignos`; N1 `TransponedorAutomaticoTests` | ✔ |
+| F34 compresor | I `f34Compresor` | ✔ |
+| F35 importar / exportar | I `f35ImportarExportar` | ✔ |
+| F36 probabilidades, rentabilidad, estimación | N4 `ProbabilidadTransposicionTests`, `PremiosTests` | ✔ |
+| F37 tramificar | N4 `TramificarTests` (9 × 531 441) | ✔ |
+| F38 banco de pruebas | N4 `BancoPruebasTests` | ✔ |
+| F39 selectores, GEPT, dependencia, perfectas, grupos | N4 `SelectoresTests`, `DependenciaTests`, `RotacionGruposTests`, `HerramientasTests` | ✔ |
+| F40 boletos e impresión | N4 `BoletosTests`, `ImpresionTests` | ✔ |
+| F41–F42 online | I `f41f42Online`; N4 `EquiposTests`; N1 `OnlineTests` | ✔ |
+| F43 equipos | I `f43Equipos` (Latin-1); U `testF43EquipoPersiste` | ✔ |
+| F44 configuración | I `f44Configuracion`; U `testF44ConfiguracionPersiste` | ✔ |
+| F45 barras | U `testF45BarrasPersisten` | ✔ |
+| F46 tema e idioma | U `testF46Idioma` | ✔ |
+| F47 borrar temporales | I `f47BorrarTemporales` | ✔ |
+| F48 errores | I `f48Errores`; U `testF48CombinacionCorrupta` | ✔ |
+
+**CI:** run 38935274408 verde: 257 tests del paquete, cobertura de casos de uso 88,3 % y **16 flujos de UI**.
+
+**Defectos encontrados:** D-01 (ayuda que pedía espacios), D-02 y D-03 (accesibilidad), **D-04** (condición no válida que
+dejaba el cálculo a 0). Los cuatro corregidos, con su prueba. **Huecos completados:** C2, C3, C5, C6 (C4 no era hueco).
+
+**Pendiente para declarar «funcional»** (§7): la sesión manual del dueño con sus ficheros de Windows (Fase 3, P9). Para
+ejecutar las pruebas de UI en su Mac, una vez: `sudo automationmodetool enable-automationmode-without-authentication` (P7).
+
+## 11. Orden de trabajo y consumo
 
 1. Fase 0 (P3–P6, P8) → 2. Fase 1 → 3. C2–C5 → 4. Fase 2 (necesita P7) → 5. C6 → 6. Fase 3 (dueño) → 7. Fase 4.
 Sin subagentes; un `xcodebuild` a la vez (R5); commit por fase.
