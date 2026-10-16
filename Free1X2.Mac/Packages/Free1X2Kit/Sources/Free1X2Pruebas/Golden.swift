@@ -96,7 +96,9 @@ public enum Golden {
     public static func caso<E, S>(_ id: String, en suite: String, _: E.Type = E.self, _: S.Type = S.self) throws
         -> CasoGolden<E, S>
     {
-        guard let caso: CasoGolden<E, S> = try decodificar(suite, { $0.id == id }).first else {
+        // Swift 6.2 no infiere E y S a través de `.first`: primero la lista con su tipo.
+        let casos: [CasoGolden<E, S>] = try decodificar(suite) { $0.id == id }
+        guard let caso = casos.first else {
             throw Fallo.recursoNoEncontrado("\(suite) → \(id)")
         }
         return caso
