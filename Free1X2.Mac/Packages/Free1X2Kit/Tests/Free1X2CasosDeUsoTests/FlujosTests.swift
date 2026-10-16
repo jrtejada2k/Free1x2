@@ -407,4 +407,18 @@ struct FlujosTests {
         let dibujo = { (s: String) in "\(s.filter { $0 == "X" }.count)+\(s.filter { $0 == "2" }.count)" }
         #expect(dibujos == cols.filter { ["1+1", "0+0"].contains(dibujo($0)) }.count && dibujos == 31)
     }
+
+    /// F05 y D-04: un valor no válido («a») lanza y **no** deja la condición a medias (el C# la dejaba activa y sin valores,
+    /// y el cálculo daba 0): el grupo queda como estaba y Calcular sigue dando 729.
+    @Test func f05CondicionNoValidaNoAltera() async throws {
+        var c = Self.combinacion()
+        let antes = c.grupos[0]
+        #expect(throws: ErrorDominio.self) {
+            try c.modificarGrupo(0) { g throws(ErrorDominio) in
+                try CasosCondiciones.aplicarNoVariantes(variantes: "a", equis: "", doses: "", en: &g.condiciones.noVariantes)
+            }
+        }
+        #expect(c.grupos[0] == antes)
+        #expect(try await calcular(c, en: "f05.txt").aceptadas == 729)
+    }
 }

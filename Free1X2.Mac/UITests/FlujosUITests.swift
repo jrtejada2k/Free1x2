@@ -180,7 +180,7 @@ final class FlujosUITests: XCTestCase {
     }
 
     /// Escrutinios ▸ JD-01 contra la columna de unos (rango 10–14 por defecto) y espera el histograma.
-    @MainActor private func escrutarJD01(_ app: XCUIApplication) throws {
+    @MainActor private func escrutarJD01(_ app: XCUIApplication, registrar: Bool = false) throws {
         let ruta = try fichero("jd01.txt", Self.seisTriples)
         app.buttons["Escrutinio"].firstMatch.click()
         let elegir = app.buttons["Seleccionar ficheros…"]
@@ -188,6 +188,8 @@ final class FlujosUITests: XCTestCase {
         elegir.click()
         panel(app, ruta: ruta)
         XCTAssertTrue(app.staticTexts["jd01.txt"].waitForExistence(timeout: 10))
+        // «Ver premiadas» solo funciona con «Registrar columnas premiadas» activado (como el original).
+        if registrar { app.descendants(matching: .any)["Registrar columnas premiadas"].firstMatch.click() }
         let ganadora = app.textFields["campo-Columna ganadora"]
         ganadora.click()
         ganadora.typeText(String(repeating: "1", count: 14))
@@ -326,7 +328,7 @@ final class FlujosUITests: XCTestCase {
         let carpeta = (try fichero("vacio.txt", []) as NSString).deletingLastPathComponent
         let app = lanzar()
         defer { app.terminate() }
-        try escrutarJD01(app)
+        try escrutarJD01(app, registrar: true)
         pulsar(app, app.buttons["Ver premiadas…"])
         pulsar(app, app.buttons["Guardar Todas"])
         panel(app, ruta: carpeta)

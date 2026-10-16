@@ -84,14 +84,20 @@ public struct Combinacion: Sendable, Hashable {
         guard grupos.indices.contains(i) else {
             throw .fueraDeRangoLista("GrupoPartidos.cs:66")
         }
-        try cambio(&grupos[i])
+        // Atómico (D-04 del plan de pruebas, DT-80): si `cambio` lanza, el grupo queda como estaba. Con `&grupos[i]`, Swift
+        // devolvía al grupo lo que la condición ya había tocado (p. ej. activa y sin valores) y el C# hace lo mismo.
+        var g = grupos[i]
+        try cambio(&g)
+        grupos[i] = g
     }
 
     private mutating func controlGrupoLibre(_ cambio: (inout ControlGruposConfig) throws(ErrorDominio) -> Void) throws(ErrorDominio) {
         guard !controlesGrupos.isEmpty else {
             throw .fueraDeRangoLista("GrupoPartidos.cs:44")
         }
-        try cambio(&controlesGrupos[0])
+        var c = controlesGrupos[0]  // atómico, como `modificarGrupo` (D-04)
+        try cambio(&c)
+        controlesGrupos[0] = c
     }
 
     /// `HayDatos` (`Analizador.cs:463-479`).
