@@ -46,7 +46,12 @@ D1 = DP-15 · D2 = DP-09 + `G-D2` · D3 = DP-08 · D4 = DP-01 · D5 = DP-02 · D
 
 ## Siguiente fase
 
-M0 (specs), M1 (casos de prueba, [ESPEC_17](ESPEC_17_CASOS_DE_PRUEBA.md)) y M2 (esqueleto en `Free1X2.Mac/`) están cerrados.
+M0–M5 están cerrados (M5 el 2026-10-15: las 108 pantallas portadas y smoke 109/109; ver PLAN §5).
 
-**M3 — Motor**, por orden (PLAN §5): Columnas/Utils → Escrutinio → Generador + filtros → Reducción → Análisis → Subir categoría.
-Cada componente empieza escribiendo su suite golden (ESPEC_17 §4) y se cierra con ella en verde (ESPEC_14 §8).
+**M6 — Distribución**: firma Developer ID + notarización + `.dmg`, verificado en un Mac limpio. El empaquetado está en
+`Free1X2.Mac/scripts/empaquetar-dmg.sh`; firmar y notarizar necesita la cuenta Apple Developer del dueño:
+
+1. Crear el certificado «Developer ID Application» (Xcode ▸ Ajustes ▸ Cuentas ▸ Gestionar certificados ▸ +).
+2. Guardar una vez las credenciales de notarización: `xcrun notarytool store-credentials free1x2 --apple-id <correo> --team-id <EQUIPO>`.
+3. `FREE1X2_IDENTIDAD="Developer ID Application: <nombre> (<EQUIPO>)" FREE1X2_PERFIL_NOTARIA=free1x2 sh Free1X2.Mac/scripts/empaquetar-dmg.sh`
+4. Abrir el `.dmg` de `Free1X2.Mac/.build/dmg/` en un Mac limpio (otro usuario o máquina) y arrastrar la app a Aplicaciones.

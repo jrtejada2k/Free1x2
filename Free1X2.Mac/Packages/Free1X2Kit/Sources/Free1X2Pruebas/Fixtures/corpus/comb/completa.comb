@@ -1,0 +1,294 @@
+<xml>
+  <file version="0.1" />
+  <equipos>
+    <partido id="0" equipos="? - ?" />
+    <partido id="1" equipos="? - ?" />
+    <partido id="2" equipos="? - ?" />
+    <partido id="3" equipos="? - ?" />
+    <partido id="4" equipos="? - ?" />
+    <partido id="5" equipos="? - ?" />
+    <partido id="6" equipos="? - ?" />
+    <partido id="7" equipos="? - ?" />
+    <partido id="8" equipos="? - ?" />
+    <partido id="9" equipos="? - ?" />
+    <partido id="10" equipos="? - ?" />
+    <partido id="11" equipos="? - ?" />
+    <partido id="12" equipos="? - ?" />
+    <partido id="13" equipos="? - ?" />
+  </equipos>
+  <columnaBase>
+    <partido id="0" pronostico="1,X,2" />
+    <partido id="1" pronostico="1,X,2" />
+    <partido id="2" pronostico="1,X,2" />
+    <partido id="3" pronostico="1,X,2" />
+    <partido id="4" pronostico="1,X,2" />
+    <partido id="5" pronostico="1,X,2" />
+    <partido id="6" pronostico="1,X,2" />
+    <partido id="7" pronostico="1,X,2" />
+    <partido id="8" pronostico="1,X,2" />
+    <partido id="9" pronostico="1,X,2" />
+    <partido id="10" pronostico="1,X,2" />
+    <partido id="11" pronostico="1,X,2" />
+    <partido id="12" pronostico="1,X,2" />
+    <partido id="13" pronostico="1,X,2" />
+  </columnaBase>
+  <filtroColumnas nombreArchivo="" />
+  <gruposPartidos>
+    <!-- grupo 0 es el boleto base -->
+    <grupo id="0" nombre="">
+      <partidosActivos noPartidos="1,2,3,4,5,6,7,8,9,10,11,12,13,14" />
+      <filtroParcial archivo="" />
+      <condicion id="NoVariantes" activa="True">
+        <standard>
+          <valores tipo="var" values="3,4A,5" />
+          <valores tipo="equis" values="0,1,2" />
+          <valores tipo="doses" values="2B,3" />
+        </standard>
+      </condicion>
+      <condicion id="ValoracionSignos" activa="True" tipoValoracion="suma" valorGlobal="280-700" valorUnos="0-700" valorEquis="0-420" valorDoses="0-280">
+        <valores id="0">50,30,20</valores>
+        <valores id="1">50,30,20</valores>
+        <valores id="2">50,30,20</valores>
+        <valores id="3">50,30,20</valores>
+        <valores id="4">50,30,20</valores>
+        <valores id="5">50,30,20</valores>
+        <valores id="6">50,30,20</valores>
+        <valores id="7">50,30,20</valores>
+        <valores id="8">50,30,20</valores>
+        <valores id="9">50,30,20</valores>
+        <valores id="10">50,30,20</valores>
+        <valores id="11">50,30,20</valores>
+        <valores id="12">50,30,20</valores>
+        <valores id="13">50,30,20</valores>
+      </condicion>
+      <condicion id="SignosSeguidos" activa="True">
+        <standard>
+          <valores tipo="var" values="0,1,2" />
+          <valores tipo="unos" values="3A" />
+          <valores tipo="equis" values="1" />
+          <valores tipo="doses" values="4" />
+        </standard>
+        <figurasUnos>
+          <figura value="1-2-3" />
+          <figura value="0" />
+        </figurasUnos>
+        <figurasDoses>
+          <figura value="15-15" />
+        </figurasDoses>
+      </condicion>
+      <condicion id="NoInterrupciones" activa="True">
+        <standard>
+          <valores tipo="global" values="1,2" />
+          <valores tipo="var" values="3" />
+          <valores tipo="unos" values="0A" />
+          <valores tipo="equis" values="4" />
+          <valores tipo="doses" values="5,6" />
+          <valores tipo="globalSeg" values="0,1" />
+          <valores tipo="varSeg" values="2" />
+          <valores tipo="unosSeg" values="3B" />
+          <valores tipo="equisSeg" values="4" />
+          <valores tipo="dosesSeg" values="5" />
+        </standard>
+      </condicion>
+      <condicion id="Dibujos" activa="True">
+        <dibujo>3+2</dibujo>
+        <dibujo>0+0</dibujo>
+      </condicion>
+      <condicion id="PesosNumericos" activa="True">
+        <standard>
+          <valores tipo="global" values="1,2,9" />
+          <valores tipo="variantes" values="0" />
+          <valores tipo="unos" values="3" />
+          <valores tipo="equis" values="4,5" />
+          <valores tipo="doses" values="6" />
+        </standard>
+        <tolerancias noTolerancias="0,1">
+          <valores tipo="global" values="1" />
+          <valores tipo="variantes" values="2" />
+          <valores tipo="unos" values="3" />
+          <valores tipo="equis" values="4" />
+          <valores tipo="doses" values="5" />
+        </tolerancias>
+        <figuras>
+          <figura value="1-2" />
+        </figuras>
+      </condicion>
+      <condicion id="Distancias" activa="True">
+        <standard>
+          <valores tipo="var" values="1,2" />
+          <valores tipo="unos" values="3" />
+          <valores tipo="equis" values="4A" />
+          <valores tipo="doses" values="5" />
+        </standard>
+      </condicion>
+      <condicion id="GruposEquipos" activa="True">
+        <!-- Para cada partido:-->
+        <!-- 0 => ningun equipo seleccionado-->
+        <!-- 1 => solo equipo casa seleccionado-->
+        <!-- 2 => solo equipo fuera seleccionado-->
+        <!-- 3 => equipos casa y fuera seleccionados-->
+        <grupoEquipos id="0">
+          <equipos value="12030000000000" />
+          <victorias value="1,3" />
+          <empates value="" />
+          <derrotas value="0" />
+          <sumaPuntos value="2,6" />
+        </grupoEquipos>
+        <Relacion1 id="0">
+          <ge values="1,2" />
+          <victorias values="2" />
+          <empates values="" />
+          <derrotas values="" />
+          <puntos values="3,9" />
+        </Relacion1>
+      </condicion>
+      <condicion id="Contactos" activa="True">
+        <standard>
+          <valores tipo="1X" values="0" />
+          <valores tipo="12" values="1" />
+          <valores tipo="X2" values="2A" />
+          <valores tipo="11" values="3" />
+          <valores tipo="XX" values="4" />
+          <valores tipo="22" values="5" />
+          <valores tipo="1V" values="6" />
+          <valores tipo="XV" values="7" />
+          <valores tipo="2V" values="8" />
+          <valores tipo="VV" values="9" />
+        </standard>
+        <figuras>
+          <figura value="2-1" />
+        </figuras>
+      </condicion>
+      <condicion id="FormatosSignos" activa="True">
+        <grupoFormato id="0" lineas="1" global="1">
+          <lineaFormato id="0" formato="1X2" rango="1,2" />
+        </grupoFormato>
+      </condicion>
+      <condicion id="ColProbables" activa="True">
+        <cp id="0">
+          <pronostico values="1X,,X2,1X2,1,X,2,1,1,1,1,1,1,1" />
+          <standard>
+            <aciertos values="0,1,2" />
+            <aciertosSeguidos values="0,1" />
+            <fallosSeguidos values="0,1,2,3" />
+            <puntos values="5,10" />
+          </standard>
+          <tolerancias noTolerancias="1">
+            <aciertosTol values="3" />
+            <aciertosSeguidosTol values="2" />
+            <fallosSeguidosTol values="4" />
+          </tolerancias>
+        </cp>
+        <cp id="1">
+          <pronostico values="1,1,1,1,1,1,1,1,1,1,1,1,1,1" />
+          <standard>
+            <aciertos values="10" />
+            <aciertosSeguidos values="2" />
+            <fallosSeguidos values="1" />
+            <puntos values="" />
+          </standard>
+        </cp>
+        <relacion1 id="0">
+          <columnas values="1,2" />
+          <sumas values="2,3" />
+          <recorridos values="0,1" />
+          <gruposCP cantidadCP="1,2" noAC="3" />
+        </relacion1>
+        <relacion2 id="0">
+          <columnasA values="1" />
+          <columnasB values="2" />
+          <aciertos values="0,1" />
+          <concepto value="AC" />
+          <cantidad value="1" />
+          <columnasA2 values="" />
+          <columnasB2 values="" />
+          <aciertos2 values="" />
+          <concepto2 value="" />
+          <cantidad2 value="" />
+        </relacion2>
+        <fallosCP id="0">
+          <columnas values="1,2" />
+          <tolerancias values="AB" />
+          <aciertos values="0,1" />
+        </fallosCP>
+        <controlFallos noFallos="0,1" />
+        <relacion3 id="0">
+          <columnas values="1,2" />
+          <sandwichs values="0" />
+          <escalerasAsc values="0" />
+          <escalerasDesc values="" />
+          <escaleras values="0,1" />
+          <concepto values="AC" />
+          <agrupacionesPasoFijo values="1,2+2+0,1" />
+          <agrupacionesSolapadas values="" />
+        </relacion3>
+      </condicion>
+      <condicion id="Formatos123" activa="True">
+        <grupoformato id="0" aciertos="1,2" repeticiones="True" valoracion="50/30/20/33,5/33/33,5/50/30/20/33,5/33/33,5/50/30/20/33,5/33/33,5/50/30/20/33,5/33/33,5/50/30/20/33,5/33/33,5/50/30/20/33,5/33/33,5/50/30/20/33,5/33/33,5">
+          <formatos id="0" formato="123" aciertosMin="0" aciertosMax="3" />
+        </grupoformato>
+      </condicion>
+      <condicion id="Simetrias" activa="True">
+        <gruposimetrias id="0" aciertos="1,2">
+          <simetrias id="0" simetria="1,2" />
+          <simetrias id="1" simetria="3,4,5" />
+        </gruposimetrias>
+      </condicion>
+      <condicion id="Diferencias" activa="True">
+        <grupoDiferencias id="0">
+          <partidos id="0" valores="1,2,3" />
+          <partidos id="1" valores="4,5,6" />
+          <aciertos aciertosV="0,1" aciertosX="1" aciertos2="2" aciertosDib="0,2" aciertosInt="" aciertosFormatos="1,2" />
+        </grupoDiferencias>
+      </condicion>
+      <tolerancias>
+        <control id="0" letras="AB" noAciertos="0,1" />
+        <controlFallos noFallos="" />
+      </tolerancias>
+    </grupo>
+    <grupo id="1" nombre="g1">
+      <partidosActivos noPartidos="1,2" />
+      <filtroParcial archivo="" />
+      <condicion id="NoVariantes" activa="True">
+        <standard>
+          <valores tipo="var" values="3,4A,5" />
+          <valores tipo="equis" values="0,1,2" />
+          <valores tipo="doses" values="2B,3" />
+        </standard>
+      </condicion>
+      <tolerancias>
+        <control id="0" letras="ABC" noAciertos="0,1" />
+        <controlFallos noFallos="" />
+      </tolerancias>
+    </grupo>
+    <grupo id="2" nombre="g2">
+      <partidosActivos noPartidos="3,4,5" />
+      <filtroParcial archivo="" />
+      <condicion id="Dibujos" activa="True">
+        <dibujo>3+2</dibujo>
+        <dibujo>0+0</dibujo>
+      </condicion>
+      <tolerancias>
+        <controlFallos noFallos="" />
+      </tolerancias>
+    </grupo>
+  </gruposPartidos>
+  <controlGrupos>
+    <control id="0" grupos="0" fallos="" />
+    <control id="1" grupos="0,1,2" fallos="0" />
+  </controlGrupos>
+  <controlConjuntos>
+    <control id="0" conjuntos="0" fallos="0" />
+    <control id="1" conjuntos="0,1" fallos="1" />
+  </controlConjuntos>
+  <If-Then>
+    <Condiciones>
+      <Condicion id="0" If="Cantidad de Variantes: 3" Then="Dibujo: 3+2 (NO)" />
+      <Rangos valor="1" />
+    </Condiciones>
+    <Grupos>
+      <Grupo id="0" if="1" then="2" no-if="False" no-then="True" />
+      <Rangos valor="0,1" />
+    </Grupos>
+  </If-Then>
+</xml>

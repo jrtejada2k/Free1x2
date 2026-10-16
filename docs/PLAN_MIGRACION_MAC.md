@@ -1,6 +1,6 @@
 # Plan de reescritura nativa para macOS (Apple Silicon)
 
-> Estado: **M0 cerrado** (2026-10-14). El dueño delegó en Claude todas las decisiones pendientes, tomadas con buenas prácticas y
+> Estado: **M0–M5 cerrados** (M5 el 2026-10-15); queda **M6** (requiere la cuenta Apple Developer del dueño). El dueño delegó en Claude todas las decisiones pendientes, tomadas con buenas prácticas y
 > registradas en [`mac/DECISIONES.md`](mac/DECISIONES.md).
 > Decisión del dueño (2026-10-11): **reescritura completa en Swift / Xcode**, sin portar código
 > C#. El código actual (`Free1X2.Domain` + `Free1X2.WinUI`) pasa a ser **especificación** y
@@ -104,9 +104,9 @@ Sistema de diseño, mockups por plantilla y mapa de las 108 pantallas en `mac/ES
 | **M0 Especificación** | `docs/mac/ESPEC_00…16`, `GLOSARIO`, `DECISIONES`: comportamiento con `file:line`, arquitectura, oráculo, casos de uso, pruebas, diseño de UI | **Cerrado** 2026-10-14 (decisiones delegadas por el dueño) |
 | **M1 Casos de prueba** | Catálogo funcional (`mac/ESPEC_17`), 104 casos heredados como golden, fixtures e infraestructura; cada componente escribe su suite antes del código (DT-29) | **Cerrado** 2026-10-14 |
 | **M2 Esqueleto** | Proyecto Xcode + `Free1X2Kit` + CI macOS | **Cerrado** 2026-10-14: paquete y app compilan sin avisos, 13 tests verdes en local; `mac.yml` se verifica en GitHub con el primer push |
-| **M3 Motor** | Por orden: Columnas/Utils → Escrutinio → Generador+filtros → Reducción → Análisis → Subir categoría | Golden 100 % idénticos + 85 tests portados + benchmark dentro de presupuesto (ESPEC_14 §6) |
-| **M4 Formatos y Online** | Lectura/escritura de todos los ficheros; cliente online | Round-trip del corpus (ESPEC_12 §6) |
-| **M5 UI** | Mockups de ESPEC_15 → pantallas SwiftUI, empezando por el flujo principal | Smoke de las 109 superficies en el Mac M1 (ESPEC_14 §9) |
+| **M3 Motor** | Por orden: Columnas/Utils → Escrutinio → Generador+filtros → Reducción → Análisis → Subir categoría | **Cerrado**: golden `motor/*` en verde (43 tests del paquete Motor) y benchmark B1, B5, B6 dentro de presupuesto (`Free1X2.Mac/bench/linea-base.json`, DT-56) |
+| **M4 Formatos y Online** | Lectura/escritura de todos los ficheros; cliente online | **Cerrado**: golden `formatos/*` y `online/*` (31 + 24 tests) e ida y vuelta byte a byte de `Fixtures/corpus/comb/completa.comb` (DT-74) |
+| **M5 UI** | Mockups de ESPEC_15 → pantallas SwiftUI, empezando por el flujo principal | **Cerrado** 2026-10-15: las 108 pantallas + Inicio portadas, smoke `SMOKE DONE total=109 ok=109 fail=0`, 230 tests verdes, CI de `mac.yml` reproducida en local (lint estricto, Release con avisos como errores) y bench B1–B8 bajo techo (DT-74) |
 | **M6 Distribución** | Firma Developer ID + notarización + `.dmg` | Instalable verificado en un Mac limpio |
 
 ## 6. Requisitos del dueño

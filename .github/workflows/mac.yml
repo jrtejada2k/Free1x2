@@ -3,7 +3,8 @@ name: Mac
 # App Mac en Swift (docs/mac/ESPEC_14_PRUEBAS.md §7). Cero C# en esta cadena.
 on:
   push:
-    branches: [main]
+    # Las ramas de trabajo `claude/**` también: así se valida sin abrir un PR, que dispararía `ci.yml` (tests del C#).
+    branches: [main, 'claude/**']
     paths: ['Free1X2.Mac/**', '.github/workflows/mac.yml']
   pull_request:
     paths: ['Free1X2.Mac/**', '.github/workflows/mac.yml']

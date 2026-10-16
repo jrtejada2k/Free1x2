@@ -8,7 +8,6 @@ import Free1X2Pruebas
 
 // ESPEC_14 §6: datasets fijos, Release; 2 calentamientos + 10 medidas; mediana, p90 y pico de RSS del proceso.
 // Uso: `swift run -c release Free1X2Bench [B1 B5 B6 …]` (sin argumentos: todos).
-// ponytail: no hay `corpus/comb/completa.comb`; B2–B4 usan los 6 filtros con «todos los valores» (DT-74).
 
 let pedidos = Set(CommandLine.arguments.dropFirst())
 
@@ -87,30 +86,17 @@ if quiere("B6") {
     }
 }
 
-// B2–B4: 14 triples con los 6 filtros que admiten «todos los valores» activos en el grupo base (pasan todas: coste
-// máximo de esos filtros), por las rutas A (contar), B (grabar `.txt`) y C (análisis).
-var b2 = Combinacion(numeroPartidos: 14)
-b2.ponerPronosticos(Array(repeating: "1,X,2", count: 14))
-try b2.modificarGrupo(0) { (g: inout GrupoConfig) throws(ErrorDominio) in
-    try g.condiciones.noVariantes.llenarTodosValores()
-    try g.condiciones.signosSeguidos.llenarTodosValores()
-    try g.condiciones.interrupciones.llenarTodosValores()
-    try g.condiciones.pesosNumericos.llenarTodosValores()
-    try g.condiciones.distancias.llenarTodosValores()
-    try g.condiciones.contactos.llenarTodosValores()
-    g.condiciones.noVariantes.activa = true
-    g.condiciones.signosSeguidos.activa = true
-    g.condiciones.interrupciones.activa = true
-    g.condiciones.pesosNumericos.activa = true
-    g.condiciones.distancias.activa = true
-    g.condiciones.contactos.activa = true
-}
-try await medir("B2 14T 6 filtros ruta A", techo: .seconds(10)) {
+// B2–B4: 14 triples + `corpus/comb/completa.comb` (los 14 filtros con datos, grupos, controles e If-Then), por las rutas A
+// (contar), B (grabar `.txt`) y C (análisis).
+let b2 = try ArchivoCombinacion.leer(
+    try Golden.bytes("Fixtures/corpus/comb/completa.comb"), numeroPartidos: 14, cultura: .esES
+).combinacion
+try await medir("B2 completa ruta A", techo: .seconds(10)) {
     let r = try MotorCalculo.calcular(b2, configuracion: .porDefecto, leerLineas: { _ in [] })
     precondition(r.analizadas == 4_782_969)
 }
 let temporal = FileManager.default.temporaryDirectory.appending(path: "free1x2-bench.txt")
-try await medir("B3 14T 6 filtros ruta B", techo: .seconds(13)) {
+try await medir("B3 completa ruta B", techo: .seconds(13)) {
     FileManager.default.createFile(atPath: temporal.path, contents: nil)
     let h = try FileHandle(forWritingTo: temporal)
     var buf: [UInt8] = []
@@ -126,7 +112,7 @@ try await medir("B3 14T 6 filtros ruta B", techo: .seconds(13)) {
     h.write(Data(buf))
     try h.close()
 }
-try await medir("B4 14T 6 filtros ruta C", techo: .seconds(20)) {
+try await medir("B4 completa ruta C", techo: .seconds(20)) {
     _ = try MotorCalculo.analizar(b2, configuracion: .porDefecto, leerLineas: { _ in [] })
 }
 

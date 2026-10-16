@@ -67,6 +67,32 @@ struct CondicionesXMLTests {
         }
     }
 
+    /// ESPEC_12 §6, `.comb` «completo»: los 14 filtros con datos en el grupo base, grupos parciales, controles e If-Then.
+    /// Ida y vuelta byte a byte, y el motor lo recorre sin errores (con 6 triples para que sea rápido; B2 usa los 14).
+    @Test func combinacionCompleta() throws {
+        let original = try Golden.bytes("Fixtures/corpus/comb/completa.comb")
+        let l = try ArchivoCombinacion.leer(original, numeroPartidos: 14, cultura: .esES)
+        let escrito = try ArchivoCombinacion.datos(l.combinacion, equipos: l.equipos, filtroColumnas: l.filtroColumnas, cultura: .esES)
+        let (a, b) = (String(decoding: escrito, as: UTF8.self), String(decoding: original, as: UTF8.self))
+        #expect(a == b)
+        let (la, lb) = (a.components(separatedBy: "\r\n"), b.components(separatedBy: "\r\n"))
+        if let i = la.indices.first(where: { $0 >= lb.count || la[$0] != lb[$0] }) {
+            Issue.record("línea \(i + 1): «\(la[i])» ≠ «\(i < lb.count ? lb[i] : "")»")
+        }
+        var c = l.combinacion
+        let g = c.grupos[0].condiciones
+        #expect(
+            [
+                g.noVariantes.activa, g.valoracionSignos.activa, g.signosSeguidos.activa, g.interrupciones.activa, g.dibujos.activa,
+                g.pesosNumericos.activa, g.distancias.activa, g.gruposEquipos.activa, g.contactos.activa, g.formatosSignos.activa,
+                g.colProbables.activa, g.formatos123.activa, g.simetrias.activa, g.diferencias.activa,
+            ].allSatisfy { $0 } && c.grupos.count == 3 && c.ifThen?.esVacio == false)
+        c.ponerPronosticos((0..<14).map { $0 < 6 ? "1,X,2" : "1" })
+        let r = try MotorCalculo.calcular(c, configuracion: .porDefecto, leerLineas: { _ in [] })
+        #expect(r.analizadas == 729)
+        _ = try MotorCalculo.analizar(c, configuracion: .porDefecto, leerLineas: { _ in [] })
+    }
+
     /// La combinación leída lleva lo que el motor necesita: grupos con máscara, controles y pronósticos.
     @Test func combinacionLeida() throws {
         let caso = try #require(

@@ -8,19 +8,20 @@
     "B5 9T nivel 12 1305": 0.0088,
     "B6 1 ganadora": 0.0124,
     "B6 temporada 38": 0.1633,
-    "B2 14T 6 filtros ruta A": 3.7796,
-    "B3 14T 6 filtros ruta B": 3.7821,
-    "B4 14T 6 filtros ruta C": 4.1879,
     "B7 1M columnas escribir+leer": 0.9818,
     "B8 ordenar por probabilidad": 0.2944,
     "B8 tramificar": 0.4761,
-    "B8 banco valoración real": 0.4486
+    "B8 banco valoración real": 0.4486,
+    "B2 completa ruta A": 0.4461,
+    "B3 completa ruta B": 1.9582,
+    "B4 completa ruta C": 0.5581
   },
   "rss_pico_mb_aislado": {
-    "B2 14T 6 filtros ruta A": 6,
-    "B3 14T 6 filtros ruta B": 7,
     "B8 ordenar por probabilidad": 66,
     "B8 tramificar": 84,
-    "B8 banco valoración real": 43
+    "B8 banco valoración real": 43,
+    "B2 completa ruta A": 8,
+    "B3 completa ruta B": 11,
+    "B4 completa ruta C": 8
   }
 }
