@@ -196,10 +196,10 @@ Tabla flujo → resultado (OK / fallo / bloqueado) con `file:line` de cada test,
 | ID | Hueco | Referencia | Trabajo | Prueba |
 |----|-------|------------|---------|--------|
 | C1 | Niveles de prueba N5/N6 y flujos UI-10 | ESPEC_14 §1; ESPEC_17 UI-10 | Fases 0–2 | este plan |
-| C2 | Rotación de signos: paneles «% COMBINACIÓN» (porcentajes de signos del fichero de entrada) y «Valoraciones JORNADA», y la transposición automática | legacy `Free1X2/UI/RotacionDeSignosFrm.cs:1868-1931,2224-2292`; `TransponedorAutomatico` en ESPEC_06 §3.10 (con casos golden propuestos) | portar `TransponedorAutomatico` al motor y los dos paneles a la pantalla; quitar la nota «fase posterior» | golden ESPEC_06 §3.10 (4 casos) + F33 ampliado |
-| C3 | Botón «CPs por diferencias…» de Diferencias entre columnas sin cablear | ESPEC_09 A-41-3; legacy `UI/DifCols.cs:645` abre `GeneradorCPSDiferencias` | navegar a `.generadorCPSDiferencias` | U |
-| C4 | «Incluir pleno al 15» de Analizar fichero no actúa | ESPEC_08 A8 (`:488`, `:2044`) | analizar con 15 partidos si está activo | I |
-| C5 | Nota de Aidomnou promete `aidomnou.cfg` editable, que no existe en el port (límites fijos, DEC-923) | `App/Pantallas/Utilidades/Aidomnou.swift:353` | corregir el texto a lo que hace la app | U |
+| C2 | Rotación de signos: paneles «% COMBINACIÓN» (porcentajes de signos del fichero de entrada) y «Valoraciones JORNADA», y la transposición automática | legacy `Free1X2/UI/RotacionDeSignosFrm.cs:1868-1931,2224-2292`; `TransponedorAutomatico` en ESPEC_06 §3.10 (con casos golden propuestos) | **hecho**: `Free1X2Motor/Analisis/TransponedorAutomatico.swift`, `porcentajesRotacion`, `propuestaRotacion`; paneles y «Transposición automática» en `App/Pantallas/Utilidades/Rotacion.swift` | `TransponedorAutomaticoTests` (4 casos a mano, incluido el empate no estable) + F33 |
+| C3 | Botón «CPs por diferencias…» de Diferencias entre columnas sin cablear | ESPEC_09 A-41-3; legacy `UI/DifCols.cs:645` abre `GeneradorCPSDiferencias` | **hecho** (`App/Pantallas/Utilidades/Signos.swift`) | U |
+| C4 | «Incluir pleno al 15» de Analizar fichero no actúa | ESPEC_08 A8 (`:488`, `:2044`) | **no es hueco**: en el legacy tampoco actúa (`Free1X2/UI/AnalizarFicheroFrm.cs:265`) y en Calcular `AnalizaCombinacion(15)` solo cambia un valor que el análisis normal no lee (`ESPEC_01_MOTOR_NUCLEO.md:303`) | — |
+| C5 | Nota de Aidomnou promete `aidomnou.cfg` editable, que no existe en el port (límites fijos, DEC-923) | `App/Pantallas/Utilidades/Aidomnou.swift:353` | **hecho**: «son fijas; no se leen de ningún fichero» | U |
 | C6 | Cobertura medida | ESPEC_14 §3 | `swift test --enable-code-coverage` en la CI con umbral | CI |
 
 Se mantienen **como en el original** (no son huecos del port): «Escrutar combinaciones» deshabilitado en la
@@ -242,6 +242,7 @@ coinciden, se corrige el Swift (R1: sin tocar golden).
 | Fecha | Hecho | Hallazgos |
 |-------|-------|-----------|
 | 2026-10-16 | P3 `-datos`; Fase 1, lote 1: F01, F03, F04, F06, F11, F13, F14, F15, F27, F29, F30, F31, F32, F34, F48 (`Tests/Free1X2CasosDeUsoTests/FlujosTests.swift`, 13 tests verdes) | **D-01** (gravedad 2): Variantes, Signos seguidos y Distancias decían «separa con comas o espacios» y ponían `0 1 2` de ejemplo, pero el parser solo acepta comas (DEC-904) ⇒ el usuario que seguía la ayuda recibía «La cadena de entrada no tiene el formato correcto». Corregida la ayuda a comas (DT-78), sin tocar el motor. |
+| 2026-10-16 | C2 (Rotación: % combinación, valoraciones jornada, propuesta y transposición automática), C3, C5; C4 cerrado como comportamiento original; F33 | — |
 
 ## 10. Orden de trabajo y consumo
 

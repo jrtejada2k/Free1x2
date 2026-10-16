@@ -242,8 +242,8 @@ struct VistaDifCols: View {
                 }
                 .foregroundStyle(Color.textoSecundario)
                 HStack {
-                    // «CPs por diferencias…» no hace nada en el C# (`VM:252-256`).
-                    Button("CPs por diferencias…") {}
+                    // El port WinUI lo dejó sin cablear (`VM:252-256`); el legacy abría el generador (`UI/DifCols.cs:645`; C3 del plan).
+                    Button("CPs por diferencias…") { sesion.router.navegar(.generadorCPSDiferencias) }
                     Spacer()
                     Button("Cancelar") { tarea?.cancel() }.disabled(tarea == nil)
                     Button("Grabar") { Task { await grabar() } }.disabled(tarea != nil || !puedeGrabar)

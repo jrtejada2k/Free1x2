@@ -349,10 +349,9 @@ struct VistaAidomnou: View {
                         Text("Col \(c + 1): " + (0..<14).map { CasosUtilidades.cambiaAidomnou(cps[$0][c]) }.joined(separator: " "))
                             .font(.caption).monospaced()
                     }
-                    Text(
-                        "NOTA: Las condiciones de generación de las 6 columnas, tras una primera ejecución, aparecen editables en el fichero 'aidomnou.cfg'."
-                    )
-                    .font(.caption).foregroundStyle(Color.textoSecundario)
+                    // El original prometía `aidomnou.cfg` editable; el port usa los límites fijos (DEC-923, DP-08; C5 del plan).
+                    Text("NOTA: Las condiciones de generación de las 6 columnas son fijas; no se leen de ningún fichero.")
+                        .font(.caption).foregroundStyle(Color.textoSecundario)
                 }
             }
             HStack(alignment: .top, spacing: 16) {

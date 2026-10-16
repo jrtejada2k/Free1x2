@@ -222,6 +222,30 @@ struct FlujosTests {
         #expect(partes.map(\.count) == [243, 243, 243] && partes.flatMap { $0 } == Self.seisTriples)
     }
 
+    /// F33 y C2: «% COMBINACIÓN» de JD-01 (34/33/33 en 1–6; 100/0/0 en 7–14), propuesta con una jornada que valora más el
+    /// 2 que el 1 (1↔2 en todos los partidos) y rotación: 729 columnas con los partidos 7–14 a «2».
+    @Test func f33RotacionDeSignos() async throws {
+        let e = try fichero("Columnas/jd01.txt", Self.seisTriples)
+        let pct = try CasosUtilidades.porcentajesRotacion(e, partidos: 14, entorno: entorno)
+        #expect(pct == [[Double]](repeating: [34, 33, 33], count: 6) + [[Double]](repeating: [100, 0, 0], count: 8))
+        let jornada = [[Double]](repeating: [20, 30, 50], count: 14)
+        let nuevos = CasosUtilidades.propuestaRotacion(combinacion: pct, jornada: jornada)
+        #expect(nuevos == [[Int]](repeating: [2, 1, 0], count: 14))
+        #expect(CasosUtilidades.propuestaRotacion(combinacion: [[40, 40, 20]], jornada: [[10, 20, 70]]) == [[2, 1, 0]])
+        let s = carpeta.appending(path: "Columnas/rotada.txt")
+        let n = try await CasosUtilidades.rotarSignos(e, salida: s, nuevos: nuevos, correccion: false, numeroPartidos: 14, entorno: entorno)
+        let esperado = Set(Self.seisTriples.map { String($0.map { $0 == "1" ? "2" : $0 == "2" ? "1" : $0 }) })
+        #expect(try n == 729 && Set(lineas(s)) == esperado)
+        // Transposición automática del legacy: orden del caso de empates de `TransponedorAutomaticoTests`.
+        let orden = try #require(TransponedorAutomatico.trasposicion(valoraciones: jornada, frecuencias: pct))
+        let t = carpeta.appending(path: "Columnas/jd01T.txt")
+        try await CasosUtilidades.transponerColumnas(e, salida: t, orden: orden, entorno: entorno)
+        // Salida i = entrada orden[i]: 0–5 y 12–13 vienen de partidos fijos («1»); 6–11, de los 6 variables.
+        let tl = try lineas(t)
+        #expect(tl.count == 729 && tl.allSatisfy { $0.prefix(6) == "111111" && $0.suffix(2) == "11" })
+        #expect(Set(tl.map { String($0.dropFirst(6).prefix(6)) }).count == 729)
+    }
+
     /// F34: comprimir y descomprimir JD-01 en `.z3q` devuelve las mismas 729 columnas.
     @Test func f34Compresor() async throws {
         let e = try fichero("Columnas/jd01.txt", Self.seisTriples)

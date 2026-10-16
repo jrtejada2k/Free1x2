@@ -239,6 +239,50 @@ extension CasosUtilidades {
     /// `IndiceSigno`: posición en «1X2» (desconocido ⇒ 0).
     public static func indiceSigno(_ s: String) -> Int { ["1", "X", "2"].firstIndex(of: s) ?? 0 }
 
+    /// Panel «% COMBINACIÓN» del legacy (`RotacionDeSignosFrm.cs:1860-1931`, `LeerColumnas` + `ConvertirAPorcentaje`): el
+    /// porcentaje de 1/X/2 de cada partido en las columnas de la entrada; X y 2 con `Math.Round` (a par) y el 1 completa
+    /// 100. ponytail: sin columnas, ceros (el C# daría NaN).
+    public static func porcentajesRotacion(_ url: URL, partidos: Int, entorno: Entorno) throws(ErrorDominio) -> [[Double]] {
+        let pot = ConvertidorDeBases.potenciasDe3.map(Int.init)
+        let conv = ConvertidorDeBases(numeroPartidos: partidos)
+        var cuentas = [[Double]](repeating: [0, 0, 0], count: partidos)
+        for c in ArchivoColumnasTexto.columnas(try entorno.archivos.leer(url)) {
+            let n = Int(try conv.numero(c))
+            for p in 0..<partidos { cuentas[p][n / pot[p] % 3] += 1 }
+        }
+        return cuentas.map { f in
+            let suma = f[0] + f[1] + f[2]
+            guard suma > 0 else { return [0, 0, 0] }
+            let (x, dos) = ((f[1] * 100 / suma).rounded(.toNearestOrEven), (f[2] * 100 / suma).rounded(.toNearestOrEven))
+            return [100 - dos - x, x, dos]
+        }
+    }
+
+    /// `Ordenar3valores` (`RotacionDeSignosFrm.cs:2190-2216`): índices 0/1/2 de mayor a menor valor, con los desempates
+    /// de ±0,001 del C# (si aún coinciden, gana el último índice comprobado).
+    static func ordenar3(_ a: Double, _ b: Double, _ c: Double) -> [Int] {
+        var (v1, vX, v2) = (a, b, c)
+        if v1 == vX { v1 += 0.001 }
+        if v2 == vX { v2 -= 0.001 }
+        if v1 == v2 { v1 += 0.001 }
+        let original = [v1, vX, v2]
+        return original.sorted(by: >).map { v in
+            var r = 0; for (i, o) in original.enumerated() where o == v { r = i }; return r
+        }
+    }
+
+    /// `PropuestaAutomatica` (`RotacionDeSignosFrm.cs:2217-2230`): en cada partido, el k-ésimo signo más frecuente de la
+    /// combinación pasa al k-ésimo más valorado de la jornada. Devuelve `nuevos[partido][signo]` como `rotarSignos`.
+    public static func propuestaRotacion(combinacion: [[Double]], jornada: [[Double]]) -> [[Int]] {
+        zip(combinacion, jornada).map { c, j in
+            guard c.count >= 3, j.count >= 3 else { return [0, 1, 2] }
+            let (x, y) = (ordenar3(c[0], c[1], c[2]), ordenar3(j[0], j[1], j[2]))
+            var n = [0, 1, 2]
+            for s in 0..<3 { n[x[s]] = y[s] }
+            return n
+        }
+    }
+
     /// CU-C22 `Rotar`: `nuevos[partido][signo]` = índice del signo destino. Sin corrección, cada columna rota entera; con
     /// ella, cada partido por separado. Salida por índice ascendente sin repetidas (sin columnas no se crea).
     @concurrent public static func rotarSignos(
