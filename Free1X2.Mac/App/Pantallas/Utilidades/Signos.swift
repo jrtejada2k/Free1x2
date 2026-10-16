@@ -97,7 +97,7 @@ struct VistaVSignos: View {
                 }
                 HStack {
                     Spacer()
-                    Button("Calcular") { Task { await calcular() } }.buttonStyle(.borderedProminent)
+                    Button("Calcular") { Task { await calcular() } }.buttonStyle(EstiloPrincipal())
                     Button("Grabar") { Task { await grabar() } }
                     Button("Limpiar") { ganadora = ganadora.map { _ in "-" } }
                 }
@@ -253,7 +253,7 @@ struct VistaDifCols: View {
                             tarea = nil
                         }
                     }
-                    .buttonStyle(.borderedProminent).disabled(tarea != nil)
+                    .buttonStyle(EstiloPrincipal()).disabled(tarea != nil)
                 }
             }
         }
@@ -387,7 +387,7 @@ struct VistaSubirCategoria: View {
                 Text(conteo).monospacedDigit()
                 Text(estado).foregroundStyle(Color.textoSecundario)
                 Spacer()
-                Button("Calcular") { Task { await calcular() } }.buttonStyle(.borderedProminent).disabled(!puedeCalcular)
+                Button("Calcular") { Task { await calcular() } }.buttonStyle(EstiloPrincipal()).disabled(!puedeCalcular)
                 Button("Grabar") { Task { await grabar() } }.disabled(!puedeGrabar)
             }
         }

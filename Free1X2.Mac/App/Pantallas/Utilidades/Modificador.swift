@@ -104,7 +104,7 @@ struct VistaModificador: View {
                     .pickerStyle(.radioGroup)
                     Toggle("Ordenar signos", isOn: $ordenarSignos).disabled(modo == 1)
                     HStack {
-                        Button("Ok", action: aceptar).buttonStyle(.borderedProminent).disabled(editor == nil)
+                        Button("Ok", action: aceptar).buttonStyle(EstiloPrincipal()).disabled(editor == nil)
                         Button("Grabar") { Task { await grabar() } }.disabled(editor == nil)
                         // «Cancelar» no hace nada en el C#.
                         Button("Cancelar") {}
@@ -160,7 +160,7 @@ struct VistaBuscaLims: View {
                                 calculando = false
                             }
                         }
-                        .buttonStyle(.borderedProminent).disabled(calculando)
+                        .buttonStyle(EstiloPrincipal()).disabled(calculando)
                     }
                     Tarjeta("Resultados") {
                         Grid(alignment: .leading, horizontalSpacing: 14, verticalSpacing: 4) {
@@ -307,7 +307,7 @@ struct VistaCombinarFiltros: View {
                 Text("Cualquier variación en el cuadro \"Filtros\" requiere repetir el proceso antes de sumar o grabar columnas.")
                     .font(.callout).foregroundStyle(Color.textoSecundario)
                 HStack {
-                    Button("Iniciar Proceso") { Task { await iniciar() } }.buttonStyle(.borderedProminent).disabled(tarea != nil)
+                    Button("Iniciar Proceso") { Task { await iniciar() } }.buttonStyle(EstiloPrincipal()).disabled(tarea != nil)
                     Button("Cancelar") { tarea?.cancel() }
                     Button("Reiniciar Todo") { (filtros, total, salida, partidos, cuentas) = ([], 0, "", 0, []) }
                 }

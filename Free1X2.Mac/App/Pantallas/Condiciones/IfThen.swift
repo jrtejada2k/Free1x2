@@ -38,7 +38,7 @@ struct VistaIfThen: View {
             }
             .frame(minHeight: 520)
             HStack {
-                Button("Aceptar") { aceptar() }.buttonStyle(.borderedProminent).keyboardShortcut(.defaultAction)
+                Button("Aceptar") { aceptar() }.buttonStyle(EstiloPrincipal()).keyboardShortcut(.defaultAction)
                 Button("Guardar") { Task { await guardar() } }
                 Button("Abrir") {
                     Task {

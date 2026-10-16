@@ -148,7 +148,7 @@ struct VistaAgregarEquipo: View {
                 .frame(maxWidth: 260)
             }
             HStack {
-                Button("Añadir", action: anadir).buttonStyle(.borderedProminent).keyboardShortcut(.defaultAction)
+                Button("Añadir", action: anadir).buttonStyle(EstiloPrincipal()).keyboardShortcut(.defaultAction)
                 Text(estado).foregroundStyle(Color.textoSecundario)
             }
         }

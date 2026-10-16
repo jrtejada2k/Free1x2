@@ -56,7 +56,7 @@ struct VistaVerBoletos: View {
                     sesion.parametrosBoleto = (fichero, orden, descendente)
                     sesion.router.navegar(.boleto)
                 }
-                .buttonStyle(.borderedProminent).keyboardShortcut(.defaultAction).disabled(fichero == nil)
+                .buttonStyle(EstiloPrincipal()).keyboardShortcut(.defaultAction).disabled(fichero == nil)
             }
         }
     }

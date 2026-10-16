@@ -54,7 +54,7 @@ struct VistaGruposEquipos: View {
                     reflejar()
                 }
                 Button("Cancelar") { sesion.router.atras() }
-                Button("Aceptar") { aceptar() }.buttonStyle(.borderedProminent).keyboardShortcut(.defaultAction)
+                Button("Aceptar") { aceptar() }.buttonStyle(EstiloPrincipal()).keyboardShortcut(.defaultAction)
             }
             Text(e.estado).font(.callout).foregroundStyle(Color.textoSecundario)
         }

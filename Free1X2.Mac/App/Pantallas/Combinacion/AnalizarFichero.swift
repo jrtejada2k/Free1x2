@@ -55,7 +55,7 @@ struct VistaAnalizarFichero: View {
             }
             HStack {
                 Button("Cancelar") { sesion.router.atras() }
-                Button("Analizar") { Task { await analizar() } }.buttonStyle(.borderedProminent).keyboardShortcut(.defaultAction)
+                Button("Analizar") { Task { await analizar() } }.buttonStyle(EstiloPrincipal()).keyboardShortcut(.defaultAction)
                     .disabled(columnas == 0)
             }
         }

@@ -100,7 +100,7 @@ struct VistaFigurasFiltros: View {
                     sesion.figuras?.resultado = CasosCondiciones.aceptarFiguras(casillas)
                     sesion.router.atras()
                 }
-                .buttonStyle(.borderedProminent).keyboardShortcut(.defaultAction)
+                .buttonStyle(EstiloPrincipal()).keyboardShortcut(.defaultAction)
                 Button("Abrir…") {
                     Task {
                         let ext = CasosCondiciones.extensionFiguras(sesion.figuras?.condicion ?? "")

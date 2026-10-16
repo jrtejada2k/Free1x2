@@ -146,7 +146,7 @@ struct VistaPosiblesPremios: View {
                             Task { await sesion.entorno.portapapeles.escribirTexto(t) }
                         }
                         Button("Guardar Resumen") { Task { await guardar() } }
-                        Button("Calcular") { Task { await calcular() } }.buttonStyle(.borderedProminent).disabled(ocupado)
+                        Button("Calcular") { Task { await calcular() } }.buttonStyle(EstiloPrincipal()).disabled(ocupado)
                     }
                 }
             }
@@ -245,7 +245,7 @@ struct VistaMejoresOpciones: View {
                     Text("Mostrar los")
                     CampoNumero(etiqueta: "", valor: $limite, minimo: 1, ancho: 60).labelsHidden()
                     Text("primeros resultados")
-                    Button("Calcular") { Task { await calcular() } }.buttonStyle(.borderedProminent)
+                    Button("Calcular") { Task { await calcular() } }.buttonStyle(EstiloPrincipal())
                 }
             }
             Tarjeta("Resumen") {

@@ -67,7 +67,7 @@ struct VistaEstuCol: View {
             HStack {
                 Text(estado).foregroundStyle(Color.textoSecundario)
                 Spacer()
-                Button("Obtener Informe") { Task { await comenzar() } }.buttonStyle(.borderedProminent)
+                Button("Obtener Informe") { Task { await comenzar() } }.buttonStyle(EstiloPrincipal())
                     .disabled(ocupado || reducidas == nil || ganadoras == nil)
             }
         }
@@ -190,7 +190,7 @@ struct VistaVisorAbdon: View {
             if visor.global {
                 HStack {
                     Spacer()
-                    Button("Generar Condición") { Task { await generarCondicion() } }.buttonStyle(.borderedProminent)
+                    Button("Generar Condición") { Task { await generarCondicion() } }.buttonStyle(EstiloPrincipal())
                 }
             }
         }

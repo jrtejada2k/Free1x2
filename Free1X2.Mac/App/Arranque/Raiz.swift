@@ -8,10 +8,12 @@ struct Raiz: View {
     var body: some View {
         @Bindable var router = sesion.router
         let alertas = sesion.alertas
-        NavigationStack(path: $router.pila) {
-            VistaInicio().navigationDestination(for: Destino.self) { VistaDestino(destino: $0) }
+        VStack(spacing: 0) {
+            BarraHerramientas(sesion: sesion)
+            NavigationStack(path: $router.pila) {
+                VistaInicio().navigationDestination(for: Destino.self) { VistaDestino(destino: $0) }
+            }
         }
-        .toolbar { BarraHerramientas(sesion: sesion) }
         .tint(Color.acento)
         .background {
             Button("Atrás") { sesion.router.atras() }.keyboardShortcut(.escape, modifiers: []).opacity(0)
@@ -35,6 +37,10 @@ struct Raiz: View {
         .task {
             sesion.aplicarTema()
             if CommandLine.arguments.contains("-smoke") { await Smoke.ejecutar(sesion) }
+            let args = CommandLine.arguments
+            if let i = args.firstIndex(of: "-captura"), i + 1 < args.count {
+                await Captura.ejecutar(sesion, en: URL(filePath: args[i + 1]))
+            }
         }
     }
 }
@@ -54,6 +60,26 @@ enum Smoke {
         }
         texto += "SMOKE DONE total=\(Destino.allCases.count) ok=\(ok) fail=\(Destino.allCases.count - ok)\n"
         try? Data(texto.utf8).write(to: log)
+        NSApplication.shared.terminate(nil)
+    }
+}
+
+/// Captura de desarrollo (como el smoke, inerte sin su argumento): `-captura <carpeta>` pinta la ventana entera (barra
+/// incluida) de unas pantallas representativas (o de las 109 con `-todas`) a PNG con `cacheDisplay`, sin necesitar el permiso de grabación de pantalla.
+@MainActor
+enum Captura {
+    static func ejecutar(_ sesion: Sesion, en carpeta: URL) async {
+        try? await Task.sleep(for: .seconds(1))
+        let todas = CommandLine.arguments.contains("-todas")
+        for d in todas ? Destino.allCases : [.inicio, .noVariantes, .calculaColumnas, .escrutinios, .tramificar] {
+            sesion.router.pila = d == .inicio ? [] : [d]
+            try? await Task.sleep(for: .milliseconds(800))
+            guard let vista = NSApp.windows.first(where: \.isVisible)?.contentView?.superview,
+                let rep = vista.bitmapImageRepForCachingDisplay(in: vista.bounds)
+            else { continue }
+            vista.cacheDisplay(in: vista.bounds, to: rep)
+            try? rep.representation(using: .png, properties: [:])?.write(to: carpeta.appending(path: "\(d.clase).png"))
+        }
         NSApplication.shared.terminate(nil)
     }
 }

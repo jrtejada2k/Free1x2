@@ -59,7 +59,7 @@ struct VistaControlGrupos: View {
                     sesion.combinacion = c
                     if ok { sesion.router.atras() }
                 }
-                .buttonStyle(.borderedProminent).keyboardShortcut(.defaultAction)
+                .buttonStyle(EstiloPrincipal()).keyboardShortcut(.defaultAction)
                 Button("Cancelar") { sesion.router.atras() }
                 Text(e.estado).font(.callout).foregroundStyle(Color.textoSecundario)
             }
@@ -112,7 +112,7 @@ struct VistaControlTol: View {
                         sesion.alertas.inesperado(error)
                     }
                 }
-                .buttonStyle(.borderedProminent).keyboardShortcut(.defaultAction)
+                .buttonStyle(EstiloPrincipal()).keyboardShortcut(.defaultAction)
             }
         }
         .onAppear {

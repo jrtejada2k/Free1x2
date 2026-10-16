@@ -155,7 +155,7 @@ struct VistaGeneraPim: View {
                     }
                     Tarjeta("Cálculo de columnas") {
                         HStack {
-                            Button("Calcular") { Task { await calcular() } }.buttonStyle(.borderedProminent).disabled(calculando)
+                            Button("Calcular") { Task { await calcular() } }.buttonStyle(EstiloPrincipal()).disabled(calculando)
                             Button("Grabar resultado") {
                                 Task {
                                     guard let v = validas else {
@@ -381,7 +381,7 @@ struct VistaAidomnou: View {
                         Text(ficheroRangos).foregroundStyle(Color.textoSecundario)
                     }
                     HStack {
-                        Button("Calcular", action: calcular).buttonStyle(.borderedProminent).disabled(tarea != nil)
+                        Button("Calcular", action: calcular).buttonStyle(EstiloPrincipal()).disabled(tarea != nil)
                         Text("Procesadas: \(procesadas)   Válidas: \(validasTexto)   Tiempo: \(tiempo)").monospacedDigit()
                         Button("Cancelar") { tarea?.cancel() }
                     }

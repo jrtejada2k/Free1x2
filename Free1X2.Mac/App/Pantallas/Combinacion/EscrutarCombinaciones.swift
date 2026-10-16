@@ -73,7 +73,7 @@ struct VistaEscrutarCombinaciones: View {
                     }
                     ForEach(ficheros, id: \.self) { Text($0.lastPathComponent).font(.callout) }
                 }
-                .frame(width: 280)
+                .frame(width: 240)
                 VStack(alignment: .leading) {
                     HStack(spacing: 16) {
                         CampoTexto(etiqueta: "No Aciertos", texto: $noAciertos, ancho: 100)
@@ -93,7 +93,7 @@ struct VistaEscrutarCombinaciones: View {
                 }
             }
             HStack {
-                Button("Escrutar!") { Task { await escrutar() } }.buttonStyle(.borderedProminent)
+                Button("Escrutar!") { Task { await escrutar() } }.buttonStyle(EstiloPrincipal())
                 Button("Posibles premios") { sesion.router.navegar(.posiblesPremios) }
                 Text(tiempo).monospacedDigit().foregroundStyle(Color.textoSecundario)
             }
@@ -124,12 +124,12 @@ struct VistaEscrutarCombinaciones: View {
 
     private var simple: some View {
         Tarjeta {
-            HStack(spacing: 4) {
+            Flujo(espacio: 4) {
                 ForEach(signos.indices, id: \.self) { i in
                     VStack(spacing: 2) {
                         Text(String(i + 1)).font(.caption).foregroundStyle(Color.textoSecundario)
                         Picker("", selection: $signos[i]) { ForEach(["*", "1", "X", "2"], id: \.self) { Text($0).tag($0) } }
-                            .labelsHidden().frame(width: 48)
+                            .labelsHidden().frame(width: 44)
                     }
                 }
             }

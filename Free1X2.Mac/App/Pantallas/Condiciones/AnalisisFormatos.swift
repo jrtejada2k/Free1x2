@@ -40,7 +40,7 @@ struct VistaCalculoFormatos: View {
                     // `MaxLength=14`; el port no fuerza mayúsculas.
                     TextField("Ej. 1X21X2111XX221", text: $columna).textFieldStyle(.roundedBorder).monospaced().frame(width: 180)
                         .onChange(of: columna) { _, v in if v.utf16.count > 14 { columna = String(v.prefix(14)) } }
-                    Button("Sacar Formato", action: sacar).buttonStyle(.borderedProminent)
+                    Button("Sacar Formato", action: sacar).buttonStyle(EstiloPrincipal())
                 }
             }
             Tarjeta("Informe") {
@@ -117,7 +117,7 @@ struct VistaAnalisisFormatos123: View {
                     }
                     Tarjeta("Informe") {
                         HStack {
-                            Button("Analizar") { ejecutar(false) }.buttonStyle(.borderedProminent)
+                            Button("Analizar") { ejecutar(false) }.buttonStyle(EstiloPrincipal())
                             Button("Mostrar todos") { ejecutar(true) }
                         }
                         Grid(alignment: .leading, horizontalSpacing: 20, verticalSpacing: 2) {

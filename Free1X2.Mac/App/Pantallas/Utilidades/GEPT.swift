@@ -50,7 +50,7 @@ struct VistaGEPT: View {
             Button("Calcular") {
                 resultado = resultado.indices.map { CasosUtilidades.traducirGEPT(primera[$0], segunda[$0]) }
             }
-            .buttonStyle(.borderedProminent)
+            .buttonStyle(EstiloPrincipal())
         }
         .onAppear {
             guard resultado.isEmpty else { return }

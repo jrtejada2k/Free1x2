@@ -63,7 +63,7 @@ struct VistaConfigCPs: View {
                         sesion.alertas.inesperado(error)
                     }
                 }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(EstiloPrincipal())
             }
         }
         .onAppear {
@@ -131,7 +131,7 @@ struct VistaGenerarCPs: View {
                 VStack(spacing: 10) {
                     Tarjeta("Generar columnas") {
                         CampoNumero(etiqueta: "Jornada", valor: $jornada, minimo: 0, ancho: 70)
-                        Button("Generar (OK)") { Task { await generar() } }.buttonStyle(.borderedProminent)
+                        Button("Generar (OK)") { Task { await generar() } }.buttonStyle(EstiloPrincipal())
                     }
                     Tarjeta("Herramientas") {
                         Button("Configurar columnas") { sesion.router.navegar(.configCPs) }
@@ -231,7 +231,7 @@ struct VistaGeneradorCPSDiferencias: View {
                 Text(estado).foregroundStyle(Color.textoSecundario)
                 Spacer()
                 Button("Cancelar") { estado = "" }
-                Button("Generar", action: generar).buttonStyle(.borderedProminent)
+                Button("Generar", action: generar).buttonStyle(EstiloPrincipal())
             }
         }
     }

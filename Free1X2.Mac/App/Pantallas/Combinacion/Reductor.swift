@@ -108,7 +108,7 @@ struct VistaReductor: View {
                 if reduciendo { ProgressView().controlSize(.small) }
             }
             HStack {
-                Button("Reducir", action: reducir).buttonStyle(.borderedProminent).keyboardShortcut(.defaultAction)
+                Button("Reducir", action: reducir).buttonStyle(EstiloPrincipal()).keyboardShortcut(.defaultAction)
                     .disabled(entrada == nil || salida == nil || reduciendo)
                 Button("Cancelar") {
                     tarea?.cancel()

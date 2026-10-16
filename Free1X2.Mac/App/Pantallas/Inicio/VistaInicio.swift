@@ -5,17 +5,21 @@ import SwiftUI
 struct VistaInicio: View {
     @Environment(Sesion.self) private var sesion
 
-    static let izquierda: [(String, TipoFiltro, Destino)] = [
-        ("Variantes X y 2", .noVariantes, .noVariantes), ("Signos Seguidos", .signosSeguidos, .signosSeguidos),
-        ("Dibujos", .dibujos, .dibujos), ("Interrupciones", .interrupciones, .interrupciones),
-        ("Grupos Equipos", .gruposEquipos, .gruposEquipos), ("Formatos", .formatosSignos, .formatos),
-        ("Simetrías", .simetrias, .simetrias),
+    /// Título, filtro, destino e icono (los glifos de `CondicionItem.Glifo` en SF Symbols).
+    static let izquierda: [(String, TipoFiltro, Destino, String)] = [
+        ("Variantes X y 2", .noVariantes, .noVariantes, "arrow.left.arrow.right"),
+        ("Signos Seguidos", .signosSeguidos, .signosSeguidos, "arrow.up.right"), ("Dibujos", .dibujos, .dibujos, "pencil"),
+        ("Interrupciones", .interrupciones, .interrupciones, "square"),
+        ("Grupos Equipos", .gruposEquipos, .gruposEquipos, "person.3"), ("Formatos", .formatosSignos, .formatos, "folder"),
+        ("Simetrías", .simetrias, .simetrias, "square.grid.2x2"),
     ]
-    static let derecha: [(String, TipoFiltro, Destino)] = [
-        ("Pesos Numéricos", .pesosNumericos, .pesosNum), ("Valoración", .valoracionSignos, .valoracion),
-        ("Columnas Probables", .colProbables, .colProbables), ("Distancias", .distancias, .distancias),
-        ("Contactos", .contactos, .contactos), ("Formatos 123", .formatos123, .formatos123),
-        ("Diferencias", .diferencias, .diferencias),
+    static let derecha: [(String, TipoFiltro, Destino, String)] = [
+        ("Pesos Numéricos", .pesosNumericos, .pesosNum, "scalemass"), ("Valoración", .valoracionSignos, .valoracion, "star"),
+        ("Columnas Probables", .colProbables, .colProbables, "chart.xyaxis.line"),
+        ("Distancias", .distancias, .distancias, "ruler"),
+        ("Contactos", .contactos, .contactos, "person.text.rectangle"),
+        ("Formatos 123", .formatos123, .formatos123, "list.number"),
+        ("Diferencias", .diferencias, .diferencias, "square.on.square"),
     ]
 
     var body: some View {
@@ -92,7 +96,7 @@ struct VistaInicio: View {
                     }
                 }
             }
-            Tarjeta("Filtro de columnas") {
+            Tarjeta("Filtro de columnas", icono: "line.3.horizontal.decrease") {
                 HStack {
                     SemaforoView(estado: estadoFichero(sesion.archivoFiltroCols))
                     Text(nombre(sesion.archivoFiltroCols) ?? "(sin filtro)").foregroundStyle(Color.textoSecundario)
@@ -102,7 +106,7 @@ struct VistaInicio: View {
                         .accessibilityLabel("Seleccionar o quitar el filtro de columnas")
                 }
             }
-            Tarjeta("Filtro Parcial del Grupo") {
+            Tarjeta("Filtro Parcial del Grupo", icono: "line.3.horizontal.decrease", color: .secundario) {
                 let g = sesion.combinacion.grupos[sesion.grupoActual].archivoFiltro
                 let parcial = sesion.grupoPantalla != 0 && !g.isEmpty
                 HStack {
@@ -121,8 +125,9 @@ struct VistaInicio: View {
                     Text(sesion.rutaCombinacion.map { $0.deletingPathExtension().lastPathComponent } ?? "(combinación nueva)")
                         .font(.callout).foregroundStyle(Color.textoSecundario)
                 }
+                .bandaTarjeta()
                 HStack {
-                    Button("Calcular") { calcular() }.buttonStyle(.borderedProminent)
+                    Button("Calcular") { calcular() }.buttonStyle(EstiloPrincipal())
                         .accessibilityLabel("Calcular columnas")
                     Button("Reducir") {
                         sesion.volcarPronosticos()
@@ -137,18 +142,22 @@ struct VistaInicio: View {
         }
     }
 
-    private func columna(_ items: [(String, TipoFiltro, Destino)]) -> some View {
-        VStack(spacing: 4) {
-            ForEach(items, id: \.0) { titulo, tipo, destino in
+    private func columna(_ items: [(String, TipoFiltro, Destino, String)]) -> some View {
+        VStack(spacing: 3) {
+            ForEach(items, id: \.0) { titulo, tipo, destino, icono in
+                let e = estado.condiciones[tipo] ?? .neutro
                 Button {
                     abrir(destino)
                 } label: {
-                    HStack {
-                        SemaforoView(estado: estado.condiciones[tipo] ?? .neutro)
-                        Text(titulo).lineLimit(1)
-                        Spacer()
+                    HStack(spacing: 6) {
+                        SemaforoView(estado: e, tamano: 10)
+                        ChipIcono(simbolo: icono)
+                        Text(titulo).font(.system(size: 12)).foregroundStyle(Color.texto).lineLimit(1)
+                        Spacer(minLength: 0)
                     }
                 }
+                .buttonStyle(EstiloCondicion(estado: e))
+                .accessibilityLabel(titulo)
             }
         }
         .frame(maxWidth: .infinity)
@@ -242,6 +251,7 @@ struct BoletoBaseView: View {
                 }
                 .help("Reiniciar a 14 triples")
             }
+            .bandaTarjeta()
             Grid(alignment: .leading, horizontalSpacing: 6, verticalSpacing: 3) {
                 GridRow {
                     Text("Nº")
@@ -262,8 +272,7 @@ struct BoletoBaseView: View {
                                 ["1", "X", "2"][k],
                                 isOn: Binding(get: { sesion.signos(i)[k] }, set: { _ in sesion.alternar(i, k) })
                             )
-                            .toggleStyle(.button)
-                            .tint(Color.exito)
+                            .toggleStyle(EstiloSigno())
                             .accessibilityHint(["Signo 1 (gana el local)", "Signo X (empate)", "Signo 2 (gana el visitante)"][k])
                         }
                     }

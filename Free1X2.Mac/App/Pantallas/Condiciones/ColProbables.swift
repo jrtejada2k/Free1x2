@@ -90,7 +90,7 @@ struct VistaColProbables: View {
             case 3: relaciones3
             default: controlFallos
             }
-            Button("Aceptar", action: aceptar).buttonStyle(.borderedProminent).keyboardShortcut(.defaultAction)
+            Button("Aceptar", action: aceptar).buttonStyle(EstiloPrincipal()).keyboardShortcut(.defaultAction)
         }
         .onAppear {
             switch pendiente {
@@ -339,7 +339,7 @@ struct VistaCopiarDatosCP: View {
                     sesion.traspasoCP.copia = (Int(FormatoNET.castInt32(desde)), Int(FormatoNET.castInt32(hasta)))
                     sesion.router.atras()
                 }
-                .buttonStyle(.borderedProminent).keyboardShortcut(.defaultAction)
+                .buttonStyle(EstiloPrincipal()).keyboardShortcut(.defaultAction)
                 Button("Cancelar") {
                     sesion.traspasoCP.copia = nil
                     sesion.router.atras()
@@ -394,7 +394,7 @@ struct VistaCopiarCP: View {
                 }
             }
             HStack {
-                Button("Copiar", action: copiar).buttonStyle(.borderedProminent).keyboardShortcut(.defaultAction)
+                Button("Copiar", action: copiar).buttonStyle(EstiloPrincipal()).keyboardShortcut(.defaultAction)
                 Button("Crear grupos") { sesion.router.navegar(.crearGrupos) }
                 Button("Cancelar") { sesion.router.atras() }
                 Text(estado).font(.callout).foregroundStyle(Color.textoSecundario)

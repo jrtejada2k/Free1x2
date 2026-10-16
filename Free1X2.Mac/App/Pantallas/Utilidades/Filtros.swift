@@ -130,7 +130,7 @@ struct VistaFiltroPorcenJB: View {
             }
             Tarjeta("Filtrado") {
                 HStack {
-                    Button("Calcular") { Task { await calcular() } }.buttonStyle(.borderedProminent)
+                    Button("Calcular") { Task { await calcular() } }.buttonStyle(EstiloPrincipal())
                     // DEC-915: como hoy, «Cancelar» no interrumpe el cálculo.
                     Button("Cancelar") {}
                     Button("Grabar Resultado") {
@@ -275,7 +275,7 @@ struct VistaDiFiltros: View {
                 }
             }
             HStack {
-                Button("Iniciar Proceso") { iniciar(analisis: false) }.buttonStyle(.borderedProminent)
+                Button("Iniciar Proceso") { iniciar(analisis: false) }.buttonStyle(EstiloPrincipal())
                 Button("Cancelar") { tarea?.cancel() }
                 Button("Grabar") {
                     Task {

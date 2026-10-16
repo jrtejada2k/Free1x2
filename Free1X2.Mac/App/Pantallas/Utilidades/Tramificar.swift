@@ -177,6 +177,29 @@ struct VistaTramificar: View {
         Binding(get: { s.wrappedValue }, set: { s.wrappedValue = String(FormatoNET.mayusculas($0).prefix(14)) })
     }
 
+    @ViewBuilder private var tablaResultados: some View {
+        HStack(spacing: 4) {
+            ForEach(
+                Array(
+                    [
+                        "Nº", "Col. Inf.", "Col. Sup.", "Nº Cols.", "Prob. Max.", "14", "13", "12", "11", "10", "NºPremios",
+                        "Imp.Premios",
+                        "Ingresos-Gastos",
+                    ].enumerated()), id: \.offset
+            ) { Text($0.element).frame(width: Self.anchos[$0.offset], alignment: .trailing) }
+        }
+        .font(.caption).foregroundStyle(Color.textoSecundario)
+        List(Array(filas.enumerated()), id: \.offset) { f in
+            HStack(spacing: 4) {
+                ForEach(Array(f.element.enumerated()), id: \.offset) { c in
+                    Text(c.element).frame(width: Self.anchos[c.offset], alignment: .trailing).lineLimit(1)
+                }
+            }
+            .monospacedDigit()
+        }
+        .frame(width: Self.anchos.reduce(0, +) + 4 * 12 + 40, height: 240)
+    }
+
     var body: some View {
         Pagina(destino: .tramificar) {
             Text(
@@ -284,31 +307,13 @@ struct VistaTramificar: View {
                 }
             }
             Tarjeta("Resultados") {
-                HStack(spacing: 4) {
-                    ForEach(
-                        Array(
-                            [
-                                "Nº", "Col. Inf.", "Col. Sup.", "Nº Cols.", "Prob. Max.", "14", "13", "12", "11", "10", "NºPremios",
-                                "Imp.Premios",
-                                "Ingresos-Gastos",
-                            ].enumerated()), id: \.offset
-                    ) { Text($0.element).frame(width: Self.anchos[$0.offset], alignment: .trailing) }
-                }
-                .font(.caption).foregroundStyle(Color.textoSecundario)
-                List(Array(filas.enumerated()), id: \.offset) { f in
-                    HStack(spacing: 4) {
-                        ForEach(Array(f.element.enumerated()), id: \.offset) { c in
-                            Text(c.element).frame(width: Self.anchos[c.offset], alignment: .trailing).lineLimit(1)
-                        }
-                    }
-                    .monospacedDigit()
-                }
-                .frame(height: 240)
+                // Las 13 columnas miden ~1020 pt: con la ventana estrecha se desplazan en horizontal y no empujan la página.
+                ScrollView(.horizontal) { VStack(alignment: .leading) { tablaResultados } }
             }
             HStack {
                 Button("Ver gráficas", action: verGraficas)
                 Button("Análisis múltiple") { sesion.router.navegar(.dialogoAnalisisMultipleDeTramos) }
-                Button("Tramificar") { Task { await tramificar() } }.buttonStyle(.borderedProminent).disabled(calculando)
+                Button("Tramificar") { Task { await tramificar() } }.buttonStyle(EstiloPrincipal()).disabled(calculando)
                 Button("Grabar tramos") { sesion.router.navegar(.dialogoGrabarTramos) }
                 Button("Cancelar") { sesion.router.atras() }
             }
@@ -477,7 +482,7 @@ struct VistaTramificarGraficas: View {
                     CampoNumero(etiqueta: "Tamaño del grid", valor: $tamanoGrid, minimo: 10, maximo: 200, ancho: 60)
                 }
                 HStack {
-                    Button("Dibujar curva", action: dibujar).buttonStyle(.borderedProminent)
+                    Button("Dibujar curva", action: dibujar).buttonStyle(EstiloPrincipal())
                     Button("Limpiar imagen") {
                         curvas = []
                         estado = "Imagen limpiada. Selecciona una curva para volver a dibujar."
@@ -542,7 +547,7 @@ struct VistaDialogoFiltrarPorLimites: View {
             }
             HStack {
                 Button("Cancelar") { salir(nil) }
-                Button("Aceptar") { if filas.count == 10 { salir(CasosUtilidades.aceptarLimites(filas)) } }.buttonStyle(.borderedProminent)
+                Button("Aceptar") { if filas.count == 10 { salir(CasosUtilidades.aceptarLimites(filas)) } }.buttonStyle(EstiloPrincipal())
             }
         }
         .frame(minWidth: 520, minHeight: 460)
@@ -568,7 +573,7 @@ struct VistaDialogoGrabarTramos: View {
                 CampoNumero(etiqueta: "Columnas a grabar (N)", valor: $n, minimo: 1)
                 CampoNumero(etiqueta: "De cada (P) columnas", valor: $p, minimo: 1)
             }
-            Button("Aceptar") {}.buttonStyle(.borderedProminent)
+            Button("Aceptar") {}.buttonStyle(EstiloPrincipal())
         }
     }
 }
@@ -691,7 +696,7 @@ struct VistaDialogoAnalisisMultipleDeTramos: View {
                 }
             }
             HStack {
-                Button("Aceptar", action: aceptar).buttonStyle(.borderedProminent)
+                Button("Aceptar", action: aceptar).buttonStyle(EstiloPrincipal())
                 Button("Cancelar") {
                     rutaValoraciones = nil
                     ficheroValoraciones = ""

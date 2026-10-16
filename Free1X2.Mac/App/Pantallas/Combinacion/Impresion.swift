@@ -116,7 +116,7 @@ struct VistaImprimirBoleto: View {
             }
             HStack {
                 Spacer()
-                Button("Imprimir / Guardar como imagen") { Task { await imprimir() } }.buttonStyle(.borderedProminent)
+                Button("Imprimir / Guardar como imagen") { Task { await imprimir() } }.buttonStyle(EstiloPrincipal())
             }
         }
         .onAppear {

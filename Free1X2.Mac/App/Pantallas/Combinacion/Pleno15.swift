@@ -85,7 +85,7 @@ struct VistaAgregaP15: View {
             HStack {
                 Text(estado).foregroundStyle(Color.textoSecundario)
                 Spacer()
-                Button("Calcular") { Task { await calcular() } }.buttonStyle(.borderedProminent).disabled(ocupado)
+                Button("Calcular") { Task { await calcular() } }.buttonStyle(EstiloPrincipal()).disabled(ocupado)
             }
         }
     }

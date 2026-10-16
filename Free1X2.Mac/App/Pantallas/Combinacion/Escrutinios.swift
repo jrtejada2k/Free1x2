@@ -100,9 +100,11 @@ struct VistaEscrutinios: View {
                 "Escruta tus ficheros de columnas contra una columna ganadora, otro fichero de referencia o las jornadas del histórico, y obtén el número de aciertos."
             )
             .foregroundStyle(Color.textoSecundario)
-            HStack(spacing: 20) {
-                CampoCondicion(etiqueta: "Rango de aciertos a mostrar", texto: $rango, ayuda: "10-14").frame(maxWidth: 380)
-                Toggle("Registrar columnas premiadas", isOn: $registrar).toggleStyle(.switch)
+            Tarjeta("Opciones del escrutinio") {
+                HStack(spacing: 20) {
+                    CampoCondicion(etiqueta: "Rango de aciertos a mostrar", texto: $rango, ayuda: "10-14").frame(maxWidth: 380)
+                    Toggle("Registrar columnas premiadas", isOn: $registrar).toggleStyle(.switch)
+                }
             }
             HStack(alignment: .top, spacing: 16) {
                 VStack(alignment: .leading) {
@@ -128,33 +130,36 @@ struct VistaEscrutinios: View {
                         }
                     }
                     .disabled(pestana == 2)
-                    ForEach(ficheros, id: \.self) { Text($0.lastPathComponent).font(.callout) }
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 2) {
+                            ForEach(ficheros, id: \.self) { Label($0.lastPathComponent, systemImage: "doc.text").font(.callout) }
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(6)
+                    }
+                    .frame(height: 140)
+                    .background(Color.superficieAlt.opacity(0.5), in: .rect(cornerRadius: 8))
                 }
                 .frame(width: 300)
             }
             HStack {
-                Button("Escrutar", action: escrutar).buttonStyle(.borderedProminent).keyboardShortcut(.defaultAction).disabled(escrutando)
-                Button("Posibles premios") { sesion.router.navegar(.posiblesPremios) }
+                Button("Escrutar", action: escrutar).buttonStyle(EstiloPrincipal()).keyboardShortcut(.defaultAction).disabled(escrutando)
                 Text(estado).foregroundStyle(Color.textoSecundario)
-            }
-            if let p = proyeccion { resultados(p) }
-            if let premiadas { listaPremiadas(premiadas) }
-            HStack {
-                Button("Seleccionar todas") { seleccion = Set(proyeccion?.filas.indices ?? 0..<0) }
-                Button("Deseleccionar todas") { seleccion = [] }
-                Button("Grabar columnas…") { Task { await grabarColumnas() } }
-                Button("Ver premiadas") { premiadas = CasosCombinacion.filasPremiadas(resultado?.premiadas ?? []) }
-                Button("Ver premiadas…") {
-                    sesion.premiadasEntrada = CasosCombinacion.filasPremiadas(resultado?.premiadas ?? [])
-                    sesion.router.navegar(.columnasPremiadas)
-                }
-                .disabled(!(registrar && !(resultado?.premiadas.isEmpty ?? true)))
                 Spacer()
-                Button("Cancelar") {
-                    tarea?.cancel()
-                    sesion.router.atras()
+                Button("Posibles premios") { sesion.router.navegar(.posiblesPremios) }
+            }
+            if let p = proyeccion {
+                resultados(p)
+            } else {
+                Tarjeta("Resultados") {
+                    Text("Aún no hay resultados: elige los ficheros y pulsa «Escrutar».")
+                        .foregroundStyle(Color.textoSecundario)
+                        .frame(maxWidth: .infinity, minHeight: 120)
+                        .background(Color.superficieAlt.opacity(0.5), in: .rect(cornerRadius: 8))
+                    acciones
                 }
             }
+            if let premiadas { listaPremiadas(premiadas) }
         }
         .onAppear {
             guard !cargado else { return }
@@ -162,6 +167,26 @@ struct VistaEscrutinios: View {
             rango = "10-\(n)"
             casillas = Array(repeating: "*", count: n)
             temporadas = CasosCombinacion.cargarHistoricoJornadas(entorno: sesion.entorno).temporadas
+        }
+    }
+
+    /// Botones de la lista de resultados (debajo de ella, como el original).
+    private var acciones: some View {
+        HStack {
+            Button("Seleccionar todas") { seleccion = Set(proyeccion?.filas.indices ?? 0..<0) }
+            Button("Deseleccionar todas") { seleccion = [] }
+            Button("Grabar columnas…") { Task { await grabarColumnas() } }
+            Button("Ver premiadas") { premiadas = CasosCombinacion.filasPremiadas(resultado?.premiadas ?? []) }
+            Button("Ver premiadas…") {
+                sesion.premiadasEntrada = CasosCombinacion.filasPremiadas(resultado?.premiadas ?? [])
+                sesion.router.navegar(.columnasPremiadas)
+            }
+            .disabled(!(registrar && !(resultado?.premiadas.isEmpty ?? true)))
+            Spacer()
+            Button("Cancelar") {
+                tarea?.cancel()
+                sesion.router.atras()
+            }
         }
     }
 
@@ -285,6 +310,7 @@ struct VistaEscrutinios: View {
                     }
                 }
             }
+            acciones
         }
     }
 
@@ -340,19 +366,21 @@ struct VistaColumnasPremiadas: View {
                 "Resumen de las columnas premiadas encontradas. Puedes exportar todas las columnas o solo las seleccionadas a un fichero de texto."
             )
             .foregroundStyle(Color.textoSecundario)
-            Table(filas.indices.map { Fila(id: $0, f: filas[$0]) }, selection: $seleccion) {
-                TableColumn("Arch. Columnas", value: \.f.archivoColumnas)
-                TableColumn("Jorn.", value: \.f.jornada)
-                TableColumn("Columna", value: \.f.columna)
-                TableColumn("Premio", value: \.f.premio)
-                TableColumn("Nº Col.", value: \.f.numeroColumna)
-                TableColumn("Nº Boleto", value: \.f.numeroBoleto)
-            }
-            .frame(minHeight: 320)
-            HStack {
-                Button("Guardar Todas") { Task { await guardar(filas) } }
-                Button("Guardar Seleccionadas") {
-                    Task { await guardar(filas.indices.filter { seleccion.contains($0) }.map { filas[$0] }) }
+            Tarjeta("Columnas premiadas (\(filas.count))", icono: "trophy", color: .secundario) {
+                Table(filas.indices.map { Fila(id: $0, f: filas[$0]) }, selection: $seleccion) {
+                    TableColumn("Arch. Columnas", value: \.f.archivoColumnas)
+                    TableColumn("Jorn.", value: \.f.jornada)
+                    TableColumn("Columna", value: \.f.columna)
+                    TableColumn("Premio", value: \.f.premio)
+                    TableColumn("Nº Col.", value: \.f.numeroColumna)
+                    TableColumn("Nº Boleto", value: \.f.numeroBoleto)
+                }
+                .frame(minHeight: 320)
+                HStack {
+                    Button("Guardar Todas") { Task { await guardar(filas) } }.buttonStyle(EstiloPrincipal())
+                    Button("Guardar Seleccionadas") {
+                        Task { await guardar(filas.indices.filter { seleccion.contains($0) }.map { filas[$0] }) }
+                    }
                 }
             }
         }

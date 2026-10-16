@@ -170,7 +170,7 @@ struct VistaOrdenarPorProbabilidad: View {
                     estado = "Faltan datos"
                     sesion.router.atras()
                 }
-                Button("Ordenar") { Task { await ordenar() } }.buttonStyle(.borderedProminent).disabled(tarea != nil)
+                Button("Ordenar") { Task { await ordenar() } }.buttonStyle(EstiloPrincipal()).disabled(tarea != nil)
             }
         }
         .onAppear {

@@ -113,7 +113,7 @@ struct VistaRotacionDeSignos: View {
                 Spacer()
                 // «Cancelar» no hace nada en el C# (`VM:206-210`).
                 Button("Cancelar") {}
-                Button("Aceptar") { Task { await aceptar() } }.buttonStyle(.borderedProminent)
+                Button("Aceptar") { Task { await aceptar() } }.buttonStyle(EstiloPrincipal())
                     .disabled(ocupado || entrada == nil || salida == nil)
             }
         }

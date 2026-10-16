@@ -90,7 +90,7 @@ struct VistaPremiadas: View {
                         ForEach([13, 12, 11, 10], id: \.self) { Text("\($0) aciertos").tag($0) }
                     }
                     .fixedSize()
-                    Button("Calcular") { Task { await calcular() } }.buttonStyle(.borderedProminent).disabled(ocupado)
+                    Button("Calcular") { Task { await calcular() } }.buttonStyle(EstiloPrincipal()).disabled(ocupado)
                 }
                 HStack(spacing: 20) {
                     LabeledContent("Procesadas", value: procesadas)

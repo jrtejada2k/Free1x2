@@ -92,7 +92,7 @@ struct VistaEstimadorPremios: View {
                         else { return numApuestasTexto = "Columna premiada inválida (14 signos)" }
                         (prevision, numApuestasTexto) = (p, p.numApuestas)
                     }
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(EstiloPrincipal())
                 }
             }
             HStack(alignment: .top) {
@@ -240,7 +240,7 @@ struct VistaRentabilidad: View {
                         Toggle("Ordenar columnas por EM", isOn: $ordenar)
                         Toggle("Añadir EM al fichero de salida", isOn: $conEM)
                         HStack {
-                            Button("Calcular") { Task { await calcular() } }.buttonStyle(.borderedProminent).disabled(calculando)
+                            Button("Calcular") { Task { await calcular() } }.buttonStyle(EstiloPrincipal()).disabled(calculando)
                             Text(estado).foregroundStyle(Color.textoSecundario)
                         }
                     }

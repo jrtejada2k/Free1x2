@@ -134,7 +134,7 @@ struct VistaCalculaColumnasMultiple: View {
                 }
             }
             HStack {
-                Button("Calcular") { Task { await calcular() } }.buttonStyle(.borderedProminent).keyboardShortcut(.defaultAction)
+                Button("Calcular") { Task { await calcular() } }.buttonStyle(EstiloPrincipal()).keyboardShortcut(.defaultAction)
                     .disabled(combinaciones.isEmpty || enMarcha)
                 Button("Cancelar") {
                     tarea?.cancel()

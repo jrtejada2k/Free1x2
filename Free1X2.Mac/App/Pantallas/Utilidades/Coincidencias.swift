@@ -181,8 +181,8 @@ struct VistaCoincidencias: View {
                     ganadoras("Ganadora reciente", $reciente, "recientes")
                 }
                 Tarjeta("Cálculo") {
-                    HStack {
-                        Button("Calcular", action: calcular).buttonStyle(.borderedProminent).disabled(tarea != nil)
+                    Flujo(espacio: 6) {
+                        Button("Calcular", action: calcular).buttonStyle(EstiloPrincipal()).disabled(tarea != nil)
                         Button("Cancelar") { tarea?.cancel() }
                         Button("Analizar", action: analizar)
                         Button("Calcular radiografía") { _ = referencia() }

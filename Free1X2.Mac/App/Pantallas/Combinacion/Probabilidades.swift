@@ -45,7 +45,7 @@ struct VistaProbabilidadPremios: View {
                     TextField("Ej. 10-14", text: $rango).frame(width: 160)
                 }
                 Text("Si se deja vacío se usa el rango por defecto 10-14.").foregroundStyle(Color.textoSecundario)
-                Button("Calcular") { Task { await calcular() } }.buttonStyle(.borderedProminent).disabled(madre == nil || hija == nil)
+                Button("Calcular") { Task { await calcular() } }.buttonStyle(EstiloPrincipal()).disabled(madre == nil || hija == nil)
             }
             Tarjeta("Probabilidades por categoría") {
                 Table(filas) {

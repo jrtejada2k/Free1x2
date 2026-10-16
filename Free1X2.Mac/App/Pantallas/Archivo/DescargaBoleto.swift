@@ -30,7 +30,7 @@ struct VistaDescargaBoleto: View {
                         descargando = false
                     }
                 }
-                .buttonStyle(.borderedProminent).disabled(descargando)
+                .buttonStyle(EstiloPrincipal()).disabled(descargando)
                 Text(mensaje).foregroundStyle(Color.textoSecundario)
             }
         }

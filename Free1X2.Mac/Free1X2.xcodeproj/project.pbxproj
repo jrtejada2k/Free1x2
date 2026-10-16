@@ -8,25 +8,46 @@
 
 /* Begin PBXBuildFile section */
 		01389C1F95A7E68AA3A1E828 /* Formatos.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39BF9252187A13E9703C8EF5 /* Formatos.swift */; };
+		03F5F44385FE7B8969A73EF7 /* bFraccionador.png in Resources */ = {isa = PBXBuildFile; fileRef = 658E20B0EB994C0D8104594D /* bFraccionador.png */; };
+		0594FBD647B6E85EEEEF3E3F /* bP15.png in Resources */ = {isa = PBXBuildFile; fileRef = 9C711A54BEE08B204C43BFB5 /* bP15.png */; };
+		066F2FFE1971684E116EBCD6 /* bSelectorJuanM.png in Resources */ = {isa = PBXBuildFile; fileRef = 15E4CB36F62981DF18AEA805 /* bSelectorJuanM.png */; };
+		06EA737BEC91FE0B9CE02915 /* bDiferenciasFiltros.png in Resources */ = {isa = PBXBuildFile; fileRef = 48A82DBB21AD9055135905CD /* bDiferenciasFiltros.png */; };
 		086C602C16A164B522BE1FB4 /* Rotacion.swift in Sources */ = {isa = PBXBuildFile; fileRef = F15E315B1873261A597D4962 /* Rotacion.swift */; };
+		096B64CDA7E5FB939747B898 /* bEscrutarComb.png in Resources */ = {isa = PBXBuildFile; fileRef = 4D221EBB810AFEF154F53629 /* bEscrutarComb.png */; };
 		0B41554BA8056BE9A2A32C9F /* Transposicion.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0E06AC14A0BE4304B55E90 /* Transposicion.swift */; };
 		0C696D7C2FF48FB69126C194 /* PantallaCondicion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 572A8CBF196CF469733FD84F /* PantallaCondicion.swift */; };
+		0E21702181EA832B6E29FB66 /* bCalcular.png in Resources */ = {isa = PBXBuildFile; fileRef = 41245E34DCDBCA89F8128D5A /* bCalcular.png */; };
 		1BC9BF8E43FAD9D0944F9BD5 /* Raiz.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBAE789B419FCD7BEEAB015 /* Raiz.swift */; };
+		1E285FD9B9954081CDB8CDFC /* bFiltroPim.png in Resources */ = {isa = PBXBuildFile; fileRef = D4AF00073B823C3F9526BE3F /* bFiltroPim.png */; };
+		24847BD6EBA4AF7B717583A5 /* bTramificar.png in Resources */ = {isa = PBXBuildFile; fileRef = 95D698F1A589B85AC9548EB9 /* bTramificar.png */; };
+		24DAFBF054E7FA71FAB857FD /* bDiferenciasColumnas.png in Resources */ = {isa = PBXBuildFile; fileRef = 970466BCC0FE0F6945D58BE2 /* bDiferenciasColumnas.png */; };
+		2602CC1AA6FCAD00B4123A2B /* bRentabilidad.png in Resources */ = {isa = PBXBuildFile; fileRef = F9400DD60BDFB5DB5ED9EDD4 /* bRentabilidad.png */; };
 		274C1481E8D14C51556ED194 /* AnalisisFallos.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6958E688A2AFDF4D1A8AF51 /* AnalisisFallos.swift */; };
+		28C157551F66B7BD86079218 /* bAnalisisSignos.png in Resources */ = {isa = PBXBuildFile; fileRef = 87035E3CE2455A628A33499F /* bAnalisisSignos.png */; };
 		2D7F774CEE1FC2BF7F0F2D11 /* Diferencias.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2B7B322A4FC10DFEC1CD265 /* Diferencias.swift */; };
 		2DC3BB187522B279A533428F /* Impresion.swift in Sources */ = {isa = PBXBuildFile; fileRef = E02D397D0432FFA13A97ABB8 /* Impresion.swift */; };
 		2ECCB00B199C84C356827A00 /* EstuCol.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB29F4F6E7C47D4E02CDB38A /* EstuCol.swift */; };
+		3103ABCBE87DB23B1748E3AD /* bEstadisticas.png in Resources */ = {isa = PBXBuildFile; fileRef = 7B889E040A2A5B76258118B2 /* bEstadisticas.png */; };
+		336331E23EB8F0AD06C1396B /* bVerBoletos.png in Resources */ = {isa = PBXBuildFile; fileRef = F2BA552AE000EB9937D9D77D /* bVerBoletos.png */; };
+		34BB921AA3D8311264E59031 /* bTransposicion.png in Resources */ = {isa = PBXBuildFile; fileRef = CF1A2247E0CE039BCC665B4B /* bTransposicion.png */; };
 		34C0E8FA830D344704D343F4 /* VisorAnalisisColumnas.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E15404EEE589D02ABCA7585 /* VisorAnalisisColumnas.swift */; };
 		37FE5F0B35E38EBA447AF89B /* IfThen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 099FDA1F7F262E151C82CEA9 /* IfThen.swift */; };
+		3849063FF687FDD768BAF51C /* bSalir.png in Resources */ = {isa = PBXBuildFile; fileRef = 530716204BC2A3CD2E13C597 /* bSalir.png */; };
 		3B928D5C44C6801D853CB072 /* AnalizarFichero.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36A9EE697724FB734F137E9F /* AnalizarFichero.swift */; };
+		3C2D5D14A42CDC1C4FF3D366 /* bAnalisisColumnas.png in Resources */ = {isa = PBXBuildFile; fileRef = 39C2ED9EC70F8D01ABF58F97 /* bAnalisisColumnas.png */; };
 		3E2842331F53FE771C58CF93 /* BoletoMatrizView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90D6532FA4A25F28807EA09D /* BoletoMatrizView.swift */; };
 		402E355C75B4DC361848FFF1 /* CalculaColumnas.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A57939A2138CDE1A9AB1891 /* CalculaColumnas.swift */; };
 		420C868CA513AED97894FAFE /* DescargaBoleto.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51549ABC83DCBE156B15470 /* DescargaBoleto.swift */; };
+		44DF51F7E375A1B89F6E4406 /* bGeneradorCPs.png in Resources */ = {isa = PBXBuildFile; fileRef = 687D5F3377EAA54AEF4A54F5 /* bGeneradorCPs.png */; };
 		454FF50D9FD1FD6C40264CED /* Premiadas.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9C6AA148CA19F1F72000C48 /* Premiadas.swift */; };
+		46D466523B77A559356694FF /* bRedPerfectas.png in Resources */ = {isa = PBXBuildFile; fileRef = 5999C18E5A2B5FA454C05443 /* bRedPerfectas.png */; };
 		47BC0D63D514F9EBEDBF7D85 /* Sesion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 901BDD3D79E749E8ECCBA7CC /* Sesion.swift */; };
 		48CC0F422CAE86233426E41F /* ColProbables.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63A4CC16ED67BB5897B13668 /* ColProbables.swift */; };
+		49A648E3A26564B4E44B98FA /* bReducir.png in Resources */ = {isa = PBXBuildFile; fileRef = FB6E3BBB86E78513ECFCEE7E /* bReducir.png */; };
 		4AA16EE893778D4B89BE0158 /* Boletos.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8504D37A077B74C14229C301 /* Boletos.swift */; };
 		4B02FDAF6E68B30A27659E26 /* Probabilidades.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31447562034E5D6106CA5C63 /* Probabilidades.swift */; };
+		4B875B4453E86319838D8230 /* bFiltroCoincidencias.png in Resources */ = {isa = PBXBuildFile; fileRef = 938CA530E8C6B1235A6D173C /* bFiltroCoincidencias.png */; };
+		4E817E578D9D7C45FB6F4B0A /* bAlgebra.png in Resources */ = {isa = PBXBuildFile; fileRef = AAD44F381D56BF8765E9ACB3 /* bAlgebra.png */; };
 		4F20F4D2A2C40AC87C79FC96 /* Aidomnou.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D82B5D4F127E3848F5C89B /* Aidomnou.swift */; };
 		4F40D091DF0E20513BD6C4D2 /* NoVariantes.swift in Sources */ = {isa = PBXBuildFile; fileRef = A085DB9039F2B28F57E897A4 /* NoVariantes.swift */; };
 		4FC41DC94046A6ACD47ABB4B /* AnalisisFormatos.swift in Sources */ = {isa = PBXBuildFile; fileRef = A32B5D9100363B5F58545ECD /* AnalisisFormatos.swift */; };
@@ -35,8 +56,10 @@
 		558A1B7155B334B6E041CAE6 /* EscrutarCombinaciones.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFB83F809F4CB74BF11BC114 /* EscrutarCombinaciones.swift */; };
 		55C40B4180561113677179BE /* Estilo.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB842ABB38595FAE44A7140D /* Estilo.swift */; };
 		5707A0F8EBADA5D4C6F28742 /* Reductor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD3A18E29DB9A8DC9CA942BE /* Reductor.swift */; };
+		5B584830C6E3E20DA2964E38 /* bSelectorMarioSan.png in Resources */ = {isa = PBXBuildFile; fileRef = D6B3FC8BA68086026EF3B028 /* bSelectorMarioSan.png */; };
 		5C9D30F2113E8B54EA846093 /* Menus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04868F81389E8058D7698462 /* Menus.swift */; };
 		5CBF4AEFEDF4E37ACDC318FA /* PortapapelesSistema.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49BDD4273F4F33E1C72948C9 /* PortapapelesSistema.swift */; };
+		5FCAD03AB81F53170F987D2B /* bAnalisisFallos.png in Resources */ = {isa = PBXBuildFile; fileRef = 12D871214F4F847AFC6EE8CB /* bAnalisisFallos.png */; };
 		6307204BC6733B651606A3E9 /* Premios.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61FF07E693D4BC6A8149F8F3 /* Premios.swift */; };
 		63707C7EA6B6A0D5BEB0F881 /* Grupos.swift in Sources */ = {isa = PBXBuildFile; fileRef = 180A7A586EA6E5884322C901 /* Grupos.swift */; };
 		6A45F9467CF363B37502AC86 /* ContactosDibujos.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93ACDCA8FCA710B3A83DAB92 /* ContactosDibujos.swift */; };
@@ -45,13 +68,22 @@
 		6F9073A11E8EAD8BC585C162 /* VistaInicio.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10592D8E03A3123EC36606C /* VistaInicio.swift */; };
 		714BC945F34FEFDF70D35500 /* Informativas.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E9E9F6BCD264AD543A28B9F /* Informativas.swift */; };
 		71C4F3170BEF1BF3D984731C /* Dependencia.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ED3FD641C09DF7323A080DD /* Dependencia.swift */; };
+		7999896A264E4FC14AAC3883 /* bImprimirBoletos.png in Resources */ = {isa = PBXBuildFile; fileRef = 4CD0AC5BE39C889EC095B745 /* bImprimirBoletos.png */; };
 		79FFA6EEE06F09D70C9E6B35 /* GruposEquipos.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7ACEF1BC5AA3C33883A3EC3 /* GruposEquipos.swift */; };
+		7C1DA8CD53B6B1C9A52DD171 /* bRotacion.png in Resources */ = {isa = PBXBuildFile; fileRef = C5DA57C012C4A880F0F4E0C1 /* bRotacion.png */; };
 		7DB9103104D30CDBFDA1A0B7 /* VistaDestino.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19B6A06520278BAB278E48F4 /* VistaDestino.swift */; };
 		7F4DD590BD5BE0C07A837A48 /* Barra.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756B21FEC97FD0FC66703A9C /* Barra.swift */; };
+		81723A6DE7E57121F5E09DDD /* bGuardarCombinacionComo.png in Resources */ = {isa = PBXBuildFile; fileRef = 2D6D77E1C9269A3730F2D205 /* bGuardarCombinacionComo.png */; };
+		824CF077491926097F0FED12 /* bProbabilidad.png in Resources */ = {isa = PBXBuildFile; fileRef = B96A8671C0F835740231EAB0 /* bProbabilidad.png */; };
+		8254C39510AABC21197EA362 /* bGestorEquipos.png in Resources */ = {isa = PBXBuildFile; fileRef = 5C33760885374A73ED45E465 /* bGestorEquipos.png */; };
 		8348B63E32AC12ED6B426AD0 /* Filtros.swift in Sources */ = {isa = PBXBuildFile; fileRef = E33629D7469560C3A35A648B /* Filtros.swift */; };
+		8406C2C3A449D01FF9134CCA /* bCalcularM.png in Resources */ = {isa = PBXBuildFile; fileRef = 97A00776D588F877DB893251 /* bCalcularM.png */; };
 		8545A138DED37032B5496C78 /* ConfigCPs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90DD8B574876B96A97AF570C /* ConfigCPs.swift */; };
+		86DEE9529AA6E63E32944500 /* bNuevo.png in Resources */ = {isa = PBXBuildFile; fileRef = 3450EBDF1140BEC967656C74 /* bNuevo.png */; };
 		880E2FE4269643F3F9B71C6B /* Destino.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72B74ECC82B203A8A366A93E /* Destino.swift */; };
 		88101D6E184E877D980AC7A3 /* Coincidencias.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6B6E1B2290815086A050CBD /* Coincidencias.swift */; };
+		8D5317A6ACA1738301C284F1 /* bBorrarTemporales.png in Resources */ = {isa = PBXBuildFile; fileRef = 5564B643F23CFED62B5702E9 /* bBorrarTemporales.png */; };
+		925E8B7A00A3A5E4AC6FF562 /* bObtenerBoletos.png in Resources */ = {isa = PBXBuildFile; fileRef = 747A909A3521EE5B60D63093 /* bObtenerBoletos.png */; };
 		92E81E805F529C3121E93BF3 /* Tramificar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D3B0EDBE8CFB7274625A418 /* Tramificar.swift */; };
 		93A56EEB7CDCAF9A90CBA541 /* Pleno15.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4141061D9A72DF1F7F7A688B /* Pleno15.swift */; };
 		94A1733E4FA9A2940C25BC3E /* Modificador.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1F973C46AE268ACDB5A698 /* Modificador.swift */; };
@@ -62,94 +94,166 @@
 		A083342500A59748D3FEAF85 /* Listado.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40F8C35868B973B36D282D97 /* Listado.swift */; };
 		A22660CDC4DA522F2F0A9F85 /* SelectorFicheros.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF9B1577FF3F685F277AE21A /* SelectorFicheros.swift */; };
 		A2726AB4F195A838EB96C12F /* GEPT.swift in Sources */ = {isa = PBXBuildFile; fileRef = B87EB26772D235A990F0A016 /* GEPT.swift */; };
+		A57089115B66E42A43F8DB70 /* bGuardarCombinacion.png in Resources */ = {isa = PBXBuildFile; fileRef = B01F8A7BFC2D6E8457D03BA8 /* bGuardarCombinacion.png */; };
+		A602BBB74507469E15817AFF /* bModificadorPct.png in Resources */ = {isa = PBXBuildFile; fileRef = F63D860AEE98447EB6C15F83 /* bModificadorPct.png */; };
 		A666D0BE2B4F6C79C0F127C9 /* Ajustes.swift in Sources */ = {isa = PBXBuildFile; fileRef = A94115EF8DA5A34AD2C8B2A7 /* Ajustes.swift */; };
 		A6D5F1F1F2140D94F94F21A2 /* Router.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850A5E66731FABDDC2D9FD72 /* Router.swift */; };
+		A6E0EBF8E917B685C2DB5A48 /* bPremiadas.png in Resources */ = {isa = PBXBuildFile; fileRef = 2F6260112EAFE7E79B25D7BB /* bPremiadas.png */; };
 		AC0921747BD28CA6A7A37EC2 /* GuardarValoracion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60C5C48A12ADB096F03ECDAD /* GuardarValoracion.swift */; };
 		AEB6B00B853531C1FDE4ECE9 /* CalculaColumnasMultiple.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6805A7570CD734755BDCAD8E /* CalculaColumnasMultiple.swift */; };
 		B398D30966D9ACCB67324892 /* Selectores.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B4374796EEEBD757AB0F231 /* Selectores.swift */; };
+		B81CE85A9C9CB5A79204A543 /* bEstimacion.png in Resources */ = {isa = PBXBuildFile; fileRef = C581FF4AEE0D4CB443714B58 /* bEstimacion.png */; };
 		B82BB00E3775718E4723B589 /* Equipos.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3CC092B73F3F68B73A15275 /* Equipos.swift */; };
 		BCE842585A26ABC2E7A87807 /* SignosSeguidos.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14C149043FCB6537B8F6385D /* SignosSeguidos.swift */; };
 		BFBC10F002A9AD96099FC3D8 /* Free1X2Kit in Frameworks */ = {isa = PBXBuildFile; productRef = 6F000FF4E643EABD960549DE /* Free1X2Kit */; };
+		C0298005FD14B6435FC80F83 /* bGuardarEquipos.png in Resources */ = {isa = PBXBuildFile; fileRef = 579FCABE71A0B689FE8F7B17 /* bGuardarEquipos.png */; };
+		C237AC7023B64538F1414252 /* bImportExport.png in Resources */ = {isa = PBXBuildFile; fileRef = 4D19C53D6138F04366436CCC /* bImportExport.png */; };
 		C4D8549A87B89CF5F06A0F09 /* Datos in Resources */ = {isa = PBXBuildFile; fileRef = C0344B454C66C01D3073E748 /* Datos */; };
+		C64B5767D2A83E1C4D9019F2 /* bMultiplicacion.png in Resources */ = {isa = PBXBuildFile; fileRef = 47E9E8A7E5855E658223766E /* bMultiplicacion.png */; };
+		C7851790BA203E4850460001 /* bAyuda.png in Resources */ = {isa = PBXBuildFile; fileRef = E2F009293E4525733884E174 /* bAyuda.png */; };
 		CCA14C8EE480990172F61B7E /* MatrizAnalisisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E06E5841AB3F270318467C6F /* MatrizAnalisisView.swift */; };
+		CDD4523AA2377E637FFF8641 /* bSubeCategoria.png in Resources */ = {isa = PBXBuildFile; fileRef = 4EA4815AD55736715A039ECE /* bSubeCategoria.png */; };
+		D23A031BB94D6036C626685E /* bAnalisisGrupos.png in Resources */ = {isa = PBXBuildFile; fileRef = 8DDBA85E6EC92CCB2EAAA6F0 /* bAnalisisGrupos.png */; };
+		D2BD77625BE9DB1E4FAFB289 /* bProbabilidades.png in Resources */ = {isa = PBXBuildFile; fileRef = DF846DF252D740B3803415CF /* bProbabilidades.png */; };
 		D2EAFD6CA7F7EB1211DDE25C /* Signos.swift in Sources */ = {isa = PBXBuildFile; fileRef = C696EFF7CCBB8094796CE6BF /* Signos.swift */; };
+		D47A9486D17C5C60980BB097 /* bConfig.png in Resources */ = {isa = PBXBuildFile; fileRef = FD5F25C9A4F5A77B1C7EB394 /* bConfig.png */; };
 		D55851FF07C4F9C15C9ABDEA /* Alertas.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62B44320D069342A326F7B49 /* Alertas.swift */; };
+		D6C6D319C6B9FDEC289D458B /* bConfAnalisis.png in Resources */ = {isa = PBXBuildFile; fileRef = AD667196B3574BFA0D133225 /* bConfAnalisis.png */; };
 		D74346F69FC619A5D54C16CA /* Herramientas.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAAB662470D449B33E236941 /* Herramientas.swift */; };
+		D7BA4A0221E74A6C9564CAF2 /* bBorrarInformes.png in Resources */ = {isa = PBXBuildFile; fileRef = 9A9D0B34B7E66A83D0E2E288 /* bBorrarInformes.png */; };
+		D934A142A73D7ED81B0B14C2 /* bDependenciaLineal.png in Resources */ = {isa = PBXBuildFile; fileRef = 7D670DB03EFC08E134B93A48 /* bDependenciaLineal.png */; };
 		D93D82225B7F39A7411D38AB /* OrdenarPorProbabilidad.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10D2D0BE1AEC6E69DA88153E /* OrdenarPorProbabilidad.swift */; };
 		DAF3A71B63B5153C46D68BAF /* PosiblesPremios.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D1FDE491ECE78D5FA7B7822 /* PosiblesPremios.swift */; };
+		DD463C0A7EC5B030BEEC52CE /* bFiltroAidomnou.png in Resources */ = {isa = PBXBuildFile; fileRef = 9473C4BD60959C0861BAC630 /* bFiltroAidomnou.png */; };
 		DFEDAA659E9D9C67DBA1BE13 /* CrearGrupos.swift in Sources */ = {isa = PBXBuildFile; fileRef = B21DE7E700E486F0520CD1B4 /* CrearGrupos.swift */; };
+		E19B985036E828FEBAA28F45 /* bAbrirEquipos.png in Resources */ = {isa = PBXBuildFile; fileRef = 0D1E7A551C776FF45B16F725 /* bAbrirEquipos.png */; };
+		E1EB58D20922EF945D28602C /* bEscrutinio.png in Resources */ = {isa = PBXBuildFile; fileRef = 06183566334B0B29A0981280 /* bEscrutinio.png */; };
+		E2B30E73654C0B1B34A3282F /* bAcercaDe.png in Resources */ = {isa = PBXBuildFile; fileRef = 0E66BC226DA1966B2E8326D6 /* bAcercaDe.png */; };
 		E693C7E6AC98476F326288A5 /* ControlGrupos.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0FC64BC0051E3917F7CD08 /* ControlGrupos.swift */; };
 		E6F65D76BA0A88DBA6646F2A /* PesosNumericos.swift in Sources */ = {isa = PBXBuildFile; fileRef = E57437FEB0766E67A1F55EF1 /* PesosNumericos.swift */; };
 		ECD7E7BCABC8A4DABE96FEBF /* Free1X2App.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3FF8E5909D62572635C6B70 /* Free1X2App.swift */; };
 		EDDD269273EB817E07833D3D /* Escrutinios.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FB1E51964635F385BCD932C /* Escrutinios.swift */; };
+		EF4D9335CEB7F920C1D23D80 /* bColumnasGEPT.png in Resources */ = {isa = PBXBuildFile; fileRef = 1818B87A9E67F08DC83CCF45 /* bColumnasGEPT.png */; };
+		F9C533ADE113A7927C9BE30D /* bCombinarFiltros.png in Resources */ = {isa = PBXBuildFile; fileRef = 155B4C4BD9207486FB079F3E /* bCombinarFiltros.png */; };
+		FC1C5ADA95E5CEA9D26198B0 /* bAbrirCombinacion.png in Resources */ = {isa = PBXBuildFile; fileRef = 5C9F8D72B5FFCC0DD9B961B9 /* bAbrirCombinacion.png */; };
+		FD90AD4C9F2331645AFEE310 /* bBancoPruebas.png in Resources */ = {isa = PBXBuildFile; fileRef = F402F7C2F9E51B1E2F11B4CA /* bBancoPruebas.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		04868F81389E8058D7698462 /* Menus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Menus.swift; sourceTree = "<group>"; };
+		06183566334B0B29A0981280 /* bEscrutinio.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bEscrutinio.png; sourceTree = "<group>"; };
 		072990B529D8F72247B228E0 /* Grafico.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Grafico.swift; sourceTree = "<group>"; };
 		099FDA1F7F262E151C82CEA9 /* IfThen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IfThen.swift; sourceTree = "<group>"; };
+		0D1E7A551C776FF45B16F725 /* bAbrirEquipos.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bAbrirEquipos.png; sourceTree = "<group>"; };
+		0E66BC226DA1966B2E8326D6 /* bAcercaDe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bAcercaDe.png; sourceTree = "<group>"; };
 		0FB1E51964635F385BCD932C /* Escrutinios.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Escrutinios.swift; sourceTree = "<group>"; };
 		10D2D0BE1AEC6E69DA88153E /* OrdenarPorProbabilidad.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrdenarPorProbabilidad.swift; sourceTree = "<group>"; };
+		12D871214F4F847AFC6EE8CB /* bAnalisisFallos.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bAnalisisFallos.png; sourceTree = "<group>"; };
 		14C149043FCB6537B8F6385D /* SignosSeguidos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignosSeguidos.swift; sourceTree = "<group>"; };
+		155B4C4BD9207486FB079F3E /* bCombinarFiltros.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bCombinarFiltros.png; sourceTree = "<group>"; };
+		15E4CB36F62981DF18AEA805 /* bSelectorJuanM.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bSelectorJuanM.png; sourceTree = "<group>"; };
 		180A7A586EA6E5884322C901 /* Grupos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Grupos.swift; sourceTree = "<group>"; };
+		1818B87A9E67F08DC83CCF45 /* bColumnasGEPT.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bColumnasGEPT.png; sourceTree = "<group>"; };
 		19B6A06520278BAB278E48F4 /* VistaDestino.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VistaDestino.swift; sourceTree = "<group>"; };
 		1A57939A2138CDE1A9AB1891 /* CalculaColumnas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculaColumnas.swift; sourceTree = "<group>"; };
 		25CCF7EA617679CACFA9AACF /* Free1X2Kit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Free1X2Kit; path = Packages/Free1X2Kit; sourceTree = SOURCE_ROOT; };
 		2771D91198F31E3165598E0F /* DistanciasInterrupciones.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DistanciasInterrupciones.swift; sourceTree = "<group>"; };
+		2D6D77E1C9269A3730F2D205 /* bGuardarCombinacionComo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bGuardarCombinacionComo.png; sourceTree = "<group>"; };
 		2E9E9F6BCD264AD543A28B9F /* Informativas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Informativas.swift; sourceTree = "<group>"; };
+		2F6260112EAFE7E79B25D7BB /* bPremiadas.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bPremiadas.png; sourceTree = "<group>"; };
 		31447562034E5D6106CA5C63 /* Probabilidades.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Probabilidades.swift; sourceTree = "<group>"; };
+		3450EBDF1140BEC967656C74 /* bNuevo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bNuevo.png; sourceTree = "<group>"; };
 		36A9EE697724FB734F137E9F /* AnalizarFichero.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalizarFichero.swift; sourceTree = "<group>"; };
 		39BF9252187A13E9703C8EF5 /* Formatos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Formatos.swift; sourceTree = "<group>"; };
+		39C2ED9EC70F8D01ABF58F97 /* bAnalisisColumnas.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bAnalisisColumnas.png; sourceTree = "<group>"; };
 		40F8C35868B973B36D282D97 /* Listado.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Listado.swift; sourceTree = "<group>"; };
+		41245E34DCDBCA89F8128D5A /* bCalcular.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bCalcular.png; sourceTree = "<group>"; };
 		4141061D9A72DF1F7F7A688B /* Pleno15.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pleno15.swift; sourceTree = "<group>"; };
 		44D82B5D4F127E3848F5C89B /* Aidomnou.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Aidomnou.swift; sourceTree = "<group>"; };
+		47E9E8A7E5855E658223766E /* bMultiplicacion.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bMultiplicacion.png; sourceTree = "<group>"; };
+		48A82DBB21AD9055135905CD /* bDiferenciasFiltros.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bDiferenciasFiltros.png; sourceTree = "<group>"; };
 		49BDD4273F4F33E1C72948C9 /* PortapapelesSistema.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortapapelesSistema.swift; sourceTree = "<group>"; };
+		4CD0AC5BE39C889EC095B745 /* bImprimirBoletos.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bImprimirBoletos.png; sourceTree = "<group>"; };
+		4D19C53D6138F04366436CCC /* bImportExport.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bImportExport.png; sourceTree = "<group>"; };
 		4D1FDE491ECE78D5FA7B7822 /* PosiblesPremios.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PosiblesPremios.swift; sourceTree = "<group>"; };
+		4D221EBB810AFEF154F53629 /* bEscrutarComb.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bEscrutarComb.png; sourceTree = "<group>"; };
 		4D3B0EDBE8CFB7274625A418 /* Tramificar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tramificar.swift; sourceTree = "<group>"; };
+		4EA4815AD55736715A039ECE /* bSubeCategoria.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bSubeCategoria.png; sourceTree = "<group>"; };
+		530716204BC2A3CD2E13C597 /* bSalir.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bSalir.png; sourceTree = "<group>"; };
+		5564B643F23CFED62B5702E9 /* bBorrarTemporales.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bBorrarTemporales.png; sourceTree = "<group>"; };
 		572A8CBF196CF469733FD84F /* PantallaCondicion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PantallaCondicion.swift; sourceTree = "<group>"; };
+		579FCABE71A0B689FE8F7B17 /* bGuardarEquipos.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bGuardarEquipos.png; sourceTree = "<group>"; };
+		5999C18E5A2B5FA454C05443 /* bRedPerfectas.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bRedPerfectas.png; sourceTree = "<group>"; };
+		5C33760885374A73ED45E465 /* bGestorEquipos.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bGestorEquipos.png; sourceTree = "<group>"; };
+		5C9F8D72B5FFCC0DD9B961B9 /* bAbrirCombinacion.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bAbrirCombinacion.png; sourceTree = "<group>"; };
 		60C5C48A12ADB096F03ECDAD /* GuardarValoracion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuardarValoracion.swift; sourceTree = "<group>"; };
 		61FF07E693D4BC6A8149F8F3 /* Premios.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Premios.swift; sourceTree = "<group>"; };
 		62B44320D069342A326F7B49 /* Alertas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alertas.swift; sourceTree = "<group>"; };
 		63A4CC16ED67BB5897B13668 /* ColProbables.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColProbables.swift; sourceTree = "<group>"; };
+		658E20B0EB994C0D8104594D /* bFraccionador.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bFraccionador.png; sourceTree = "<group>"; };
 		6805A7570CD734755BDCAD8E /* CalculaColumnasMultiple.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculaColumnasMultiple.swift; sourceTree = "<group>"; };
+		687D5F3377EAA54AEF4A54F5 /* bGeneradorCPs.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bGeneradorCPs.png; sourceTree = "<group>"; };
 		6ED3FD641C09DF7323A080DD /* Dependencia.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dependencia.swift; sourceTree = "<group>"; };
 		72B74ECC82B203A8A366A93E /* Destino.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Destino.swift; sourceTree = "<group>"; };
+		747A909A3521EE5B60D63093 /* bObtenerBoletos.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bObtenerBoletos.png; sourceTree = "<group>"; };
 		7557238225C25A7785E15537 /* Estadisticas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Estadisticas.swift; sourceTree = "<group>"; };
 		756B21FEC97FD0FC66703A9C /* Barra.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Barra.swift; sourceTree = "<group>"; };
+		7B889E040A2A5B76258118B2 /* bEstadisticas.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bEstadisticas.png; sourceTree = "<group>"; };
+		7D670DB03EFC08E134B93A48 /* bDependenciaLineal.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bDependenciaLineal.png; sourceTree = "<group>"; };
 		7F59B3CEA1AEBEAD252C31AD /* Simetrias.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Simetrias.swift; sourceTree = "<group>"; };
 		8504D37A077B74C14229C301 /* Boletos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Boletos.swift; sourceTree = "<group>"; };
 		850A5E66731FABDDC2D9FD72 /* Router.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Router.swift; sourceTree = "<group>"; };
+		87035E3CE2455A628A33499F /* bAnalisisSignos.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bAnalisisSignos.png; sourceTree = "<group>"; };
 		8AB7CAABF6E86A07C2401496 /* logo.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = logo.jpg; sourceTree = "<group>"; };
+		8DDBA85E6EC92CCB2EAAA6F0 /* bAnalisisGrupos.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bAnalisisGrupos.png; sourceTree = "<group>"; };
 		8E15404EEE589D02ABCA7585 /* VisorAnalisisColumnas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisorAnalisisColumnas.swift; sourceTree = "<group>"; };
 		901BDD3D79E749E8ECCBA7CC /* Sesion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sesion.swift; sourceTree = "<group>"; };
 		90D6532FA4A25F28807EA09D /* BoletoMatrizView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoletoMatrizView.swift; sourceTree = "<group>"; };
 		90DD8B574876B96A97AF570C /* ConfigCPs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigCPs.swift; sourceTree = "<group>"; };
+		938CA530E8C6B1235A6D173C /* bFiltroCoincidencias.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bFiltroCoincidencias.png; sourceTree = "<group>"; };
 		93ACDCA8FCA710B3A83DAB92 /* ContactosDibujos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactosDibujos.swift; sourceTree = "<group>"; };
+		9473C4BD60959C0861BAC630 /* bFiltroAidomnou.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bFiltroAidomnou.png; sourceTree = "<group>"; };
+		95D698F1A589B85AC9548EB9 /* bTramificar.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bTramificar.png; sourceTree = "<group>"; };
+		970466BCC0FE0F6945D58BE2 /* bDiferenciasColumnas.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bDiferenciasColumnas.png; sourceTree = "<group>"; };
+		97A00776D588F877DB893251 /* bCalcularM.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bCalcularM.png; sourceTree = "<group>"; };
+		9A9D0B34B7E66A83D0E2E288 /* bBorrarInformes.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bBorrarInformes.png; sourceTree = "<group>"; };
 		9B4374796EEEBD757AB0F231 /* Selectores.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Selectores.swift; sourceTree = "<group>"; };
+		9C711A54BEE08B204C43BFB5 /* bP15.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bP15.png; sourceTree = "<group>"; };
 		9FBAE789B419FCD7BEEAB015 /* Raiz.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Raiz.swift; sourceTree = "<group>"; };
 		A085DB9039F2B28F57E897A4 /* NoVariantes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoVariantes.swift; sourceTree = "<group>"; };
 		A32B5D9100363B5F58545ECD /* AnalisisFormatos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalisisFormatos.swift; sourceTree = "<group>"; };
 		A52CD04B7C4B89829615BAE3 /* BancoPruebas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BancoPruebas.swift; sourceTree = "<group>"; };
 		A94115EF8DA5A34AD2C8B2A7 /* Ajustes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ajustes.swift; sourceTree = "<group>"; };
+		AAD44F381D56BF8765E9ACB3 /* bAlgebra.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bAlgebra.png; sourceTree = "<group>"; };
 		AB29F4F6E7C47D4E02CDB38A /* EstuCol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EstuCol.swift; sourceTree = "<group>"; };
+		AD667196B3574BFA0D133225 /* bConfAnalisis.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bConfAnalisis.png; sourceTree = "<group>"; };
 		AF9B1577FF3F685F277AE21A /* SelectorFicheros.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectorFicheros.swift; sourceTree = "<group>"; };
+		B01F8A7BFC2D6E8457D03BA8 /* bGuardarCombinacion.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bGuardarCombinacion.png; sourceTree = "<group>"; };
 		B21DE7E700E486F0520CD1B4 /* CrearGrupos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrearGrupos.swift; sourceTree = "<group>"; };
 		B51549ABC83DCBE156B15470 /* DescargaBoleto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DescargaBoleto.swift; sourceTree = "<group>"; };
 		B87EB26772D235A990F0A016 /* GEPT.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GEPT.swift; sourceTree = "<group>"; };
 		B8C08A00BAF58381E06F1D70 /* Free1X2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Free1X2.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B96A8671C0F835740231EAB0 /* bProbabilidad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bProbabilidad.png; sourceTree = "<group>"; };
 		BE0E06AC14A0BE4304B55E90 /* Transposicion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transposicion.swift; sourceTree = "<group>"; };
 		C0344B454C66C01D3073E748 /* Datos */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Datos; path = App/Recursos/Datos; sourceTree = SOURCE_ROOT; };
+		C581FF4AEE0D4CB443714B58 /* bEstimacion.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bEstimacion.png; sourceTree = "<group>"; };
+		C5DA57C012C4A880F0F4E0C1 /* bRotacion.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bRotacion.png; sourceTree = "<group>"; };
 		C696EFF7CCBB8094796CE6BF /* Signos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Signos.swift; sourceTree = "<group>"; };
 		C6B6E1B2290815086A050CBD /* Coincidencias.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Coincidencias.swift; sourceTree = "<group>"; };
+		CF1A2247E0CE039BCC665B4B /* bTransposicion.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bTransposicion.png; sourceTree = "<group>"; };
 		CFB83F809F4CB74BF11BC114 /* EscrutarCombinaciones.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EscrutarCombinaciones.swift; sourceTree = "<group>"; };
 		D10592D8E03A3123EC36606C /* VistaInicio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VistaInicio.swift; sourceTree = "<group>"; };
 		D2B7B322A4FC10DFEC1CD265 /* Diferencias.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Diferencias.swift; sourceTree = "<group>"; };
 		D3CC092B73F3F68B73A15275 /* Equipos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Equipos.swift; sourceTree = "<group>"; };
 		D3FF8E5909D62572635C6B70 /* Free1X2App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Free1X2App.swift; sourceTree = "<group>"; };
+		D4AF00073B823C3F9526BE3F /* bFiltroPim.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bFiltroPim.png; sourceTree = "<group>"; };
+		D6B3FC8BA68086026EF3B028 /* bSelectorMarioSan.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bSelectorMarioSan.png; sourceTree = "<group>"; };
 		D9C6AA148CA19F1F72000C48 /* Premiadas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Premiadas.swift; sourceTree = "<group>"; };
 		DB842ABB38595FAE44A7140D /* Estilo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Estilo.swift; sourceTree = "<group>"; };
+		DF846DF252D740B3803415CF /* bProbabilidades.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bProbabilidades.png; sourceTree = "<group>"; };
 		E02D397D0432FFA13A97ABB8 /* Impresion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Impresion.swift; sourceTree = "<group>"; };
 		E06E5841AB3F270318467C6F /* MatrizAnalisisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatrizAnalisisView.swift; sourceTree = "<group>"; };
+		E2F009293E4525733884E174 /* bAyuda.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bAyuda.png; sourceTree = "<group>"; };
 		E33629D7469560C3A35A648B /* Filtros.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Filtros.swift; sourceTree = "<group>"; };
 		E57437FEB0766E67A1F55EF1 /* PesosNumericos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PesosNumericos.swift; sourceTree = "<group>"; };
 		EA1F973C46AE268ACDB5A698 /* Modificador.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Modificador.swift; sourceTree = "<group>"; };
@@ -157,10 +261,16 @@
 		EE0FC64BC0051E3917F7CD08 /* ControlGrupos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlGrupos.swift; sourceTree = "<group>"; };
 		F15E315B1873261A597D4962 /* Rotacion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Rotacion.swift; sourceTree = "<group>"; };
 		F2237869C6EB3EFFB9EDAF19 /* Valoracion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Valoracion.swift; sourceTree = "<group>"; };
+		F2BA552AE000EB9937D9D77D /* bVerBoletos.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bVerBoletos.png; sourceTree = "<group>"; };
+		F402F7C2F9E51B1E2F11B4CA /* bBancoPruebas.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bBancoPruebas.png; sourceTree = "<group>"; };
+		F63D860AEE98447EB6C15F83 /* bModificadorPct.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bModificadorPct.png; sourceTree = "<group>"; };
 		F6958E688A2AFDF4D1A8AF51 /* AnalisisFallos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalisisFallos.swift; sourceTree = "<group>"; };
 		F7ACEF1BC5AA3C33883A3EC3 /* GruposEquipos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GruposEquipos.swift; sourceTree = "<group>"; };
+		F9400DD60BDFB5DB5ED9EDD4 /* bRentabilidad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bRentabilidad.png; sourceTree = "<group>"; };
 		FAAB662470D449B33E236941 /* Herramientas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Herramientas.swift; sourceTree = "<group>"; };
+		FB6E3BBB86E78513ECFCEE7E /* bReducir.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bReducir.png; sourceTree = "<group>"; };
 		FD3A18E29DB9A8DC9CA942BE /* Reductor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reductor.swift; sourceTree = "<group>"; };
+		FD5F25C9A4F5A77B1C7EB394 /* bConfig.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bConfig.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -205,6 +315,68 @@
 				19B6A06520278BAB278E48F4 /* VistaDestino.swift */,
 			);
 			path = Navegacion;
+			sourceTree = "<group>";
+		};
+		216496C1FE0B15E933B52FEF /* Barra */ = {
+			isa = PBXGroup;
+			children = (
+				5C9F8D72B5FFCC0DD9B961B9 /* bAbrirCombinacion.png */,
+				0D1E7A551C776FF45B16F725 /* bAbrirEquipos.png */,
+				0E66BC226DA1966B2E8326D6 /* bAcercaDe.png */,
+				AAD44F381D56BF8765E9ACB3 /* bAlgebra.png */,
+				39C2ED9EC70F8D01ABF58F97 /* bAnalisisColumnas.png */,
+				12D871214F4F847AFC6EE8CB /* bAnalisisFallos.png */,
+				8DDBA85E6EC92CCB2EAAA6F0 /* bAnalisisGrupos.png */,
+				87035E3CE2455A628A33499F /* bAnalisisSignos.png */,
+				E2F009293E4525733884E174 /* bAyuda.png */,
+				F402F7C2F9E51B1E2F11B4CA /* bBancoPruebas.png */,
+				9A9D0B34B7E66A83D0E2E288 /* bBorrarInformes.png */,
+				5564B643F23CFED62B5702E9 /* bBorrarTemporales.png */,
+				41245E34DCDBCA89F8128D5A /* bCalcular.png */,
+				97A00776D588F877DB893251 /* bCalcularM.png */,
+				1818B87A9E67F08DC83CCF45 /* bColumnasGEPT.png */,
+				155B4C4BD9207486FB079F3E /* bCombinarFiltros.png */,
+				AD667196B3574BFA0D133225 /* bConfAnalisis.png */,
+				FD5F25C9A4F5A77B1C7EB394 /* bConfig.png */,
+				7D670DB03EFC08E134B93A48 /* bDependenciaLineal.png */,
+				970466BCC0FE0F6945D58BE2 /* bDiferenciasColumnas.png */,
+				48A82DBB21AD9055135905CD /* bDiferenciasFiltros.png */,
+				4D221EBB810AFEF154F53629 /* bEscrutarComb.png */,
+				06183566334B0B29A0981280 /* bEscrutinio.png */,
+				7B889E040A2A5B76258118B2 /* bEstadisticas.png */,
+				C581FF4AEE0D4CB443714B58 /* bEstimacion.png */,
+				9473C4BD60959C0861BAC630 /* bFiltroAidomnou.png */,
+				938CA530E8C6B1235A6D173C /* bFiltroCoincidencias.png */,
+				D4AF00073B823C3F9526BE3F /* bFiltroPim.png */,
+				658E20B0EB994C0D8104594D /* bFraccionador.png */,
+				687D5F3377EAA54AEF4A54F5 /* bGeneradorCPs.png */,
+				5C33760885374A73ED45E465 /* bGestorEquipos.png */,
+				B01F8A7BFC2D6E8457D03BA8 /* bGuardarCombinacion.png */,
+				2D6D77E1C9269A3730F2D205 /* bGuardarCombinacionComo.png */,
+				579FCABE71A0B689FE8F7B17 /* bGuardarEquipos.png */,
+				4D19C53D6138F04366436CCC /* bImportExport.png */,
+				4CD0AC5BE39C889EC095B745 /* bImprimirBoletos.png */,
+				F63D860AEE98447EB6C15F83 /* bModificadorPct.png */,
+				47E9E8A7E5855E658223766E /* bMultiplicacion.png */,
+				3450EBDF1140BEC967656C74 /* bNuevo.png */,
+				747A909A3521EE5B60D63093 /* bObtenerBoletos.png */,
+				9C711A54BEE08B204C43BFB5 /* bP15.png */,
+				2F6260112EAFE7E79B25D7BB /* bPremiadas.png */,
+				B96A8671C0F835740231EAB0 /* bProbabilidad.png */,
+				DF846DF252D740B3803415CF /* bProbabilidades.png */,
+				5999C18E5A2B5FA454C05443 /* bRedPerfectas.png */,
+				FB6E3BBB86E78513ECFCEE7E /* bReducir.png */,
+				F9400DD60BDFB5DB5ED9EDD4 /* bRentabilidad.png */,
+				C5DA57C012C4A880F0F4E0C1 /* bRotacion.png */,
+				530716204BC2A3CD2E13C597 /* bSalir.png */,
+				15E4CB36F62981DF18AEA805 /* bSelectorJuanM.png */,
+				D6B3FC8BA68086026EF3B028 /* bSelectorMarioSan.png */,
+				4EA4815AD55736715A039ECE /* bSubeCategoria.png */,
+				95D698F1A589B85AC9548EB9 /* bTramificar.png */,
+				CF1A2247E0CE039BCC665B4B /* bTransposicion.png */,
+				F2BA552AE000EB9937D9D77D /* bVerBoletos.png */,
+			);
+			path = Barra;
 			sourceTree = "<group>";
 		};
 		21C7F6F290DE6CFC56F6CE62 /* Condiciones */ = {
@@ -262,6 +434,7 @@
 			children = (
 				C0344B454C66C01D3073E748 /* Datos */,
 				8AB7CAABF6E86A07C2401496 /* logo.jpg */,
+				216496C1FE0B15E933B52FEF /* Barra */,
 			);
 			path = Recursos;
 			sourceTree = "<group>";
@@ -450,6 +623,61 @@
 			buildActionMask = 2147483647;
 			files = (
 				C4D8549A87B89CF5F06A0F09 /* Datos in Resources */,
+				FC1C5ADA95E5CEA9D26198B0 /* bAbrirCombinacion.png in Resources */,
+				E19B985036E828FEBAA28F45 /* bAbrirEquipos.png in Resources */,
+				E2B30E73654C0B1B34A3282F /* bAcercaDe.png in Resources */,
+				4E817E578D9D7C45FB6F4B0A /* bAlgebra.png in Resources */,
+				3C2D5D14A42CDC1C4FF3D366 /* bAnalisisColumnas.png in Resources */,
+				5FCAD03AB81F53170F987D2B /* bAnalisisFallos.png in Resources */,
+				D23A031BB94D6036C626685E /* bAnalisisGrupos.png in Resources */,
+				28C157551F66B7BD86079218 /* bAnalisisSignos.png in Resources */,
+				C7851790BA203E4850460001 /* bAyuda.png in Resources */,
+				FD90AD4C9F2331645AFEE310 /* bBancoPruebas.png in Resources */,
+				D7BA4A0221E74A6C9564CAF2 /* bBorrarInformes.png in Resources */,
+				8D5317A6ACA1738301C284F1 /* bBorrarTemporales.png in Resources */,
+				0E21702181EA832B6E29FB66 /* bCalcular.png in Resources */,
+				8406C2C3A449D01FF9134CCA /* bCalcularM.png in Resources */,
+				EF4D9335CEB7F920C1D23D80 /* bColumnasGEPT.png in Resources */,
+				F9C533ADE113A7927C9BE30D /* bCombinarFiltros.png in Resources */,
+				D6C6D319C6B9FDEC289D458B /* bConfAnalisis.png in Resources */,
+				D47A9486D17C5C60980BB097 /* bConfig.png in Resources */,
+				D934A142A73D7ED81B0B14C2 /* bDependenciaLineal.png in Resources */,
+				24DAFBF054E7FA71FAB857FD /* bDiferenciasColumnas.png in Resources */,
+				06EA737BEC91FE0B9CE02915 /* bDiferenciasFiltros.png in Resources */,
+				096B64CDA7E5FB939747B898 /* bEscrutarComb.png in Resources */,
+				E1EB58D20922EF945D28602C /* bEscrutinio.png in Resources */,
+				3103ABCBE87DB23B1748E3AD /* bEstadisticas.png in Resources */,
+				B81CE85A9C9CB5A79204A543 /* bEstimacion.png in Resources */,
+				DD463C0A7EC5B030BEEC52CE /* bFiltroAidomnou.png in Resources */,
+				4B875B4453E86319838D8230 /* bFiltroCoincidencias.png in Resources */,
+				1E285FD9B9954081CDB8CDFC /* bFiltroPim.png in Resources */,
+				03F5F44385FE7B8969A73EF7 /* bFraccionador.png in Resources */,
+				44DF51F7E375A1B89F6E4406 /* bGeneradorCPs.png in Resources */,
+				8254C39510AABC21197EA362 /* bGestorEquipos.png in Resources */,
+				A57089115B66E42A43F8DB70 /* bGuardarCombinacion.png in Resources */,
+				81723A6DE7E57121F5E09DDD /* bGuardarCombinacionComo.png in Resources */,
+				C0298005FD14B6435FC80F83 /* bGuardarEquipos.png in Resources */,
+				C237AC7023B64538F1414252 /* bImportExport.png in Resources */,
+				7999896A264E4FC14AAC3883 /* bImprimirBoletos.png in Resources */,
+				A602BBB74507469E15817AFF /* bModificadorPct.png in Resources */,
+				C64B5767D2A83E1C4D9019F2 /* bMultiplicacion.png in Resources */,
+				86DEE9529AA6E63E32944500 /* bNuevo.png in Resources */,
+				925E8B7A00A3A5E4AC6FF562 /* bObtenerBoletos.png in Resources */,
+				0594FBD647B6E85EEEEF3E3F /* bP15.png in Resources */,
+				A6E0EBF8E917B685C2DB5A48 /* bPremiadas.png in Resources */,
+				824CF077491926097F0FED12 /* bProbabilidad.png in Resources */,
+				D2BD77625BE9DB1E4FAFB289 /* bProbabilidades.png in Resources */,
+				46D466523B77A559356694FF /* bRedPerfectas.png in Resources */,
+				49A648E3A26564B4E44B98FA /* bReducir.png in Resources */,
+				2602CC1AA6FCAD00B4123A2B /* bRentabilidad.png in Resources */,
+				7C1DA8CD53B6B1C9A52DD171 /* bRotacion.png in Resources */,
+				3849063FF687FDD768BAF51C /* bSalir.png in Resources */,
+				066F2FFE1971684E116EBCD6 /* bSelectorJuanM.png in Resources */,
+				5B584830C6E3E20DA2964E38 /* bSelectorMarioSan.png in Resources */,
+				CDD4523AA2377E637FFF8641 /* bSubeCategoria.png in Resources */,
+				24847BD6EBA4AF7B717583A5 /* bTramificar.png in Resources */,
+				34BB921AA3D8311264E59031 /* bTransposicion.png in Resources */,
+				336331E23EB8F0AD06C1396B /* bVerBoletos.png in Resources */,
 				5436B5E3D154C360A12B1875 /* logo.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

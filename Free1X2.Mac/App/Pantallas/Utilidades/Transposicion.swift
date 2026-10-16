@@ -65,7 +65,7 @@ struct VistaTransposicion: View {
             HStack {
                 // «Cancelar» no hace nada en el C# (`VM:186-191`).
                 Button("Cancelar") {}
-                Button("Transponer") { Task { await transponer() } }.buttonStyle(.borderedProminent).disabled(ocupado)
+                Button("Transponer") { Task { await transponer() } }.buttonStyle(EstiloPrincipal()).disabled(ocupado)
             }
         }
     }

@@ -65,7 +65,7 @@ struct VistaAnastatics: View {
             Tarjeta("Acciones") {
                 HStack {
                     Button("Calcular") { Task { await calcular() } }.disabled(!origenSeleccionado)
-                    Button("Mostrar resultados", action: mostrar).buttonStyle(.borderedProminent).disabled(resultado == nil)
+                    Button("Mostrar resultados", action: mostrar).buttonStyle(EstiloPrincipal()).disabled(resultado == nil)
                 }
                 Text("Selecciona un origen para calcular. Tras calcular, podrás mostrar los resultados.")
                     .foregroundStyle(Color.textoSecundario)

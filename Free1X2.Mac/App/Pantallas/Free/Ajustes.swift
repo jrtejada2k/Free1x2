@@ -65,7 +65,7 @@ struct VistaConfiguracion: View {
                         sesion.alertas.error(error)
                     }
                 }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(EstiloPrincipal())
                 Button("Volver") { sesion.router.atras() }
             }
         }
@@ -136,7 +136,7 @@ struct VistaConfiguracionAnalisis: View {
                     }
                     sesion.router.atras()
                 }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(EstiloPrincipal())
             }
         }
         .toggleStyle(.switch)
@@ -180,7 +180,7 @@ struct VistaCambioPuntos: View {
                     }
                     sesion.router.atras()
                 }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(EstiloPrincipal())
                 .keyboardShortcut(.defaultAction)
             }
         }

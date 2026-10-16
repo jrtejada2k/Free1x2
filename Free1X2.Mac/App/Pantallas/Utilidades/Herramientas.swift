@@ -82,7 +82,7 @@ struct VistaImportExport: View {
                 Spacer()
                 // «Cancelar» no hace nada en el C# (`VM:184-188`).
                 Button("Cancelar") {}
-                Button("Hacer") { Task { await hacer() } }.buttonStyle(.borderedProminent)
+                Button("Hacer") { Task { await hacer() } }.buttonStyle(EstiloPrincipal())
             }
         }
     }
@@ -273,7 +273,7 @@ struct VistaMultiplicador: View {
                 if !mensaje.isEmpty { Text(mensaje).foregroundStyle(mensaje.hasPrefix("Error") ? Color.error : Color.textoSecundario) }
                 HStack {
                     Button("Grabar resultado") { Task { await grabar() } }.disabled(ocupado || resultado.isEmpty)
-                    Button("Multiplicar") { Task { await multiplicar() } }.buttonStyle(.borderedProminent).disabled(ocupado)
+                    Button("Multiplicar") { Task { await multiplicar() } }.buttonStyle(EstiloPrincipal()).disabled(ocupado)
                 }
             }
         }
@@ -364,7 +364,7 @@ struct VistaFraccionador: View {
             HStack {
                 // «Cerrar» no hace nada en el C# (`VM:228-231`).
                 Button("Cerrar") {}
-                Button("Fraccionar") { Task { await fraccionar() } }.buttonStyle(.borderedProminent).disabled(!cargada)
+                Button("Fraccionar") { Task { await fraccionar() } }.buttonStyle(EstiloPrincipal()).disabled(!cargada)
             }
         }
     }

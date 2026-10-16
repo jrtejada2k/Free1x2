@@ -55,7 +55,7 @@ struct VistaGuardarValoracion: View {
                 Text(estado).foregroundStyle(Color.textoSecundario)
                 Spacer()
                 Button("Cancelar") { estado = "Cancelado." }
-                Button("Aceptar") { Task { await aceptar() } }.buttonStyle(.borderedProminent)
+                Button("Aceptar") { Task { await aceptar() } }.buttonStyle(EstiloPrincipal())
             }
         }
         .onAppear {
@@ -128,7 +128,7 @@ struct VistaHistoriaValoraciones: View {
                 Text(estado).foregroundStyle(Color.textoSecundario)
                 Spacer()
                 Button("Cancelar") { estado = "Cancelado." }
-                Button("Guardar", action: guardar).buttonStyle(.borderedProminent).disabled(fichero == nil)
+                Button("Guardar", action: guardar).buttonStyle(EstiloPrincipal()).disabled(fichero == nil)
             }
         }
         .onAppear {

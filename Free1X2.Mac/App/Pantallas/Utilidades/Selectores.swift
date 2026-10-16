@@ -172,7 +172,7 @@ struct VistaSelecJM: View {
                             tarea = nil
                         }
                     }
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(EstiloPrincipal())
                     Button("Cancelar") { tarea?.cancel() }
                     Button("Grabar columnas") {
                         Task {
@@ -272,7 +272,7 @@ struct VistaSelectorMS: View {
                             tarea = nil
                         }
                     }
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(EstiloPrincipal())
                     Button("Cancelar") { tarea?.cancel() }
                 }
                 HStack(spacing: 24) {

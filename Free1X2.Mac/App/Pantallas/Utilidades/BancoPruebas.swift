@@ -203,7 +203,7 @@ struct VistaBancoPruebas: View {
                     ForEach([4, 3, 2, 1, 0], id: \.self) { i in Toggle(String(14 - i), isOn: $acumular[i]) }
                 }
                 HStack {
-                    Button("Analizar") { Task { await analizar() } }.buttonStyle(.borderedProminent).disabled(ocupado)
+                    Button("Analizar") { Task { await analizar() } }.buttonStyle(EstiloPrincipal()).disabled(ocupado)
                     // El C# no cablea «Seleccionar jornadas…» (botón oculto y sin handler en el original).
                     Button("Seleccionar jornadas…") {}
                     Button("Grabar", action: grabar)
@@ -317,7 +317,7 @@ struct VistaDialogoGrabarBancoPruebas: View {
                             solo
                         ))
                 }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(EstiloPrincipal())
                 Button("Cancelar") {
                     estado = "Cancelado"
                     cerrar(nil)

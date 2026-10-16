@@ -171,7 +171,7 @@ struct VistaCalculaColumnas: View {
                     estado = "Cancelado"
                     sesion.router.atras()
                 }
-                Button("Calcular", action: calcular).buttonStyle(.borderedProminent).keyboardShortcut(.defaultAction)
+                Button("Calcular", action: calcular).buttonStyle(EstiloPrincipal()).keyboardShortcut(.defaultAction)
                     .disabled(calculando)
             }
         }

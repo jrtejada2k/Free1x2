@@ -118,7 +118,7 @@ struct VistaDependenciaLineal: View {
                 Text(estado).foregroundStyle(Color.textoSecundario)
                 Spacer()
                 Button("Cancelar") { sesion.router.atras() }
-                Button("Aceptar") { Task { await aceptar() } }.buttonStyle(.borderedProminent).disabled(!puedeAceptar || ocupado)
+                Button("Aceptar") { Task { await aceptar() } }.buttonStyle(EstiloPrincipal()).disabled(!puedeAceptar || ocupado)
             }
         }
     }
@@ -194,7 +194,7 @@ struct VistaReducidasPerfectas: View {
                 }
                 .foregroundStyle(Color.textoSecundario)
                 Spacer()
-                Button("Generar") { generar() }.buttonStyle(.borderedProminent)
+                Button("Generar") { generar() }.buttonStyle(EstiloPrincipal())
             }
         }
     }

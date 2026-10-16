@@ -69,8 +69,9 @@ final class Sesion {
     var impresoraSeleccionada: ArchivoImpresoras.Impresora?
     /// `TramificarGraficasFrmViewModel.TramosAnalizados` (no se vacía al leerlo).
     var tramosAnalizados: [Tramo] = []
-    /// `TemaApp` (10 §1.5): «Sistema» (defecto), «Claro», «Oscuro»; en `UserDefaults` (ESPEC_11 §9).
-    var tema = UserDefaults.standard.string(forKey: "tema") ?? "Sistema" {
+    /// `TemaApp` (10 §1.5): «Claro» (defecto, la paleta «Índigo & Teal» del original; DT-77), «Oscuro», «Sistema»; en
+    /// `UserDefaults` (ESPEC_11 §9).
+    var tema = UserDefaults.standard.string(forKey: "tema") ?? "Claro" {
         didSet {
             UserDefaults.standard.set(tema, forKey: "tema")
             aplicarTema()

@@ -45,7 +45,7 @@ struct PantallaCondicion<Contenido: View>: View {
             contenido
             Tarjeta("Acciones") {
                 HStack {
-                    Button("Aceptar", action: botonAceptar).buttonStyle(.borderedProminent).keyboardShortcut(.defaultAction)
+                    Button("Aceptar", action: botonAceptar).buttonStyle(EstiloPrincipal()).keyboardShortcut(.defaultAction)
                     Button("Estadísticas") { estadisticas() }
                     Divider().frame(height: 16)
                     Button("Guardar") { Task { await guardar() } }

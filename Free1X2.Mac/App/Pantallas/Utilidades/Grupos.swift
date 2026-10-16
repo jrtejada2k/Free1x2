@@ -159,7 +159,7 @@ struct VistaParejas: View {
                 .disabled(bits == nil || tarea != nil)
                 Spacer()
                 Button("Cancelar") { tarea?.cancel() }
-                Button("Calcular") { Task { await calcular() } }.buttonStyle(.borderedProminent).disabled(tarea != nil)
+                Button("Calcular") { Task { await calcular() } }.buttonStyle(EstiloPrincipal()).disabled(tarea != nil)
             }
         }
     }
@@ -240,7 +240,7 @@ struct VistaTrios: View {
             }
             Tarjeta("Proceso") { ProcesoGrupos(procesadas: contadores.0, validas: contadores.1, tiempo: contadores.2) }
             HStack {
-                Button("Calcular") { Task { await calcular() } }.buttonStyle(.borderedProminent).disabled(tarea != nil)
+                Button("Calcular") { Task { await calcular() } }.buttonStyle(EstiloPrincipal()).disabled(tarea != nil)
                 Button("Analizar") {
                     do throws(ErrorDominio) {
                         recuento = try filtro.valida(Self.ganadora).recuento.map(String.init)
@@ -367,7 +367,7 @@ struct VistaAnaCombi: View {
                 }
             }
             HStack {
-                Button("Calcular") { Task { await calcular() } }.buttonStyle(.borderedProminent).disabled(tarea != nil)
+                Button("Calcular") { Task { await calcular() } }.buttonStyle(EstiloPrincipal()).disabled(tarea != nil)
                 Button("Cancelar") { tarea?.cancel() }
                 LabeledContent("Procesadas", value: procesadas)
                 LabeledContent("Tiempo", value: tiempo)
@@ -500,7 +500,7 @@ struct VistaAnalizadorJPM: View {
                     }
                     Tarjeta("Proceso de columnas") {
                         HStack {
-                            Button("Iniciar") { Task { await iniciar() } }.buttonStyle(.borderedProminent).disabled(tarea != nil)
+                            Button("Iniciar") { Task { await iniciar() } }.buttonStyle(EstiloPrincipal()).disabled(tarea != nil)
                             Button("Grabar") { Task { await grabar() } }
                             Button("Cancelar") { tarea?.cancel() }
                         }

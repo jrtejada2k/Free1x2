@@ -20,7 +20,7 @@ struct VistaCrearGrupos: View {
                         sesion.alertas.inesperado(error)
                     }
                 }
-                .buttonStyle(.borderedProminent).keyboardShortcut(.defaultAction).disabled(!(numero > 0))
+                .buttonStyle(EstiloPrincipal()).keyboardShortcut(.defaultAction).disabled(!(numero > 0))
                 Button("Cancelar") { sesion.router.atras() }
             }
         }
