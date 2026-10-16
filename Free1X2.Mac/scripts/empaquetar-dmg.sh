@@ -4,6 +4,8 @@
 #   FREE1X2_IDENTIDAD="Developer ID Application: Nombre (EQUIPO)"  firma con runtime endurecido y sello de tiempo.
 #   FREE1X2_PERFIL_NOTARIA=<perfil>  además notariza y grapa el ticket; el perfil se crea una vez con
 #     `xcrun notarytool store-credentials <perfil> --apple-id <correo> --team-id <EQUIPO>` (pide la contraseña de app).
+#   FREE1X2_APP=<ruta>/Free1X2.app  empaqueta esa app tal cual (p. ej. la que exporta Xcode ▸ Organizer ▸ Distribute App ▸
+#     Direct Distribution, ya firmada y notarizada con la cuenta de Xcode): no compila ni vuelve a firmar.
 # Salida: Free1X2.Mac/.build/dmg/Free1X2-<versión>.dmg
 set -eu
 cd "$(dirname "$0")/.."
@@ -13,17 +15,20 @@ SALIDA=.build/dmg
 RAIZ="$SALIDA/raiz"
 IDENTIDAD="${FREE1X2_IDENTIDAD:--}"
 
-xcodegen generate >/dev/null
 rm -rf "$SALIDA"
 mkdir -p "$RAIZ"
-xcodebuild -project Free1X2.xcodeproj -scheme Free1X2 -configuration Release -destination 'platform=macOS' \
-    -derivedDataPath .build/DerivedData build CODE_SIGNING_ALLOWED=NO -quiet
-ditto .build/DerivedData/Build/Products/Release/Free1X2.app "$RAIZ/Free1X2.app"
-
-if [ "$IDENTIDAD" = "-" ]; then
-    codesign --force --sign - "$RAIZ/Free1X2.app"
+if [ -n "${FREE1X2_APP:-}" ]; then
+    ditto "$FREE1X2_APP" "$RAIZ/Free1X2.app"
 else
-    codesign --force --options runtime --timestamp --sign "$IDENTIDAD" "$RAIZ/Free1X2.app"
+    xcodegen generate >/dev/null
+    xcodebuild -project Free1X2.xcodeproj -scheme Free1X2 -configuration Release -destination 'platform=macOS' \
+        -derivedDataPath .build/DerivedData build CODE_SIGNING_ALLOWED=NO -quiet
+    ditto .build/DerivedData/Build/Products/Release/Free1X2.app "$RAIZ/Free1X2.app"
+    if [ "$IDENTIDAD" = "-" ]; then
+        codesign --force --sign - "$RAIZ/Free1X2.app"
+    else
+        codesign --force --options runtime --timestamp --sign "$IDENTIDAD" "$RAIZ/Free1X2.app"
+    fi
 fi
 codesign --verify --strict --verbose=2 "$RAIZ/Free1X2.app"
 
