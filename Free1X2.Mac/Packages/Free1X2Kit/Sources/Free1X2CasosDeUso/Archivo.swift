@@ -175,4 +175,11 @@ extension CasosArchivo {
             return (nil, detalle + " El boleto sigue en modo manual.")
         }
     }
+
+    /// «Local - Visitante» de los `n` primeros partidos de la jornada; el 15º es el pleno (DT-81: el C# no rellena Inicio).
+    public static func equiposDeJornada(_ j: JornadaQuiniela, partidos n: Int) -> [String] {
+        (j.partidos + (j.pleno15.map { [$0] } ?? [])).prefix(n).map {
+            CasosInicio.componerEquipos(local: $0.local, visitante: $0.visitante)
+        }
+    }
 }

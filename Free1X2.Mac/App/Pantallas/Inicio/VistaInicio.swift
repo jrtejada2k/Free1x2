@@ -231,6 +231,18 @@ struct VistaInicio: View {
 /// `BoletoBaseControl`: título, resumen, reinicio y una fila por partido.
 struct BoletoBaseView: View {
     @Environment(Sesion.self) private var sesion
+    @State private var descargando = false
+
+    /// Equipos de la jornada actual del país (DT-81); sin red usa la guardada, como «Descarga de boleto».
+    private func cargarJornada(_ pais: PaisQuiniela) async {
+        guard !descargando else { return }
+        descargando = true
+        defer { descargando = false }
+        let r = await CasosArchivo.descargarJornada(pais, servicio: sesion.servicioOnline, entorno: sesion.entorno)
+        guard let j = r.jornada else { return sesion.alertas.error(r.mensaje) }
+        sesion.cargarJornada(j)
+        sesion.alertas.info(r.mensaje)
+    }
 
     var body: some View {
         @Bindable var s = sesion
@@ -244,6 +256,13 @@ struct BoletoBaseView: View {
                     "Fijos: \(marcados.filter { $0 == 1 }.count) - Dobles: \(marcados.filter { $0 == 2 }.count) - Triples: \(marcados.filter { $0 == 3 }.count)"
                 )
                 .font(.callout).foregroundStyle(Color.textoSecundario)
+                Menu("Jornada") {
+                    Button("España") { Task { await cargarJornada(.es) } }
+                    Button("México") { Task { await cargarJornada(.mx) } }
+                }
+                .fixedSize().disabled(descargando)
+                .help("Cargar los equipos de la jornada actual")
+                .accessibilityIdentifier("cargar-jornada")
                 Button {
                     sesion.reiniciarTriples()
                 } label: {
@@ -266,8 +285,8 @@ struct BoletoBaseView: View {
                 ForEach(0..<sesion.numeroPartidos, id: \.self) { i in
                     GridRow {
                         Text(String(format: "%02d", i + 1)).monospacedDigit()
-                        TextField("Local", text: $s.locales[i]).labelsHidden()
-                        TextField("Visitante", text: $s.visitantes[i]).labelsHidden()
+                        TextField("Local", text: $s.locales[i]).labelsHidden().accessibilityIdentifier("local-\(i + 1)")
+                        TextField("Visitante", text: $s.visitantes[i]).labelsHidden().accessibilityIdentifier("visitante-\(i + 1)")
                         ForEach(0..<3, id: \.self) { k in
                             Toggle(
                                 ["1", "X", "2"][k],

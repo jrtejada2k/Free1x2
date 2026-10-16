@@ -4,12 +4,13 @@ import XCTest
 /// con los datos aislados en una carpeta temporal (`-datos`) y el tema claro.
 final class FlujosUITests: XCTestCase {
     /// La app con una carpeta de datos nueva (o la indicada, para comprobar lo que persiste entre arranques).
-    @MainActor private func lanzar(datos: String? = nil) -> XCUIApplication {
+    @MainActor private func lanzar(datos: String? = nil, entorno: [String: String] = [:]) -> XCUIApplication {
         continueAfterFailure = false
         let app = XCUIApplication()
         let carpeta =
             datos ?? FileManager.default.temporaryDirectory.appending(path: "Free1X2UI-\(UUID().uuidString)").path(percentEncoded: false)
         app.launchArguments = ["-datos", carpeta, "-tema", "Claro"]
+        app.launchEnvironment = entorno
         app.launch()
         return app
     }
@@ -355,5 +356,29 @@ final class FlujosUITests: XCTestCase {
         pulsar(app, app.buttons["Cancelar"].firstMatch)
         XCTAssertTrue(app.buttons["Calcular columnas"].waitForExistence(timeout: 10))
         calcular(app, esperado: "729")
+    }
+
+    /// F49 (DT-81): Inicio ▸ «Jornada» ▸ España rellena local y visitante de los 14 partidos. Sin red (la API apunta a un
+    /// puerto cerrado), así que sale de la jornada guardada, como haría la app sin conexión.
+    @MainActor func testF49CargarJornada() throws {
+        let datos = FileManager.default.temporaryDirectory.appending(path: "Free1X2UI-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: datos, withIntermediateDirectories: true)
+        let partidos = (1...14).map { n in
+            n == 1 ? #"{"n":1,"local":"Villarreal","visitante":"Nápoles"}"# : #"{"n":\#(n),"local":"L\#(n)","visitante":"V\#(n)"}"#
+        }
+        let json =
+            #"{"pais":"ES","temporada":"2026/27","jornada":20261014,"fecha":"2026-10-14","partidos":["#
+            + partidos.joined(separator: ",") + "]}"
+        try Data(json.utf8).write(to: datos.appending(path: "jornada-es.json"))
+        let app = lanzar(datos: datos.path(percentEncoded: false), entorno: ["FREE1X2_API_BASE": "http://127.0.0.1:9"])
+        defer { app.terminate() }
+        let menuJornada = app.descendants(matching: .any)["cargar-jornada"].firstMatch
+        XCTAssertTrue(menuJornada.waitForExistence(timeout: 10))
+        menuJornada.click()
+        app.menuItems["España"].firstMatch.click()
+        XCTAssertTrue(aceptarAviso(app))
+        for (id, valor) in [("local-1", "Villarreal"), ("visitante-1", "Nápoles"), ("local-14", "L14"), ("visitante-14", "V14")] {
+            XCTAssertEqual(app.textFields[id].value as? String, valor, id)
+        }
     }
 }

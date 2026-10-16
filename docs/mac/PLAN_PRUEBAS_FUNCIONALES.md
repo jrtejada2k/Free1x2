@@ -167,6 +167,7 @@ ficheros reales en carpeta temporal), U = XCUITest, M = manual del dueño.
 | F46 | Tema e idioma | Claro/Oscuro/Sistema; inglés solo en Créditos | U |
 | F47 | Borrar temporales / informes | confirmación; carpetas vacías | I |
 | F48 | Errores | abrir JD-04 en Escrutinios, un `.comb` truncado y un `.z3q` corrupto ⇒ mensaje, sin cierre | I, U |
+| F49 | Cargar jornada en Inicio | «Jornada» ▸ España ⇒ local y visitante de los 14 partidos con los de la jornada (sin red, la guardada) | I, U |
 
 ## 5. Cómo se ejecuta
 
@@ -300,6 +301,7 @@ Leyenda: **I** = `Tests/Free1X2CasosDeUsoTests/FlujosTests.swift` (ficheros real
 | F46 tema e idioma | U `testF46Idioma` | ✔ |
 | F47 borrar temporales | I `f47BorrarTemporales` | ✔ |
 | F48 errores | I `f48Errores`; U `testF48CombinacionCorrupta` | ✔ |
+| F49 cargar jornada | N4 `equiposDeJornadaReal` (capturas reales ES con pleno y MX); U `testF49CargarJornada` | pendiente CI |
 
 **CI:** run 38935274408 verde: 257 tests del paquete, cobertura de casos de uso 88,3 % y **16 flujos de UI**.
 

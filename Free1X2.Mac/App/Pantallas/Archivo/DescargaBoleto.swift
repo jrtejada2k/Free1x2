@@ -25,7 +25,7 @@ struct VistaDescargaBoleto: View {
                         mensaje = "Conectando con el servicio online…"
                         descargando = true
                         let r = await CasosArchivo.descargarJornada(pais, servicio: sesion.servicioOnline, entorno: sesion.entorno)
-                        if let j = r.jornada { sesion.jornadaActual = j }
+                        if let j = r.jornada { sesion.cargarJornada(j) }
                         mensaje = r.mensaje
                         descargando = false
                     }

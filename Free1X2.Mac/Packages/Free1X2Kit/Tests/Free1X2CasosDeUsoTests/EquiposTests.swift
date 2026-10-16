@@ -46,4 +46,19 @@ struct EquiposTests {
         let nada = await CasosArchivo.descargarJornada(.mx, servicio: CasosArchivo.servicioOnline(entorno: sinRed), entorno: sinRed)
         #expect(nada.jornada == nil && nada.mensaje.hasSuffix(" El boleto sigue en modo manual."))
     }
+
+    /// DT-81: los nombres del boleto salen de la jornada real del backend; el 15º es el pleno (si lo hay).
+    @Test func equiposDeJornadaReal() throws {
+        func jornada(_ p: String) throws -> JornadaQuiniela {
+            try JornadaQuiniela.analizar(String(decoding: try Golden.bytes("Fixtures/online/real-\(p).json"), as: UTF8.self))
+        }
+        let es = try jornada("es")
+        #expect(CasosArchivo.equiposDeJornada(es, partidos: 14).count == 14)
+        let es15 = CasosArchivo.equiposDeJornada(es, partidos: 15)
+        #expect(es15.first == "Estados Unidos - Australia" && es15[13] == "Finalista 2 Playoff - Finalista 1 Playoff")
+        #expect(es15.last == "España - Arabia Saudi" && es15.count == 15)
+        let mx = CasosArchivo.equiposDeJornada(try jornada("mx"), partidos: 15)
+        #expect(mx.count == 14 && mx.first == "Chequia - Mexico" && mx.last == "Argelia - Austria")
+        #expect(CasosInicio.aplicarEquipos(mx, a: Array(repeating: "a - b", count: 15)).last == "a - b")
+    }
 }

@@ -143,6 +143,12 @@ final class Sesion {
         }
     }
 
+    /// Jornada descargada (o de la caché): la recuerda y pone sus equipos en el boleto (DT-81).
+    func cargarJornada(_ j: JornadaQuiniela) {
+        jornadaActual = j
+        ponerEquipos(CasosArchivo.equiposDeJornada(j, partidos: numeroPartidos))
+    }
+
     // MARK: Comandos
 
     func ejecutar(_ c: Comando) {
