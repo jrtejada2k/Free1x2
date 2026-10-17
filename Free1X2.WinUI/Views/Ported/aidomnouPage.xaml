@@ -205,11 +205,12 @@
                                    Style="{StaticResource BodyStrongTextBlockStyle}" Foreground="{ThemeResource AppTextBrush}" />
                     </StackPanel>
 
-                    <!-- (4) Nota legacy (lNota): condiciones de generación en aidomnou.cfg. -->
+                    <!-- (4) Nota legacy (lNota). El original prometía aidomnou.cfg editable; el port usa
+                         los límites fijos (C5, DT-79): mismo texto que la app Mac. -->
                     <TextBlock
                         Style="{StaticResource SecondaryTextBlockStyle}"
                         TextWrapping="Wrap"
-                        Text="NOTA: Las condiciones de generación de las 6 columnas, tras una primera ejecución, aparecen editables en el fichero 'aidomnou.cfg'." />
+                        Text="NOTA: Las condiciones de generación de las 6 columnas son fijas; no se leen de ningún fichero." />
                 </StackPanel>
             </Border>
 
