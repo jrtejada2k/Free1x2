@@ -18,11 +18,11 @@ namespace Free1X2.WinUI.Views.Ported;
 /// </summary>
 public sealed partial class AcercaDeFrmPage : Page
 {
-    // URLs externas (idénticas a las del form legacy AcercaDeFrm).
-    private const string UrlDescarga = "https://clubprogol.com/Descargas/Descargas.aspx";
-    private const string UrlForo     = "https://clubprogol.com/foros/index.php";
+    // URLs externas. W11/DT-86: las del form legacy daban 404 en el WordPress de clubprogol;
+    // son las de AyudaFrmPage (y las de la app Mac). «Descarga» se quita.
+    private const string UrlForo     = AyudaFrmPage.UrlForo;
     private const string UrlSitioWeb = "https://clubprogol.com";
-    private const string UrlManual   = "https://clubprogol.com/DocWK";
+    private const string UrlManual   = AyudaFrmPage.UrlManual;
 
     public AcercaDeFrmPage()
     {
@@ -108,11 +108,6 @@ public sealed partial class AcercaDeFrmPage : Page
         // Abre el documento GPL empaquetado junto al exe (Documentacion/GPL.txt),
         // copia de LICENSE (GPLv3). Si faltara, cae al sitio web.
         await AbrirDocumentoLocalAsync("Documentacion/GPL.txt", UrlSitioWeb);
-    }
-
-    private async void DescargaLink_Click(object sender, RoutedEventArgs e)
-    {
-        await AbrirUriSeguraAsync(UrlDescarga);
     }
 
     private async void ManualLink_Click(object sender, RoutedEventArgs e)

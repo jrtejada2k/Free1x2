@@ -78,12 +78,6 @@
                                      Click="GplLink_Click"
                                      AutomationProperties.Name="Ver la licencia GPL del software libre" />
 
-                    <HyperlinkButton Content="Descarga"
-                                     HorizontalAlignment="Stretch"
-                                     HorizontalContentAlignment="Left"
-                                     Click="DescargaLink_Click"
-                                     AutomationProperties.Name="Ir a la página de descargas" />
-
                     <HyperlinkButton Content="Manual"
                                      HorizontalAlignment="Stretch"
                                      HorizontalContentAlignment="Left"

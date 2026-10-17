@@ -21,7 +21,8 @@
                            Foreground="{ThemeResource AppTextSecondaryBrush}" />
             </StackPanel>
 
-            <!-- Tarjeta: documentación (Manual, Artículos, FAQ, Recursos) -->
+            <!-- Tarjeta: documentación (Manual, FAQ). W11/DT-86: Artículos y Recursos se quitan,
+                 solo mostraban el aviso «Online help disabled…». -->
             <Border Grid.Row="1" Style="{StaticResource AppCardStyle}">
                 <StackPanel Spacing="4">
                     <TextBlock Text="Documentación"
@@ -34,27 +35,15 @@
                                      Click="ManualLink_Click"
                                      AutomationProperties.Name="Abrir el manual de usuario" />
 
-                    <HyperlinkButton Content="Artículos"
-                                     HorizontalAlignment="Stretch"
-                                     HorizontalContentAlignment="Left"
-                                     Click="ArticulosLink_Click"
-                                     AutomationProperties.Name="Ver los artículos de ayuda" />
-
-                    <HyperlinkButton Content="FAQ"
+                    <HyperlinkButton Content="Preguntas frecuentes (FAQ)"
                                      HorizontalAlignment="Stretch"
                                      HorizontalContentAlignment="Left"
                                      Click="FaqLink_Click"
                                      AutomationProperties.Name="Abrir las preguntas frecuentes (FAQ)" />
-
-                    <HyperlinkButton Content="Recursos"
-                                     HorizontalAlignment="Stretch"
-                                     HorizontalContentAlignment="Left"
-                                     Click="RecursosLink_Click"
-                                     AutomationProperties.Name="Ver recursos adicionales" />
                 </StackPanel>
             </Border>
 
-            <!-- Tarjeta: comunidad (Foro, Notificaciones, Facebook) -->
+            <!-- Tarjeta: comunidad (Foro). W11/DT-86: Notificaciones y Facebook se quitan. -->
             <Border Grid.Row="2" Style="{StaticResource AppCardStyle}">
                 <StackPanel Spacing="4">
                     <TextBlock Text="Comunidad"
@@ -66,18 +55,6 @@
                                      HorizontalContentAlignment="Left"
                                      Click="ForoLink_Click"
                                      AutomationProperties.Name="Abrir el foro de Free1X2" />
-
-                    <HyperlinkButton Content="Notificaciones"
-                                     HorizontalAlignment="Stretch"
-                                     HorizontalContentAlignment="Left"
-                                     Click="NotificacionesLink_Click"
-                                     AutomationProperties.Name="Ver notificaciones" />
-
-                    <HyperlinkButton Content="Free1X2 en Facebook"
-                                     HorizontalAlignment="Stretch"
-                                     HorizontalContentAlignment="Left"
-                                     Click="FacebookLink_Click"
-                                     AutomationProperties.Name="Abrir la página de Free1X2 en Facebook" />
                 </StackPanel>
             </Border>
         </Grid>
