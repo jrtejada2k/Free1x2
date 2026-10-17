@@ -20,6 +20,7 @@ Manual de uso del programa **Free1X2** para el análisis y la generación de com
 > 10. [Utilidades](#10-utilidades)
 > 11. [Formatos de archivo](#11-formatos-de-archivo)
 > 12. [Consejos y errores frecuentes](#12-consejos-y-errores-frecuentes)
+> 13. [Recetas de jugadores](#13-recetas-de-jugadores)
 
 ---
 
@@ -902,6 +903,36 @@ grabar de cada pantalla.
   5–10 %. Con 14 triples, prohibir exactamente 10 variantes ahorra ≈21 % de columnas, pero eso pasa ≈7 % de las jornadas
   y entonces los premios son altos; prohibir 4 variantes solo ahorra ≈0,3 %.
 - **20 columnas** son el 0,0004 % de las 4.782.969 posibles: con tan pocas no se juega al 14, se juega a la suerte.
+
+## 13. Recetas de jugadores
+
+Métodos que jugadores veteranos publicaron en el foro, traducidos a los pasos de Free1X2. Son ideas para probar y comparar,
+no garantías (ver la sección anterior).
+
+### PacoHH: los 14 triples por tramos y a distancia 6
+
+**Idea.** Diversificar mucho el pronóstico para acertar la mayoría de las jornadas (regularidad en el acierto) en vez de
+buscar el golpe. Se ordenan los 14 triples de más a menos apostado con los porcentajes de L.A.E. de la jornada, se parten
+en **9 tramos** iguales y del **tramo 1**, las **531.441** columnas más apostadas (4.782.969 ÷ 9), se juegan columnas que se
+diferencien entre sí en **6 signos o más**. Según PacoHH, a distancia 6 salen entre **75 y 150 columnas**, según los
+porcentajes de cada jornada. En la lista que publicó de la temporada 2009/10, el 14 de las doce primeras jornadas quedó
+entre las posiciones 2.383 y 526.026, dentro del tramo 1; el de la jornada 13, en la 2.084.273, fuera de él.
+
+**Pasos.**
+1. **Ordenar por probabilidad:** origen **14 Triples**; los porcentajes de L.A.E. de la jornada (en la versión Mac,
+   **Pegar desde Excel**); pestaña **Por productos** con el valor central **Log. neperiano = 0**, que ordena de más a menos
+   probable; **Nº máximo de columnas = 531441**; las casillas de añadir, sin marcar; un fichero de salida, p. ej.
+   `tramo1.txt` → **Ordenar**.
+2. **Diferencias entre columnas:** generación por **Fichero** (`tramo1.txt`); condicionada por **Columna Base** con
+   cualquier columna (p. ej. `11111111111111`) y **s/ col. base = `0-14`**, para que la base no cuente;
+   **s/ col. result. = `6-14`** → **Calcular** → **Grabar**. Las candidatas se recorren en el orden del fichero, así que
+   entran primero las más apostadas.
+3. Si quieres un número concreto de apuestas, pon el **Límite de columnas**: se graban las primeras admitidas, que son las
+   más apostadas. PacoHH usaba el tramificador de otro programa, que permite pedir ese número directamente.
+
+> Para ver en qué tramo cayó el 14 de jornadas pasadas, usa **Tramificar** con **Nº de tramos = 9** y la columna
+> premiada: la tabla dice en qué tramo cae cada premio. **Grabar tramos** no graba nada, como en el programa original;
+> por eso el tramo 1 se saca con Ordenar por probabilidad.
 
 **¿Dudas?** Pregunta en el **foro de Free1X2**: [clubprogol.com/foro](https://clubprogol.com/foro/).
 
