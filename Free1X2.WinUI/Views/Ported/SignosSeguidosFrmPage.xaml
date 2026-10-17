@@ -18,7 +18,7 @@
             <Border Style="{StaticResource AppCardStyle}">
                 <StackPanel Spacing="6">
                     <TextBlock Text="Cantidades admitidas (0–15)" Style="{StaticResource CardTitleTextBlockStyle}" />
-                    <TextBlock Text="Introduce las cantidades permitidas para cada concepto. Separa varios valores con comas o espacios."
+                    <TextBlock Text="Introduce las cantidades permitidas para cada concepto. Separa varios valores con comas (p. ej. 0,1,2)."
                                Style="{StaticResource SecondaryTextBlockStyle}"
                                TextWrapping="Wrap" />
 
@@ -32,7 +32,7 @@
                                    VerticalAlignment="Center"
                                    Style="{StaticResource CardTitleTextBlockStyle}" />
                         <TextBox Grid.Column="1"
-                                 PlaceholderText="p. ej. 0 1 2"
+                                 PlaceholderText="p. ej. 0,1,2"
                                  Text="{x:Bind ViewModel.Variantes, Mode=TwoWay}"
                                  AutomationProperties.Name="Cantidades admitidas de variantes seguidas" />
                     </Grid>
@@ -47,7 +47,7 @@
                                    VerticalAlignment="Center"
                                    Style="{StaticResource CardTitleTextBlockStyle}" />
                         <TextBox Grid.Column="1"
-                                 PlaceholderText="p. ej. 0 1 2"
+                                 PlaceholderText="p. ej. 0,1,2"
                                  Text="{x:Bind ViewModel.Unos, Mode=TwoWay}"
                                  AutomationProperties.Name="Cantidades admitidas de signos 1 seguidos" />
                     </Grid>
@@ -62,7 +62,7 @@
                                    VerticalAlignment="Center"
                                    Style="{StaticResource CardTitleTextBlockStyle}" />
                         <TextBox Grid.Column="1"
-                                 PlaceholderText="p. ej. 0 1 2"
+                                 PlaceholderText="p. ej. 0,1,2"
                                  Text="{x:Bind ViewModel.Equis, Mode=TwoWay}"
                                  AutomationProperties.Name="Cantidades admitidas de signos X seguidos" />
                     </Grid>
@@ -77,7 +77,7 @@
                                    VerticalAlignment="Center"
                                    Style="{StaticResource CardTitleTextBlockStyle}" />
                         <TextBox Grid.Column="1"
-                                 PlaceholderText="p. ej. 0 1 2"
+                                 PlaceholderText="p. ej. 0,1,2"
                                  Text="{x:Bind ViewModel.Doses, Mode=TwoWay}"
                                  AutomationProperties.Name="Cantidades admitidas de signos 2 seguidos" />
                     </Grid>
