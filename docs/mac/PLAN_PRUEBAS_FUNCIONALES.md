@@ -300,16 +300,16 @@ Leyenda: **I** = `Tests/Free1X2CasosDeUsoTests/FlujosTests.swift` (ficheros real
 | F41–F42 online | I `f41f42Online`; N4 `EquiposTests`; N1 `OnlineTests` | ✔ |
 | F43 equipos | I `f43Equipos` (Latin-1); U `testF43EquipoPersiste` | ✔ |
 | F44 configuración | I `f44Configuracion`; U `testF44ConfiguracionPersiste` | ✔ |
-| F45 panel lateral | U `testF45PanelLateral` | pendiente CI |
+| F45 panel lateral | U `testF45PanelLateral` | ✔ |
 | F46 tema e idioma | U `testF46Idioma` | ✔ |
 | F47 borrar temporales | I `f47BorrarTemporales` | ✔ |
 | F48 errores | I `f48Errores`; U `testF48CombinacionCorrupta` | ✔ |
 | F49 cargar jornada | N4 `equiposDeJornadaReal` (capturas reales ES con pleno y MX); U `testF49CargarJornada` | ✔ |
 | F50 jornada al arrancar | N4 `jornadaAlArrancar` (a tiempo, lenta, error 500); comprobado en la app con la API real (Villarreal - Nápoles) y sin red (en blanco) | ✔ |
-| F51 máscaras | N4 `MascarasTests` (recuento sin desarrollar = valores a mano de JD-01; guardar/listar/borrar; histórico del servicio); U `testF51Mascaras` | pendiente CI |
-| F52 sin fichero | I `f52ColumnasDeInicio` (729 = JD-01; 0 columnas ⇒ error y sin fichero viejo); U `testF52ReducirSinFichero`; en local, 14 triples ⇒ Reductor con las columnas en 41 s | pendiente CI |
+| F51 máscaras | N4 `MascarasTests` (recuento sin desarrollar = valores a mano de JD-01; guardar/listar/borrar; histórico del servicio); U `testF51Mascaras` | ✔ |
+| F52 sin fichero | I `f52ColumnasDeInicio` (729 = JD-01; 0 columnas ⇒ error y sin fichero viejo); U `testF52ReducirSinFichero`; en local, 14 triples ⇒ Reductor con las columnas en 41 s | ✔ |
 
-**CI:** run 38970416309 verde: 258 tests del paquete, cobertura de casos de uso 88,3 % y **16 tests de UI** (con F49).
+**CI:** run 39006120618 verde (19 min): 265 tests del paquete, cobertura de casos de uso 88,5 % y **18 tests de UI** (F02–F52; F16 escruta JD-02 para que «Ver premiadas» no tenga 473 filas, que hacen cada búsqueda de XCUITest de 9-13 s).
 
 **Defectos encontrados:** D-01 (ayuda que pedía espacios), D-02 y D-03 (accesibilidad), **D-04** (condición no válida que
 dejaba el cálculo a 0). Los cuatro corregidos, con su prueba. **Huecos completados:** C2, C3, C5, C6 (C4 no era hueco).
