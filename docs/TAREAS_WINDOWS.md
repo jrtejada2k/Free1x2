@@ -63,7 +63,7 @@ un sistema se usa tal cual en el otro.
 3. Navegación: W8.
 4. Máscaras, columnas de Inicio y base de ganadoras: W9, W10 y W12. Comparten la generación de columnas y la pantalla
    «Máscaras».
-5. Enlaces de ayuda: W11.
+5. Enlaces de ayuda (W11) e icono (W13, ya sustituido: solo verificar).
 6. Cierre (§ «Cierre»): documentación, `CLAUDE.md` e informe al dueño.
 
 ---
@@ -424,6 +424,22 @@ un sistema se usa tal cual en el otro.
 
 ---
 
+## W13 · Icono nuevo de la app (DT-90)
+
+- **Qué (aprobado por el dueño, 17-oct-2026):** el mismo icono que la app Mac («FREE 1X2» azul neón, red naranja, marco
+  plateado sobre base azul).
+- **Ya hecho desde el Mac:** `Free1X2.WinUI/Assets/app.ico` se sustituyó por uno de 7 tamaños (16, 24, 32, 48, 64, 128 y
+  256 px, 32 bits; el de 256 en PNG). Mismo nombre y ruta, así que **no** cambia código ni el `.csproj`: lo usan
+  `<ApplicationIcon>` (icono del `.exe`) y `AppWindow.SetIcon` (ventana y barra de tareas). Se genera con
+  `swift Free1X2.Mac/scripts/icono.swift …` (ver su cabecera); en Windows no hace falta regenerarlo.
+- **No se toca** el `.ico` del WinForms (`Free1X2/`), que está congelado.
+- **Pendiente en Windows (no se pudo compilar desde el Mac):** build, smoke y comprobar a la vista el icono del `.exe` en
+  el Explorador, el de la ventana y el de la barra de tareas; después `pwsh ./scripts/publish-winui.ps1`. Si el Explorador
+  sigue mostrando el icono viejo, es su caché: `ie4uinit.exe -show`.
+- **Aceptación:** los tres sitios muestran el icono nuevo; build 0 errores y smoke completo.
+
+---
+
 ## Lo que cambió en el Mac y **no** se lleva a Windows
 
 | Cambio en el Mac | Por qué no aplica |
@@ -436,7 +452,7 @@ un sistema se usa tal cual en el otro.
 
 ---
 
-## Cierre (después de W1–W12)
+## Cierre (después de W1–W13)
 
 1. **Verificación completa:** build 0 errores, `dotnet test` con 138 + los nuevos en verde, smoke `total=110 ok=110
    fail=0` con el log borrado antes.
@@ -447,5 +463,5 @@ un sistema se usa tal cual en el otro.
    `.mas`, `Historico/`). Luego `python scripts/md-a-wordpress.py`, que regenera `docs/web/manual.html` y
    `docs/web/faq.html`, y avisar al dueño de que hay que volver a subirlos a `clubprogol.com/docwk/` y
    `clubprogol.com/docwk/faq/`.
-4. **Informe al dueño:** una tabla por tarea (W1–W12) con estado (hecha / no hecha y por qué), commit, `fichero:línea`
+4. **Informe al dueño:** una tabla por tarea (W1–W13) con estado (hecha / no hecha y por qué), commit, `fichero:línea`
    del cambio y los tests añadidos. Lo que no se pudo hacer se dice, no se da por hecho.
