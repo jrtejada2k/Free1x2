@@ -157,7 +157,7 @@ struct GuardarMascara: ViewModifier {
 
     func body(content: Content) -> some View {
         content.alert("Guardar boleto como máscara", isPresented: $visible) {
-            TextField("Nombre", text: $nombre).accessibilityIdentifier("mascara-nombre")
+            TextField("Nombre", text: $nombre)
             Button("Guardar") { Task { await guardar() } }
             Button("Cancelar", role: .cancel) {}
         } message: {

@@ -53,9 +53,9 @@ final class FlujosUITests: XCTestCase {
         return ok
     }
 
-    /// Menú de la app (Free1X2) ▸ `ruta`.
+    /// Barra de menús ▸ `ruta`: XCUITest abre solo el menú que contiene cada elemento (abrir antes otro menú a mano
+    /// hacía fallar el recorrido con «open menu during menu traversal»).
     @MainActor private func menu(_ app: XCUIApplication, _ ruta: String...) {
-        app.menuBars.menuBarItems["Free1X2"].click()
         for (i, t) in ruta.enumerated() {
             let item = app.menuBars.menuItems[t].firstMatch
             XCTAssertTrue(item.waitForExistence(timeout: 5), t)
@@ -406,7 +406,8 @@ final class FlujosUITests: XCTestCase {
         XCTAssertTrue(menuMascaras.waitForExistence(timeout: 10))
         menuMascaras.click()
         app.menuItems["Guardar boleto como máscara…"].firstMatch.click()
-        let nombre = app.textFields["mascara-nombre"].firstMatch
+        // El campo del diálogo no lleva identificador (macOS lo descarta): se busca por su texto de ayuda.
+        let nombre = app.textFields.matching(NSPredicate(format: "placeholderValue == %@", "Nombre")).firstMatch
         XCTAssertTrue(nombre.waitForExistence(timeout: 10))
         nombre.typeText("JD01\r")
         XCTAssertTrue(nombre.waitForNonExistence(timeout: 10))
