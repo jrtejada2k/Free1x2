@@ -117,6 +117,17 @@ public actor ServicioQuiniela {
         return ResultadoJornada(jornada: jornada, desdeCache: false, guardado: cache.fechaGuardado(p))
     }
 
+    /// Ganadoras históricas (DT-84; endpoint propuesto): sin guarda ni caché.
+    public func obtenerHistorico(pais texto: String) async throws -> [ResultadoHistorico] {
+        let p = try Self.pais(texto)
+        let cuerpo = try await descargar("\(base)\(Self.prefijo)/quiniela/\(p.rawValue)/historico")
+        do throws(ErrorDominio) {
+            return try HistoricoQuiniela.analizar(cuerpo)
+        } catch {
+            throw ErrorOnline("La respuesta del servicio no es un histórico válido: " + error.mensajeUsuario)
+        }
+    }
+
     /// `ObtenerEquiposAsync` (:205-227): sin guarda ni caché.
     public func obtenerEquipos(pais texto: String) async throws -> CatalogoEquipos {
         let p = try Self.pais(texto)
