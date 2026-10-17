@@ -85,63 +85,17 @@ public partial class DescargaBoletoFrmViewModel : ObservableObject
         Descargando = true;
         try
         {
-            ResultadoJornada resultado = await _servicio
-                .ObtenerJornadaAsync(pais, CancellationToken.None)
-                .ConfigureAwait(true); // continúa en el hilo de UI para tocar AppState/binding
+            DescargaJornada.Resultado r = await DescargaJornada.DescargarAsync(pais);
+            Mensaje = r.Mensaje;
 
-            JornadaQuiniela jornada = resultado.Jornada;
-
-            // Fuente compartida de nombres reales: boleto y "Grupos de Equipos" leen de aquí.
-            AppState.Instancia.JornadaActual = jornada;
-
-            // B-05: el mensaje distingue lo que ACABA de bajar de la red de lo que viene del
-            // fichero local (guarda anti-doble-descarga). Antes ambos casos decían lo mismo,
-            // así que una caché podía presentarse como recién actualizada.
-            // C-05: la fecha la trae el propio servicio (marca de tiempo del fichero); ya no se
-            // relee ni se re-parsea el JSON completo en el hilo de UI solo para el timestamp.
-            string resumen = "Jornada " + jornada.Jornada + " · " + jornada.Partidos.Count +
-                             " partidos cargados";
-            Mensaje = resultado.DesdeCache
-                ? resumen + " — mostrando la última guardada" + SufijoFecha(resultado.GuardadoUtc, " (", ")") + "."
-                : resumen + SufijoFecha(resultado.GuardadoUtc, " · Última actualización: ", "");
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            // Fallo de red/HTTP/parseo (cualquier excepción que no sea cancelación): intentar
-            // fallback a la jornada guardada antes de rendirse.
-            if (JornadaCache.TryCargar(pais, out JornadaQuiniela? cacheada, out DateTime guardadoUtc) &&
-                cacheada is not null)
-            {
-                Log.Warn("Descarga de jornada fallida (" + pais + "); se usa la caché de " +
-                         FormatearFechaLocal(guardadoUtc) + ". Causa: " + ex.Message);
-                AppState.Instancia.JornadaActual = cacheada;
-                Mensaje = "Sin conexión: mostrando la jornada guardada (actualizada " +
-                          FormatearFechaLocal(guardadoUtc) + ").";
-            }
-            else
-            {
-                // Sin caché tampoco: mensaje de error original + modo manual.
-                Log.Error("DescargaBoletoFrmViewModel.Descargar(" + pais + ") sin caché de respaldo", ex);
-                string detalle = ex is QuinielaOnlineException
-                    ? ex.Message
-                    : "No se pudo descargar la jornada: " + ex.Message;
-                Mensaje = detalle + " El boleto sigue en modo manual.";
-            }
+            // W6 (DT-81): los nombres de la jornada pasan también al boleto de Inicio, como dice
+            // el texto de esta pantalla.
+            if (r.Jornada is not null)
+                AppState.Instancia.PonerJornadaEnInicio(r.Jornada);
         }
         finally
         {
             Descargando = false;
         }
     }
-
-    /// <summary>
-    /// Compone el fragmento de fecha del mensaje, o cadena vacía si el servicio no pudo
-    /// determinar cuándo se guardó la copia local (nunca se inventa una fecha).
-    /// </summary>
-    private static string SufijoFecha(DateTime? guardadoUtc, string prefijo, string sufijo) =>
-        guardadoUtc is DateTime f ? prefijo + FormatearFechaLocal(f) + sufijo : string.Empty;
-
-    /// <summary>Formatea una marca UTC a hora local legible para el usuario.</summary>
-    private static string FormatearFechaLocal(DateTime utc) =>
-        utc.ToLocalTime().ToString("dd/MM/yyyy HH:mm");
 }

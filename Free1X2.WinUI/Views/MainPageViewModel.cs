@@ -563,6 +563,39 @@ public partial class MainPageViewModel : ObservableObject
         Navegar?.Invoke(typeof(ReductorFrmPage));
     }
 
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(CargarJornadaCommand))]
+    private bool _descargandoJornada;
+
+    private bool PuedeCargarJornada() => !DescargandoJornada;
+
+    /// <summary>
+    /// W6 (DT-81): «Jornada ▾ España / México». Los 14 partidos (y el 15.º con el pleno) toman
+    /// local y visitante de la jornada actual de clubprogol; sin red, la jornada guardada (como
+    /// «Descarga de boleto»). Avisa con el mensaje del servicio.
+    /// </summary>
+    [RelayCommand(CanExecute = nameof(PuedeCargarJornada))]
+    private async Task CargarJornada(string pais)
+    {
+        DescargandoJornada = true;
+        try
+        {
+            DescargaJornada.Resultado r = await DescargaJornada.DescargarAsync(pais);
+            if (r.Jornada is null)
+            {
+                AppServices.MostrarError(r.Mensaje);
+                return;
+            }
+            Boleto?.VolcarPronosticosAlMotor();
+            _estado.PonerJornadaEnInicio(r.Jornada);
+            AppServices.MostrarInfo(r.Mensaje);
+        }
+        finally
+        {
+            DescargandoJornada = false;
+        }
+    }
+
     /// <summary>Nueva combinación (MNuevaComb): reinicia motor, grupo, filtro y boleto.</summary>
     [RelayCommand]
     private void NuevaCombinacion()

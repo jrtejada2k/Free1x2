@@ -62,6 +62,39 @@ public sealed class AppState
     /// </summary>
     public event EventHandler? JornadaCambiada;
 
+    private string[] _equiposInicio = Array.Empty<string>();
+
+    /// <summary>
+    /// Equipos del boleto base de Inicio ("LOCAL - VISITANTE"; "? - ?" sin equipos). MainPage se
+    /// crea de nuevo en cada navegación (sin NavigationCacheMode), así que los nombres viven aquí,
+    /// igual que los pronósticos viven en el <see cref="Analizador"/>. Vacío = aún sin nombres.
+    /// Lo escribe BoletoBaseViewModel a cada cambio y lo relee en CargarDesdeMotor.
+    /// </summary>
+    public string[] EquiposInicio
+    {
+        get => _equiposInicio;
+        set => _equiposInicio = value ?? Array.Empty<string>();
+    }
+
+    /// <summary>
+    /// W6/W7 (DT-81, DT-83): pone en el boleto de Inicio local y visitante de la jornada (el 15.º
+    /// es el pleno, si lo hay). Con <paramref name="soloSiVacios"/> no pisa lo que el usuario haya
+    /// escrito o abierto (arranque). Devuelve si se aplicó.
+    /// </summary>
+    public bool PonerJornadaEnInicio(JornadaQuiniela jornada, bool soloSiVacios = false)
+    {
+        int n = VariablesGlobales.NumeroPartidos;
+        string[] previos = new string[n];
+        for (int i = 0; i < n; i++)
+            previos[i] = i < _equiposInicio.Length ? _equiposInicio[i] : JornadaInicio.SinEquipos;
+
+        if (soloSiVacios && !JornadaInicio.EstanVacios(previos)) return false;
+
+        _equiposInicio = JornadaInicio.Aplicar(JornadaInicio.Componer(jornada, n), previos);
+        NotificarCambio();
+        return true;
+    }
+
     /// <summary>
     /// Grupo que una página de filtro está editando, entregado por la MainPage al navegar.
     /// Sigue el patrón de "handoff" estático de la app (cf.

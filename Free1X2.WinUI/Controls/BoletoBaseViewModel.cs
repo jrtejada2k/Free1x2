@@ -168,6 +168,7 @@ public partial class PartidoBaseViewModel : ObservableObject
             OnPropertyChanged(nameof(Local));
             OnPropertyChanged(nameof(Visitante));
         }
+        _owner.AlCambiarEquipos();
         _owner.RecalcularResumen();
     }
 }
@@ -217,13 +218,29 @@ public partial class BoletoBaseViewModel : ObservableObject
 
     // Construye una fila por partido. Inicialmente "triple" (1,X,2), igual que
     // Pronosticos.InicializaPronosticos() (todos a "1X2") en WinForms.
+    // Los nombres salen de AppState.EquiposInicio (sobreviven a la navegación); sin ellos, "? - ?".
     private void Construir()
     {
         Partidos.Clear();
         for (int i = 0; i < NumPartidos; i++)
         {
-            Partidos.Add(new PartidoBaseViewModel(this, i + 1, "? - ?"));
+            Partidos.Add(new PartidoBaseViewModel(this, i + 1,
+                EquipoGuardado(AppState.Instancia.EquiposInicio, i) ?? "? - ?"));
         }
+    }
+
+    private static string? EquipoGuardado(string[] guardados, int i) =>
+        i < guardados.Length && !string.IsNullOrEmpty(guardados[i]) ? guardados[i] : null;
+
+    // Cada cambio de nombre se guarda en AppState para que no se pierda al volver a Inicio.
+    internal void AlCambiarEquipos()
+    {
+        var equipos = new string[Partidos.Count];
+        for (int i = 0; i < Partidos.Count; i++)
+        {
+            equipos[i] = Partidos[i].Equipos;
+        }
+        AppState.Instancia.EquiposInicio = equipos;
     }
 
     /// <summary>
@@ -237,6 +254,7 @@ public partial class BoletoBaseViewModel : ObservableObject
         {
             var analizador = AppState.Instancia.Analizador;
             string[]? pronosticos = analizador.Pronosticos;
+            string[] guardados = AppState.Instancia.EquiposInicio;
 
             for (int i = 0; i < Partidos.Count; i++)
             {
@@ -248,6 +266,11 @@ public partial class BoletoBaseViewModel : ObservableObject
                 fila.Signo1 = pr.Contains("1");
                 fila.SignoX = pr.Contains("X");
                 fila.Signo2 = pr.Contains("2");
+
+                // Equipos guardados en AppState (p. ej. la jornada puesta por W6/W7). Se lee la
+                // copia tomada antes del bucle: cada asignación reescribe AppState.EquiposInicio.
+                string? equipo = EquipoGuardado(guardados, i);
+                if (equipo != null) fila.Equipos = equipo;
             }
         }
         finally
