@@ -79,6 +79,22 @@ En la pantalla **Máscaras**, pulsa **«Escrutar las máscaras»**: se comparan 
 jornadas pasadas y verás, por máscara, cuántas columnas habrían tenido 14, 13, 12, 11 y 10 aciertos y en cuántas
 jornadas hubo premio. Pulsa una cabecera para ordenar.
 
+### ¿Puedo usar mi propio histórico de resultados?
+Sí. En la pantalla **Máscaras**, pulsa **«Escrutar con un archivo de ganadoras…»** y elige un archivo de texto con **una
+columna ganadora de 14 signos por línea** (`1`, `X` o `2`), por ejemplo:
+
+```
+1X21X1121X1X21
+112X1211X1X221
+```
+
+Puede tener las jornadas que quieras (1.200, por ejemplo). Las líneas en blanco se ignoran y lo que vaya detrás de los 14
+signos (como el pleno al 15) también. Si una línea está mal, el programa te dice cuál es.
+
+### ¿Puedo escrutar solo una liga?
+Puedes elegir el **juego**: Quiniela de **España** o Progol de **México**. Una liga de fútbol concreta no: cada columna
+ganadora es la de una jornada completa de 14 partidos, que mezcla partidos de varias ligas.
+
 ### Si una máscara ha dado muchos premios, ¿la próxima jornada también?
 No necesariamente. Cada jornada tiene partidos distintos, así que el historial de una máscara mide sobre todo cómo se
 reparten los signos en general (el `1` sale en torno a la mitad de las veces). Sirve para comparar planteamientos, no

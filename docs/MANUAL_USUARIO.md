@@ -539,9 +539,16 @@ marcar los signos.
 - **Pantalla «Máscaras»** (panel lateral, grupo Combinación; o **Máscaras ▾ → Máscaras y escrutinio histórico…**): lista
   cada máscara con sus signos, sus fijos/dobles/triples y sus columnas, y permite **aplicarla** o **borrarla**.
 
-**Escrutinio histórico.** En la misma pantalla, elige el país de las ganadoras (España o México) y pulsa **«Escrutar las
-máscaras»**. El programa descarga las **columnas ganadoras de las jornadas pasadas** desde clubprogol.com y compara cada
-máscara con cada una. La tabla muestra, por máscara:
+**Escrutinio histórico.** En la misma pantalla hay dos formas de obtener las **columnas ganadoras de jornadas pasadas**:
+
+- **Descargarlas:** elige en **«Ganadoras de»** el juego (**España** = Quiniela, **México** = Progol) y pulsa **«Escrutar
+  las máscaras»**. Se descargan de clubprogol.com las jornadas que tenga publicadas.
+- **Tu propio histórico:** pulsa **«Escrutar con un archivo de ganadoras…»** y elige un `.txt` con **una columna ganadora
+  por línea** (el formato de columnas de siempre, ver §11), por ejemplo 1.200 jornadas. Las líneas en blanco se ignoran
+  y da igual `x` o `X`; si una línea trae algo detrás de los 14 signos (el pleno al 15, por ejemplo) se ignora. Si alguna
+  línea no empieza por 14 signos `1`, `X` o `2`, el programa dice **qué línea** es y no escruta nada.
+
+Cada máscara se compara con cada ganadora. La tabla muestra, por máscara:
 
 | Columna | Significado |
 |---------|-------------|
@@ -551,7 +558,8 @@ máscara con cada una. La tabla muestra, por máscara:
 
 Pulsa una cabecera para **ordenar** (por ejemplo por la columna «10» para ver qué máscara da más premios de 10). El
 cálculo es instantáneo aunque la máscara tenga miles de columnas: cuenta los aciertos sin desarrollarlas, con el mismo
-resultado que escrutarlas una a una. Se necesita conexión; sin ella aparece el motivo y no se hace nada.
+resultado que escrutarlas una a una. Para descargar las ganadoras se necesita conexión; sin ella aparece el motivo y no se
+hace nada. Bajo la tabla se indica cuántas jornadas se escrutaron y de dónde salieron.
 
 > Una máscara fija signos **por posición** (partido 1, 2…), pero cada jornada trae partidos distintos: su historial
 > refleja sobre todo cómo se reparten los signos en general (en las jornadas de octubre de 2026 el `1` salió el 45 % de

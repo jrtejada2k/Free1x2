@@ -177,7 +177,10 @@ está en `docs/mac/DECISIONES.md` (DT-xx).
   `aciertos = 1, fallos = n−1`; si no: `aciertos = 0, fallos = n`. Luego
   `nuevo[k] += c[k]·fallos` y `nuevo[k+1] += c[k]·aciertos`. `c[k]` es el número de columnas con k
   aciertos. Se usan los 14 primeros partidos.
-- **Histórico:** endpoint **propuesto** `GET /wp-json/clubprogol/v1/quiniela/{pais}/historico`. El
+- **Histórico propio (DT-87):** botón «Escrutar con un archivo de ganadoras…». Lee el archivo de columnas de siempre (una
+  ganadora por línea): se saltan las líneas en blanco y cuentan los 14 primeros signos. Una línea que no empiece por 14
+  signos 1/X/2 detiene la lectura con su número.
+- **Histórico:** endpoint `GET /wp-json/clubprogol/v1/quiniela/{pais}/historico`, ya en producción. El
   contrato está en `docs/API_CLUBPROGOL.md` §4. **El dueño lo crea en el servidor.** Validación
   estricta: una ganadora sin 14 signos 1/X/2 rechaza la respuesta.
 - **Dónde:** nuevo.

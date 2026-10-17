@@ -405,7 +405,7 @@ final class FlujosUITests: XCTestCase {
     }
 
     /// F51 (DT-84): guardar el boleto como máscara, empezar una combinación nueva y aplicar la máscara desde la barra.
-    @MainActor func testF51Mascaras() {
+    @MainActor func testF51Mascaras() throws {
         let app = lanzar()
         defer { app.terminate() }
         boletoSeisTriples(app)
@@ -424,6 +424,13 @@ final class FlujosUITests: XCTestCase {
         menuMascaras.click()
         app.menuItems["JD01  ·  729 col."].firstMatch.click()
         XCTAssertTrue(app.staticTexts["Fijos: 8 - Dobles: 0 - Triples: 6"].waitForExistence(timeout: 10))
+        // DT-87: escrutinio con un histórico propio (la columna de unos y la de doses): 1/12/60/160/240, 1 de 2 jornadas.
+        let ganadoras = try fichero("ganadoras.txt", [String(repeating: "1", count: 14), String(repeating: "2", count: 14)])
+        ir(app, "Máscaras", "mascaras")
+        pulsar(app, app.buttons["Escrutar con un archivo de ganadoras…"])
+        panel(app, ruta: ganadoras)
+        XCTAssertTrue(app.staticTexts["2 jornadas escrutadas (archivo «ganadoras.txt»)."].waitForExistence(timeout: 10))
+        for valor in ["240", "160", "60", "12", "1 de 2"] { XCTAssertTrue(app.staticTexts[valor].exists, valor) }
     }
 
     /// F52 (DT-85): Inicio ▸ Reducir con el boleto JD-01 abre el Reductor con sus columnas ya cargadas (sin elegir

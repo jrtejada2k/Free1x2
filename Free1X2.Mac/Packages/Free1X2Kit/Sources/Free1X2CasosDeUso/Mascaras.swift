@@ -1,5 +1,6 @@
 import Foundation
 import Free1X2Base
+import Free1X2Formatos
 import Free1X2Online
 
 // Nuevo (DT-84, a petición del dueño; no existe en el C#): máscaras guardadas y su escrutinio contra el histórico.
@@ -98,6 +99,23 @@ public enum CasosMascaras {
             cuenta = nueva
         }
         return cuenta
+    }
+
+    /// Archivo de ganadoras propio (DT-87): el archivo de columnas de siempre (`ArchivoColumnasTexto`), una ganadora por
+    /// línea. Se saltan las líneas en blanco; de cada línea cuentan sus 14 primeros signos (lo de detrás, p. ej. el pleno,
+    /// se ignora). Una línea que no empiece por 14 signos 1/X/2 detiene la lectura con su número: mejor avisar que
+    /// escrutar con datos rotos.
+    public static func ganadorasDeArchivo(_ datos: Data) throws(ErrorDominio) -> [String] {
+        var r: [String] = []
+        for (i, l) in ArchivoColumnasTexto.columnas(datos).enumerated() where !l.isEmpty {
+            let g = String(l.prefix(JornadaQuiniela.numeroPartidos))
+            guard g.count == JornadaQuiniela.numeroPartidos, g.allSatisfy({ "1X2".contains($0) }) else {
+                throw ErrorDominio(.formato, "La línea \(i + 1) no empieza por una columna de 14 signos 1, X o 2: «\(l)».")
+            }
+            r.append(g)
+        }
+        guard !r.isEmpty else { throw ErrorDominio(.formato, "El archivo no tiene ninguna columna ganadora.") }
+        return r
     }
 
     /// Escruta la máscara contra cada ganadora (los 14 primeros partidos) y suma las columnas premiadas de 10 a 14.

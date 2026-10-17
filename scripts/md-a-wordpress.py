@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Convierte docs/MANUAL_USUARIO.md y docs/FAQ.md a HTML para pegar en WordPress (editor de código o bloque «HTML
 personalizado»). Cubre solo el Markdown que usan esos dos documentos: títulos (con ancla al estilo GitHub, para que el
-índice funcione), párrafos, negrita, cursiva, código, enlaces, listas (un nivel de anidado), tablas, citas y separadores.
+índice funcione), párrafos, negrita, cursiva, código (en línea y en bloque), enlaces, listas (un nivel de anidado), tablas,
+citas y separadores.
 Los párrafos que enlazan documentos internos del repositorio (*.md) no se publican.
 
 Uso: python3 scripts/md-a-wordpress.py   → escribe docs/web/manual.html y docs/web/faq.html
@@ -77,6 +78,12 @@ def bloques(lineas):
         l = lineas[i]
         if not l.strip():
             i += 1
+        elif l.startswith("```"):
+            j = i + 1
+            while j < len(lineas) and not lineas[j].startswith("```"):
+                j += 1
+            out.append("<pre><code>" + html.escape("\n".join(lineas[i + 1 : j]), quote=False) + "</code></pre>")
+            i = j + 1
         elif m := re.match(r"^(#{1,4})\s+(.*)$", l):
             n, t = len(m.group(1)), m.group(2)
             if n > 1:  # el título (#) lo pone WordPress como título de la página
@@ -106,7 +113,7 @@ def bloques(lineas):
             i = j
         else:
             j = i
-            while j < len(lineas) and lineas[j].strip() and not re.match(r"^(#|>|\||-{3,}|\s*([-*]|\d+\.)\s)", lineas[j]):
+            while j < len(lineas) and lineas[j].strip() and not re.match(r"^(#|>|\||-{3,}|```|\s*([-*]|\d+\.)\s)", lineas[j]):
                 j += 1
             texto = " ".join(x.strip() for x in lineas[i:j])
             if not re.search(r"\]\((?!http|#)[^)]*\.md\)", texto):

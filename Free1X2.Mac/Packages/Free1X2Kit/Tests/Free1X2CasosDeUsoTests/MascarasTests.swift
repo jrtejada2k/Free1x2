@@ -62,4 +62,19 @@ struct MascarasTests {
         let r = CasosMascaras.escrutar(Self.jd01, ganadoras: es.map(\.ganadora))
         #expect(r.premios == [11: 3, 10: 43] && r.jornadasConPremio == 10 && r.jornadas == 19)
     }
+
+    /// DT-87: archivo de ganadoras propio (CRLF, líneas en blanco, `x` minúscula, pleno detrás); una línea rota avisa con su
+    /// número. Con las mismas ganadoras da lo mismo que el histórico descargado.
+    @Test func ganadorasDeArchivo() throws {
+        let datos = Data("11111111111111\r\n\r\n22222222222222 2-1\r\n1x21x1121x1x211\r\n".utf8)
+        let g = try CasosMascaras.ganadorasDeArchivo(datos)
+        #expect(g == ["11111111111111", "22222222222222", "1X21X1121X1X21"])
+        #expect(CasosMascaras.escrutar(Self.jd01, ganadoras: Array(g.prefix(2))).premios == [14: 1, 13: 12, 12: 60, 11: 160, 10: 240])
+        #expect(throws: ErrorDominio.self) { try CasosMascaras.ganadorasDeArchivo(Data("11111111111111\n1,X,2,1\n".utf8)) }
+        let roto = #expect(throws: ErrorDominio.self) {
+            try CasosMascaras.ganadorasDeArchivo(Data("11111111111111\n\n111X\n".utf8))
+        }
+        #expect(roto?.mensajeUsuario.hasPrefix("La línea 3 no empieza por una columna de 14 signos") == true)
+        #expect(throws: ErrorDominio.self) { try CasosMascaras.ganadorasDeArchivo(Data("\r\n".utf8)) }
+    }
 }

@@ -40,6 +40,11 @@ struct VistaMascaras: View {
         recargar()
     }
 
+    private func escrutar(_ ganadoras: [String], origen: String) {
+        filas = mascaras.map { FilaMascara(CasosMascaras.escrutar($0, ganadoras: ganadoras)) }
+        estado = "\(ganadoras.count) jornadas escrutadas (\(origen))."
+    }
+
     private func escrutar() async {
         guard !ocupado else { return }
         ocupado = true
@@ -47,14 +52,24 @@ struct VistaMascaras: View {
         estado = "Descargando el histórico…"
         do {
             let historico = try await sesion.servicioOnline.obtenerHistorico(pais: pais.rawValue)
-            let ganadoras = historico.map(\.ganadora)
-            filas = mascaras.map { FilaMascara(CasosMascaras.escrutar($0, ganadoras: ganadoras)) }
-            estado = "\(historico.count) jornadas escrutadas."
+            escrutar(historico.map(\.ganadora), origen: "clubprogol, " + (pais == .es ? "España" : "México"))
         } catch {
             filas = []
             estado = ""
             sesion.alertas.error(
                 "No se pudo descargar el histórico: " + ((error as? ErrorOnline)?.mensaje ?? error.localizedDescription))
+        }
+    }
+
+    /// Histórico propio (DT-87): un archivo de columnas con una ganadora por línea.
+    private func escrutarArchivo() async {
+        guard let u = await SelectorFicheros.abrir(".txt", "*") else { return }
+        do throws(ErrorDominio) {
+            escrutar(try CasosMascaras.ganadorasDeArchivo(try sesion.entorno.archivos.leer(u)), origen: "archivo «\(u.lastPathComponent)»")
+        } catch {
+            filas = []
+            estado = ""
+            sesion.alertas.error("No se pudo leer el archivo de ganadoras: " + error.mensajeUsuario)
         }
     }
 
@@ -102,8 +117,14 @@ struct VistaMascaras: View {
                     .frame(maxWidth: 260)
                     Button("Escrutar las máscaras") { Task { await escrutar() } }.buttonStyle(EstiloPrincipal())
                         .disabled(ocupado || mascaras.isEmpty)
-                    Text(estado).foregroundStyle(Color.textoSecundario)
                 }
+                HStack {
+                    Button("Escrutar con un archivo de ganadoras…") { Task { await escrutarArchivo() } }
+                        .disabled(ocupado || mascaras.isEmpty)
+                    Text("Tu propio histórico: un .txt con una columna ganadora de 14 signos por línea.")
+                        .font(.callout).foregroundStyle(Color.textoSecundario)
+                }
+                if !estado.isEmpty { Text(estado).foregroundStyle(Color.textoSecundario) }
                 if !filas.isEmpty {
                     Table(filas.sorted(using: orden), sortOrder: $orden) {
                         TableColumn("Máscara", value: \.nombre)
