@@ -75,6 +75,17 @@
                             </MenuFlyout>
                         </AppBarButton.Flyout>
                     </AppBarButton>
+                    <!-- W9 (DT-84): guardar el boleto como máscara, aplicar una guardada o abrir la pantalla.
+                         Las entradas se rehacen al abrir el menú (MenuMascaras_Opening). -->
+                    <AppBarButton x:Name="BotonMascaras" Label="Máscaras"
+                                  ToolTipService.ToolTip="Guardar los signos del boleto como máscara o aplicar una guardada">
+                        <AppBarButton.Icon>
+                            <FontIcon Glyph="&#xE8EC;" />
+                        </AppBarButton.Icon>
+                        <AppBarButton.Flyout>
+                            <MenuFlyout x:Name="MenuMascaras" Placement="Bottom" Opening="MenuMascaras_Opening" />
+                        </AppBarButton.Flyout>
+                    </AppBarButton>
                     <AppBarSeparator x:Name="SeparadorInicio" />
                     <AppBarButton Label="Nueva" LabelPosition="Collapsed"
                                   ToolTipService.ToolTip="Nueva combinación"

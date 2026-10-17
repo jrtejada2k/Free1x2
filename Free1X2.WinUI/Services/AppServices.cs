@@ -114,6 +114,54 @@ public static class AppServices
     }
 
     /// <summary>
+    /// Pide un texto al usuario (W9/W12: «Guardar boleto como máscara», «Nueva liga»): un
+    /// ContentDialog con <paramref name="mensaje"/>, un campo con <paramref name="etiqueta"/> y los
+    /// botones <paramref name="botonAceptar"/> / «Cancelar». Devuelve el texto o null si se cancela.
+    /// Pasa por la misma puerta que <see cref="ConfirmarAsync(string,string)"/> (un diálogo a la vez).
+    /// </summary>
+    public static async System.Threading.Tasks.Task<string?> PedirTextoAsync(
+        string titulo, string mensaje, string etiqueta, string botonAceptar)
+    {
+        if (MainWindow?.Content?.XamlRoot is null) return null;
+
+        await _puertaDialogos.WaitAsync().ConfigureAwait(true);
+        _dialogoAbierto = true;
+        try
+        {
+            var root = MainWindow?.Content?.XamlRoot;
+            if (root is null) return null;
+
+            var campo = new TextBox { Header = etiqueta };
+            var panel = new StackPanel { Spacing = 10 };
+            panel.Children.Add(new TextBlock { Text = mensaje, TextWrapping = TextWrapping.Wrap });
+            panel.Children.Add(campo);
+
+            var dlg = new ContentDialog
+            {
+                Title = titulo,
+                Content = panel,
+                PrimaryButtonText = botonAceptar,
+                CloseButtonText = "Cancelar",
+                DefaultButton = ContentDialogButton.Primary,
+                XamlRoot = root,
+                RequestedTheme = TemaApp.TemaDeElemento,
+            };
+            return await dlg.ShowAsync() == ContentDialogResult.Primary ? campo.Text : null;
+        }
+        catch (Exception ex)
+        {
+            Log.Error("AppServices.PedirTextoAsync", ex);
+            return null;
+        }
+        finally
+        {
+            _dialogoAbierto = false;
+            _puertaDialogos.Release();
+            if (_colaDialogos.Count > 0) ProcesarColaDialogos();
+        }
+    }
+
+    /// <summary>
     /// Ejecuta una acción asíncrona "dispara y olvida" OBSERVANDO su resultado: si falla, se
     /// registra y se avisa al usuario (B-06). Sustituye a los <c>_ = MetodoAsync();</c>, donde
     /// la Task descartada se llevaba la excepción y la acción fallaba en silencio.

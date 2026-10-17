@@ -461,6 +461,7 @@ public sealed partial class MainWindow : Window
             E("Reducir", typeof(ReductorFrmPage), "bReducir"),
             E("Escrutinios", typeof(EscrutiniosFrmPage), "bEscrutinio"),
             E("Escrutar combinaciones", typeof(EscrutarCombinacionesFrmPage), "bEscrutarComb"),
+            E("Máscaras", typeof(MascarasPage), "E8EC"),
             E("Analizar combinación", typeof(AnalizarCombinacionFrmPage), "E9F5"),
             E("Análisis de columnas", typeof(AnalizarFicheroFrmPage), "bAnalisisColumnas"),
             E("Análisis de fallos", typeof(ColGanadoraFrmPage), "bAnalisisFallos"),
@@ -614,6 +615,7 @@ public sealed partial class MainWindow : Window
         BotonCalcular.Visibility = v;
         BotonReducir.Visibility = v;
         BotonJornada.Visibility = v;
+        BotonMascaras.Visibility = v;
         SeparadorInicio.Visibility = v;
         MarcarEntradaActual();
     }
@@ -633,6 +635,35 @@ public sealed partial class MainWindow : Window
         if (ContentFrame.Content is MainPage p && sender is FrameworkElement { Tag: string pais }
             && p.ViewModel.CargarJornadaCommand.CanExecute(pais))
             p.ViewModel.CargarJornadaCommand.Execute(pais);
+    }
+
+    // W9 (DT-84): «Guardar boleto como máscara…», una entrada por máscara («nombre  ·  N col.»,
+    // la aplica) y «Máscaras y escrutinio histórico…». Se rehace al abrir para ver las nuevas.
+    private void MenuMascaras_Opening(object? sender, object e)
+    {
+        MenuMascaras.Items.Clear();
+
+        var guardar = new MenuFlyoutItem { Text = "Guardar boleto como máscara…" };
+        guardar.Click += (_, _) => Services.AppServices.EjecutarObservandoErrores(
+            () => Services.MascarasInicio.GuardarBoletoComoMascaraAsync(), "MainWindow.GuardarMascara");
+        MenuMascaras.Items.Add(guardar);
+
+        var mascaras = Services.MascarasInicio.Listar();
+        if (mascaras.Count > 0)
+        {
+            MenuMascaras.Items.Add(new MenuFlyoutSeparator());
+            foreach (var m in mascaras)
+            {
+                var item = new MenuFlyoutItem { Text = Services.MascarasInicio.TextoMenu(m) };
+                item.Click += (_, _) => Services.MascarasInicio.Aplicar(m);
+                MenuMascaras.Items.Add(item);
+            }
+        }
+
+        MenuMascaras.Items.Add(new MenuFlyoutSeparator());
+        var pantalla = new MenuFlyoutItem { Text = "Máscaras y escrutinio histórico…" };
+        pantalla.Click += (_, _) => Navegar(typeof(MascarasPage));
+        MenuMascaras.Items.Add(pantalla);
     }
 
     private void BotonNueva_Click(object sender, RoutedEventArgs e) => NavegarConAccion(AccionInicio.NuevaCombinacion);

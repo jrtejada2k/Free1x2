@@ -1,6 +1,7 @@
 // Free1X2 · WinUI 3 — WIN3
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Text.Json;
@@ -223,6 +224,35 @@ public sealed class QuinielaOnlineService
         {
             throw new QuinielaOnlineException(
                 "La respuesta del servicio no es un catálogo de equipos válido: " + ex.Message, ex);
+        }
+    }
+
+    /// <summary>
+    /// W12 (DT-88): columnas ganadoras de las jornadas pasadas del país ("es" o "mx") desde
+    /// <c>GET {base}/wp-json/clubprogol/v1/quiniela/{pais}/historico</c> (docs/API_CLUBPROGOL.md §4).
+    /// Mismo HttpClient, base URL, 429 y traducción de errores que <see cref="ObtenerJornadaAsync"/>;
+    /// no se cachea. Validación estricta en <see cref="HistoricoQuinielaParser"/>.
+    /// </summary>
+    public async Task<List<ResultadoHistorico>> ObtenerHistoricoAsync(string pais, CancellationToken ct = default)
+    {
+        string paisNorm = (pais ?? "").Trim().ToLowerInvariant();
+        if (paisNorm != "es" && paisNorm != "mx")
+        {
+            throw new QuinielaOnlineException("País no soportado: '" + pais + "' (use 'es' o 'mx').");
+        }
+
+        string url = BaseUrl.TrimEnd('/') + PrefijoApi + "/quiniela/" + paisNorm + "/historico";
+
+        string cuerpo = await DescargarConReintentoAsync(url, ct).ConfigureAwait(false);
+
+        try
+        {
+            return HistoricoQuinielaParser.Parse(cuerpo);
+        }
+        catch (FormatException ex)
+        {
+            throw new QuinielaOnlineException(
+                "La respuesta del servicio no es un histórico válido: " + ex.Message, ex);
         }
     }
 

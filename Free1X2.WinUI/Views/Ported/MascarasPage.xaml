@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.MascarasPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Free1X2.WinUI.Views.Ported"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    Background="{ThemeResource AppBackgroundBrush}">
+
+    <Page.Resources>
+        <!-- Cabecera de columna de la tabla de resultados: pulsarla ordena por esa columna. -->
+        <Style x:Key="CabeceraTablaStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="0,2" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+    </Page.Resources>
+
+    <!-- W9 + W12 (DT-84, DT-88): pantalla nueva. Mismos textos que la app Mac. -->
+    <ScrollViewer>
+        <StackPanel Padding="10,7" Spacing="8" MaxWidth="980" HorizontalAlignment="Left">
+
+            <!-- Encabezado -->
+            <StackPanel Spacing="4">
+                <TextBlock Text="Máscaras" Style="{StaticResource PageTitleTextBlockStyle}" />
+                <TextBlock
+                    Text="Una máscara guarda los signos de cada partido, sin equipos. Aplícala a la jornada cargada o compárala con las ganadoras históricas para ver cuántas columnas de 10 a 14 aciertos habría tenido."
+                    Style="{StaticResource SecondaryTextBlockStyle}" />
+            </StackPanel>
+
+            <!-- Máscaras guardadas -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Máscaras guardadas" Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                    <TextBlock
+                        Text="Aún no hay máscaras: marca los signos en Inicio y pulsa «Guardar boleto como máscara…»."
+                        Style="{StaticResource SecondaryTextBlockStyle}"
+                        Visibility="{x:Bind ViewModel.SinMascaras, Mode=OneWay}" />
+                    <ItemsControl ItemsSource="{x:Bind ViewModel.Mascaras}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="local:FilaMascaraGuardada">
+                                <Grid ColumnSpacing="12" Padding="0,4">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" Spacing="2">
+                                        <TextBlock Text="{x:Bind Nombre}" FontWeight="SemiBold" />
+                                        <TextBlock Text="{x:Bind Signos}" FontFamily="Consolas"
+                                                   Foreground="{ThemeResource AppTextSecondaryBrush}"
+                                                   TextWrapping="Wrap" />
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="1" Text="{x:Bind Resumen}" VerticalAlignment="Center"
+                                               Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                                    <Button Grid.Column="2" Content="Aplicar al boleto" VerticalAlignment="Center"
+                                            Click="Aplicar_Click"
+                                            AutomationProperties.Name="Aplicar la máscara al boleto" />
+                                    <Button Grid.Column="3" Content="Borrar" VerticalAlignment="Center"
+                                            Click="Borrar_Click"
+                                            AutomationProperties.Name="Borrar la máscara" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <Button Content="Guardar boleto como máscara…" HorizontalAlignment="Left"
+                            Command="{x:Bind ViewModel.GuardarMascaraCommand}" />
+                </StackPanel>
+            </Border>
+
+            <!-- Escrutinio histórico (W12) -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Escrutinio histórico" Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                    <TextBlock
+                        Text="Aún no hay ganadoras guardadas: descarga las de España o México, o crea una liga y añade su archivo."
+                        Style="{StaticResource SecondaryTextBlockStyle}"
+                        Visibility="{x:Bind ViewModel.SinLigas, Mode=OneWay}" />
+                    <StackPanel Orientation="Horizontal" Spacing="8"
+                                Visibility="{x:Bind ViewModel.HayLigas, Mode=OneWay}">
+                        <ComboBox Header="Liga" MinWidth="260" MaxWidth="340"
+                                  ItemsSource="{x:Bind ViewModel.Ligas}"
+                                  SelectedItem="{x:Bind ViewModel.LigaSeleccionada, Mode=TwoWay}"
+                                  AutomationProperties.Name="Liga">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate x:DataType="local:LigaHistorico">
+                                    <TextBlock Text="{x:Bind Texto}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <Button Content="Escrutar las máscaras" VerticalAlignment="Bottom"
+                                Style="{StaticResource AccentButtonStyle}"
+                                Command="{x:Bind ViewModel.EscrutarCommand}" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <DropDownButton Content="Descargar de clubprogol"
+                                        AutomationProperties.Name="Descargar el histórico de clubprogol">
+                            <DropDownButton.Flyout>
+                                <MenuFlyout Placement="Bottom">
+                                    <MenuFlyoutItem Text="España" Command="{x:Bind ViewModel.DescargarCommand}" CommandParameter="es" />
+                                    <MenuFlyoutItem Text="México" Command="{x:Bind ViewModel.DescargarCommand}" CommandParameter="mx" />
+                                </MenuFlyout>
+                            </DropDownButton.Flyout>
+                        </DropDownButton>
+                        <Button Content="Nueva liga…" Command="{x:Bind ViewModel.NuevaLigaCommand}" />
+                        <Button Content="Añadir ganadoras desde archivo…" Command="{x:Bind ViewModel.AnadirArchivoCommand}" />
+                        <Button Content="Borrar liga…" Command="{x:Bind ViewModel.BorrarLigaCommand}" />
+                    </StackPanel>
+                    <TextBlock
+                        Text="Archivo: una jornada por línea, «jornada;columna» (p. ej. 2355;1X21X1121X1X21). Una jornada que ya está no se duplica; con otra columna, se actualiza."
+                        Style="{StaticResource SecondaryTextBlockStyle}" />
+                    <TextBlock Text="{x:Bind ViewModel.Estado, Mode=OneWay}" TextWrapping="Wrap"
+                               Foreground="{ThemeResource AppTextSecondaryBrush}"
+                               Visibility="{x:Bind ViewModel.HayEstado, Mode=OneWay}" />
+
+                    <!-- Resultados: tabla ordenable por cualquier columna -->
+                    <StackPanel Spacing="6" Visibility="{x:Bind ViewModel.HayResultados, Mode=OneWay}">
+                        <TextBlock Text="{x:Bind ViewModel.Escrutada, Mode=OneWay}" FontWeight="SemiBold" />
+                        <Grid ColumnSpacing="4" Padding="4,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="1.6*" />
+                            </Grid.ColumnDefinitions>
+                            <Button Grid.Column="0" Content="Máscara" Tag="Máscara" Click="Cabecera_Click" Style="{StaticResource CabeceraTablaStyle}" />
+                            <Button Grid.Column="1" Content="Columnas" Tag="Columnas" Click="Cabecera_Click" Style="{StaticResource CabeceraTablaStyle}" />
+                            <Button Grid.Column="2" Content="14" Tag="14" Click="Cabecera_Click" Style="{StaticResource CabeceraTablaStyle}" />
+                            <Button Grid.Column="3" Content="13" Tag="13" Click="Cabecera_Click" Style="{StaticResource CabeceraTablaStyle}" />
+                            <Button Grid.Column="4" Content="12" Tag="12" Click="Cabecera_Click" Style="{StaticResource CabeceraTablaStyle}" />
+                            <Button Grid.Column="5" Content="11" Tag="11" Click="Cabecera_Click" Style="{StaticResource CabeceraTablaStyle}" />
+                            <Button Grid.Column="6" Content="10" Tag="10" Click="Cabecera_Click" Style="{StaticResource CabeceraTablaStyle}" />
+                            <Button Grid.Column="7" Content="Jornadas con premio" Tag="Jornadas con premio" Click="Cabecera_Click" Style="{StaticResource CabeceraTablaStyle}" />
+                        </Grid>
+                        <ItemsControl ItemsSource="{x:Bind ViewModel.Resultados}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="local:FilaResultadoMascara">
+                                    <Grid ColumnSpacing="4" Padding="4,3">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="2*" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="1.6*" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{x:Bind Nombre}" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Grid.Column="1" Text="{x:Bind Columnas}" />
+                                        <TextBlock Grid.Column="2" Text="{x:Bind P14}" />
+                                        <TextBlock Grid.Column="3" Text="{x:Bind P13}" />
+                                        <TextBlock Grid.Column="4" Text="{x:Bind P12}" />
+                                        <TextBlock Grid.Column="5" Text="{x:Bind P11}" />
+                                        <TextBlock Grid.Column="6" Text="{x:Bind P10}" />
+                                        <TextBlock Grid.Column="7" Text="{x:Bind ConPremio}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <TextBlock
+                            Text="Pulsa una cabecera para ordenar. Cada cifra suma las columnas premiadas de todas las jornadas."
+                            Style="{StaticResource SecondaryTextBlockStyle}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

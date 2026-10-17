@@ -92,6 +92,7 @@ public static class PortedPagesRegistry
         new PortedPage("Crear Grupos",                        "", typeof(CrearGruposFrmPage), "Columnas y combinacion"),
         new PortedPage("Dif Cols",                            "", typeof(DifColsPage), "Columnas y combinacion"),
         new PortedPage("Escrutar Combinaciones",              "", typeof(EscrutarCombinacionesFrmPage), "Columnas y combinacion"),
+        new PortedPage("Mascaras",                            "", typeof(MascarasPage), "Columnas y combinacion"),
         new PortedPage("Escrutinios",                         "", typeof(EscrutiniosFrmPage), "Columnas y combinacion"),
         new PortedPage("Fraccionador",                        "", typeof(FraccionadorFrmPage), "Columnas y combinacion"),
         new PortedPage("Frm Reducidas Perfectas",             "", typeof(FrmReducidasPerfectasPage), "Columnas y combinacion"),
