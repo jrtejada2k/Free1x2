@@ -12,10 +12,17 @@ on:
 permissions:
   contents: read
 
+# Un push nuevo a la misma rama cancela la vuelta anterior, que ya no sirve (cada una tarda ~25 min).
+concurrency:
+  group: mac-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   mac:
     # Swift 6.2+ (swift-tools-version del paquete) => Xcode 26 o posterior.
     runs-on: macos-26
+    # Una vuelta normal tarda ~25 min; si algo se cuelga, que no corra las 6 h que permite GitHub.
+    timeout-minutes: 45
     defaults:
       run:
         working-directory: Free1X2.Mac
@@ -53,7 +60,8 @@ jobs:
           sudo automationmodetool enable-automationmode-without-authentication
           system_profiler SPDisplaysDataType | grep -i resolution || true
           xcodebuild -project Free1X2.xcodeproj -scheme Free1X2 -configuration Debug -destination 'platform=macOS' \
-            -derivedDataPath .build/DerivedDataUI -resultBundlePath UITests.xcresult test -only-testing:Free1X2UITests
+            -derivedDataPath .build/DerivedDataUI -resultBundlePath UITests.xcresult test -only-testing:Free1X2UITests \
+            -test-timeouts-enabled YES -default-test-execution-time-allowance 600
 
       # Si un flujo de UI falla, el .xcresult (con la captura de pantalla de cada fallo) queda 3 días para revisarlo.
       - name: Resultado de los flujos de UI
