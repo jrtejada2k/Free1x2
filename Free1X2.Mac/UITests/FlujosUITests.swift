@@ -53,9 +53,10 @@ final class FlujosUITests: XCTestCase {
         return ok
     }
 
-    /// Barra de menús ▸ `ruta`: XCUITest abre solo el menú que contiene cada elemento (abrir antes otro menú a mano
-    /// hacía fallar el recorrido con «open menu during menu traversal»).
-    @MainActor private func menu(_ app: XCUIApplication, _ ruta: String...) {
+    /// Menú `barra` de la barra de menús ▸ `ruta`. Hay que abrir el menú que contiene la ruta: abrir otro fallaba con
+    /// «open menu during menu traversal», y no abrir ninguno, con «timed out while waiting for menu open notification».
+    @MainActor private func menu(_ app: XCUIApplication, _ ruta: String..., en barra: String) {
+        app.menuBars.menuBarItems[barra].click()
         for (i, t) in ruta.enumerated() {
             let item = app.menuBars.menuItems[t].firstMatch
             XCTAssertTrue(item.waitForExistence(timeout: 5), t)
@@ -105,7 +106,7 @@ final class FlujosUITests: XCTestCase {
 
     /// Inicio ▸ Calcular columnas ▸ Calcular, y espera las aceptadas.
     @MainActor private func calcular(_ app: XCUIApplication, esperado: String) {
-        app.buttons["Calcular columnas"].click()
+        app.buttons["inicio-calcular"].click()
         let calcular = app.buttons["Calcular"]
         XCTAssertTrue(calcular.waitForExistence(timeout: 10))
         calcular.click()
@@ -134,7 +135,7 @@ final class FlujosUITests: XCTestCase {
         campo.click()
         campo.typeText("0,1,2")
         app.buttons["Aceptar"].click()
-        XCTAssertTrue(app.buttons["Calcular columnas"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["inicio-calcular"].waitForExistence(timeout: 10))
         calcular(app, esperado: "73")
     }
 
@@ -189,10 +190,10 @@ final class FlujosUITests: XCTestCase {
         let app = lanzar()
         defer { app.terminate() }
         XCTAssertTrue(app.searchFields.firstMatch.waitForExistence(timeout: 10))
-        menu(app, "Idioma", "English")
-        menu(app, "Créditos…")
+        menu(app, "Idioma", "English", en: "Visualización")
+        menu(app, "Créditos…", en: "Free1X2")
         XCTAssertTrue(app.staticTexts["Free1X2 Team"].waitForExistence(timeout: 10))
-        menu(app, "Idioma", "Español")
+        menu(app, "Idioma", "Español", en: "Visualización")
     }
 
     /// Escrutinios ▸ JD-01 contra la columna de unos (rango 10–14 por defecto) y espera el histograma.
@@ -300,7 +301,7 @@ final class FlujosUITests: XCTestCase {
         app.buttons[tile].click()
         ajustar(app)
         pulsar(app, app.buttons["Aceptar"].firstMatch)
-        XCTAssertTrue(app.buttons["Calcular columnas"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["inicio-calcular"].waitForExistence(timeout: 10))
         calcular(app, esperado: esperado)
     }
 
@@ -336,7 +337,7 @@ final class FlujosUITests: XCTestCase {
         panel(app, ruta: roto)
         XCTAssertTrue(aceptarAviso(app), "se esperaba el aviso de error")
         XCTAssertTrue(app.staticTexts["Fijos: 0 - Dobles: 0 - Triples: 14"].waitForExistence(timeout: 10))
-        XCTAssertTrue(app.buttons["Calcular columnas"].isHittable)
+        XCTAssertTrue(app.buttons["inicio-calcular"].isHittable)
     }
 
     /// F16: tras el escrutinio de F13, «Ver premiadas…» ▸ «Guardar Todas» graba las 473 columnas con 10 o más aciertos.
@@ -369,7 +370,7 @@ final class FlujosUITests: XCTestCase {
         pulsar(app, app.buttons["Aceptar"].firstMatch)
         XCTAssertTrue(aceptarAviso(app), "se esperaba el aviso de error")
         pulsar(app, app.buttons["Cancelar"].firstMatch)
-        XCTAssertTrue(app.buttons["Calcular columnas"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["inicio-calcular"].waitForExistence(timeout: 10))
         calcular(app, esperado: "729")
     }
 

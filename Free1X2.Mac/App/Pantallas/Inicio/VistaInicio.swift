@@ -44,8 +44,9 @@ struct VistaInicio: View {
         .toolbar {
             // Las acciones propias de Inicio (DT-82); Nueva, Abrir y Guardar están en la barra de todas las pantallas.
             ToolbarItemGroup(placement: .primaryAction) {
+                // Identificador distinto de «Calcular columnas», que es el nombre de una fila del panel lateral.
                 Button(action: calcular) { Label("Calcular", systemImage: "function") }
-                    .labelStyle(.titleAndIcon).help("Calcular las columnas del boleto").accessibilityIdentifier("Calcular columnas")
+                    .labelStyle(.titleAndIcon).help("Calcular las columnas del boleto").accessibilityIdentifier("inicio-calcular")
                 Button {
                     Task {
                         generando = true
