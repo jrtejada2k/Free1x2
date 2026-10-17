@@ -51,5 +51,15 @@ jobs:
       - name: Flujos de UI (XCUITest)
         run: |
           sudo automationmodetool enable-automationmode-without-authentication
+          system_profiler SPDisplaysDataType | grep -i resolution || true
           xcodebuild -project Free1X2.xcodeproj -scheme Free1X2 -configuration Debug -destination 'platform=macOS' \
-            -derivedDataPath .build/DerivedDataUI test -only-testing:Free1X2UITests
+            -derivedDataPath .build/DerivedDataUI -resultBundlePath UITests.xcresult test -only-testing:Free1X2UITests
+
+      # Si un flujo de UI falla, el .xcresult (con la captura de pantalla de cada fallo) queda 3 días para revisarlo.
+      - name: Resultado de los flujos de UI
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: UITests-xcresult
+          path: Free1X2.Mac/UITests.xcresult
+          retention-days: 3
