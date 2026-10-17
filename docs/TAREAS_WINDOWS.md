@@ -61,7 +61,7 @@ un sistema se usa tal cual en el otro.
 1. Correcciones pequeñas: W1–W5.
 2. Jornada: W6–W7.
 3. Navegación: W8.
-4. Máscaras, columnas de Inicio, base de ganadoras y esperanza matemática: W9, W10, W12 y W14. Comparten la generación de columnas y la pantalla
+4. Máscaras, columnas de Inicio, base de ganadoras y esperanza matemática: W9, W10, W12 y W14 (y W15). Comparten la generación de columnas y la pantalla
    «Máscaras».
 5. Enlaces de ayuda (W11) e icono (W13, ya sustituido: solo verificar).
 6. Cierre (§ «Cierre»): documentación, `CLAUDE.md` e informe al dueño.
@@ -487,6 +487,39 @@ un sistema se usa tal cual en el otro.
 
 ---
 
+## W15 · Precio por defecto 0,75 €, Estimación de premios con el precio de Configuración y «Pegar desde Excel» (DT-92)
+
+- **Qué (aprobado por el dueño, 17-oct-2026):**
+  1. **Precio por defecto 0,75 €** en instalaciones nuevas: en la semilla de `parametros.free1x2` que reparte el WinUI,
+     `<OrdenarApuestas PrecioApuesta="0,50" …>` pasa a `"0,75"` (el resto igual). Buscar la semilla y cualquier valor
+     por defecto de `PrecioApuesta` en el código del WinUI/Domain (p. ej. el modelo de Configuración) y ponerlo a 0,75. A
+     quien ya tenga su `parametros.free1x2` no le afecta.
+  2. **«Estimación de premios»** (`EstimadorPremiosFrmViewModel`) arranca con el precio de Configuración ▸ Parámetros LAE
+     en lugar de 0,50 fijo (sigue siendo editable).
+  3. **«Pegar desde Excel»** en TODAS las tablas de porcentajes 1 / X / 2 (las de Esperanza matemática, Rentabilidad,
+     Estimación de premios, Valoración, Banco de pruebas, Ordenar por probabilidad, Tramificar, Aidomnou, Selectores,
+     Modificador, Filtros, Formatos, Configuración de CPs, Guardar valoración…): un botón «Pegar desde Excel» encima de la
+     tabla, con el tooltip «Copia en Excel las filas de porcentajes (una por partido: 1, X y 2; pueden llevar el partido o
+     los equipos delante) y pulsa aquí.». Lo ideal es un control común reutilizado por todas.
+- **Regla de lectura del texto pegado** (en `Free1X2.Domain`, para probarla): se recorre línea a línea; cada línea se parte
+  por tabuladores, `;` o espacios; de cada trozo se quita «%», la coma pasa a punto y se intenta leer como número (los que
+  no son número, como los equipos, se ignoran); si la línea tiene **al menos 3 números** se toman **los 3 últimos** (1, X,
+  2), y si no se salta (encabezados, vacías). Un número negativo, infinito o NaN: error «La fila «…» tiene un porcentaje no
+  válido.». Como mucho tantas filas como partidos tenga la tabla. Ninguna fila: error «No hay ninguna fila con tres
+  porcentajes (1, X y 2) en lo copiado.». Portapapeles vacío: «El portapapeles está vacío: copia antes en Excel las filas de
+  porcentajes.». Si se pegan menos filas que partidos, se rellenan esas y se avisa «Se pegaron X de N filas; el resto queda
+  como estaba.».
+- **Referencia Mac:** `CasosUtilidades.porcentajesPegados` (al final de
+  `Free1X2.Mac/Packages/Free1X2Kit/Sources/Free1X2CasosDeUso/Utilidades/Esperanza.swift`), `PorcentajesGrid` en
+  `Free1X2.Mac/App/Compartido/Estilo.swift`, `VistaEstimadorPremios.onAppear` en `Free1X2.Mac/App/Pantallas/Utilidades/Premios.swift`.
+- **Pruebas** (`PegarPorcentajesTests` en el Mac): el texto `"Part.\tPartido\t1\tX\t2\r\n1\tVILLARREAL-NAPOLI\t50,483\t29,487\t20,03\r\n7\tFEYENOORD-COMO 1907\t45\t30\t25\r\n\r\n3 ; 60% ; 25% ; 15%\n"`
+  da `[[50.483, 29.487, 20.03], [45, 30, 25], [60, 25, 15]]`; `"65.5 26 8.5\n8 16 76\n15 25 60"` con 2 filas da las dos
+  primeras; `"1 X 2\nhola"` y `"50\t-10\t60"` dan error.
+- **Aceptación:** los tests; a mano, copiar en Excel un bloque de 14 × 3 (con o sin equipos), pulsar «Pegar desde Excel» y
+  ver las 42 casillas rellenas; instalación nueva con 0,75 € en Configuración y en Estimación de premios.
+
+---
+
 ## Lo que cambió en el Mac y **no** se lleva a Windows
 
 | Cambio en el Mac | Por qué no aplica |
@@ -499,7 +532,7 @@ un sistema se usa tal cual en el otro.
 
 ---
 
-## Cierre (después de W1–W14)
+## Cierre (después de W1–W15)
 
 1. **Verificación completa:** build 0 errores, `dotnet test` con 138 + los nuevos en verde, smoke `total=111 ok=111
    fail=0` con el log borrado antes.
@@ -510,5 +543,5 @@ un sistema se usa tal cual en el otro.
    `.mas`, `Historico/`). Luego `python scripts/md-a-wordpress.py`, que regenera `docs/web/manual.html` y
    `docs/web/faq.html`, y avisar al dueño de que hay que volver a subirlos a `clubprogol.com/docwk/` y
    `clubprogol.com/docwk/faq/`.
-4. **Informe al dueño:** una tabla por tarea (W1–W14) con estado (hecha / no hecha y por qué), commit, `fichero:línea`
+4. **Informe al dueño:** una tabla por tarea (W1–W15) con estado (hecha / no hecha y por qué), commit, `fichero:línea`
    del cambio y los tests añadidos. Lo que no se pudo hacer se dice, no se da por hecho.

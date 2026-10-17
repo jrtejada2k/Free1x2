@@ -7,7 +7,7 @@
   </condicionesFiltros>
   <configuracionONLAE>
     <LAE>
-      <OrdenarApuestas PrecioApuesta="0,50" PorcentajeDestinadoAl14="12" Recaudacion="14000000" Moneda="€" />
+      <OrdenarApuestas PrecioApuesta="0,75" PorcentajeDestinadoAl14="12" Recaudacion="14000000" Moneda="€" />
     </LAE>
   </configuracionONLAE>
   <utilidades>

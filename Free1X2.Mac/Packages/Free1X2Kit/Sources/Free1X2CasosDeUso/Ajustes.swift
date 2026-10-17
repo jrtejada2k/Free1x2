@@ -16,7 +16,7 @@ public struct ConfiguracionEditable: Sendable, Hashable {
     public var triples = 0.0
     public var jb = [15.0, 22, 29, 36, 48, 61]
     public var recaudacion = 15_000_000.0
-    public var precioApuesta = 0.50
+    public var precioApuesta = 0.75
     public var porcentajeAl14 = 15.0
     public var moneda = "€"
     public var actualizarAlInicio = false

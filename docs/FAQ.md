@@ -121,6 +121,11 @@ boleto. En **Esperanza matemática** también se puede cambiar para un cálculo 
 apuestas (recaudación ÷ precio) y con él los acertantes y los premios estimados; no cambia las columnas que genera el
 programa.
 
+### ¿Tengo que escribir los porcentajes uno a uno?
+No. En la versión Mac, todas las tablas de porcentajes (1 / X / 2) tienen el botón **«Pegar desde Excel»**: copia en tu
+hoja las filas (una por partido; pueden llevar delante el nº de partido o los equipos) y púlsalo. Se toman los tres últimos
+números de cada fila, con coma o punto decimal.
+
 ## Escrutinio
 
 ### ¿Cómo sé cuánto he acertado?

@@ -129,3 +129,30 @@ public enum CasosEsperanza {
         return ResultadoEsperanza(categorias: categorias, apuestas: apuestas, precio: p.precio)
     }
 }
+
+// Nuevo (DT-92, a petición del dueño): «Pegar desde Excel» en los editores de porcentajes (1 / X / 2).
+extension CasosUtilidades {
+    /// Filas de porcentajes copiadas de una hoja de cálculo: de cada línea cuentan sus **tres últimos números** (1, X y 2),
+    /// separados por tabuladores, punto y coma o espacios, con coma o punto decimal y con o sin «%». Así se pueden copiar
+    /// también las columnas del nº de partido o de los equipos. Las líneas con menos de tres números (encabezados, vacías)
+    /// se saltan; se devuelven como mucho `filas`.
+    public static func porcentajesPegados(_ texto: String, filas: Int) throws(ErrorDominio) -> [[Double]] {
+        var r: [[Double]] = []
+        for linea in texto.split(whereSeparator: \.isNewline) where r.count < filas {
+            let numeros = linea.split(whereSeparator: { $0 == "\t" || $0 == ";" || $0 == " " }).compactMap { t -> Double? in
+                let limpio = t.trimmingCharacters(in: .whitespaces).replacingOccurrences(of: "%", with: "")
+                return Double(limpio.replacingOccurrences(of: ",", with: "."))
+            }
+            guard numeros.count >= 3 else { continue }
+            let tres = Array(numeros.suffix(3))
+            guard tres.allSatisfy({ $0 >= 0 && $0.isFinite }) else {
+                throw ErrorDominio(.formato, "La fila «\(linea)» tiene un porcentaje no válido.")
+            }
+            r.append(tres)
+        }
+        guard !r.isEmpty else {
+            throw ErrorDominio(.formato, "No hay ninguna fila con tres porcentajes (1, X y 2) en lo copiado.")
+        }
+        return r
+    }
+}

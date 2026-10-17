@@ -121,7 +121,8 @@ Permite seleccionar un archivo de columnas que actúa como **base/filtro** de la
 
 ## 4. Flujo de trabajo paso a paso
 
-1. **Configura** el programa (`Free1x2 → Configuración`): precio de la apuesta, nº de partidos, etc.
+1. **Configura** el programa (`Free1x2 → Configuración`): precio de la apuesta, nº de partidos, etc. En la versión Mac el
+   precio de partida es **0,75 €** (Configuración ▸ Parámetros LAE ▸ Precio apuesta); cámbialo si la apuesta cuesta otra cosa.
 2. **Carga el boleto base** (equipos + pronóstico inicial de fijos/dobles/triples). **[Mac]** Los equipos de la jornada
    se cargan solos al abrir el programa (o con **Jornada ▾**), y el pronóstico puede salir de una **máscara** guardada
    (**Máscaras ▾**, ver §10).
@@ -226,6 +227,13 @@ Permite seleccionar un archivo de columnas que actúa como **base/filtro** de la
 | Banco de Pruebas | Simulador de escrutinios (ver §10). |
 | Compresor *.z3q | Comprime/descomprime archivos de columnas. |
 | EstuCol | Generador/analizador de columnas probables a partir de reducidas y ganadoras. |
+
+> **Pegar desde Excel [Mac]:** todas las tablas de porcentajes 1 / X / 2 (Esperanza matemática, Rentabilidad, Estimación
+> de premios, Valoración, Banco de pruebas…) tienen el botón **«Pegar desde Excel»**. Copia en tu hoja las filas de
+> porcentajes, una por partido, y púlsalo. De cada fila cuentan los **tres últimos números** (1, X y 2), así que puedes
+> copiar también las columnas del nº de partido o de los equipos. Valen tabuladores, punto y coma o espacios, coma o punto
+> decimal, y con o sin «%». Los encabezados y las filas vacías se saltan; si copias menos filas que partidos, el resto se
+> queda como estaba y el programa te lo dice.
 
 > **Otras herramientas** que no figuran en este menú: **Análisis de grupos**, **Reducciones perfectas** y **Dependencia lineal** (ver §10). En Windows están en la barra de herramientas (grupo Utilidades); en Mac, en el panel lateral (grupo Utilidades).
 
@@ -471,6 +479,7 @@ Predice acertantes y cuantía de cada premio. Lo básico: introducir las **valor
 - **Columna ganadora:** clic sobre cada casilla cicla `1 → X → 2 → 1`; cada cambio recalcula los premios.
 - **Resultados ("Previsión de premios"):** el nº de acertantes es entero salvo el de 14, que se muestra **decimal** porque cuando hay pocos acertantes interesa distinguir 1,1 de 1,8, o 0,3 de 0,9. Para acertantes **< 1**, el premio no supera el máximo que marcan la recaudación y el % asignado al 14.
 - **Recaudación / bote / % a premios:** ajustables; el bote solo afecta al 15 (no contemplado en la utilidad).
+- **Precio de la apuesta [Mac]:** arranca con el de **Configuración ▸ Parámetros LAE** y se puede cambiar para el cálculo.
 - **Escrutinio Real:** muestra los datos reales de la jornada (leídos del fichero de información de jornadas del L.A.E.); se pueden introducir/actualizar a mano y guardar con el botón del disquete asociándolos a la jornada del selector. Hay un enlace directo a la página oficial de resultados del L.A.E.
 
 ### Simulador de Escrutinios (Banco de Pruebas)
@@ -594,7 +603,8 @@ Datos que pide:
 - **Columna:** los 14 signos (`1`, `X` o `2`).
 - **Valoraciones:** los porcentajes de cada partido en dos pestañas. **Apostados** es lo que juega la gente (sirve para
   estimar cuántos acertantes habría); **Reales** es tu estimación de lo que va a pasar (sirve para la probabilidad de cada
-  resultado). Si una fila no suma 100, se toma sobre su suma.
+  resultado). Si una fila no suma 100, se toma sobre su suma. Con **«Pegar desde Excel»** se rellenan de una vez (ver la
+  nota de Utilidades).
 - **Jornada:** la **recaudación** y el **precio de la apuesta**. Las dos salen de **Configuración ▸ Parámetros LAE**, donde
   se guardan, y aquí se pueden cambiar para un cálculo. El número de apuestas es recaudación ÷ precio.
 - **Reparto del fondo:** el % de la recaudación para cada categoría. El selector trae dos repartos (el del Excel

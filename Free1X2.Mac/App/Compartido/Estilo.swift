@@ -308,30 +308,59 @@ struct CampoNumero: View {
 
 /// `PorcentajesControl` (10 §1.9): «Part. / 1 / X / 2», una fila por partido, `NumberBox` ≥ 0 sin máximo; alto máx. 260.
 struct PorcentajesGrid: View {
+    @Environment(Sesion.self) private var sesion
     @Binding var valores: [[Double]]
 
+    /// «Pegar desde Excel» (DT-92): rellena las filas desde el portapapeles (una fila por partido: 1, X y 2).
+    private func pegar() async {
+        guard let texto = await sesion.entorno.portapapeles.leerTexto(), !texto.isEmpty else {
+            return sesion.alertas.error("El portapapeles está vacío: copia antes en Excel las filas de porcentajes.")
+        }
+        do throws(ErrorDominio) {
+            let filas = try CasosUtilidades.porcentajesPegados(texto, filas: valores.count)
+            for (i, f) in filas.enumerated() { valores[i] = f }
+            if filas.count < valores.count {
+                sesion.alertas.info("Se pegaron \(filas.count) de \(valores.count) filas; el resto queda como estaba.")
+            }
+        } catch {
+            sesion.alertas.error(error)
+        }
+    }
+
     var body: some View {
-        ScrollView {
-            Grid(alignment: .trailing, horizontalSpacing: 6, verticalSpacing: 3) {
-                GridRow {
-                    Text("Part.")
-                    Text("1")
-                    Text("X")
-                    Text("2")
-                }
-                .font(.caption).foregroundStyle(Color.textoSecundario)
-                ForEach(valores.indices, id: \.self) { i in
+        VStack(alignment: .leading, spacing: 6) {
+            Button {
+                Task { await pegar() }
+            } label: {
+                Label("Pegar desde Excel", systemImage: "doc.on.clipboard")
+            }
+            .controlSize(.small)
+            .help(
+                "Copia en Excel las filas de porcentajes (una por partido: 1, X y 2; pueden llevar el partido o los equipos delante) y pulsa aquí."
+            )
+            .accessibilityIdentifier("pegar-porcentajes")
+            ScrollView {
+                Grid(alignment: .trailing, horizontalSpacing: 6, verticalSpacing: 3) {
                     GridRow {
-                        Text("\(i + 1)").monospacedDigit()
-                        ForEach(0..<3, id: \.self) { j in
-                            CampoNumero(etiqueta: "", valor: $valores[i][j], minimo: 0, ancho: 64).labelsHidden()
+                        Text("Part.")
+                        Text("1")
+                        Text("X")
+                        Text("2")
+                    }
+                    .font(.caption).foregroundStyle(Color.textoSecundario)
+                    ForEach(valores.indices, id: \.self) { i in
+                        GridRow {
+                            Text("\(i + 1)").monospacedDigit()
+                            ForEach(0..<3, id: \.self) { j in
+                                CampoNumero(etiqueta: "", valor: $valores[i][j], minimo: 0, ancho: 64).labelsHidden()
+                            }
                         }
                     }
                 }
+                .controlSize(.small)
             }
-            .controlSize(.small)
+            .frame(maxHeight: 260)
         }
-        .frame(maxHeight: 260)
     }
 }
 

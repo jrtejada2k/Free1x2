@@ -161,6 +161,8 @@ struct VistaEstimadorPremios: View {
             guard !cargado else { return }
             cargado = true
             temporada = CasosUtilidades.temporadaActual(sesion.entorno.reloj.ahora())
+            // DT-92 (dueño): el precio de partida es el de Configuración ▸ Parámetros LAE, no 0,50 fijo.
+            precio = sesion.configuracion.lae.precioApuesta
         }
     }
 }

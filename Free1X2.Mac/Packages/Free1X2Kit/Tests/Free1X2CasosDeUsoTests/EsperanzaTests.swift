@@ -86,3 +86,22 @@ struct EsperanzaTests {
         }
     }
 }
+
+/// DT-92: «Pegar desde Excel» en los editores de porcentajes.
+struct PegarPorcentajesTests {
+    /// Copia de Excel en español (tabuladores, coma decimal) con el partido y los equipos delante y un encabezado.
+    @Test func filasDeExcel() throws {
+        let texto =
+            "Part.\tPartido\t1\tX\t2\r\n1\tVILLARREAL-NAPOLI\t50,483\t29,487\t20,03\r\n"
+            + "7\tFEYENOORD-COMO 1907\t45\t30\t25\r\n\r\n3 ; 60% ; 25% ; 15%\n"
+        #expect(
+            try CasosUtilidades.porcentajesPegados(texto, filas: 14) == [[50.483, 29.487, 20.03], [45, 30, 25], [60, 25, 15]])
+        // Con punto decimal, separadas por espacios, y como mucho las filas pedidas.
+        #expect(try CasosUtilidades.porcentajesPegados("65.5 26 8.5\n8 16 76\n15 25 60", filas: 2) == [[65.5, 26, 8.5], [8, 16, 76]])
+    }
+
+    @Test func errores() {
+        #expect(throws: ErrorDominio.self) { try CasosUtilidades.porcentajesPegados("1 X 2\nhola", filas: 14) }
+        #expect(throws: ErrorDominio.self) { try CasosUtilidades.porcentajesPegados("50\t-10\t60", filas: 14) }
+    }
+}
