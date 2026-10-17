@@ -170,6 +170,50 @@ Misma forma que la jornada actual. Útil para revisar jornadas pasadas. No es ne
 
 ---
 
+## 4) Histórico de ganadoras — **propuesto** (lo pide la pantalla «Máscaras»)
+
+> **Estado:** la app Mac ya lo consume (`ServicioQuiniela.obtenerHistorico`, DT-84 de
+> `docs/mac/DECISIONES.md`); **falta crearlo en el servidor**. Mientras no exista, «Escrutar las
+> máscaras» muestra el error del servicio (404) y no hace nada más.
+
+```
+GET https://clubprogol.com/wp-json/clubprogol/v1/quiniela/{pais}/historico
+```
+
+Devuelve la **columna ganadora** (14 signos) de las jornadas pasadas con resultado completo, de la
+más reciente a la más antigua. La app escruta cada máscara guardada contra todas ellas y cuenta
+cuántas columnas habrían tenido 14, 13, 12, 11 y 10 aciertos.
+
+```json
+{
+  "pais": "ES",
+  "actualizado": "2026-10-16T10:00:00+00:00",
+  "resultados": [
+    { "jornada": 20261011, "temporada": "2026/27", "fecha": "2026-10-11", "ganadora": "1X21X1121X1X21" },
+    { "jornada": 20261004, "temporada": "2026/27", "fecha": "2026-10-04", "ganadora": "112X1211X1X221" }
+  ]
+}
+```
+
+| Campo | Tipo | Obligatorio | Regla |
+|-------|------|-------------|-------|
+| `resultados` | array | sí | puede venir vacío; sin él la respuesta se rechaza |
+| `resultados[].jornada` | entero | sí | mismo número que en `/actual` (en España, con la fecha pegada: `20261011`) |
+| `resultados[].ganadora` | texto | sí | **exactamente 14** caracteres `1`, `X` o `2` (la `x` minúscula se acepta); el pleno al 15 **no** va aquí |
+| `resultados[].fecha` | texto `AAAA-MM-DD` | no | solo informativo |
+| `pais`, `temporada`, `actualizado` | texto | no | solo informativos |
+
+- **Validación estricta:** si **una** ganadora no tiene 14 signos válidos, la app rechaza toda la
+  respuesta (prefiere avisar a escrutar con datos rotos). Omite las jornadas sin resultado completo
+  (partidos aplazados o anulados) en lugar de mandarlas con huecos.
+- **Origen sugerido:** las jornadas de `wp_cpg_progol` (`tipo = 'quiniela_es'` para `es`,
+  `tipo = 'progol'` para `mx`) **que tengan resultado**. Si la tabla no guarda el resultado de cada
+  partido, hay que añadirlo antes (columna o tabla de resultados).
+- **Tamaño:** 1000 jornadas ≈ 90 KB; sin paginación en la v1. Si crece mucho, añadir `?limite=N`
+  (la app no lo envía todavía).
+
+---
+
 ## Cómo lo consume la app
 
 1. Base URL **configurable** = **raíz del host** (en `parametros.free1x2` / configuración o vía la
