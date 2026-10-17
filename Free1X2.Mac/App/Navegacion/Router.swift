@@ -16,6 +16,9 @@ final class Router {
     /// `NavegarA(page)`: siempre apila (visor de análisis).
     func navegarSiempre(_ d: Destino) { pila.append(d) }
 
+    /// Panel lateral, smoke y capturas: `d` como raíz de la pila (Inicio = pila vacía).
+    func ir(_ d: Destino) { pila = d == .inicio ? [] : [d] }
+
     /// `GoBack` si se puede.
     func atras() {
         if !pila.isEmpty { pila.removeLast() }

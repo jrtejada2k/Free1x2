@@ -334,3 +334,29 @@ struct PorcentajesGrid: View {
         .frame(maxHeight: 260)
     }
 }
+
+/// `WrapPanel`: coloca las vistas en fila y salta de línea cuando no caben.
+struct Flujo: Layout {
+    var espacio: CGFloat = 0
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let filas = colocar(ancho: proposal.width ?? .infinity, subviews)
+        return CGSize(width: filas.map(\.maxX).max() ?? 0, height: filas.map(\.maxY).max() ?? 0)
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        for (v, r) in zip(subviews, colocar(ancho: bounds.width, subviews)) {
+            v.place(at: CGPoint(x: bounds.minX + r.minX, y: bounds.minY + r.minY), proposal: ProposedViewSize(r.size))
+        }
+    }
+
+    private func colocar(ancho: CGFloat, _ subviews: Subviews) -> [CGRect] {
+        var (x, y, alto) = (CGFloat(0), CGFloat(0), CGFloat(0))
+        return subviews.map { v in
+            let t = v.sizeThatFits(.unspecified)
+            if x > 0 && x + t.width > ancho { (x, y, alto) = (0, y + alto + espacio, 0) }
+            defer { (x, alto) = (x + t.width + espacio, max(alto, t.height)) }
+            return CGRect(origin: CGPoint(x: x, y: y), size: t)
+        }
+    }
+}

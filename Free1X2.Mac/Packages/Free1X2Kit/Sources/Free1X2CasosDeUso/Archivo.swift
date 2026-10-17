@@ -176,6 +176,23 @@ extension CasosArchivo {
         }
     }
 
+    /// Al arrancar (DT-83): la jornada actual de `pais` si llega antes de `limite`; si tarda, falla o no hay red, `nil` sin
+    /// aviso ni caché (el boleto se queda en blanco). Al vencer el plazo cancela la descarga.
+    public static func jornadaAlArrancar(
+        _ pais: PaisQuiniela, servicio: ServicioQuiniela, limite: Duration = .seconds(3)
+    ) async -> JornadaQuiniela? {
+        await withTaskGroup(of: JornadaQuiniela?.self) { g in
+            g.addTask { try? await servicio.obtenerJornada(pais: pais.rawValue).jornada }
+            g.addTask {
+                try? await Task.sleep(for: limite)
+                return nil
+            }
+            let primera = await g.next() ?? nil
+            g.cancelAll()
+            return primera
+        }
+    }
+
     /// «Local - Visitante» de los `n` primeros partidos de la jornada; el 15º es el pleno (DT-81: el C# no rellena Inicio).
     public static func equiposDeJornada(_ j: JornadaQuiniela, partidos n: Int) -> [String] {
         (j.partidos + (j.pleno15.map { [$0] } ?? [])).prefix(n).map {

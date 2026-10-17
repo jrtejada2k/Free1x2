@@ -1,17 +1,29 @@
 import AppKit
+import Free1X2CasosDeUso
 import SwiftUI
 
-/// Contenido de la ventana: pila de páginas sobre Inicio, barra, alertas y `Esc` = atrás (ESPEC_15 §2).
+/// Contenido de la ventana: panel lateral, pila de páginas sobre Inicio, barra de la ventana, alertas y `Esc` = atrás
+/// (ESPEC_15 §2; DT-82).
 struct Raiz: View {
     @Environment(Sesion.self) private var sesion
 
     var body: some View {
         @Bindable var router = sesion.router
         let alertas = sesion.alertas
-        VStack(spacing: 0) {
-            BarraHerramientas(sesion: sesion)
+        NavigationSplitView {
+            PanelLateral()
+        } detail: {
             NavigationStack(path: $router.pila) {
                 VistaInicio().navigationDestination(for: Destino.self) { VistaDestino(destino: $0) }
+            }
+            .toolbar {
+                // Las acciones de siempre, con texto; cada pantalla añade las suyas (Inicio: Calcular, Reducir, Jornada).
+                ToolbarItemGroup(placement: .primaryAction) {
+                    accion("Nueva", "doc.badge.plus", "Nueva combinación", .nuevaCombinacion)
+                    accion("Abrir", "folder", "Abrir combinación", .abrirCombinacion)
+                    accion("Guardar", "square.and.arrow.down", "Guardar combinación", .guardarCombinacion)
+                    accion("Escrutinio", "checklist", "Escrutinio", .navegar(.escrutinios))
+                }
             }
         }
         .tint(Color.acento)
@@ -31,9 +43,6 @@ struct Raiz: View {
         } message: { a in
             Text(a.mensaje)
         }
-        .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { _ in
-            sesion.guardarBarras()
-        }
         .task {
             sesion.aplicarTema()
             if CommandLine.arguments.contains("-smoke") { await Smoke.ejecutar(sesion) }
@@ -41,7 +50,25 @@ struct Raiz: View {
             if let i = args.firstIndex(of: "-captura"), i + 1 < args.count {
                 await Captura.ejecutar(sesion, en: URL(filePath: args[i + 1]))
             }
+            // DT-83: la jornada actual al arrancar, 3 s como mucho; si no llega, el boleto queda en blanco y sin aviso. No
+            // pisa lo que el usuario haya escrito o abierto mientras tanto.
+            let pais = CasosArchivo.paisInicial(entorno: sesion.entorno)
+            if let j = await CasosArchivo.jornadaAlArrancar(pais, servicio: sesion.servicioOnline),
+                (sesion.locales + sesion.visitantes).allSatisfy(\.isEmpty)
+            {
+                sesion.cargarJornada(j)
+            }
         }
+    }
+
+    /// Botón de la barra con icono y texto; `nombre` es el accesible (el de los menús).
+    private func accion(_ titulo: String, _ simbolo: String, _ nombre: String, _ c: Comando) -> some View {
+        Button {
+            sesion.ejecutar(c)
+        } label: {
+            Label(titulo, systemImage: simbolo)
+        }
+        .labelStyle(.titleAndIcon).help(nombre).accessibilityLabel(nombre)
     }
 }
 
@@ -53,7 +80,7 @@ enum Smoke {
         var texto = "SMOKE START\n"
         var ok = 0
         for d in Destino.allCases {
-            sesion.router.pila = d == .inicio ? [] : [d]
+            sesion.router.ir(d)
             try? await Task.sleep(for: .milliseconds(120))
             ok += 1
             texto += "OK \(d.clase)\n"
@@ -72,7 +99,7 @@ enum Captura {
         try? await Task.sleep(for: .seconds(1))
         let todas = CommandLine.arguments.contains("-todas")
         for d in todas ? Destino.allCases : [.inicio, .noVariantes, .calculaColumnas, .escrutinios, .tramificar] {
-            sesion.router.pila = d == .inicio ? [] : [d]
+            sesion.router.ir(d)
             try? await Task.sleep(for: .milliseconds(800))
             guard let vista = NSApp.windows.first(where: \.isVisible)?.contentView?.superview,
                 let rep = vista.bitmapImageRepForCachingDisplay(in: vista.bounds)

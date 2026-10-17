@@ -47,6 +47,32 @@ struct EquiposTests {
         #expect(nada.jornada == nil && nada.mensaje.hasSuffix(" El boleto sigue en modo manual."))
     }
 
+    /// Cliente que no contesta nunca (hasta que lo cancelan).
+    struct ClienteMudo: ClienteHTTP {
+        func datos(para peticion: URLRequest) async throws -> (Data, HTTPURLResponse) {
+            try await Task.sleep(for: .seconds(60))
+            throw URLError(.timedOut)
+        }
+    }
+
+    /// DT-83: al arrancar, la jornada si llega a tiempo; lenta o con error ⇒ `nil` sin usar la caché, y sin esperar de más.
+    @Test func jornadaAlArrancar() async throws {
+        let json = try Golden.bytes("Fixtures/online/real-es.json")
+        let url = try #require(URL(string: "https://clubprogol.com/wp-json/clubprogol/v1/quiniela/es/actual"))
+        let conRed = Entorno.pruebas(red: ClienteHTTPGrabado(respuestas: [url: .init(cuerpo: json)]))
+        let ok = await CasosArchivo.jornadaAlArrancar(.es, servicio: CasosArchivo.servicioOnline(entorno: conRed))
+        #expect(ok?.jornada == 20_260_621 && ok?.partidos.first?.local == "Estados Unidos")
+
+        let cache = CacheJornada(archivos: conRed.archivos, carpeta: conRed.rutas.base, registro: conRed.registro)  // ya guardada
+        let lento = ServicioQuiniela(red: ClienteMudo(), reloj: conRed.reloj, cache: cache)
+        let inicio = ContinuousClock.now
+        let nada = await CasosArchivo.jornadaAlArrancar(.es, servicio: lento, limite: .milliseconds(200))
+        #expect(nada == nil && ContinuousClock.now - inicio < .seconds(5))
+
+        let error = Entorno.pruebas(red: ClienteHTTPGrabado(respuestas: [url: .init(estado: 500)]))
+        #expect(await CasosArchivo.jornadaAlArrancar(.es, servicio: CasosArchivo.servicioOnline(entorno: error)) == nil)
+    }
+
     /// DT-81: los nombres del boleto salen de la jornada real del backend; el 15º es el pleno (si lo hay).
     @Test func equiposDeJornadaReal() throws {
         func jornada(_ p: String) throws -> JornadaQuiniela {

@@ -47,15 +47,6 @@ struct Menus: Commands {
             item("Estadísticas…", .anastatics)
             item("Configuración…", .configuracion)
             Divider()
-            Menu("Barras de herramientas") {
-                ForEach(GrupoBarra.ordenMenu, id: \.self) { g in
-                    Toggle(
-                        g.nombre,
-                        isOn: Binding(
-                            get: { sesion.barras[safe: g.indiceFichero] ?? true },
-                            set: { if sesion.barras.indices.contains(g.indiceFichero) { sesion.barras[g.indiceFichero] = $0 } }))
-                }
-            }
             item("Listado de condiciones", .listadoCondiciones)
             Divider()
             Picker("Tema", selection: Binding(get: { sesion.tema }, set: { sesion.tema = $0 })) {

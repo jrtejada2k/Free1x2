@@ -34,7 +34,6 @@ final class Sesion {
     var grupoEnEdicion = 0
     /// `AppState.UsarAnalizadorCompartido`: «Calcular» desde Inicio usa la combinación en pantalla.
     var usarCombinacionCompartida = false
-    var barras: [Bool]
     /// `VisorEstadisticasViewModel.UltimasEstadisticas` (no se borra al leerla).
     var ultimasEstadisticas: [Estadistica]?
     /// `FigurasFiltrosFrmViewModel.FigurasEnEdicion`/`NombreCondicion` (DT-58: copia; `resultado` al aceptar).
@@ -94,7 +93,6 @@ final class Sesion {
         combinacion = Combinacion(numeroPartidos: n)
         locales = Array(repeating: "", count: n)
         visitantes = Array(repeating: "", count: n)
-        barras = CasosInicio.leerBarrasVisibles(inicial.configuracion)
     }
 
     func aplicarTema() {
@@ -215,15 +213,6 @@ final class Sesion {
         try CasosInicio.guardarCombinacion(
             combinacion, equipos: equipos, filtroColumnas: archivoFiltroCols, en: destino, entorno: entorno)
         rutaCombinacion = destino
-    }
-
-    /// Al cerrar la ventana (`GuardarBarrasHerramientas`): un fallo solo se registra.
-    func guardarBarras() {
-        do throws(ErrorDominio) {
-            try CasosInicio.guardarBarrasVisibles(barras, entorno: entorno)
-        } catch {
-            entorno.registro.registrar("GuardarToolBarsVisibles: \(error.mensajeUsuario)", nivel: .error)
-        }
     }
 }
 

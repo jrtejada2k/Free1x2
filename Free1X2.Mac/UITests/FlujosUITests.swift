@@ -10,7 +10,8 @@ final class FlujosUITests: XCTestCase {
         let carpeta =
             datos ?? FileManager.default.temporaryDirectory.appending(path: "Free1X2UI-\(UUID().uuidString)").path(percentEncoded: false)
         app.launchArguments = ["-datos", carpeta, "-tema", "Claro"]
-        app.launchEnvironment = entorno
+        // Sin red por defecto (DT-83): la jornada del arranque no llega y el boleto empieza en blanco, como en la CI de siempre.
+        app.launchEnvironment = ["FREE1X2_API_BASE": "http://127.0.0.1:9"].merging(entorno) { $1 }
         app.launch()
         return app
     }
@@ -24,8 +25,24 @@ final class FlujosUITests: XCTestCase {
     /// Desplaza la página hasta que `e` se pueda pulsar (en macOS XCUITest no desplaza solo).
     @MainActor private func pulsar(_ app: XCUIApplication, _ e: XCUIElement) {
         XCTAssertTrue(e.waitForExistence(timeout: 10))
-        for _ in 0..<10 where !e.isHittable { app.scrollViews.firstMatch.scroll(byDeltaX: 0, deltaY: -300) }
+        // La zona de la página, no la del panel lateral: la más estrecha que está encima del control.
+        let x = e.frame.midX
+        let zona = app.scrollViews.allElementsBoundByIndex.filter { $0.frame.minX <= x && x <= $0.frame.maxX }
+            .min { $0.frame.width < $1.frame.width }
+        for _ in 0..<10 where !e.isHittable { zona?.scroll(byDeltaX: 0, deltaY: -300) }
         e.click()
+    }
+
+    /// Panel lateral (DT-82): escribe `texto` en el buscador y pulsa la fila `lateral-<destino>`.
+    @MainActor private func ir(_ app: XCUIApplication, _ texto: String, _ destino: String) {
+        let buscar = app.searchFields.firstMatch
+        XCTAssertTrue(buscar.waitForExistence(timeout: 10))
+        buscar.click()
+        buscar.typeKey("a", modifierFlags: .command)
+        buscar.typeText(texto)
+        let fila = app.descendants(matching: .any)["lateral-\(destino)"].firstMatch
+        XCTAssertTrue(fila.waitForExistence(timeout: 5), destino)
+        fila.click()
     }
 
     /// Espera un aviso (`.alert` de SwiftUI: hoja o diálogo según la versión) y lo acepta con Return (su botón por defecto).
@@ -137,43 +154,41 @@ final class FlujosUITests: XCTestCase {
     @MainActor func testF44ConfiguracionPersiste() {
         let datos = FileManager.default.temporaryDirectory.appending(path: "Free1X2UI-\(UUID().uuidString)").path(percentEncoded: false)
         var app = lanzar(datos: datos)
-        app.buttons["Configuración"].firstMatch.click()
+        ir(app, "Configuración", "configuracion")
         let fijos = app.textFields["Fijos"]
         XCTAssertTrue(fijos.waitForExistence(timeout: 10))
         XCTAssertEqual(fijos.value as? String, "6")
         fijos.doubleClick()
         fijos.typeKey("a", modifierFlags: .command)
         fijos.typeText("7\r")
-        pulsar(app, app.buttons["Guardar"])
+        pulsar(app, app.scrollViews.buttons["Guardar"].firstMatch)
         // Aviso «Configuración guardada»: «Aceptar» es su botón por defecto (el de la Touch Bar no se puede pulsar).
         XCTAssertTrue(aceptarAviso(app), "se esperaba «Configuración guardada»")
         salir(app)
         app = lanzar(datos: datos)
         defer { app.terminate() }
-        app.buttons["Configuración"].firstMatch.click()
+        ir(app, "Configuración", "configuracion")
         XCTAssertTrue(app.textFields["Fijos"].waitForExistence(timeout: 10))
         XCTAssertEqual(app.textFields["Fijos"].value as? String, "7")
     }
 
-    /// F45: ocultar la barra «Utilidades» y reabrir: sigue oculta (se guarda en `parametros.free1x2` al salir).
-    @MainActor func testF45BarrasPersisten() {
-        let datos = FileManager.default.temporaryDirectory.appending(path: "Free1X2UI-\(UUID().uuidString)").path(percentEncoded: false)
-        var app = lanzar(datos: datos)
-        XCTAssertTrue(app.buttons["Tramificar"].waitForExistence(timeout: 10))
-        menu(app, "Barras de herramientas", "Utilidades")
-        XCTAssertFalse(app.buttons["Tramificar"].waitForExistence(timeout: 3))
-        salir(app)
-        app = lanzar(datos: datos)
+    /// F45 (DT-82): el buscador del panel lateral no distingue tildes ni mayúsculas y la fila abre su pantalla; Inicio vuelve.
+    @MainActor func testF45PanelLateral() {
+        let app = lanzar()
         defer { app.terminate() }
-        XCTAssertTrue(app.buttons["Configuración"].firstMatch.waitForExistence(timeout: 10))
-        XCTAssertFalse(app.buttons["Tramificar"].exists)
+        ir(app, "algebra", "algebraColumnas")
+        XCTAssertFalse(app.descendants(matching: .any)["lateral-tramificar"].exists)
+        let titulo = { (t: String) in NSPredicate { _, _ in app.windows.firstMatch.title.hasPrefix(t) } }
+        wait(for: [XCTNSPredicateExpectation(predicate: titulo("Álgebra"), object: nil)], timeout: 10)
+        ir(app, "inicio", "inicio")
+        wait(for: [XCTNSPredicateExpectation(predicate: titulo("Free1X2"), object: nil)], timeout: 10)
     }
 
     /// F46: con el idioma en inglés, Créditos se muestra en inglés (solo esa pantalla está traducida, DP-07).
     @MainActor func testF46Idioma() {
         let app = lanzar()
         defer { app.terminate() }
-        XCTAssertTrue(app.buttons["Configuración"].firstMatch.waitForExistence(timeout: 10))
+        XCTAssertTrue(app.searchFields.firstMatch.waitForExistence(timeout: 10))
         menu(app, "Idioma", "English")
         menu(app, "Créditos…")
         XCTAssertTrue(app.staticTexts["Free1X2 Team"].waitForExistence(timeout: 10))
@@ -217,7 +232,7 @@ final class FlujosUITests: XCTestCase {
         let carpeta = (entrada as NSString).deletingLastPathComponent
         let app = lanzar()
         defer { app.terminate() }
-        app.buttons["Reducir"].firstMatch.click()
+        app.buttons["Reducir columnas"].firstMatch.click()
         let elegir = app.buttons["Archivo entrada"]
         XCTAssertTrue(elegir.waitForExistence(timeout: 10))
         elegir.click()
@@ -263,7 +278,7 @@ final class FlujosUITests: XCTestCase {
         let datos = FileManager.default.temporaryDirectory.appending(path: "Free1X2UI-\(UUID().uuidString)").path(percentEncoded: false)
         let app = lanzar(datos: datos)
         defer { app.terminate() }
-        app.buttons["Gestión de Equipos"].firstMatch.click()
+        ir(app, "gestion", "gestorEquipos")
         let nombre = app.textFields["equipo-nombre"]
         XCTAssertTrue(nombre.waitForExistence(timeout: 10))
         nombre.click()

@@ -4,6 +4,7 @@ import SwiftUI
 /// Inicio (`MainPage`, plantilla T0; `MainPageViewModel.cs`, `BoletoBaseControl`).
 struct VistaInicio: View {
     @Environment(Sesion.self) private var sesion
+    @State private var descargando = false
 
     /// Título, filtro, destino e icono (los glifos de `CondicionItem.Glifo` en SF Symbols).
     static let izquierda: [(String, TipoFiltro, Destino, String)] = [
@@ -37,6 +38,40 @@ struct VistaInicio: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .background(Color.fondo)
         .navigationTitle("Free1X2")
+        .navigationSubtitle(sesion.rutaCombinacion.map { $0.deletingPathExtension().lastPathComponent } ?? "Combinación nueva")
+        .toolbar {
+            // Las acciones propias de Inicio (DT-82); Nueva, Abrir y Guardar están en la barra de todas las pantallas.
+            ToolbarItemGroup(placement: .primaryAction) {
+                Button(action: calcular) { Label("Calcular", systemImage: "function") }
+                    .labelStyle(.titleAndIcon).help("Calcular las columnas del boleto").accessibilityLabel("Calcular columnas")
+                Button {
+                    sesion.volcarPronosticos()
+                    sesion.router.navegar(.reductor)
+                } label: {
+                    Label("Reducir", systemImage: "arrow.down.right.and.arrow.up.left")
+                }
+                .labelStyle(.titleAndIcon).help("Reducir las columnas del boleto").accessibilityLabel("Reducir columnas")
+                Menu {
+                    Button("España") { Task { await cargarJornada(.es) } }
+                    Button("México") { Task { await cargarJornada(.mx) } }
+                } label: {
+                    Label("Jornada", systemImage: "calendar")
+                }
+                .labelStyle(.titleAndIcon).disabled(descargando)
+                .help("Cargar los equipos de la jornada actual").accessibilityIdentifier("cargar-jornada")
+            }
+        }
+    }
+
+    /// Equipos de la jornada actual del país (DT-81); sin red usa la guardada, como «Descarga de boleto».
+    private func cargarJornada(_ pais: PaisQuiniela) async {
+        guard !descargando else { return }
+        descargando = true
+        defer { descargando = false }
+        let r = await CasosArchivo.descargarJornada(pais, servicio: sesion.servicioOnline, entorno: sesion.entorno)
+        guard let j = r.jornada else { return sesion.alertas.error(r.mensaje) }
+        sesion.cargarJornada(j)
+        sesion.alertas.info(r.mensaje)
     }
 
     private var estado: EstadoCondiciones { CasosInicio.estadoDeCondiciones(sesion.combinacion, grupo: sesion.grupoActual) }
@@ -116,27 +151,6 @@ struct VistaInicio: View {
                     Spacer()
                     Button("Seleccionar…") { Task { await filtroParcial() } }
                         .accessibilityLabel("Seleccionar el filtro parcial del grupo")
-                }
-            }
-            Tarjeta {
-                HStack {
-                    Text("Combinación").font(.headline).foregroundStyle(Color.acento)
-                    Spacer()
-                    Text(sesion.rutaCombinacion.map { $0.deletingPathExtension().lastPathComponent } ?? "(combinación nueva)")
-                        .font(.callout).foregroundStyle(Color.textoSecundario)
-                }
-                .bandaTarjeta()
-                HStack {
-                    Button("Calcular") { calcular() }.buttonStyle(EstiloPrincipal())
-                        .accessibilityLabel("Calcular columnas")
-                    Button("Reducir") {
-                        sesion.volcarPronosticos()
-                        sesion.router.navegar(.reductor)
-                    }
-                    .accessibilityLabel("Reducir columnas")
-                    Button("Nueva") { sesion.ejecutar(.nuevaCombinacion) }.accessibilityLabel("Nueva combinación")
-                    Button("Abrir…") { sesion.ejecutar(.abrirCombinacion) }.accessibilityLabel("Abrir combinación")
-                    Button("Guardar…") { sesion.ejecutar(.guardarCombinacion) }.accessibilityLabel("Guardar combinación")
                 }
             }
         }
@@ -231,19 +245,6 @@ struct VistaInicio: View {
 /// `BoletoBaseControl`: título, resumen, reinicio y una fila por partido.
 struct BoletoBaseView: View {
     @Environment(Sesion.self) private var sesion
-    @State private var descargando = false
-
-    /// Equipos de la jornada actual del país (DT-81); sin red usa la guardada, como «Descarga de boleto».
-    private func cargarJornada(_ pais: PaisQuiniela) async {
-        guard !descargando else { return }
-        descargando = true
-        defer { descargando = false }
-        let r = await CasosArchivo.descargarJornada(pais, servicio: sesion.servicioOnline, entorno: sesion.entorno)
-        guard let j = r.jornada else { return sesion.alertas.error(r.mensaje) }
-        sesion.cargarJornada(j)
-        sesion.alertas.info(r.mensaje)
-    }
-
     var body: some View {
         @Bindable var s = sesion
         let marcados = (0..<sesion.numeroPartidos).map { sesion.signos($0).filter { $0 }.count }
@@ -256,13 +257,6 @@ struct BoletoBaseView: View {
                     "Fijos: \(marcados.filter { $0 == 1 }.count) - Dobles: \(marcados.filter { $0 == 2 }.count) - Triples: \(marcados.filter { $0 == 3 }.count)"
                 )
                 .font(.callout).foregroundStyle(Color.textoSecundario)
-                Menu("Jornada") {
-                    Button("España") { Task { await cargarJornada(.es) } }
-                    Button("México") { Task { await cargarJornada(.mx) } }
-                }
-                .fixedSize().disabled(descargando)
-                .help("Cargar los equipos de la jornada actual")
-                .accessibilityIdentifier("cargar-jornada")
                 Button {
                     sesion.reiniciarTriples()
                 } label: {

@@ -163,11 +163,12 @@ ficheros reales en carpeta temporal), U = XCUITest, M = manual del dueño.
 | F42 | Sin red | mensaje «No se pudo contactar…», la app sigue | I |
 | F43 | Gestión de equipos / Añadir equipo | alta en 1.ª ▸ Guardar ▸ reiniciar ⇒ presente en `equipos1.dat` (Latin-1, JD-12) | I, U |
 | F44 | Configuración y Configurar análisis | cambiar «Fijos» 6→7 ▸ Guardar ▸ reiniciar ⇒ 7 en `parametros.free1x2` | I, U |
-| F45 | Barras de herramientas | ocultar «Utilidades» ▸ reiniciar ⇒ oculta | U |
+| F45 | Panel lateral (DT-82) | buscar «algebra» ⇒ solo «Álgebra de columnas»; pulsarla la abre; «Inicio» vuelve | U |
 | F46 | Tema e idioma | Claro/Oscuro/Sistema; inglés solo en Créditos | U |
 | F47 | Borrar temporales / informes | confirmación; carpetas vacías | I |
 | F48 | Errores | abrir JD-04 en Escrutinios, un `.comb` truncado y un `.z3q` corrupto ⇒ mensaje, sin cierre | I, U |
 | F49 | Cargar jornada en Inicio | «Jornada» ▸ España ⇒ local y visitante de los 14 partidos con los de la jornada (sin red, la guardada) | I, U |
+| F50 | Jornada al arrancar (DT-83) | con red ⇒ boleto con los equipos de la jornada; sin red o > 3 s ⇒ en blanco y sin aviso | I, manual |
 
 ## 5. Cómo se ejecuta
 
@@ -297,11 +298,12 @@ Leyenda: **I** = `Tests/Free1X2CasosDeUsoTests/FlujosTests.swift` (ficheros real
 | F41–F42 online | I `f41f42Online`; N4 `EquiposTests`; N1 `OnlineTests` | ✔ |
 | F43 equipos | I `f43Equipos` (Latin-1); U `testF43EquipoPersiste` | ✔ |
 | F44 configuración | I `f44Configuracion`; U `testF44ConfiguracionPersiste` | ✔ |
-| F45 barras | U `testF45BarrasPersisten` | ✔ |
+| F45 panel lateral | U `testF45PanelLateral` | pendiente CI |
 | F46 tema e idioma | U `testF46Idioma` | ✔ |
 | F47 borrar temporales | I `f47BorrarTemporales` | ✔ |
 | F48 errores | I `f48Errores`; U `testF48CombinacionCorrupta` | ✔ |
 | F49 cargar jornada | N4 `equiposDeJornadaReal` (capturas reales ES con pleno y MX); U `testF49CargarJornada` | ✔ |
+| F50 jornada al arrancar | N4 `jornadaAlArrancar` (a tiempo, lenta, error 500); comprobado en la app con la API real (Villarreal - Nápoles) y sin red (en blanco) | ✔ |
 
 **CI:** run 38970416309 verde: 258 tests del paquete, cobertura de casos de uso 88,3 % y **16 tests de UI** (con F49).
 
