@@ -29,7 +29,8 @@
                     <ItemsControl ItemsSource="{x:Bind ViewModel.Casillas}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <StackPanel Orientation="Horizontal" />
+                                <!-- W8: con el panel lateral no caben en una fila; saltan a la siguiente. -->
+                                <VariableSizedWrapGrid Orientation="Horizontal" />
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>

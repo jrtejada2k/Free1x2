@@ -59,4 +59,24 @@ public sealed partial class MainPage : Page
         ViewModel.Desactivar();
         base.OnNavigatedFrom(e);
     }
+
+    // W8 (DT-82): con el panel lateral abierto, Inicio puede quedar estrecho. Como la app Mac
+    // (ViewThatFits): condiciones y botones en dos columnas si los nombres caben enteros; si no,
+    // en una (primero la columna izquierda y debajo la derecha, sin cambiar el orden).
+    private const double AnchoDosColumnas = 330;
+
+    private void Adaptables_SizeChanged(object sender, Microsoft.UI.Xaml.SizeChangedEventArgs e)
+    {
+        if (sender is not Grid g) return;
+        bool unaColumna = e.NewSize.Width < AnchoDosColumnas;
+        Microsoft.UI.Xaml.FrameworkElement segundo = g == GridCondiciones ? CondicionesDer : BotonIfThen;
+
+        Grid.SetColumn(segundo, unaColumna ? 0 : 1);
+        Grid.SetRow(segundo, unaColumna ? 1 : 0);
+        g.ColumnDefinitions[1].Width = unaColumna
+            ? new Microsoft.UI.Xaml.GridLength(0)
+            : new Microsoft.UI.Xaml.GridLength(1, Microsoft.UI.Xaml.GridUnitType.Star);
+        g.ColumnSpacing = unaColumna ? 0 : (g == GridCondiciones ? 8 : 10);
+        g.RowSpacing = unaColumna && g != GridCondiciones ? 4 : 0;
+    }
 }

@@ -22,7 +22,7 @@
              lugar de los 55 iconos que solo decían su función en un tooltip. Plegable. -->
         <muxc:NavigationView x:Name="PanelLateral" Grid.Row="1"
                              PaneDisplayMode="Left"
-                             OpenPaneLength="240"
+                             OpenPaneLength="256"
                              IsBackButtonVisible="Collapsed"
                              IsSettingsVisible="False"
                              IsTitleBarAutoPaddingEnabled="False"

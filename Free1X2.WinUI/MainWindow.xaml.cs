@@ -541,6 +541,7 @@ public sealed partial class MainWindow : Window
             {
                 var item = new NavigationViewItem { Content = e.Titulo, Tag = e, Icon = IconoLateral(e.Icono) };
                 Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(item, e.Titulo);
+                ToolTipService.SetToolTip(item, e.Titulo); // por si el nombre no cabe en el panel
                 PanelLateral.MenuItems.Add(item);
             }
         }
