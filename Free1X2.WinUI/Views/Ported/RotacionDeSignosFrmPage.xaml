@@ -3,6 +3,8 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:Free1X2.WinUI.Views.Ported"
+    xmlns:controls="using:Free1X2.WinUI.Controls"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     Background="{StaticResource AppBackgroundBrush}">
 
     <Grid>
@@ -70,6 +72,86 @@
                         </StackPanel>
                     </StackPanel>
                 </Border>
+
+                <!-- W3 (C2, DT-79): paneles «% COMBINACIÓN» y «Valoraciones JORNADA» del legacy -->
+                <Grid ColumnSpacing="6">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Style="{StaticResource AppCardStyle}">
+                        <StackPanel Spacing="5">
+                            <TextBlock Text="% Combinación" Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                            <TextBlock
+                                Text="Frecuencia de cada signo en las columnas de la entrada."
+                                Style="{StaticResource CaptionTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextSecondaryBrush}"
+                                TextWrapping="Wrap" />
+                            <TextBlock
+                                Text="Elige un fichero de entrada."
+                                Style="{StaticResource SecondaryTextBlockStyle}"
+                                Visibility="{x:Bind ViewModel.SinPorcentajes, Mode=OneWay}" />
+                            <StackPanel Visibility="{x:Bind ViewModel.HayPorcentajes, Mode=OneWay}" Spacing="2">
+                                <Grid ColumnSpacing="8" Padding="4,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="56" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Part." FontWeight="SemiBold" />
+                                    <TextBlock Grid.Column="1" Text="1" FontWeight="SemiBold" HorizontalAlignment="Center" />
+                                    <TextBlock Grid.Column="2" Text="X" FontWeight="SemiBold" HorizontalAlignment="Center" />
+                                    <TextBlock Grid.Column="3" Text="2" FontWeight="SemiBold" HorizontalAlignment="Center" />
+                                </Grid>
+                                <muxc:ItemsRepeater ItemsSource="{x:Bind ViewModel.PorcentajesCombinacion}">
+                                    <muxc:ItemsRepeater.Layout>
+                                        <muxc:StackLayout Spacing="2" />
+                                    </muxc:ItemsRepeater.Layout>
+                                    <muxc:ItemsRepeater.ItemTemplate>
+                                        <DataTemplate x:DataType="controls:FilaPorcentaje">
+                                            <Grid ColumnSpacing="8" Padding="4,0">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="56" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Column="0" Text="{x:Bind Partido}" />
+                                                <TextBlock Grid.Column="1" Text="{x:Bind Uno}" HorizontalAlignment="Center" />
+                                                <TextBlock Grid.Column="2" Text="{x:Bind Equis}" HorizontalAlignment="Center" />
+                                                <TextBlock Grid.Column="3" Text="{x:Bind Dos}" HorizontalAlignment="Center" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </muxc:ItemsRepeater.ItemTemplate>
+                                </muxc:ItemsRepeater>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="1" Style="{StaticResource AppCardStyle}">
+                        <StackPanel Spacing="5">
+                            <TextBlock Text="Valoraciones jornada" Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                            <TextBlock
+                                Text="Al cambiarlas se propone la rotación de cada partido."
+                                Style="{StaticResource CaptionTextBlockStyle}"
+                                Foreground="{ThemeResource AppTextSecondaryBrush}"
+                                TextWrapping="Wrap" />
+                            <controls:PorcentajesControl Filas="{x:Bind ViewModel.ValoracionJornada}" />
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Button
+                                    Content="Abrir valoración…"
+                                    Command="{x:Bind ViewModel.AbrirValoracionCommand}"
+                                    AutomationProperties.Name="Abrir valoración de la jornada" />
+                                <Button
+                                    Content="Transposición automática"
+                                    Command="{x:Bind ViewModel.TransposicionAutomaticaCommand}"
+                                    AutomationProperties.Name="Transposición automática" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </Grid>
 
                 <!-- Cambios de signo -->
                 <Border Style="{StaticResource AppCardStyle}">
@@ -156,10 +238,6 @@
                             Content="Transponer"
                             Command="{x:Bind ViewModel.TransponerCommand}"
                             AutomationProperties.Name="Transponer cambios de signo" />
-                        <TextBlock
-                            Text="Nota: las valoraciones de JORNADA y COMBINACIÓN (ControlPorcentajes legacy) se portarán como control propio en una fase posterior."
-                            Style="{StaticResource SecondaryTextBlockStyle}"
-                            TextWrapping="Wrap" />
                     </StackPanel>
                 </Border>
 

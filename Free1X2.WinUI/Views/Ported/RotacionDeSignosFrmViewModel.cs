@@ -3,12 +3,17 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Free1X2.Analisis;
 using Free1X2.EntradaSalida;
 using Free1X2.Utils;
+using Free1X2.WinUI.Controls;
 using Free1X2.WinUI.Services;
 using Windows.Storage.Pickers;
 
@@ -53,6 +58,11 @@ namespace Free1X2.WinUI.Views.Ported
         {
             // Legacy: partidos por defecto = 14 hasta que se elige un fichero de entrada.
             ReconstruirFilas(NumeroPartidos);
+
+            // «Valoraciones JORNADA»: al cambiar cualquier valor se propone la rotación
+            // (legacy controlPorcentajesJornada_Modificado -> PropuestaAutomatica).
+            ValoracionJornada.CollectionChanged += OnJornadaColeccionCambiada;
+            PorcentajesHelper.CargarMatriz(ValoracionJornada, new double[NumeroPartidos, 3]);
         }
 
         private const int NumeroPartidos = 14;
@@ -96,6 +106,24 @@ namespace Free1X2.WinUI.Views.Ported
 
         public ObservableCollection<FilaRotacionViewModel> Filas { get; } = new();
 
+        // W3 (C2, DT-79): paneles del legacy recuperados.
+        // «% COMBINACIÓN»: frecuencia de cada signo en las columnas de la entrada (solo lectura).
+        public ObservableCollection<FilaPorcentaje> PorcentajesCombinacion { get; } = new();
+
+        // «Valoraciones JORNADA»: la escribe o abre el usuario.
+        public ObservableCollection<FilaPorcentaje> ValoracionJornada { get; } = new();
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(SinPorcentajes))]
+        [NotifyCanExecuteChangedFor(nameof(TransposicionAutomaticaCommand))]
+        private bool _hayPorcentajes;
+
+        public bool SinPorcentajes => !HayPorcentajes;
+
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(TransposicionAutomaticaCommand))]
+        private bool _ocupado;
+
         [RelayCommand]
         private async Task SeleccionarEntrada()
         {
@@ -103,7 +131,15 @@ namespace Free1X2.WinUI.Views.Ported
             var file = await PickerHelper.AbrirAsync(".txt");
             if (file == null) return;
 
-            _archivoEntrada = file.Path;
+            await LeerEntradaAsync(file.Path);
+        }
+
+        /// <summary>
+        /// Legacy LeerColumnas: partidos, columna base y «% COMBINACIÓN» de la entrada.
+        /// </summary>
+        private async Task LeerEntradaAsync(string ruta)
+        {
+            _archivoEntrada = ruta;
             FicheroEntrada = Path.GetFileName(_archivoEntrada);
 
             // Determina partidos y reconstruye las filas (legacy: ObtenNumSignos + InicializarValores).
@@ -128,9 +164,19 @@ namespace Free1X2.WinUI.Views.Ported
                     for (int i = 0; i < Filas.Count && i < primera.Length; i++)
                         Filas[i].SignoBase = primera[i].ToString();
                 }
+
+                // «% COMBINACIÓN» (legacy ContarSignos + ConvertirAPorcentaje).
+                int partidos = _partidos;
+                double[,] pct = await Task.Run(() => RotacionSignos.Porcentajes(ruta, partidos));
+                PorcentajesHelper.CargarMatriz(PorcentajesCombinacion, pct);
+                HayPorcentajes = true;
+                if (ValoracionJornada.Count != partidos)
+                    PorcentajesHelper.CargarMatriz(ValoracionJornada, new double[partidos, 3]);
             }
             catch (Exception ex)
             {
+                PorcentajesCombinacion.Clear();
+                HayPorcentajes = false;
                 AppServices.MostrarError("Error al leer el archivo: " + ex.Message);
             }
 
@@ -161,6 +207,115 @@ namespace Free1X2.WinUI.Views.Ported
                 fila.NuevoDos = SiguienteSigno(fila.NuevoDos);
             }
         }
+
+        /// <summary>
+        /// «Abrir valoración…» del panel «Valoraciones JORNADA» (legacy ControlPorcentajes):
+        /// lee el fichero con <see cref="Porcentajes"/> (formatos 1/3/42/43/44), como «Importar %».
+        /// </summary>
+        [RelayCommand]
+        private async Task AbrirValoracion()
+        {
+            var archivo = await PickerHelper.AbrirAsync(".txt", "*");
+            if (archivo == null) return;
+
+            try
+            {
+                double[,] leidos = await Task.Run(() => new Porcentajes(archivo.Path).valores);
+                var m = new double[_partidos, 3];
+                for (int i = 0; i < _partidos && i < leidos.GetLength(0); i++)
+                    for (int j = 0; j < 3; j++) m[i, j] = leidos[i, j];
+                PorcentajesHelper.CargarMatriz(ValoracionJornada, m);
+                Proponer();
+            }
+            catch (Exception ex)
+            {
+                AppServices.MostrarError("Error al leer la valoración: " + ex.Message);
+            }
+        }
+
+        private bool PuedeTransposicionAutomatica() =>
+            !string.IsNullOrEmpty(_archivoEntrada) && HayPorcentajes && !Ocupado;
+
+        /// <summary>
+        /// «Transposición automática» (legacy button3_Click, RotacionDeSignosFrm.cs:2264-2286):
+        /// TransponedorAutomatico con la jornada y la combinación, transposición a la salida (o a
+        /// «&lt;entrada&gt;T») y esta pasa a ser la entrada. En vez del diálogo de Transposición del
+        /// legacy pide confirmación con el orden y el fichero (DT-79), como la app Mac.
+        /// </summary>
+        [RelayCommand(CanExecute = nameof(PuedeTransposicionAutomatica))]
+        private async Task TransposicionAutomatica()
+        {
+            if (string.IsNullOrEmpty(_archivoEntrada)) return;
+
+            int[]? orden = RotacionSignos.TrasposicionAutomatica(
+                PorcentajesHelper.AMatriz(ValoracionJornada), PorcentajesHelper.AMatriz(PorcentajesCombinacion));
+            if (orden == null)
+            {
+                AppServices.MostrarError("La transposición automática necesita 14 partidos con valoración y columnas leídas.");
+                return;
+            }
+
+            string entrada = _archivoEntrada;
+            string destino = !string.IsNullOrEmpty(_archivoSalida)
+                ? _archivoSalida
+                : Path.Combine(Path.GetDirectoryName(entrada) ?? string.Empty,
+                    Path.GetFileNameWithoutExtension(entrada) + "T" + Path.GetExtension(entrada));
+            if (destino == entrada) return;
+
+            string lista = string.Join(", ", orden.Select(o => o + 1));
+            if (!await AppServices.ConfirmarAsync(
+                    "Orden de transposición: " + lista + ".\nSe grabará en " + Path.GetFileName(destino) + ". ¿Transponer?"))
+                return;
+
+            Ocupado = true;
+            try
+            {
+                await Task.Run(() => RotacionSignos.TransponerColumnas(entrada, destino, orden));
+                _archivoSalida = destino;
+                FicheroSalida = Path.GetFileName(destino);
+                await LeerEntradaAsync(destino);
+                Proponer();
+            }
+            catch (Exception ex)
+            {
+                AppServices.MostrarError("Error al transponer: " + ex.Message);
+            }
+            finally
+            {
+                Ocupado = false;
+            }
+        }
+
+        /// <summary>
+        /// Legacy PropuestaAutomatica: cada partido rota sus signos según la valoración de la
+        /// jornada. Como el legacy, solo con valoración: si está vacía se deja la rotación del usuario.
+        /// </summary>
+        private void Proponer()
+        {
+            if (!HayPorcentajes || ValoracionJornada.All(f => f.Uno == 0 && f.Equis == 0 && f.Dos == 0)) return;
+
+            int[,] nuevos = RotacionSignos.PropuestaAutomatica(
+                PorcentajesHelper.AMatriz(PorcentajesCombinacion), PorcentajesHelper.AMatriz(ValoracionJornada));
+            for (int i = 0; i < Filas.Count && i < nuevos.GetLength(0); i++)
+            {
+                Filas[i].NuevoUno = Signos[nuevos[i, 0]];
+                Filas[i].NuevaX = Signos[nuevos[i, 1]];
+                Filas[i].NuevoDos = Signos[nuevos[i, 2]];
+            }
+        }
+
+        private static readonly string[] Signos = { "1", "X", "2" };
+
+        // Recarga de la jornada (CargarMatriz crea filas nuevas): se escucha cada fila.
+        private void OnJornadaColeccionCambiada(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.OldItems != null)
+                foreach (FilaPorcentaje f in e.OldItems) f.PropertyChanged -= OnJornadaFilaCambiada;
+            if (e.NewItems != null)
+                foreach (FilaPorcentaje f in e.NewItems) f.PropertyChanged += OnJornadaFilaCambiada;
+        }
+
+        private void OnJornadaFilaCambiada(object? sender, PropertyChangedEventArgs e) => Proponer();
 
         [RelayCommand]
         private async Task Aceptar()
