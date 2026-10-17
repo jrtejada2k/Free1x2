@@ -28,8 +28,11 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <!-- Columna izquierda: definición del grupo y acciones -->
-            <StackPanel Grid.Column="0" Spacing="6" Width="280">
+            <!-- Columna izquierda: definición del grupo y acciones. Dentro de un ScrollViewer: con los
+                 14 partidos del patrón no cabía en una ventana de 760 px de alto y las últimas filas y
+                 «Calcular» quedaban fuera, sin forma de verlas. -->
+            <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="6" Width="280" Margin="0,0,12,0">
 
                 <!-- Fichero de entrada -->
                 <Border Style="{StaticResource AppCardStyle}">
@@ -158,6 +161,7 @@
                 </Border>
 
             </StackPanel>
+            </ScrollViewer>
 
             <!-- Columna derecha: resultados -->
             <Border

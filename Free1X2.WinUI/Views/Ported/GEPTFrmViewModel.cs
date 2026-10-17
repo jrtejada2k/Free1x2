@@ -1,6 +1,7 @@
 // Free1X2 · WinUI 3 — WIN3
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
+using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Free1X2;
@@ -15,13 +16,29 @@ namespace Free1X2.WinUI.Views.Ported;
 /// Para cada partido se registran las dos últimas ocasiones (G = Ganó, E = Empató, P = Perdió)
 /// y se deriva el pronóstico de signos (1 / X / 2 / 12 / 1X / X2).
 /// </summary>
+/// <summary>Una opción de las celdas G / E / P: el valor que se guarda y el texto que se ve.</summary>
+public sealed record OpcionGEPT(string Valor, string Texto)
+{
+    public override string ToString() => Texto;
+}
+
 public partial class GEPTFila : ObservableObject
 {
     /// <summary>Número de partido (1..N) como texto. Anti-crash: no se bindea int a TextBlock.Text.</summary>
     public string NumeroTexto { get; }
 
-    /// <summary>Opciones permitidas en cada celda de entrada (legacy admitía G / E / P).</summary>
-    public IReadOnlyList<string> OpcionesSigno { get; } = new[] { "", "G", "E", "P" };
+    /// <summary>
+    /// Opciones permitidas en cada celda de entrada (legacy admitía G / E / P). El valor vacío se
+    /// muestra como «—»: con una cadena vacía como elemento, el ComboBox enseñaba el nombre del
+    /// tipo de la fila («Free1X2.WinUI.Views.Ported.GEPTFila») en lugar de nada.
+    /// </summary>
+    public static IReadOnlyList<OpcionGEPT> OpcionesSigno { get; } = new[]
+    {
+        new OpcionGEPT("", "—"),
+        new OpcionGEPT("G", "G"),
+        new OpcionGEPT("E", "E"),
+        new OpcionGEPT("P", "P"),
+    };
 
     public GEPTFila(int numero)
     {
@@ -52,9 +69,35 @@ public partial class GEPTFila : ObservableObject
     [ObservableProperty]
     private Brush _fondoSegunda = FondoNeutro;
 
+    /// <summary>Opción elegida en «Última vez» (lo que enlaza el ComboBox; el valor vive en Primera).</summary>
+    public OpcionGEPT OpcionPrimera
+    {
+        get => Opcion(Primera);
+        set => Primera = value?.Valor ?? string.Empty;
+    }
+
+    /// <summary>Opción elegida en «Penúltima vez» (el valor vive en Segunda).</summary>
+    public OpcionGEPT OpcionSegunda
+    {
+        get => Opcion(Segunda);
+        set => Segunda = value?.Valor ?? string.Empty;
+    }
+
+    private static OpcionGEPT Opcion(string valor) =>
+        OpcionesSigno.FirstOrDefault(o => o.Valor == (valor ?? string.Empty)) ?? OpcionesSigno[0];
+
     // Cuando cambia la selección de una celda, recolorea como hacía Resultado_TextChanged del legacy.
-    partial void OnPrimeraChanged(string value) => FondoPrimera = Fondo(value);
-    partial void OnSegundaChanged(string value) => FondoSegunda = Fondo(value);
+    partial void OnPrimeraChanged(string value)
+    {
+        FondoPrimera = Fondo(value);
+        OnPropertyChanged(nameof(OpcionPrimera));
+    }
+
+    partial void OnSegundaChanged(string value)
+    {
+        FondoSegunda = Fondo(value);
+        OnPropertyChanged(nameof(OpcionSegunda));
+    }
 
     private static readonly Brush FondoNeutro = new SolidColorBrush(Colors.Transparent);
     private static readonly Brush FondoG = new SolidColorBrush(Colors.GreenYellow);

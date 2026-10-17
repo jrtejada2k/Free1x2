@@ -22,9 +22,10 @@
                 Style="{StaticResource SecondaryTextBlockStyle}" />
         </StackPanel>
 
-        <!-- Tarjeta de la columna -->
+        <!-- Tarjeta de la columna. Dentro de un ScrollViewer: con 14 partidos no cabía en una
+             ventana de 760 px de alto y las últimas filas quedaban fuera, sin forma de verlas. -->
+        <ScrollViewer Grid.Row="1">
         <Border
-            Grid.Row="1"
             Style="{StaticResource AppCardStyle}"
             VerticalAlignment="Top"
             HorizontalAlignment="Left"
@@ -87,8 +88,8 @@
                                     <ComboBox
                                         HorizontalAlignment="Stretch"
                                         Background="Transparent"
-                                        ItemsSource="{x:Bind OpcionesSigno}"
-                                        SelectedItem="{x:Bind Primera, Mode=TwoWay}"
+                                        ItemsSource="{x:Bind local:GEPTFila.OpcionesSigno}"
+                                        SelectedItem="{x:Bind OpcionPrimera, Mode=TwoWay}"
                                         AutomationProperties.Name="Última ocasión (G/E/P)" />
                                 </Border>
                                 <Border
@@ -98,8 +99,8 @@
                                     <ComboBox
                                         HorizontalAlignment="Stretch"
                                         Background="Transparent"
-                                        ItemsSource="{x:Bind OpcionesSigno}"
-                                        SelectedItem="{x:Bind Segunda, Mode=TwoWay}"
+                                        ItemsSource="{x:Bind local:GEPTFila.OpcionesSigno}"
+                                        SelectedItem="{x:Bind OpcionSegunda, Mode=TwoWay}"
                                         AutomationProperties.Name="Penúltima ocasión (G/E/P)" />
                                 </Border>
                                 <Border
@@ -136,5 +137,6 @@
 
             </StackPanel>
         </Border>
+        </ScrollViewer>
     </Grid>
 </Page>
