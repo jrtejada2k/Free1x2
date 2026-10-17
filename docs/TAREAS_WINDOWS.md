@@ -212,3 +212,19 @@ está en `docs/mac/DECISIONES.md` (DT-xx).
   `Sesion.columnasDeInicio`, `Reductor.swift`.
 - **Aceptación:** boleto JD-01 ▸ Reducir ⇒ Reductor con `ColumnasInicio.txt` (729 columnas) ▸ Reducir
   ⇒ entre 73 y 729 admitidas y «Guardar resultado…» activo.
+
+---
+
+## W11 · Enlaces de ayuda a las páginas que existen (DT-86)
+
+- **Qué (aprobado por el dueño):** clubprogol.com es WordPress y las direcciones antiguas dan 404.
+  - Manual → `https://clubprogol.com/docwk/` (en minúsculas: WordPress las normaliza así)
+  - FAQ → `https://clubprogol.com/docwk/faq/` (el contenido está en `docs/FAQ.md`)
+  - Foro → `https://clubprogol.com/foro/`
+  - En «Recursos de ayuda» quedan solo Manual, FAQ y Foro: se quitan Artículos, Recursos, Notificaciones y Facebook, que
+    solo mostraban «Online help disabled…» en inglés. En «Acerca de» se quita «Descarga».
+- **Dónde:** `Views/Ported/AyudaFrmPage.xaml.cs:19` (`UrlFaq`), `:24-25` (avisos en inglés) y su `.xaml`;
+  `Views/Ported/AcercaDeFrmPage.xaml.cs:22-25` (`UrlDescarga`, `UrlForo`, `UrlManual`) y su `.xaml`.
+- **Referencia Mac:** `App/Pantallas/Free/Informativas.swift` (`enum Web`).
+- **Aceptación:** cada enlace abre una página que existe (no 404).
+

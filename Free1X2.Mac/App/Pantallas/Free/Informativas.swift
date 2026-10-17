@@ -3,6 +3,14 @@ import SwiftUI
 
 // Páginas sin ViewModel (10 §1.11; plantilla T9): `AcercaDeFrmPage`, `AyudaFrmPage`, `CreditosFrmPage`.
 
+/// Páginas de clubprogol.com que existen (DT-86): las antiguas (`DocWK` wiki, `foros/index.php`, `Descargas.aspx`) dan 404.
+enum Web {
+    static let sitio = "https://clubprogol.com"
+    static let manual = "https://clubprogol.com/docwk/"
+    static let faq = "https://clubprogol.com/docwk/faq/"
+    static let foro = "https://clubprogol.com/foro/"
+}
+
 private func abrirWeb(_ s: String) {
     if let u = URL(string: s) { NSWorkspace.shared.open(u) }
 }
@@ -20,7 +28,7 @@ struct VistaAcercaDe: View {
     private func documento(_ nombre: String) {
         let url = sesion.entorno.rutas.recursos.appending(path: "Datos/Documentacion/" + nombre)
         if !FileManager.default.fileExists(atPath: url.path(percentEncoded: false)) || !NSWorkspace.shared.open(url) {
-            abrirWeb("https://clubprogol.com")
+            abrirWeb(Web.sitio)
         }
     }
 
@@ -35,44 +43,33 @@ struct VistaAcercaDe: View {
                     VStack(alignment: .leading, spacing: 6) {
                         Text("Free1X2").font(.title2.bold())
                         Text(version)
-                        Button("www.clubprogol.com") { abrirWeb("https://clubprogol.com") }.buttonStyle(.link)
+                        Button("www.clubprogol.com") { abrirWeb(Web.sitio) }.buttonStyle(.link)
                     }
                 }
             }
             Tarjeta("Enlaces") {
                 Button("Información de licencia") { documento("licencia.txt") }.buttonStyle(.link)
                 Button("Sobre el software libre") { documento("GPL.txt") }.buttonStyle(.link)
-                Button("Descarga") { abrirWeb("https://clubprogol.com/Descargas/Descargas.aspx") }.buttonStyle(.link)
-                Button("Manual") { abrirWeb("https://clubprogol.com/DocWK") }.buttonStyle(.link)
-                Button("Foro sobre el programa") { abrirWeb("https://clubprogol.com/foros/index.php") }.buttonStyle(.link)
+                Button("Manual") { abrirWeb(Web.manual) }.buttonStyle(.link)
+                Button("Foro sobre el programa") { abrirWeb(Web.foro) }.buttonStyle(.link)
                 Button("Créditos") { sesion.router.navegar(.creditos) }.buttonStyle(.link)
             }
         }
     }
 }
 
-/// «Recursos de ayuda»: solo FAQ abre; el resto avisa en inglés, como hoy (`AyudaFrmPage.xaml.cs:16-81`).
+/// «Recursos de ayuda» (DT-86, a petición del dueño): solo los enlaces que existen. El original (`AyudaFrmPage.xaml.cs:16-81`)
+/// tenía además Artículos, Recursos, Notificaciones y Facebook, que solo avisaban en inglés de que estaban desactivados.
 struct VistaAyuda: View {
-    @Environment(Sesion.self) private var sesion
-
-    private func offline() {
-        sesion.alertas.info("Online help disabled for offline operation.\nPlease refer to local documentation.")
-    }
-
     var body: some View {
         Pagina(destino: .ayuda) {
             Text("Documentación, comunidad y enlaces de soporte de Free1X2").foregroundStyle(Color.textoSecundario)
             Tarjeta("Documentación") {
-                Button("Manual", action: offline).buttonStyle(.link)
-                Button("Artículos", action: offline).buttonStyle(.link)
-                Button("FAQ") { abrirWeb("https://clubprogol.com/DocWK/index.php?title=FAQ") }.buttonStyle(.link)
-                Button("Recursos", action: offline).buttonStyle(.link)
+                Button("Manual") { abrirWeb(Web.manual) }.buttonStyle(.link)
+                Button("Preguntas frecuentes (FAQ)") { abrirWeb(Web.faq) }.buttonStyle(.link)
             }
             Tarjeta("Comunidad") {
-                Button("Foro de Free1X2", action: offline).buttonStyle(.link)
-                Button("Notificaciones") { sesion.alertas.info("Notifications system disabled for performance.") }
-                    .buttonStyle(.link)
-                Button("Free1X2 en Facebook", action: offline).buttonStyle(.link)
+                Button("Foro de Free1X2") { abrirWeb(Web.foro) }.buttonStyle(.link)
             }
         }
     }
@@ -95,7 +92,7 @@ struct VistaCreditos: View {
     var body: some View {
         Pagina(destino: .creditos) {
             Text(t("Equipo Free1X2", "Free1X2 Team")).font(.title2.bold())
-            Button("www.clubprogol.com") { abrirWeb("https://clubprogol.com") }.buttonStyle(.link)
+            Button("www.clubprogol.com") { abrirWeb(Web.sitio) }.buttonStyle(.link)
                 .accessibilityLabel(t("Visitar el sitio web clubprogol.com", "Visit the clubprogol.com website"))
             Tarjeta(t("Colaboradores", "Contributors")) {
                 ForEach(Self.creditos, id: \.nombre) { c in
