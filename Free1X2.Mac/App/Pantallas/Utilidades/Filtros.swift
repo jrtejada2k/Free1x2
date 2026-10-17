@@ -229,6 +229,7 @@ struct VistaDiFiltros: View {
                         }
                     }
                 }
+                BotonColumnasInicio { filas.append(FilaDiFiltros(ruta: $0.path(percentEncoded: false), nombre: $0.lastPathComponent)) }
                 Button("Salvar Lista") {
                     Task {
                         guard let u = await SelectorFicheros.guardar("Lista", [("SalvarLista", ".lst")]) else { return }

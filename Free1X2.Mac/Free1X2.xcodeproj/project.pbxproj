@@ -63,6 +63,7 @@
 		5FCAD03AB81F53170F987D2B /* bAnalisisFallos.png in Resources */ = {isa = PBXBuildFile; fileRef = 12D871214F4F847AFC6EE8CB /* bAnalisisFallos.png */; };
 		6307204BC6733B651606A3E9 /* Premios.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61FF07E693D4BC6A8149F8F3 /* Premios.swift */; };
 		63707C7EA6B6A0D5BEB0F881 /* Grupos.swift in Sources */ = {isa = PBXBuildFile; fileRef = 180A7A586EA6E5884322C901 /* Grupos.swift */; };
+		69AEEEF42FC533A51BF34037 /* ColumnasInicio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92AA0614E0DB763A2515CE4A /* ColumnasInicio.swift */; };
 		6A45F9467CF363B37502AC86 /* ContactosDibujos.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93ACDCA8FCA710B3A83DAB92 /* ContactosDibujos.swift */; };
 		6B09A62AB48B822A6834CA4A /* Simetrias.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F59B3CEA1AEBEAD252C31AD /* Simetrias.swift */; };
 		6F16D69E9CF62A153746710D /* Valoracion.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2237869C6EB3EFFB9EDAF19 /* Valoracion.swift */; };
@@ -209,6 +210,7 @@
 		901BDD3D79E749E8ECCBA7CC /* Sesion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sesion.swift; sourceTree = "<group>"; };
 		90D6532FA4A25F28807EA09D /* BoletoMatrizView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoletoMatrizView.swift; sourceTree = "<group>"; };
 		90DD8B574876B96A97AF570C /* ConfigCPs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigCPs.swift; sourceTree = "<group>"; };
+		92AA0614E0DB763A2515CE4A /* ColumnasInicio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColumnasInicio.swift; sourceTree = "<group>"; };
 		938CA530E8C6B1235A6D173C /* bFiltroCoincidencias.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bFiltroCoincidencias.png; sourceTree = "<group>"; };
 		93ACDCA8FCA710B3A83DAB92 /* ContactosDibujos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactosDibujos.swift; sourceTree = "<group>"; };
 		9473C4BD60959C0861BAC630 /* bFiltroAidomnou.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bFiltroAidomnou.png; sourceTree = "<group>"; };
@@ -286,6 +288,7 @@
 			isa = PBXGroup;
 			children = (
 				90D6532FA4A25F28807EA09D /* BoletoMatrizView.swift */,
+				92AA0614E0DB763A2515CE4A /* ColumnasInicio.swift */,
 				DB842ABB38595FAE44A7140D /* Estilo.swift */,
 				E06E5841AB3F270318467C6F /* MatrizAnalisisView.swift */,
 				572A8CBF196CF469733FD84F /* PantallaCondicion.swift */,
@@ -724,6 +727,7 @@
 				AEB6B00B853531C1FDE4ECE9 /* CalculaColumnasMultiple.swift in Sources */,
 				88101D6E184E877D980AC7A3 /* Coincidencias.swift in Sources */,
 				48CC0F422CAE86233426E41F /* ColProbables.swift in Sources */,
+				69AEEEF42FC533A51BF34037 /* ColumnasInicio.swift in Sources */,
 				8545A138DED37032B5496C78 /* ConfigCPs.swift in Sources */,
 				6A45F9467CF363B37502AC86 /* ContactosDibujos.swift in Sources */,
 				E693C7E6AC98476F326288A5 /* ControlGrupos.swift in Sources */,

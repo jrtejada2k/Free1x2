@@ -37,8 +37,11 @@ struct VistaGeneraPim: View {
         }
     }
 
-    private func calcular() async {
-        guard case let (c, r)? = preparar(), let u = await SelectorFicheros.abrir(".txt", "*") else { return }
+    /// `origen`: las columnas de Inicio (DT-85); sin él, pide el fichero como el original.
+    private func calcular(_ origen: URL? = nil) async {
+        guard case let (c, r)? = preparar() else { return }
+        let elegido: URL? = if let origen { origen } else { await SelectorFicheros.abrir(".txt", "*") }
+        guard let u = elegido else { return }
         let ruta = u.path(percentEncoded: false)
         let inicio = sesion.entorno.reloj.ahora()
         (procesadas, admitidas, tiempo) = ("...", "...", "...")
@@ -156,6 +159,8 @@ struct VistaGeneraPim: View {
                     Tarjeta("Cálculo de columnas") {
                         HStack {
                             Button("Calcular") { Task { await calcular() } }.buttonStyle(EstiloPrincipal()).disabled(calculando)
+                            BotonColumnasInicio(titulo: "Calcular con columnas de Inicio") { u in Task { await calcular(u) } }
+                                .disabled(calculando)
                             Button("Grabar resultado") {
                                 Task {
                                     guard let v = validas else {
@@ -244,14 +249,16 @@ struct VistaAidomnou: View {
         }
     }
 
-    private func calcular() {
+    /// `origen`: las columnas de Inicio (DT-85); sin él, pide el fichero como el original.
+    private func calcular(_ origen: URL? = nil) {
         (procesadas, validasTexto, tiempo) = (" ", " ", " ")
         validas = ConjuntoBits(cantidad: 0)
         guard case let (c, r)? = preparar() else { return }
         let entorno = sesion.entorno
         tarea = Task {
             defer { tarea = nil }
-            guard let u = await SelectorFicheros.abrir(".txt", "*") else { return }
+            let elegido: URL? = if let origen { origen } else { await SelectorFicheros.abrir(".txt", "*") }
+            guard let u = elegido else { return }
             let inicio = entorno.reloj.ahora()
             do throws(ErrorDominio) {
                 let f = await CasosUtilidades.filtrarAidomnou(try entorno.archivos.leer(u), columnas: c, rangos: r, saltarVacias: true)
@@ -380,7 +387,8 @@ struct VistaAidomnou: View {
                         Text(ficheroRangos).foregroundStyle(Color.textoSecundario)
                     }
                     HStack {
-                        Button("Calcular", action: calcular).buttonStyle(EstiloPrincipal()).disabled(tarea != nil)
+                        Button("Calcular") { calcular() }.buttonStyle(EstiloPrincipal()).disabled(tarea != nil)
+                        BotonColumnasInicio(titulo: "Calcular con columnas de Inicio") { calcular($0) }.disabled(tarea != nil)
                         Text("Procesadas: \(procesadas)   Válidas: \(validasTexto)   Tiempo: \(tiempo)").monospacedDigit()
                         Button("Cancelar") { tarea?.cancel() }
                     }

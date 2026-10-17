@@ -34,6 +34,8 @@ final class Sesion {
     var grupoEnEdicion = 0
     /// `AppState.UsarAnalizadorCompartido`: «Calcular» desde Inicio usa la combinación en pantalla.
     var usarCombinacionCompartida = false
+    /// Inicio ▸ Reducir: las columnas de Inicio que el Reductor toma al aparecer (DT-85).
+    var entradaReductor: URL?
     /// `VisorEstadisticasViewModel.UltimasEstadisticas` (no se borra al leerla).
     var ultimasEstadisticas: [Estadistica]?
     /// `FigurasFiltrosFrmViewModel.FigurasEnEdicion`/`NombreCondicion` (DT-58: copia; `resultado` al aceptar).
@@ -138,6 +140,28 @@ final class Sesion {
         let actuales = (0..<numeroPartidos).map { CasosInicio.componerEquipos(local: locales[$0], visitante: visitantes[$0]) }
         for (i, x) in CasosInicio.aplicarEquipos(e, a: actuales).enumerated() {
             (locales[i], visitantes[i]) = CasosInicio.dividirEquipos(x)
+        }
+    }
+
+    /// Columnas de Inicio (DT-85): el boleto con sus condiciones (y el filtro de columnas si existe), desarrollado como
+    /// «Calcular ▸ Grabar» en `Temp/ColumnasInicio.txt`; un error se avisa y devuelve `nil`.
+    func columnasDeInicio() async -> URL? {
+        volcarPronosticos()
+        let total = (0..<numeroPartidos).reduce(1) { $0 * signos($1).filter { $0 }.count }
+        if total > 1_000_000 {
+            let aviso = "El boleto desarrolla \(total) columnas antes de aplicar las condiciones y puede tardar. ¿Continuar?"
+            guard await alertas.confirmar(aviso) else { return nil }
+        }
+        var c = combinacion
+        let f = archivoFiltroCols
+        c.archivoColumnasBase = !f.isEmpty && entorno.archivos.existe(URL(filePath: f)) ? f : ""
+        var cfg = configuracion
+        cfg.puntosCP = CasosAjustes.leerPuntosCP(entorno: entorno)  // DP-04, como Calcular
+        do throws(ErrorDominio) {
+            return try await CasosCombinacion.columnasDeInicio(c, configuracion: cfg, entorno: entorno).url
+        } catch {
+            alertas.error("No se pudieron generar las columnas de Inicio: " + error.mensajeUsuario)
+            return nil
         }
     }
 

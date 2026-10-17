@@ -91,6 +91,22 @@ struct FlujosTests {
         }
     }
 
+    /// F52 (DT-85): las columnas de Inicio van a `Temp/ColumnasInicio.txt` sin elegir fichero; si la condición no deja
+    /// ninguna, error y sin el fichero de la vez anterior.
+    @Test func f52ColumnasDeInicio() async throws {
+        var c = Self.combinacion()
+        let r = try await CasosCombinacion.columnasDeInicio(c, configuracion: .porDefecto, entorno: entorno)
+        #expect(r.columnas == 729 && r.url.lastPathComponent == "ColumnasInicio.txt")
+        #expect(Set(try lineas(r.url)) == Set(Self.seisTriples))
+        try c.modificarGrupo(0) { g throws(ErrorDominio) in
+            try CasosCondiciones.aplicarNoVariantes(variantes: "13", equis: "", doses: "", en: &g.condiciones.noVariantes)
+        }
+        await #expect(throws: ErrorDominio.self) {
+            try await CasosCombinacion.columnasDeInicio(c, configuracion: .porDefecto, entorno: entorno)
+        }
+        #expect(!entorno.archivos.existe(r.url))
+    }
+
     /// F06: guardar y abrir una combinación conserva boleto, condición y recuento; `completa.comb` se reescribe igual.
     @Test func f06GuardarYAbrir() async throws {
         var c = Self.combinacion()

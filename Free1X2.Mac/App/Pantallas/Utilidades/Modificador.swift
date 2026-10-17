@@ -214,7 +214,10 @@ struct VistaCombinarFiltros: View {
     @State private var tarea: Task<Void, Never>?
 
     private func cargarFiltros() async {
-        let urls = await SelectorFicheros.abrirVarios([".txt"])
+        anadirFiltros(await SelectorFicheros.abrirVarios([".txt"]))
+    }
+
+    private func anadirFiltros(_ urls: [URL]) {
         guard !urls.isEmpty else { return }
         for u in urls {
             let n = CasosUtilidades.signosDeFiltro(u, entorno: sesion.entorno)
@@ -271,6 +274,7 @@ struct VistaCombinarFiltros: View {
             Tarjeta("Filtros") {
                 HStack {
                     Button("Cargar Filtro") { Task { await cargarFiltros() } }
+                    BotonColumnasInicio { anadirFiltros([$0]) }
                     Button("Salvar Lista") {
                         Task {
                             guard let u = await SelectorFicheros.guardar("Lista", [("SalvarLista", ".lst")]) else { return }

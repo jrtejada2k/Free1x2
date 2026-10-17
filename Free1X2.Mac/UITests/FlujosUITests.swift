@@ -232,7 +232,7 @@ final class FlujosUITests: XCTestCase {
         let carpeta = (entrada as NSString).deletingLastPathComponent
         let app = lanzar()
         defer { app.terminate() }
-        app.buttons["Reducir columnas"].firstMatch.click()
+        ir(app, "Reducir", "reductor")
         let elegir = app.buttons["Archivo entrada"]
         XCTAssertTrue(elegir.waitForExistence(timeout: 10))
         elegir.click()
@@ -416,5 +416,23 @@ final class FlujosUITests: XCTestCase {
         menuMascaras.click()
         app.menuItems["JD01  ·  729 col."].firstMatch.click()
         XCTAssertTrue(app.staticTexts["Fijos: 8 - Dobles: 0 - Triples: 6"].waitForExistence(timeout: 10))
+    }
+
+    /// F52 (DT-85): Inicio ▸ Reducir con el boleto JD-01 abre el Reductor con sus columnas ya cargadas (sin elegir
+    /// fichero), reduce a un temporal y deja «Guardar resultado…» activo.
+    @MainActor func testF52ReducirSinFichero() {
+        let app = lanzar()
+        defer { app.terminate() }
+        boletoSeisTriples(app)
+        app.buttons["Reducir columnas"].firstMatch.click()
+        let entrada = app.staticTexts["reductor-entrada"]
+        XCTAssertTrue(entrada.waitForExistence(timeout: 30))
+        let cargada = NSPredicate(format: "value == %@ OR label == %@", "ColumnasInicio.txt", "ColumnasInicio.txt")
+        wait(for: [XCTNSPredicateExpectation(predicate: cargada, object: entrada)], timeout: 30)
+        app.buttons["accion-reducir"].click()
+        let guardar = app.buttons["Guardar resultado…"]
+        wait(for: [XCTNSPredicateExpectation(predicate: NSPredicate(format: "isEnabled == true"), object: guardar)], timeout: 60)
+        let admitidas = Int((app.staticTexts["reduccion-Admitidas"].value as? String) ?? "") ?? 0
+        XCTAssertTrue((73...729).contains(admitidas), "admitidas \(admitidas)")
     }
 }

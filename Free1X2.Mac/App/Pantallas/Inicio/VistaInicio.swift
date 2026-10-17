@@ -7,6 +7,7 @@ struct VistaInicio: View {
     @State private var descargando = false
     @State private var mascaras: [Mascara] = []
     @State private var guardandoMascara = false
+    @State private var generando = false
 
     /// Título, filtro, destino e icono (los glifos de `CondicionItem.Glifo` en SF Symbols).
     static let izquierda: [(String, TipoFiltro, Destino, String)] = [
@@ -46,12 +47,19 @@ struct VistaInicio: View {
                 Button(action: calcular) { Label("Calcular", systemImage: "function") }
                     .labelStyle(.titleAndIcon).help("Calcular las columnas del boleto").accessibilityIdentifier("Calcular columnas")
                 Button {
-                    sesion.volcarPronosticos()
-                    sesion.router.navegar(.reductor)
+                    Task {
+                        generando = true
+                        defer { generando = false }
+                        guard let u = await sesion.columnasDeInicio() else { return }
+                        sesion.entradaReductor = u
+                        sesion.router.navegar(.reductor)
+                    }
                 } label: {
-                    Label("Reducir", systemImage: "arrow.down.right.and.arrow.up.left")
+                    Label(generando ? "Generando…" : "Reducir", systemImage: "arrow.down.right.and.arrow.up.left")
                 }
-                .labelStyle(.titleAndIcon).help("Reducir las columnas del boleto").accessibilityIdentifier("Reducir columnas")
+                .labelStyle(.titleAndIcon).disabled(generando)
+                .help("Desarrollar las columnas del boleto y abrir el Reductor con ellas, sin guardar antes un fichero")
+                .accessibilityIdentifier("Reducir columnas")
                 Menu {
                     Button("España") { Task { await cargarJornada(.es) } }
                     Button("México") { Task { await cargarJornada(.mx) } }

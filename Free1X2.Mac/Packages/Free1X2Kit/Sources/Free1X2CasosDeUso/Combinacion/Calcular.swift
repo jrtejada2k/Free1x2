@@ -69,6 +69,22 @@ public enum CasosCombinacion {
         }
     }
 
+    /// Columnas de Inicio (DT-85, nuevo): la combinación desarrollada como «Calcular ▸ Grabar» en `Temp/ColumnasInicio.txt`
+    /// (se reescribe cada vez), para que el Reductor y los filtros la usen sin que el usuario guarde antes un fichero.
+    @concurrent public static func columnasDeInicio(
+        _ c: Combinacion, configuracion: Configuracion, entorno: Entorno, progreso: ReportadorProgreso = .ninguno
+    ) async throws(ErrorDominio) -> (url: URL, columnas: Int) {
+        let carpeta = entorno.rutas.carpeta(.temp)
+        let url = carpeta.appending(path: "ColumnasInicio.txt")
+        try entorno.archivos.crearCarpeta(carpeta)
+        if entorno.archivos.existe(url) { try entorno.archivos.borrar(url) }  // con 0 aceptadas no se escribe: que no quede la anterior
+        let r = try await calcularCombinacion(c, modo: .grabar(url), configuracion: configuracion, entorno: entorno, progreso: progreso)
+        guard r.calculo.aceptadas > 0 else {
+            throw ErrorDominio(.general, "La combinación de Inicio no da ninguna columna con sus condiciones.")
+        }
+        return (url, r.calculo.aceptadas)
+    }
+
     /// CU-A28: rutas A (contar), B (grabar) y C (analizar). Al grabar, el `.txt` solo se crea si hay alguna aceptada
     /// (el `StreamWriter` del C# se abre con la primera) y al cancelar queda lo grabado.
     /// ponytail: grabar acumula en memoria (~16 B por columna); escritura por bloques si el universo crece.

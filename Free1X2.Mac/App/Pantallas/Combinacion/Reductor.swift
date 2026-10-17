@@ -15,6 +15,8 @@ struct VistaReductor: View {
     @State private var tiempo = "-"
     @State private var reduciendo = false
     @State private var tarea: Task<Void, Never>?
+    /// Lo último reducido, para «Guardar resultado…» (DT-85).
+    @State private var reducido: URL?
 
     private static let metodos: [(AlgoritmoReduccion, String)] = [
         (.menosTiempo, "menos tiempo"), (.menosColumnas, "menos columnas"), (.grandesArchivos, "grandes archivos"),
@@ -22,10 +24,26 @@ struct VistaReductor: View {
 
     private func seleccionarEntrada() async {
         guard let url = await SelectorFicheros.abrir(".txt") else { return }
+        usarEntrada(url)
+    }
+
+    private func usarEntrada(_ url: URL) {
         guard CasosCombinacion.validarFicheroEntradaReductor(url, entorno: sesion.entorno) else {
             return sesion.alertas.error(CasosCombinacion.mensajeEntradaReductor)
         }
         entrada = url
+    }
+
+    /// Sin «Archivo salida» elegido, la reducción va a `Temp/Reducido.txt` y se guarda después si se quiere (DT-85).
+    private var salidaTemporal: URL { sesion.entorno.rutas.carpeta(.temp).appending(path: "Reducido.txt") }
+
+    private func guardarResultado() async {
+        guard let reducido, let destino = await SelectorFicheros.guardar("Reducido", [("Columnas", ".txt")]) else { return }
+        do throws(ErrorDominio) {
+            try sesion.entorno.archivos.escribir(try sesion.entorno.archivos.leer(reducido), en: destino, atomico: true)
+        } catch {
+            sesion.alertas.error("No se pudo guardar la reducción: " + error.mensajeUsuario)
+        }
     }
 
     /// `RefrescarContadores`.
@@ -35,7 +53,9 @@ struct VistaReductor: View {
     }
 
     private func reducir() {
-        guard !reduciendo, let entrada, let salida else { return }
+        guard !reduciendo, let entrada else { return }
+        let salida = salida ?? salidaTemporal
+        reducido = nil
         let e = EntradaReduccion(
             algoritmo: metodo, entrada: entrada, salida: salida, nivel: nivel, maxCol: Int(FormatoNET.castInt32(maxColumnas)),
             percent: Int(FormatoNET.castInt32(maxPorcentaje)), externas: externas)
@@ -51,7 +71,9 @@ struct VistaReductor: View {
                 for await p in flujo { refrescar(p, desde: inicio) }
             }
             do throws(ErrorDominio) {
+                try entorno.archivos.crearCarpeta(salida.deletingLastPathComponent())
                 _ = try await CasosCombinacion.reducirColumnas(e, numeroPartidos: n, entorno: entorno, progreso: reportador)
+                reducido = salida
             } catch {
                 sesion.alertas.error("Error en la reducción: " + error.mensajeUsuario)
             }
@@ -68,13 +90,16 @@ struct VistaReductor: View {
             Tarjeta("Datos de Entrada") {
                 HStack {
                     Button("Archivo entrada") { Task { await seleccionarEntrada() } }
+                    BotonColumnasInicio { usarEntrada($0) }
                     Text(entrada?.lastPathComponent ?? "(falta selección)").foregroundStyle(Color.textoSecundario)
+                        .accessibilityIdentifier("reductor-entrada")
                 }
                 HStack {
                     Button("Archivo salida") {
                         Task { if let url = await SelectorFicheros.guardar("Reducido", [("Columnas", ".txt")]) { salida = url } }
                     }
-                    Text(salida?.lastPathComponent ?? "(falta selección)").foregroundStyle(Color.textoSecundario)
+                    Text(salida?.lastPathComponent ?? "(temporal: guárdalo después con «Guardar resultado…»)")
+                        .foregroundStyle(Color.textoSecundario)
                 }
                 Picker("Nivel Reducción", selection: $nivel) {
                     ForEach((1...13).reversed(), id: \.self) { Text(String($0)).tag($0) }
@@ -110,11 +135,19 @@ struct VistaReductor: View {
             HStack {
                 Button("Reducir", action: reducir).buttonStyle(EstiloPrincipal()).keyboardShortcut(.defaultAction)
                     .accessibilityIdentifier("accion-reducir")
-                    .disabled(entrada == nil || salida == nil || reduciendo)
+                    .disabled(entrada == nil || reduciendo)
                 Button("Cancelar") {
                     tarea?.cancel()
                     reduciendo = false
                 }
+                Button("Guardar resultado…") { Task { await guardarResultado() } }.disabled(reducido == nil || reduciendo)
+            }
+        }
+        .onAppear {
+            // Inicio ▸ Reducir deja aquí sus columnas (DT-85).
+            if let u = sesion.entradaReductor {
+                sesion.entradaReductor = nil
+                usarEntrada(u)
             }
         }
     }

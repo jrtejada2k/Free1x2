@@ -44,6 +44,10 @@ struct VistaCoincidencias: View {
 
     private func leerEntrada() async {
         guard let u = await SelectorFicheros.abrir(".txt", "*") else { return }
+        await usarEntrada(u)
+    }
+
+    private func usarEntrada(_ u: URL) async {
         do throws(ErrorDominio) {
             let r = await CasosUtilidades.entradaCoincidencias(try sesion.entorno.archivos.leer(u))
             entrada = r.entrada
@@ -172,7 +176,10 @@ struct VistaCoincidencias: View {
             .foregroundStyle(Color.textoSecundario)
             HStack(alignment: .top, spacing: 16) {
                 Tarjeta("Fichero de entrada") {
-                    Button("Seleccionar fichero…") { Task { await leerEntrada() } }
+                    HStack {
+                        Button("Seleccionar fichero…") { Task { await leerEntrada() } }
+                        BotonColumnasInicio { u in Task { await usarEntrada(u) } }
+                    }
                     Text(ficheroEntrada).foregroundStyle(Color.textoSecundario)
                     Text("Columnas leídas: \(columnasLeidas)")
                 }
