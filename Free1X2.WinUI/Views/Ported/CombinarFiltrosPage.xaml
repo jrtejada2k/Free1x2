@@ -105,6 +105,12 @@
                     HorizontalAlignment="Stretch"
                     Command="{x:Bind ViewModel.CargarFiltroCommand}"
                     AutomationProperties.Name="Cargar filtro" />
+            <!-- W10 (DT-85): las columnas del boleto de Inicio como un filtro más -->
+            <Button Content="{x:Bind ViewModel.TextoColumnasInicio, Mode=OneWay}"
+                    HorizontalAlignment="Stretch"
+                    Command="{x:Bind ViewModel.UsarColumnasInicioCommand}"
+                    ToolTipService.ToolTip="Usar las columnas del boleto de Inicio, con sus condiciones, sin guardar antes un fichero"
+                    AutomationProperties.Name="Columnas de Inicio" />
             <!-- ckMD: Activa / Desactiva (toggle/checkbox) -->
             <ToggleSwitch Header="Activa / Desactiva"
                           IsOn="{x:Bind ViewModel.ActivarTodas, Mode=TwoWay}"

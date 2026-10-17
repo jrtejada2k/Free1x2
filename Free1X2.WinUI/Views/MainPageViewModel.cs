@@ -557,11 +557,17 @@ public partial class MainPageViewModel : ObservableObject
         Navegar?.Invoke(typeof(CalculaColumnasFrmPage));
     }
 
-    /// <summary>Reducir (MReducir → AbreReducciones). Navega al reductor (ya cableado).</summary>
+    /// <summary>
+    /// Reducir (MReducir → AbreReducciones). W10 (DT-85): desarrolla antes el boleto con sus
+    /// condiciones en Temp/ColumnasInicio.txt y abre el Reductor ya cargado con esas columnas.
+    /// </summary>
     [RelayCommand]
-    private void Reducir()
+    private async Task Reducir()
     {
         Boleto?.VolcarPronosticosAlMotor();
+        string? ruta = await ColumnasInicioServicio.GenerarAsync();
+        if (ruta is null) return;
+        AppState.EntradaReductor = ruta;
         Navegar?.Invoke(typeof(ReductorFrmPage));
     }
 

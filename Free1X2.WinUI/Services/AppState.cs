@@ -117,6 +117,12 @@ public sealed class AppState
     public static bool UsarAnalizadorCompartido { get; set; }
 
     /// <summary>
+    /// W10 (DT-85): «Inicio ▸ Reducir» deja aquí las columnas de Inicio (Temp/ColumnasInicio.txt)
+    /// para que el Reductor arranque ya cargado. El Reductor la consume en su constructor.
+    /// </summary>
+    public static string? EntradaReductor { get; set; }
+
+    /// <summary>
     /// Se dispara cuando cambia algo del estado del motor (combinación nueva/abierta,
     /// cambio de grupo, edición de filtros, filtro de columnas). La MainPage se suscribe
     /// para refrescar el boleto y los semáforos de condiciones.

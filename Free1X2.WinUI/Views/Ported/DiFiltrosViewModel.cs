@@ -186,18 +186,46 @@ public partial class DiFiltrosViewModel : ObservableObject
         IReadOnlyList<StorageFile> files = await PickerHelper.AbrirVariosAsync(".txt");
         if (files == null || files.Count == 0) return;
 
-        foreach (StorageFile file in files)
+        foreach (StorageFile file in files) AnadirFiltro(file.Path);
+    }
+
+    private void AnadirFiltro(string ruta)
+    {
+        Filtros.Add(new DiFiltroFilaViewModel
         {
-            Filtros.Add(new DiFiltroFilaViewModel
-            {
-                Numero = Filtros.Count + 1,
-                Ruta = file.Path,
-                Nombre = Path.GetFileName(file.Path),
-                Activo = true,
-                Columnas = 0,
-                Difs = "1111",
-                Minimo = 1,
-            });
+            Numero = Filtros.Count + 1,
+            Ruta = ruta,
+            Nombre = Path.GetFileName(ruta),
+            Activo = true,
+            Columnas = 0,
+            Difs = "1111",
+            Minimo = 1,
+        });
+    }
+
+    // W10 (DT-85): «Columnas de Inicio» se añade como un filtro más.
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(TextoColumnasInicio))]
+    [NotifyCanExecuteChangedFor(nameof(UsarColumnasInicioCommand))]
+    private bool _generandoInicio;
+
+    public string TextoColumnasInicio =>
+        GenerandoInicio ? ColumnasInicioServicio.TextoGenerando : ColumnasInicioServicio.TextoBoton;
+
+    private bool PuedeUsarColumnasInicio() => !GenerandoInicio;
+
+    [RelayCommand(CanExecute = nameof(PuedeUsarColumnasInicio))]
+    private async Task UsarColumnasInicio()
+    {
+        GenerandoInicio = true;
+        try
+        {
+            string? ruta = await ColumnasInicioServicio.GenerarAsync();
+            if (ruta != null) AnadirFiltro(ruta);
+        }
+        finally
+        {
+            GenerandoInicio = false;
         }
     }
 

@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -147,10 +148,41 @@ public partial class CombinarFiltrosViewModel : ObservableObject
         IReadOnlyList<StorageFile> files = await PickerHelper.AbrirVariosAsync(".txt");
         if (files == null || files.Count == 0) return;
 
-        foreach (StorageFile file in files)
+        AnadirFiltros(files.Select(f => f.Path));
+    }
+
+    // W10 (DT-85): «Columnas de Inicio» se añade como un filtro más.
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(TextoColumnasInicio))]
+    [NotifyCanExecuteChangedFor(nameof(UsarColumnasInicioCommand))]
+    private bool _generandoInicio;
+
+    public string TextoColumnasInicio =>
+        GenerandoInicio ? ColumnasInicioServicio.TextoGenerando : ColumnasInicioServicio.TextoBoton;
+
+    private bool PuedeUsarColumnasInicio() => !GenerandoInicio;
+
+    [RelayCommand(CanExecute = nameof(PuedeUsarColumnasInicio))]
+    private async Task UsarColumnasInicio()
+    {
+        GenerandoInicio = true;
+        try
+        {
+            string? ruta = await ColumnasInicioServicio.GenerarAsync();
+            if (ruta != null) AnadirFiltros(new[] { ruta });
+        }
+        finally
+        {
+            GenerandoInicio = false;
+        }
+    }
+
+    private void AnadirFiltros(IEnumerable<string> rutas)
+    {
+        foreach (string ruta in rutas)
         {
             IArchivoColumnas aCol;
-            try { aCol = new ArchivoColumnasTexto(file.Path); }
+            try { aCol = new ArchivoColumnasTexto(ruta); }
             catch { continue; }
 
             int numP = aCol.ObtenNumSignos();
@@ -169,8 +201,8 @@ public partial class CombinarFiltrosViewModel : ObservableObject
             Filtros.Add(new FiltroFilaViewModel
             {
                 Numero = Filtros.Count + 1,
-                Nombre = Path.GetFileName(file.Path),
-                Ruta = file.Path,
+                Nombre = Path.GetFileName(ruta),
+                Ruta = ruta,
                 Activo = true,
                 Columnas = 0,
             });

@@ -40,11 +40,17 @@
                     </Grid.RowDefinitions>
 
                     <!-- btnSelFile + lblSelFile -->
-                    <Button Grid.Row="0" Grid.Column="0"
-                            Content="Archivo entrada"
-                            MinWidth="140"
-                            Command="{x:Bind ViewModel.SeleccionarArchivoEntradaCommand}"
-                            AutomationProperties.Name="Seleccionar archivo de entrada" />
+                    <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Spacing="8">
+                        <Button Content="Archivo entrada"
+                                MinWidth="140"
+                                Command="{x:Bind ViewModel.SeleccionarArchivoEntradaCommand}"
+                                AutomationProperties.Name="Seleccionar archivo de entrada" />
+                        <!-- W10 (DT-85): las columnas del boleto de Inicio, sin guardar antes un fichero -->
+                        <Button Content="{x:Bind ViewModel.TextoColumnasInicio, Mode=OneWay}"
+                                Command="{x:Bind ViewModel.UsarColumnasInicioCommand}"
+                                ToolTipService.ToolTip="Usar las columnas del boleto de Inicio, con sus condiciones, sin guardar antes un fichero"
+                                AutomationProperties.Name="Columnas de Inicio" />
+                    </StackPanel>
                     <TextBlock Grid.Row="0" Grid.Column="1"
                                VerticalAlignment="Center"
                                Style="{StaticResource SecondaryTextBlockStyle}"
@@ -214,6 +220,10 @@
             <Button Content="Cancelar"
                     Command="{x:Bind ViewModel.CancelarCommand}"
                     AutomationProperties.Name="Cancelar" />
+            <!-- W10 (DT-85): guarda lo último reducido (también si fue a Temp/Reducido.txt) -->
+            <Button Content="Guardar resultado…"
+                    Command="{x:Bind ViewModel.GuardarResultadoCommand}"
+                    AutomationProperties.Name="Guardar el resultado de la reducción" />
         </StackPanel>
 
     </Grid>

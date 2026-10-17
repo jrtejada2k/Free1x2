@@ -152,6 +152,11 @@
                             <Button Content="Calcular" Style="{StaticResource AccentButtonStyle}"
                                     Command="{x:Bind ViewModel.CalcularCommand}"
                                     AutomationProperties.Name="Calcular columnas" />
+                            <!-- W10 (DT-85) -->
+                            <Button Content="{x:Bind ViewModel.TextoCalcularInicio, Mode=OneWay}"
+                                    Command="{x:Bind ViewModel.CalcularConColumnasInicioCommand}"
+                                    ToolTipService.ToolTip="Usar las columnas del boleto de Inicio, con sus condiciones, sin guardar antes un fichero"
+                                    AutomationProperties.Name="Calcular con columnas de Inicio" />
                             <Button Content="Grabar resultado" Command="{x:Bind ViewModel.GrabarResultadoCommand}"
                                     AutomationProperties.Name="Grabar resultado" />
                             <Button Content="Exportar columnas" Command="{x:Bind ViewModel.ExportarColumnasCommand}"

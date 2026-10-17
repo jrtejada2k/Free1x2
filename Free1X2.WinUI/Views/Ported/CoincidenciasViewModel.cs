@@ -245,9 +245,40 @@ public partial class CoincidenciasViewModel : ObservableObject
     [RelayCommand]
     private async Task SeleccionarFicheroEntrada()
     {
-        // Equivale a Coincidencias.LeerFileIn(): lee cada columna y marca entrada[s2n(col)] = true.
         var file = await ElegirFicheroAbrir(".txt");
         if (file == null) return;
+        await LeerFicheroEntradaAsync(file);
+    }
+
+    // W10 (DT-85): «Columnas de Inicio» como fichero de entrada.
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(TextoColumnasInicio))]
+    [NotifyCanExecuteChangedFor(nameof(UsarColumnasInicioCommand))]
+    private bool _generandoInicio;
+
+    public string TextoColumnasInicio =>
+        GenerandoInicio ? ColumnasInicioServicio.TextoGenerando : ColumnasInicioServicio.TextoBoton;
+
+    private bool PuedeUsarColumnasInicio() => !GenerandoInicio;
+
+    [RelayCommand(CanExecute = nameof(PuedeUsarColumnasInicio))]
+    private async Task UsarColumnasInicio()
+    {
+        GenerandoInicio = true;
+        try
+        {
+            string? ruta = await ColumnasInicioServicio.GenerarAsync();
+            if (ruta != null) await LeerFicheroEntradaAsync(ruta);
+        }
+        finally
+        {
+            GenerandoInicio = false;
+        }
+    }
+
+    // Equivale a Coincidencias.LeerFileIn(): lee cada columna y marca entrada[s2n(col)] = true.
+    private async Task LeerFicheroEntradaAsync(string file)
+    {
         try
         {
             _entrada.SetAll(false);

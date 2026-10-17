@@ -35,6 +35,11 @@
                             <Button Content="Seleccionar fichero…"
                                     Command="{x:Bind ViewModel.SeleccionarFicheroEntradaCommand}"
                                     AutomationProperties.Name="Seleccionar fichero de columnas de entrada" />
+                            <!-- W10 (DT-85) -->
+                            <Button Content="{x:Bind ViewModel.TextoColumnasInicio, Mode=OneWay}"
+                                    Command="{x:Bind ViewModel.UsarColumnasInicioCommand}"
+                                    ToolTipService.ToolTip="Usar las columnas del boleto de Inicio, con sus condiciones, sin guardar antes un fichero"
+                                    AutomationProperties.Name="Columnas de Inicio" />
                             <TextBlock Text="{x:Bind ViewModel.FicheroEntrada, Mode=OneWay}"
                                        VerticalAlignment="Center"
                                        TextWrapping="Wrap"

@@ -138,19 +138,55 @@ namespace Free1X2.WinUI.Views.Ported
         /// los rangos por ranking y el recorrido, y marca las válidas en el BitArray.
         /// </summary>
         [RelayCommand]
-        private async Task Calcular()
+        private Task Calcular() => CalcularCon(null);
+
+        // W10 (DT-85): «Calcular con columnas de Inicio» (las del boleto, sin guardar antes un fichero).
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(TextoCalcularInicio))]
+        [NotifyCanExecuteChangedFor(nameof(CalcularConColumnasInicioCommand))]
+        private bool _generandoInicio;
+
+        public string TextoCalcularInicio =>
+            GenerandoInicio ? ColumnasInicioServicio.TextoGenerando : "Calcular con columnas de Inicio";
+
+        private bool PuedeUsarColumnasInicio() => !GenerandoInicio;
+
+        [RelayCommand(CanExecute = nameof(PuedeUsarColumnasInicio))]
+        private async Task CalcularConColumnasInicio()
+        {
+            GenerandoInicio = true;
+            try
+            {
+                string? ruta = await ColumnasInicioServicio.GenerarAsync();
+                if (ruta != null) await CalcularCon(ruta);
+            }
+            finally
+            {
+                GenerandoInicio = false;
+            }
+        }
+
+        // origen null ⇒ se pide el fichero de entrada (comportamiento legacy).
+        private async Task CalcularCon(string? origen)
         {
             // Recoge la pantalla y prepara las 6 columnas ANTES de elegir el fichero (igual que el legacy).
             RecuperaPantalla();
             PreparaColumnas();
 
-            StorageFile? archivo = await PickerHelper.AbrirAsync(".txt", "*");
-            if (archivo is null)
+            string ruta;
+            if (origen != null)
             {
-                return;
+                ruta = origen;
             }
-
-            string ruta = archivo.Path;
+            else
+            {
+                StorageFile? archivo = await PickerHelper.AbrirAsync(".txt", "*");
+                if (archivo is null)
+                {
+                    return;
+                }
+                ruta = archivo.Path;
+            }
             DateTime time0 = DateTime.Now;
             ColumnasProcesadas = "...";
             ColumnasAdmitidas = "...";

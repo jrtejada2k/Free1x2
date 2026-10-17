@@ -168,7 +168,36 @@ namespace Free1X2.WinUI.Views.Ported
         // Legacy: bCalcular -> Calcular() (línea 559). Recupera pantalla, prepara las 6 columnas,
         // abre el fichero de entrada y valida cada columna contra los límites.
         [RelayCommand]
-        private async Task CalcularAsync()
+        private Task CalcularAsync() => CalcularConAsync(null);
+
+        // W10 (DT-85): «Calcular con columnas de Inicio» (las del boleto, sin guardar antes un fichero).
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(TextoCalcularInicio))]
+        [NotifyCanExecuteChangedFor(nameof(CalcularConColumnasInicioCommand))]
+        private bool _generandoInicio;
+
+        public string TextoCalcularInicio =>
+            GenerandoInicio ? ColumnasInicioServicio.TextoGenerando : "Calcular con columnas de Inicio";
+
+        private bool PuedeUsarColumnasInicio() => !GenerandoInicio;
+
+        [RelayCommand(CanExecute = nameof(PuedeUsarColumnasInicio))]
+        private async Task CalcularConColumnasInicioAsync()
+        {
+            GenerandoInicio = true;
+            try
+            {
+                string? ruta = await ColumnasInicioServicio.GenerarAsync();
+                if (ruta != null) await CalcularConAsync(ruta);
+            }
+            finally
+            {
+                GenerandoInicio = false;
+            }
+        }
+
+        // origen null ⇒ se pide el fichero de entrada (comportamiento legacy).
+        private async Task CalcularConAsync(string? origen)
         {
             _salida = false;
             ColsProcesadas = " ";
@@ -185,14 +214,23 @@ namespace Free1X2.WinUI.Views.Ported
             PintaPantalla();
 
             // Legacy: OpenFileDialog del fichero de columnas de entrada (*.txt).
-            var file = await PickerHelper.AbrirAsync(".txt", "*");
-            if (file == null) return;
+            string ruta;
+            if (origen != null)
+            {
+                ruta = origen;
+            }
+            else
+            {
+                var file = await PickerHelper.AbrirAsync(".txt", "*");
+                if (file == null) return;
+                ruta = file.Path;
+            }
 
             int ctini = 0, ctadm = 0;
             var time0 = DateTime.Now;
             try
             {
-                using var sr = new StreamReader(file.Path);
+                using var sr = new StreamReader(ruta);
                 string? linea;
                 while ((linea = sr.ReadLine()) != null)
                 {

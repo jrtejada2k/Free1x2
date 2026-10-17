@@ -26,9 +26,34 @@ public partial class ReductorFrmViewModel : ObservableObject
     [ObservableProperty]
     private string _archivoEntradaTexto = "(falta selección)";
 
-    // lblFicheroSalida: muestra el nombre del archivo de salida seleccionado.
+    // lblFicheroSalida: muestra el nombre del archivo de salida seleccionado. W10 (DT-85): sin
+    // salida elegida se reduce a Temp/Reducido.txt y se guarda después con «Guardar resultado…».
+    private const string SalidaTemporalTexto = "(temporal: guárdalo después con «Guardar resultado…»)";
+
     [ObservableProperty]
-    private string _archivoSalidaTexto = "(falta selección)";
+    private string _archivoSalidaTexto = SalidaTemporalTexto;
+
+    // «Columnas de Inicio» generándose (el botón muestra «Generando columnas…»).
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(TextoColumnasInicio))]
+    [NotifyCanExecuteChangedFor(nameof(UsarColumnasInicioCommand))]
+    private bool _generandoInicio;
+
+    public string TextoColumnasInicio =>
+        GenerandoInicio ? ColumnasInicioServicio.TextoGenerando : ColumnasInicioServicio.TextoBoton;
+
+    // Lo último reducido, para «Guardar resultado…».
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(GuardarResultadoCommand))]
+    private string? _reducido;
+
+    public ReductorFrmViewModel()
+    {
+        // Inicio ▸ Reducir deja aquí sus columnas (W10, DT-85).
+        string? entrada = AppState.EntradaReductor;
+        AppState.EntradaReductor = null;
+        if (!string.IsNullOrEmpty(entrada)) UsarEntrada(entrada);
+    }
 
     // ----- Nivel de reducción (grNivelReduccion / cmbNivel) -----
     // En el legacy se llena con NumeroPartidos-1 .. 1 (VariablesGlobales.NumeroPartidos).
@@ -106,10 +131,15 @@ public partial class ReductorFrmViewModel : ObservableObject
     private string _archivoSalida = "";
     private IReduccion? _reductor;
 
+    // W10 (DT-85): basta con la entrada; sin salida se reduce a Temp/Reducido.txt.
     private void ActualizarPuedeReducir()
     {
-        PuedeReducir = _archivoEntrada.Length > 0 && _archivoSalida.Length > 0 && !Reduciendo;
+        PuedeReducir = _archivoEntrada.Length > 0 && !Reduciendo;
+        GuardarResultadoCommand.NotifyCanExecuteChanged();
+        UsarColumnasInicioCommand.NotifyCanExecuteChanged();
     }
+
+    private static string SalidaTemporal => System.IO.Path.Combine(ColumnasInicioServicio.CarpetaTemp, "Reducido.txt");
 
     // EsArchivoEntradaValido de ReductorFrm.cs: el archivo de entrada debe tener 14 signos.
     private static bool EsArchivoEntradaValido(string aEntrada)
@@ -138,7 +168,12 @@ public partial class ReductorFrmViewModel : ObservableObject
         var file = await PickerHelper.AbrirAsync(".txt");
         if (file == null) return;
 
-        if (!EsArchivoEntradaValido(file.Path))
+        UsarEntrada(file.Path);
+    }
+
+    private void UsarEntrada(string ruta)
+    {
+        if (!EsArchivoEntradaValido(ruta))
         {
             AppServices.MostrarError(
                 "El archivo de entrada debe tener 14 partidos.\n" +
@@ -146,9 +181,47 @@ public partial class ReductorFrmViewModel : ObservableObject
             return;
         }
 
-        _archivoEntrada = file.Path;
-        ArchivoEntradaTexto = file.Name;
+        _archivoEntrada = ruta;
+        ArchivoEntradaTexto = System.IO.Path.GetFileName(ruta);
         ActualizarPuedeReducir();
+    }
+
+    private bool PuedeUsarColumnasInicio() => !GenerandoInicio && !Reduciendo;
+
+    /// <summary>W10 (DT-85): «Columnas de Inicio» como archivo de entrada.</summary>
+    [RelayCommand(CanExecute = nameof(PuedeUsarColumnasInicio))]
+    private async Task UsarColumnasInicioAsync()
+    {
+        GenerandoInicio = true;
+        try
+        {
+            string? ruta = await ColumnasInicioServicio.GenerarAsync();
+            if (ruta != null) UsarEntrada(ruta);
+        }
+        finally
+        {
+            GenerandoInicio = false;
+        }
+    }
+
+    private bool PuedeGuardarResultado() => Reducido != null && !Reduciendo;
+
+    /// <summary>W10 (DT-85): guarda donde se elija lo último reducido.</summary>
+    [RelayCommand(CanExecute = nameof(PuedeGuardarResultado))]
+    private async Task GuardarResultadoAsync()
+    {
+        if (Reducido == null) return;
+        var destino = await PickerHelper.GuardarAsync("Reducido", ("Columnas", ".txt"));
+        if (destino == null) return;
+        try
+        {
+            string origen = Reducido;
+            await Task.Run(() => System.IO.File.Copy(origen, destino.Path, overwrite: true));
+        }
+        catch (Exception ex)
+        {
+            AppServices.MostrarError("No se pudo guardar la reducción: " + ex.Message);
+        }
     }
 
     // btnFileOutput: SaveFileDialog para el archivo de salida.
@@ -194,6 +267,10 @@ public partial class ReductorFrmViewModel : ObservableObject
 
         var hora0 = DateTime.Now;
 
+        // W10 (DT-85): sin «Archivo salida» elegido, la reducción va a Temp/Reducido.txt.
+        string salida = _archivoSalida.Length > 0 ? _archivoSalida : SalidaTemporal;
+        Reducido = null;
+
         // Timer de refresco (equivale al myTimer de 3000 ms + TimerEventProcessor).
         var timer = AppServices.UiDispatcher?.CreateTimer();
         if (timer != null)
@@ -206,7 +283,11 @@ public partial class ReductorFrmViewModel : ObservableObject
         try
         {
             await Task.Run(() =>
-                _reductor.ComienzaReduccion(_archivoEntrada, _archivoSalida, nivel, maxCol, percent));
+            {
+                System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(salida)!);
+                _reductor.ComienzaReduccion(_archivoEntrada, salida, nivel, maxCol, percent);
+            });
+            Reducido = salida;
         }
         catch (Exception ex)
         {

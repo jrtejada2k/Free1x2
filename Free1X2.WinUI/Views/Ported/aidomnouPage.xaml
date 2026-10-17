@@ -233,10 +233,18 @@
                     <!-- Cálculo / filtrado del fichero de columnas (legacy: bCalcular / bCancelar / contadores) -->
                     <Border Style="{StaticResource AppCardStyle}">
                         <StackPanel Spacing="6">
-                            <Button
-                                Style="{StaticResource AccentButtonStyle}"
-                                Content="Calcular" Width="150" HorizontalAlignment="Left"
-                                Command="{x:Bind ViewModel.CalcularCommand}" />
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Button
+                                    Style="{StaticResource AccentButtonStyle}"
+                                    Content="Calcular" Width="150" HorizontalAlignment="Left"
+                                    Command="{x:Bind ViewModel.CalcularCommand}" />
+                                <!-- W10 (DT-85) -->
+                                <Button
+                                    Content="{x:Bind ViewModel.TextoCalcularInicio, Mode=OneWay}"
+                                    Command="{x:Bind ViewModel.CalcularConColumnasInicioCommand}"
+                                    ToolTipService.ToolTip="Usar las columnas del boleto de Inicio, con sus condiciones, sin guardar antes un fichero"
+                                    AutomationProperties.Name="Calcular con columnas de Inicio" />
+                            </StackPanel>
                             <StackPanel Orientation="Horizontal" Spacing="6">
                                 <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Text="Procesadas:" VerticalAlignment="Center" MinWidth="80" />
                                 <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}" Text="{x:Bind ViewModel.ColsProcesadas, Mode=OneWay}" />
