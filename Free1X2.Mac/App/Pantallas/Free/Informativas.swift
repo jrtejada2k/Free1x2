@@ -21,7 +21,7 @@ struct VistaAcercaDe: View {
 
     /// `VersionProducto`: `CFBundleShortVersionString`; si falta, «(desconocida)».
     private var version: String {
-        "Versión " + (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "(desconocida)") + " Rarotonga"
+        "Versión " + (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "(desconocida)")
     }
 
     /// Documento local del bundle con la app asociada; si falta o falla, la web (:97-111).
