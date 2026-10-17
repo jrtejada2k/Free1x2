@@ -25,10 +25,11 @@ final class FlujosUITests: XCTestCase {
     /// Desplaza la página hasta que `e` se pueda pulsar (en macOS XCUITest no desplaza solo).
     @MainActor private func pulsar(_ app: XCUIApplication, _ e: XCUIElement) {
         XCTAssertTrue(e.waitForExistence(timeout: 10))
-        // La zona de la página, no la del panel lateral: la más estrecha que está encima del control.
+        // La página: de las zonas con scroll que están sobre el control (el panel lateral queda fuera), la más alta. La más
+        // estrecha podía ser una tabla de la propia página, y F16 se pasaba 5 min desplazando la tabla y no la página.
         let x = e.frame.midX
         let zona = app.scrollViews.allElementsBoundByIndex.filter { $0.frame.minX <= x && x <= $0.frame.maxX }
-            .min { $0.frame.width < $1.frame.width }
+            .max { $0.frame.height < $1.frame.height }
         for _ in 0..<10 where !e.isHittable { zona?.scroll(byDeltaX: 0, deltaY: -300) }
         e.click()
     }
@@ -60,7 +61,9 @@ final class FlujosUITests: XCTestCase {
         for (i, t) in ruta.enumerated() {
             let item = app.menuBars.menuItems[t].firstMatch
             XCTAssertTrue(item.waitForExistence(timeout: 5), t)
-            if i < ruta.count - 1 { item.hover() } else { item.click() }
+            // El último, con un clic en su posición: `click()` rehace el recorrido del menú aunque ya esté abierto y, en los
+            // submenús de selector (Idioma), falla con «open menu during menu traversal».
+            if i < ruta.count - 1 { item.hover() } else { item.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).click() }
         }
     }
 
