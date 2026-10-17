@@ -73,6 +73,7 @@
 		7999896A264E4FC14AAC3883 /* bImprimirBoletos.png in Resources */ = {isa = PBXBuildFile; fileRef = 4CD0AC5BE39C889EC095B745 /* bImprimirBoletos.png */; };
 		79FFA6EEE06F09D70C9E6B35 /* GruposEquipos.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7ACEF1BC5AA3C33883A3EC3 /* GruposEquipos.swift */; };
 		7C1DA8CD53B6B1C9A52DD171 /* bRotacion.png in Resources */ = {isa = PBXBuildFile; fileRef = C5DA57C012C4A880F0F4E0C1 /* bRotacion.png */; };
+		7D200EEF4CA092C7557D1C2E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F61C0C728D14C35446197B05 /* Assets.xcassets */; };
 		7DB9103104D30CDBFDA1A0B7 /* VistaDestino.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19B6A06520278BAB278E48F4 /* VistaDestino.swift */; };
 		824CF077491926097F0FED12 /* bProbabilidad.png in Resources */ = {isa = PBXBuildFile; fileRef = B96A8671C0F835740231EAB0 /* bProbabilidad.png */; };
 		8254C39510AABC21197EA362 /* bGestorEquipos.png in Resources */ = {isa = PBXBuildFile; fileRef = 5C33760885374A73ED45E465 /* bGestorEquipos.png */; };
@@ -262,6 +263,7 @@
 		F2237869C6EB3EFFB9EDAF19 /* Valoracion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Valoracion.swift; sourceTree = "<group>"; };
 		F2BA552AE000EB9937D9D77D /* bVerBoletos.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bVerBoletos.png; sourceTree = "<group>"; };
 		F402F7C2F9E51B1E2F11B4CA /* bBancoPruebas.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bBancoPruebas.png; sourceTree = "<group>"; };
+		F61C0C728D14C35446197B05 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F63D860AEE98447EB6C15F83 /* bModificadorPct.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bModificadorPct.png; sourceTree = "<group>"; };
 		F6958E688A2AFDF4D1A8AF51 /* AnalisisFallos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalisisFallos.swift; sourceTree = "<group>"; };
 		F7ACEF1BC5AA3C33883A3EC3 /* GruposEquipos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GruposEquipos.swift; sourceTree = "<group>"; };
@@ -425,6 +427,7 @@
 		292847A72B8CF137BAD5A713 /* Recursos */ = {
 			isa = PBXGroup;
 			children = (
+				F61C0C728D14C35446197B05 /* Assets.xcassets */,
 				C0344B454C66C01D3073E748 /* Datos */,
 				8AB7CAABF6E86A07C2401496 /* logo.jpg */,
 				216496C1FE0B15E933B52FEF /* Barra */,
@@ -614,9 +617,6 @@
 						ProvisioningStyle = Manual;
 						TestTargetID = B72C5944004B300ED194B130;
 					};
-					B72C5944004B300ED194B130 = {
-						ProvisioningStyle = Manual;
-					};
 				};
 			};
 			buildConfigurationList = 0E4E3BD5B0507F2BD2182A7C /* Build configuration list for PBXProject "Free1X2" */;
@@ -647,6 +647,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7D200EEF4CA092C7557D1C2E /* Assets.xcassets in Resources */,
 				C4D8549A87B89CF5F06A0F09 /* Datos in Resources */,
 				E2B30E73654C0B1B34A3282F /* bAcercaDe.png in Resources */,
 				4E817E578D9D7C45FB6F4B0A /* bAlgebra.png in Resources */,
@@ -997,10 +998,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "-";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 84JHK2MSAL;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
