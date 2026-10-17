@@ -315,39 +315,35 @@ struct VistaEscrutinios: View {
         }
     }
 
+    /// `Table` (solo crea las filas visibles), no `Grid`: con miles de premiadas el Grid las creaba todas y la pantalla (y
+    /// cada búsqueda de XCUITest, 9-15 s en F16) se volvía lenta.
     private func listaPremiadas(_ filas: [FilaPremiada]) -> some View {
         Tarjeta("Columnas premiadas") {
-            ScrollView {
-                Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 2) {
-                    ForEach(filas.indices, id: \.self) { i in
-                        let f = filas[i]
-                        GridRow {
-                            Text(f.archivoColumnas)
-                            Text(f.jornada)
-                            Text(f.columna).monospaced()
-                            Text(f.premio)
-                            Text(f.numeroColumna)
-                            Text(f.numeroBoleto)
-                        }
-                    }
-                }
+            Table(filas.indices.map { FilaIndexada(id: $0, f: filas[$0]) }) {
+                TableColumn("Arch. Columnas", value: \.f.archivoColumnas)
+                TableColumn("Jorn.", value: \.f.jornada)
+                TableColumn("Columna") { Text($0.f.columna).monospaced() }
+                TableColumn("Premio", value: \.f.premio)
+                TableColumn("Nº Col.", value: \.f.numeroColumna)
+                TableColumn("Nº Boleto", value: \.f.numeroBoleto)
             }
-            .frame(maxHeight: 220)
+            .frame(minHeight: 160, maxHeight: 220)
         }
     }
 }
 
 /// «Columnas Premiadas» (pantalla 20, `ColumnasPremiadasFrm`): resumen exportable.
+/// Una columna premiada con su posición, para las tablas.
+private struct FilaIndexada: Identifiable {
+    let id: Int
+    let f: FilaPremiada
+}
+
 struct VistaColumnasPremiadas: View {
     @Environment(Sesion.self) private var sesion
     @State private var filas: [FilaPremiada] = []
     @State private var seleccion: Set<Int> = []
     @State private var cargado = false
-
-    private struct Fila: Identifiable {
-        let id: Int
-        let f: FilaPremiada
-    }
 
     private func guardar(_ lista: [FilaPremiada]) async {
         guard !lista.isEmpty else { return sesion.alertas.info("No hay columnas que guardar.") }
@@ -368,7 +364,7 @@ struct VistaColumnasPremiadas: View {
             )
             .foregroundStyle(Color.textoSecundario)
             Tarjeta("Columnas premiadas (\(filas.count))", icono: "trophy", color: .secundario) {
-                Table(filas.indices.map { Fila(id: $0, f: filas[$0]) }, selection: $seleccion) {
+                Table(filas.indices.map { FilaIndexada(id: $0, f: filas[$0]) }, selection: $seleccion) {
                     TableColumn("Arch. Columnas", value: \.f.archivoColumnas)
                     TableColumn("Jorn.", value: \.f.jornada)
                     TableColumn("Columna", value: \.f.columna)
