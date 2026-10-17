@@ -580,7 +580,13 @@ namespace Free1X2.WinUI.Views.Ported
                 return;
             }
 
+            // W2 (D-04, DT-80): vuelca antes la pantalla a las copias de trabajo de todas las
+            // pestañas (son idempotentes). Si un valor no es válido lanza aquí, antes de activar o
+            // tocar _filtroCP, y la condición queda como estaba.
             GuardarCPActual();
+            GuardarRelCP1Actual();
+            GuardarRelacion2EnPantalla();
+            GuardarRelacion3EnPantalla();
 
             // Borrar última CP si quedó vacía (legacy NecesitaBorrarUltimaCP).
             if (_grupoCP.Count > 0 && NecesitaBorrarUltimaCP())

@@ -145,6 +145,10 @@ public partial class SignosSeguidosFrmViewModel : FiltroArchivoViewModelBase
         var grupo = AppState.GrupoEnEdicion;
         if (grupo is null) { Volver?.Invoke(); return; }
 
+        // W2 (D-04, DT-80): valida antes con un filtro temporal. Si un valor no es válido lanza
+        // aquí y el filtro del grupo queda como estaba (antes quedaba reinicializado y activo).
+        ObtenerFiltroTemporal();
+
         var filtro = (FiltroSignosSeguidos)grupo.GetFiltro(Filtro.SignosSeguidos.ToString());
         filtro.ReinicializaValores();
 
