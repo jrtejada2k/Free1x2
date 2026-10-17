@@ -53,9 +53,9 @@ public enum TipoAnalisisBanco: String, Sendable, CaseIterable {
 }
 
 extension CasosUtilidades {
+    /// Reparto 14…10 del original. El precio y la recaudación (0,50 € y 14 M € fijos en el original) salen de
+    /// Configuración ▸ Parámetros LAE desde DT-93.
     static let pctBanco = [0.12, 0.08, 0.08, 0.08, 0.09]
-    static let recaudacionBanco = 14_000_000.0
-    static let precioBanco = 0.5
 
     /// `LeerColumnas` / `CargarFicheroDeColumnas`: `ConvColumnaANumero` de la línea entera.
     public static func columnasBanco(_ url: URL, entorno: Entorno) throws(ErrorDominio) -> [Int] {
@@ -141,7 +141,7 @@ extension CasosUtilidades {
     }
 
     /// CU-A18 `CalcularPremios`: reparto del L.A.E. (14, 13, 12, 11, 10) para un 14 virtual con las valoraciones `pa`.
-    static func premiosBanco(_ ganadora: Int, _ pa: [[Float]]) -> [Double] {
+    static func premiosBanco(_ ganadora: Int, _ pa: [[Float]], _ lae: ConfigLAE) -> [Double] {
         var prob14 = 1.0
         var cr = [Float](repeating: 0, count: 14)
         for p in 0..<14 {
@@ -158,8 +158,8 @@ extension CasosUtilidades {
             }
         }
         sumar(prob14, 0, 1)
-        var premios = (0..<5).map { FormatoNET.round(pctBanco[$0] * precioBanco / ($0 == 0 ? prob14 : suma[$0]), decimales: 2) }
-        for i in 0..<5 where premios[i] > recaudacionBanco * pctBanco[i] { premios[i] = recaudacionBanco * pctBanco[i] }
+        var premios = (0..<5).map { FormatoNET.round(pctBanco[$0] * lae.precioApuesta / ($0 == 0 ? prob14 : suma[$0]), decimales: 2) }
+        for i in 0..<5 where premios[i] > lae.recaudacion * pctBanco[i] { premios[i] = lae.recaudacion * pctBanco[i] }
         if premios[4] < 1 { premios[4] = 0 }
         return premios
     }
@@ -167,13 +167,13 @@ extension CasosUtilidades {
     /// CU-A19…A22 `Analizar`.
     @concurrent public static func analizarBanco(
         _ tipo: TipoAnalisisBanco, fichero: URL, apostados: [[Double]], aleatorias: [Int], acumular: [Bool], numeroPartidos: Int,
-        entorno: Entorno
+        lae: ConfigLAE, entorno: Entorno
     ) async throws(ErrorDominio) -> ResultadoBanco {
         let cultura = entorno.cultura
         func d(_ v: Double) -> String { FormatoNET.toString(v, cultura: cultura) }
         let cols = try columnasBanco(fichero, entorno: entorno)
         let pa = try Porcentajes(valores: apostados).valoresBase100(numeroPartidos: apostados.count)
-        let coste = Double(cols.count) * precioBanco
+        let coste = Double(cols.count) * lae.precioApuesta
         var r = ResultadoBanco(numColumnas: String(cols.count))
         switch tipo {
         case .combinacion:
@@ -182,7 +182,7 @@ extension CasosUtilidades {
             var (premiada, beneficio) = (0, 0)
             let gasto = coste * Double(aleatorias.count)
             for i in aleatorias {
-                let premios = premiosBanco(i, pa)
+                let premios = premiosBanco(i, pa, lae)
                 var (gana, saldo) = (false, -coste)
                 for j in cols {
                     let n = aciertosBanco(i, j)
@@ -211,7 +211,7 @@ extension CasosUtilidades {
             var premiosCol = [[Double]](repeating: [0, 0, 0, 0, 0], count: cols.count)
             var (premiada, beneficio) = (0, 0)
             for (k, i) in escrutinios.enumerated() {
-                let premios = premiosBanco(i, pa)
+                let premios = premiosBanco(i, pa, lae)
                 var (gana, saldo) = (false, -coste)
                 for (jj, j) in cols.enumerated() {
                     let n = aciertosBanco(i, j)
@@ -231,7 +231,7 @@ extension CasosUtilidades {
             for (k, c) in cols.enumerated() {
                 let suma = (0..<5).reduce(0.0) { acumular[$1] ? $0 + premiosCol[k][$1] : $0 }
                 let n = Double(escrutinios.count)
-                let rec = escrutinios.isEmpty ? 0 : FormatoNET.round(suma * 100 / n / 0.5, decimales: 0)
+                let rec = escrutinios.isEmpty ? 0 : FormatoNET.round(suma * 100 / n / lae.precioApuesta, decimales: 0)
                 filas.append(
                     FilaBancoColumna(
                         indice: k, columna: try conv.columna(Int64(c)), columnaNumero: c, veces: veces[k],
@@ -252,7 +252,7 @@ extension CasosUtilidades {
             var saldo = 0.0
             var lineas: [String] = []
             for (k, i) in aleatorias.enumerated() {
-                let premios = premiosBanco(i, pa)
+                let premios = premiosBanco(i, pa, lae)
                 var aciertos = [0, 0, 0, 0, 0]
                 var ingresos = [0.0, 0, 0, 0, 0]
                 for j in cols {

@@ -50,10 +50,11 @@ struct VistaTramificar: View {
         }
         estado = "Calculando ..."
         calculando = true
-        let p = ParametrosTramificar(
+        var p = ParametrosTramificar(
             columnaInicial: columnaInicial, columnaFinal: columnaFinal, columnasPorTramo: columnasPorTramo,
             columnaPremiada: columnaPremiada, premios: premios, valoraciones: valoraciones, ln: ln, porProductos: porProductos,
             acumular: acumular)
+        p.precio = sesion.configuracion.lae.precioApuesta
         let (flujo, canal) = AsyncStream.makeStream(of: String.self, bufferingPolicy: .bufferingNewest(1))
         let escucha = Task { for await t in flujo { estado = t } }
         do throws(ErrorDominio) {
@@ -160,7 +161,7 @@ struct VistaTramificar: View {
         do throws(ErrorDominio) {
             try CasosUtilidades.guardarJornadaTramificar(
                 columna: columnaPremiada, temporada: temporada, temporadaFin: "2005", jornada: jornada, recaudacion: recaudacion,
-                premios: premios, entorno: sesion.entorno)
+                premios: premios, lae: sesion.configuracion.lae, entorno: sesion.entorno)
             estado = "Datos de la jornada L.A.E. guardados."
         } catch {
             sesion.alertas.error("No se pudo guardar la jornada L.A.E.: " + error.mensajeUsuario)

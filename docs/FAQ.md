@@ -116,8 +116,9 @@ probabilidad, el premio neto medio y la **esperanza matemática**, y el total co
 del 100 %, la columna devuelve de media más de lo que cuesta. Es una media a largo plazo, no una garantía.
 
 ### ¿Dónde cambio el precio de la apuesta?
-En **Configuración ▸ Parámetros LAE ▸ Precio apuesta**; se guarda y lo usan los cálculos de premios y el coste del
-boleto. En **Esperanza matemática** también se puede cambiar para un cálculo concreto. El precio cambia el número de
+En **Configuración ▸ Parámetros LAE ▸ Precio apuesta** (0,75 € de partida); se guarda y lo usan los cálculos de premios
+(Estimación de premios, Rentabilidad, Esperanza matemática, Banco de pruebas, el balance de Tramificar y los datos de
+jornada que se guardan) y el coste del boleto. En **Esperanza matemática** también se puede cambiar para un cálculo concreto. El precio cambia el número de
 apuestas (recaudación ÷ precio) y con él los acertantes y los premios estimados; no cambia las columnas que genera el
 programa.
 

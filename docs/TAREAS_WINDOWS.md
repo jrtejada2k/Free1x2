@@ -61,7 +61,7 @@ un sistema se usa tal cual en el otro.
 1. Correcciones pequeñas: W1–W5.
 2. Jornada: W6–W7.
 3. Navegación: W8.
-4. Máscaras, columnas de Inicio, base de ganadoras y esperanza matemática: W9, W10, W12 y W14 (y W15). Comparten la generación de columnas y la pantalla
+4. Máscaras, columnas de Inicio, base de ganadoras y esperanza matemática: W9, W10, W12 y W14 (y W15–W16). Comparten la generación de columnas y la pantalla
    «Máscaras».
 5. Enlaces de ayuda (W11) e icono (W13, ya sustituido: solo verificar).
 6. Cierre (§ «Cierre»): documentación, `CLAUDE.md` e informe al dueño.
@@ -520,6 +520,31 @@ un sistema se usa tal cual en el otro.
 
 ---
 
+## W16 · Precio y recaudación de Configuración en lugar de 0,50 € y 14 M € fijos (DT-93)
+
+- **Qué (aprobado por el dueño, 17-oct-2026):** donde el original usa constantes, se usan Configuración ▸ Parámetros LAE
+  (`PrecioApuesta`, `Recaudacion` de `parametros.free1x2`):
+  1. **Tramificar ▸ Guardar jornada L.A.E.** (`GuardarJornadaLAE`, CU-C38): importes y recaudación ÷ **precio** (no ÷ 0,5);
+     recaudación vacía = la de Configuración (no 14.000.000). Así `Jornadas/InfoJornadasLAE.txt` queda siempre en las
+     mismas unidades que escribe Escrutinio (÷ precio configurado) y que lee Estimación de premios (× su precio, que con
+     W15 arranca con el de Configuración).
+  2. **Balance de los tramos** (`Tramo.CalculaTotalImportePremios`): importe − columnas × **precio** (no × 0,5).
+  3. **Banco de pruebas** (`CalcularPremios`, `Analizar`): precio y recaudación de Configuración en vez de 0,5 y
+     14.000.000 (premios, tope por categoría, gasto = columnas × precio, % de recuperación ÷ precio). El reparto
+     12/8/8/8/9 sigue igual.
+- **R1:** con precio 0,50 y recaudación 14.000.000 los resultados son idénticos a los de ahora: los tests existentes deben
+  pasar esos valores explícitamente y seguir en verde sin cambiar sus expectativas.
+- **No se toca** el 3·10⁷ de la condición «Valoración por productos» (es del motor; decisión pendiente del dueño).
+- **Referencia Mac:** `Free1X2.Mac/Packages/Free1X2Kit/Sources/Free1X2Motor/Utils/Tramo.swift`,
+  `…/Free1X2CasosDeUso/Utilidades/Tramificar.swift` (`guardarJornadaTramificar(lae:)`, `ParametrosTramificar.precio`),
+  `…/Free1X2CasosDeUso/Utilidades/BancoPruebas.swift` (`analizarBanco(lae:)`).
+- **Pruebas** (Mac: `PrecioConfigurableTests` en `TramificarTests.swift`): guardar con Tramificar a 0,75 € y recaudación
+  9.000.000 la jornada 7 con premios 1165207,35 · 29877,11 · 1753,51 · 165,38 · 22,79 y leerla con Estimación a 0,75 € ⇒
+  recaudación 9.000.000 y los mismos premios; tramo con 1 acierto de 14 a 1.000 € y 100 columnas ⇒ balance 925 a 0,75 € y
+  950 a 0,50 €.
+
+---
+
 ## Lo que cambió en el Mac y **no** se lleva a Windows
 
 | Cambio en el Mac | Por qué no aplica |
@@ -532,7 +557,7 @@ un sistema se usa tal cual en el otro.
 
 ---
 
-## Cierre (después de W1–W15)
+## Cierre (después de W1–W16)
 
 1. **Verificación completa:** build 0 errores, `dotnet test` con 138 + los nuevos en verde, smoke `total=111 ok=111
    fail=0` con el log borrado antes.
@@ -543,5 +568,5 @@ un sistema se usa tal cual en el otro.
    `.mas`, `Historico/`). Luego `python scripts/md-a-wordpress.py`, que regenera `docs/web/manual.html` y
    `docs/web/faq.html`, y avisar al dueño de que hay que volver a subirlos a `clubprogol.com/docwk/` y
    `clubprogol.com/docwk/faq/`.
-4. **Informe al dueño:** una tabla por tarea (W1–W15) con estado (hecha / no hecha y por qué), commit, `fichero:línea`
+4. **Informe al dueño:** una tabla por tarea (W1–W16) con estado (hecha / no hecha y por qué), commit, `fichero:línea`
    del cambio y los tests añadidos. Lo que no se pudo hacer se dice, no se da por hecho.

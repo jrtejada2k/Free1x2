@@ -115,7 +115,7 @@ struct UtilsTests {
                 o.ponerAciertos(origen.aciertos)
                 o.numColumnasTramo = origen.numColumnasTramo ?? 0
                 o.columnasPremiadas = origen.columnasPremiadas ?? 0
-                if origen.calcular == true { o.calculaTotalImportePremios() }
+                if origen.calcular == true { o.calculaTotalImportePremios(precio: 0.5) }
                 tramo.ponerAciertos(destino.aciertos)
                 tramo.addTramo(o)
             } else {
@@ -126,7 +126,7 @@ struct UtilsTests {
                 tramo.valorDerecha = e.valorDerecha ?? 0
                 tramo.probAcumulada = e.probAcumulada?.valor ?? 0
                 tramo.columnasPremiadas = e.columnasPremiadas ?? 0
-                if caso.componente == "Tramo.calculaTotalImportePremios" { tramo.calculaTotalImportePremios() }
+                if caso.componente == "Tramo.calculaTotalImportePremios" { tramo.calculaTotalImportePremios(precio: 0.5) }
             }
             if let p = s.p14 {
                 #expect([tramo.p14, tramo.p13, tramo.p12, tramo.p11, tramo.p10] == [p, s.p13, s.p12, s.p11, s.p10].compactMap { $0 })

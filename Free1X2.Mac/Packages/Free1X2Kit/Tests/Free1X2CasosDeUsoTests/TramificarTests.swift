@@ -68,7 +68,7 @@ struct TramificarTests {
         let g = {
             try CasosUtilidades.guardarJornadaTramificar(
                 columna: "1X1222X2X12121", temporada: "2004", temporadaFin: "2005", jornada: 7, recaudacion: "7768049",
-                premios: ["1165207,35", "29877,11", "1753,51", "165,38", "22,79"], entorno: entorno)
+                premios: ["1165207,35", "29877,11", "1753,51", "165,38", "22,79"], lae: .original, entorno: entorno)
         }
         try g()
         try g()
@@ -77,5 +77,43 @@ struct TramificarTests {
             TextoNET.lineas(try entorno.archivos.leer(url)) == [
                 "1X1222X2X12121\t2004/2005\t07\t15536098\t2330414,7\t59754,22\t3507,02\t330,76\t45,58"
             ])
+    }
+}
+
+extension ConfigLAE {
+    /// Los 0,50 € y 14 M € fijos del original (DT-93): con ellos, los resultados son los de siempre.
+    static let original: ConfigLAE = {
+        var l = ConfigLAE()
+        (l.precioApuesta, l.recaudacion) = (0.5, 14_000_000)
+        return l
+    }()
+}
+
+/// DT-93: con el precio de Configuración, lo que guarda Tramificar lo lee Estimación de premios con los mismos importes, y
+/// el balance de un tramo descuenta columnas × precio.
+struct PrecioConfigurableTests {
+    @Test func jornadaGuardadaYLeidaConElMismoPrecio() throws {
+        let entorno = Entorno.pruebas()
+        var lae = ConfigLAE()
+        (lae.precioApuesta, lae.recaudacion) = (0.75, 9_000_000)
+        try CasosUtilidades.guardarJornadaTramificar(
+            columna: "1X1222X2X12121", temporada: "2026", temporadaFin: "2027", jornada: 7, recaudacion: "",
+            premios: ["1165207,35", "29877,11", "1753,51", "165,38", "22,79"], lae: lae, entorno: entorno)
+        let d = try #require(
+            try CasosUtilidades.datosJornadaLAE(
+                temporada: "2026/2027", jornada: 7, recaudacion: 9_000_000, bote: 0, precio: 0.75, porcentajes: [12, 8, 8, 8, 9],
+                entorno: entorno))
+        #expect(abs(d.recaudacion - 9_000_000) < 1e-6)
+        #expect(zip(d.premios, [1_165_207.35, 29_877.11, 1_753.51, 165.38, 22.79]).allSatisfy { abs($0 - $1) < 1e-6 })
+    }
+
+    @Test func balanceDelTramo() {
+        var t = Tramo(premios: [1000, 0, 0, 0, 0])
+        t.numColumnasTramo = 100
+        t.ponerAciertos([1, 0, 0, 0, 0])
+        t.calculaTotalImportePremios(precio: 0.75)
+        #expect(t.totalImportePremios == 1000 && t.balance == 925)
+        t.calculaTotalImportePremios(precio: 0.5)
+        #expect(t.balance == 950)
     }
 }

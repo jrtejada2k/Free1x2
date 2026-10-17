@@ -36,6 +36,8 @@ public struct ParametrosTramificar: Sendable {
     public var ln: Double
     public var porProductos: Bool
     public var acumular: Bool
+    /// Precio de la apuesta para el balance de los tramos (DT-93; el original usa 0,50 fijo).
+    public var precio = 0.5
 
     public init(
         columnaInicial: Double, columnaFinal: Double, columnasPorTramo: Double, columnaPremiada: String, premios: [String],
@@ -169,7 +171,7 @@ extension CasosUtilidades {
             tr.numColumnasTramo = c
             tr.valorDerecha += tr.valorIzquierda + c + c2 - 1
             tr.ponerAciertos(aciertos)
-            tr.calculaTotalImportePremios()
+            tr.calculaTotalImportePremios(precio: p.precio)
             if tramos.count < previos.count { tr.addTramo(previos[tramos.count]) }
             tr.numeroDeTramo = tramos.count + 1
             tramos.append(tr)
@@ -269,16 +271,18 @@ extension CasosUtilidades {
     }
 
     /// CU-C38 `GuardarJornadaLAE`: sustituye la línea de esa temporada y jornada en `Jornadas/InfoJornadasLAE.txt` o la
-    /// añade; importes ÷ 0,5 con coma decimal; recaudación vacía = 14 000 000.
+    /// añade; importes ÷ precio con coma decimal; recaudación vacía = la de Configuración. El original usa 0,50 y 14 000 000
+    /// fijos; desde DT-93, el precio y la recaudación de Configuración ▸ Parámetros LAE (como Escrutinio y Estimación).
     public static func guardarJornadaTramificar(
         columna: String, temporada: String, temporadaFin: String, jornada: Double, recaudacion: String, premios: [String],
-        entorno: Entorno
+        lae: ConfigLAE, entorno: Entorno
     ) throws(ErrorDominio) {
         let c = entorno.cultura
         let j = String(FormatoNET.castInt32(jornada))
         let (jor, temp) = (String(repeating: "0", count: max(0, 2 - j.count)) + j, temporada + "/" + temporadaFin)
-        let f = { (s: String) in FormatoNET.toString(parseEsp(s, c) / 0.5, cultura: c).replacingOccurrences(of: ".", with: ",") }
-        let nueva = ([columna, temp, jor, f(recaudacion.isEmpty ? "14000000" : recaudacion)] + premios.map(f)).joined(separator: "\t")
+        let f = { (v: Double) in FormatoNET.toString(v / lae.precioApuesta, cultura: c).replacingOccurrences(of: ".", with: ",") }
+        let rec = recaudacion.isEmpty ? lae.recaudacion : parseEsp(recaudacion, c)
+        let nueva = ([columna, temp, jor, f(rec)] + premios.map { f(parseEsp($0, c)) }).joined(separator: "\t")
         let url = rutaInfoJornadas(entorno)
         var lineas: [String] = []
         var existe = false

@@ -34,13 +34,13 @@ struct BancoPruebasTests {
         let f = try fichero(["11111111111111"])
         let comb = try await CasosUtilidades.analizarBanco(
             .combinacion, fichero: f, apostados: uniforme, aleatorias: [0, 1], acumular: [true, false, false, false, false],
-            numeroPartidos: 14, entorno: entorno)
+            numeroPartidos: 14, lae: .original, entorno: entorno)
         let filas = try #require(comb.filas)
         #expect(filas[14].hasPrefix("14 aciertos\tveces: 1\t") && filas[13].hasPrefix("13 aciertos\tveces: 1\t"))
         #expect(comb.gasto == "1" && comb.vecesPremiada == "2" && comb.numColumnas == "1")
         let jor = try await CasosUtilidades.analizarBanco(
             .jornadas, fichero: f, apostados: uniforme, aleatorias: [0, 1], acumular: [true, false, false, false, false],
-            numeroPartidos: 14, entorno: entorno)
+            numeroPartidos: 14, lae: .original, entorno: entorno)
         #expect(
             jor.jornadas?.map { String($0.prefix(41)) } == [
                 "Jornada 1    14:1  13:0  12:0  11:0  10:0", "Jornada 2    14:0  13:1  12:0  11:0  10:0",
@@ -48,7 +48,7 @@ struct BancoPruebasTests {
         let g = try fichero(["11111111111111", "X1111111111111", "22222222222222"])
         let auto = try await CasosUtilidades.analizarBanco(
             .autoescrutinio, fichero: g, apostados: uniforme, aleatorias: [], acumular: [true, true, false, false, false],
-            numeroPartidos: 14, entorno: entorno)
+            numeroPartidos: 14, lae: .original, entorno: entorno)
         let cols = try #require(auto.columnas)
         #expect(
             cols.map(\.veces) == [[1, 1, 0, 0, 0], [1, 1, 0, 0, 0], [1, 0, 0, 0, 0]] && auto.gasto == "1,5" && auto.premioTotal == "")

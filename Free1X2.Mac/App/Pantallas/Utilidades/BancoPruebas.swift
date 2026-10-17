@@ -94,7 +94,7 @@ struct VistaBancoPruebas: View {
         do throws(ErrorDominio) {
             let r = try await CasosUtilidades.analizarBanco(
                 tipo, fichero: URL(filePath: fichero), apostados: apostados, aleatorias: aleatorias, acumular: acumular,
-                numeroPartidos: sesion.numeroPartidos, entorno: sesion.entorno)
+                numeroPartidos: sesion.numeroPartidos, lae: sesion.configuracion.lae, entorno: sesion.entorno)
             for (i, t) in [r.numColumnas, r.gasto, r.premioTotal, r.recuperado, r.vecesPremiada, r.vecesBeneficio].enumerated() {
                 if let t { globales[i] = t }
             }

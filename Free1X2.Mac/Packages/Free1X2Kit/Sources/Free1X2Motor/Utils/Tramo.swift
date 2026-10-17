@@ -29,12 +29,13 @@ public struct Tramo: Sendable, Equatable {
         aciertos = Array((nuevos + [0, 0, 0, 0, 0]).prefix(5))
     }
 
-    /// `CalculaTotalImportePremios`: Σ aciertos·premio, en el mismo orden; balance = importe − columnas·0,5.
-    public mutating func calculaTotalImportePremios() {
+    /// `CalculaTotalImportePremios`: Σ aciertos·premio, en el mismo orden; balance = importe − columnas·precio. El original
+    /// usa 0,50 fijo; desde DT-93 es el precio de Configuración ▸ Parámetros LAE.
+    public mutating func calculaTotalImportePremios(precio: Double) {
         var acumulado = 0.0
         for i in 0..<5 { acumulado += Double(aciertos[i]) * premios[i] }
         totalImportePremios = acumulado
-        balance = acumulado - Double(numColumnasTramo) * 0.5
+        balance = acumulado - Double(numColumnasTramo) * precio
     }
 
     /// `AddTramo`: suma aciertos, columnas premiadas, importe y balance de otro tramo.
