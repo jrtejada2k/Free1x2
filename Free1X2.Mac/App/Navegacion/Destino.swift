@@ -228,7 +228,7 @@ enum Destino: String, Hashable, CaseIterable, Identifiable {
         case .aidomnou: "Filtro Aidomnou"
         case .acercaDe: "Acerca de"
         case .ayuda: "Recursos de ayuda"
-        case .creditos: "Equipo Free1X2"
+        case .creditos: "Créditos"
         }
     }
 

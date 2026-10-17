@@ -16,18 +16,31 @@ struct FilaMascara: Identifiable {
     }
 }
 
-/// «Máscaras» (nueva, DT-84): las guardadas, aplicarlas al boleto y compararlas contra las ganadoras históricas.
+/// «Máscaras» (nueva, DT-84): las guardadas, aplicarlas al boleto y compararlas contra la base de ganadoras por liga
+/// (DT-88).
 struct VistaMascaras: View {
     @Environment(Sesion.self) private var sesion
     @State private var mascaras: [Mascara] = []
     @State private var filas: [FilaMascara] = []
     @State private var orden = [KeyPathComparator(\FilaMascara.p10, order: .reverse)]
-    @State private var pais = PaisQuiniela.es
+    @State private var ligas: [(nombre: String, jornadas: Int)] = []
+    @State private var liga = ""
+    @State private var escrutada = ""
     @State private var estado = ""
     @State private var ocupado = false
     @State private var guardando = false
+    @State private var creandoLiga = false
+    @State private var nombreLiga = ""
+
+    private var jornadasLiga: Int { ligas.first { $0.nombre == liga }?.jornadas ?? 0 }
 
     private func recargar() { mascaras = CasosMascaras.listar(numeroPartidos: sesion.numeroPartidos, entorno: sesion.entorno) }
+
+    private func recargarLigas(seleccionar s: String? = nil) {
+        ligas = CasosHistorico.ligas(entorno: sesion.entorno)
+        let quiero = s ?? liga
+        liga = ligas.contains { $0.nombre == quiero } ? quiero : ligas.first?.nombre ?? ""
+    }
 
     private func borrar(_ m: Mascara) async {
         guard await sesion.alertas.confirmar("¿Borrar la máscara «\(m.nombre)»?") else { return }
@@ -40,37 +53,64 @@ struct VistaMascaras: View {
         recargar()
     }
 
-    private func escrutar(_ ganadoras: [String], origen: String) {
+    /// Escruta todas las máscaras contra la base de la liga elegida (DT-88).
+    private func escrutar() {
+        let ganadoras = CasosHistorico.leer(liga, entorno: sesion.entorno).map(\.ganadora)
         filas = mascaras.map { FilaMascara(CasosMascaras.escrutar($0, ganadoras: ganadoras)) }
-        estado = "\(ganadoras.count) jornadas escrutadas (\(origen))."
+        escrutada = "\(ganadoras.count) jornadas escrutadas (liga «\(liga)»)."
     }
 
-    private func escrutar() async {
+    /// Las ganadoras de clubprogol se suman a la liga «España» o «México» sin duplicar jornadas.
+    private func descargar(_ p: PaisQuiniela) async {
         guard !ocupado else { return }
         ocupado = true
         defer { ocupado = false }
         estado = "Descargando el histórico…"
         do {
-            let historico = try await sesion.servicioOnline.obtenerHistorico(pais: pais.rawValue)
-            escrutar(historico.map(\.ganadora), origen: "clubprogol, " + (pais == .es ? "España" : "México"))
+            let h = try await sesion.servicioOnline.obtenerHistorico(pais: p.rawValue)
+            let r = try CasosHistorico.sumarDescarga(h, pais: p, entorno: sesion.entorno)
+            recargarLigas(seleccionar: CasosHistorico.liga(p))
+            estado = "clubprogol ▸ «\(liga)»: " + r.mensaje
         } catch {
-            filas = []
             estado = ""
-            sesion.alertas.error(
-                "No se pudo descargar el histórico: " + ((error as? ErrorOnline)?.mensaje ?? error.localizedDescription))
+            let mensaje = (error as? ErrorOnline)?.mensaje ?? (error as? ErrorDominio)?.mensajeUsuario ?? error.localizedDescription
+            sesion.alertas.error("No se pudo descargar el histórico: " + mensaje)
         }
     }
 
-    /// Histórico propio (DT-87): un archivo de columnas con una ganadora por línea.
-    private func escrutarArchivo() async {
+    /// «Añadir ganadoras desde archivo…»: `jornada;columna` por línea; se suman a la liga elegida.
+    private func importar() async {
         guard let u = await SelectorFicheros.abrir(".txt", "*") else { return }
         do throws(ErrorDominio) {
-            escrutar(try CasosMascaras.ganadorasDeArchivo(try sesion.entorno.archivos.leer(u)), origen: "archivo «\(u.lastPathComponent)»")
+            let r = try CasosHistorico.importar(try sesion.entorno.archivos.leer(u), a: liga, entorno: sesion.entorno)
+            recargarLigas()
+            estado = "«\(u.lastPathComponent)» ▸ «\(liga)»: " + r.mensaje
         } catch {
-            filas = []
-            estado = ""
-            sesion.alertas.error("No se pudo leer el archivo de ganadoras: " + error.mensajeUsuario)
+            sesion.alertas.error("No se pudo añadir el archivo de ganadoras: " + error.mensajeUsuario)
         }
+    }
+
+    private func crearLiga() {
+        do throws(ErrorDominio) {
+            let n = try CasosHistorico.crear(nombreLiga, entorno: sesion.entorno)
+            nombreLiga = ""
+            recargarLigas(seleccionar: n)
+            estado = "Liga «\(n)» creada: añade sus ganadoras desde un archivo."
+        } catch {
+            sesion.alertas.error("No se pudo crear la liga: " + error.mensajeUsuario)
+        }
+    }
+
+    private func borrarLiga() async {
+        let n = liga
+        guard await sesion.alertas.confirmar("¿Borrar la liga «\(n)» y sus \(jornadasLiga) jornadas guardadas?") else { return }
+        do throws(ErrorDominio) {
+            try CasosHistorico.borrar(n, entorno: sesion.entorno)
+            estado = "Liga «\(n)» borrada."
+        } catch {
+            sesion.alertas.error("No se pudo borrar la liga: " + error.mensajeUsuario)
+        }
+        recargarLigas()
     }
 
     private func fila(_ m: Mascara) -> some View {
@@ -109,23 +149,47 @@ struct VistaMascaras: View {
                 Button("Guardar boleto como máscara…") { guardando = true }
             }
             Tarjeta("Escrutinio histórico") {
-                HStack {
-                    Picker("Ganadoras de", selection: $pais) {
-                        Text("España").tag(PaisQuiniela.es)
-                        Text("México").tag(PaisQuiniela.mx)
+                if ligas.isEmpty {
+                    Text("Aún no hay ganadoras guardadas: descarga las de España o México, o crea una liga y añade su archivo.")
+                        .foregroundStyle(Color.textoSecundario)
+                } else {
+                    HStack {
+                        Picker("Liga", selection: $liga) {
+                            ForEach(ligas, id: \.nombre) { Text("\($0.nombre)  ·  \($0.jornadas) jornadas").tag($0.nombre) }
+                        }
+                        .frame(maxWidth: 340)
+                        .accessibilityIdentifier("liga")
+                        Button("Escrutar las máscaras") { escrutar() }.buttonStyle(EstiloPrincipal())
+                            .disabled(ocupado || mascaras.isEmpty || jornadasLiga == 0)
                     }
-                    .frame(maxWidth: 260)
-                    Button("Escrutar las máscaras") { Task { await escrutar() } }.buttonStyle(EstiloPrincipal())
-                        .disabled(ocupado || mascaras.isEmpty)
                 }
-                HStack {
-                    Button("Escrutar con un archivo de ganadoras…") { Task { await escrutarArchivo() } }
-                        .disabled(ocupado || mascaras.isEmpty)
-                    Text("Tu propio histórico: un .txt con una columna ganadora de 14 signos por línea.")
-                        .font(.callout).foregroundStyle(Color.textoSecundario)
+                Flujo(espacio: 8) {
+                    Menu("Descargar de clubprogol") {
+                        Button("España") { Task { await descargar(.es) } }
+                        Button("México") { Task { await descargar(.mx) } }
+                    }
+                    .fixedSize()
+                    .disabled(ocupado)
+                    .accessibilityIdentifier("descargar-historico")
+                    Button("Nueva liga…") { creandoLiga = true }
+                        .alert("Nueva liga", isPresented: $creandoLiga) {
+                            TextField("Nombre de la liga", text: $nombreLiga)
+                            Button("Crear") { crearLiga() }
+                            Button("Cancelar", role: .cancel) {}
+                        } message: {
+                            Text("Después añade sus ganadoras desde un archivo.")
+                        }
+                    Button("Añadir ganadoras desde archivo…") { Task { await importar() } }.disabled(ocupado || liga.isEmpty)
+                    Button("Borrar liga…") { Task { await borrarLiga() } }.disabled(ocupado || liga.isEmpty)
                 }
-                if !estado.isEmpty { Text(estado).foregroundStyle(Color.textoSecundario) }
+                Text(
+                    "Archivo: una jornada por línea, «jornada;columna» (p. ej. 2355;1X21X1121X1X21). Una jornada que ya está no "
+                        + "se duplica; con otra columna, se actualiza."
+                )
+                .font(.callout).foregroundStyle(Color.textoSecundario)
+                if !estado.isEmpty { Text(estado).foregroundStyle(Color.textoSecundario).accessibilityIdentifier("historico-estado") }
                 if !filas.isEmpty {
+                    Text(escrutada).bold()
                     Table(filas.sorted(using: orden), sortOrder: $orden) {
                         TableColumn("Máscara", value: \.nombre)
                         TableColumn("Columnas", value: \.columnas) { Text("\($0.columnas)").monospacedDigit() }
@@ -147,7 +211,7 @@ struct VistaMascaras: View {
         .modifier(GuardarMascara(visible: $guardando, alGuardar: recargar))
         .onAppear {
             recargar()
-            pais = CasosArchivo.paisInicial(entorno: sesion.entorno)
+            recargarLigas(seleccionar: CasosHistorico.liga(CasosArchivo.paisInicial(entorno: sesion.entorno)))
         }
     }
 }

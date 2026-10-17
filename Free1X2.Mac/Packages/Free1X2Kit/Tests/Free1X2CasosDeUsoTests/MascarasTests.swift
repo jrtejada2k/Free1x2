@@ -63,18 +63,57 @@ struct MascarasTests {
         #expect(r.premios == [11: 3, 10: 43] && r.jornadasConPremio == 10 && r.jornadas == 19)
     }
 
-    /// DT-87: archivo de ganadoras propio (CRLF, líneas en blanco, `x` minúscula, pleno detrás); una línea rota avisa con su
-    /// número. Con las mismas ganadoras da lo mismo que el histórico descargado.
-    @Test func ganadorasDeArchivo() throws {
-        let datos = Data("11111111111111\r\n\r\n22222222222222 2-1\r\n1x21x1121x1x211\r\n".utf8)
-        let g = try CasosMascaras.ganadorasDeArchivo(datos)
-        #expect(g == ["11111111111111", "22222222222222", "1X21X1121X1X21"])
-        #expect(CasosMascaras.escrutar(Self.jd01, ganadoras: Array(g.prefix(2))).premios == [14: 1, 13: 12, 12: 60, 11: 160, 10: 240])
-        #expect(throws: ErrorDominio.self) { try CasosMascaras.ganadorasDeArchivo(Data("11111111111111\n1,X,2,1\n".utf8)) }
-        let roto = #expect(throws: ErrorDominio.self) {
-            try CasosMascaras.ganadorasDeArchivo(Data("11111111111111\n\n111X\n".utf8))
+    /// DT-88: archivo `jornada;columna` o solo columna (CRLF, líneas en blanco, `x` minúscula, pleno detrás); una línea
+    /// rota avisa con su número.
+    @Test func analizarArchivoDeGanadoras() throws {
+        let datos = Data("2355;1x21x1121x1x211\r\n\r\n22222222222222 2-1\r\n 2356 ; 11111111111111\r\n".utf8)
+        #expect(
+            try CasosHistorico.analizar(datos) == [
+                GanadoraHistorica(jornada: "2355", ganadora: "1X21X1121X1X21"),
+                GanadoraHistorica(jornada: nil, ganadora: "22222222222222"),
+                GanadoraHistorica(jornada: "2356", ganadora: "11111111111111"),
+            ])
+        #expect(try CasosHistorico.analizar(Data("\r\n".utf8)).isEmpty)
+        for malo in ["11111111111111\n1,X,2,1\n", ";11111111111111\n", "1;111X\n"] {
+            #expect(throws: ErrorDominio.self) { try CasosHistorico.analizar(Data(malo.utf8)) }
         }
-        #expect(roto?.mensajeUsuario.hasPrefix("La línea 3 no empieza por una columna de 14 signos") == true)
-        #expect(throws: ErrorDominio.self) { try CasosMascaras.ganadorasDeArchivo(Data("\r\n".utf8)) }
+        let roto = #expect(throws: ErrorDominio.self) { try CasosHistorico.analizar(Data("11111111111111\n\n111X\n".utf8)) }
+        #expect(roto?.mensajeUsuario.hasPrefix("La línea 3 no es «jornada;columna»") == true)
+    }
+
+    /// DT-88: importar dos veces suma sin duplicar jornadas; una jornada con otra columna se actualiza; las líneas sin
+    /// jornada se añaden siempre. La base se escruta igual que las ganadoras sueltas.
+    @Test func baseDeGanadorasPorLiga() throws {
+        let e = Entorno.pruebas()
+        let liga = try CasosHistorico.crear("  Liga MX Femenil ", entorno: e)
+        #expect(liga == "Liga MX Femenil" && CasosHistorico.ligas(entorno: e).map(\.jornadas) == [0])
+        let unos = String(repeating: "1", count: 14)
+        let doses = String(repeating: "2", count: 14)
+        var r = try CasosHistorico.importar(Data("1;\(unos)\r\n2;\(doses)\r\n\(unos)\r\n".utf8), a: liga, entorno: e)
+        #expect((r.anadidas, r.yaEstaban, r.actualizadas, r.sinJornada, r.total) == (2, 0, 0, 1, 3))
+        r = try CasosHistorico.importar(Data("1;\(unos)\r\n2;\(unos)\r\n3;\(doses)\r\n3;\(doses)\r\n".utf8), a: liga, entorno: e)
+        #expect((r.anadidas, r.yaEstaban, r.actualizadas, r.sinJornada, r.total) == (1, 2, 1, 0, 4))
+        #expect(
+            r.mensaje == "1 añadidas, 2 ya estaban, 1 actualizadas (otra columna para la misma jornada). La liga tiene ahora 4 jornadas.")
+        let base = CasosHistorico.leer(liga, entorno: e)
+        #expect(base.map(\.jornada) == ["1", "2", nil, "3"] && base.map(\.ganadora) == [unos, unos, unos, doses])
+        let m = CasosMascaras.escrutar(Self.jd01, ganadoras: base.map(\.ganadora))
+        #expect(m.premios == [14: 3, 13: 36, 12: 180, 11: 480, 10: 720] && m.jornadasConPremio == 3 && m.jornadas == 4)
+        #expect(throws: ErrorDominio.self) { try CasosHistorico.importar(Data("\r\n".utf8), a: liga, entorno: e) }
+        #expect(throws: ErrorDominio.self) { try CasosHistorico.crear("a/b", entorno: e) }
+        try CasosHistorico.borrar(liga, entorno: e)
+        #expect(CasosHistorico.ligas(entorno: e).isEmpty)
+    }
+
+    /// DT-88: la descarga real de España (19 jornadas) se suma a «España»; descargarla otra vez no añade nada.
+    @Test func descargaSeSumaALaLiga() throws {
+        let h = try HistoricoQuiniela.analizar(
+            String(decoding: try Golden.bytes("Fixtures/online/historico-es-2026-10-16.json"), as: UTF8.self))
+        let e = Entorno.pruebas()
+        #expect(try CasosHistorico.sumarDescarga(h, pais: .es, entorno: e).anadidas == 19)
+        let r = try CasosHistorico.sumarDescarga(h, pais: .es, entorno: e)
+        #expect(r.anadidas == 0 && r.yaEstaban == 19 && r.total == 19)
+        #expect(CasosHistorico.ligas(entorno: e).map(\.nombre) == ["España"])
+        #expect(CasosHistorico.leer("España", entorno: e).first == GanadoraHistorica(jornada: "20261014", ganadora: "11122X12112X2X"))
     }
 }

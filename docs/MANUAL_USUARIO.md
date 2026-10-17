@@ -539,14 +539,31 @@ marcar los signos.
 - **Pantalla «Máscaras»** (panel lateral, grupo Combinación; o **Máscaras ▾ → Máscaras y escrutinio histórico…**): lista
   cada máscara con sus signos, sus fijos/dobles/triples y sus columnas, y permite **aplicarla** o **borrarla**.
 
-**Escrutinio histórico.** En la misma pantalla hay dos formas de obtener las **columnas ganadoras de jornadas pasadas**:
+**Escrutinio histórico.** El programa guarda su propia **base de ganadoras**, separada por **liga**: cada liga es una lista
+de jornadas pasadas con su columna ganadora. Las importaciones se van **sumando**: si hoy añades 1.500 jornadas y otro
+día 10 más, no hace falta volver a subir las 1.500.
 
-- **Descargarlas:** elige en **«Ganadoras de»** el juego (**España** = Quiniela, **México** = Progol) y pulsa **«Escrutar
-  las máscaras»**. Se descargan de clubprogol.com las jornadas que tenga publicadas.
-- **Tu propio histórico:** pulsa **«Escrutar con un archivo de ganadoras…»** y elige un `.txt` con **una columna ganadora
-  por línea** (el formato de columnas de siempre, ver §11), por ejemplo 1.200 jornadas. Las líneas en blanco se ignoran
-  y da igual `x` o `X`; si una línea trae algo detrás de los 14 signos (el pleno al 15, por ejemplo) se ignora. Si alguna
-  línea no empieza por 14 signos `1`, `X` o `2`, el programa dice **qué línea** es y no escruta nada.
+- **Elegir la liga:** el selector **«Liga»** muestra cada liga con sus jornadas guardadas (p. ej. *«España · 19
+  jornadas»*). **«Escrutar las máscaras»** compara tus máscaras con las ganadoras de esa liga.
+- **Descargar de clubprogol ▾ → España** o **México:** baja las jornadas publicadas en clubprogol.com y las suma a la liga
+  «España» (Quiniela) o «México» (Progol). Si las descargas otra vez, solo entran las nuevas.
+- **Nueva liga…:** crea una liga vacía con el nombre que quieras (por ejemplo «Liga MX 2010-2020») para cargar en ella tu
+  propio histórico.
+- **Añadir ganadoras desde archivo…:** suma a la liga elegida un `.txt` con **una jornada por línea** (formato debajo).
+- **Borrar liga…:** borra la liga y todas sus jornadas, tras confirmarlo.
+
+El archivo de ganadoras lleva en cada línea el número de jornada, un punto y coma y la columna ganadora:
+
+```
+2355;1X21X1121X1X21
+2356;112X1211X1X221
+```
+
+Una jornada que **ya está** no se duplica; si trae **otra columna**, se actualiza. También vale una línea con solo la
+columna, pero entonces no se puede comprobar si ya estaba y se añade siempre. Las líneas en blanco se ignoran, da igual
+`x` o `X`, y lo que haya detrás de los 14 signos (el pleno al 15, por ejemplo) no cuenta. Si una línea está mal, el
+programa dice **qué línea** es y no añade nada. Al terminar indica cuántas jornadas se añadieron, cuántas ya estaban y
+cuántas se actualizaron.
 
 Cada máscara se compara con cada ganadora. La tabla muestra, por máscara:
 
@@ -554,12 +571,12 @@ Cada máscara se compara con cada ganadora. La tabla muestra, por máscara:
 |---------|-------------|
 | **Columnas** | Columnas que desarrolla la máscara (lo que costaría jugarla entera). |
 | **14, 13, 12, 11, 10** | Columnas que habrían tenido ese número de aciertos, **sumando todas las jornadas**. |
-| **Jornadas con premio** | En cuántas de las jornadas descargadas tuvo al menos una columna de 10 o más aciertos. |
+| **Jornadas con premio** | En cuántas jornadas de la liga tuvo al menos una columna de 10 o más aciertos. |
 
 Pulsa una cabecera para **ordenar** (por ejemplo por la columna «10» para ver qué máscara da más premios de 10). El
 cálculo es instantáneo aunque la máscara tenga miles de columnas: cuenta los aciertos sin desarrollarlas, con el mismo
 resultado que escrutarlas una a una. Para descargar las ganadoras se necesita conexión; sin ella aparece el motivo y no se
-hace nada. Bajo la tabla se indica cuántas jornadas se escrutaron y de dónde salieron.
+hace nada. Encima de la tabla se indica cuántas jornadas se escrutaron y de qué liga.
 
 > Una máscara fija signos **por posición** (partido 1, 2…), pero cada jornada trae partidos distintos: su historial
 > refleja sobre todo cómo se reparten los signos en general (en las jornadas de octubre de 2026 el `1` salió el 45 % de
@@ -595,6 +612,7 @@ Recalcula el signo de un **partido a tratar** como **combinación lineal** (mód
 | `.txt` | Archivo de columnas: una columna de 14 signos por línea. Es el formato de intercambio (filtros, escrutinio, operaciones). |
 | `parametros.free1x2` | Configuración del programa: puntos de CP, nº de partidos, separador, idioma, datos ONLAE (precio, recaudación). |
 | `.mas` **[Mac]** | Una máscara (carpeta `Mascaras/`): texto con una línea por partido y sus signos separados por comas (`1`, `1,X`, `1,X,2`). El nombre del archivo es el de la máscara. |
+| `Historico/<liga>.txt` **[Mac]** | La base de ganadoras de una liga: una línea `jornada;columna` por jornada. El nombre del archivo es el de la liga. Se gestiona desde la pantalla «Máscaras»; no hace falta editarlo a mano. |
 | `.z3q` | Archivo de columnas comprimido con el Compresor. |
 
 Las combinaciones temporales se guardan como backups y se pueden limpiar desde `Archivo → Borrar Combinaciones Temporales`.

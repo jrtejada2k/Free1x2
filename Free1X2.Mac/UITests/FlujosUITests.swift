@@ -404,7 +404,8 @@ final class FlujosUITests: XCTestCase {
         }
     }
 
-    /// F51 (DT-84): guardar el boleto como máscara, empezar una combinación nueva y aplicar la máscara desde la barra.
+    /// F51 (DT-84, DT-88): guardar el boleto como máscara, empezar una combinación nueva, aplicar la máscara desde la barra y
+    /// escrutarla contra una liga propia.
     @MainActor func testF51Mascaras() throws {
         let app = lanzar()
         defer { app.terminate() }
@@ -424,12 +425,26 @@ final class FlujosUITests: XCTestCase {
         menuMascaras.click()
         app.menuItems["JD01  ·  729 col."].firstMatch.click()
         XCTAssertTrue(app.staticTexts["Fijos: 8 - Dobles: 0 - Triples: 6"].waitForExistence(timeout: 10))
-        // DT-87: escrutinio con un histórico propio (la columna de unos y la de doses): 1/12/60/160/240, 1 de 2 jornadas.
-        let ganadoras = try fichero("ganadoras.txt", [String(repeating: "1", count: 14), String(repeating: "2", count: 14)])
+        // DT-88: liga propia con las jornadas 1 (unos) y 2 (doses); añadirla otra vez no duplica. JD-01 contra ellas:
+        // 1/12/60/160/240 en 1 de 2 jornadas.
+        let ganadoras = try fichero(
+            "ganadoras.txt", ["1;" + String(repeating: "1", count: 14), "2;" + String(repeating: "2", count: 14)])
         ir(app, "Máscaras", "mascaras")
-        pulsar(app, app.buttons["Escrutar con un archivo de ganadoras…"])
-        panel(app, ruta: ganadoras)
-        XCTAssertTrue(app.staticTexts["2 jornadas escrutadas (archivo «ganadoras.txt»)."].waitForExistence(timeout: 10))
+        pulsar(app, app.buttons["Nueva liga…"])
+        let liga = app.textFields.matching(NSPredicate(format: "placeholderValue == %@", "Nombre de la liga")).firstMatch
+        XCTAssertTrue(liga.waitForExistence(timeout: 10))
+        liga.typeText("Mi liga\r")
+        XCTAssertTrue(liga.waitForNonExistence(timeout: 10))
+        let estado = app.staticTexts["historico-estado"]
+        for esperado in ["2 añadidas, 0 ya estaban", "0 añadidas, 2 ya estaban"] {
+            pulsar(app, app.buttons["Añadir ganadoras desde archivo…"])
+            panel(app, ruta: ganadoras)
+            let texto = "«ganadoras.txt» ▸ «Mi liga»: \(esperado). La liga tiene ahora 2 jornadas."
+            let hecho = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == %@", texto), object: estado)
+            XCTAssertEqual(XCTWaiter().wait(for: [hecho], timeout: 10), .completed, (estado.value as? String) ?? "")
+        }
+        pulsar(app, app.buttons["Escrutar las máscaras"])
+        XCTAssertTrue(app.staticTexts["2 jornadas escrutadas (liga «Mi liga»)."].waitForExistence(timeout: 10))
         for valor in ["240", "160", "60", "12", "1 de 2"] { XCTAssertTrue(app.staticTexts[valor].exists, valor) }
     }
 

@@ -40,8 +40,8 @@ Convenciones, plantilla y trampas C#→Swift en [`ESPEC_00_CONVENCIONES.md`](ESP
 ## Decisiones
 
 Todas las decisiones D1–D8 y las «Abiertas» de 01–10 están **tomadas** en [`DECISIONES.md`](DECISIONES.md)
-(mandato del dueño del 2026-10-13: producto = app actual; técnica = buenas prácticas). **M0 cerrado el 2026-10-14**: el dueño delegó
-en Claude todo lo pendiente; no queda ninguna decisión abierta.
+(mandato del dueño del 2026-10-13: producto = app actual; técnica = buenas prácticas). **M0 cerrado el 2026-10-14**: el dueño mandó
+cerrar todo lo pendiente; no queda ninguna decisión abierta.
 D1 = DP-15 · D2 = DP-09 + `G-D2` · D3 = DP-08 · D4 = DP-01 · D5 = DP-02 · D6 = corpus `fixture` + `lectura` (ESPEC_12 §6) · D7 = DP-11 · D8 = DP-06 + DP-14.
 
 ## Siguiente fase

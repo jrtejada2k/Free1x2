@@ -75,43 +75,29 @@ struct VistaAyuda: View {
     }
 }
 
-/// «Créditos» (`CreditosFrmPage.xaml.cs:24-38`): los contactos de terceros, ofuscados y no clicables; solo el último es `mailto:`.
+/// «Créditos» (DT-89, a petición del dueño): la app Mac la escribió solo él; queda el aviso de origen que pide la GPLv3.
 struct VistaCreditos: View {
     @Environment(Sesion.self) private var sesion
 
-    static let creditos: [(nombre: String, contacto: String?)] = [
-        ("Luis Fernández", "lfernandezrodriguez [at] gmail [dot] com"), ("Morrison", nil),
-        ("Toni Moreno", "toni [at] moreno-csa [dot] com"), ("Joan Duatis", "duatis [at] coac [dot] net"),
-        ("Indeciso", "jjchild [at] lycos [dot] co [dot] uk"), ("JVallespin", "jvallespin [at] gmail [dot] com"),
-        ("Xfsf", "segura33 [at] ono [dot] com"), ("ArDoC", "ardock [at] gmail [dot] com"),
-    ]
-
-    /// Los 6 recursos localizados (`Strings/{es,en-US}/Resources.resw:68-90`).
     private func t(_ es: String, _ en: String) -> String { sesion.idioma == "Ingles" ? en : es }
 
     var body: some View {
         Pagina(destino: .creditos) {
-            Text(t("Equipo Free1X2", "Free1X2 Team")).font(.title2.bold())
-            Button("www.clubprogol.com") { abrirWeb(Web.sitio) }.buttonStyle(.link)
-                .accessibilityLabel(t("Visitar el sitio web clubprogol.com", "Visit the clubprogol.com website"))
-            Tarjeta(t("Colaboradores", "Contributors")) {
-                ForEach(Self.creditos, id: \.nombre) { c in
-                    HStack {
-                        Text(c.nombre).bold()
-                        if let contacto = c.contacto { Text(contacto).foregroundStyle(Color.textoSecundario).textSelection(.enabled) }
-                    }
-                }
+            Tarjeta(t("Autor", "Author")) {
                 HStack {
-                    Text("Juan Tejada").bold()
+                    Text("jrtejada2k").bold()
                     Button("elrevisor2k@gmail.com") { abrirWeb("mailto:elrevisor2k@gmail.com") }.buttonStyle(.link)
-                        .accessibilityLabel("Contactar con Juan Tejada")
+                        .accessibilityLabel(t("Contactar con jrtejada2k", "Contact jrtejada2k"))
                 }
+                Button("www.clubprogol.com") { abrirWeb(Web.sitio) }.buttonStyle(.link)
+                    .accessibilityLabel(t("Visitar el sitio web clubprogol.com", "Visit the clubprogol.com website"))
             }
-            Text(
-                t(
-                    "Free1X2 nunca existiría sin las sugerencias y las ideas de los usuarios de clubprogol.com",
-                    "Free1X2 would never exist without the suggestions and ideas of clubprogol.com users"))
-            Text(t("¡Gracias!", "Thank you!")).font(.headline)
+            Tarjeta(t("Licencia", "License")) {
+                Text(
+                    t(
+                        "Programa libre bajo la licencia GPLv3, basado en Free1X2 de Joan Duatis.",
+                        "Free software under the GPLv3 license, based on Free1X2 by Joan Duatis."))
+            }
         }
     }
 }

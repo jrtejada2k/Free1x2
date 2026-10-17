@@ -75,25 +75,32 @@ nombre y sin los equipos. Cada jornada eliges **Máscaras ▾** y aplicas la que
 equipos de la jornada se quedan.
 
 ### ¿Qué máscara ha dado más premios?
-En la pantalla **Máscaras**, pulsa **«Escrutar las máscaras»**: se comparan todas tus máscaras con las ganadoras de las
-jornadas pasadas y verás, por máscara, cuántas columnas habrían tenido 14, 13, 12, 11 y 10 aciertos y en cuántas
-jornadas hubo premio. Pulsa una cabecera para ordenar.
+En la pantalla **Máscaras**, elige la **liga** y pulsa **«Escrutar las máscaras»**: se comparan todas tus máscaras con
+las ganadoras guardadas de esa liga y verás, por máscara, cuántas columnas habrían tenido 14, 13, 12, 11 y 10 aciertos y
+en cuántas jornadas hubo premio. Pulsa una cabecera para ordenar. La primera vez, baja las ganadoras con **Descargar de
+clubprogol ▾ → España** o **México**.
 
 ### ¿Puedo usar mi propio histórico de resultados?
-Sí. En la pantalla **Máscaras**, pulsa **«Escrutar con un archivo de ganadoras…»** y elige un archivo de texto con **una
-columna ganadora de 14 signos por línea** (`1`, `X` o `2`), por ejemplo:
+Sí. En la pantalla **Máscaras**, crea una liga con **«Nueva liga…»** (o elige una que ya tengas) y pulsa **«Añadir
+ganadoras desde archivo…»**. El archivo es de texto, con **una jornada por línea** en la forma `jornada;columna`:
 
 ```
-1X21X1121X1X21
-112X1211X1X221
+2355;1X21X1121X1X21
+2356;112X1211X1X221
 ```
 
-Puede tener las jornadas que quieras (1.200, por ejemplo). Las líneas en blanco se ignoran y lo que vaya detrás de los 14
+Puede tener las jornadas que quieras (1.500, por ejemplo). Las líneas en blanco se ignoran y lo que vaya detrás de los 14
 signos (como el pleno al 15) también. Si una línea está mal, el programa te dice cuál es.
 
+### ¿Tengo que volver a subir todo el histórico cada vez?
+No. El programa guarda las ganadoras y **suma** cada archivo nuevo a la liga: si hoy subes 1.500 jornadas y mañana un
+archivo con 10 más, solo entran las 10. Una jornada que ya estaba no se duplica, y si la subes con otra columna se
+corrige. Las descargas de clubprogol también se suman.
+
 ### ¿Puedo escrutar solo una liga?
-Puedes elegir el **juego**: Quiniela de **España** o Progol de **México**. Una liga de fútbol concreta no: cada columna
-ganadora es la de una jornada completa de 14 partidos, que mezcla partidos de varias ligas.
+Sí: elige la liga en el selector **«Liga»**. Hay una para la Quiniela de **España** y otra para el Progol de **México**
+(las crea la descarga), y puedes crear las que quieras con tus propios resultados: cada una es su propia lista de
+jornadas.
 
 ### Si una máscara ha dado muchos premios, ¿la próxima jornada también?
 No necesariamente. Cada jornada tiene partidos distintos, así que el historial de una máscara mide sobre todo cómo se

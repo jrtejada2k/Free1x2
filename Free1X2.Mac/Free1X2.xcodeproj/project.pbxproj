@@ -943,7 +943,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Free1X2;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "Programa libre bajo GPLv3, derivado del Free1X2 original de Joan Duatis.";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2026 jrtejada2k. Programa libre bajo GPLv3, basado en Free1X2 de Joan Duatis.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -1006,7 +1006,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Free1X2;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "Programa libre bajo GPLv3, derivado del Free1X2 original de Joan Duatis.";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2026 jrtejada2k. Programa libre bajo GPLv3, basado en Free1X2 de Joan Duatis.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",

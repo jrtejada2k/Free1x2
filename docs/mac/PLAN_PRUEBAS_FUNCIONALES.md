@@ -33,13 +33,13 @@ funcional». Este plan cierra ese hueco y añade lo que falta construir (§6).
 | ID | Requisito | Quién | Estado |
 |----|-----------|-------|--------|
 | P1 | macOS 14+ arm64, Xcode con Swift ≥ 6.2, `xcodegen`, `swift-format` | — | hecho |
-| P2 | Build Debug y Release sin avisos; smoke 109/109 | Claude | hecho (`dd616eb`) |
-| P3 | **Carpeta de datos aislada**: argumento de desarrollo `-datos <carpeta>` (inerte sin él, como `-smoke`) para que las pruebas no toquen `~/Library/Application Support/Free1X2/` | Claude | hecho (`RutasApp.produccion`; probado con el smoke) |
-| P4 | **Juego de datos JD** (§3) generado en código, reproducible (`FlujosTests.seisTriples`, `sinX`…) | Claude | hecho para la Fase 1 |
-| P5 | **Oráculo independiente** `scripts/oraculo.py`: fuerza bruta sobre las 729 columnas de JD-01, escrito desde ESPEC_02/03/05/06 sin mirar el Swift ni ejecutar C# | Claude | **por construir** |
-| P6 | Targets de prueba en `project.yml`: `Free1X2UITests` (XCUITest) | Claude | **por construir** |
+| P2 | Build Debug y Release sin avisos; smoke 109/109 | Desarrollo | hecho (`dd616eb`) |
+| P3 | **Carpeta de datos aislada**: argumento de desarrollo `-datos <carpeta>` (inerte sin él, como `-smoke`) para que las pruebas no toquen `~/Library/Application Support/Free1X2/` | Desarrollo | hecho (`RutasApp.produccion`; probado con el smoke) |
+| P4 | **Juego de datos JD** (§3) generado en código, reproducible (`FlujosTests.seisTriples`, `sinX`…) | Desarrollo | hecho para la Fase 1 |
+| P5 | **Oráculo independiente** `scripts/oraculo.py`: fuerza bruta sobre las 729 columnas de JD-01, escrito desde ESPEC_02/03/05/06 sin mirar el Swift ni ejecutar C# | Desarrollo | **por construir** |
+| P6 | Targets de prueba en `project.yml`: `Free1X2UITests` (XCUITest) | Desarrollo | **por construir** |
 | P7 | Permiso de macOS para que Xcode controle la app en las UI tests (aviso de Accesibilidad/«Automation Mode» la 1.ª vez; puede pedir contraseña de administrador) | **Dueño** | pendiente |
-| P8 | Servidor de prueba del servicio online: `python3 -m http.server` sobre `docs/ejemplos-api/` + `FREE1X2_API_BASE` | Claude | por construir |
+| P8 | Servidor de prueba del servicio online: `python3 -m http.server` sobre `docs/ejemplos-api/` + `FREE1X2_API_BASE` | Desarrollo | por construir |
 | P9 | Para la sesión manual (§5.4): 2–3 ficheros reales del dueño (`.comb` y columnas `.txt` hechos con la app de Windows) y, si los tiene, los recuentos que la app de Windows mostró con ellos | **Dueño** | pendiente |
 
 ## 3. Juego de datos (JD)
@@ -169,7 +169,7 @@ ficheros reales en carpeta temporal), U = XCUITest, M = manual del dueño.
 | F48 | Errores | abrir JD-04 en Escrutinios, un `.comb` truncado y un `.z3q` corrupto ⇒ mensaje, sin cierre | I, U |
 | F49 | Cargar jornada en Inicio | «Jornada» ▸ España ⇒ local y visitante de los 14 partidos con los de la jornada (sin red, la guardada) | I, U |
 | F50 | Jornada al arrancar (DT-83) | con red ⇒ boleto con los equipos de la jornada; sin red o > 3 s ⇒ en blanco y sin aviso | I, manual |
-| F51 | Máscaras (DT-84) | guardar el boleto JD-01 como máscara ▸ combinación nueva ▸ aplicarla ⇒ «Fijos: 8 - Dobles: 0 - Triples: 6»; escrutinio histórico ⇒ 1/12/60/160/240 contra la columna de unos | I, U |
+| F51 | Máscaras (DT-84, DT-88) | guardar el boleto JD-01 como máscara ▸ combinación nueva ▸ aplicarla ⇒ «Fijos: 8 - Dobles: 0 - Triples: 6»; «Nueva liga…» «Mi liga» ▸ añadir `1;unos` y `2;doses` ⇒ «2 añadidas, 0 ya estaban»; otra vez ⇒ «0 añadidas, 2 ya estaban»; escrutar ⇒ 1/12/60/160/240, 1 de 2 jornadas | I, U |
 | F52 | Reducir y filtrar sin fichero (DT-85) | boleto JD-01 ▸ Inicio ▸ Reducir ⇒ Reductor con «ColumnasInicio.txt» (729 columnas) ▸ Reducir ⇒ 73…729 admitidas y «Guardar resultado…» activo | I, U |
 
 ## 5. Cómo se ejecuta
@@ -306,7 +306,7 @@ Leyenda: **I** = `Tests/Free1X2CasosDeUsoTests/FlujosTests.swift` (ficheros real
 | F48 errores | I `f48Errores`; U `testF48CombinacionCorrupta` | ✔ |
 | F49 cargar jornada | N4 `equiposDeJornadaReal` (capturas reales ES con pleno y MX); U `testF49CargarJornada` | ✔ |
 | F50 jornada al arrancar | N4 `jornadaAlArrancar` (a tiempo, lenta, error 500); comprobado en la app con la API real (Villarreal - Nápoles) y sin red (en blanco) | ✔ |
-| F51 máscaras | N4 `MascarasTests` (recuento sin desarrollar = valores a mano de JD-01; guardar/listar/borrar; histórico del servicio); U `testF51Mascaras` | ✔ |
+| F51 máscaras | N4 `MascarasTests` (recuento sin desarrollar = valores a mano de JD-01; guardar/listar/borrar; histórico del servicio; base por liga: archivo `jornada;columna`, suma sin duplicar, descarga sumada a «España»); U `testF51Mascaras` | ✔ |
 | F52 sin fichero | I `f52ColumnasDeInicio` (729 = JD-01; 0 columnas ⇒ error y sin fichero viejo); U `testF52ReducirSinFichero`; en local, 14 triples ⇒ Reductor con las columnas en 41 s | ✔ |
 
 **CI:** run 39006120618 verde (19 min): 265 tests del paquete, cobertura de casos de uso 88,5 % y **18 tests de UI** (F02–F52; F16 escruta JD-02 para que «Ver premiadas» no tenga 473 filas, que hacen cada búsqueda de XCUITest de 9-13 s).

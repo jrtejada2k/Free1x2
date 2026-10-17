@@ -101,23 +101,6 @@ public enum CasosMascaras {
         return cuenta
     }
 
-    /// Archivo de ganadoras propio (DT-87): el archivo de columnas de siempre (`ArchivoColumnasTexto`), una ganadora por
-    /// línea. Se saltan las líneas en blanco; de cada línea cuentan sus 14 primeros signos (lo de detrás, p. ej. el pleno,
-    /// se ignora). Una línea que no empiece por 14 signos 1/X/2 detiene la lectura con su número: mejor avisar que
-    /// escrutar con datos rotos.
-    public static func ganadorasDeArchivo(_ datos: Data) throws(ErrorDominio) -> [String] {
-        var r: [String] = []
-        for (i, l) in ArchivoColumnasTexto.columnas(datos).enumerated() where !l.isEmpty {
-            let g = String(l.prefix(JornadaQuiniela.numeroPartidos))
-            guard g.count == JornadaQuiniela.numeroPartidos, g.allSatisfy({ "1X2".contains($0) }) else {
-                throw ErrorDominio(.formato, "La línea \(i + 1) no empieza por una columna de 14 signos 1, X o 2: «\(l)».")
-            }
-            r.append(g)
-        }
-        guard !r.isEmpty else { throw ErrorDominio(.formato, "El archivo no tiene ninguna columna ganadora.") }
-        return r
-    }
-
     /// Escruta la máscara contra cada ganadora (los 14 primeros partidos) y suma las columnas premiadas de 10 a 14.
     public static func escrutar(_ m: Mascara, ganadoras: [String]) -> ResultadoMascara {
         var r = ResultadoMascara(nombre: m.nombre, columnas: m.columnas, premios: [:], jornadasConPremio: 0, jornadas: ganadoras.count)
@@ -132,5 +115,141 @@ public enum CasosMascaras {
             if premiada { r.jornadasConPremio += 1 }
         }
         return r
+    }
+}
+
+/// Una ganadora de la base: su jornada (si se conoce) y sus 14 signos.
+public struct GanadoraHistorica: Sendable, Hashable {
+    public var jornada: String?
+    public var ganadora: String
+
+    public init(jornada: String?, ganadora: String) {
+        self.jornada = jornada
+        self.ganadora = ganadora
+    }
+}
+
+/// Lo que hizo una importación en la base.
+public struct ResumenImportacion: Sendable, Hashable {
+    public var anadidas = 0
+    public var yaEstaban = 0
+    public var actualizadas = 0
+    /// Líneas sin jornada: se añaden sin poder comprobar si ya estaban.
+    public var sinJornada = 0
+    public var total = 0
+
+    public var mensaje: String {
+        var p = ["\(anadidas) añadidas", "\(yaEstaban) ya estaban"]
+        if actualizadas > 0 { p.append("\(actualizadas) actualizadas (otra columna para la misma jornada)") }
+        if sinJornada > 0 { p.append("\(sinJornada) sin jornada (añadidas sin comprobar si ya estaban)") }
+        return p.joined(separator: ", ") + ". La liga tiene ahora \(total) jornadas."
+    }
+}
+
+/// Base de ganadoras por liga (DT-88, a petición del dueño): `Historico/<liga>.txt`, una línea `jornada;columna` (o solo
+/// `columna`) por jornada. Las importaciones y las descargas de clubprogol se suman sin duplicar jornadas.
+public enum CasosHistorico {
+    public static func liga(_ p: PaisQuiniela) -> String { p == .es ? "España" : "México" }
+
+    static func carpeta(_ e: Entorno) -> URL { e.rutas.base.appending(path: "Historico", directoryHint: .isDirectory) }
+    static func ruta(_ liga: String, _ e: Entorno) -> URL { carpeta(e).appending(path: liga + ".txt") }
+
+    /// Las ligas de la base con su número de jornadas, por nombre.
+    public static func ligas(entorno: Entorno) -> [(nombre: String, jornadas: Int)] {
+        let ficheros = (try? entorno.archivos.listar(carpeta(entorno))) ?? []
+        return ficheros.filter { $0.pathExtension == "txt" }.map { u in
+            let nombre = u.deletingPathExtension().lastPathComponent
+            return (nombre, leer(nombre, entorno: entorno).count)
+        }
+        .sorted { $0.nombre.localizedStandardCompare($1.nombre) == .orderedAscending }
+    }
+
+    /// Las ganadoras guardadas de la liga (vacío si no existe o no se puede leer).
+    public static func leer(_ liga: String, entorno: Entorno) -> [GanadoraHistorica] {
+        guard let datos = try? entorno.archivos.leer(ruta(liga, entorno)) else { return [] }
+        return (try? analizar(datos)) ?? []
+    }
+
+    /// Archivo para importar (y el formato de la base): una jornada por línea, `jornada;columna` o solo `columna`; las
+    /// líneas en blanco se saltan; de la columna cuentan sus 14 primeros signos (lo de detrás, p. ej. el pleno, se
+    /// ignora). Una línea mal formada detiene la lectura con su número: mejor avisar que guardar datos rotos.
+    public static func analizar(_ datos: Data) throws(ErrorDominio) -> [GanadoraHistorica] {
+        var r: [GanadoraHistorica] = []
+        for (i, l) in ArchivoColumnasTexto.columnas(datos).enumerated() where !l.isEmpty {
+            var jornada: String?
+            var columna = l
+            if let pc = l.firstIndex(of: ";") {
+                jornada = FormatoNET.recortar(String(l[..<pc]))
+                columna = FormatoNET.recortar(String(l[l.index(after: pc)...]))
+            }
+            let g = String(columna.prefix(JornadaQuiniela.numeroPartidos))
+            guard jornada?.isEmpty != true, g.count == JornadaQuiniela.numeroPartidos, g.allSatisfy({ "1X2".contains($0) }) else {
+                throw ErrorDominio(
+                    .formato, "La línea \(i + 1) no es «jornada;columna» ni una columna de 14 signos 1, X o 2: «\(l)».")
+            }
+            r.append(GanadoraHistorica(jornada: jornada, ganadora: g))
+        }
+        return r
+    }
+
+    /// Crea la liga vacía (si no existe) para poder importar en ella.
+    public static func crear(_ liga: String, entorno: Entorno) throws(ErrorDominio) -> String {
+        guard let n = CasosMascaras.nombreValido(liga) else {
+            throw ErrorDominio(.argumento, "El nombre de la liga no puede estar vacío ni llevar / \\ : * ? \" < > |.")
+        }
+        if !entorno.archivos.existe(ruta(n, entorno)) { try guardar([], en: n, entorno: entorno) }
+        return n
+    }
+
+    /// Suma `nuevas` a la liga: una jornada que ya estaba no se duplica (si trae otra columna, se actualiza); las
+    /// líneas sin jornada se añaden siempre.
+    public static func anadir(_ nuevas: [GanadoraHistorica], a liga: String, entorno: Entorno) throws(ErrorDominio)
+        -> ResumenImportacion
+    {
+        var base = leer(liga, entorno: entorno)
+        var indice: [String: Int] = [:]
+        for (i, g) in base.enumerated() { if let j = g.jornada { indice[j] = i } }
+        var r = ResumenImportacion()
+        for g in nuevas {
+            guard let j = g.jornada else {
+                base.append(g)
+                r.sinJornada += 1
+                continue
+            }
+            if let i = indice[j] {
+                if base[i].ganadora == g.ganadora { r.yaEstaban += 1 } else { (base[i], r.actualizadas) = (g, r.actualizadas + 1) }
+            } else {
+                indice[j] = base.count
+                base.append(g)
+                r.anadidas += 1
+            }
+        }
+        try guardar(base, en: liga, entorno: entorno)
+        r.total = base.count
+        return r
+    }
+
+    /// «Añadir ganadoras desde archivo…»: un archivo sin ninguna ganadora es un error, no una importación vacía.
+    public static func importar(_ datos: Data, a liga: String, entorno: Entorno) throws(ErrorDominio) -> ResumenImportacion {
+        let nuevas = try analizar(datos)
+        guard !nuevas.isEmpty else { throw ErrorDominio(.formato, "El archivo no tiene ninguna ganadora.") }
+        return try anadir(nuevas, a: liga, entorno: entorno)
+    }
+
+    /// Las ganadoras descargadas de clubprogol se suman a la liga «España» o «México» (decisión del dueño).
+    public static func sumarDescarga(_ h: [ResultadoHistorico], pais: PaisQuiniela, entorno: Entorno) throws(ErrorDominio)
+        -> ResumenImportacion
+    {
+        try anadir(h.map { GanadoraHistorica(jornada: String($0.jornada), ganadora: $0.ganadora) }, a: liga(pais), entorno: entorno)
+    }
+
+    public static func borrar(_ liga: String, entorno: Entorno) throws(ErrorDominio) {
+        try entorno.archivos.borrar(ruta(liga, entorno))
+    }
+
+    static func guardar(_ g: [GanadoraHistorica], en liga: String, entorno: Entorno) throws(ErrorDominio) {
+        try entorno.archivos.crearCarpeta(carpeta(entorno))
+        let texto = g.map { ($0.jornada.map { $0 + ";" } ?? "") + $0.ganadora + "\r\n" }.joined()
+        try entorno.archivos.escribir(Data(texto.utf8), en: ruta(liga, entorno), atomico: true)
     }
 }
