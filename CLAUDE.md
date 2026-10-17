@@ -13,7 +13,7 @@ Programa libre bajo **GPLv3**, derivado del Free1X2 original de Joan Duatis.
 
 | Dato | Valor | Evidencia |
 |------|-------|-----------|
-| Versión | **0.83.0** «Rarotonga» | `Free1X2.WinUI/Free1X2.WinUI.csproj:15-17` |
+| Versión | **1.0.0** «Rarotonga» | `Free1X2.WinUI/Free1X2.WinUI.csproj:15-17` |
 | UI | WinUI 3 (Windows App SDK **1.6**, `Microsoft.WindowsAppSDK 1.6.250108002`) | `Free1X2.WinUI.csproj:20,37` |
 | TFM | `net8.0-windows10.0.19041.0` (mínimo `10.0.17763.0`) | `Free1X2.WinUI.csproj:5-6` |
 | Empaquetado | Desempaquetado (`WindowsPackageType=None`), **self-contained win-x64** | `Free1X2.WinUI.csproj:21,26-28` |

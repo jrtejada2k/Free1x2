@@ -120,7 +120,8 @@ El binario WinUI 3 es **self-contained**: incrusta el Windows App Runtime y los 
 
 | Tag | UI | Notas |
 |-----|----|-------|
-| `v0.83.0` | WinUI 3 | **Versión actual.** Mejoras post-0.82: corrección de bugs de UI + logging, optimizaciones del motor (salida idéntica, verificada por SHA-256), tema Claro/Oscuro/Sistema, tamaño mínimo de ventana y atajos de teclado, accesibilidad e infraestructura de localización. |
+| `v1.0.0` | WinUI 3 | **Versión actual.** A la par con la app Mac (W1–W12 de `docs/TAREAS_WINDOWS.md`): panel lateral con buscador y barra con texto, jornada al arrancar y «Jornada ▾», máscaras y escrutinio contra la base de ganadoras por liga, «Columnas de Inicio» en el Reductor y los filtros, paneles recuperados de Rotación de signos, enlaces de ayuda al día y correcciones de condiciones. Motor sin cambios (138 golden-master intactos). |
+| `v0.83.0` | WinUI 3 | Mejoras post-0.82: corrección de bugs de UI + logging, optimizaciones del motor (salida idéntica, verificada por SHA-256), tema Claro/Oscuro/Sistema, tamaño mínimo de ventana y atajos de teclado, accesibilidad e infraestructura de localización. |
 | `v0.82.0` | WinUI 3 | Integración online opcional (jornada + catálogo de equipos de clubprogol.com) con caché offline-first. |
 | `v0.81.2` | WinUI 3 | Licencia GPLv3, `README`, `SECURITY.md`: preparación del repositorio público. |
 | `v0.81.1-emails-ofuscados` | WinUI 3 | Ofuscación de emails de terceros (anti-scraping) previa a la publicación. |
