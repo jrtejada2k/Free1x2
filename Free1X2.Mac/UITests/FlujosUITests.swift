@@ -25,8 +25,8 @@ final class FlujosUITests: XCTestCase {
     /// Desplaza la página hasta que `e` se pueda pulsar (en macOS XCUITest no desplaza solo).
     @MainActor private func pulsar(_ app: XCUIApplication, _ e: XCUIElement) {
         XCTAssertTrue(e.waitForExistence(timeout: 10))
-        // La página: de las zonas con scroll que están sobre el control (el panel lateral queda fuera), la más alta. La más
-        // estrecha podía ser una tabla de la propia página, y F16 se pasaba 5 min desplazando la tabla y no la página.
+        // La página: de las zonas con scroll que están sobre el control (el panel lateral queda fuera), la más alta; la más
+        // estrecha podía ser una tabla de la propia página.
         let x = e.frame.midX
         let zona = app.scrollViews.allElementsBoundByIndex.filter { $0.frame.minX <= x && x <= $0.frame.maxX }
             .max { $0.frame.height < $1.frame.height }
@@ -200,8 +200,8 @@ final class FlujosUITests: XCTestCase {
     }
 
     /// Escrutinios ▸ JD-01 contra la columna de unos (rango 10–14 por defecto) y espera el histograma.
-    @MainActor private func escrutarJD01(_ app: XCUIApplication, registrar: Bool = false) throws {
-        let ruta = try fichero("jd01.txt", Self.seisTriples)
+    @MainActor private func escrutarJD01(_ app: XCUIApplication, columnas: [String] = seisTriples, registrar: Bool = false) throws {
+        let ruta = try fichero("jd01.txt", columnas)
         app.buttons["Escrutinio"].firstMatch.click()
         let elegir = app.buttons["Seleccionar ficheros…"]
         XCTAssertTrue(elegir.waitForExistence(timeout: 10))
@@ -343,12 +343,15 @@ final class FlujosUITests: XCTestCase {
         XCTAssertTrue(app.buttons["inicio-calcular"].isHittable)
     }
 
-    /// F16: tras el escrutinio de F13, «Ver premiadas…» ▸ «Guardar Todas» graba las 473 columnas con 10 o más aciertos.
+    /// F16: tras escrutar JD-02 como en F13, «Ver premiadas…» ▸ «Guardar Todas» graba sus 57 columnas con 10 o más aciertos.
     @MainActor func testF16GuardarPremiadas() throws {
         let carpeta = (try fichero("vacio.txt", []) as NSString).deletingLastPathComponent
         let app = lanzar()
         defer { app.terminate() }
-        try escrutarJD01(app, registrar: true)
+        // JD-02 (las 64 de JD-01 sin X) y no JD-01: con 473 filas en «Ver premiadas» cada búsqueda de XCUITest tardaba
+        // 9-13 s y F16 se llevaba 5-8 min. El flujo es el mismo y el plan da 57 premiadas de 10 a 14 (§3).
+        let jd02 = Self.seisTriples.filter { !$0.contains("X") }
+        try escrutarJD01(app, columnas: jd02, registrar: true)
         pulsar(app, app.buttons["Ver premiadas…"])
         pulsar(app, app.buttons["Guardar Todas"])
         panel(app, ruta: carpeta)
@@ -356,8 +359,8 @@ final class FlujosUITests: XCTestCase {
         let hecho = NSPredicate { _, _ in FileManager.default.fileExists(atPath: salida) }
         wait(for: [XCTNSPredicateExpectation(predicate: hecho, object: nil)], timeout: 10)
         let lineas = try String(contentsOfFile: salida, encoding: .utf8).components(separatedBy: "\r\n").filter { !$0.isEmpty }
-        XCTAssertEqual(lineas.count, 473)
-        XCTAssertEqual(Set(lineas), Set(Self.seisTriples.filter { c in c.filter { $0 == "1" }.count >= 10 }))
+        XCTAssertEqual(lineas.count, 57)
+        XCTAssertEqual(Set(lineas), Set(jd02.filter { c in c.filter { $0 == "1" }.count >= 10 }))
     }
 
     /// F05: un valor no válido en Variantes («a») da error y no se aplica: el semáforo sigue vacío y Calcular da 729.
