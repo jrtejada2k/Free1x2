@@ -216,6 +216,13 @@ public partial class BoletoBaseViewModel : ObservableObject
     [ObservableProperty]
     private string _titulo = "Boleto Base";
 
+    /// <summary>
+    /// Nombre del fichero de la combinación (W8, DT-82): va en la cabecera del boleto al
+    /// desaparecer la tarjeta «Combinación» de Inicio. Lo fija MainPageViewModel.
+    /// </summary>
+    [ObservableProperty]
+    private string _nombreFichero = "";
+
     // Construye una fila por partido. Inicialmente "triple" (1,X,2), igual que
     // Pronosticos.InicializaPronosticos() (todos a "1X2") en WinForms.
     // Los nombres salen de AppState.EquiposInicio (sobreviven a la navegación); sin ellos, "? - ?".

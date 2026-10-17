@@ -259,6 +259,8 @@ public partial class MainPageViewModel : ObservableObject
         NombreCombinacion = string.IsNullOrEmpty(_estado.NombreArchivoComb)
             ? "(combinación nueva)"
             : Path.GetFileNameWithoutExtension(_estado.NombreArchivoComb);
+        if (Boleto != null)
+            Boleto.NombreFichero = NombreCombinacion;
 
         // Filtro parcial del grupo (réplica de la sección "Indicar Filtro" de
         // ActualizaGrupoPantalla: ActivaFiltroColumnasParcial / DesactivarFiltroColumnasParcial).

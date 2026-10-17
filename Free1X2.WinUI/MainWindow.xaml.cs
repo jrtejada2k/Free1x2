@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -36,17 +37,13 @@ public sealed partial class MainWindow : Window
 
         AjustarTamanoVentana();
 
-        ConstruirToolbar();
+        // W8 (DT-82): panel lateral + barra con texto en lugar de los 55 iconos. Sin la barra
+        // de iconos ya no se escriben al cerrar los flags MostrarTs*: parametros.free1x2
+        // conserva sus valores de barras sin tocarlos (compatibilidad con el WinForms).
+        ConstruirPanelLateral();
         ConstruirMenus();
         ConfigurarAtajosTeclado();
         ContentFrame.Navigate(typeof(MainPage));
-
-        // Persiste la visibilidad de las barras al cerrar, igual que el MainForm
-        // WinForms original (Salir() -> AConfiguracion.GuardarToolBarsVisibles,
-        // MainForm.cs:178). El motor lazy-carga los flags MostrarTs* desde
-        // parametros.free1x2 al primer acceso, por lo que aquí solo se vuelven a
-        // escribir los valores vivos (mismo orden de argumentos que el original).
-        this.Closed += (_, _) => GuardarBarrasHerramientas();
 
         if (Environment.GetEnvironmentVariable("FREE1X2_SMOKE") == "1")
             IniciarSmokeTest();
@@ -173,16 +170,28 @@ public sealed partial class MainWindow : Window
             null,
             ("E7E8", "Salir", null)));   // null => cierra la ventana.
 
-        BarraMenu.Items.Add(Menu("Archivo",
-            ("E8A5", "Boleto / combinación (Inicio)", typeof(MainPage)),
-            null,
-            ("E716", "Gestión de equipos…", typeof(GestorEquiposFrmPage)),
-            ("E8B5", "Importar / exportar columnas…", typeof(ImportExportFrmPage))));
+        // W8 (DT-82): las acciones que solo estaban en la barra de iconos (tsArchivo) pasan a
+        // este menú, en el mismo orden que el menú Archivo de la app Mac.
+        var menuArchivo = new MenuBarItem { Title = "Archivo" };
+        menuArchivo.Items.Add(ItemAccion("E8A5", "Nueva combinación", AccionInicio.NuevaCombinacion));
+        menuArchivo.Items.Add(ItemAccion("E8E5", "Abrir combinación…", AccionInicio.AbrirCombinacion));
+        menuArchivo.Items.Add(ItemAccion("E74E", "Guardar combinación", AccionInicio.GuardarCombinacion));
+        menuArchivo.Items.Add(ItemAccion("E792", "Guardar combinación como…", AccionInicio.GuardarCombinacionComo));
+        menuArchivo.Items.Add(new MenuFlyoutSeparator());
+        menuArchivo.Items.Add(ItemAccion("E8E5", "Abrir equipos…", AccionInicio.AbrirEquipos));
+        menuArchivo.Items.Add(ItemAccion("E74E", "Guardar equipos…", AccionInicio.GuardarEquipos));
+        menuArchivo.Items.Add(new MenuFlyoutSeparator());
+        menuArchivo.Items.Add(ItemFlyout("E8A5", "Boleto / combinación (Inicio)", typeof(MainPage)));
+        menuArchivo.Items.Add(ItemFlyout("E716", "Gestión de equipos…", typeof(GestorEquiposFrmPage)));
+        menuArchivo.Items.Add(ItemFlyout("E8B5", "Importar / exportar columnas…", typeof(ImportExportFrmPage)));
+        menuArchivo.Items.Add(ItemFlyout("E896", "Obtener boletos online…", typeof(DescargaBoletoFrmPage)));
+        menuArchivo.Items.Add(new MenuFlyoutSeparator());
+        menuArchivo.Items.Add(ItemAccion("E74D", "Borrar temporales…", AccionInicio.BorrarTemporales));
+        menuArchivo.Items.Add(ItemAccion("E74D", "Borrar informes…", AccionInicio.BorrarInformes));
+        BarraMenu.Items.Add(menuArchivo);
 
         // Menú "Ver" en 3ª posición (tras Archivo), como en el MainForm original.
-        // Incluye el submenú "Barras de Herramientas" (personalizarToolStripMenuItem
-        // en MainForm.Designer.cs:1475) con un item conmutable por cada uno de los 6
-        // ToolStrips, igual que el original.
+        // W8 (DT-82): sin el submenú "Barras de Herramientas" (ya no hay barra de iconos).
         var menuVer = Menu("Ver",
             ("E80F", "Inicio", typeof(MainPage)),
             ("E8A1", "Ver boletos…", typeof(VerBoletosPage)),
@@ -191,7 +200,6 @@ public sealed partial class MainWindow : Window
             null,
             ("E713", "Configuración…", typeof(ConfiguracionFrmPage)));
         menuVer.Items.Add(new MenuFlyoutSeparator());
-        menuVer.Items.Add(ConstruirSubmenuBarrasHerramientas());
         // "Listado de condiciones" — en el original es el item que sigue a "Barras de Herramientas"
         // dentro del menú Ver (menuVer.DropDownItems, MainForm.Designer.cs:1455-1457). Navega a la
         // página portada (handler legacy: listadoDeCondicionesToolStripMenuItem_Click → ListadoCondicionesFrm).
@@ -317,302 +325,22 @@ public sealed partial class MainWindow : Window
         return mfi;
     }
 
-    // ===== Barra de herramientas: réplica 1:1 de los 6 ToolStrips del MainForm =====
-    // El programa WinForms muestra por defecto los SEIS ToolStrips (config en
-    // parametros.free1x2; los seis flags por defecto = true, ver
-    // VariablesGlobales.SetDefaultValues líneas 162-167). El orden visual lo fija
-    // ObtenerPosicionBarraHerramientas (MainForm.cs línea 78):
-    //     tsFree, tsArchivo, tsOperaciones, tsCombinacion, tsFiltros, tsUtilidades
-    // Cada strip se separa del siguiente con un separador vertical (son ToolStrip
-    // independientes en el original). Los botones, su orden, su ToolTipText y su icono
-    // se toman EXACTAMENTE de MainForm.Designer.cs (Items.AddRange de cada ToolStrip)
-    // y MainForm.resx (imagen embebida por botón, extraída a Assets/Toolbar/<botón>.png).
-    // No se inventan botones ni se reutiliza ningún icono.
-    //
-    // Mostrar/ocultar por grupo (feature "Ver -> Barras de Herramientas"): cada grupo
-    // registra TODOS sus elementos (botones + separador final) en _gruposBarra para
-    // poder mostrarlos/ocultarlos como una unidad, igual que tsX.Visible en WinForms.
-    // La visibilidad inicial se siembra desde VariablesGlobales.MostrarTs* (réplica de
-    // InicializarBarrasHerramientas, MainForm.cs:63-71).
-    //
-    // Acciones que en WinForms operan sobre 'pronosticos' (ficheros del boleto base) se
-    // enrutan a la pantalla Inicio (MainPage), donde vive el boleto, igual que ya hacía
-    // el menú: misma navegación/flujo que el original, solo cambia la capa visual.
-
-    // Identificadores de grupo en el MISMO orden visual que ObtenerPosicionBarraHerramientas.
-    private enum GrupoBarra { Free, Archivo, Operaciones, Combinacion, Filtros, Utilidades }
-
-    // Elementos (botones + separador) de cada grupo, para mostrarlos/ocultarlos en bloque.
-    private readonly Dictionary<GrupoBarra, List<FrameworkElement>> _gruposBarra = new();
-    // Grupo en construcción: Herramienta()/Separador() añaden a su lista.
-    private List<FrameworkElement>? _grupoActual;
-
-    private void ConstruirToolbar()
+    // Igual que ItemFlyout, pero ejecuta una acción sobre la pantalla Inicio (NavegarConAccion).
+    private MenuFlyoutItem ItemAccion(string glifoHex, string label, AccionInicio accion)
     {
-        // --- tsFree ---
-        Grupo(GrupoBarra.Free);
-        Herramienta("bSalir", "Salir", null);                                         // null => cierra la ventana
-        Herramienta("bConfig", "Configuración", typeof(ConfiguracionFrmPage));
-        Herramienta("bConfAnalisis", "Configurar Análisis", typeof(ConfiguracionAnalisisFrmPage));
-        Herramienta("bAyuda", "Ayuda", typeof(AyudaFrmPage));
-        Herramienta("bAcercaDe", "Acerca de ...", typeof(AcercaDeFrmPage));
-        Separador();
-
-        // --- tsArchivo ---
-        // Estos botones ejecutan una acción sobre la pantalla Inicio (no solo navegan a ella):
-        // se enrutan a MainPage con un token AccionInicio y la página invoca el comando que
-        // replica el handler equivalente del menú "Archivo" del MainForm original.
-        Grupo(GrupoBarra.Archivo);
-        HerramientaAccion("bGuardarEquipos", "Guardar equipos", AccionInicio.GuardarEquipos);
-        HerramientaAccion("bNuevo", "Nueva combinación", AccionInicio.NuevaCombinacion);
-        Herramienta("bObtenerBoletos", "Obtener Boletos Online", typeof(DescargaBoletoFrmPage));
-        HerramientaAccion("bAbrirCombinacion", "Abrir combinación", AccionInicio.AbrirCombinacion);
-        HerramientaAccion("bGuardarCombinacion", "Guardar combinación", AccionInicio.GuardarCombinacion);
-        HerramientaAccion("bGuardarCombinacionComo", "Guardar combinación como", AccionInicio.GuardarCombinacionComo);
-        HerramientaAccion("bBorrarTemporales", "Borrar archivos temporales", AccionInicio.BorrarTemporales);
-        HerramientaAccion("bAbrirEquipos", "Abrir equipos", AccionInicio.AbrirEquipos);
-        HerramientaAccion("bBorrarInformes", "Borrar Informes de Error", AccionInicio.BorrarInformes);
-        Herramienta("bGestorEquipos", "Gestión de Equipos", typeof(GestorEquiposFrmPage));
-        Separador();
-
-        // --- tsOperaciones ---
-        Grupo(GrupoBarra.Operaciones);
-        Herramienta("bAlgebra", "Algebra", typeof(AlgebraColumnasFrmPage));
-        Herramienta("bTransposicion", "Transposición", typeof(TransposicionFrmPage));
-        Herramienta("bMultiplicacion", "Multiplicación", typeof(MultiplicadorFrmPage));
-        Herramienta("bFraccionador", "Fraccionar", typeof(FraccionadorFrmPage));
-        Herramienta("bRotacion", "Rotación de signos", typeof(RotacionDeSignosFrmPage));
-        Separador();
-
-        // --- tsCombinacion ---
-        Grupo(GrupoBarra.Combinacion);
-        Herramienta("bCalcular", "Calcular combinación", typeof(CalculaColumnasFrmPage));
-        Herramienta("bCalcularM", "Calcular múltiples combinaciones", typeof(CalculaColumnasMultipleFrmPage));
-        Herramienta("bVerBoletos", "Ver boletos", typeof(VerBoletosPage));
-        Herramienta("bImprimirBoletos", "Imprimir boletos", typeof(ImprimirBoletoFrmPage));
-        Herramienta("bReducir", "Reducir", typeof(ReductorFrmPage));
-        Herramienta("bEscrutinio", "Escrutinio", typeof(EscrutiniosFrmPage));
-        // bEscrutarComb: en el original está Enabled=false (handler vacío); se replica deshabilitado.
-        Herramienta("bEscrutarComb", "Escrutar combinaciones", null, deshabilitado: true);
-        Herramienta("bAnalisisColumnas", "Análisis de columnas", typeof(AnalizarFicheroFrmPage));
-        Herramienta("bAnalisisFallos", "Análisis de fallos", typeof(ColGanadoraFrmPage));
-        // bAnalisisGrafico: en el original está Visible=false → NO se muestra (omitido a propósito).
-        Herramienta("bAnalisisSignos", "Análisis de signos", typeof(VSignosFrmPage));
-        Herramienta("bProbabilidades", "Probabilidades", typeof(ProbabilidadPremiosPage));
-        Herramienta("bEstadisticas", "Estadísticas", typeof(AnastaticsPage));
-        Herramienta("bP15", "Añadir pleno al 15", typeof(AgregaP15FrmPage));
-        Separador();
-
-        // --- tsFiltros ---
-        Grupo(GrupoBarra.Filtros);
-        Herramienta("bCombinarFiltros", "Combinar filtros", typeof(CombinarFiltrosPage));
-        Herramienta("bDiferenciasFiltros", "Diferencias de filtros", typeof(DiFiltrosPage));
-        Herramienta("bFiltroCoincidencias", "Filtro de coincidencias", typeof(CoincidenciasPage));
-        Herramienta("bFiltroAidomnou", "Filtro Aidomnou", typeof(aidomnouPage));
-        Herramienta("bFiltroPim", "Filtro Pim", typeof(GeneraPimPage));
-        Separador();
-
-        // --- tsUtilidades ---
-        Grupo(GrupoBarra.Utilidades);
-        Herramienta("bSubeCategoria", "Subir categoría", typeof(SubirCategoriaFrmPage));
-        Herramienta("bModificadorPct", "Modificador de porcentajes", typeof(ModificadorFrmPage));
-        Herramienta("bGeneradorCPs", "Generador de CPs", typeof(GenerarCPsPage));
-        Herramienta("bDiferenciasColumnas", "Diferencias entre columnas", typeof(DifColsPage));
-        Herramienta("bProbabilidad", "Ordenar por probabilidad", typeof(OrdenarPorProbabilidadFrmPage));
-        Herramienta("bSelectorJuanM", "Selector JuanM", typeof(SelecJMPage));
-        Herramienta("bSelectorMarioSan", "Selector MarioSan", typeof(SelectorMSPage));
-        Herramienta("bRentabilidad", "Rentabilidad", typeof(RentabilidadFrmPage));
-        Herramienta("bColumnasGEPT", "Columnas GEPT", typeof(GEPTFrmPage));
-        Herramienta("bTramificar", "Tramificar", typeof(TramificarFormPage));
-        Herramienta("bPremiadas", "Premiadas", typeof(PremiadasFrmPage));
-        Herramienta("bEstimacion", "Estimación de premios", typeof(EstimadorPremiosFrmPage));
-        Herramienta("bBancoPruebas", "Banco de pruebas", typeof(BancoPruebasFrmPage));
-        Herramienta("bImportExport", "Importar / Exportar", typeof(ImportExportFrmPage));
-        Herramienta("bAnalisisGrupos", "Análisis de grupos", typeof(AnaCombiPage));
-        Herramienta("bRedPerfectas", "Reducciones perfectas", typeof(FrmReducidasPerfectasPage));
-        Herramienta("bDependenciaLineal", "Dependencia lineal", typeof(FrmDependenciaLinealPage));
-
-        // Réplica de InicializarBarrasHerramientas (MainForm.cs:63-71): la visibilidad
-        // inicial de cada grupo proviene del flag MostrarTs* cargado de parametros.free1x2.
-        // EXCEPCIÓN — grupo Filtros: se fuerza SIEMPRE visible al arrancar, con
-        // independencia del valor cargado de la config. Una copia de trabajo antigua de
-        // parametros.free1x2 (con tsFiltros=False) podría seguir ocultándolo en una
-        // instalación ya existente; el usuario exige que las 5 herramientas de Filtros
-        // (Combinar/Diferencias/Coincidencias/Aidomnou/Pim) aparezcan por defecto. El
-        // toggle Ver -> Barras de Herramientas sigue pudiendo ocultarlo después.
-        foreach (var g in _gruposBarra.Keys)
+        var mfi = new MenuFlyoutItem
         {
-            bool visible = g == GrupoBarra.Filtros ? true : MostrarGrupo(g);
-            AplicarVisibilidadGrupo(g, visible);
-        }
-    }
-
-    // Marca el inicio de un grupo; los siguientes Herramienta()/Separador() le pertenecen.
-    private void Grupo(GrupoBarra grupo)
-    {
-        _grupoActual = new List<FrameworkElement>();
-        _gruposBarra[grupo] = _grupoActual;
-    }
-
-    // Añade un botón icono-only compacto a la barra usando el icono ORIGINAL extraído del
-    // resx (Assets/Toolbar/<icono>.png), no un glifo de fuente. 'icono' es el nombre del
-    // botón en el Designer (p.ej. "bCalcular"). page null => cierra la ventana (Salir) salvo
-    // que 'deshabilitado' sea true (botón inactivo sin acción, como bEscrutarComb).
-    private void Herramienta(string icono, string tooltip, Type? page, bool deshabilitado = false)
-    {
-        var img = new Image
-        {
-            Source = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage(
-                new Uri($"ms-appx:///Assets/Toolbar/{icono}.png")),
-            Width = 16,
-            Height = 16,
-            Stretch = Stretch.Uniform,
+            Text = label,
+            Icon = new FontIcon { Glyph = Glifo(glifoHex), FontFamily = IconFont },
         };
-        var btn = new Button
-        {
-            Content = img,
-            Width = 26,
-            Height = 26,
-            Padding = new Thickness(0),
-            Background = new SolidColorBrush(Microsoft.UI.Colors.Transparent),
-            BorderThickness = new Thickness(0),
-            IsEnabled = !deshabilitado,
-        };
-        ToolTipService.SetToolTip(btn, tooltip);
-        Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(btn, tooltip);
-        if (!deshabilitado)
-        {
-            if (page is null)
-                btn.Click += (_, _) => this.Close();
-            else
-                btn.Click += (_, _) => Navegar(page);
-        }
-        ToolbarPanel.Children.Add(btn);
-        _grupoActual?.Add(btn);
-    }
-
-    // Igual que Herramienta(), pero el clic ejecuta una acción sobre la pantalla Inicio
-    // (NavegarConAccion) en lugar de solo navegar. Usa el mismo icono ORIGINAL del resx.
-    private void HerramientaAccion(string icono, string tooltip, AccionInicio accion)
-    {
-        var img = new Image
-        {
-            Source = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage(
-                new Uri($"ms-appx:///Assets/Toolbar/{icono}.png")),
-            Width = 16,
-            Height = 16,
-            Stretch = Stretch.Uniform,
-        };
-        var btn = new Button
-        {
-            Content = img,
-            Width = 26,
-            Height = 26,
-            Padding = new Thickness(0),
-            Background = new SolidColorBrush(Microsoft.UI.Colors.Transparent),
-            BorderThickness = new Thickness(0),
-        };
-        ToolTipService.SetToolTip(btn, tooltip);
-        Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(btn, tooltip);
-        btn.Click += (_, _) => NavegarConAccion(accion);
-        ToolbarPanel.Children.Add(btn);
-        _grupoActual?.Add(btn);
-    }
-
-    private void Separador()
-    {
-        var sep = new Border
-        {
-            Width = 1,
-            Height = 18,
-            Margin = new Thickness(4, 0, 4, 0),
-            Background = (Brush)Application.Current.Resources["AppBorderBrush"],
-            VerticalAlignment = VerticalAlignment.Center,
-        };
-        ToolbarPanel.Children.Add(sep);
-        _grupoActual?.Add(sep);
-    }
-
-    // Muestra/oculta todos los elementos de un grupo, equivalente a tsX.Visible en WinForms.
-    private void AplicarVisibilidadGrupo(GrupoBarra grupo, bool visible)
-    {
-        if (!_gruposBarra.TryGetValue(grupo, out var elementos)) return;
-        var v = visible ? Visibility.Visible : Visibility.Collapsed;
-        foreach (var e in elementos)
-            e.Visibility = v;
-    }
-
-    // ===== Ver -> Barras de Herramientas (mostrar/ocultar cada grupo) =====
-    // Réplica del submenú "Barras de Herramientas" (personalizarToolStripMenuItem,
-    // MainForm.Designer.cs:1475) con un item conmutable por grupo. Las etiquetas y el
-    // orden de los items son los del original (DropDownItems.AddRange, Designer.cs:1465):
-    //   Filtros, Free1X2, Operaciones, Utilidades, Combinación, Archivo.
-    // Cada item arranca marcado/desmarcado según MostrarTs* (= visibilidad inicial del
-    // grupo) y al pulsarlo muestra/oculta el grupo en vivo, igual que ToolStripMenuItemClick
-    // (MainForm.cs:489-503). La persistencia se hace al cerrar (GuardarBarrasHerramientas).
-
-    // Estado vivo de visibilidad por grupo (lo que se persistirá al cerrar). Se siembra
-    // de MostrarTs* y se actualiza en cada toggle, igual que tsX.Visible en WinForms.
-    private readonly Dictionary<GrupoBarra, bool> _visibleGrupo = new();
-
-    // Valor de partida de cada grupo desde VariablesGlobales.MostrarTs* (parametros.free1x2).
-    private static bool MostrarGrupo(GrupoBarra grupo) => grupo switch
-    {
-        GrupoBarra.Free        => VariablesGlobales.MostrarTsFree,
-        GrupoBarra.Archivo     => VariablesGlobales.MostrarTsArchivo,
-        GrupoBarra.Operaciones => VariablesGlobales.MostrarTsOperaciones,
-        GrupoBarra.Combinacion => VariablesGlobales.MostrarTsCombinacion,
-        GrupoBarra.Filtros     => VariablesGlobales.MostrarTsFiltros,
-        GrupoBarra.Utilidades  => VariablesGlobales.MostrarTsUtilidades,
-        _ => true,
-    };
-
-    private MenuFlyoutSubItem ConstruirSubmenuBarrasHerramientas()
-    {
-        var sub = new MenuFlyoutSubItem
-        {
-            Text = "Barras de Herramientas",
-            Icon = new FontIcon { Glyph = Glifo("E700"), FontFamily = IconFont },
-        };
-
-        // Mismo orden de items que el original (Designer.cs:1465-1471).
-        (GrupoBarra grupo, string label)[] items =
-        {
-            (GrupoBarra.Filtros,     "Filtros"),
-            (GrupoBarra.Free,        "Free1X2"),
-            (GrupoBarra.Operaciones, "Operaciones"),
-            (GrupoBarra.Utilidades,  "Utilidades"),
-            (GrupoBarra.Combinacion, "Combinación"),
-            (GrupoBarra.Archivo,     "Archivo"),
-        };
-
-        foreach (var (grupo, label) in items)
-        {
-            // El grupo Filtros arranca SIEMPRE marcado/visible (igual que en
-            // ConstruirToolbar), aunque la config cargada traiga tsFiltros=False, para
-            // mantener el check del menú sincronizado con la barra realmente visible.
-            bool inicial = grupo == GrupoBarra.Filtros ? true : MostrarGrupo(grupo);
-            _visibleGrupo[grupo] = inicial;
-
-            var item = new ToggleMenuFlyoutItem { Text = label, IsChecked = inicial };
-            item.Click += (s, _) =>
-            {
-                // ToggleMenuFlyoutItem ya ha invertido IsChecked al llegar aquí.
-                bool visible = ((ToggleMenuFlyoutItem)s).IsChecked;
-                _visibleGrupo[grupo] = visible;
-                AplicarVisibilidadGrupo(grupo, visible);   // muestra/oculta en vivo
-            };
-            sub.Items.Add(item);
-        }
-        return sub;
+        mfi.Click += (_, _) => NavegarConAccion(accion);
+        return mfi;
     }
 
     /// <summary>
     /// Submenú «Ver → Tema» (U-01): las tres opciones de tema, mutuamente excluyentes, con la
-    /// activa marcada. Mismo patrón que <see cref="ConstruirSubmenuBarrasHerramientas"/>
-    /// (MenuFlyoutSubItem con icono + items conmutables construidos en bucle); aquí se usa
-    /// <see cref="RadioMenuFlyoutItem"/> porque la selección es EXCLUSIVA (el submenú de barras
-    /// son conmutadores independientes). El cambio se aplica en vivo y se persiste en
+    /// activa marcada (MenuFlyoutSubItem con icono + items construidos en bucle); se usa
+    /// <see cref="RadioMenuFlyoutItem"/> porque la selección es EXCLUSIVA. El cambio se aplica en vivo y se persiste en
     /// <see cref="Services.TemaApp"/>.
     /// </summary>
     private MenuFlyoutSubItem ConstruirSubmenuTema()
@@ -711,29 +439,208 @@ public sealed partial class MainWindow : Window
         }
     }
 
-    // Persiste la visibilidad de las barras al cerrar, mirror exacto de
-    // AConfiguracion.GuardarToolBarsVisibles (MainForm.cs:178). Orden de argumentos del
-    // original: tsFree, tsFiltros, tsCombinacion, tsOperaciones, tsArchivo, tsUtilidades.
-    private void GuardarBarrasHerramientas()
+    // ===== Panel lateral (W8, DT-82) =====
+    // Las pantallas de los menús y de la antigua barra de 55 iconos, por nombre y por grupo, con
+    // buscador. Las entradas son exactamente las del panel de la app Mac (Lateral.swift), con el
+    // PNG original de la barra (Assets/Toolbar) o, si no lo había, un glifo de Segoe Fluent Icons.
+
+    private sealed record EntradaLateral(string Titulo, Type Pagina, string Icono);
+
+    private static EntradaLateral E(string titulo, Type pagina, string icono) => new(titulo, pagina, icono);
+
+    private static readonly (string Grupo, EntradaLateral[] Entradas)[] SeccionesLateral =
     {
-        try
+        ("", new[] { E("Inicio", typeof(MainPage), "E80F") }),
+        ("Combinación", new[]
         {
-            bool Vis(GrupoBarra g) => _visibleGrupo.TryGetValue(g, out var v) ? v : MostrarGrupo(g);
-            new AConfiguracion().GuardarToolBarsVisibles(
-                Vis(GrupoBarra.Free),
-                Vis(GrupoBarra.Filtros),
-                Vis(GrupoBarra.Combinacion),
-                Vis(GrupoBarra.Operaciones),
-                Vis(GrupoBarra.Archivo),
-                Vis(GrupoBarra.Utilidades));
-        }
-        catch (Exception ex)
+            E("Calcular columnas", typeof(CalculaColumnasFrmPage), "bCalcular"),
+            E("Calcular varias combinaciones", typeof(CalculaColumnasMultipleFrmPage), "bCalcularM"),
+            E("Ver boletos", typeof(VerBoletosPage), "bVerBoletos"),
+            E("Ver boletos en editor de texto", typeof(VerBoletosEnEditorFrmPage), "E8A1"),
+            E("Imprimir boletos", typeof(ImprimirBoletoFrmPage), "bImprimirBoletos"),
+            E("Reducir", typeof(ReductorFrmPage), "bReducir"),
+            E("Escrutinios", typeof(EscrutiniosFrmPage), "bEscrutinio"),
+            E("Escrutar combinaciones", typeof(EscrutarCombinacionesFrmPage), "bEscrutarComb"),
+            E("Analizar combinación", typeof(AnalizarCombinacionFrmPage), "E9F5"),
+            E("Análisis de columnas", typeof(AnalizarFicheroFrmPage), "bAnalisisColumnas"),
+            E("Análisis de fallos", typeof(ColGanadoraFrmPage), "bAnalisisFallos"),
+            E("Análisis de signos", typeof(VSignosFrmPage), "bAnalisisSignos"),
+            E("Gráfico de columnas", typeof(GraficoColumnasFrmPage), "E9D9"),
+            E("Probabilidades", typeof(ProbabilidadPremiosPage), "bProbabilidades"),
+            E("Estadísticas", typeof(AnastaticsPage), "bEstadisticas"),
+            E("Añadir pleno al 15", typeof(AgregaP15FrmPage), "bP15"),
+        }),
+        ("Filtros", new[]
         {
-            // No bloquear el cierre por un error de E/S al guardar preferencias (comportamiento
-            // intacto); antes se perdía sin rastro el motivo de "no recuerda mis barras".
-            Services.Log.Error("MainWindow.GuardarBarrasHerramientas", ex);
+            E("Combinar filtros", typeof(CombinarFiltrosPage), "bCombinarFiltros"),
+            E("Diferencias entre filtros", typeof(DiFiltrosPage), "bDiferenciasFiltros"),
+            E("Filtro Coincidencias", typeof(CoincidenciasPage), "bFiltroCoincidencias"),
+            E("Filtro Aidomnou", typeof(aidomnouPage), "bFiltroAidomnou"),
+            E("Filtro Pim", typeof(GeneraPimPage), "bFiltroPim"),
+        }),
+        ("Operaciones", new[]
+        {
+            E("Álgebra de columnas", typeof(AlgebraColumnasFrmPage), "bAlgebra"),
+            E("Transposición", typeof(TransposicionFrmPage), "bTransposicion"),
+            E("Multiplicador", typeof(MultiplicadorFrmPage), "bMultiplicacion"),
+            E("Fraccionador", typeof(FraccionadorFrmPage), "bFraccionador"),
+            E("Rotación de signos", typeof(RotacionDeSignosFrmPage), "bRotacion"),
+        }),
+        ("Utilidades", new[]
+        {
+            E("Subir categoría", typeof(SubirCategoriaFrmPage), "bSubeCategoria"),
+            E("Modificador de porcentajes", typeof(ModificadorFrmPage), "bModificadorPct"),
+            E("Generador de CPs", typeof(GenerarCPsPage), "bGeneradorCPs"),
+            E("Columnas GEPT", typeof(GEPTFrmPage), "bColumnasGEPT"),
+            E("Diferencias entre columnas", typeof(DifColsPage), "bDiferenciasColumnas"),
+            E("Ordenar por probabilidad", typeof(OrdenarPorProbabilidadFrmPage), "bProbabilidad"),
+            E("Selector JuanM", typeof(SelecJMPage), "bSelectorJuanM"),
+            E("Selector MarioSan", typeof(SelectorMSPage), "bSelectorMarioSan"),
+            E("Rentabilidad", typeof(RentabilidadFrmPage), "bRentabilidad"),
+            E("Tramificar", typeof(TramificarFormPage), "bTramificar"),
+            E("Premiadas", typeof(PremiadasFrmPage), "bPremiadas"),
+            E("Estimación de premios", typeof(EstimadorPremiosFrmPage), "bEstimacion"),
+            E("Banco de pruebas", typeof(BancoPruebasFrmPage), "bBancoPruebas"),
+            E("Análisis de grupos", typeof(AnaCombiPage), "bAnalisisGrupos"),
+            E("Reducciones perfectas", typeof(FrmReducidasPerfectasPage), "bRedPerfectas"),
+            E("Dependencia lineal", typeof(FrmDependenciaLinealPage), "bDependenciaLineal"),
+            E("Compresor z3q", typeof(CompresorPage), "E8B7"),
+            E("EstuCol", typeof(EstucolFrmPage), "E80A"),
+        }),
+        ("Archivo", new[]
+        {
+            E("Gestión de equipos", typeof(GestorEquiposFrmPage), "bGestorEquipos"),
+            E("Importar / exportar columnas", typeof(ImportExportFrmPage), "bImportExport"),
+            E("Obtener boletos online", typeof(DescargaBoletoFrmPage), "bObtenerBoletos"),
+        }),
+        ("Ajustes y ayuda", new[]
+        {
+            E("Configuración", typeof(ConfiguracionFrmPage), "bConfig"),
+            E("Configurar análisis", typeof(ConfiguracionAnalisisFrmPage), "bConfAnalisis"),
+            E("Listado de condiciones", typeof(ListadoCondicionesFrmPage), "E9D5"),
+            E("Ayuda", typeof(AyudaFrmPage), "bAyuda"),
+            E("Acerca de", typeof(AcercaDeFrmPage), "bAcercaDe"),
+        }),
+    };
+
+    private void ConstruirPanelLateral() => RellenarPanelLateral("");
+
+    // Vuelve a crear las entradas que contienen el filtro (sin distinguir tildes ni mayúsculas).
+    // Los grupos sin ninguna entrada visible no muestran su cabecera.
+    private void RellenarPanelLateral(string filtro)
+    {
+        string f = Normalizar(filtro);
+        PanelLateral.MenuItems.Clear();
+        foreach (var (grupo, entradas) in SeccionesLateral)
+        {
+            var visibles = entradas.Where(e => f.Length == 0 || Normalizar(e.Titulo).Contains(f)).ToList();
+            if (visibles.Count == 0) continue;
+            if (grupo.Length > 0)
+                PanelLateral.MenuItems.Add(new NavigationViewItemHeader { Content = grupo });
+            foreach (var e in visibles)
+            {
+                var item = new NavigationViewItem { Content = e.Titulo, Tag = e, Icon = IconoLateral(e.Icono) };
+                Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(item, e.Titulo);
+                PanelLateral.MenuItems.Add(item);
+            }
         }
+        MarcarEntradaActual();
     }
+
+    private static IconElement IconoLateral(string icono) =>
+        icono.StartsWith("b", StringComparison.Ordinal)
+            ? new BitmapIcon { UriSource = new Uri($"ms-appx:///Assets/Toolbar/{icono}.png"), ShowAsMonochrome = false }
+            : new FontIcon { Glyph = Glifo(icono), FontFamily = IconFont };
+
+    // Minúsculas y sin diacríticos: «algebra» encuentra «Álgebra de columnas».
+    private static string Normalizar(string texto)
+    {
+        var sb = new System.Text.StringBuilder();
+        foreach (char c in (texto ?? "").Trim().Normalize(System.Text.NormalizationForm.FormD))
+        {
+            if (System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c) != System.Globalization.UnicodeCategory.NonSpacingMark)
+                sb.Append(char.ToLowerInvariant(c));
+        }
+        return sb.ToString();
+    }
+
+    private IEnumerable<NavigationViewItem> EntradasVisibles() => PanelLateral.MenuItems.OfType<NavigationViewItem>();
+
+    private void BuscadorPantallas_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+    {
+        if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
+            RellenarPanelLateral(sender.Text);
+    }
+
+    // Intro en el buscador: abre la primera pantalla que queda.
+    private void BuscadorPantallas_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
+    {
+        RellenarPanelLateral(sender.Text);
+        if (EntradasVisibles().FirstOrDefault()?.Tag is EntradaLateral e)
+            IrARaiz(e.Pagina);
+    }
+
+    private void PanelLateral_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
+    {
+        if (args.InvokedItemContainer?.Tag is EntradaLateral e)
+            IrARaiz(e.Pagina);
+    }
+
+    // Pulsar una entrada la pone como RAÍZ de la navegación (no apila), como en la app Mac.
+    private void IrARaiz(Type page)
+    {
+        if (ContentFrame.CurrentSourcePageType != page)
+            ContentFrame.Navigate(page);
+        ContentFrame.BackStack.Clear();
+        MarcarEntradaActual();
+    }
+
+    // Marca la pantalla raíz de la pila; en una subpantalla abierta desde otra, la de origen.
+    private void MarcarEntradaActual()
+    {
+        Type? raiz = ContentFrame.BackStack.Count > 0
+            ? ContentFrame.BackStack[0].SourcePageType
+            : ContentFrame.CurrentSourcePageType;
+        PanelLateral.SelectedItem = EntradasVisibles().FirstOrDefault(i => (i.Tag as EntradaLateral)?.Pagina == raiz);
+    }
+
+    // ===== Barra de acciones (W8, DT-82) =====
+    // Calcular, Reducir y Jornada son de Inicio: solo se ven allí y actúan sobre la página viva.
+
+    private void ContentFrame_Navigated(object sender, Microsoft.UI.Xaml.Navigation.NavigationEventArgs e)
+    {
+        var v = e.Content is MainPage ? Visibility.Visible : Visibility.Collapsed;
+        BotonCalcular.Visibility = v;
+        BotonReducir.Visibility = v;
+        BotonJornada.Visibility = v;
+        SeparadorInicio.Visibility = v;
+        MarcarEntradaActual();
+    }
+
+    private void BotonCalcular_Click(object sender, RoutedEventArgs e)
+    {
+        if (ContentFrame.Content is MainPage p) p.ViewModel.CalcularCommand.Execute(null);
+    }
+
+    private void BotonReducir_Click(object sender, RoutedEventArgs e)
+    {
+        if (ContentFrame.Content is MainPage p) p.ViewModel.ReducirCommand.Execute(null);
+    }
+
+    private void Jornada_Click(object sender, RoutedEventArgs e)
+    {
+        if (ContentFrame.Content is MainPage p && sender is FrameworkElement { Tag: string pais }
+            && p.ViewModel.CargarJornadaCommand.CanExecute(pais))
+            p.ViewModel.CargarJornadaCommand.Execute(pais);
+    }
+
+    private void BotonNueva_Click(object sender, RoutedEventArgs e) => NavegarConAccion(AccionInicio.NuevaCombinacion);
+
+    private void BotonAbrir_Click(object sender, RoutedEventArgs e) => NavegarConAccion(AccionInicio.AbrirCombinacion);
+
+    private void BotonGuardar_Click(object sender, RoutedEventArgs e) => NavegarConAccion(AccionInicio.GuardarCombinacion);
+
+    private void BotonEscrutinio_Click(object sender, RoutedEventArgs e) => Navegar(typeof(EscrutiniosFrmPage));
 
     private void Navegar(Type page)
     {

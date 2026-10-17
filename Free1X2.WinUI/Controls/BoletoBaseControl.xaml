@@ -31,6 +31,14 @@
                                FontWeight="SemiBold" FontSize="13"
                                Foreground="{ThemeResource AppErrorBrush}"
                                VerticalAlignment="Center" />
+                    <!-- W8 (DT-82): nombre del fichero de la combinación -->
+                    <TextBlock Grid.Column="1"
+                               Text="{x:Bind ViewModel.NombreFichero, Mode=OneWay}"
+                               FontSize="12"
+                               Foreground="{ThemeResource AppTextSecondaryBrush}"
+                               TextTrimming="CharacterEllipsis"
+                               VerticalAlignment="Center"
+                               AutomationProperties.Name="Fichero de la combinación" />
                     <TextBlock Grid.Column="2"
                                Text="{x:Bind ViewModel.ResumenCabecera, Mode=OneWay}"
                                FontSize="12"
