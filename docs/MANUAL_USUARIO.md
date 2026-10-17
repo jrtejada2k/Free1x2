@@ -2,6 +2,10 @@
 
 Manual de uso del programa **Free1X2** para el análisis y la generación de combinaciones de la Quiniela. Reconstruido a partir del manual oficial del programa y de [quinielaticas.com](https://quinielaticas.com/programa-free1x2/).
 
+> **Windows y Mac.** Free1X2 tiene dos versiones con el mismo motor de cálculo (dan exactamente los mismos resultados):
+> **Windows** (WinUI 3, Windows 10 19041+ / Windows 11, x64, portable) y **Mac** (macOS 14 o posterior, Apple Silicon).
+> Lo marcado **[Windows]** o **[Mac]** solo existe en esa versión. Lo que no lleva marca vale para las dos.
+
 > **Índice**
 > 1. [Qué es Free1X2](#1-qué-es-free1x2)
 > 2. [Conceptos básicos de la quiniela](#2-conceptos-básicos-de-la-quiniela)
@@ -20,7 +24,7 @@ Manual de uso del programa **Free1X2** para el análisis y la generación de com
 
 ## 1. Qué es Free1X2
 
-Free1X2 es un programa libre (GPL) para Windows que ayuda a confeccionar la **Quiniela** (14 partidos + Pleno al 15). No "adivina" resultados: aplica **las condiciones matemáticas que tú defines** sobre el universo de columnas posibles, generando solo aquellas que cumplen tus criterios, y ofrece herramientas para **reducir** el número de columnas, **escrutar** resultados y **analizar** combinaciones.
+Free1X2 es un programa libre (GPL) para Windows y Mac que ayuda a confeccionar la **Quiniela** española (14 partidos + Pleno al 15) y el **Progol** mexicano. No "adivina" resultados: aplica **las condiciones matemáticas que tú defines** sobre el universo de columnas posibles, generando solo aquellas que cumplen tus criterios, y ofrece herramientas para **reducir** el número de columnas, **escrutar** resultados y **analizar** combinaciones.
 
 La idea central: partes de un pronóstico (que multiplica columnas con cada doble y triple) y vas **acotando** con condiciones y filtros hasta llegar a un número de columnas asumible para tu presupuesto.
 
@@ -68,8 +72,16 @@ Una combinación de *t* triples y *d* dobles genera **3^t × 2^d** columnas. Por
 
 La ventana principal se divide en zonas:
 
-### Zona superior — Menú y barras de herramientas
-Menús y accesos directos a todas las utilidades del programa (ver [Referencia de menús](#5-referencia-de-menús)).
+### Navegación — panel lateral y barra de la ventana
+- **Panel lateral** (izquierda): todas las pantallas **por su nombre**, agrupadas en *Combinación, Filtros, Operaciones,
+  Utilidades, Archivo* y *Ajustes y ayuda*, con un **buscador** arriba (no distingue tildes ni mayúsculas: «algebra»
+  encuentra «Álgebra de columnas»). La pantalla en la que estás aparece resaltada. Se oculta y se muestra con el botón
+  de la esquina superior.
+- **Barra de la ventana** (arriba): **Nueva**, **Abrir** y **Guardar** combinación (iconos; al dejar el ratón encima se
+  ve su nombre) y **Escrutinio**, en todas las pantallas. En Inicio se añaden **Calcular**, **Reducir**, **Jornada ▾** y
+  **Máscaras ▾**. Cada pantalla tiene además sus botones dentro.
+- Los **menús** de siempre siguen arriba, con los mismos nombres (en Mac, en la barra de menús de macOS). En Windows,
+  el menú **Archivo** reúne además Guardar combinación como, Abrir/Guardar equipos y Borrar temporales/informes.
 
 ### Campo Pronósticos (el boleto base)
 Contiene los 14 partidos. Para cargarlo:
@@ -77,6 +89,11 @@ Contiene los 14 partidos. Para cargarlo:
 - **Manualmente:** junto a cada `?` eliges el equipo (1ª, 2ª, 2ªB o selección internacional) y marcas el/los signo(s) `1`/`X`/`2` de cada partido.
 
 Puedes guardarlo con `Archivo → Guardar Partidos Boleto`.
+
+Los nombres se escriben directamente en las casillas *Local* y *Visitante* de cada partido, o se rellenan solos
+con la **jornada actual** (ver [Obtener Boletos Online](#obtener-boletos-online)): al **abrir el programa** se intenta
+descargar, y en cualquier momento con **Jornada ▾ → España / México** en la barra. En la cabecera del boleto aparece el
+nombre del fichero de la combinación («combinación nueva» si aún no se ha guardado).
 
 Debajo están los **controles de grupos** (crear/navegar grupos de condiciones — ver más adelante).
 
@@ -90,6 +107,9 @@ Puedes activar/desactivar una condición pulsando sus indicadores, sin perder lo
 
 Bajo la rejilla están **Tolerancias** y **Condiciones Relacionadas**.
 
+Si la ventana es estrecha (por ejemplo con el panel lateral abierto), los botones de las condiciones pasan a
+una sola columna para que sus nombres se lean enteros.
+
 ### Campo Filtro
 Permite seleccionar un archivo de columnas que actúa como **base/filtro** de la combinación (ver [Filtros](#8-filtros)). Muestra indicadores de estado (cargado / activo) y el nombre del filtro seleccionado.
 
@@ -98,11 +118,15 @@ Permite seleccionar un archivo de columnas que actúa como **base/filtro** de la
 ## 4. Flujo de trabajo paso a paso
 
 1. **Configura** el programa (`Free1x2 → Configuración`): precio de la apuesta, nº de partidos, etc.
-2. **Carga el boleto base** (equipos + pronóstico inicial de fijos/dobles/triples).
+2. **Carga el boleto base** (equipos + pronóstico inicial de fijos/dobles/triples). Los equipos de la jornada
+   se cargan solos al abrir el programa (o con **Jornada ▾**), y el pronóstico puede salir de una **máscara** guardada
+   (**Máscaras ▾**, ver §10).
 3. **Aplica condiciones** en el campo Condiciones (variantes, columnas probables, etc.). Cada condición acota el universo de columnas.
 4. *(Opcional)* **Selecciona un filtro** si quieres partir de un archivo de columnas concreto.
 5. **Calcula** (`Combinación → Calcular`). El programa genera todas las columnas que cumplen y te dice **cuántas** son y su **coste**.
 6. Si son demasiadas, **reduce**: cambia el pronóstico, aprieta condiciones o usa el **reductor** (`Combinación → Reducir`).
+   «Reducir» en Inicio abre el reductor **ya cargado** con las columnas del boleto, sin guardar antes ningún
+   archivo (ver §9).
 7. **Revisa**: análisis de fallos, gráfico, probabilidades, estadísticas.
 8. **Guarda** la combinación (`.comb`) y/o **exporta** las columnas (`.txt`).
 9. **Ver/Imprimir boletos** (`Combinación → Ver Boletos` / `Imprimir Boletos`).
@@ -111,6 +135,8 @@ Permite seleccionar un archivo de columnas que actúa como **base/filtro** de la
 ---
 
 ## 5. Referencia de menús
+
+Todas las pantallas de estos menús están también en el **panel lateral**, con los mismos grupos.
 
 ### Free1x2
 | Opción | Función |
@@ -130,7 +156,7 @@ Permite seleccionar un archivo de columnas que actúa como **base/filtro** de la
 | Abrir / Guardar / Guardar Como Combinación | Gestiona archivos `.comb`. |
 | Borrar Combinaciones Temporales | Elimina los backups temporales. |
 | Borrar Informes de Error | Elimina los informes de error generados por el programa. |
-| Obtener Boletos Online | Descarga la **jornada de la semana** (España o México) desde el servicio online y rellena el boleto con los equipos reales (ver §10). |
+| Obtener Boletos Online | Descarga la **jornada de la semana** (España o México) desde el servicio online (ver §10). Rellena el boleto de Inicio con los equipos reales. |
 | Gestión de Equipos | Abre el **gestor de equipos** (ver §10). |
 | Importar / Exportar Columnas | Convierte ficheros de columnas entre **CSV y TXT** en ambos sentidos. |
 
@@ -142,7 +168,6 @@ Permite seleccionar un archivo de columnas que actúa como **base/filtro** de la
 | Gráfico de Columnas | Representación gráfica de un archivo de columnas. |
 | Estadísticas | Distribución de un archivo por condiciones. |
 | Configuración | Parámetros del programa. |
-| **Barras de Herramientas** | Submenú con un interruptor por cada una de las **6 barras** (Filtros, Free1X2, Operaciones, Utilidades, Combinación, Archivo). Permite mostrar/ocultar cada barra; la elección se conserva al cerrar el programa. |
 | Listado de Condiciones | Muestra en **árbol** todas las condiciones/filtros configurados en la combinación actual; se puede expandir/colapsar y exportar a texto/HTML. |
 
 ### Combinación
@@ -160,6 +185,7 @@ Permite seleccionar un archivo de columnas que actúa como **base/filtro** de la
 | Probabilidades | Probabilidad de una "hija" respecto a la "madre". |
 | Estadísticas | Distribución de un archivo por condiciones. |
 | Añadir Pleno al 15 | Incorpora el signo del 15. |
+| **Máscaras** | En el panel lateral (grupo Combinación): guarda y aplica máscaras y las compara contra las ganadoras históricas (ver §10). |
 
 ### Operaciones
 | Opción | Función |
@@ -195,13 +221,19 @@ Permite seleccionar un archivo de columnas que actúa como **base/filtro** de la
 | Compresor *.z3q | Comprime/descomprime archivos de columnas. |
 | EstuCol | Generador/analizador de columnas probables a partir de reducidas y ganadoras. |
 
-> **Otras herramientas accesibles desde la barra de herramientas** (grupo Utilidades), aunque no figuran en este menú: **Análisis de grupos**, **Reducciones perfectas** y **Dependencia lineal** (ver §10).
+> **Otras herramientas** que no figuran en este menú: **Análisis de grupos**, **Reducciones perfectas** y **Dependencia lineal** (ver §10). Están en el panel lateral (grupo Utilidades).
 
 ---
 
 ## 6. Las condiciones
 
-Cada condición se abre con su botón en el campo Condiciones. Cada pantalla de condición permite introducir un **valor concreto o un rango** (mínimo–máximo) por cada signo. Tras introducir datos, se **activa** con el botón de aceptar; el botón de salir descarta sin guardar. La forma de rellenar es muy parecida en casi todas las condiciones. Las principales:
+Cada condición se abre con su botón en el campo Condiciones. Cada pantalla de condición permite introducir un **valor concreto o un rango** (mínimo–máximo) por cada signo. Tras introducir datos, se **activa** con el botón de aceptar; el botón de salir descarta sin guardar. La forma de rellenar es muy parecida en casi todas las condiciones.
+
+> **Varios valores se separan con comas:** `0,1,2` o rangos como `2-6`. Con espacios (`0 1 2`) el programa responde
+> «La cadena de entrada no tiene el formato correcto». Si un valor no es válido, la condición se queda como
+> estaba (no se activa vacía), así que «Calcular» no da 0 columnas por un error de escritura.
+
+Las principales:
 
 ### Variantes, X y 2 (botón "Variantes, X y 2")
 Limita el número de **variantes** (X + 2), y opcionalmente de **equis** y **doses**, mediante valores o rangos.
@@ -317,6 +349,12 @@ Cuando hay un filtro activo, una columna solo se acepta si **además** de cumpli
 
 **Utilidades de filtros** (menú Filtros): combinar filtros, diferencias entre filtros, y filtros específicos (Coincidencias, "Aidomnou", "Pim").
 
+**Columnas de Inicio.** Combinar filtros, Diferencias entre filtros y Coincidencias tienen un botón **«Columnas de
+Inicio»** junto a la carga de ficheros; Aidomnou y Pim, **«Calcular con columnas de Inicio»**. El programa desarrolla el
+boleto de Inicio con sus condiciones (y el filtro de columnas, si hay uno) y lo usa como fichero de entrada, sin que
+tengas que calcularlo y guardarlo antes. El resultado se guarda después, si quieres, con el botón de grabar de cada
+pantalla.
+
 ---
 
 ## 9. Reducción de columnas
@@ -330,6 +368,14 @@ Cuando el cálculo da más columnas de las que quieres jugar, hay **tres formas*
    Arriesga más en el pronóstico, pero es el mejor método.
 2. **Añadir/apretar condiciones.** Terreno delicado: cada condición extra es una opción de fallo. Mejor apretar los rangos de tus condiciones que añadir otras nuevas que no tengas estudiadas.
 3. **Jugar una reducción** (`Combinación → Reducir`). Algoritmos que, partiendo de un conjunto mayor, garantizan **como mínimo un premio de la categoría elegida** con muchas menos columnas (p. ej., reducir al 12 garantiza al menos un 12 si la madre tenía el 14). Algunas reducciones garantizan un **porcentaje** del premio a cambio de menos columnas. Free1X2 incluye varios algoritmos (JDC, JLPM, XFSF, TM…).
+
+**Reducir sin guardar antes un archivo.**
+- En Inicio, **Reducir** desarrolla el boleto (con sus condiciones) y abre el reductor **con esas columnas ya cargadas**
+  como entrada. En el reductor, el botón **«Columnas de Inicio»** hace lo mismo.
+- Si no eliges «Archivo salida», la reducción va a un archivo temporal y, al terminar, **«Guardar resultado…»** la
+  guarda donde quieras. Puedes probar varios niveles y métodos y guardar solo la que te convenza.
+- Si el boleto pasa del **millón de columnas** (14 triples son 4.782.969), el programa avisa antes, porque desarrollarlo
+  tarda (del orden de medio minuto) y ocupa mucho.
 
 > Regla de oro: **comprueba siempre el ahorro y el efecto en caso de fallo** de cada decisión. No quites variantes que apenas ahorran columnas, ni te cargues el sistema por reducir a ciegas.
 
@@ -361,6 +407,7 @@ Resumen rápido (el detalle de las más completas viene a continuación):
 | **Análisis de grupos** | Cuenta cuántas columnas de un fichero encajan en cada combinación de un grupo/patrón. |
 | **Reducciones perfectas** | Genera reducciones "perfectas" (4/13/11 triples ó 7/15 dobles) a partir de una base. |
 | **Dependencia lineal** | Recalcula el signo de un partido como combinación lineal de los demás. |
+| **Máscaras** | Guarda los signos del boleto para reutilizarlos cada jornada y compara tus máscaras contra las ganadoras históricas. |
 
 ### SubeCategoría
 Coge cada columna de un fichero `.txt` y añade todas las que se le diferencian en un solo signo, eliminando repetidas. Opera sobre los 14 partidos por defecto, pero puedes restringir los **partidos involucrados** (solo esos cambiarán de signo). En **Niveles** indicas cuántas categorías subir: el archivo final contiene las columnas de los niveles marcados (marca el **Nivel 0** para incluir también las columnas originales). Entre "Calcular" y "Grabar" hay una casilla informativa que muestra el nº de columnas de origen (`I=`), resultantes (`F=`) y grabadas (`G=`).
@@ -450,19 +497,87 @@ La importación **solo añade**: los equipos que ya tenías se conservan tal cua
 Convierte ficheros de columnas entre **CSV** y **TXT** (en ambos sentidos), para intercambiar columnas con otras herramientas u hojas de cálculo.
 
 ### Obtener Boletos Online
-Descarga la **jornada de la semana** y rellena el boleto con los **equipos reales**, sin teclearlos a mano. Es una función **opcional**: el programa funciona igual sin conexión.
+Descarga la **jornada de la semana** (España o México) para no teclear los equipos. Es una función **opcional**: el
+programa funciona igual sin conexión. Hay tres formas de usarla:
 
-1. Elige el **país**: **España** o **México**. (El programa propone el del último país descargado.)
-2. Pulsa **«Actualizar jornada»**.
-3. Si la descarga va bien, aparece un resumen del tipo *«Jornada 38 · 14 partidos cargados · Última actualización: 21/06/2026 10:30»* y los 14 partidos del boleto quedan rellenos con los equipos locales y visitantes de esa jornada. Esos nombres se comparten con el resto de pantallas (por ejemplo **Grupos de Equipos**).
+- **Al abrir el programa.** Se descarga sola la jornada actual del país que usaste la última vez (España si nunca
+  descargaste nada) y los 14 partidos de Inicio se rellenan con los equipos local y visitante. Espera **3 segundos como
+  máximo**: si no hay red o el servicio tarda, el boleto se queda **en blanco y sin ningún aviso**, y puedes escribir los
+  equipos o pulsar **Jornada ▾** más tarde. Si mientras tanto ya escribiste o abriste algo, no se toca.
+- **Inicio → Jornada ▾ → España / México.** Rellena los equipos en cualquier momento. Un aviso indica la jornada
+  cargada. Si el boleto tiene 15 partidos, el 15.º se rellena con el **Pleno al 15** (España).
+- **`Archivo → Obtener Boletos Online`.** Eliges el **país** (el programa propone el último descargado) y pulsas
+  **«Actualizar jornada»**. Si la descarga va bien aparece un resumen del tipo *«Jornada 38 · 14 partidos cargados ·
+  Última actualización: 21/06/2026 10:30»*. Los equipos pasan además al boleto de Inicio y
+  quedan disponibles para el resto de pantallas (por ejemplo **Grupos de Equipos**).
 
 **Qué pasa sin conexión.** El programa guarda en tu equipo la última jornada descargada con éxito de cada país:
 
-- Al **abrir el programa**, esa jornada guardada se carga al instante y **sin conectarse**: el boleto ya muestra equipos reales aunque estés sin red. La única operación que sale a Internet es el botón «Actualizar jornada».
-- Si pulsas «Actualizar jornada» y **no hay conexión**, verás *«Sin conexión: mostrando la jornada guardada (actualizada dd/mm/aaaa hh:mm)»* — así sabes de cuándo son los datos que estás viendo.
-- Si **nunca** se ha descargado nada para ese país, el mensaje explica el fallo y el boleto **sigue en modo manual** (puedes escribir los equipos tú mismo).
+- Si pulsas «Actualizar jornada» o **Jornada ▾** y **no hay conexión**, se usa la jornada guardada y verás *«Sin
+  conexión: mostrando la jornada guardada (actualizada dd/mm/aaaa hh:mm)»*, para que sepas de cuándo son los datos.
+- **[Windows]** Al abrir el programa, la jornada guardada se carga sin conectarse y queda disponible para pantallas como
+  Grupos de Equipos.
+- Si **nunca** se ha descargado nada para ese país, el mensaje explica el fallo y el boleto **sigue en modo manual**
+  (puedes escribir los equipos tú mismo).
 
 **Si el servidor responde con un error**, el programa muestra el mensaje que envía el servicio: por ejemplo *«No hay jornada publicada para ES»* cuando todavía no se ha publicado la jornada, o un aviso de *demasiadas solicitudes* si se ha pulsado el botón muchas veces seguidas (en ese caso, espera un minuto). En ningún caso se pierde lo que ya tenías: el boleto conserva los últimos equipos cargados.
+
+### Máscaras
+Una **máscara** guarda los **signos de cada partido** del boleto (por ejemplo `1X` en el 1, `1` en el 2, `1X2` en el
+3…), con un nombre y **sin los equipos**. Sirve para reutilizar tus planteamientos habituales cada jornada sin volver a
+marcar los signos.
+
+- **Guardar:** marca los signos en Inicio y elige **Máscaras ▾ → Guardar boleto como máscara…**. Escribe el nombre; si
+  ya existe una con ese nombre, el programa pregunta antes de reemplazarla.
+- **Aplicar:** **Máscaras ▾** muestra tus máscaras con sus columnas (p. ej. *«Mi 4D-2T · 144 col.»*). Al elegir una, sus
+  signos pasan al boleto y **los equipos de la jornada cargada se conservan**.
+- **Pantalla «Máscaras»** (panel lateral, grupo Combinación; o **Máscaras ▾ → Máscaras y escrutinio histórico…**): lista
+  cada máscara con sus signos, sus fijos/dobles/triples y sus columnas, y permite **aplicarla** o **borrarla**.
+
+**Escrutinio histórico.** El programa guarda su propia **base de ganadoras**, separada por **liga**: cada liga es una lista
+de jornadas pasadas con su columna ganadora. Las importaciones se van **sumando**: si hoy añades 1.500 jornadas y otro
+día 10 más, no hace falta volver a subir las 1.500.
+
+- **Elegir la liga:** el selector **«Liga»** muestra cada liga con sus jornadas guardadas (p. ej. *«España · 19
+  jornadas»*). **«Escrutar las máscaras»** compara tus máscaras con las ganadoras de esa liga.
+- **Descargar de clubprogol ▾ → España** o **México:** baja las jornadas publicadas en clubprogol.com y las suma a la liga
+  «España» (Quiniela) o «México» (Progol). Si las descargas otra vez, solo entran las nuevas.
+- **Nueva liga…:** crea una liga vacía con el nombre que quieras (por ejemplo «Liga MX 2010-2020») para cargar en ella tu
+  propio histórico.
+- **Añadir ganadoras desde archivo…:** suma a la liga elegida un `.txt` con **una jornada por línea** (formato debajo).
+- **Borrar liga…:** borra la liga y todas sus jornadas, tras confirmarlo.
+
+El archivo de ganadoras lleva en cada línea el número de jornada, un punto y coma y la columna ganadora:
+
+```
+2355;1X21X1121X1X21
+2356;112X1211X1X221
+```
+
+Una jornada que **ya está** no se duplica; si trae **otra columna**, se actualiza. También vale una línea con solo la
+columna, pero entonces no se puede comprobar si ya estaba y se añade siempre. Las líneas en blanco se ignoran, da igual
+`x` o `X`, y lo que haya detrás de los 14 signos (el pleno al 15, por ejemplo) no cuenta. Si una línea está mal, el
+programa dice **qué línea** es y no añade nada. Al terminar indica cuántas jornadas se añadieron, cuántas ya estaban y
+cuántas se actualizaron.
+
+Cada máscara se compara con cada ganadora. La tabla muestra, por máscara:
+
+| Columna | Significado |
+|---------|-------------|
+| **Columnas** | Columnas que desarrolla la máscara (lo que costaría jugarla entera). |
+| **14, 13, 12, 11, 10** | Columnas que habrían tenido ese número de aciertos, **sumando todas las jornadas**. |
+| **Jornadas con premio** | En cuántas jornadas de la liga tuvo al menos una columna de 10 o más aciertos. |
+
+Pulsa una cabecera para **ordenar** (por ejemplo por la columna «10» para ver qué máscara da más premios de 10). El
+cálculo es instantáneo aunque la máscara tenga miles de columnas: cuenta los aciertos sin desarrollarlas, con el mismo
+resultado que escrutarlas una a una. Para descargar las ganadoras se necesita conexión; sin ella aparece el motivo y no se
+hace nada. Encima de la tabla se indica cuántas jornadas se escrutaron y de qué liga.
+
+> Una máscara fija signos **por posición** (partido 1, 2…), pero cada jornada trae partidos distintos: su historial
+> refleja sobre todo cómo se reparten los signos en general (en las jornadas de octubre de 2026 el `1` salió el 45 % de
+> las veces en España y el 54 % en México), no qué partidos acertarás. Úsalo para comparar planteamientos, no como garantía.
+
+Las máscaras se guardan como archivos `.mas` (ver §11), con el mismo formato en Mac y en Windows.
 
 ### Compresor *.z3q
 Comprime un archivo de columnas (`.txt`) a un **formato propio comprimido `.z3q`** (con un nivel de compresión 0–9) y lo descomprime de vuelta a `.txt`. Útil para almacenar o intercambiar ficheros de columnas grandes ocupando menos espacio.
@@ -479,7 +594,7 @@ Genera una **"reducción perfecta"** a partir de una **columna base** (un signo 
 ### Dependencia lineal
 Recalcula el signo de un **partido a tratar** como **combinación lineal** (módulo 3 ó 2) de los signos del resto de partidos, ponderados por unos coeficientes que defines, y reescribe el archivo de columnas con el resultado.
 
-> **Nota sobre el estado de algunas utilidades.** En la versión WinUI 3 actual, varias de estas pantallas (entre ellas Multiplicador, Fraccionador, Transposición, Álgebra, Reductor, Compresor, Reducciones perfectas, Dependencia lineal y Generador CP) tienen la **interfaz completa** pero parte de su **lógica de cálculo/guardado todavía en proceso de migración**. Si una acción no produce el archivo esperado, es por este motivo (pendiente de detallar/completar), no por un error de uso.
+> **Nota sobre el estado de algunas utilidades (Windows).** En la versión WinUI 3 actual, varias de estas pantallas (entre ellas Multiplicador, Fraccionador, Transposición, Álgebra, Reductor, Compresor, Reducciones perfectas, Dependencia lineal y Generador CP) tienen la **interfaz completa** pero parte de su **lógica de cálculo/guardado todavía en proceso de migración**. Si una acción no produce el archivo esperado, es por este motivo (pendiente de detallar/completar), no por un error de uso. En la versión **Mac** estas pantallas tienen ya su lógica completa.
 
 ---
 
@@ -491,8 +606,18 @@ Recalcula el signo de un **partido a tratar** como **combinación lineal** (mód
 | `.grupos` | Un grupo de condiciones exportado, para reutilizar. |
 | `.txt` | Archivo de columnas: una columna de 14 signos por línea. Es el formato de intercambio (filtros, escrutinio, operaciones). |
 | `parametros.free1x2` | Configuración del programa: puntos de CP, nº de partidos, separador, idioma, datos ONLAE (precio, recaudación). |
+| `.mas` | Una máscara (carpeta `Mascaras/`): texto con una línea por partido y sus signos separados por comas (`1`, `1,X`, `1,X,2`). El nombre del archivo es el de la máscara. |
+| `Historico/<liga>.txt` | La base de ganadoras de una liga: una línea `jornada;columna` por jornada. El nombre del archivo es el de la liga. Se gestiona desde la pantalla «Máscaras»; no hace falta editarlo a mano. |
+| `.z3q` | Archivo de columnas comprimido con el Compresor. |
 
 Las combinaciones temporales se guardan como backups y se pueden limpiar desde `Archivo → Borrar Combinaciones Temporales`.
+
+Las «Columnas de Inicio» y las reducciones sin archivo de salida van a la carpeta `Temp/` (`ColumnasInicio.txt`
+y `Reducido.txt`) y se reescriben cada vez: guarda lo que quieras conservar con «Guardar resultado…» o el botón de
+grabar de cada pantalla.
+
+**Dónde están tus datos.** En **Windows**, junto al programa (es portable: se copia la carpeta y listo). En **Mac**, en
+`~/Library/Application Support/Free1X2/` (en el Finder: menú Ir → Ir a la carpeta…, y pega esa ruta).
 
 ---
 
@@ -507,6 +632,10 @@ Las combinaciones temporales se guardan como backups y se pueden limpiar desde `
 - **Usa columnas probables**, casi indispensables hoy: al menos una con un pronóstico arriesgado permitiendo algún fallo.
 - **Sé coherente y ten paciencia.** Un sistema que debería entrar el 10% de las veces puede pasar 15 jornadas sin acertar y luego entrar dos seguidas.
 - **El programa no da premios.** Solo aplica lo que tú le indicas. Y al final, siempre hay un componente de **suerte**.
+- **El historial no es una garantía.** Que una máscara o una condición haya funcionado en las jornadas pasadas no asegura
+  que funcione la próxima; compara planteamientos, pero sin perder de vista lo anterior.
+
+**¿Dudas?** Pregunta en el **foro de Free1X2**: [clubprogol.com/foro](https://clubprogol.com/foro/).
 
 ---
 

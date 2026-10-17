@@ -1,0 +1,56 @@
+<h2 id="sobre-el-programa">Sobre el programa</h2>
+<h3 id="qué-es-free1x2">¿Qué es Free1X2?</h3>
+<p>Un programa <strong>libre y gratuito</strong> (licencia GPL v3) para confeccionar la <strong>Quiniela</strong> española (14 partidos + Pleno al 15) y el <strong>Progol</strong> mexicano. No adivina resultados: genera solo las columnas que cumplen las condiciones que tú defines y te ayuda a <strong>reducirlas</strong>, <strong>escrutarlas</strong> y <strong>analizarlas</strong>. Deriva del Free1X2 original de Joan Duatis.</p>
+<h3 id="en-qué-sistemas-funciona">¿En qué sistemas funciona?</h3>
+<ul><li><strong>Windows 10 (19041 o posterior) y Windows 11</strong>, 64 bits. Es portable: no se instala, se copia la carpeta y se ejecuta.</li><li><strong>Mac</strong> con macOS 14 o posterior y procesador Apple (M1 o posterior).</li></ul>
+<p>Las dos versiones usan el mismo motor de cálculo y dan exactamente los mismos resultados.</p>
+<h3 id="cuesta-algo-lleva-publicidad">¿Cuesta algo? ¿Lleva publicidad?</h3>
+<p>No. Es software libre: puedes usarlo, copiarlo y estudiar su código.</p>
+<h3 id="necesito-internet">¿Necesito Internet?</h3>
+<p>No. Todo el cálculo se hace en tu ordenador. Internet solo se usa, si quieres, para descargar los <strong>equipos de la jornada</strong>, el <strong>catálogo de equipos</strong> y las <strong>ganadoras históricas</strong>. Sin conexión el programa funciona igual.</p>
+<h3 id="dónde-guarda-mis-archivos">¿Dónde guarda mis archivos?</h3>
+<p>En Windows, en la carpeta del programa. En Mac, en <code>~/Library/Application Support/Free1X2/</code> (en el Finder: menú Ir → Ir a la carpeta…, y pega esa ruta).</p>
+<h2 id="la-jornada-y-los-equipos">La jornada y los equipos</h2>
+<h3 id="tengo-que-escribir-los-equipos-cada-semana">¿Tengo que escribir los equipos cada semana?</h3>
+<p>No. Al abrir el programa se descarga sola la jornada actual (como mucho espera 3 segundos) y los 14 partidos se rellenan con los equipos local y visitante. También puedes cargarla cuando quieras con <strong>Jornada ▾ → España</strong> o <strong>México</strong> en la barra de Inicio, o en <code>Archivo → Obtener Boletos Online</code>.</p>
+<h3 id="abrí-el-programa-sin-internet-y-el-boleto-está-en-blanco-es-un-error">Abrí el programa sin Internet y el boleto está en blanco, ¿es un error?</h3>
+<p>No. Si no hay conexión, el programa no muestra ningún aviso y deja el boleto en blanco para que escribas los equipos o pulses <strong>Jornada ▾</strong> más tarde. Si alguna vez descargaste esa jornada, <strong>Jornada ▾</strong> usa la copia guardada y te dice de qué fecha es.</p>
+<h3 id="puedo-traer-de-internet-la-lista-de-equipos">¿Puedo traer de Internet la lista de equipos?</h3>
+<p>Sí: en <strong>Gestión de Equipos</strong>, elige el país y la categoría donde quieres que caigan y pulsa <strong>«Importar equipos online»</strong>. Solo añade equipos nuevos; recuerda pulsar <strong>«Guardar archivos»</strong> para conservarlos.</p>
+<h2 id="combinaciones-y-condiciones">Combinaciones y condiciones</h2>
+<h3 id="cuántas-columnas-genera-mi-pronóstico">¿Cuántas columnas genera mi pronóstico?</h3>
+<p>3 elevado al número de triples por 2 elevado al número de dobles. Por ejemplo, 6 triples + 6 dobles + 2 fijos = 3⁶ × 2⁶ = <strong>46.656 columnas</strong>. Las condiciones y las reducciones bajan ese número.</p>
+<h3 id="al-poner-varios-valores-en-una-condición-me-dice-la-cadena-de-entrada-no-tiene-el-formato-correcto">Al poner varios valores en una condición me dice «La cadena de entrada no tiene el formato correcto».</h3>
+<p>Separa los valores con <strong>comas</strong> (<code>0,1,2</code>) o usa rangos (<code>2-6</code>). Con espacios (<code>0 1 2</code>) no los entiende.</p>
+<h3 id="calcular-me-da-0-columnas-qué-pasa">«Calcular» me da 0 columnas, ¿qué pasa?</h3>
+<p>Tus condiciones son incompatibles entre sí o con el pronóstico (por ejemplo, pedir 10 variantes con 8 partidos fijos al <code>1</code>). Abre <strong>Listado de Condiciones</strong> para revisarlas todas juntas y afloja la más estricta.</p>
+<h3 id="qué-es-una-columna-probable-cp">¿Qué es una columna probable (CP)?</h3>
+<p>Un segundo pronóstico sobre algunos partidos en el que pides un <strong>rango de aciertos</strong> en vez de acertarlo todo. Por ejemplo, «los 4 favoritos ganan, con 3 ó 4 aciertos» deja 4 triples (81 apuestas) en 9. Es la condición más potente del programa.</p>
+<h3 id="qué-es-una-reducción-y-qué-nivel-elijo">¿Qué es una reducción y qué nivel elijo?</h3>
+<p>Una reducción juega muchas menos columnas a cambio de <strong>garantizar un premio menor</strong> si el 14 estaba en tu combinación: reducir al 13 garantiza al menos un 13; al 12, al menos un 12. Cuanto más bajo el nivel, menos columnas y menos garantía.</p>
+<h3 id="tengo-que-guardar-un-archivo-para-poder-reducir-o-filtrar-mi-boleto">¿Tengo que guardar un archivo para poder reducir o filtrar mi boleto?</h3>
+<p>No: <strong>Reducir</strong> en Inicio abre el reductor con las columnas del boleto ya cargadas, y los filtros tienen un botón <strong>«Columnas de Inicio»</strong>. Después guardas el resultado solo si te convence, con <strong>«Guardar resultado…»</strong>.</p>
+<h2 id="máscaras-e-historial">Máscaras e historial</h2>
+<h3 id="qué-es-una-máscara">¿Qué es una máscara?</h3>
+<p>Los <strong>signos de cada partido</strong> de tu boleto (por ejemplo <code>1X</code> en el 1, <code>1</code> en el 2, <code>1X2</code> en el 3…) guardados con un nombre y sin los equipos. Cada jornada eliges <strong>Máscaras ▾</strong> y aplicas la que quieras: los signos pasan al boleto y los equipos de la jornada se quedan.</p>
+<h3 id="qué-máscara-ha-dado-más-premios">¿Qué máscara ha dado más premios?</h3>
+<p>En la pantalla <strong>Máscaras</strong>, elige la <strong>liga</strong> y pulsa <strong>«Escrutar las máscaras»</strong>: se comparan todas tus máscaras con las ganadoras guardadas de esa liga y verás, por máscara, cuántas columnas habrían tenido 14, 13, 12, 11 y 10 aciertos y en cuántas jornadas hubo premio. Pulsa una cabecera para ordenar. La primera vez, baja las ganadoras con <strong>Descargar de clubprogol ▾ → España</strong> o <strong>México</strong>.</p>
+<h3 id="puedo-usar-mi-propio-histórico-de-resultados">¿Puedo usar mi propio histórico de resultados?</h3>
+<p>Sí. En la pantalla <strong>Máscaras</strong>, crea una liga con <strong>«Nueva liga…»</strong> (o elige una que ya tengas) y pulsa <strong>«Añadir ganadoras desde archivo…»</strong>. El archivo es de texto, con <strong>una jornada por línea</strong> en la forma <code>jornada;columna</code>:</p>
+<pre><code>2355;1X21X1121X1X21
+2356;112X1211X1X221</code></pre>
+<p>Puede tener las jornadas que quieras (1.500, por ejemplo). Las líneas en blanco se ignoran y lo que vaya detrás de los 14 signos (como el pleno al 15) también. Si una línea está mal, el programa te dice cuál es.</p>
+<h3 id="tengo-que-volver-a-subir-todo-el-histórico-cada-vez">¿Tengo que volver a subir todo el histórico cada vez?</h3>
+<p>No. El programa guarda las ganadoras y <strong>suma</strong> cada archivo nuevo a la liga: si hoy subes 1.500 jornadas y mañana un archivo con 10 más, solo entran las 10. Una jornada que ya estaba no se duplica, y si la subes con otra columna se corrige. Las descargas de clubprogol también se suman.</p>
+<h3 id="puedo-escrutar-solo-una-liga">¿Puedo escrutar solo una liga?</h3>
+<p>Sí: elige la liga en el selector <strong>«Liga»</strong>. Hay una para la Quiniela de <strong>España</strong> y otra para el Progol de <strong>México</strong> (las crea la descarga), y puedes crear las que quieras con tus propios resultados: cada una es su propia lista de jornadas.</p>
+<h3 id="si-una-máscara-ha-dado-muchos-premios-la-próxima-jornada-también">Si una máscara ha dado muchos premios, ¿la próxima jornada también?</h3>
+<p>No necesariamente. Cada jornada tiene partidos distintos, así que el historial de una máscara mide sobre todo cómo se reparten los signos en general (el <code>1</code> sale en torno a la mitad de las veces). Sirve para comparar planteamientos, no como garantía.</p>
+<h2 id="escrutinio">Escrutinio</h2>
+<h3 id="cómo-sé-cuánto-he-acertado">¿Cómo sé cuánto he acertado?</h3>
+<p>Abre <strong>Escrutinio</strong>, elige tus archivos de columnas y escribe la columna ganadora: verás cuántas columnas tienen 14, 13, 12, 11 y 10 aciertos.</p>
+<h3 id="qué-formato-tiene-un-archivo-de-columnas">¿Qué formato tiene un archivo de columnas?</h3>
+<p>Texto plano con <strong>una columna de 14 signos por línea</strong> (<code>1</code>, <code>X</code> o <code>2</code>), por ejemplo <code>11X211X1X12111</code>. Es el formato que usan los filtros, el escrutinio y las operaciones, y el que puedes intercambiar con otros programas.</p>
+<h2 id="ayuda">Ayuda</h2>
+<h3 id="dónde-pregunto-o-aviso-de-un-error">¿Dónde pregunto o aviso de un error?</h3>
+<p>En el <strong>foro de Free1X2</strong>: <a href="https://clubprogol.com/foro/" target="_blank" rel="noopener">clubprogol.com/foro</a>. Si es un error, cuenta qué hiciste, qué esperabas y qué pasó, y si puedes adjunta la combinación (<code>.comb</code>).</p>

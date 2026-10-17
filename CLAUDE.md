@@ -26,10 +26,10 @@ Programa libre bajo **GPLv3**, derivado del Free1X2 original de Joan Duatis.
 
 | Proyecto | Rol |
 |----------|-----|
-| **`Free1X2.WinUI/`** | **Aplicación principal.** 108 páginas en `Views/Ported/`, registradas en `Navigation/PortedPages.cs` (108 entradas). Shell en `MainWindow.xaml.cs`, inicio en `App.xaml.cs`, servicios en `Services/` (`Log`, `TemaApp`, `IdiomaApp`, `PickerHelper`, `QuinielaOnlineService`, `JornadaCache`, `PaisesOnline`, `AppServices`, `AppState`). |
-| **`Free1X2.Domain/`** | **Motor completo**, libre de UI: `MotorCalculo/`, `Reduccion/`, `Escrutinio/`, `EntradaSalida/`, `Analisis/`, `Utils/`, `SubirCategoria/`, `Online/`, `VariablesGlobales.cs`. Desacople de UI vía `Abstractions/UiHooks.cs` (`UiPump`, `UserDialogs`, `AnalisisUi`). |
+| **`Free1X2.WinUI/`** | **Aplicación principal.** 109 páginas en `Views/Ported/`, registradas en `Navigation/PortedPages.cs` (109 entradas). Shell en `MainWindow.xaml.cs` (panel lateral `NavigationView` con buscador + barra `CommandBar` con texto), inicio en `App.xaml.cs`, servicios en `Services/` (`Log`, `TemaApp`, `IdiomaApp`, `PickerHelper`, `QuinielaOnlineService`, `JornadaCache`, `PaisesOnline`, `AppServices`, `AppState`, `DescargaJornada`, `MascarasInicio`, `ColumnasInicioServicio`). |
+| **`Free1X2.Domain/`** | **Motor completo**, libre de UI: `MotorCalculo/`, `Reduccion/`, `Escrutinio/`, `EntradaSalida/`, `Analisis/`, `Utils/`, `SubirCategoria/`, `Online/`, `Mascaras/` (máscaras y base de ganadoras por liga), `VariablesGlobales.cs`. Desacople de UI vía `Abstractions/UiHooks.cs` (`UiPump`, `UserDialogs`, `AnalisisUi`). |
 | **`Free1X2/`** | UI **WinForms legacy** = **referencia de comportamiento**. Congelado en **0.77.2** por diseño (`Free1X2/Free1X2.csproj:11-12`). Ya no aloja el motor: solo quedan `UI/`, `Program.cs`, `Infraestructura/`, `Analisis/AnalisisCombinacion.cs` y 4 ficheros en `Utils/` (`Grafico.cs`, `ControlCompatibility.cs`, `ValidadorCaracteres.cs`, `CompresorZip.cs`). |
-| **`Free1X2.Domain.Tests/`** | **138 tests** golden-master del motor (89 `[Fact]` + 49 casos `[InlineData]`). Red de seguridad de toda optimización. |
+| **`Free1X2.Domain.Tests/`** | **163 tests**: los **138** golden-master del motor (89 `[Fact]` + 49 casos `[InlineData]`), red de seguridad de toda optimización y que no se tocan, más **25** de las tareas W1–W12 (`RotacionTests`, `JornadaTests`, `MascarasTests`, `HistoricoTests`, `ColumnasInicioTests`). |
 
 Además, fuera de la solución: `docs/` (documentación vigente), `scripts/` (build, publish, smoke,
 stub de la API), `tools/`, y carpetas `Free1X2.Shared/` y `Free1X2.WebAPI/` que **no** están
@@ -42,36 +42,38 @@ referenciadas en `Free1X2.sln`.
 dotnet build Free1X2.WinUI/Free1X2.WinUI.csproj -c Debug -p:Platform=x64   # 0 errores
 
 # Tests del motor
-dotnet test  Free1X2.Domain.Tests/Free1X2.Domain.Tests.csproj              # 138/138
+dotnet test  Free1X2.Domain.Tests/Free1X2.Domain.Tests.csproj              # 163/163
 
-# Smoke de carga de las 109 superficies (108 páginas + MainPage)
+# Smoke de carga de las 110 superficies (109 páginas + MainPage)
 $env:FREE1X2_SMOKE = '1'
 .\Free1X2.WinUI\bin\x64\Debug\net8.0-windows10.0.19041.0\win-x64\Free1X2.WinUI.exe
-Get-Content "$env:TEMP\free1x2_smoke.log" -Tail 1   # "SMOKE DONE total=109 ok=109 fail=0"
+Get-Content "$env:TEMP\free1x2_smoke.log" -Tail 1   # "SMOKE DONE total=110 ok=110 fail=0"
 
 # Publicar portable self-contained
 pwsh ./scripts/publish-winui.ps1
 ```
 
 El smoke está **gated** por la variable `FREE1X2_SMOKE` y es inerte sin ella
-(`Free1X2.WinUI/MainWindow.xaml.cs:43,562,587`). El script `scripts/smoke-winui.ps1` automatiza
+(`Free1X2.WinUI/MainWindow.xaml.cs:48,749,758`). El script `scripts/smoke-winui.ps1` automatiza
 la secuencia completa.
 
 ## Integración online (opcional)
 
-Servicio de la jornada y del catálogo de equipos contra **clubprogol.com**. Contrato completo en
+Servicio de la jornada, del catálogo de equipos y del histórico de ganadoras contra **clubprogol.com**. Contrato completo en
 [`docs/API_CLUBPROGOL.md`](docs/API_CLUBPROGOL.md).
 
 - Cliente: `Free1X2.WinUI/Services/QuinielaOnlineService.cs`.
-  Base URL por defecto `https://clubprogol.com` (`:47`) + prefijo **`/wp-json/clubprogol/v1`**
-  (`:50`). `HttpClient` estático con timeout de 10 s; manejo de `429`/`Retry-After`.
-- **Desarrollo:** la variable de entorno **`FREE1X2_API_BASE`** (`:53`) sobreescribe la base URL;
+  Base URL por defecto `https://clubprogol.com` (`:66`) + prefijo **`/wp-json/clubprogol/v1`**
+  (`:69`). `HttpClient` estático con timeout de 10 s; manejo de `429`/`Retry-After`.
+- **Desarrollo:** la variable de entorno **`FREE1X2_API_BASE`** (`:72`) sobreescribe la base URL;
   `scripts/stub-api.ps1` sirve los JSON de `docs/ejemplos-api/` en las rutas de la spec.
   Es una variable de desarrollo: **no se documenta en el manual de usuario**.
 - **Caché offline-first:** `Free1X2.WinUI/Services/JornadaCache.cs` guarda el JSON crudo de la
   última jornada correcta en `%LocalAppData%\Free1X2\jornada-{es,mx}.json` (`:52`), y
-  `App.xaml.cs:45` (`SembrarJornadaDesdeCache`) la siembra al arrancar **sin red**. La red solo se
-  toca al pulsar «Actualizar jornada».
+  `App.xaml.cs:58` (`SembrarJornadaDesdeCache`) la siembra al arrancar **sin red** (para Grupos de
+  Equipos). Además `App.xaml.cs:63` intenta bajar la jornada actual con un límite de **3 s** y, si llega,
+  rellena Inicio solo si sus equipos siguen vacíos (W7). Fuera de eso la red solo se toca a petición
+  del usuario («Actualizar jornada», «Jornada ▾» y «Descargar de clubprogol» en Máscaras).
 
 ## Reglas del proyecto
 
@@ -81,7 +83,7 @@ Vigentes desde [`docs/PLAN_MEJORAS.md`](docs/PLAN_MEJORAS.md) §0:
 |---|-------|-----------------------|
 | R1 | **La lógica de negocio no cambia.** El motor (`Free1X2.Domain`) debe producir resultados idénticos al WinForms original (`Free1X2/`). | Toda optimización pasa los **138 tests golden-master** sin tocarlos. |
 | R2 | **Las decisiones de diseño/UI las toma el dueño.** | Los hallazgos de UI son *opciones a considerar*; ninguna se implementa sin aprobación explícita. |
-| R3 | **Completitud binaria (0 o 1).** | Un ítem solo se marca hecho con evidencia: build 0 err, smoke 109/109, tests verdes y `file:line` del cambio. |
+| R3 | **Completitud binaria (0 o 1).** | Un ítem solo se marca hecho con evidencia: build 0 err, smoke 110/110, tests verdes y `file:line` del cambio. |
 | R4 | **Sin evidencia no hay hallazgo.** | Cada afirmación cita fichero:línea leído. Lo no verificado se descarta. |
 | R5 | **Trabajo en agentes de fondo, serial cuando hay build.** | Un solo `dotnet build` a la vez (contención de `obj/`). |
 | R6 | **No borrar ramas ni cambiar visibilidad del repo.** | Los residuos documentales se *mueven*, no se borran, salvo orden del dueño. |
@@ -99,3 +101,6 @@ Y, además:
 | [`docs/MANUAL_USUARIO.md`](docs/MANUAL_USUARIO.md) | Manual de usuario: pantallas y menús. |
 | [`docs/MANUAL_FLUJOS.md`](docs/MANUAL_FLUJOS.md) | Flujos funcionales y de datos del motor, con enlaces al código. |
 | [`docs/PLAN_MEJORAS.md`](docs/PLAN_MEJORAS.md) | Plan de mejoras post-v0.82.0 (fases F1–F6, con evidencia `file:line`). |
+| [`docs/TAREAS_WINDOWS.md`](docs/TAREAS_WINDOWS.md) | Especificación W1–W12 para igualar Windows con la app Mac (hecha). |
+| [`docs/FAQ.md`](docs/FAQ.md) | Preguntas frecuentes (Windows y Mac). |
+| `docs/web/` | `manual.html` y `faq.html` para clubprogol.com/docwk/: se regeneran con `python scripts/md-a-wordpress.py`. |
