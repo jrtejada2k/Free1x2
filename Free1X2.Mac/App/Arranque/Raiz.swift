@@ -18,13 +18,15 @@ struct Raiz: View {
             }
             .toolbar {
                 // Las acciones de siempre, con texto; cada pantalla añade las suyas (Inicio: Calcular, Reducir, Jornada).
+                // Nueva, Abrir y Guardar son universales: solo icono (con tooltip) para que la barra quepa en 1024 px.
                 ToolbarItemGroup(placement: .primaryAction) {
-                    accion("Nueva", "doc.badge.plus", "Nueva combinación", .nuevaCombinacion)
-                    accion("Abrir", "folder", "Abrir combinación", .abrirCombinacion)
-                    accion("Guardar", "square.and.arrow.down", "Guardar combinación", .guardarCombinacion)
+                    accion("Nueva", "doc.badge.plus", "Nueva combinación", .nuevaCombinacion, soloIcono: true)
+                    accion("Abrir", "folder", "Abrir combinación", .abrirCombinacion, soloIcono: true)
+                    accion("Guardar", "square.and.arrow.down", "Guardar combinación", .guardarCombinacion, soloIcono: true)
                     accion("Escrutinio", "checklist", "Escrutinio", .navegar(.escrutinios))
                 }
             }
+            .sinTituloEnBarra()
         }
         .tint(Color.acento)
         .background {
@@ -61,18 +63,34 @@ struct Raiz: View {
         }
     }
 
-    /// Botón de la barra con icono y texto; `nombre` es el accesible (el de los menús).
-    private func accion(_ titulo: String, _ simbolo: String, _ nombre: String, _ c: Comando) -> some View {
+    /// Botón de la barra; `nombre` va en el tooltip y en el identificador (la barra ignora `accessibilityLabel`).
+    private func accion(_ titulo: String, _ simbolo: String, _ nombre: String, _ c: Comando, soloIcono: Bool = false) -> some View {
         Button {
             sesion.ejecutar(c)
         } label: {
             Label(titulo, systemImage: simbolo)
         }
-        .labelStyle(.titleAndIcon).help(nombre).accessibilityLabel(nombre)
+        .labelStyle(EstiloBarra(soloIcono: soloIcono)).help(nombre).accessibilityIdentifier(nombre)
     }
 }
 
-/// Smoke (10 §1.8): recorre las 109 superficies cada 120 ms y escribe `$TMPDIR/free1x2_smoke.log`.
+/// Icono solo o icono y texto en la barra de la ventana.
+struct EstiloBarra: LabelStyle {
+    let soloIcono: Bool
+
+    func makeBody(configuration: Configuration) -> some View {
+        if soloIcono { Label(configuration).labelStyle(.iconOnly) } else { Label(configuration).labelStyle(.titleAndIcon) }
+    }
+}
+
+extension View {
+    /// Sin el título de la ventana en la barra (cada página ya lo muestra dentro): deja sitio a los botones. macOS 15+.
+    @ViewBuilder func sinTituloEnBarra() -> some View {
+        if #available(macOS 15, *) { toolbar(removing: .title) } else { self }
+    }
+}
+
+/// Smoke (10 §1.8): recorre las 110 superficies cada 120 ms y escribe `$TMPDIR/free1x2_smoke.log`.
 @MainActor
 enum Smoke {
     static func ejecutar(_ sesion: Sesion) async {

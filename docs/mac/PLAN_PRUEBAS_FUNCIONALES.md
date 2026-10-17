@@ -169,6 +169,7 @@ ficheros reales en carpeta temporal), U = XCUITest, M = manual del dueño.
 | F48 | Errores | abrir JD-04 en Escrutinios, un `.comb` truncado y un `.z3q` corrupto ⇒ mensaje, sin cierre | I, U |
 | F49 | Cargar jornada en Inicio | «Jornada» ▸ España ⇒ local y visitante de los 14 partidos con los de la jornada (sin red, la guardada) | I, U |
 | F50 | Jornada al arrancar (DT-83) | con red ⇒ boleto con los equipos de la jornada; sin red o > 3 s ⇒ en blanco y sin aviso | I, manual |
+| F51 | Máscaras (DT-84) | guardar el boleto JD-01 como máscara ▸ combinación nueva ▸ aplicarla ⇒ «Fijos: 8 - Dobles: 0 - Triples: 6»; escrutinio histórico ⇒ 1/12/60/160/240 contra la columna de unos | I, U |
 
 ## 5. Cómo se ejecuta
 
@@ -304,6 +305,7 @@ Leyenda: **I** = `Tests/Free1X2CasosDeUsoTests/FlujosTests.swift` (ficheros real
 | F48 errores | I `f48Errores`; U `testF48CombinacionCorrupta` | ✔ |
 | F49 cargar jornada | N4 `equiposDeJornadaReal` (capturas reales ES con pleno y MX); U `testF49CargarJornada` | ✔ |
 | F50 jornada al arrancar | N4 `jornadaAlArrancar` (a tiempo, lenta, error 500); comprobado en la app con la API real (Villarreal - Nápoles) y sin red (en blanco) | ✔ |
+| F51 máscaras | N4 `MascarasTests` (recuento sin desarrollar = valores a mano de JD-01; guardar/listar/borrar; histórico del servicio); U `testF51Mascaras` | pendiente CI |
 
 **CI:** run 38970416309 verde: 258 tests del paquete, cobertura de casos de uso 88,3 % y **16 tests de UI** (con F49).
 

@@ -141,6 +141,16 @@ final class Sesion {
         }
     }
 
+    /// Los signos del boleto base como máscara (DT-84).
+    func mascara(_ nombre: String) -> Mascara {
+        Mascara(nombre: nombre, pronosticos: (0..<numeroPartidos).map { CasosInicio.pronostico(signos($0)) })
+    }
+
+    /// Pone los signos de la máscara en el boleto y deja los equipos de la jornada cargada (DT-84).
+    func aplicarMascara(_ m: Mascara) {
+        combinacion.ponerPronosticos(m.pronosticos)
+    }
+
     /// Jornada descargada (o de la caché): la recuerda y pone sus equipos en el boleto (DT-81).
     func cargarJornada(_ j: JornadaQuiniela) {
         jornadaActual = j

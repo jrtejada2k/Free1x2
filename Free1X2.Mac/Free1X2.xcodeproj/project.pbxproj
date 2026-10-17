@@ -59,6 +59,7 @@
 		5B584830C6E3E20DA2964E38 /* bSelectorMarioSan.png in Resources */ = {isa = PBXBuildFile; fileRef = D6B3FC8BA68086026EF3B028 /* bSelectorMarioSan.png */; };
 		5C9D30F2113E8B54EA846093 /* Menus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04868F81389E8058D7698462 /* Menus.swift */; };
 		5CBF4AEFEDF4E37ACDC318FA /* PortapapelesSistema.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49BDD4273F4F33E1C72948C9 /* PortapapelesSistema.swift */; };
+		5D1ED6CD38BD591C94EA26BC /* Mascaras.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6759C8643F77D4843627256F /* Mascaras.swift */; };
 		5FCAD03AB81F53170F987D2B /* bAnalisisFallos.png in Resources */ = {isa = PBXBuildFile; fileRef = 12D871214F4F847AFC6EE8CB /* bAnalisisFallos.png */; };
 		6307204BC6733B651606A3E9 /* Premios.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61FF07E693D4BC6A8149F8F3 /* Premios.swift */; };
 		63707C7EA6B6A0D5BEB0F881 /* Grupos.swift in Sources */ = {isa = PBXBuildFile; fileRef = 180A7A586EA6E5884322C901 /* Grupos.swift */; };
@@ -189,6 +190,7 @@
 		62B44320D069342A326F7B49 /* Alertas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alertas.swift; sourceTree = "<group>"; };
 		63A4CC16ED67BB5897B13668 /* ColProbables.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColProbables.swift; sourceTree = "<group>"; };
 		658E20B0EB994C0D8104594D /* bFraccionador.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bFraccionador.png; sourceTree = "<group>"; };
+		6759C8643F77D4843627256F /* Mascaras.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Mascaras.swift; sourceTree = "<group>"; };
 		6805A7570CD734755BDCAD8E /* CalculaColumnasMultiple.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculaColumnasMultiple.swift; sourceTree = "<group>"; };
 		687D5F3377EAA54AEF4A54F5 /* bGeneradorCPs.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bGeneradorCPs.png; sourceTree = "<group>"; };
 		6ED3FD641C09DF7323A080DD /* Dependencia.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dependencia.swift; sourceTree = "<group>"; };
@@ -399,6 +401,7 @@
 				CFB83F809F4CB74BF11BC114 /* EscrutarCombinaciones.swift */,
 				0FB1E51964635F385BCD932C /* Escrutinios.swift */,
 				E02D397D0432FFA13A97ABB8 /* Impresion.swift */,
+				6759C8643F77D4843627256F /* Mascaras.swift */,
 				4141061D9A72DF1F7F7A688B /* Pleno15.swift */,
 				4D1FDE491ECE78D5FA7B7822 /* PosiblesPremios.swift */,
 				31447562034E5D6106CA5C63 /* Probabilidades.swift */,
@@ -750,6 +753,7 @@
 				714BC945F34FEFDF70D35500 /* Informativas.swift in Sources */,
 				45C2ECFD75E1C6A8C602B6B6 /* Lateral.swift in Sources */,
 				A083342500A59748D3FEAF85 /* Listado.swift in Sources */,
+				5D1ED6CD38BD591C94EA26BC /* Mascaras.swift in Sources */,
 				CCA14C8EE480990172F61B7E /* MatrizAnalisisView.swift in Sources */,
 				5C9D30F2113E8B54EA846093 /* Menus.swift in Sources */,
 				94A1733E4FA9A2940C25BC3E /* Modificador.swift in Sources */,

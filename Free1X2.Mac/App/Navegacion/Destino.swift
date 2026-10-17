@@ -1,4 +1,4 @@
-// Las 109 superficies (ESPEC_15 §7): Inicio + 108 páginas. El orden es el del smoke (10 §1.8).
+// Las 110 superficies (ESPEC_15 §7): Inicio + 108 páginas del original + Máscaras (DT-84). El orden es el del smoke (10 §1.8).
 // Generado desde la tabla de ESPEC_15 §7 y los títulos de `Views/Ported/*Page.xaml`.
 
 enum Destino: String, Hashable, CaseIterable, Identifiable {
@@ -111,6 +111,8 @@ enum Destino: String, Hashable, CaseIterable, Identifiable {
     case acercaDe
     case ayuda
     case creditos
+    /// Nueva (DT-84): máscaras guardadas y su escrutinio histórico; no existe en el WinUI.
+    case mascaras
 
     var id: String { rawValue }
 
@@ -165,6 +167,7 @@ enum Destino: String, Hashable, CaseIterable, Identifiable {
         case .escrutinios: "Escrutinios"
         case .estimadorPremios: "Estimación de premios"
         case .estucol: "EstuCol - Generador / Analizador de Columnas Probables"
+        case .mascaras: "Máscaras"
         case .exportadorCPs: "Exportador de Columnas Probables"
         case .figurasFiltros: "Figuras"
         case .filtroPorcenJB: "Separador Porcentajes Juan Bellas"
@@ -280,6 +283,7 @@ enum Destino: String, Hashable, CaseIterable, Identifiable {
         case .escrutinios: "EscrutiniosFrm"
         case .estimadorPremios: "EstimadorPremiosFrm"
         case .estucol: "EstucolFrm"
+        case .mascaras: "MascarasPage"
         case .exportadorCPs: "ExportadorCPsFrm"
         case .figurasFiltros: "FigurasFiltrosFrm"
         case .filtroPorcenJB: "FiltroPorcenJB"

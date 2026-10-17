@@ -5,6 +5,8 @@ import SwiftUI
 struct VistaInicio: View {
     @Environment(Sesion.self) private var sesion
     @State private var descargando = false
+    @State private var mascaras: [Mascara] = []
+    @State private var guardandoMascara = false
 
     /// Título, filtro, destino e icono (los glifos de `CondicionItem.Glifo` en SF Symbols).
     static let izquierda: [(String, TipoFiltro, Destino, String)] = [
@@ -38,19 +40,18 @@ struct VistaInicio: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .background(Color.fondo)
         .navigationTitle("Free1X2")
-        .navigationSubtitle(sesion.rutaCombinacion.map { $0.deletingPathExtension().lastPathComponent } ?? "Combinación nueva")
         .toolbar {
             // Las acciones propias de Inicio (DT-82); Nueva, Abrir y Guardar están en la barra de todas las pantallas.
             ToolbarItemGroup(placement: .primaryAction) {
                 Button(action: calcular) { Label("Calcular", systemImage: "function") }
-                    .labelStyle(.titleAndIcon).help("Calcular las columnas del boleto").accessibilityLabel("Calcular columnas")
+                    .labelStyle(.titleAndIcon).help("Calcular las columnas del boleto").accessibilityIdentifier("Calcular columnas")
                 Button {
                     sesion.volcarPronosticos()
                     sesion.router.navegar(.reductor)
                 } label: {
                     Label("Reducir", systemImage: "arrow.down.right.and.arrow.up.left")
                 }
-                .labelStyle(.titleAndIcon).help("Reducir las columnas del boleto").accessibilityLabel("Reducir columnas")
+                .labelStyle(.titleAndIcon).help("Reducir las columnas del boleto").accessibilityIdentifier("Reducir columnas")
                 Menu {
                     Button("España") { Task { await cargarJornada(.es) } }
                     Button("México") { Task { await cargarJornada(.mx) } }
@@ -59,8 +60,29 @@ struct VistaInicio: View {
                 }
                 .labelStyle(.titleAndIcon).disabled(descargando)
                 .help("Cargar los equipos de la jornada actual").accessibilityIdentifier("cargar-jornada")
+                Menu {
+                    Button("Guardar boleto como máscara…") { guardandoMascara = true }
+                    if !mascaras.isEmpty {
+                        Section("Aplicar al boleto") {
+                            ForEach(mascaras) { m in Button("\(m.nombre)  ·  \(m.columnas) col.") { sesion.aplicarMascara(m) } }
+                        }
+                    }
+                    Divider()
+                    Button("Máscaras y escrutinio histórico…") { sesion.router.navegar(.mascaras) }
+                } label: {
+                    Label("Máscaras", systemImage: "theatermasks")
+                }
+                .labelStyle(.titleAndIcon)
+                .help("Guardar los signos del boleto como máscara o aplicar una guardada (DT-84)")
+                .accessibilityIdentifier("menu-mascaras")
             }
         }
+        .modifier(GuardarMascara(visible: $guardandoMascara, alGuardar: recargarMascaras))
+        .onAppear(perform: recargarMascaras)
+    }
+
+    private func recargarMascaras() {
+        mascaras = CasosMascaras.listar(numeroPartidos: sesion.numeroPartidos, entorno: sesion.entorno)
     }
 
     /// Equipos de la jornada actual del país (DT-81); sin red usa la guardada, como «Descarga de boleto».
@@ -252,6 +274,9 @@ struct BoletoBaseView: View {
             HStack {
                 Text(sesion.grupoPantalla == 0 ? "Boleto Base" : "Grupo \(sesion.grupoPantalla) / \(sesion.combinacion.grupos.count - 1)")
                     .font(.headline).foregroundStyle(Color.error)
+                Text(sesion.rutaCombinacion.map { $0.deletingPathExtension().lastPathComponent } ?? "combinación nueva")
+                    .font(.callout).foregroundStyle(Color.textoSecundario).lineLimit(1).truncationMode(.middle)
+                    .help("Fichero de la combinación")
                 Spacer()
                 Text(
                     "Fijos: \(marcados.filter { $0 == 1 }.count) - Dobles: \(marcados.filter { $0 == 2 }.count) - Triples: \(marcados.filter { $0 == 3 }.count)"

@@ -396,4 +396,25 @@ final class FlujosUITests: XCTestCase {
             XCTAssertEqual(app.textFields[id].value as? String, valor, id)
         }
     }
+
+    /// F51 (DT-84): guardar el boleto como máscara, empezar una combinación nueva y aplicar la máscara desde la barra.
+    @MainActor func testF51Mascaras() {
+        let app = lanzar()
+        defer { app.terminate() }
+        boletoSeisTriples(app)
+        let menuMascaras = app.descendants(matching: .any)["menu-mascaras"].firstMatch
+        XCTAssertTrue(menuMascaras.waitForExistence(timeout: 10))
+        menuMascaras.click()
+        app.menuItems["Guardar boleto como máscara…"].firstMatch.click()
+        let nombre = app.textFields["mascara-nombre"].firstMatch
+        XCTAssertTrue(nombre.waitForExistence(timeout: 10))
+        nombre.typeText("JD01\r")
+        XCTAssertTrue(nombre.waitForNonExistence(timeout: 10))
+        XCTAssertTrue(aceptarAviso(app), "se esperaba «Máscara «JD01» guardada.»")
+        app.buttons["Nueva combinación"].firstMatch.click()
+        XCTAssertTrue(app.staticTexts["Fijos: 0 - Dobles: 0 - Triples: 14"].waitForExistence(timeout: 10))
+        menuMascaras.click()
+        app.menuItems["JD01  ·  729 col."].firstMatch.click()
+        XCTAssertTrue(app.staticTexts["Fijos: 8 - Dobles: 0 - Triples: 6"].waitForExistence(timeout: 10))
+    }
 }

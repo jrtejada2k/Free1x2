@@ -29,6 +29,7 @@ struct PanelLateral: View {
                     e("Reducir", .reductor, "bReducir"),
                     e("Escrutinios", .escrutinios, "bEscrutinio"),
                     e("Escrutar combinaciones", .escrutarCombinaciones, "bEscrutarComb"),
+                    e("Máscaras", .mascaras, "theatermasks"),
                     e("Analizar combinación", .analizarCombinacion, "magnifyingglass"),
                     e("Análisis de columnas", .analizarFichero, "bAnalisisColumnas"),
                     e("Análisis de fallos", .colGanadora, "bAnalisisFallos"),

@@ -94,6 +94,7 @@ struct VistaDestino: View {
         case .agregaP15: VistaAgregaP15()
         case .graficoColumnas: VistaGraficoColumnas()
         case .estucol: VistaEstuCol()
+        case .mascaras: VistaMascaras()
         case .visorAnalisisColumnasAbdon: VistaVisorAbdon()
         case .imprimirBoleto: VistaImprimirBoleto()
         case .listaImpresoras: VistaListaImpresoras()
