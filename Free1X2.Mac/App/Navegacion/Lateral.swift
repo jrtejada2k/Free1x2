@@ -105,11 +105,10 @@ struct PanelLateral: View {
     }()
 
     var body: some View {
-        // Marca la pantalla raíz de la pila: en una subpantalla (p. ej. una condición abierta desde Inicio) no marca nada.
-        let seleccion = Binding<Destino?>(
-            get: { sesion.router.pila.first ?? .inicio },
-            set: { if let d = $0 { sesion.router.ir(d) } })
-        List(selection: seleccion) {
+        // Sin `List(selection:)`: en un NavigationSplitView, cambiar la selección del lateral reinicia la pila del detalle, y
+        // la navegación desde la barra o los menús (que movía esa selección) se perdía al azar (F13/F46/F52 en la CI).
+        // Cada fila es un botón y la actual se resalta a mano.
+        List {
             ForEach(Self.secciones, id: \.0) { nombre, entradas in
                 let visibles = filtro.isEmpty ? entradas : entradas.filter { $0.titulo.localizedStandardContains(filtro) }
                 if !visibles.isEmpty {
@@ -125,18 +124,28 @@ struct PanelLateral: View {
         .navigationSplitViewColumnWidth(min: 190, ideal: 230, max: 320)
     }
 
+    /// Marca la pantalla raíz de la pila: en una subpantalla (p. ej. una condición abierta desde Inicio) no marca nada.
     private func fila(_ e: EntradaLateral) -> some View {
-        Label {
-            Text(e.titulo)
-        } icon: {
-            if let png = NSImage(named: e.icono) {
-                // Casi todos miden 16 px (nítidos sin suavizar); tres miden 24 o 32 y se reducen suavizados.
-                Image(nsImage: png).resizable().interpolation(png.size.width > 16 ? .high : .none).frame(width: 16, height: 16)
-            } else {
-                Image(systemName: e.icono).foregroundStyle(Color.acento)
+        let actual = (sesion.router.pila.first ?? .inicio) == e.destino
+        return Button {
+            sesion.router.ir(e.destino)
+        } label: {
+            Label {
+                Text(e.titulo).foregroundStyle(actual ? Color.acento : Color.texto).fontWeight(actual ? .semibold : .regular)
+            } icon: {
+                if let png = NSImage(named: e.icono) {
+                    // Casi todos miden 16 px (nítidos sin suavizar); tres miden 24 o 32 y se reducen suavizados.
+                    Image(nsImage: png).resizable().interpolation(png.size.width > 16 ? .high : .none).frame(width: 16, height: 16)
+                } else {
+                    Image(systemName: e.icono).foregroundStyle(Color.acento)
+                }
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(.rect)
         }
-        .tag(e.destino)
+        .buttonStyle(.plain)
+        .listRowBackground(actual ? Color.acento.opacity(0.14).clipShape(.rect(cornerRadius: 6)) : nil)
         .accessibilityIdentifier("lateral-\(e.destino.rawValue)")
+        .accessibilityAddTraits(actual ? .isSelected : [])
     }
 }

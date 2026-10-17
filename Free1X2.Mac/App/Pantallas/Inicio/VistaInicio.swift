@@ -140,24 +140,25 @@ struct VistaInicio: View {
     private var columnaDerecha: some View {
         VStack(spacing: 10) {
             Tarjeta("Condiciones del grupo") {
-                HStack(alignment: .top) {
-                    columna(Self.izquierda)
-                    columna(Self.derecha)
-                }
-                HStack {
-                    Button {
-                        abrir(.controlTol)
-                    } label: {
-                        Label("Tolerancias", systemImage: "plusminus").frame(maxWidth: .infinity)
+                // Dos columnas si los nombres caben enteros; si la ventana es estrecha (p. ej. con el panel lateral), una.
+                ViewThatFits(in: .horizontal) {
+                    HStack(alignment: .top) {
+                        columna(Self.izquierda)
+                        columna(Self.derecha)
                     }
-                    Button {
-                        abrir(.ifThen)
-                    } label: {
-                        HStack {
-                            SemaforoView(estado: estado.ifThen)
-                            Text("Condiciones Relacionadas (If-Then)").lineLimit(1)
-                        }
-                        .frame(maxWidth: .infinity)
+                    VStack(spacing: 3) {
+                        columna(Self.izquierda)
+                        columna(Self.derecha)
+                    }
+                }
+                ViewThatFits(in: .horizontal) {
+                    HStack {
+                        botonTolerancias
+                        botonIfThen
+                    }
+                    VStack {
+                        botonTolerancias
+                        botonIfThen
                     }
                 }
             }
@@ -186,6 +187,26 @@ struct VistaInicio: View {
         }
     }
 
+    private var botonTolerancias: some View {
+        Button {
+            abrir(.controlTol)
+        } label: {
+            Label("Tolerancias", systemImage: "plusminus").frame(maxWidth: .infinity)
+        }
+    }
+
+    private var botonIfThen: some View {
+        Button {
+            abrir(.ifThen)
+        } label: {
+            HStack {
+                SemaforoView(estado: estado.ifThen)
+                Text("Condiciones Relacionadas (If-Then)").lineLimit(3).multilineTextAlignment(.center)
+            }
+            .frame(maxWidth: .infinity)
+        }
+    }
+
     private func columna(_ items: [(String, TipoFiltro, Destino, String)]) -> some View {
         VStack(spacing: 3) {
             ForEach(items, id: \.0) { titulo, tipo, destino, icono in
@@ -196,7 +217,7 @@ struct VistaInicio: View {
                     HStack(spacing: 6) {
                         SemaforoView(estado: e, tamano: 10)
                         ChipIcono(simbolo: icono)
-                        Text(titulo).font(.system(size: 12)).foregroundStyle(Color.texto).lineLimit(1)
+                        Text(titulo).font(.system(size: 12)).foregroundStyle(Color.texto).lineLimit(2)
                         Spacer(minLength: 0)
                     }
                 }

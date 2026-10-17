@@ -172,9 +172,10 @@ Misma forma que la jornada actual. Útil para revisar jornadas pasadas. No es ne
 
 ## 4) Histórico de ganadoras — **propuesto** (lo pide la pantalla «Máscaras»)
 
-> **Estado:** la app Mac ya lo consume (`ServicioQuiniela.obtenerHistorico`, DT-84 de
-> `docs/mac/DECISIONES.md`); **falta crearlo en el servidor**. Mientras no exista, «Escrutar las
-> máscaras» muestra el error del servicio (404) y no hace nada más.
+> **Estado:** **en producción** desde el 16-oct-2026 (España 19 jornadas, México 24; capturas en
+> `Free1X2.Mac/Packages/Free1X2Kit/Sources/Free1X2Pruebas/Fixtures/online/historico-*-2026-10-16.json`).
+> La app Mac lo consume (`ServicioQuiniela.obtenerHistorico`, DT-84 de `docs/mac/DECISIONES.md`).
+> `temporada` es informativa: España la marca por campaña («2025/26» hasta junio, «2026/27» desde julio).
 
 ```
 GET https://clubprogol.com/wp-json/clubprogol/v1/quiniela/{pais}/historico

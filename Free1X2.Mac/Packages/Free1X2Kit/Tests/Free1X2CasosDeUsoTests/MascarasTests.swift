@@ -47,4 +47,19 @@ struct MascarasTests {
             try HistoricoQuiniela.analizar(#"{"resultados":[{"jornada":1,"ganadora":"1X2"}]}"#)
         }
     }
+
+    /// Respuestas reales de clubprogol (16-oct-2026): España 19 jornadas y México 24 (con `fecha: null`). JD-01 contra
+    /// las de España da lo mismo que desarrollar sus 729 columnas en Python: 3 de 11 y 43 de 10, en 10 de 19 jornadas.
+    @Test func historicoReal() throws {
+        func leer(_ p: String) throws -> [ResultadoHistorico] {
+            try HistoricoQuiniela.analizar(
+                String(decoding: try Golden.bytes("Fixtures/online/historico-\(p)-2026-10-16.json"), as: UTF8.self))
+        }
+        let es = try leer("es")
+        let mx = try leer("mx")
+        #expect(es.count == 19 && es.first?.jornada == 20_261_014 && es.first?.ganadora == "11122X12112X2X")
+        #expect(mx.count == 24 && mx.last?.jornada == 2331 && mx.last?.fecha == "")
+        let r = CasosMascaras.escrutar(Self.jd01, ganadoras: es.map(\.ganadora))
+        #expect(r.premios == [11: 3, 10: 43] && r.jornadasConPremio == 10 && r.jornadas == 19)
+    }
 }

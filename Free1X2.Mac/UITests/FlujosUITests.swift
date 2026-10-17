@@ -433,7 +433,8 @@ final class FlujosUITests: XCTestCase {
         app.buttons["accion-reducir"].click()
         let guardar = app.buttons["Guardar resultado…"]
         wait(for: [XCTNSPredicateExpectation(predicate: NSPredicate(format: "isEnabled == true"), object: guardar)], timeout: 60)
-        let admitidas = Int((app.staticTexts["reduccion-Admitidas"].value as? String) ?? "") ?? 0
-        XCTAssertTrue((73...729).contains(admitidas), "admitidas \(admitidas)")
+        let texto = (app.staticTexts["reduccion-Admitidas"].value as? String) ?? ""
+        let admitidas = Int(texto.replacingOccurrences(of: " = ", with: "")) ?? -1  // como F11
+        XCTAssertTrue((73...729).contains(admitidas), "admitidas «\(texto)»")
     }
 }
