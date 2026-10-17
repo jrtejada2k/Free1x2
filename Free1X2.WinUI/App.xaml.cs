@@ -60,6 +60,35 @@ public partial class App : Application
         AppServices.Inicializar(MainWindow);
         CablearHooksDominio();
         MainWindow.Activate();
+        _ = CargarJornadaAlArrancarAsync();
+    }
+
+    /// <summary>
+    /// W7 (DT-83): al abrir la app se descarga la jornada actual del país más reciente de la caché
+    /// (España si no hay). Si llega en 3 s, rellena los equipos de Inicio, solo si siguen vacíos
+    /// (no pisa lo que el usuario haya escrito o abierto). Si tarda, falla o no hay red, el boleto
+    /// queda en blanco, sin aviso y sin usar la caché. Cualquier error solo se registra.
+    /// </summary>
+    private static async System.Threading.Tasks.Task CargarJornadaAlArrancarAsync()
+    {
+        try
+        {
+            string pais = Services.JornadaCache.PaisMasReciente() ?? "es";
+            var jornada = await Free1X2.Online.JornadaInicio.AlArrancarAsync(
+                async ct => (await Services.QuinielaOnlineService.Instancia.ObtenerJornadaAsync(pais, ct)).Jornada,
+                TimeSpan.FromSeconds(3));
+            if (jornada is null) return;
+
+            Services.AppServices.UiDispatcher?.TryEnqueue(() =>
+            {
+                Services.AppState.Instancia.JornadaActual = jornada;
+                Services.AppState.Instancia.PonerJornadaEnInicio(jornada, soloSiVacios: true);
+            });
+        }
+        catch (Exception ex)
+        {
+            Log.Error("App.CargarJornadaAlArrancarAsync", ex);
+        }
     }
 
     /// <summary>
