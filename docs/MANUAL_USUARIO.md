@@ -218,6 +218,7 @@ Permite seleccionar un archivo de columnas que actúa como **base/filtro** de la
 | Ordenar por Probabilidad | Ordena columnas por probabilidad a partir de una valoración. |
 | Selector (JuanM) / (MarioSan) | Selección de columnas (por nº de 13s, etc.). |
 | Rentabilidad | Calcula la rentabilidad de una combinación. |
+| Esperanza matemática **[Mac]** | Esperanza matemática de una columna por categoría (14 a 10), con precio, reparto, retención y mínimos configurables (ver §«Esperanza matemática»). |
 | Columnas GEPT | Generador de columnas probables. |
 | Tramificar | Separa columnas por tramos. |
 | Premiadas | Utilidad de premiadas. |
@@ -583,6 +584,45 @@ hace nada. Encima de la tabla se indica cuántas jornadas se escrutaron y de qu�
 > las veces en España y el 54 % en México), no qué partidos acertarás. Úsalo para comparar planteamientos, no como garantía.
 
 Las máscaras se guardan como archivos `.mas` (ver §11), con el mismo formato en Mac y en Windows.
+
+### Esperanza matemática **[Mac]**
+Calcula cuánto **devuelve de media** una columna de 14 signos por cada apuesta: su **esperanza matemática (EM)**, categoría
+por categoría (14, 13, 12, 11 y 10 aciertos). Está en el panel lateral, grupo Utilidades, y en el menú de Utilidades.
+
+Datos que pide:
+
+- **Columna:** los 14 signos (`1`, `X` o `2`).
+- **Valoraciones:** los porcentajes de cada partido en dos pestañas. **Apostados** es lo que juega la gente (sirve para
+  estimar cuántos acertantes habría); **Reales** es tu estimación de lo que va a pasar (sirve para la probabilidad de cada
+  resultado). Si una fila no suma 100, se toma sobre su suma.
+- **Jornada:** la **recaudación** y el **precio de la apuesta**. Las dos salen de **Configuración ▸ Parámetros LAE**, donde
+  se guardan, y aquí se pueden cambiar para un cálculo. El número de apuestas es recaudación ÷ precio.
+- **Reparto del fondo:** el % de la recaudación para cada categoría. El selector trae dos repartos (el del Excel
+  «EM Categorias»: 16 · 7,5 · 7,5 · 7,5 · 9, y el de Estimación de premios: 12 · 8 · 8 · 8 · 9) y se puede editar a mano.
+- **Cobro:** la **retención** (por defecto, el 20 % de lo que pase de 40.000 €), los **mínimos** por debajo de los que no se
+  cobra (1 € de 14 a 11 aciertos y 1,5 € con 10) y **«Contarme como un acertante más (+1)»**: si aciertas, eres un
+  acertante más de los estimados (es lo más realista y viene activado).
+
+El cálculo es **exacto**: recorre los 19.321 resultados que darían premio a la columna (el propio, los 28 que cambian un
+signo, los 364 que cambian dos, los 2.912 que cambian tres y los 16.016 que cambian cuatro). En cada uno estima los
+acertantes con los porcentajes apostados, calcula el premio neto y lo pondera con su probabilidad real.
+
+La tabla de resultado muestra, por categoría:
+
+| Columna | Significado |
+|---------|-------------|
+| **Probabilidad real** | Probabilidad de que la columna saque exactamente esos aciertos (y «1 entre N»). |
+| **Apostado con esos aciertos** | Parte de las apuestas que tendría esos aciertos si tu columna fuera la ganadora. |
+| **Premio neto medio** | Lo que cobrarías de media al sacar esa categoría, tras la retención y los mínimos. |
+| **EM** | Lo que aporta esa categoría a lo que devuelve la columna por apuesta. |
+
+Debajo, la **EM total** y qué **% de lo apostado** supone: por encima del 100 %, la columna devuelve de media más de lo que
+cuesta según tus porcentajes reales.
+
+> **El precio cambia los premios, no las columnas.** Con la misma recaudación, un precio mayor significa menos apuestas,
+> menos acertantes y premios más altos. Con el ejemplo del Excel «EM Categorias» (columna `1121121221112X`, recaudación
+> 3.153.494,25 €), la EM es de 1,07 € por apuesta a 1 € (el 107 % de lo apostado) y de 0,89 € por apuesta a 0,75 € (el
+> 119 %). El precio no afecta a las condiciones, al cálculo de columnas, a las reducciones ni al escrutinio.
 
 ### Compresor *.z3q
 Comprime un archivo de columnas (`.txt`) a un **formato propio comprimido `.z3q`** (con un nivel de compresión 0–9) y lo descomprime de vuelta a `.txt`. Útil para almacenar o intercambiar ficheros de columnas grandes ocupando menos espacio.

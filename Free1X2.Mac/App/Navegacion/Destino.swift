@@ -113,6 +113,8 @@ enum Destino: String, Hashable, CaseIterable, Identifiable {
     case creditos
     /// Nueva (DT-84): máscaras guardadas y su escrutinio histórico; no existe en el WinUI.
     case mascaras
+    /// Nueva (DT-91): esperanza matemática de una columna por categoría; no existe en el WinUI.
+    case esperanza
 
     var id: String { rawValue }
 
@@ -168,6 +170,7 @@ enum Destino: String, Hashable, CaseIterable, Identifiable {
         case .estimadorPremios: "Estimación de premios"
         case .estucol: "EstuCol - Generador / Analizador de Columnas Probables"
         case .mascaras: "Máscaras"
+        case .esperanza: "Esperanza matemática"
         case .exportadorCPs: "Exportador de Columnas Probables"
         case .figurasFiltros: "Figuras"
         case .filtroPorcenJB: "Separador Porcentajes Juan Bellas"
@@ -284,6 +287,7 @@ enum Destino: String, Hashable, CaseIterable, Identifiable {
         case .estimadorPremios: "EstimadorPremiosFrm"
         case .estucol: "EstucolFrm"
         case .mascaras: "MascarasPage"
+        case .esperanza: "EsperanzaPage"
         case .exportadorCPs: "ExportadorCPsFrm"
         case .figurasFiltros: "FigurasFiltrosFrm"
         case .filtroPorcenJB: "FiltroPorcenJB"

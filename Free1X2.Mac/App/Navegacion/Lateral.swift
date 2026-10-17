@@ -72,6 +72,7 @@ struct PanelLateral: View {
                     e("Selector JuanM", .selecJM, "bSelectorJuanM"),
                     e("Selector MarioSan", .selectorMS, "bSelectorMarioSan"),
                     e("Rentabilidad", .rentabilidad, "bRentabilidad"),
+                    e("Esperanza matemática", .esperanza, "eurosign.circle"),
                     e("Tramificar", .tramificar, "bTramificar"),
                     e("Premiadas", .premiadas, "bPremiadas"),
                     e("Estimación de premios", .estimadorPremios, "bEstimacion"),

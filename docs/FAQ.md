@@ -107,6 +107,20 @@ No necesariamente. Cada jornada tiene partidos distintos, así que el historial 
 reparten los signos en general (el `1` sale en torno a la mitad de las veces). Sirve para comparar planteamientos, no
 como garantía.
 
+## Premios y rentabilidad
+
+### ¿Cómo sé si una columna es rentable?
+En la versión Mac, en **Esperanza matemática** (panel lateral, grupo Utilidades): escribe la columna, los porcentajes
+**apostados** (lo que juega la gente) y los **reales** (tu estimación) y pulsa **Calcular**. Verás, de 14 a 10 aciertos, la
+probabilidad, el premio neto medio y la **esperanza matemática**, y el total como % de lo que cuesta la apuesta: por encima
+del 100 %, la columna devuelve de media más de lo que cuesta. Es una media a largo plazo, no una garantía.
+
+### ¿Dónde cambio el precio de la apuesta?
+En **Configuración ▸ Parámetros LAE ▸ Precio apuesta**; se guarda y lo usan los cálculos de premios y el coste del
+boleto. En **Esperanza matemática** también se puede cambiar para un cálculo concreto. El precio cambia el número de
+apuestas (recaudación ÷ precio) y con él los acertantes y los premios estimados; no cambia las columnas que genera el
+programa.
+
 ## Escrutinio
 
 ### ¿Cómo sé cuánto he acertado?

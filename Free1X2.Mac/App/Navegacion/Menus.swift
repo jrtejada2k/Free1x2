@@ -107,6 +107,7 @@ struct Menus: Commands {
                 item("Selector MarioSan…", .selectorMS)
                 Divider()
                 item("Rentabilidad…", .rentabilidad)
+                item("Esperanza matemática…", .esperanza)
                 item("Tramificar…", .tramificar)
                 item("Premiadas…", .premiadas)
                 item("Estimación de premios…", .estimadorPremios)

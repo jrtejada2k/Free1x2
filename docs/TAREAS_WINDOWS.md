@@ -47,7 +47,7 @@ dotnet build Free1X2.WinUI/Free1X2.WinUI.csproj -c Debug -p:Platform=x64   # 0 e
 dotnet test  Free1X2.Domain.Tests/Free1X2.Domain.Tests.csproj              # 138 + los nuevos
 $env:FREE1X2_SMOKE = '1'
 .\Free1X2.WinUI\bin\x64\Debug\net8.0-windows10.0.19041.0\win-x64\Free1X2.WinUI.exe
-Get-Content "$env:TEMP\free1x2_smoke.log" -Tail 1   # hoy total=109; tras W9, total=110
+Get-Content "$env:TEMP\free1x2_smoke.log" -Tail 1   # hoy total=109; tras W9 y W14, total=111
 ```
 
 Borra `free1x2_smoke.log` antes de cada smoke: un log viejo puede dar por bueno un smoke que no terminó.
@@ -61,7 +61,7 @@ un sistema se usa tal cual en el otro.
 1. Correcciones pequeñas: W1–W5.
 2. Jornada: W6–W7.
 3. Navegación: W8.
-4. Máscaras, columnas de Inicio y base de ganadoras: W9, W10 y W12. Comparten la generación de columnas y la pantalla
+4. Máscaras, columnas de Inicio, base de ganadoras y esperanza matemática: W9, W10, W12 y W14. Comparten la generación de columnas y la pantalla
    «Máscaras».
 5. Enlaces de ayuda (W11) e icono (W13, ya sustituido: solo verificar).
 6. Cierre (§ «Cierre»): documentación, `CLAUDE.md` e informe al dueño.
@@ -191,9 +191,9 @@ un sistema se usa tal cual en el otro.
 - **Cómo:**
   1. `NavigationView` nativo de WinUI (`PaneDisplayMode="Left"`, plegable) con `AutoSuggestBox` para
      buscar.
-  2. Grupos con `NavigationViewItemHeader`; las **54 entradas** son exactamente las de
+  2. Grupos con `NavigationViewItemHeader`; las **55 entradas** son exactamente las de
      `Free1X2.Mac/App/Navegacion/Lateral.swift` (Inicio; Combinación 17 con Máscaras; Filtros 5;
-     Operaciones 5; Utilidades 18; Archivo 3; Ajustes y ayuda 5). Con icono, el PNG de
+     Operaciones 5; Utilidades 19 con Esperanza matemática; Archivo 3; Ajustes y ayuda 5). Con icono, el PNG de
      `Assets/Toolbar`.
   3. Pulsar una entrada la pone como **raíz** de la navegación (no apila).
   4. `CommandBar` con `AppBarButton` y `Label` visible:
@@ -440,6 +440,53 @@ un sistema se usa tal cual en el otro.
 
 ---
 
+## W14 · Esperanza matemática de una columna por categoría (DT-91)
+
+- **Qué (aprobado por el dueño, 17-oct-2026):** pantalla nueva **«Esperanza matemática»** (grupo Utilidades del panel de W8,
+  junto a Rentabilidad, y en el menú Utilidades) que calcula la EM **exacta** de una columna para 14, 13, 12, 11 y 10
+  aciertos, como el Excel «EM Categorias.xlsm» del dueño. Rentabilidad sigue igual (solo da la EM del 14).
+- **Entradas:**
+  - Columna de 14 signos.
+  - Porcentajes **apostados** y **reales** por partido (14 × 3), con el mismo editor que Rentabilidad. Cada fila se divide
+    por su suma; una fila que sume 0 o tenga negativos es un error: «Faltan los porcentajes apostados|reales del partido N.».
+  - **Recaudación** y **precio de la apuesta**: por defecto los de Configuración ▸ Parámetros LAE (ya existen y se guardan
+    en `parametros.free1x2`); editables en la pantalla para un cálculo. Muestra «Apuestas: recaudación ÷ precio = N».
+  - **Reparto** (% de la recaudación para 14…10) con un selector: «Excel: 16 · 7,5 · 7,5 · 7,5 · 9», «Free1X2: 12 · 8 · 8 · 8 · 9»
+    y «Personalizado» (el selector muestra el que coincide con los 5 campos; elegir uno los rellena).
+  - **Cobro:** retención 20 % de lo que pase de 40.000 €; no se cobra de 14 a 11 por debajo de 1 € ni el 10 por debajo de
+    1,5 €; casilla «Contarme como un acertante más (+1)», activada por defecto.
+- **Cálculo** (n = recaudación ÷ precio; `p_i(s)` = porcentaje normalizado del signo s en el partido i):
+  1. Para cada resultado W con premio para la columna C (W = C, y todos los que cambian 1, 2, 3 o 4 signos: 1 + 28 + 364
+     + 2.912 + 16.016 = 19.321) y k = aciertos de C con W (14 − cambios):
+     - x = probabilidad, con los porcentajes **apostados**, de que una apuesta tenga exactamente k aciertos con W
+       (distribución de Poisson-binomial con los `p_i(W_i)` apostados) × n;
+     - acertantes = `floor(x + 1,5)` con «+1» o `redondeo(x)` (a la mitad, lejos de cero) sin él; como mínimo 1;
+     - bruto = reparto_k % × recaudación ÷ acertantes; neto = 0 si bruto < mínimo (1,5 € para k = 10); si bruto > 40.000,
+       40.000 + (bruto − 40.000) × (1 − 20 %);
+     - EM_k += Π `p_i(W_i)` **reales** × neto; ProbReal_k += Π `p_i(W_i)` reales.
+  2. Salidas por categoría: probabilidad real (ProbReal_k), «apostado con esos aciertos» (Poisson-binomial apostada de la
+     propia C con k aciertos), premio neto medio (EM_k ÷ ProbReal_k) y EM_k. Total = Σ EM_k; «% de lo apostado» = total ÷
+     precio.
+- **Textos** (iguales que en el Mac): ver `Free1X2.Mac/App/Pantallas/Utilidades/Esperanza.swift` («Calcular», tarjetas
+  «Columna», «Jornada», «Reparto del fondo (% de la recaudación)», «Cobro», «Valoraciones (porcentajes)», «Resultado»; total
+  «EM total: X € por cada apuesta de Y €, el Z % de lo apostado (N apuestas).»; probabilidades como «0,0043 % (1 entre
+  23.142)»).
+- **Dónde:** nuevo. Cálculo en `Free1X2.Domain/` (en `double`); página `EsperanzaPage` (+ ViewModel) en `Views/Ported/`,
+  registrada en `Navigation/PortedPages.cs` (una entrada más: el smoke suma 1).
+- **Referencia Mac:** `Free1X2.Mac/Packages/Free1X2Kit/Sources/Free1X2CasosDeUso/Utilidades/Esperanza.swift`
+  (`ParametrosEsperanza`, `CasosEsperanza.calcular`) y la pantalla citada.
+- **Pruebas** (nuevo `Free1X2.Domain.Tests/EsperanzaTests.cs`; en el Mac, `EsperanzaTests.swift`, que trae los datos):
+  - Distribución con 0,6 en los 14 partidos: P(14) = 0,6¹⁴ y P(13) = 14 · 0,6¹³ · 0,4; suma 1.
+  - Ejemplo del Excel: columna `1121121221112X`, recaudación 3.153.494,25, porcentajes de `EsperanzaTests.swift`, reparto
+    del Excel, con «+1»: a 1 € ⇒ EM por categoría 0,339387083746 · 0,259952860574 · 0,199802964982 · 0,145122171329 ·
+    0,129636490232 y total 1,073901570862; a 0,75 € ⇒ total 0,894180459434 (4.204.659 apuestas); a 1 € sin «+1» ⇒
+    1,423042097518. Tolerancia 1e-9.
+  - Retención 0 ⇒ EM del 14 mayor; mínimo del 10 enorme ⇒ EM del 10 = 0 y las demás igual; columna de 6 signos, fila de
+    ceros y precio 0 ⇒ error.
+- **Aceptación:** los tests en verde y, a mano, el ejemplo del Excel da «el 107,4 % de lo apostado» a 1 €.
+
+---
+
 ## Lo que cambió en el Mac y **no** se lleva a Windows
 
 | Cambio en el Mac | Por qué no aplica |
@@ -452,16 +499,16 @@ un sistema se usa tal cual en el otro.
 
 ---
 
-## Cierre (después de W1–W13)
+## Cierre (después de W1–W14)
 
-1. **Verificación completa:** build 0 errores, `dotnet test` con 138 + los nuevos en verde, smoke `total=110 ok=110
+1. **Verificación completa:** build 0 errores, `dotnet test` con 138 + los nuevos en verde, smoke `total=111 ok=111
    fail=0` con el log borrado antes.
-2. **`CLAUDE.md`:** al día con los números nuevos: páginas (`PortedPages.cs` 109 entradas), superficies del smoke (110),
+2. **`CLAUDE.md`:** al día con los números nuevos: páginas (`PortedPages.cs` 110 entradas), superficies del smoke (111),
    tests (138 + los nuevos).
 3. **Manual y FAQ** (`docs/MANUAL_USUARIO.md`, `docs/FAQ.md`): quitar las marcas **[Mac]** y los «En la versión Mac…» de lo
    que Windows ya tenga (jornada al arrancar, Jornada ▾, panel lateral, Máscaras, base de ganadoras, Columnas de Inicio,
    `.mas`, `Historico/`). Luego `python scripts/md-a-wordpress.py`, que regenera `docs/web/manual.html` y
    `docs/web/faq.html`, y avisar al dueño de que hay que volver a subirlos a `clubprogol.com/docwk/` y
    `clubprogol.com/docwk/faq/`.
-4. **Informe al dueño:** una tabla por tarea (W1–W13) con estado (hecha / no hecha y por qué), commit, `fichero:línea`
+4. **Informe al dueño:** una tabla por tarea (W1–W14) con estado (hecha / no hecha y por qué), commit, `fichero:línea`
    del cambio y los tests añadidos. Lo que no se pudo hacer se dice, no se da por hecho.

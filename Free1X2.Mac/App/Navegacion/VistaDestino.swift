@@ -95,6 +95,7 @@ struct VistaDestino: View {
         case .graficoColumnas: VistaGraficoColumnas()
         case .estucol: VistaEstuCol()
         case .mascaras: VistaMascaras()
+        case .esperanza: VistaEsperanza()
         case .visorAnalisisColumnasAbdon: VistaVisorAbdon()
         case .imprimirBoleto: VistaImprimirBoleto()
         case .listaImpresoras: VistaListaImpresoras()

@@ -87,6 +87,7 @@
 		93A56EEB7CDCAF9A90CBA541 /* Pleno15.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4141061D9A72DF1F7F7A688B /* Pleno15.swift */; };
 		94A1733E4FA9A2940C25BC3E /* Modificador.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1F973C46AE268ACDB5A698 /* Modificador.swift */; };
 		98072ABB41C7731FA4A919D3 /* Grafico.swift in Sources */ = {isa = PBXBuildFile; fileRef = 072990B529D8F72247B228E0 /* Grafico.swift */; };
+		9820A5CCA3EED6FD42BFE848 /* Esperanza.swift in Sources */ = {isa = PBXBuildFile; fileRef = C208FAB5EDB3872150AA7E3A /* Esperanza.swift */; };
 		9F1CB3C66E62468AA056D842 /* BancoPruebas.swift in Sources */ = {isa = PBXBuildFile; fileRef = A52CD04B7C4B89829615BAE3 /* BancoPruebas.swift */; };
 		9F5AC6DC839F0C36F0095960 /* Algebra.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB2647216F2F309E14997C05 /* Algebra.swift */; };
 		9F830797A2556C971E0020FC /* DistanciasInterrupciones.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2771D91198F31E3165598E0F /* DistanciasInterrupciones.swift */; };
@@ -236,6 +237,7 @@
 		B96A8671C0F835740231EAB0 /* bProbabilidad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bProbabilidad.png; sourceTree = "<group>"; };
 		BE0E06AC14A0BE4304B55E90 /* Transposicion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transposicion.swift; sourceTree = "<group>"; };
 		C0344B454C66C01D3073E748 /* Datos */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Datos; path = App/Recursos/Datos; sourceTree = SOURCE_ROOT; };
+		C208FAB5EDB3872150AA7E3A /* Esperanza.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Esperanza.swift; sourceTree = "<group>"; };
 		C581FF4AEE0D4CB443714B58 /* bEstimacion.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bEstimacion.png; sourceTree = "<group>"; };
 		C5DA57C012C4A880F0F4E0C1 /* bRotacion.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bRotacion.png; sourceTree = "<group>"; };
 		C696EFF7CCBB8094796CE6BF /* Signos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Signos.swift; sourceTree = "<group>"; };
@@ -453,6 +455,7 @@
 				A52CD04B7C4B89829615BAE3 /* BancoPruebas.swift */,
 				C6B6E1B2290815086A050CBD /* Coincidencias.swift */,
 				6ED3FD641C09DF7323A080DD /* Dependencia.swift */,
+				C208FAB5EDB3872150AA7E3A /* Esperanza.swift */,
 				AB29F4F6E7C47D4E02CDB38A /* EstuCol.swift */,
 				E33629D7469560C3A35A648B /* Filtros.swift */,
 				B87EB26772D235A990F0A016 /* GEPT.swift */,
@@ -741,6 +744,7 @@
 				B82BB00E3775718E4723B589 /* Equipos.swift in Sources */,
 				558A1B7155B334B6E041CAE6 /* EscrutarCombinaciones.swift in Sources */,
 				EDDD269273EB817E07833D3D /* Escrutinios.swift in Sources */,
+				9820A5CCA3EED6FD42BFE848 /* Esperanza.swift in Sources */,
 				5454DC2FC4A00D04935C816B /* Estadisticas.swift in Sources */,
 				55C40B4180561113677179BE /* Estilo.swift in Sources */,
 				2ECCB00B199C84C356827A00 /* EstuCol.swift in Sources */,

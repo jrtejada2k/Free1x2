@@ -170,6 +170,7 @@ ficheros reales en carpeta temporal), U = XCUITest, M = manual del dueño.
 | F49 | Cargar jornada en Inicio | «Jornada» ▸ España ⇒ local y visitante de los 14 partidos con los de la jornada (sin red, la guardada) | I, U |
 | F50 | Jornada al arrancar (DT-83) | con red ⇒ boleto con los equipos de la jornada; sin red o > 3 s ⇒ en blanco y sin aviso | I, manual |
 | F51 | Máscaras (DT-84, DT-88) | guardar el boleto JD-01 como máscara ▸ combinación nueva ▸ aplicarla ⇒ «Fijos: 8 - Dobles: 0 - Triples: 6»; «Nueva liga…» «Mi liga» ▸ añadir `1;unos` y `2;doses` ⇒ «2 añadidas, 0 ya estaban»; otra vez ⇒ «0 añadidas, 2 ya estaban»; escrutar ⇒ 1/12/60/160/240, 1 de 2 jornadas | I, U |
+| F53 | Esperanza matemática (DT-91) | ejemplo del Excel «EM Categorias»: columna `1121121221112X`, recaudación 3.153.494,25 ⇒ EM 1,0739 € a 1 € y 0,8942 € a 0,75 € (con «+1»), 1,4230 € a 1 € sin «+1»; retención, mínimos y errores | I |
 | F52 | Reducir y filtrar sin fichero (DT-85) | boleto JD-01 ▸ Inicio ▸ Reducir ⇒ Reductor con «ColumnasInicio.txt» (729 columnas) ▸ Reducir ⇒ 73…729 admitidas y «Guardar resultado…» activo | I, U |
 
 ## 5. Cómo se ejecuta
@@ -307,6 +308,7 @@ Leyenda: **I** = `Tests/Free1X2CasosDeUsoTests/FlujosTests.swift` (ficheros real
 | F49 cargar jornada | N4 `equiposDeJornadaReal` (capturas reales ES con pleno y MX); U `testF49CargarJornada` | ✔ |
 | F50 jornada al arrancar | N4 `jornadaAlArrancar` (a tiempo, lenta, error 500); comprobado en la app con la API real (Villarreal - Nápoles) y sin red (en blanco) | ✔ |
 | F51 máscaras | N4 `MascarasTests` (recuento sin desarrollar = valores a mano de JD-01; guardar/listar/borrar; histórico del servicio; base por liga: archivo `jornada;columna`, suma sin duplicar, descarga sumada a «España»); U `testF51Mascaras` | ✔ |
+| F53 esperanza | N4 `EsperanzaTests` (distribución = Excel «Probabilidades categorias»; EM por categoría y total contra un cálculo independiente en Python; retención, mínimos y errores) | ✔ |
 | F52 sin fichero | I `f52ColumnasDeInicio` (729 = JD-01; 0 columnas ⇒ error y sin fichero viejo); U `testF52ReducirSinFichero`; en local, 14 triples ⇒ Reductor con las columnas en 41 s | ✔ |
 
 **CI:** run 39006120618 verde (19 min): 265 tests del paquete, cobertura de casos de uso 88,5 % y **18 tests de UI** (F02–F52; F16 escruta JD-02 para que «Ver premiadas» no tenga 473 filas, que hacen cada búsqueda de XCUITest de 9-13 s).

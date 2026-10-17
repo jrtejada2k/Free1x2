@@ -90,7 +90,7 @@ extension View {
     }
 }
 
-/// Smoke (10 §1.8): recorre las 110 superficies cada 120 ms y escribe `$TMPDIR/free1x2_smoke.log`.
+/// Smoke (10 §1.8): recorre las 111 superficies cada 120 ms y escribe `$TMPDIR/free1x2_smoke.log`.
 @MainActor
 enum Smoke {
     static func ejecutar(_ sesion: Sesion) async {
