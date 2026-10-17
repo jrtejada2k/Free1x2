@@ -19,5 +19,6 @@ public sealed partial class DifColsPage : Page
     public DifColsPage()
     {
         InitializeComponent();
+        ViewModel.Navegar = tipo => Frame?.Navigate(tipo);
     }
 }

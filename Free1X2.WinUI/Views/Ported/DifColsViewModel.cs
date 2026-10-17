@@ -27,6 +27,11 @@ public partial class DifColsViewModel : ObservableObject
     // Cancelación del cálculo en curso (legacy: campo bool 'salida').
     private CancellationTokenSource? _cts;
 
+    /// <summary>
+    /// Navegación inyectada por la Page (mismo patrón que MainPageViewModel.Navegar).
+    /// </summary>
+    public Action<Type>? Navegar { get; set; }
+
     // -------- Generación por (legacy groupBox "Generación por": rb14T / rbFile) --------
 
     // 14 triples internamente (legacy: rb14T.Checked). Marcado por defecto.
@@ -251,8 +256,7 @@ public partial class DifColsViewModel : ObservableObject
     [RelayCommand]
     private void AbrirCpsPorDiferencias()
     {
-        // Navegación a la pantalla portada GeneradorCPSDiferencias: es responsabilidad del
-        // host de la Page (Frame.Navigate), no del cableado del dominio.
+        Navegar?.Invoke(typeof(GeneradorCPSDiferenciasPage));
     }
 
     // ---- Lógica portada de DifCols ----
