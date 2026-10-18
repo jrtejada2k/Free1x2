@@ -150,6 +150,14 @@ extension CasosArchivo {
         return f.string(from: d)
     }
 
+    /// En España la API da como número de jornada su fecha (20261018): el aviso muestra la fecha. Un número corto (la
+    /// jornada 38 de antes o el concurso del Progol) se queda como está.
+    public static func nombreJornada(_ n: Int32) -> String {
+        let v = Int(n)
+        guard v >= 19_000_101 else { return "Jornada \(v)" }
+        return String(format: "Jornada del %02d/%02d/%04d", v % 100, v / 100 % 100, v / 10_000)
+    }
+
     /// `Descargar` (:62-118): jornada nueva (o la de la caché si falla la red) y el mensaje de la pantalla.
     public static func descargarJornada(
         _ pais: PaisQuiniela, servicio: ServicioQuiniela, entorno: Entorno
@@ -157,7 +165,7 @@ extension CasosArchivo {
         func sufijo(_ d: Date?, _ a: String, _ b: String) -> String { d.map { a + fechaLocal($0) + b } ?? "" }
         do {
             let r = try await servicio.obtenerJornada(pais: pais.rawValue)
-            let resumen = "Jornada \(r.jornada.jornada) · \(r.jornada.partidos.count) partidos cargados"
+            let resumen = "\(nombreJornada(r.jornada.jornada)) · \(r.jornada.partidos.count) partidos cargados"
             return (
                 r.jornada,
                 r.desdeCache

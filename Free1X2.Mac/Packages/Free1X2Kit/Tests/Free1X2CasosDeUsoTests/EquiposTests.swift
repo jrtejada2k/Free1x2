@@ -30,6 +30,12 @@ struct EquiposTests {
         #expect(try CasosArchivo.anadirEquipo("osasuna", categoria: .segundaB, entorno: entorno))
     }
 
+    @Test func nombreDeJornadaEnElAviso() {
+        #expect(CasosArchivo.nombreJornada(20_261_018) == "Jornada del 18/10/2026")
+        #expect(CasosArchivo.nombreJornada(38) == "Jornada 38")
+        #expect(CasosArchivo.nombreJornada(2355) == "Jornada 2355")
+    }
+
     @Test func descargaDeJornada() async throws {
         let json = """
             {"pais":"ES","temporada":"2025/26","jornada":38,"fecha":"2026-06-21","partidos":[\((1...14).map { "{\"n\":\($0),\"local\":\"L\($0)\",\"visitante\":\"V\($0)\"}" }.joined(separator: ","))]}
