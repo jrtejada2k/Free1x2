@@ -4,7 +4,7 @@ name: Mac
 on:
   push:
     # Las ramas de trabajo `claude/**` también: así se valida sin abrir un PR, que dispararía `ci.yml` (tests del C#).
-    branches: [main, 'claude/**']
+    branches: [main, mac, 'claude/**']
     paths: ['Free1X2.Mac/**', '.github/workflows/mac.yml']
   pull_request:
     paths: ['Free1X2.Mac/**', '.github/workflows/mac.yml']
