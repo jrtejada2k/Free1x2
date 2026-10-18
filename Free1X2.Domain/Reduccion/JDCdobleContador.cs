@@ -220,8 +220,10 @@ namespace Free1X2.Reduccion
 				{
 					if (z == SigIni) continue;
 					Indice = IndiceInicial + pot[Partido - 1] * (z - SigIni);
+					// Solo la primera vez: con repeticiones la lista llegaba a cientos de millones de entradas.
+					// Al empezar cada pasada todo poorN está a 0, así que 0 = aún no tocada.
+					if (poorN[Indice] == 0) pobresTocados.Add(Indice);
 					poorN[Indice]++;
-					pobresTocados.Add(Indice);
 					if (nivelProf < pProfundidad) DispersaColumnaPobre(Indice, (short)(Partido + 1), pProfundidad);
 				}
 			}
