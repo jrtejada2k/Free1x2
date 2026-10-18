@@ -157,30 +157,40 @@ private final class Reductor {
         var max: Int32 = -1
         var primera = 0
         var ultima = iniciales + numExternas
+        // El C# recorre todas las columnas en cada elección para tomar la primera con el valor más alto. En esta fase los
+        // valores de las vivas solo bajan (`marcaJDC` y `calculaJDC` con −1), así que ninguna anterior a la última
+        // elegida puede tener ese valor: se sigue buscando desde ella y solo hace falta otra pasada completa cuando el
+        // valor se agota. Misma elección que el C#, con una pasada por valor distinto (unas 400) y no una por columna
+        // elegida (44.321 con 14 triples a nivel 12: 10 minutos).
+        var desde = 0
         while true {
             if bombear() { break }
             var nextcol = -1
-            var min: Int32 = -1
-            var nr = primera
-            while nr < ultima {
-                let nv = flags[columnas[nr]]
-                if nv > Self.muerta {
+            if max >= 0 {
+                var nr = Swift.max(desde, primera)
+                while nr < ultima {
+                    if flags[columnas[nr]] == max {
+                        nextcol = nr
+                        break
+                    }
                     nr += 1
-                    continue
                 }
-                if nv == max && nr < iniciales {
-                    min = nv
-                    nextcol = nr
-                    break
-                }
-                if nv > min {
-                    min = nv
-                    nextcol = nr
-                }
-                nr += 1
             }
-            if nextcol < 0 { break }
-            max = min
+            if nextcol < 0 {
+                var min: Int32 = -1
+                var nr = primera
+                while nr < ultima {
+                    let nv = flags[columnas[nr]]
+                    if nv <= Self.muerta && nv > min {
+                        min = nv
+                        nextcol = nr
+                    }
+                    nr += 1
+                }
+                if nextcol < 0 { break }
+                max = min
+            }
+            desde = nextcol
             while flags[columnas[primera]] > Self.muerta { primera += 1 }
             while flags[columnas[ultima - 1]] > Self.muerta { ultima -= 1 }
             let c = columnas[nextcol]
