@@ -108,7 +108,7 @@
             <!-- ===== Parámetros LAE ===== -->
             <Border Style="{StaticResource AppCardStyle}">
                 <StackPanel Spacing="5">
-                    <TextBlock Text="Parámetros LAE" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    <TextBlock Text="Parámetros LAE (España)" Style="{StaticResource SubtitleTextBlockStyle}" />
                     <Grid ColumnSpacing="10" RowSpacing="6">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
@@ -135,6 +135,41 @@
                                    Minimum="0" Maximum="100"
                                    AutomationProperties.Name="Porcentaje destinado al premio de 14" />
                     </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- ===== Parámetros Progol (México) — W21 (DT-97) ===== -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="5">
+                    <TextBlock Text="Parámetros Progol (México)" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    <Grid ColumnSpacing="10" RowSpacing="6">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <NumberBox Grid.Row="0" Grid.Column="0" Header="Recaudación"
+                                   Value="{x:Bind ViewModel.RecaudacionMexico, Mode=TwoWay}"
+                                   AutomationProperties.Name="Recaudación del Progol" />
+                        <TextBox Grid.Row="0" Grid.Column="1" Header="Símbolo moneda" MaxLength="3"
+                                 Text="{x:Bind ViewModel.SimboloMonedaMexico, Mode=TwoWay}"
+                                 AutomationProperties.Name="Símbolo de moneda del Progol" />
+
+                        <NumberBox Grid.Row="1" Grid.Column="0" Header="Precio apuesta"
+                                   Value="{x:Bind ViewModel.PrecioApuestaMexico, Mode=TwoWay}"
+                                   SmallChange="0.5"
+                                   AutomationProperties.Name="Precio de apuesta del Progol" />
+                        <NumberBox Grid.Row="1" Grid.Column="1" Header="% al 14"
+                                   Value="{x:Bind ViewModel.PorcentajeAl14Mexico, Mode=TwoWay}"
+                                   Minimum="0" Maximum="100"
+                                   AutomationProperties.Name="Porcentaje destinado al premio de 14 del Progol" />
+                    </Grid>
+                    <TextBlock Text="Se usan cuando la jornada cargada (Inicio ▸ Jornada) es de México; si no, los de España."
+                               Style="{StaticResource SecondaryTextBlockStyle}" TextWrapping="Wrap" />
                 </StackPanel>
             </Border>
 

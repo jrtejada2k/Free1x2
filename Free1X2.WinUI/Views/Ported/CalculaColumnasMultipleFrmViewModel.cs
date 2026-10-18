@@ -318,9 +318,10 @@ public partial class CalculaColumnasMultipleFrmViewModel : ObservableObject
         // COMException RPC_E_WRONG_THREAD, capturada por el catch del bucle de CalcularAsync,
         // que abortaba el LOTE ENTERO en el primer fichero cuyo valor cambiara.
         // El formateo (puro) se hace aquí; solo las dos asignaciones van al hilo de UI.
-        double costeMaximo = _colsMaximas * Free1X2.VariablesGlobales.PrecioApuesta;
+        var lae = Services.ParametrosLAEActuales.Calculo(); // W21: país de la jornada cargada
+        double costeMaximo = _colsMaximas * lae.Precio;
         string textoColumnas = _colsMaximas.ToString("#,##0;0");
-        string textoCoste = costeMaximo.ToString(Free1X2.VariablesGlobales.Moneda + "#,##0.00;0.0");
+        string textoCoste = costeMaximo.ToString(lae.Moneda + "#,##0.00;0.0");
 
         UiHilo.Ejecutar(() =>
         {
@@ -351,8 +352,9 @@ public partial class CalculaColumnasMultipleFrmViewModel : ObservableObject
     {
         int procesadas = _analizador.ColsAnalizadas;
         int aceptadas = _analizador.ColsAceptadas;
-        double precio = Free1X2.VariablesGlobales.PrecioApuesta;
-        string moneda = Free1X2.VariablesGlobales.Moneda;
+        var lae = Services.ParametrosLAEActuales.Calculo(); // W21: país de la jornada cargada
+        double precio = lae.Precio;
+        string moneda = lae.Moneda;
 
         ColumnasProcesadas = procesadas.ToString("#,##0;0");
         CosteProcesadas = (procesadas * precio).ToString(moneda + "#,##0.00;0.0");

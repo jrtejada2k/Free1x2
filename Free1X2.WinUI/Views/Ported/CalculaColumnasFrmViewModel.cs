@@ -218,8 +218,10 @@ public partial class CalculaColumnasFrmViewModel : ObservableObject
         }
 
         ColsMaximo = _colsMaximas.ToString("#,##0;0");
-        double costeMaximo = _colsMaximas * Free1X2.VariablesGlobales.PrecioApuesta;
-        CosteMaximo = costeMaximo.ToString(Free1X2.VariablesGlobales.Moneda + "#,##0.00;0.0");
+        // W21 (DT-97): precio y moneda del país de la jornada cargada (México ⇒ Progol; si no, España).
+        var lae = Services.ParametrosLAEActuales.Calculo();
+        double costeMaximo = _colsMaximas * lae.Precio;
+        CosteMaximo = costeMaximo.ToString(lae.Moneda + "#,##0.00;0.0");
     }
 
     /// <summary>
@@ -369,8 +371,9 @@ public partial class CalculaColumnasFrmViewModel : ObservableObject
     {
         int procesadas = _analizador.ColsAnalizadas;
         int aceptadas = _analizador.ColsAceptadas;
-        double precio = Free1X2.VariablesGlobales.PrecioApuesta;
-        string moneda = Free1X2.VariablesGlobales.Moneda;
+        var lae = Services.ParametrosLAEActuales.Calculo(); // W21: país de la jornada cargada
+        double precio = lae.Precio;
+        string moneda = lae.Moneda;
 
         ColsProcesadas = procesadas.ToString("#,##0;0");
         CosteProcesadas = (procesadas * precio).ToString(moneda + "#,##0.00;0.0");

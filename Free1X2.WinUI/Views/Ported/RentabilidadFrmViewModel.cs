@@ -162,8 +162,9 @@ public partial class RentabilidadFrmViewModel : ObservableObject
         // Legacy: RentabilidadFrm.CalcularValoracionColumna() (línea 113). v/p = .Valores de los dos
         // ControlPorcentajes; pa/pr = Porcentajes.ValoresBase100() (normalización a tanto-por-uno).
         // No depende del motor de 4,7M -> totalmente cableable.
-        double precioApuesta = Free1X2.VariablesGlobales.PrecioApuesta;
-        double pctPremio14 = Free1X2.VariablesGlobales.Porcentaje14;
+        var lae = Services.ParametrosLAEActuales.Calculo(); // W21: país de la jornada cargada
+        double precioApuesta = lae.Precio;
+        double pctPremio14 = lae.Porcentaje14;
         float premioDe14 = (float)precioApuesta * (float)pctPremio14 / 100;
         float premioTope = (float)Recaudacion * (float)pctPremio14 / 100;
 
@@ -210,8 +211,9 @@ public partial class RentabilidadFrmViewModel : ObservableObject
         }
 
         // Snapshot de los parámetros de UI (se leen en el hilo de UI antes del Task.Run).
-        double precioApuesta = Free1X2.VariablesGlobales.PrecioApuesta;
-        double pctPremio14 = Free1X2.VariablesGlobales.Porcentaje14;
+        var lae = Services.ParametrosLAEActuales.Calculo(); // W21: país de la jornada cargada
+        double precioApuesta = lae.Precio;
+        double pctPremio14 = lae.Porcentaje14;
         PremioDe14 = (float)precioApuesta * (float)pctPremio14 / 100;
         PremioTope = (float)Recaudacion * (float)pctPremio14 / 100;
 

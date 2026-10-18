@@ -412,6 +412,70 @@ namespace Free1X2.EntradaSalida
             simboloMoneda = xmlValoresLAE.Attributes["Moneda"].Value;
 		}
 
+		/// <summary>Progol de fábrica (W21, DT-97): 15 $ la quiniela sencilla; el 33 % y los 15.000.000 $ son estimados del dueño.</summary>
+		public const double ProgolPrecioFabrica = 15, ProgolPorcentaje14Fabrica = 33, ProgolRecaudacionFabrica = 15000000;
+		public const string ProgolMonedaFabrica = "$";
+
+		/// <summary>
+		/// W21 (DT-97): parámetros del Progol en <c>&lt;configuracionONLAE&gt;&lt;Progol&gt;&lt;OrdenarApuestas …/&gt;</c>, con los
+		/// mismos atributos que <c>&lt;LAE&gt;</c>. Sin el nodo, o con un valor ilegible, los de fábrica.
+		/// </summary>
+		public void ObtenValoresProgol(out double PrecioApuesta, out double PorcentajeDestinadoAl14, out double Recaudacion, out string simboloMoneda)
+		{
+			var es = new System.Globalization.CultureInfo("es-ES");
+			PrecioApuesta = ProgolPrecioFabrica;
+			PorcentajeDestinadoAl14 = ProgolPorcentaje14Fabrica;
+			Recaudacion = ProgolRecaudacionFabrica;
+			simboloMoneda = ProgolMonedaFabrica;
+
+			XmlNodeList progol = configFile.GetElementsByTagName("Progol");
+			if (progol.Count == 0 || progol[0].ChildNodes.Count == 0) return;
+			XmlAttributeCollection a = progol[0].ChildNodes[0].Attributes;
+			if (a == null) return;
+
+			double Numero(string nombre, double porDefecto) =>
+				a[nombre] != null && float.TryParse(a[nombre].Value, System.Globalization.NumberStyles.Float, es, out float v) ? v : porDefecto;
+
+			PrecioApuesta = Numero("PrecioApuesta", PrecioApuesta);
+			PorcentajeDestinadoAl14 = Numero("PorcentajeDestinadoAl14", PorcentajeDestinadoAl14);
+			Recaudacion = Numero("Recaudacion", Recaudacion);
+			if (a["Moneda"] != null) simboloMoneda = a["Moneda"].Value;
+		}
+
+		/// <summary>
+		/// W21 (DT-97): como <see cref="GuardarValoresLAE"/>, en <c>&lt;Progol&gt;</c>; si el fichero aún no lo tiene, se añade como
+		/// último hijo de <c>&lt;configuracionONLAE&gt;</c> (detrás de <c>&lt;LAE&gt;</c>).
+		/// </summary>
+		public void GuardarValoresProgol(double PrecioApuesta, double PorcentajeDestinadoAl14, double Recaudacion, string simboloMoneda)
+		{
+			var es = new System.Globalization.CultureInfo("es-ES");
+			XmlNodeList progol = configFile.GetElementsByTagName("Progol");
+			XmlElement nodo;
+			if (progol.Count > 0 && progol[0].ChildNodes.Count > 0 && progol[0].ChildNodes[0] is XmlElement existente)
+			{
+				nodo = existente;
+			}
+			else
+			{
+				XmlNodeList padres = configFile.GetElementsByTagName("configuracionONLAE");
+				XmlNode padre = padres.Count > 0 ? padres[0] : configFile.DocumentElement;
+				XmlElement contenedor = progol.Count > 0 ? (XmlElement)progol[0] : configFile.CreateElement("Progol");
+				if (progol.Count == 0) padre.AppendChild(contenedor);
+				nodo = configFile.CreateElement("OrdenarApuestas");
+				contenedor.AppendChild(nodo);
+			}
+
+			nodo.SetAttribute("PrecioApuesta", PrecioApuesta.ToString("0.00", es));
+			nodo.SetAttribute("PorcentajeDestinadoAl14", PorcentajeDestinadoAl14.ToString(es));
+			nodo.SetAttribute("Recaudacion", Recaudacion.ToString(es));
+			nodo.SetAttribute("Moneda", simboloMoneda);
+
+			XmlTextWriter writer = new XmlTextWriter(archConfig, null);
+			writer.Formatting = Formatting.Indented;
+			configFile.Save(writer);
+			writer.Close();
+		}
+
 		public void ObtenValoresLAE(ref string PrecioApuesta, ref string PorcentajeDestinadoAl14, ref string Recaudacion, ref string simboloMoneda)
 		{
 		    XmlNodeList XMLConfigLAE = configFile.GetElementsByTagName( "LAE" );

@@ -203,9 +203,11 @@ public partial class OrdenarPorProbabilidadFrmViewModel : ObservableObject
     {
         // El form legacy, en su constructor, llama AConfiguracion.ObtenValoresLAE para inicializar
         // los campos L.A.E. Se replica con los valores globales ya disponibles en el dominio.
-        Recaudacion = Free1X2.VariablesGlobales.Recaudacion.ToString();
-        PrecioApuesta = Free1X2.VariablesGlobales.PrecioApuesta.ToString();
-        PorcentajePremio14 = Free1X2.VariablesGlobales.Porcentaje14.ToString();
+        // W21 (DT-97): los del país de la jornada cargada (México ⇒ Progol; si no, España).
+        var lae = Services.ParametrosLAEActuales.Calculo();
+        Recaudacion = lae.Recaudacion.ToString();
+        PrecioApuesta = lae.Precio.ToString();
+        PorcentajePremio14 = lae.Porcentaje14.ToString();
     }
 
     // ---- Dependencias de UI (equivalen a los CheckedChanged del form legacy) ----

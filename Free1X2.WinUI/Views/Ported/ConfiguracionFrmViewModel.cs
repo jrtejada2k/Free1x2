@@ -67,13 +67,26 @@ public partial class ConfiguracionFrmViewModel : ObservableObject
     private double _recaudacion = 15000000;
 
     [ObservableProperty]
-    private double _precioApuesta = 0.50;
+    private double _precioApuesta = 0.75; // W15 (DT-92): 0,75 por defecto (se sobrescribe al cargar parametros.free1x2)
 
     [ObservableProperty]
     private double _porcentajeAl14 = 15;
 
     [ObservableProperty]
     private string _simboloMoneda = "€";
+
+    // ===== Parámetros Progol (México) — W21 (DT-97): se usan cuando la jornada cargada es de México =====
+    [ObservableProperty]
+    private double _recaudacionMexico = Free1X2.EntradaSalida.AConfiguracion.ProgolRecaudacionFabrica;
+
+    [ObservableProperty]
+    private double _precioApuestaMexico = Free1X2.EntradaSalida.AConfiguracion.ProgolPrecioFabrica;
+
+    [ObservableProperty]
+    private double _porcentajeAl14Mexico = Free1X2.EntradaSalida.AConfiguracion.ProgolPorcentaje14Fabrica;
+
+    [ObservableProperty]
+    private string _simboloMonedaMexico = Free1X2.EntradaSalida.AConfiguracion.ProgolMonedaFabrica;
 
     // ===== Actualizador =====
     [ObservableProperty]
@@ -115,6 +128,11 @@ public partial class ConfiguracionFrmViewModel : ObservableObject
             double precio = 0, pct = 0, recaud = 0; string moneda = "€";
             cfg.ObtenValoresLAE(ref precio, ref pct, ref recaud, ref moneda);
             PrecioApuesta = precio; PorcentajeAl14 = pct; Recaudacion = recaud; SimboloMoneda = moneda;
+
+            // W21: valores del Progol (sin el nodo, los de fábrica).
+            cfg.ObtenValoresProgol(out double precioMx, out double pctMx, out double recaudMx, out string monedaMx);
+            PrecioApuestaMexico = precioMx; PorcentajeAl14Mexico = pctMx; RecaudacionMexico = recaudMx;
+            SimboloMonedaMexico = monedaMx;
 
             // Puntos CP.
             int fijos = 0, dobles = 0, triples = 0;
@@ -188,6 +206,7 @@ public partial class ConfiguracionFrmViewModel : ObservableObject
             cfg.GuardarValoresSeparadorJB(jbStr);
 
             cfg.GuardarValoresLAE(PrecioApuesta, PorcentajeAl14, Recaudacion, SimboloMoneda);
+            cfg.GuardarValoresProgol(PrecioApuestaMexico, PorcentajeAl14Mexico, RecaudacionMexico, SimboloMonedaMexico);
             cfg.GuardarPuntosCP((int)ValorFijos, (int)ValorDobles, (int)ValorTriples);
             cfg.GuardarConfiguracionBoleto((int)NumPartidos, Separador);
             cfg.GuardarDesplazamiento(((int)Desplazamiento).ToString(CultureInfo.InvariantCulture));
