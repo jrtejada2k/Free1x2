@@ -193,11 +193,15 @@ extension CasosUtilidades {
             }
             if nf > 0 { filtro = [Bool](repeating: false, count: 4_782_969) }
             var ct = 0
-            for c in ArchivoColumnasTexto.columnas(d) {
+            // DM-22: los índices en varios núcleos (−1: menos de 14 signos; −2: no es una columna, y en el recorrido se
+            // repite para lanzar el mismo error); el recorrido, en orden como siempre.
+            let lineas = ArchivoColumnasTexto.columnas(d)
+            let indices = mapaParalelo(lineas) { c -> Int in c.utf16.count < 14 ? -1 : ((try? indiceDiFiltros(c)) ?? -2) }
+            for (k, i) in indices.enumerated() {
                 if Task.isCancelled { break }
                 ct += 1
-                if c.utf16.count < 14 { break }
-                let i = try indiceDiFiltros(c)
+                if i == -1 { break }
+                let i = i == -2 ? try indiceDiFiltros(lineas[k]) : i
                 if nf == 0 { e.validas[i] = true } else { filtro[i] = true }
             }
             filas[nf].columnas = ct
@@ -208,12 +212,24 @@ extension CasosUtilidades {
                 let minimo = min(3305, max(1, Int(FormatoNET.castInt32(filas[nf].minimo))))
                 let difs = Array((filas[nf].difs.utf16.count < 4 ? filas[nf].difs + "0000" : filas[nf].difs).utf16.prefix(4))
                 let t = difs.map { $0 == 0x31 }
-                for n in 0..<4_782_969 {
-                    if n % 2187 == 0 && Task.isCancelled { break }
-                    if e.validas[n] && !validaDiFiltros(n, filtro, t, minimo) {
-                        e.validas[n] = false
-                        e.ctFR -= 1
+                // DM-22: cada posición se valida sola; en varios núcleos por tramos, y las caídas se aplican en orden. Al
+                // cancelar, los tramos enteros hasta el primero a medias (incluido), como en un hilo.
+                let (validas, filtro) = (e.validas, filtro)
+                let tramos = trozosParalelos(4_782_969, minimo: 2187 * 16)
+                let caidas = await conCancelacion { cancelado in
+                    enParalelo(tramos.count) { k -> (posiciones: [Int32], completo: Bool) in
+                        var p: [Int32] = []
+                        for n in tramos[k] {
+                            if n % 2187 == 0 && cancelado.activa { return (p, false) }
+                            if validas[n] && !validaDiFiltros(n, filtro, t, minimo) { p.append(Int32(n)) }
+                        }
+                        return (p, true)
                     }
+                }
+                for c in caidas {
+                    for n in c.posiciones { e.validas[Int(n)] = false }
+                    e.ctFR -= c.posiciones.count
+                    if !c.completo { break }
                 }
                 filas[nf].admitidas = e.ctFR
             }

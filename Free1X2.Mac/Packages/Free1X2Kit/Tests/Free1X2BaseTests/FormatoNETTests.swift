@@ -1,13 +1,29 @@
 import Foundation
-import Free1X2Base
 import Free1X2Pruebas
 import Testing
+
+@testable import Free1X2Base
 
 /// ESPEC_17 NET-01…11: suite `net/formato` (comportamiento .NET 8 leído del fuente de dotnet/runtime).
 @Suite("Formato .NET")
 struct FormatoNETTests {
     static func casos(_ componente: String) throws -> [CasoGolden<Campos, Campos>] {
         try Golden.casos("net/formato", componente: componente)
+    }
+
+    /// Los atajos ASCII de `mayusculas` y `recortar` (DM-22) dan los mismos bytes que el camino Unicode: 20.000 cadenas
+    /// al azar con todo el ASCII (letras, blancos y controles).
+    @Test func atajosASCIIIgualQueUnicode() {
+        var x: UInt64 = 1
+        func siguiente() -> UInt64 {
+            x = x &* 6_364_136_223_846_793_005 &+ 1_442_695_040_888_963_407
+            return x >> 33
+        }
+        for _ in 0..<20_000 {
+            let s = String(decoding: (0..<Int(siguiente() % 16)).map { _ in UInt8(siguiente() % 128) }, as: UTF8.self)
+            #expect(Array(FormatoNET.mayusculas(s).utf8) == Array(FormatoNET.mayusculasUnicode(s).utf8), "\(Array(s.utf8))")
+            #expect(Array(FormatoNET.recortar(s).utf8) == Array(FormatoNET.recortarUnicode(s).utf8), "\(Array(s.utf8))")
+        }
     }
 
     @Test func conversionesDeDouble() throws {

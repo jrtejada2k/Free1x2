@@ -6,8 +6,9 @@ import Free1X2Base
 /// Ficheros de columnas `.txt`: una columna por línea.
 public enum ArchivoColumnasTexto {
     /// `LeeColumnaSinComas` de cada línea (`ReadLine().Trim().ToUpper()`); las líneas vacías cuentan (:221-224).
+    /// En varios núcleos, cada línea en su sitio (DM-22).
     public static func columnas(_ datos: Data) -> [String] {
-        TextoNET.lineas(datos).map { FormatoNET.mayusculas(FormatoNET.recortar($0)) }
+        mapaParalelo(TextoNET.lineas(datos)) { FormatoNET.mayusculas(FormatoNET.recortar($0)) }
     }
 
     /// `LeerTodasCols(true)`: con comas entre signos (`DarFormatoColumna`).

@@ -263,6 +263,16 @@ public enum FormatoNET {
 
     /// `string.ToUpper()`: mapeo simple carácter a carácter (sin expansiones: `ß` se queda) (04 S7; 06 A5).
     public static func mayusculas(_ texto: String) -> String {
+        // Atajo ASCII (las columnas de los ficheros, millones de líneas): solo cambian a-z, como con `uppercaseMapping`.
+        if texto.utf8.allSatisfy({ $0 < 0x80 }) {
+            guard texto.utf8.contains(where: { $0 >= 0x61 && $0 <= 0x7A }) else { return texto }
+            return String(decoding: texto.utf8.map { $0 >= 0x61 && $0 <= 0x7A ? $0 - 0x20 : $0 }, as: UTF8.self)
+        }
+        return mayusculasUnicode(texto)
+    }
+
+    /// `mayusculas` escalar a escalar (el camino general; las pruebas lo comparan con el atajo ASCII).
+    static func mayusculasUnicode(_ texto: String) -> String {
         var salida = String.UnicodeScalarView()
         for escalar in texto.unicodeScalars {
             let mapeo = escalar.properties.uppercaseMapping.unicodeScalars
@@ -273,6 +283,18 @@ public enum FormatoNET {
 
     /// `string.Trim()`: quita `Char.IsWhiteSpace` de los dos extremos.
     public static func recortar(_ texto: String) -> String {
+        // Atajo ASCII: en ASCII, `isWhitespace` es 9-13 y el espacio.
+        if texto.utf8.allSatisfy({ $0 < 0x80 }) {
+            let u = texto.utf8
+            func blanco(_ b: UInt8) -> Bool { b == 0x20 || (0x09...0x0D).contains(b) }
+            guard let i = u.firstIndex(where: { !blanco($0) }), let f = u.lastIndex(where: { !blanco($0) }) else { return "" }
+            return i == u.startIndex && u.index(after: f) == u.endIndex ? texto : String(decoding: u[i...f], as: UTF8.self)
+        }
+        return recortarUnicode(texto)
+    }
+
+    /// `recortar` escalar a escalar (el camino general; las pruebas lo comparan con el atajo ASCII).
+    static func recortarUnicode(_ texto: String) -> String {
         let escalares = texto.unicodeScalars
         guard let inicio = escalares.firstIndex(where: { !$0.properties.isWhitespace }),
             let fin = escalares.lastIndex(where: { !$0.properties.isWhitespace })

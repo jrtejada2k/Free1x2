@@ -1,6 +1,7 @@
 import Foundation
 import Free1X2Base
 import Free1X2Formatos
+import os
 
 // C#: Views/Ported/CoincidenciasViewModel.cs (08 §17; CU-A38…A42). Columnas con la codificación `S2N`/`N2S`
 // (`FiltroPorGrupos.s1n/n1s`: X = 0, primer partido el más significativo).
@@ -211,29 +212,69 @@ extension CasosUtilidades {
         _ entrada: ConjuntoBits, referencia: [Int], grupos: [[Bool]], rangos: [[Bool]],
         progreso: @Sendable (_ procesadas: Int, _ validas: Int) -> Void
     ) async -> ResultadoCoincidencias {
-        var validas: [(indice: Int, coincidencias: Int)] = []
-        var (ac, gr) = ([Int](repeating: 0, count: 109), [Int](repeating: 0, count: 109))
-        var amc = [[Int]](repeating: [Int](repeating: 0, count: 109), count: grupos.count)
-        var procesadas = 0
-        for idx in entrada.indices {
-            if Task.isCancelled { break }
-            procesadas += 1
-            let coin = coincidencias(referencia, FiltroPorGrupos.n1s(idx))
-            var nc = 0
-            var valida = true
-            for ng in grupos.indices where valida {
-                nc = cuenta(grupos[ng], coin)
-                valida = rangos[ng][nc]
+        // DM-22: en varios núcleos por trozos de índices, juntados en orden. Al cancelar, los trozos enteros hasta el
+        // primero a medias (incluido): lo procesado es un tramo seguido desde el principio, como en un hilo.
+        let indices = entrada.indices
+        let trozos = trozosParalelos(indices.count, minimo: 4096)
+        let total = OSAllocatedUnfairLock(initialState: (procesadas: 0, validas: 0))
+        let parciales = await conCancelacion { cancelado in
+            enParalelo(trozos.count) { t in
+                var p = Parcial(grupos: grupos.count)
+                var avisadas = (procesadas: 0, validas: 0)
+                for idx in indices[trozos[t]] {
+                    if p.procesadas & 0xFFF == 0 && cancelado.activa {
+                        p.completo = false
+                        break
+                    }
+                    p.procesadas += 1
+                    let coin = coincidencias(referencia, FiltroPorGrupos.n1s(idx))
+                    var nc = 0
+                    var valida = true
+                    for ng in grupos.indices where valida {
+                        nc = cuenta(grupos[ng], coin)
+                        valida = rangos[ng][nc]
+                    }
+                    if valida {
+                        p.validas.append((idx, nc))
+                        p.ac[nc] += 1
+                        for k in 0..<108 where coin[k] { p.gr[k + 1] += 1 }
+                        for ng in grupos.indices { p.amc[ng][cuenta(grupos[ng], coin)] += 1 }
+                    }
+                    if p.procesadas & 0xFFF == 0 {
+                        let (dp, dv) = (p.procesadas - avisadas.procesadas, p.validas.count - avisadas.validas)
+                        avisadas = (p.procesadas, p.validas.count)
+                        let s = total.withLock {
+                            $0.procesadas += dp
+                            $0.validas += dv
+                            return $0
+                        }
+                        progreso(s.procesadas, s.validas)
+                    }
+                }
+                return p
             }
-            if valida {
-                validas.append((idx, nc))
-                ac[nc] += 1
-                for k in 0..<108 where coin[k] { gr[k + 1] += 1 }
-                for ng in grupos.indices { amc[ng][cuenta(grupos[ng], coin)] += 1 }
-            }
-            if procesadas & 0xFFF == 0 { progreso(procesadas, validas.count) }
         }
-        return ResultadoCoincidencias(procesadas: procesadas, validas: validas, ac: ac, gr: gr, amc: amc)
+        var r = Parcial(grupos: grupos.count)
+        for p in parciales {
+            r.procesadas += p.procesadas
+            r.validas += p.validas
+            for i in r.ac.indices { (r.ac[i], r.gr[i]) = (r.ac[i] + p.ac[i], r.gr[i] + p.gr[i]) }
+            for g in r.amc.indices { for i in r.amc[g].indices { r.amc[g][i] += p.amc[g][i] } }
+            if !p.completo { break }
+        }
+        return ResultadoCoincidencias(procesadas: r.procesadas, validas: r.validas, ac: r.ac, gr: r.gr, amc: r.amc)
+    }
+
+    /// Lo que lleva un trozo de `filtrarCoincidencias`.
+    private struct Parcial: Sendable {
+        var procesadas = 0
+        var validas: [(indice: Int, coincidencias: Int)] = []
+        var ac = [Int](repeating: 0, count: 109)
+        var gr = [Int](repeating: 0, count: 109)
+        var amc: [[Int]]
+        var completo = true
+
+        init(grupos: Int) { amc = [[Int]](repeating: [Int](repeating: 0, count: 109), count: grupos) }
     }
 
     /// CU-A41 `Analizar`: coincidencias por condición entre las radiografías de dos columnas.

@@ -51,12 +51,16 @@ public struct FiltroPorGrupos: Sendable {
 
     /// `N1s`.
     static func n1s(_ n: Int) -> String {
-        var (x, s) = (n, "")
-        for _ in 0..<14 {
-            s = ["X", "1", "2"][x % 3] + s
-            x /= 3
+        // Los 14 signos de una vez (antes se anteponía carácter a carácter: 14 cadenas nuevas por columna, DM-22).
+        String(unsafeUninitializedCapacity: 14) { b in
+            var x = n
+            for i in stride(from: 13, through: 0, by: -1) {
+                let d = x % 3
+                b[i] = d == 0 ? 0x58 : d == 1 ? 0x31 : 0x32  // X, 1, 2
+                x /= 3
+            }
+            return 14
         }
-        return s
     }
 }
 

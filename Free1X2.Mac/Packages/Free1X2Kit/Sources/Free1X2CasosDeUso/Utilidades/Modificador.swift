@@ -210,12 +210,15 @@ extension CasosUtilidades {
             defer { leidas.append(ct) }
             guard f.activo, let d = try? entorno.archivos.leer(f.url) else { continue }
             var repes = [Bool](repeating: false, count: tam)
-            for l in ArchivoColumnasTexto.columnas(d) {
-                if Task.isCancelled { break }
+            // DM-22: los índices en varios núcleos (−1: menos de 14 signos); el recorrido, en orden como siempre.
+            let indices = mapaParalelo(ArchivoColumnasTexto.columnas(d)) { l -> Int in
                 let c = normalizaAnaCombi(l)
+                return c.count < 14 ? -1 : c.reduce(0) { $0 * 3 + ($1 == 0x31 ? 1 : $1 == 0x32 ? 2 : 0) }
+            }
+            for i in indices {
+                if Task.isCancelled { break }
                 ct += 1
-                if c.count < 14 { break }
-                let i = c.reduce(0) { $0 * 3 + ($1 == 0x31 ? 1 : $1 == 0x32 ? 2 : 0) }
+                if i < 0 { break }
                 guard i < tam else { throw .fueraDeRango("CombinarFiltrosViewModel.cs:294") }
                 if !repes[i] {
                     cuentas[i] += 1

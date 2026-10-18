@@ -1,11 +1,27 @@
 import Foundation
-import Free1X2CasosDeUso
 import Testing
+
+@testable import Free1X2CasosDeUso
 
 /// ESPEC_08 §17 (CU-A38…A42).
 @Suite("Coincidencias")
 struct CoincidenciasTests {
     func datos(_ lineas: [String]) -> Data { Data(lineas.map { $0 + "\r\n" }.joined().utf8) }
+
+    /// `n1s` de una vez (DM-22) da lo mismo que anteponiendo signo a signo, como el C#.
+    @Test func n1sComoAntes() {
+        func antes(_ n: Int) -> String {
+            var (x, s) = (n, "")
+            for _ in 0..<14 {
+                s = ["X", "1", "2"][x % 3] + s
+                x /= 3
+            }
+            return s
+        }
+        for n in [0, 1, 2, 3, 4_782_968] + stride(from: 5, to: 4_782_969, by: 997) {
+            #expect(FiltroPorGrupos.n1s(n) == antes(n), "\(n)")
+        }
+    }
 
     @Test func radiografia() {
         var e = [Int](repeating: 0, count: 108)

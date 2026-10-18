@@ -104,30 +104,62 @@ public struct Escrutador: Sendable {
     }
 
     /// `EscrutaColumna` (:159-203): histograma de aciertos. `*` en la ganadora acierta siempre; solo se comparan los
-    /// signos que tienen las dos; las líneas en blanco cuentan (0 aciertos).
-    private mutating func escrutarColumna(_ ganadora: String, _ columnas: [[UInt16]]) throws(ErrorDominio) -> [Int] {
-        var nc = Array(repeating: 0, count: numeroPartidos + 1)
+    /// signos que tienen las dos; las líneas en blanco cuentan (0 aciertos). En varios núcleos (DM-22): cada trozo de
+    /// columnas cuenta y apunta sus premiadas por su cuenta, y se juntan en orden: lo mismo que en un hilo.
+    private mutating func escrutarColumna(_ ganadora: String, _ columnas: Preparadas) throws(ErrorDominio) -> [Int] {
         let g = Array(Self.xMayuscula(ganadora).utf16)
-        for (i, c) in columnas.enumerated() {
-            var na = 0
-            for k in 0..<min(c.count, g.count) where g[k] == 0x2A || g[k] == c[k] { na += 1 }
-            if anadirAGanadoras { anadirAGanadora(c, i + 1, na) }
-            guard na < nc.count else {
-                throw ErrorDominio(.indiceFueraDeRango, "Índice fuera de los límites de la matriz.", origen: "Escrutador.cs:199")
-            }
-            nc[na] += 1
+        let trozos = trozosParalelos(columnas.count)
+        let apuntar = anadirAGanadoras ? (premios: premios, fichero: archivoColumnas, jornada: numJornada) : nil
+        let n = numeroPartidos
+        let parciales = enParalelo(trozos.count) { t in Self.contar(trozos[t], columnas, g, n, apuntar) }
+        var nc = Array(repeating: 0, count: numeroPartidos + 1)
+        for p in parciales {
+            if let e = p.error { throw e }
+            for i in nc.indices { nc[i] += p.nc[i] }
+            listaPremiadas += p.premiadas
         }
         return nc
     }
 
-    /// `AñadeAGanadoras` + `ObtenBoleto` (:205-226): 8 apuestas por boleto.
-    private mutating func anadirAGanadora(_ columna: [UInt16], _ numCol: Int, _ aciertos: Int) {
-        guard premios.contains(aciertos) else { return }
-        listaPremiadas.append(
-            ColumnaPremiada(
-                columna: String(decoding: columna, as: UTF16.self), fichero: archivoColumnas, jornada: numJornada, premio: aciertos,
-                noColumna: numCol,
-                noBoleto: (numCol + 7) / 8))
+    /// Lo que cuenta un trozo de columnas.
+    private struct Parcial: Sendable {
+        var nc: [Int] = []
+        var premiadas: [ColumnaPremiada] = []
+        var error: ErrorDominio?
+    }
+
+    /// Cuenta un trozo. `AñadeAGanadoras` + `ObtenBoleto` (:205-226): con `apuntar`, la premiada (8 apuestas por boleto).
+    /// Al primer índice fuera de rango para, como el C#.
+    private static func contar(
+        _ r: Range<Int>, _ cols: Preparadas, _ g: [UInt16], _ n: Int,
+        _ apuntar: (premios: [Int], fichero: String, jornada: Int)?
+    ) -> Parcial {
+        var p = Parcial(nc: Array(repeating: 0, count: n + 1))
+        cols.signos.withUnsafeBufferPointer { s in
+            cols.inicios.withUnsafeBufferPointer { ini in
+                g.withUnsafeBufferPointer { g in
+                    for i in r {
+                        let (a, b) = (ini[i], ini[i + 1])
+                        var na = 0
+                        for k in 0..<Swift.min(b - a, g.count) where g[k] == 0x2A || g[k] == s[a + k] { na += 1 }
+                        if let apuntar, apuntar.premios.contains(na) {
+                            p.premiadas.append(
+                                ColumnaPremiada(
+                                    columna: String(decoding: UnsafeBufferPointer(rebasing: s[a..<b]), as: UTF16.self),
+                                    fichero: apuntar.fichero, jornada: apuntar.jornada, premio: na, noColumna: i + 1,
+                                    noBoleto: (i + 8) / 8))
+                        }
+                        guard na < p.nc.count else {
+                            p.error = ErrorDominio(
+                                .indiceFueraDeRango, "Índice fuera de los límites de la matriz.", origen: "Escrutador.cs:199")
+                            return
+                        }
+                        p.nc[na] += 1
+                    }
+                }
+            }
+        }
+        return p
     }
 
     /// `PonerPremios(prems, n, col, archivo)` (:243-260).
@@ -141,9 +173,23 @@ public struct Escrutador: Sendable {
             lineaID: linea, columna: columna, archivo: Self.nombreDeArchivo(archivo), premios: prems, aciertosTotales: String(total))
     }
 
-    /// Columnas con `Replace('x', 'X')` en UTF-16, una sola vez por escrutinio (no por ganadora).
-    private static func preparar(_ columnas: [String]) -> [[UInt16]] {
-        columnas.map { $0.utf16.map { $0 == 0x78 ? 0x58 : $0 } }
+    /// Columnas con `Replace('x', 'X')` en UTF-16, una sola vez por escrutinio (no por ganadora), en un solo bloque: la
+    /// `i` va de `inicios[i]` a `inicios[i + 1]`. Un array por columna eran 4,8 millones de objetos con 14 triples.
+    struct Preparadas: Sendable {
+        var signos: [UInt16] = []
+        var inicios = [0]
+        var count: Int { inicios.count - 1 }
+    }
+
+    private static func preparar(_ columnas: [String]) -> Preparadas {
+        var p = Preparadas()
+        p.signos.reserveCapacity(columnas.count * 14)
+        p.inicios.reserveCapacity(columnas.count + 1)
+        for c in columnas {
+            for u in c.utf16 { p.signos.append(u == 0x78 ? 0x58 : u) }
+            p.inicios.append(p.signos.count)
+        }
+        return p
     }
 
     /// `Replace('x', 'X')`: solo esa letra.
