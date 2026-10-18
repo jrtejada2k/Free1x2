@@ -28,6 +28,55 @@ struct InicioTests {
         #expect(e.jornada == nil)
     }
 
+    /// DT-96: jornadas L.A.E. de la distribución original (apuestas de 0,50 €) pasadas al precio de Configuración.
+    @Test func jornadasLAEAlPrecio() throws {
+        let original =
+            "111111XX211221\t1988/1989\t01\t13894332,67\t1042074,97\t18946,83\t1053,67\t150,52\t21,50\r\n"
+            + "21X121XXX22X2X\t1995/1996\t23\t47426967,00\t0,00\t278982,15\t14503,65\t1097,85\t156,84\r\n"
+        #expect(CasosInicio.jornadasLAEAlPrecio(Data(original.utf8), precio: 0.5) == Data(original.utf8))
+        let a075 = CasosInicio.jornadasLAEAlPrecio(Data(original.utf8), precio: 0.75)
+        #expect(
+            String(decoding: a075, as: UTF8.self)
+                == "111111XX211221\t1988/1989\t01\t9262888,45\t694716,65\t12631,22\t702,45\t100,35\t14,33\r\n"
+                + "21X121XXX22X2X\t1995/1996\t23\t31617978\t0,00\t185988,1\t9669,1\t731,9\t104,56\r\n")
+        // Leída con Estimación a 0,75 € da los euros de la jornada (0,50 × lo guardado en el original).
+        let url = base.appending(path: "Jornadas/InfoJornadasLAE.txt")
+        try entorno.archivos.escribir(a075, en: url, atomico: true)
+        let r = try #require(
+            try CasosUtilidades.datosJornadaLAE(
+                temporada: "1995/1996", jornada: 23, recaudacion: 1, bote: 0, precio: 0.75, porcentajes: [12, 8, 8, 8, 9],
+                entorno: entorno))
+        #expect(abs(r.recaudacion - 0.5 * 47_426_967) < 0.01 && abs(r.premios[1] - 0.5 * 278_982.15) < 0.01)
+    }
+
+    /// DT-96: los históricos se siembran si faltan y la liga «España» solo si nunca hubo carpeta `Historico`.
+    @Test func arrancarSiembraHistoricos() throws {
+        try sembrarBundle()
+        let recursos = entorno.rutas.recursos.appending(path: "Datos")
+        for s in CasosInicio.semillasHistoricas {
+            try entorno.archivos.escribir(Data("1\r\n".utf8), en: recursos.appending(path: s), atomico: true)
+        }
+        let resultados = "1970\t1\tX11121212X11X1\r\n2006\t38\t1X21X21X21X21X1\r\n"
+        try entorno.archivos.escribir(Data(resultados.utf8), en: recursos.appending(path: "Jornadas/Resultados.txt"), atomico: true)
+        let lae = "111111XX211221\t1988/1989\t01\t1000\t0,00\t0\t0\t0\t0\r\n"
+        try entorno.archivos.escribir(Data(lae.utf8), en: recursos.appending(path: CasosInicio.semillaJornadasLAE), atomico: true)
+        let e = CasosInicio.arrancar(entorno: entorno)
+        #expect(CasosInicio.semillasHistoricas.count == 31 && CasosInicio.semillasHistoricas.last == "Ganadoras/2008-09.txt")
+        #expect(CasosInicio.semillasHistoricas.contains("Ganadoras/1999-00.txt"))
+        for s in CasosInicio.semillasHistoricas { #expect(entorno.archivos.existe(base.appending(path: s))) }
+        let guardada = try entorno.archivos.leer(base.appending(path: CasosInicio.semillaJornadasLAE))
+        #expect(guardada == CasosInicio.jornadasLAEAlPrecio(Data(lae.utf8), precio: e.configuracion.lae.precioApuesta))
+        #expect(
+            CasosHistorico.leer("España", entorno: entorno) == [
+                GanadoraHistorica(jornada: "1970/1971-01", ganadora: "X11121212X11X1"),
+                GanadoraHistorica(jornada: "2006/2007-38", ganadora: "1X21X21X21X21X"),
+            ])
+        // Con la carpeta ya creada (aunque se borre la liga) no se vuelve a sembrar.
+        try CasosHistorico.borrar("España", entorno: entorno)
+        _ = CasosInicio.arrancar(entorno: entorno)
+        #expect(CasosHistorico.leer("España", entorno: entorno).isEmpty)
+    }
+
     @Test func arrancarSinSemillasUsaValoresPorDefectoYCache() throws {
         try entorno.archivos.escribir(
             try Golden.bytes("Fixtures/online/quiniela-es-actual.json"), en: base.appending(path: "jornada-es.json"), atomico: true)

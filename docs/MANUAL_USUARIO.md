@@ -779,6 +779,9 @@ día 10 más, no hace falta volver a subir las 1.500.
   jornadas»*). **«Escrutar las máscaras»** compara tus máscaras con las ganadoras de esa liga.
 - **Descargar de clubprogol ▾ → España** o **México:** baja las jornadas publicadas en clubprogol.com y las suma a la liga
   «España» (Quiniela) o «México» (Progol). Si las descargas otra vez, solo entran las nuevas.
+- En una instalación nueva, la liga **«España»** ya trae **1.454 jornadas de 1970/71 a 2006/07** (las de
+  `Jornadas/Resultados.txt` con sus 14 signos completos), con la jornada escrita como `1970/1971-01`. Las descargas de
+  clubprogol se suman a ellas. Si borras la liga, no vuelve a aparecer.
 - **Nueva liga…:** crea una liga vacía con el nombre que quieras (por ejemplo «Liga MX 2010-2020») para cargar en ella tu
   propio histórico.
 - **Añadir ganadoras desde archivo…:** suma a la liga elegida un `.txt` con **una jornada por línea** (formato debajo).
@@ -886,6 +889,10 @@ Recalcula el signo de un **partido a tratar** como **combinación lineal** (mód
 | `.mas` **[Mac]** | Una máscara (carpeta `Mascaras/`): texto con una línea por partido y sus signos separados por comas (`1`, `1,X`, `1,X,2`). El nombre del archivo es el de la máscara. |
 | `Historico/<liga>.txt` **[Mac]** | La base de ganadoras de una liga: una línea `jornada;columna` por jornada. El nombre del archivo es el de la liga. Se gestiona desde la pantalla «Máscaras»; no hace falta editarlo a mano. |
 | `.z3q` | Archivo de columnas comprimido con el Compresor. |
+| `Jornadas/InfoJornadasLAE.txt` | Jornadas L.A.E. (columna, temporada, jornada, recaudación y premios de 14 a 10), divididos por el precio de la apuesta. Lo leen Estimación de premios y Tramificar. **[Mac]** Una instalación nueva trae las de **1988/89 a 2006/07**, ya pasadas al precio de Configuración. |
+| `Jornadas/Resultados.txt` | Ganadoras por temporada y jornada (`1970⇥1⇥X11121212X11X1`), para el escrutinio histórico. **[Mac]** Trae las de **1970 a 2006**. |
+| `Jornadas/Historico*.txt` | Porcentajes de jornadas pasadas (temporada, jornada y 42 porcentajes): `HistoricoQuinielista.txt`, `HistoricoQuinielista.com.txt`, `HistoricoConcurso.txt` y `HistoricoMarca.txt`. **[Mac]** Se incluyen los de la distribución original: Quinielista de 1994/95 a 2006/07, Quinielista.com de 1994/95 a 2004/05, Concurso de 2000/01 a 2006/07 y Marca de 2004/05 a 2006/07. |
+| `Ganadoras/<temporada>.txt` | Una columna ganadora por línea. **[Mac]** Se incluyen las temporadas **1983-84 a 2008-09**; sirven, por ejemplo, para **Premiadas** o para añadirlas a una liga de Máscaras. |
 
 Las combinaciones temporales se guardan como backups y se pueden limpiar desde `Archivo → Borrar Combinaciones Temporales`.
 

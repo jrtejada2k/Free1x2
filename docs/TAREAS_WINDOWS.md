@@ -64,7 +64,7 @@ un sistema se usa tal cual en el otro.
 4. Máscaras, columnas de Inicio, base de ganadoras y esperanza matemática: W9, W10, W12 y W14 (y W15–W16). Comparten la generación de columnas y la pantalla
    «Máscaras».
 5. Enlaces de ayuda (W11) e icono (W13, ya sustituido: solo verificar).
-6. Funciones de la 0.77.2 y del WinForms recuperadas: W17–W19.
+6. Funciones de la 0.77.2 y del WinForms recuperadas: W17–W19. Históricos de fábrica: W20.
 7. Cierre (§ «Cierre»): documentación, `CLAUDE.md` e informe al dueño.
 
 ---
@@ -631,6 +631,45 @@ un sistema se usa tal cual en el otro.
 
 ---
 
+## W20 · Históricos de la distribución original como datos de fábrica (DT-96)
+
+- **Qué (aprobado por el dueño, 17-oct-2026):** el programa trae los históricos que traía el Free1X2 original y que
+  nuestras versiones habían perdido. Los ficheros ya están en el repo, copiados tal cual (CRLF, ASCII):
+  `Free1X2.Mac/App/Recursos/Datos/Jornadas/` (`InfoJornadasLAE.txt`, `Resultados.txt`, `HistoricoConcurso.txt`,
+  `HistoricoMarca.txt`, `HistoricoQuinielista.com.txt`, `HistoricoQuinielista.txt`) y
+  `Free1X2.Mac/App/Recursos/Datos/Ganadoras/` (`1983-84.txt` … `2008-09.txt`, 26 ficheros).
+- **Ojo con el empaquetado del WinUI:** `Datos\**\*` se copia junto al exe con `PreserveNewest`
+  (`Free1X2.WinUI/Free1X2.WinUI.csproj:78-82`) y la carpeta del exe es también la de los datos del usuario (portable).
+  Si los históricos fueran a `Datos/Jornadas/`, una actualización **pisaría** el `Jornadas/InfoJornadasLAE.txt` del
+  usuario. Por eso van a `Free1X2.WinUI/Datos/Semillas/Jornadas/` y `Free1X2.WinUI/Datos/Semillas/Ganadoras/` (se copian
+  como `Semillas/…`), y al arrancar, junto a `AsegurarCarpetasDeTrabajo` (`Free1X2.WinUI/App.xaml.cs:102`):
+  1. Cada fichero de `Semillas/Jornadas/` (menos `InfoJornadasLAE.txt`) y de `Semillas/Ganadoras/` se copia a `Jornadas/`
+     o `Ganadoras/` **solo si allí no existe**.
+  2. `Jornadas/InfoJornadasLAE.txt`, solo si no existe, se escribe **convertido al precio de Configuración**: sus importes
+     están en apuestas de 0,50 € y el programa los lee × el precio configurado (W16). En cada línea con 9 campos
+     (columna, temporada, jornada, recaudación, premios de 14 a 10), los campos 4 a 9 que no sean 0 pasan a
+     `Math.Round(valor × 0,50 ÷ precio, 2)` escrito en es-ES sin separador de miles (`9262888,45`, `31617978`,
+     `185988,1`). Un 0 se deja tal cual (`0,00` = sin acertantes de 14: Estimación de premios lo estima). Con precio 0,50
+     se copia sin tocar. CRLF.
+  3. **Liga «España»** (`Historico/España.txt`, W12): si la carpeta `Historico/` **no existía** al arrancar (no se ha
+     guardado nunca una liga), se crea con las jornadas de `Semillas/Jornadas/Resultados.txt` cuyos 14 primeros signos son
+     1, X o 2: una línea `temporada/temporada+1-jornada a 2 cifras;14 signos` (`1970/1971-01;X11121212X11X1`). Son 1.454
+     (17 de las 1.471 llevan «-» y se saltan). Si el usuario la borra, la carpeta sigue y no se vuelve a sembrar.
+- **Referencia Mac:** `CasosInicio.semillasHistoricas`, `semillaJornadasLAE`, `jornadasLAEAlPrecio`,
+  `ganadorasDeResultados` y `arrancar` en `Free1X2.Mac/Packages/Free1X2Kit/Sources/Free1X2CasosDeUso/Inicio.swift`.
+- **Pruebas** (Mac: `InicioTests.jornadasLAEAlPrecio` y `arrancarSiembraHistoricos`): las líneas
+  `111111XX211221⇥1988/1989⇥01⇥13894332,67⇥1042074,97⇥18946,83⇥1053,67⇥150,52⇥21,50` y
+  `21X121XXX22X2X⇥1995/1996⇥23⇥47426967,00⇥0,00⇥278982,15⇥14503,65⇥1097,85⇥156,84` a 0,75 € dan
+  `…⇥9262888,45⇥694716,65⇥12631,22⇥702,45⇥100,35⇥14,33` y `…⇥31617978⇥0,00⇥185988,1⇥9669,1⇥731,9⇥104,56`; leída con
+  Estimación a 0,75 €, la jornada 1995/96-23 da 23.713.483,5 € de recaudación (0,50 × 47.426.967); a 0,50 € el fichero
+  no cambia. `Resultados.txt` con `1970⇥1⇥X11121212X11X1` y `2006⇥38⇥1X21X21X21X21X1` siembra «España» con
+  `1970/1971-01` y `2006/2007-38` (14 signos); tras borrar la liga y volver a arrancar, sigue vacía.
+- **Aceptación:** los tests; en una carpeta limpia, arrancar y ver en Estimación de premios ◀ ▶ las jornadas de 1988/89
+  a 2006/07 con euros coherentes (1995/96-23: 23,7 M €), las 1.454 jornadas de «España» en Máscaras y el histórico del
+  Escrutinio con temporadas; y que una segunda copia del programa encima no pise un `InfoJornadasLAE.txt` ya existente.
+
+---
+
 ## Lo que cambió en el Mac y **no** se lleva a Windows
 
 | Cambio en el Mac | Por qué no aplica |
@@ -643,7 +682,7 @@ un sistema se usa tal cual en el otro.
 
 ---
 
-## Cierre (después de W1–W19)
+## Cierre (después de W1–W20)
 
 1. **Verificación completa:** build 0 errores, `dotnet test` con 138 + los nuevos en verde, smoke `total=111 ok=111
    fail=0` con el log borrado antes.
@@ -652,8 +691,8 @@ un sistema se usa tal cual en el otro.
 3. **Manual y FAQ** (`docs/MANUAL_USUARIO.md`, `docs/FAQ.md`): quitar las marcas **[Mac]** y los «En la versión Mac…» de lo
    que Windows ya tenga (jornada al arrancar, Jornada ▾, panel lateral, Máscaras, base de ganadoras, Columnas de Inicio,
    `.mas`, `Historico/`, Esperanza matemática, Pegar desde Excel, Posibles premios con la ganadora, intervalo del premio
-   de 14, tabla y filtro del Banco de pruebas y su receta de PacoHH). Luego `python scripts/md-a-wordpress.py`, que regenera `docs/web/manual.html` y
+   de 14, tabla y filtro del Banco de pruebas y su receta de PacoHH, históricos de fábrica). Luego `python scripts/md-a-wordpress.py`, que regenera `docs/web/manual.html` y
    `docs/web/faq.html`, y avisar al dueño de que hay que volver a subirlos a `clubprogol.com/docwk/` y
    `clubprogol.com/docwk/faq/`.
-4. **Informe al dueño:** una tabla por tarea (W1–W19) con estado (hecha / no hecha y por qué), commit, `fichero:línea`
+4. **Informe al dueño:** una tabla por tarea (W1–W20) con estado (hecha / no hecha y por qué), commit, `fichero:línea`
    del cambio y los tests añadidos. Lo que no se pudo hacer se dice, no se da por hecho.

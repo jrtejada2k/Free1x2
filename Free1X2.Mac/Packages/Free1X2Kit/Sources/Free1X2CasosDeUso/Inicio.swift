@@ -32,11 +32,21 @@ public enum CasosInicio {
         "Equipos/equipos2b.dat", "Equipos/equiposInt.dat", "Impresion/imprebol.cfg",
     ]
     public static let ficheroParametros = "parametros.free1x2"
+    /// DT-96: datos históricos de la distribución original (Free1X2 0.77.2), también solo si faltan: resultados de 1970 a
+    /// 2006, porcentajes históricos y ganadoras por temporada de 1983-84 a 2008-09.
+    public static let semillasHistoricas =
+        ["Resultados", "HistoricoConcurso", "HistoricoMarca", "HistoricoQuinielista.com", "HistoricoQuinielista"].map {
+            "Jornadas/\($0).txt"
+        } + (1983...2008).map { "Ganadoras/\($0)-\(String(String($0 + 101).suffix(2))).txt" }
+    /// DT-96: jornadas L.A.E. de 1988/89 a 2006/07, con los importes en apuestas de 0,50 € (ver `jornadasLAEAlPrecio`).
+    public static let semillaJornadasLAE = "Jornadas/InfoJornadasLAE.txt"
 
     /// CU-S01: carpetas de trabajo, semillas, `Configuracion` (todo o nada) y jornada de la caché, **sin red**. Nunca
     /// lanza: los fallos solo se registran (`App.xaml.cs:92,118`).
     public static func arrancar(entorno: Entorno) -> EstadoInicial {
         let (a, r) = (entorno.archivos, entorno.rutas)
+        // Sin la carpeta `Historico` nunca se ha guardado una liga: la liga «España» se puede sembrar sin pisar nada.
+        let sinHistorico = !a.existe(CasosHistorico.carpeta(entorno))
         for c in RutasApp.Carpeta.allCases {
             do throws(ErrorDominio) {
                 try a.crearCarpeta(r.carpeta(c))
@@ -44,7 +54,7 @@ public enum CasosInicio {
                 entorno.registro.registrar("App.AsegurarCarpetasDeTrabajo: \(error.mensajeUsuario)", nivel: .error)
             }
         }
-        for s in semillas where !a.existe(r.base.appending(path: s)) {
+        for s in semillas + semillasHistoricas where !a.existe(r.base.appending(path: s)) {
             let destino = r.base.appending(path: s)
             do throws(ErrorDominio) {
                 let datos = try a.leer(r.recursos.appending(path: "Datos/" + s))
@@ -55,8 +65,53 @@ public enum CasosInicio {
             }
         }
         let configuracion = ArchivoParametros.cargarConfiguracion(try? a.leer(r.base.appending(path: ficheroParametros)))
+        let jornadasLAE = r.base.appending(path: semillaJornadasLAE)
+        if !a.existe(jornadasLAE), let datos = try? a.leer(r.recursos.appending(path: "Datos/" + semillaJornadasLAE)) {
+            do throws(ErrorDominio) {
+                try a.escribir(jornadasLAEAlPrecio(datos, precio: configuracion.lae.precioApuesta), en: jornadasLAE, atomico: true)
+            } catch {
+                entorno.registro.registrar("Semilla \(semillaJornadasLAE): \(error.mensajeUsuario)", nivel: .error)
+            }
+        }
+        if sinHistorico, let datos = try? a.leer(r.recursos.appending(path: "Datos/Jornadas/Resultados.txt")) {
+            do throws(ErrorDominio) {
+                let g = ganadorasDeResultados(datos)
+                if !g.isEmpty { try CasosHistorico.guardar(g, en: CasosHistorico.liga(.es), entorno: entorno) }
+            } catch {
+                entorno.registro.registrar("Liga España: \(error.mensajeUsuario)", nivel: .error)
+            }
+        }
         let cache = CacheJornada(archivos: a, carpeta: r.base, registro: entorno.registro)
         return EstadoInicial(configuracion: configuracion, jornada: cache.paisMasReciente().flatMap { cache.cargar($0)?.jornada })
+    }
+
+    /// DT-96 (dueño): las jornadas L.A.E. de la distribución original guardan recaudación y premios en apuestas de 0,50 €;
+    /// como el fichero se lee con el precio de Configuración (DT-93), al sembrarlo cada importe pasa a × 0,50 ÷ precio, con
+    /// 2 decimales. Un importe 0 se deja tal cual («0,00» = sin acertantes de 14, que Estimación de premios estima).
+    public static func jornadasLAEAlPrecio(_ datos: Data, precio: Double) -> Data {
+        guard precio > 0, precio != 0.5 else { return datos }
+        let lineas = ArchivoColumnasTexto.columnas(datos).map { l in
+            var v = l.components(separatedBy: "\t")
+            guard v.count >= 9 else { return l }
+            for i in 3...8 {
+                guard let x = FormatoNET.tryParseDouble(v[i], cultura: .esES), x != 0 else { continue }
+                v[i] = FormatoNET.toString(FormatoNET.round(x * 0.5 / precio, decimales: 2), cultura: .esES)
+            }
+            return v.joined(separator: "\t")
+        }
+        return TextoNET.codificarLineas(lineas)
+    }
+
+    /// DT-96 (dueño): la liga «España» de una instalación nueva arranca con `Jornadas/Resultados.txt` (1970–2006). La
+    /// jornada se guarda como «1970/1971-01», que no choca con las de clubprogol (la fecha, `20261011`).
+    static func ganadorasDeResultados(_ datos: Data) -> [GanadoraHistorica] {
+        ArchivoResultados.leer(datos).filas.compactMap { f in
+            let g = String(f.quiniela.prefix(JornadaQuiniela.numeroPartidos))
+            guard g.count == JornadaQuiniela.numeroPartidos, g.allSatisfy({ "1X2".contains($0) }) else { return nil }
+            let j = String(f.jornada)
+            return GanadoraHistorica(
+                jornada: "\(f.temporada)/\(Int(f.temporada) + 1)-" + String(repeating: "0", count: max(0, 2 - j.count)) + j, ganadora: g)
+        }
     }
 
     /// CU-S02 (:568-572): `new Analizador()` + 14 triples volcados + equipos «? - ?».
