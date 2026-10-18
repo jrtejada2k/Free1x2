@@ -42,6 +42,8 @@ public enum CasosInicio {
     public static let semillaJornadasLAE = "Jornadas/InfoJornadasLAE.txt"
     /// DT-97: concursos del Progol de Lotería Nacional (767 a 2354, de 1993 a 2026), CSV que aportó el dueño.
     public static let semillaProgol = "Jornadas/Progol.csv"
+    /// DT-98: jornadas de España de 2007/08 a 2026/27 (quinielafutbol.info), ya en el formato de la liga (`jornada;columna`).
+    public static let semillaEspanaWeb = "Jornadas/EspanaDesde2007.txt"
 
     /// CU-S01: carpetas de trabajo, semillas, `Configuracion` (todo o nada) y jornada de la caché, **sin red**. Nunca
     /// lanza: los fallos solo se registran (`App.xaml.cs:92,118`).
@@ -75,14 +77,20 @@ public enum CasosInicio {
                 entorno.registro.registrar("Semilla \(semillaJornadasLAE): \(error.mensajeUsuario)", nivel: .error)
             }
         }
-        let ligas: [(PaisQuiniela, String, (Data) -> [GanadoraHistorica])] = [
-            (.es, "Jornadas/Resultados.txt", ganadorasDeResultados), (.mx, semillaProgol, ganadorasDeProgol),
-        ]
-        for (pais, semilla, convertir) in ligas where sinHistorico {
-            guard let datos = try? a.leer(r.recursos.appending(path: "Datos/" + semilla)) else { continue }
+        let recurso = { (s: String) in try? a.leer(r.recursos.appending(path: "Datos/" + s)) }
+        let ligas: [(PaisQuiniela, [GanadoraHistorica])] =
+            sinHistorico
+            ? [
+                (
+                    .es,
+                    (recurso("Jornadas/Resultados.txt").map(ganadorasDeResultados) ?? [])
+                        + (recurso(semillaEspanaWeb).flatMap { try? CasosHistorico.analizar($0) } ?? [])
+                ),
+                (.mx, recurso(semillaProgol).map(ganadorasDeProgol) ?? []),
+            ] : []
+        for (pais, g) in ligas where !g.isEmpty {
             do throws(ErrorDominio) {
-                let g = convertir(datos)
-                if !g.isEmpty { try CasosHistorico.guardar(g, en: CasosHistorico.liga(pais), entorno: entorno) }
+                try CasosHistorico.guardar(g, en: CasosHistorico.liga(pais), entorno: entorno)
             } catch {
                 entorno.registro.registrar("Liga \(CasosHistorico.liga(pais)): \(error.mensajeUsuario)", nivel: .error)
             }
@@ -109,7 +117,8 @@ public enum CasosInicio {
     }
 
     /// DT-96 (dueño): la liga «España» de una instalación nueva arranca con `Jornadas/Resultados.txt` (1970–2006). La
-    /// jornada se guarda como «1970/1971-01», que no choca con las de clubprogol (la fecha, `20261011`).
+    /// jornada se guarda como «1970/1971-01», que no choca con las de clubprogol (la fecha, `20261011`). Detrás van las
+    /// de `semillaEspanaWeb` (DT-98): las que tienen fecha usan la clave de clubprogol, así que su descarga no las repite.
     static func ganadorasDeResultados(_ datos: Data) -> [GanadoraHistorica] {
         ArchivoResultados.leer(datos).filas.compactMap { f in
             let g = String(f.quiniela.prefix(JornadaQuiniela.numeroPartidos))

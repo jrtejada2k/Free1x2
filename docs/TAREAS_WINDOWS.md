@@ -64,7 +64,7 @@ un sistema se usa tal cual en el otro.
 4. Máscaras, columnas de Inicio, base de ganadoras y esperanza matemática: W9, W10, W12 y W14 (y W15–W16). Comparten la generación de columnas y la pantalla
    «Máscaras».
 5. Enlaces de ayuda (W11) e icono (W13, ya sustituido: solo verificar).
-6. Funciones de la 0.77.2 y del WinForms recuperadas: W17–W19. Históricos de fábrica: W20. Progol: W21.
+6. Funciones de la 0.77.2 y del WinForms recuperadas: W17–W19. Históricos de fábrica: W20 y W22. Progol: W21.
 7. Cierre (§ «Cierre»): documentación, `CLAUDE.md` e informe al dueño.
 
 ---
@@ -709,6 +709,24 @@ un sistema se usa tal cual en el otro.
   `2354;11XXXXX121X111`.
 - **R1:** con una jornada de España (o ninguna) todo da lo mismo que antes.
 
+## W22 · Liga «España» con las jornadas de 2007/08 a 2026/27 (DT-98)
+
+- **Qué:** en una instalación nueva, la liga «España» trae también las 1.205 jornadas de 2007/08 a 2026/27
+  (quinielafutbol.info), sin que la descarga de clubprogol las repita.
+- **Cómo:**
+  1. Copiar `Free1X2.Mac/App/Recursos/Datos/Jornadas/EspanaDesde2007.txt` a `Free1X2.WinUI/Datos/Semillas/Jornadas/`
+     (CRLF; ya en formato de liga: `20070826;XX11222X11X21X` o, sin fecha conocida, `2019/2020-01;…`).
+  2. En la siembra de W20 punto 3, detrás de las de `Resultados.txt`, añadir las líneas de este fichero leídas con el
+     mismo analizador de la importación de ligas (W12). Total: 2.659 líneas.
+  3. Nada más: la descarga de clubprogol ya usa la fecha como jornada (`20261011`) y la suma no duplica claves.
+- **Referencia Mac:** `CasosInicio.semillaEspanaWeb` y `arrancar` en
+  `Free1X2.Mac/Packages/Free1X2Kit/Sources/Free1X2CasosDeUso/Inicio.swift`.
+- **Pruebas** (Mac: `InicioTests.arrancarSiembraHistoricos`): con `Resultados.txt` de 2 filas y la semilla web
+  `2019/2020-01;1X21X21X21X21X` + `20261011;X21X11XX111121`, «España» tiene 4 jornadas en ese orden; sumar después la
+  descarga `{"jornada":20261011,"ganadora":"X21X11XX111121"}` da `yaEstaban = 1` y siguen 4.
+- **Aceptación:** en una carpeta limpia, Máscaras muestra «España» con 2.659 jornadas; «Descargar de clubprogol ▾ →
+  España» no añade ninguna de las 19 que ya trae.
+
 ---
 
 ## Lo que cambió en el Mac y **no** se lleva a Windows
@@ -723,7 +741,7 @@ un sistema se usa tal cual en el otro.
 
 ---
 
-## Cierre (después de W1–W21)
+## Cierre (después de W1–W22)
 
 1. **Verificación completa:** build 0 errores, `dotnet test` con 138 + los nuevos en verde, smoke `total=111 ok=111
    fail=0` con el log borrado antes.
@@ -735,5 +753,5 @@ un sistema se usa tal cual en el otro.
    de 14, tabla y filtro del Banco de pruebas y su receta de PacoHH, históricos de fábrica, Progol). Luego `python scripts/md-a-wordpress.py`, que regenera `docs/web/manual.html` y
    `docs/web/faq.html`, y avisar al dueño de que hay que volver a subirlos a `clubprogol.com/docwk/` y
    `clubprogol.com/docwk/faq/`.
-4. **Informe al dueño:** una tabla por tarea (W1–W21) con estado (hecha / no hecha y por qué), commit, `fichero:línea`
+4. **Informe al dueño:** una tabla por tarea (W1–W22) con estado (hecha / no hecha y por qué), commit, `fichero:línea`
    del cambio y los tests añadidos. Lo que no se pudo hacer se dice, no se da por hecho.

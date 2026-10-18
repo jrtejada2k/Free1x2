@@ -63,6 +63,8 @@ struct InicioTests {
             + "10,2354,L,L,E,E,E,E,E,L,V,L,E,L,L,L,8000000,12/10/2026\r\n10,767,E,L,V,V,L,V,L,V,E,E,E,L,E,L,0,15/08/1993\r\n"
             + "10,700,L,L,E\r\n"
         try entorno.archivos.escribir(Data(progol.utf8), en: recursos.appending(path: CasosInicio.semillaProgol), atomico: true)
+        let web = "2019/2020-01;1X21X21X21X21X\r\n20261011;X21X11XX111121\r\n"
+        try entorno.archivos.escribir(Data(web.utf8), en: recursos.appending(path: CasosInicio.semillaEspanaWeb), atomico: true)
         let lae = "111111XX211221\t1988/1989\t01\t1000\t0,00\t0\t0\t0\t0\r\n"
         try entorno.archivos.escribir(Data(lae.utf8), en: recursos.appending(path: CasosInicio.semillaJornadasLAE), atomico: true)
         let e = CasosInicio.arrancar(entorno: entorno)
@@ -75,7 +77,13 @@ struct InicioTests {
             CasosHistorico.leer("España", entorno: entorno) == [
                 GanadoraHistorica(jornada: "1970/1971-01", ganadora: "X11121212X11X1"),
                 GanadoraHistorica(jornada: "2006/2007-38", ganadora: "1X21X21X21X21X"),
+                GanadoraHistorica(jornada: "2019/2020-01", ganadora: "1X21X21X21X21X"),
+                GanadoraHistorica(jornada: "20261011", ganadora: "X21X11XX111121"),
             ])
+        // DT-98: la misma jornada bajada de clubprogol (clave = fecha) no se repite.
+        let descarga = try HistoricoQuiniela.analizar(#"{"resultados":[{"jornada":20261011,"ganadora":"X21X11XX111121"}]}"#)
+        #expect(try CasosHistorico.sumarDescarga(descarga, pais: .es, entorno: entorno).yaEstaban == 1)
+        #expect(CasosHistorico.leer("España", entorno: entorno).count == 4)
         // DT-97: «México» del CSV de Lotería Nacional, del concurso más antiguo al más reciente; las filas rotas se saltan.
         #expect(
             CasosHistorico.leer("México", entorno: entorno) == [

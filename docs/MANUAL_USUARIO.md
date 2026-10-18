@@ -783,11 +783,13 @@ día 10 más, no hace falta volver a subir las 1.500.
   jornadas»*). **«Escrutar las máscaras»** compara tus máscaras con las ganadoras de esa liga.
 - **Descargar de clubprogol ▾ → España** o **México:** baja las jornadas publicadas en clubprogol.com y las suma a la liga
   «España» (Quiniela) o «México» (Progol). Si las descargas otra vez, solo entran las nuevas.
-- En una instalación nueva, la liga **«España»** ya trae **1.454 jornadas de 1970/71 a 2006/07** (las de
-  `Jornadas/Resultados.txt` con sus 14 signos completos), con la jornada escrita como `1970/1971-01`, y la liga
+- En una instalación nueva, la liga **«España»** ya trae **2.659 jornadas de 1970/71 a 2026/27**: las 1.454 de
+  `Jornadas/Resultados.txt` (1970/71 a 2006/07, con sus 14 signos completos), con la jornada escrita como `1970/1971-01`,
+  y 1.205 de 2007/08 a 2026/27 sacadas de quinielafutbol.info, con la fecha como jornada (`20261011`, igual que
+  clubprogol) o, si no se conoce, `2019/2020-01`. Así una descarga de clubprogol no repite las que ya están. La liga
   **«México»** trae los **1.579 concursos del Progol del 767 al 2354** (de 1993 a 2026, Lotería Nacional), con el nº de
-  concurso como jornada. Las descargas de clubprogol se suman a ellas (las de México con el mismo nº de concurso no se
-  duplican). Si borras una liga, no vuelve a aparecer.
+  concurso como jornada. Las descargas de clubprogol se suman a ellas sin duplicar (en España, la misma fecha; en
+  México, el mismo nº de concurso). Si borras una liga, no vuelve a aparecer.
 - **Nueva liga…:** crea una liga vacía con el nombre que quieras (por ejemplo «Liga MX 2010-2020») para cargar en ella tu
   propio histórico.
 - **Añadir ganadoras desde archivo…:** suma a la liga elegida un `.txt` con **una jornada por línea** (formato debajo).
