@@ -36,6 +36,13 @@ extension CasosCombinacion {
         return (r, n)
     }
 
+    /// 0.77.2 `PosiblesPremiosFrm.MuestraGanadoraImportada`: la ganadora que llega de Escrutinios repartida en las 16
+    /// casillas, con 1, X o 2 donde los hay y «*» en lo demás (todo «*» si viene vacía).
+    public static func signosGanadoraImportada(_ g: String) -> [String] {
+        let c = Array(g.uppercased())
+        return (0..<16).map { i in i < c.count && "1X2".contains(c[i]) ? String(c[i]) : "*" }
+    }
+
     /// `ObtenGanadora`: 1/x/X/2 en mayúsculas; el resto de los `n` primeros partidos pasa a «*» (también en pantalla).
     public static func ganadoraParcial(_ signos: [String], partidos n: Int) -> (ganadora: String, signos: [String], noDefinitivos: Int) {
         var (g, s, k) = ("", signos, 0)

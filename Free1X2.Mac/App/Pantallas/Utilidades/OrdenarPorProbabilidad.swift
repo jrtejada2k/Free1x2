@@ -11,6 +11,9 @@ struct VistaOrdenarPorProbabilidad: View {
     @State private var conAcumulada = false
     @State private var limite = 1.0
     @State private var conPremio = false
+    @State private var intervalo = false
+    @State private var premioMinimo = 0.0
+    @State private var premioMaximo = 0.0
     @State private var valoraciones: [[Double]] = []
     @State private var pestana = 0
     @State private var modo = ModoCentral.acertantes
@@ -45,6 +48,7 @@ struct VistaOrdenarPorProbabilidad: View {
             limite, conAcumulada, conPremio, pestana, centralSumas
         )
         (p.multiplePorProbabilidad, p.lnMinimo, p.lnMaximo) = (porProbabilidad, lnMin, lnMax)
+        p.premio14Entre = intervalo ? (premioMinimo, premioMaximo) : nil
         (p.puntos, p.columnasPorTramo) = (Int(FormatoNET.castInt32(puntos)), Int(FormatoNET.castInt32(porTramo)))
         centrales = CasosUtilidades.valorCentral(
             modo, texto: textos[modo] ?? "", valoraciones: valoraciones, recaudacion: r, precio: pr, porcentaje14: pc, previo: centrales)
@@ -120,6 +124,13 @@ struct VistaOrdenarPorProbabilidad: View {
                             CampoNumero(etiqueta: "Límite de la prob. acumulada", valor: $limite, minimo: 0, ancho: 70)
                         }
                         Toggle("Añadir Premio de 14 aciertos", isOn: $conPremio)
+                        // 0.77.2 «Obtener intervalo»: solo se graban las columnas con el premio de 14 en el intervalo.
+                        HStack {
+                            Toggle("Obtener intervalo: premio de 14 entre", isOn: $intervalo)
+                            CampoNumero(etiqueta: "", valor: $premioMinimo, minimo: 0, ancho: 100).disabled(!intervalo)
+                            Text("y")
+                            CampoNumero(etiqueta: "", valor: $premioMaximo, minimo: 0, ancho: 100).disabled(!intervalo)
+                        }
                     }
                     Tarjeta("Criterio de ordenación") {
                         Picker("", selection: $pestana) {

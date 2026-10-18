@@ -151,6 +151,11 @@ struct VistaPosiblesPremios: View {
                 }
             }
         }
+        .onAppear {
+            guard let g = sesion.ganadoraPosiblesPremios else { return }
+            sesion.ganadoraPosiblesPremios = nil
+            signos = CasosCombinacion.signosGanadoraImportada(g)
+        }
     }
 }
 

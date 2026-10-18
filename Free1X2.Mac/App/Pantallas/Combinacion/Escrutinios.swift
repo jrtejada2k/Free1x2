@@ -147,7 +147,10 @@ struct VistaEscrutinios: View {
                 Button("Escrutar", action: escrutar).buttonStyle(EstiloPrincipal()).keyboardShortcut(.defaultAction).disabled(escrutando)
                 Text(estado).foregroundStyle(Color.textoSecundario)
                 Spacer()
-                Button("Posibles premios") { sesion.router.navegar(.posiblesPremios) }
+                Button("Posibles premios") {
+                    sesion.ganadoraPosiblesPremios = ganadora
+                    sesion.router.navegar(.posiblesPremios)
+                }
             }
             if let p = proyeccion {
                 resultados(p)

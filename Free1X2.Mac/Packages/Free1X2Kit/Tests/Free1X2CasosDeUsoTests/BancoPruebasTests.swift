@@ -1,4 +1,5 @@
 import Foundation
+import Free1X2Base
 import Free1X2CasosDeUso
 import Free1X2Pruebas
 import Testing
@@ -68,5 +69,35 @@ struct BancoPruebasTests {
         #expect(CasosUtilidades.rangoGrabacionBanco(filas) == (1, 4, 3))
         #expect(CasosUtilidades.columnasGrabacionBanco(filas, inicial: 1, final: 4, maximo: 0, soloSeleccionadas: true).count == 2)
         #expect(CasosUtilidades.columnasGrabacionBanco(filas, inicial: 1, final: 1, maximo: 0, soloSeleccionadas: false).count == 2)
+    }
+
+    /// WinForms: ordenar por cabecera (`ComparaCon`) y «Filtro de selección de filas» (`btFiltrar_Click`, `MaxMin`).
+    @Test func ordenYFiltro() async throws {
+        let g = try fichero(["11111111111111", "X1111111111111", "22222222222222"])
+        let auto = try await CasosUtilidades.analizarBanco(
+            .autoescrutinio, fichero: g, apostados: uniforme, aleatorias: [], acumular: [true, true, false, false, false],
+            numeroPartidos: 14, lae: .original, entorno: entorno)
+        var filas = try #require(auto.columnas)
+        // Las dos primeras se dan 14 y 13 entre sí; la última, solo su propio 14.
+        #expect(filas.map(\.vecesAcumulado) == [2, 2, 1] && filas[0].premios[1] > 0 && filas[2].premios[1] == 0)
+        #expect(filas[0].premioAcumulado == FormatoNET.round(filas[0].premios[0] + filas[0].premios[1], decimales: 1))
+        #expect(filas[0].premioMedio(1) == FormatoNET.round(filas[0].premios[1], decimales: 0))
+        // «Nº13» de mayor a menor; «Nºcol.» de menor a mayor; la segunda pulsación invierte.
+        filas.sort(using: OrdenBanco(cabecera: 2))
+        #expect(filas.last?.indice == 2)
+        var inversa = OrdenBanco(cabecera: 2)
+        inversa.order = .forward
+        filas.sort(using: inversa)
+        #expect(filas.first?.indice == 2)
+        filas.sort(using: OrdenBanco(cabecera: 0))
+        #expect(filas.map(\.indice) == [0, 1, 2])
+        // Límites iniciales y selección: «Nº de veces 13 aciertos» entre 1 y 1 deja las dos primeras.
+        let l = CasosUtilidades.limitesBanco(filas)
+        #expect(l.count == 18 && l[1] == (0, 1) && l[5] == (1, 2))
+        #expect(CasosUtilidades.seleccionarBanco(&filas, [(1, 1, 1)]) == 2 && filas.map(\.seleccionado) == [true, true, false])
+        // El primer concepto que falla desmarca; sin conceptos no cambia nada.
+        #expect(CasosUtilidades.seleccionarBanco(&filas, [(5, 0, 9), (0, 2, 9)]) == 0)
+        filas[2].seleccionado = true
+        #expect(CasosUtilidades.seleccionarBanco(&filas, []) == 1)
     }
 }

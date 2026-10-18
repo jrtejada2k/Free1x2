@@ -52,6 +52,9 @@ struct PosiblesPremiosTests {
     @Test func posibles() async throws {
         let p = CasosCombinacion.ganadoraParcial(Array(repeating: "1", count: 13) + ["", "x", ""], partidos: 14)
         #expect(p.ganadora == unos + "*X" && p.noDefinitivos == 1 && p.signos[13] == "*" && p.signos[15] == "")
+        // 0.77.2: la ganadora que llega de Escrutinios.
+        #expect(CasosCombinacion.signosGanadoraImportada("1x2-") == ["1", "X", "2"] + Array(repeating: "*", count: 13))
+        #expect(CasosCombinacion.signosGanadoraImportada("") == Array(repeating: "*", count: 16))
         let r = await CasosCombinacion.posiblesPremios(cols, ganadora: unos + "*", partidos: 14, pleno: false, generarResumen: true)
         #expect(r.categorias[2] == [cols[0] + "14"] && r.categorias[3] == [cols[1] + "13"] && r.premiadas.count == 2)
         #expect(r.resumen.map(\.colGanadora) == [unos + "1", unos + "X", unos + "2"])

@@ -212,7 +212,7 @@ Permite seleccionar un archivo de columnas que actúa como **base/filtro** de la
 | Ver / Imprimir Boletos | Muestra / imprime en boletos oficiales. |
 | Ver Boletos en Editor de Texto | Vuelca las columnas de un fichero a un editor de texto para revisarlas/copiarlas. |
 | Reducir | Abre el reductor. |
-| Escrutinios | Escruta archivos de columnas. |
+| Escrutinios | Escruta archivos de columnas. Su botón **Posibles premios** abre esa pantalla con la columna ganadora ya puesta en las casillas (las que falten, con `*`) **[Mac]**. |
 | Escrutar Combinaciones | Escrutinio orientado a combinaciones (no solo a ficheros de columnas sueltas). |
 | Analizar Combinación | Analiza una combinación concreta (su columna, su analizador y sus pronósticos asociados). |
 | Análisis de Fallos / Gráfico / de Signos | Fallos: qué condiciones acierta o falla la ganadora. Gráfico: representación de la combinación. Signos: seguir la combinación mientras se juega la jornada. |
@@ -533,6 +533,11 @@ Ordena un fichero (o los 14 triples) por proximidad a un **valor central de orde
 
 - **Opciones de salida:** nº máximo de columnas, límite de probabilidad acumulada y casillas para añadir a cada columna la
   probabilidad acumulada o el premio de 14. Pestañas **Por productos** (probabilidad), **Por sumas** y **Múltiple**.
+- **Obtener intervalo: premio de 14 entre … y …** **[Mac]**: con la casilla marcada solo se graban las columnas cuyo
+  premio de 14 estimado (con la Configuración L.A.E. de la ventana) cae entre los dos importes; las demás se saltan, pero
+  la probabilidad acumulada y su límite siguen contándolas. Desmarcada, todo queda como siempre. No se aplica a la pestaña
+  Múltiple. *Ej.:* con 15.000.000 €, 0,5 € y 15 %, la columna `11111111111111` con 50 % para el 1 en los 14 partidos da
+  0,075 ÷ 0,5¹⁴ ≈ **1.228,8 €**: entra en un intervalo de 1.000 a 2.000 €.
 - **Configuración L.A.E.** (recaudación, precio de la apuesta y % del 14): con ella se pasa de una forma del valor central a
   las demás. El nº de acertantes es la probabilidad × (recaudación ÷ precio), y el premio de 14 es la recaudación × % del 14
   ÷ acertantes. *Ej.:* con 13.000.000 €, 0,5 € y 15 %, **1,5 acertantes** = premio de **1.300.000 €** = probabilidad
@@ -685,6 +690,13 @@ Tres aplicaciones: (1) **comparar dos combinaciones** para elegir una; (2) **com
 
    **Tabla de resultados** (análisis "Columnas" o "Autoescrutinio"): una fila por apuesta, con las columnas **Nº14, Nº13, Nº12, Nº11, Nº10** (veces que esa apuesta obtuvo cada premio en todos los escrutinios), **Premio 14 … Premio 10** (importe en euros), **Premio Ac** (acumulado de los premios marcados; en análisis "Columnas" no conviene contar el 14 por la aleatoriedad) y el **% de recuperación**. Se puede ordenar por cualquier cabecera, filtrar por rangos de cualquier concepto y grabar las apuestas seleccionadas (con `Shift`/`Ctrl`).
 
+   **[Mac]** La tabla tiene las columnas **Nºcol.**, **Columna** (los signos), **Nº14…Nº10**, **Nºacumulado** (veces con
+   las categorías marcadas), **Premio 14…10**, **Premio Acumulado**, **14 medio…10 medio** (premio ÷ veces) y
+   **Recuperación**. Al pulsar una cabecera se ordena por ella: «Nºcol.» de menor a mayor y el resto de mayor a menor (otra
+   pulsación invierte el orden). Las filas se seleccionan con `⌘` o `⇧`, y esa selección es la que usan **Grabar** y
+   **Simplificar**. El botón **Filtrar…** abre el filtro de selección de filas (abajo). En Windows, la tabla todavía es
+   una lista sin ordenar ni filtrar.
+
 Utilidad aportada por **PacoHH**.
 - **Paso 2, de apostadas a reales:** puedes fijar el **premio medio de 14** (el parámetro más intuitivo; por defecto
   152.755 €, la media de las últimas 550 semanas) o su equivalente, el **logaritmo de la probabilidad media del 14**
@@ -697,9 +709,11 @@ Utilidad aportada por **PacoHH**.
 - **Resultados globales** (análisis Combinación): nº de columnas, gasto total (columnas × catorces simulados × precio),
   premio total, veces premiada, veces con beneficio y % recuperado (premio total ÷ gasto). Para comparar otra combinación,
   vuelve al paso 1, cambia el fichero y analiza sin tocar nada más: se usan las mismas valoraciones y los mismos catorces.
-- **Filtro de selección de filas:** la ventana «Selección de columnas» tiene un mínimo y un máximo por concepto: veces con
-  14…10, veces con premio, premio total, acumulado y medio por categoría, y % de recuperación. Marcas el concepto, ajustas
-  el rango y al Aceptar se indica cuántas filas quedan (p. ej. «28 filas seleccionadas»).
+- **Filtro de selección de filas** **[Mac]**: la ventana «Selección de columnas» tiene un mínimo y un máximo por concepto:
+  veces con 14…10, veces con premio, premio total, acumulado y medio por categoría, y % de recuperación. Arranca con el
+  mínimo y el máximo que hay en la tabla y sin nada marcado. Marcas el concepto, ajustas el rango y al Aceptar quedan
+  seleccionadas las filas que cumplen todos los conceptos marcados; las demás se deseleccionan. Se indica cuántas quedan
+  (p. ej. «28 filas seleccionadas»).
 - **Grabar apuestas:** fila inicial, fila final, nº máximo de apuestas y la casilla «sólo si están seleccionadas»
   (marcada por defecto). Sin selección previa, desmarca la casilla e indica las filas a mano.
 
@@ -933,6 +947,45 @@ entre las posiciones 2.383 y 526.026, dentro del tramo 1; el de la jornada 13, e
 > Para ver en qué tramo cayó el 14 de jornadas pasadas, usa **Tramificar** con **Nº de tramos = 9** y la columna
 > premiada: la tabla dice en qué tramo cae cada premio. **Grabar tramos** no graba nada, como en el programa original;
 > por eso el tramo 1 se saca con Ordenar por probabilidad.
+
+### PacoHH: elegir columnas con el Banco de pruebas **[Mac]**
+
+**Idea.** Simular muchas jornadas y quedarse con las columnas que, a la vez, aciertan a menudo y cobran bien. Los consejos
+son de PacoHH, el autor del Banco de pruebas. Hace falta ordenar la tabla del Banco, que de momento solo se puede en la
+versión Mac.
+
+**Pasos.**
+1. **Paso 1:** abre la combinación que quieres estudiar.
+2. **Paso 2:** a la izquierda, los porcentajes **apostados** (PacoHH recomienda los de L.A.E. del jueves, que se publican el
+   viernes); a la derecha, los **reales** (por ejemplo, los de Betfair del mismo viernes).
+3. **Paso 3:** genera las columnas aleatorias. Con unas **100.000** basta para estudiar el 13, 12, 11 y 10; para que el 14
+   cuente haría falta del orden de 100.000.000.
+4. **Las más probables (paso 4):** análisis **Columnas** con todas las categorías marcadas en «Premios acumulados que se
+   consideran» → **Analizar** → ordena por **Nºacumulado** (las veces con premio).
+5. **Las más rentables:** desmarca el 14 (salvo que simules millones de jornadas), **Analizar** otra vez y ordena por
+   **Premio Acumulado**. Las columnas aleatorias del paso 3 son las mismas.
+6. PacoHH se queda con el **66 % más probable** y con el **66 % más rentable**, y juega las columnas que están en los dos
+   grupos (entre el 33 % y el 67 % del total). En Free1X2: tras el paso 4, selecciona con `⇧` las dos primeras terceras
+   partes de la tabla y **Grabar**; tras el paso 5, lo mismo en otro fichero; luego **Álgebra de columnas** con «Suma
+   Combinaciones: selecciona columnas comunes».
+7. Con el **Filtro de selección de filas** puedes hacerlo por importes: por ejemplo, un % de recuperación mínimo.
+
+**Cómo leer el resultado** (los totales del paso 4):
+- **Veces beneficio** es lo más importante: intenta que pase del **10 %** de las jornadas simuladas.
+- **% recuperado** también cuenta, con cuidado: el 14 influye mucho y es poco fiable.
+- Una combinación rentable, para PacoHH, recupera más o menos esto en cada categoría:
+
+  | Categoría | Recuperación | Reparto de entonces |
+  |-----------|--------------|---------------------|
+  | 10 | 12 % | 9 % |
+  | 11 | 13 % | 8 % |
+  | 12 | 16 % | 8 % |
+  | 13 | 21 % | 8 % |
+  | 14 | 45 % | 12 % |
+
+  Suman un **107 %**, sin contar el Pleno al 15. Según PacoHH, si recuperas un 12 % con el 10, el resto llega solo.
+- Otros consejos suyos: pide en cada categoría una rentabilidad mayor que su parte del reparto, sobre todo en el 10 y el
+  11. Para maximizar los arrastres, ordena por las veces con premio.
 
 **¿Dudas?** Pregunta en el **foro de Free1X2**: [clubprogol.com/foro](https://clubprogol.com/foro/).
 

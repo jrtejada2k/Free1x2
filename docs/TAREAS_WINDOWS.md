@@ -64,7 +64,8 @@ un sistema se usa tal cual en el otro.
 4. Máscaras, columnas de Inicio, base de ganadoras y esperanza matemática: W9, W10, W12 y W14 (y W15–W16). Comparten la generación de columnas y la pantalla
    «Máscaras».
 5. Enlaces de ayuda (W11) e icono (W13, ya sustituido: solo verificar).
-6. Cierre (§ «Cierre»): documentación, `CLAUDE.md` e informe al dueño.
+6. Funciones de la 0.77.2 y del WinForms recuperadas: W17–W19.
+7. Cierre (§ «Cierre»): documentación, `CLAUDE.md` e informe al dueño.
 
 ---
 
@@ -545,6 +546,91 @@ un sistema se usa tal cual en el otro.
 
 ---
 
+## W17 · Posibles premios con la ganadora de Escrutinios (DT-95)
+
+- **Qué (aprobado por el dueño, 17-oct-2026; es lo que hacía la 0.77.2):** al pulsar «Posibles premios» en Escrutinios, la
+  pantalla se abre con la columna ganadora ya repartida en sus 16 casillas: 1, X o 2 donde los haya (una `x` minúscula
+  pasa a X) y «*» en lo demás; con la ganadora vacía, las 16 en «*». Sigue siendo editable.
+- **Dónde:** `Free1X2.WinUI/Views/Ported/EscrutiniosFrmViewModel.cs:975-982` (`PosiblesPremios()` navega con `null`):
+  pasar la ganadora como parámetro de navegación. `PosiblesPremiosFrmViewModel.cs` (`Partidos`, 16 `PartidoPremioItem`) la
+  recibe desde `OnNavigatedTo` de su página (`e.Parameter`); si la página aún no lo sobreescribe, añadirlo.
+- **Lógica en `Free1X2.Domain`** (para probarla): `SignosGanadoraImportada(string) → string[16]`.
+- **Referencia Mac:** `CasosCombinacion.signosGanadoraImportada` en
+  `Free1X2.Mac/Packages/Free1X2Kit/Sources/Free1X2CasosDeUso/Combinacion/PosiblesPremios.swift`; `Sesion.ganadoraPosiblesPremios`
+  (`Free1X2.Mac/App/Arranque/Sesion.swift`), el botón en `Free1X2.Mac/App/Pantallas/Combinacion/Escrutinios.swift` y
+  `VistaPosiblesPremios.onAppear` en `Free1X2.Mac/App/Pantallas/Combinacion/PosiblesPremios.swift`.
+- **Pruebas:** `"1x2-"` ⇒ `["1", "X", "2"]` + 13 «*»; `""` ⇒ 16 «*».
+- **Aceptación:** los tests; a mano, escribir una ganadora en Escrutinios, pulsar «Posibles premios» y verla en las casillas.
+
+---
+
+## W18 · Ordenar por probabilidad: «Obtener intervalo: premio de 14 entre … y …» (DT-95)
+
+- **Qué (aprobado por el dueño, 17-oct-2026; es de la 0.77.2):** debajo de «Añadir Premio de 14 aciertos», una fila con la
+  casilla «Obtener intervalo: premio de 14 entre», un campo numérico (mínimo), el texto «y» y otro campo (máximo). Los
+  campos solo se activan con la casilla marcada. Por defecto, desmarcada y 0 / 0.
+- **Regla** (en `GrabacionColumnas`, `Free1X2.WinUI/Views/Ported/OrdenarPorProbabilidadFrmViewModel.cs:718`): para cada
+  columna, `premio = (precio × %14 ÷ 100) ÷ probabilidad` (en `float`, la misma cuenta de «Añadir Premio de 14») con tope
+  `recaudación × %14 ÷ 100`. Si la casilla está marcada y `premio < mínimo` o `premio > máximo`, la columna **no se graba**
+  y se pasa a la siguiente. La probabilidad acumulada y su límite se calculan **antes** del filtro (cuentan todas las
+  columnas); «Finalizado N columnas» cuenta solo las grabadas. No se aplica a `GrabarAdmitidasMultiples` (pestaña
+  «Multiple»). Sin ninguna columna grabada pasa lo mismo que hoy con cero columnas.
+- **Dónde (UI):** `Free1X2.WinUI/Views/Ported/OrdenarPorProbabilidadFrmPage.xaml:84`.
+- **Referencia Mac:** `ParametrosOrdenacion.premio14Entre` y `grabar` en
+  `Free1X2.Mac/Packages/Free1X2Kit/Sources/Free1X2CasosDeUso/Utilidades/OrdenarPorProbabilidad.swift`; la fila de la UI en
+  `Free1X2.Mac/App/Pantallas/Utilidades/OrdenarPorProbabilidad.swift`.
+- **Pruebas** (Mac: `OrdenarPorProbabilidadTests.intervaloPremio14`): fichero de entrada con `11111111111111` y
+  `2222222222222X`, valoraciones 50 / 30 / 20 en los 14 partidos, recaudación 15.000.000, precio 0,5, %14 15, pestaña «Por
+  productos» con LN central 0. Intervalo 1.000–2.000 ⇒ solo `1…1` (premio 0,075 ÷ 0,5¹⁴ = 1.228,8 €);
+  2.000.000–3.000.000 ⇒ solo `2…2X` (tope 2.250.000 €); 0–1.000 ⇒ ninguna.
+- **R1:** con la casilla desmarcada la salida es idéntica; los tests existentes siguen sin tocarse.
+
+---
+
+## W19 · Banco de pruebas: ordenar por cualquier columna y «Filtro de selección de filas» (DT-95)
+
+- **Qué (aprobado por el dueño, 17-oct-2026):** recuperar lo que el WinForms tenía y el WinUI perdió (lo usa el método de
+  PacoHH del manual, § 13).
+  1. **Tabla por columnas** con estas columnas: «Nºcol.», «Columna» (los signos), «Nº14»…«Nº10», «Nºacumulado», «Premio
+     14»…«Premio 10», «Premio Acumulado», «14 medio»…«10 medio» y «Recuperación». Valores (`ResultadosPorColumna`):
+     Premio k = `Math.Round(importe)`; Premio Acumulado = `Math.Round(suma de las categorías marcadas en «Premios
+     acumulados que se consideran», 1)`; Nºacumulado = veces de esas mismas categorías; medio k = `Math.Round(importe ÷
+     veces)`, o 0 sin veces. El % de recuperación usa el precio de Configuración (W16), no el 0,5 fijo.
+  2. **Ordenar al pulsar una cabecera** (`ComparaCon`): «Nºcol.» de menor a mayor y el resto de mayor a menor; una segunda
+     pulsación invierte el orden. Criterio por cabecera: Nº14…Nº10 las veces, Nºacumulado, Premio 14…10 el importe **sin
+     redondear**, Premio Acumulado y Recuperación el premio acumulado, los medios. «Columna» no ordena. Grabar y
+     Simplificar trabajan en el orden que se ve.
+  3. **Selección múltiple de filas** de la tabla (Ctrl / Mayús) en lugar de una casilla por fila: es la selección que usan
+     Grabar («sólo si están seleccionadas») y Simplificar. Encima de la tabla: «Pulsa una cabecera para ordenar por esa
+     columna; selecciona filas con Ctrl o Mayús para grabarlas.» (en el Mac dice ⌘ o ⇧).
+  4. **Botón «Filtrar…»** junto a «Grabar» (tooltip «Filtro de selección de filas»), activo cuando hay filas. Abre
+     «Selección de columnas» con el texto «Se seleccionarán las columnas comprendidas entre los valores mínimo y máximo de
+     los conceptos marcados.» y 18 filas (casilla + Mínimo + Máximo): «Nº de veces 14 aciertos»…«Nº de veces 10
+     aciertos», «Nº de veces con premio», «Premio total de 14»…«Premio total de 10», «Premio acumulado», «Premio medio de
+     14»…«Premio medio de 10» y «% de recuperación». Valores iniciales: el mínimo y el máximo de cada concepto entre las
+     filas (`MaxMin`; los premios totales redondeados a euros, como el original), ninguno marcado. **Aceptar:** en cada
+     fila se recorren los conceptos marcados en orden; el primero cuyo valor sea menor que su mínimo o mayor que su máximo
+     desmarca la fila y corta; si los cumple todos, la fila queda marcada; sin conceptos marcados no cambia nada. Junto a
+     los botones aparece «N filas seleccionadas». Un campo vacío no limita.
+- **Dónde:** `Free1X2.WinUI/Views/Ported/BancoPruebasFrmViewModel.cs` (`ResultadoColumnaItem`, :40-56, solo guarda las
+  veces y dos textos; `ColumnasResultado`, :265) y `Free1X2.WinUI/Views/Ported/BancoPruebasFrmPage.xaml:345-377` (el
+  `ListView`). Legacy: `Free1X2/UI/BancoPruebasFrm.cs` (`ResultadosPorColumna` :336, `MaxMin` :3690-3756,
+  `myDataGrid_MouseDown` :4134, `btFiltrar_Click` :4217) y `Free1X2/UI/DialogoSeleccionBancoPruebasFrm.cs`.
+- **Lógica en `Free1X2.Domain`** (valores por fila, comparador, límites y selección), para probarla.
+- **Referencia Mac:** `FilaBancoColumna` (`premios`, `vecesAcumulado`, `premioAcumulado`, `porcentajeRecuperacion`,
+  `premioMedio`, `valor(cabecera:)`, `valor(concepto:)`), `OrdenBanco` y `CasosUtilidades.conceptosBanco` /
+  `limitesBanco` / `seleccionarBanco` en
+  `Free1X2.Mac/Packages/Free1X2Kit/Sources/Free1X2CasosDeUso/Utilidades/BancoPruebas.swift`; la tabla y la hoja
+  `VistaFiltroBanco` en `Free1X2.Mac/App/Pantallas/Utilidades/BancoPruebas.swift`.
+- **Pruebas** (Mac: `BancoPruebasTests.ordenYFiltro`): autoescrutinio de `11111111111111`, `X1111111111111` y
+  `22222222222222` con valoraciones 34 / 33 / 33, el 14 y el 13 marcados, 0,50 € y 14.000.000 €: Nºacumulado = [2, 2, 1];
+  ordenar por Nº13 deja la tercera al final (al principio con la segunda pulsación) y por Nºcol. vuelve a 1, 2, 3; 18
+  límites, Nº13 = (0, 1) y «con premio» = (1, 2); filtro «Nº de veces 13» entre 1 y 1 ⇒ 2 filas (sí, sí, no); «con premio»
+  0–9 y «Nº de veces 14» 2–9 ⇒ 0 filas; sin conceptos ⇒ no cambia.
+- **R1:** el análisis da los mismos números; solo cambian la tabla, el orden y la selección.
+
+---
+
 ## Lo que cambió en el Mac y **no** se lleva a Windows
 
 | Cambio en el Mac | Por qué no aplica |
@@ -557,7 +643,7 @@ un sistema se usa tal cual en el otro.
 
 ---
 
-## Cierre (después de W1–W16)
+## Cierre (después de W1–W19)
 
 1. **Verificación completa:** build 0 errores, `dotnet test` con 138 + los nuevos en verde, smoke `total=111 ok=111
    fail=0` con el log borrado antes.
@@ -565,8 +651,9 @@ un sistema se usa tal cual en el otro.
    tests (138 + los nuevos).
 3. **Manual y FAQ** (`docs/MANUAL_USUARIO.md`, `docs/FAQ.md`): quitar las marcas **[Mac]** y los «En la versión Mac…» de lo
    que Windows ya tenga (jornada al arrancar, Jornada ▾, panel lateral, Máscaras, base de ganadoras, Columnas de Inicio,
-   `.mas`, `Historico/`). Luego `python scripts/md-a-wordpress.py`, que regenera `docs/web/manual.html` y
+   `.mas`, `Historico/`, Esperanza matemática, Pegar desde Excel, Posibles premios con la ganadora, intervalo del premio
+   de 14, tabla y filtro del Banco de pruebas y su receta de PacoHH). Luego `python scripts/md-a-wordpress.py`, que regenera `docs/web/manual.html` y
    `docs/web/faq.html`, y avisar al dueño de que hay que volver a subirlos a `clubprogol.com/docwk/` y
    `clubprogol.com/docwk/faq/`.
-4. **Informe al dueño:** una tabla por tarea (W1–W16) con estado (hecha / no hecha y por qué), commit, `fichero:línea`
+4. **Informe al dueño:** una tabla por tarea (W1–W19) con estado (hecha / no hecha y por qué), commit, `fichero:línea`
    del cambio y los tests añadidos. Lo que no se pudo hacer se dice, no se da por hecho.

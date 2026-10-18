@@ -32,6 +32,8 @@ public struct ParametrosOrdenacion: Sendable {
     public var limiteAcumulada = 1.0
     public var conAcumulada = false
     public var conPremio = false
+    /// 0.77.2 «Obtener intervalo»: solo se graban las columnas con el premio de 14 entre estos importes (mínimo, máximo).
+    public var premio14Entre: (Double, Double)?
     /// 0 productos, 1 sumas, 2 múltiple.
     public var pestana = 0
     public var valorCentralSumas = 0.0
@@ -263,7 +265,10 @@ struct MotorOrdenacion {
                 acum = prob
             }
             if p.conAcumulada { linea += "\t" + t(acum) }
-            if p.conPremio { linea += "\t" + t(min(pr / prob, premioMax)) }
+            let premio = min(pr / prob, premioMax)
+            if p.conPremio { linea += "\t" + t(premio) }
+            // 0.77.2 `GrabacionColumnas`: el intervalo no frena la probabilidad acumulada; solo deja de grabar la columna.
+            if !admitidasMultiples, let (a, b) = p.premio14Entre, !(Double(premio) >= a && Double(premio) <= b) { continue }
             lineas.append(linea)
         }
         if let d = ArchivoColumnasTexto.datosConComa(lineas) { try entorno.archivos.escribir(d, en: p.salida, atomico: false) }

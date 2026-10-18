@@ -62,6 +62,8 @@ final class Sesion {
     var historiaValoraciones: (valores: [[Double]], temporada: Int, jornada: Int, archivo: URL?)?
     /// `VisorPosiblesPremiosViewModel.UltimoResumen` (no se vacía al leerlo).
     var resumenPosiblesPremios: [PosiblesPremiosContenedor] = []
+    /// 0.77.2 `new PosiblesPremiosFrm(txtColGanadora.Text)`: la ganadora que Escrutinios pasa a Posibles premios.
+    var ganadoraPosiblesPremios: String?
     /// `MejoresOpcionesContexto` (parámetro de navegación).
     var contextoMejoresOpciones: (ganadora: String, columnas: [String], pleno: Bool)?
     /// `EstucolFrmViewModel.UltimoInforme`: el visor ABDON lo consume y lo vacía.

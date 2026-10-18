@@ -16,19 +16,75 @@ public struct FilaBancoColumna: Sendable, Hashable, Identifiable {
     public let veces: [Int]
     public let premio: String
     public let recuperacion: String
+    // WinForms `ResultadosPorColumna` (el port WinUI no los trae; los usan la ordenación y el filtro de filas):
+    /// Importes de 14…10 sin redondear.
+    public let premios: [Double]
+    /// «Nºacumulado»: veces con las categorías marcadas en «Premios acumulados que se consideran».
+    public let vecesAcumulado: Int
+    /// «Premio Acumulado»: importe de las categorías marcadas, redondeado a 1 decimal.
+    public let premioAcumulado: Double
+    public let porcentajeRecuperacion: Double
     public var seleccionado = false
 
     public init(
-        indice: Int, columna: String, columnaNumero: Int, veces: [Int], premio: String, recuperacion: String, seleccionado: Bool = false
+        indice: Int, columna: String, columnaNumero: Int, veces: [Int], premio: String, recuperacion: String,
+        premios: [Double] = [0, 0, 0, 0, 0], vecesAcumulado: Int = 0, premioAcumulado: Double = 0, porcentajeRecuperacion: Double = 0,
+        seleccionado: Bool = false
     ) {
         (self.indice, self.columna, self.columnaNumero, self.veces) = (indice, columna, columnaNumero, veces)
         (self.premio, self.recuperacion, self.seleccionado) = (premio, recuperacion, seleccionado)
+        (self.premios, self.vecesAcumulado, self.premioAcumulado) = (premios, vecesAcumulado, premioAcumulado)
+        self.porcentajeRecuperacion = porcentajeRecuperacion
+    }
+
+    /// «14 medio»…«10 medio» (`PremioUnitarioDe`): `Math.Round(premio ÷ veces)`; 0 sin veces.
+    public func premioMedio(_ k: Int) -> Double { veces[k] > 0 ? FormatoNET.round(premios[k] / Double(veces[k]), decimales: 0) : 0 }
+
+    /// Valor de la columna `cabecera` de la tabla (0 «Nºcol.», 1…5 «Nº14»…«Nº10», 6 «Nºacumulado», 7…11 «Premio 14»…«Premio
+    /// 10», 12 «Premio Acumulado», 13…17 «14 medio»…«10 medio», 18 «Recuperacion»), como `ResultadosPorColumna.ComparaCon`.
+    public func valor(cabecera c: Int) -> Double {
+        switch c {
+        case 1...5: Double(veces[c - 1])
+        case 6: Double(vecesAcumulado)
+        case 7...11: premios[c - 7]
+        case 13...17: premioMedio(c - 13)
+        case 12, 18: premioAcumulado
+        default: Double(indice)
+        }
+    }
+
+    /// Valor del concepto `c` del «Filtro de selección de filas» (el orden de `CasosUtilidades.conceptosBanco`).
+    public func valor(concepto c: Int) -> Double {
+        switch c {
+        case 0...4: Double(veces[c])
+        case 5: Double(vecesAcumulado)
+        case 6...10: premios[c - 6]
+        case 11: premioAcumulado
+        case 12...16: premioMedio(c - 12)
+        default: porcentajeRecuperacion
+        }
     }
 
     public var resumen: String {
         FormatoNET.recortar(
             "\(columna)    14:\(veces[0])  13:\(veces[1])  12:\(veces[2])  11:\(veces[3])  10:\(veces[4])    premio:\(premio)  \(recuperacion)"
         )
+    }
+}
+
+/// Ordenación de la tabla del Banco al pulsar una cabecera (WinForms `myDataGrid_MouseDown` → `ordenaPorPremio`): el
+/// original ordena «Nºcol.» de menor a mayor y el resto de mayor a menor; aquí la segunda pulsación invierte el orden.
+public struct OrdenBanco: SortComparator {
+    public let cabecera: Int
+    public var order: SortOrder
+
+    public init(cabecera: Int) { (self.cabecera, order) = (cabecera, cabecera == 0 ? .forward : .reverse) }
+
+    public func compare(_ a: FilaBancoColumna, _ b: FilaBancoColumna) -> ComparisonResult {
+        let (x, y) = (a.valor(cabecera: cabecera), b.valor(cabecera: cabecera))
+        let r: ComparisonResult = x < y ? .orderedAscending : x > y ? .orderedDescending : .orderedSame
+        guard order == .reverse, r != .orderedSame else { return r }
+        return r == .orderedAscending ? .orderedDescending : .orderedAscending
     }
 }
 
@@ -232,10 +288,12 @@ extension CasosUtilidades {
                 let suma = (0..<5).reduce(0.0) { acumular[$1] ? $0 + premiosCol[k][$1] : $0 }
                 let n = Double(escrutinios.count)
                 let rec = escrutinios.isEmpty ? 0 : FormatoNET.round(suma * 100 / n / lae.precioApuesta, decimales: 0)
+                let vecesAcumulado = (0..<5).reduce(0) { acumular[$1] ? $0 + veces[k][$1] : $0 }
                 filas.append(
                     FilaBancoColumna(
                         indice: k, columna: try conv.columna(Int64(c)), columnaNumero: c, veces: veces[k],
-                        premio: d(FormatoNET.round(suma, decimales: 1)), recuperacion: d(rec) + " %"))
+                        premio: d(FormatoNET.round(suma, decimales: 1)), recuperacion: d(rec) + " %", premios: premiosCol[k],
+                        vecesAcumulado: vecesAcumulado, premioAcumulado: FormatoNET.round(suma, decimales: 1), porcentajeRecuperacion: rec))
             }
             r.columnas = filas
             r.vecesBeneficio = String(beneficio)
@@ -272,6 +330,37 @@ extension CasosUtilidades {
             r.jornadas = lineas
         }
         return r
+    }
+
+    /// Conceptos del «Filtro de selección de filas» (WinForms `DialogoSeleccionBancoPruebasFrm`).
+    public static let conceptosBanco =
+        [14, 13, 12, 11, 10].map { "Nº de veces \($0) aciertos" } + ["Nº de veces con premio"]
+        + [14, 13, 12, 11, 10].map { "Premio total de \($0)" } + ["Premio acumulado"]
+        + [14, 13, 12, 11, 10].map { "Premio medio de \($0)" } + ["% de recuperación"]
+
+    /// Mínimo y máximo de cada concepto entre las filas, valores iniciales del filtro (WinForms `MaxMin`). Como en el
+    /// original, los premios totales salen redondeados a euros aunque el filtro compare el importe sin redondear.
+    public static func limitesBanco(_ filas: [FilaBancoColumna]) -> [(minimo: Double, maximo: Double)] {
+        (0..<conceptosBanco.count).map { c in
+            let v = filas.map { (6...10).contains(c) ? FormatoNET.round($0.valor(concepto: c), decimales: 0) : $0.valor(concepto: c) }
+            return (v.min() ?? 0, v.max() ?? 0)
+        }
+    }
+
+    /// WinForms `btFiltrar_Click`: en cada fila, el primer concepto marcado que queda fuera de su mínimo y máximo la
+    /// desmarca y corta; si los cumple todos, queda marcada. Sin conceptos marcados no cambia nada. Devuelve cuántas filas
+    /// quedan marcadas («28 filas seleccionadas»).
+    public static func seleccionarBanco(
+        _ filas: inout [FilaBancoColumna], _ criterios: [(concepto: Int, minimo: Double, maximo: Double)]
+    ) -> Int {
+        for i in filas.indices {
+            for c in criterios {
+                let v = filas[i].valor(concepto: c.concepto)
+                filas[i].seleccionado = !(v < c.minimo || v > c.maximo)
+                if !filas[i].seleccionado { break }
+            }
+        }
+        return filas.count(where: \.seleccionado)
     }
 
     /// CU-A24, valores iniciales del diálogo: primera y última marcadas (1-based) y cuántas.

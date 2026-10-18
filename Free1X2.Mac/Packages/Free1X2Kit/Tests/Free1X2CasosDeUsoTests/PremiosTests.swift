@@ -90,4 +90,28 @@ struct OrdenarPorProbabilidadTests {
         let t = String(decoding: try entorno.archivos.leer(p.salida), as: UTF8.self).components(separatedBy: "\r\n")
         #expect(t.prefix(2) == ["11111111111111", "2222222222222X"] && t.count == 3)
     }
+
+    /// 0.77.2 «Premio de 14 entre X e Y»: «1…1» (0,5¹⁴) da 0,075 ÷ 0,5¹⁴ = 1.228,8 €; «2…2X», el tope (2.250.000 €).
+    @Test func intervaloPremio14() async throws {
+        let e = URL(filePath: "/tmp/op/i.txt")
+        try entorno.archivos.crearCarpeta(e.deletingLastPathComponent())
+        try entorno.archivos.escribir(Data("11111111111111\r\n2222222222222X\r\n".utf8), en: e, atomico: true)
+        var p = ParametrosOrdenacion(
+            entrada: e, salida: URL(filePath: "/tmp/op/si.txt"), valoraciones: Array(repeating: [50.0, 30, 20], count: 14))
+        (p.recaudacion, p.precio, p.porcentaje14) = (15_000_000, 0.5, 15)
+        func grabadas(_ r: (Double, Double)) async throws -> [String] {
+            (p.premio14Entre, p.salida) = (r, URL(filePath: "/tmp/op/si\(Int(r.0)).txt"))
+            _ = try await CasosUtilidades.ordenarPorProbabilidad(p, centrales: ValoresCentrales(), numeroPartidos: 14, entorno: entorno) {
+                _ in
+            }
+            // Como en el C#, sin ninguna columna grabada no se crea el fichero.
+            guard entorno.archivos.existe(p.salida) else { return [] }
+            return String(decoding: try entorno.archivos.leer(p.salida), as: UTF8.self).components(separatedBy: "\r\n").filter {
+                !$0.isEmpty
+            }
+        }
+        #expect(try await grabadas((1_000, 2_000)) == ["11111111111111"])
+        #expect(try await grabadas((2_000_000, 3_000_000)) == ["2222222222222X"])
+        #expect(try await grabadas((0, 1_000)).isEmpty)
+    }
 }

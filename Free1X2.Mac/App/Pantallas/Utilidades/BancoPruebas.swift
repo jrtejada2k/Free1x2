@@ -31,6 +31,27 @@ struct VistaBancoPruebas: View {
     @State private var numFila = 0.0
     @State private var ocupado = false
     @State private var rango: (inicial: Int, final: Int, cuantas: Int)?
+    @State private var orden: [OrdenBanco] = []
+    @State private var limitesFiltro: [(minimo: Double, maximo: Double)]?
+    @State private var seleccionadas = ""
+
+    /// La selección de la tabla es la marca `seleccionado` de cada fila (la usan Grabar y Simplificar).
+    private var marcadas: Binding<Set<Int>> {
+        Binding {
+            Set(columnas.lazy.filter(\.seleccionado).map(\.indice))
+        } set: { s in
+            for i in columnas.indices { columnas[i].seleccionado = s.contains(columnas[i].indice) }
+        }
+    }
+
+    private func d(_ v: Double) -> String { FormatoNET.toString(v, cultura: sesion.entorno.cultura) }
+
+    /// Columna de la tabla que se ordena al pulsar su cabecera (WinForms `myDataGrid_MouseDown`).
+    private func columna(_ titulo: String, _ cabecera: Int, _ texto: @escaping (FilaBancoColumna) -> String)
+        -> TableColumn<FilaBancoColumna, OrdenBanco, Text, Text>
+    {
+        TableColumn(titulo, sortUsing: OrdenBanco(cabecera: cabecera)) { Text(texto($0)).monospacedDigit() }
+    }
 
     private func leerColumnas() async {
         guard let u = await SelectorFicheros.abrir(".txt") else { return }
@@ -99,6 +120,7 @@ struct VistaBancoPruebas: View {
                 if let t { globales[i] = t }
             }
             (filas, columnas, jornadas) = (r.filas ?? filas, r.columnas ?? columnas, r.jornadas ?? jornadas)
+            if r.columnas != nil { (orden, seleccionadas) = ([], "") }
         } catch {
             sesion.alertas.error("Error en el escrutinio: " + error.mensajeUsuario)
         }
@@ -207,6 +229,9 @@ struct VistaBancoPruebas: View {
                     // El C# no cablea «Seleccionar jornadas…» (botón oculto y sin handler en el original).
                     Button("Seleccionar jornadas…") {}
                     Button("Grabar", action: grabar)
+                    Button("Filtrar…") { limitesFiltro = CasosUtilidades.limitesBanco(columnas) }
+                        .help("Filtro de selección de filas").disabled(columnas.isEmpty)
+                    Text(seleccionadas).foregroundStyle(Color.textoSecundario)
                 }
                 Grid(alignment: .leading, horizontalSpacing: 16) {
                     GridRow {
@@ -229,14 +254,46 @@ struct VistaBancoPruebas: View {
                 }
             }
             Tarjeta("Columnas / Autoescrutinio (por columna)") {
-                List($columnas) { $f in
-                    HStack {
-                        Toggle("", isOn: $f.seleccionado).labelsHidden()
-                        Text(String(f.indice + 1)).monospacedDigit().frame(width: 50, alignment: .trailing)
-                        Text(f.resumen).monospacedDigit()
+                Text("Pulsa una cabecera para ordenar por esa columna; selecciona filas con ⌘ o ⇧ para grabarlas.")
+                    .font(.callout).foregroundStyle(Color.textoSecundario)
+                Table(columnas, selection: marcadas, sortOrder: $orden) {
+                    Group {
+                        columna("Nºcol.", 0) { String($0.indice + 1) }
+                        TableColumn("Columna") { Text($0.columna).monospaced() }
+                        columna("Nº14", 1) { String($0.veces[0]) }
+                        columna("Nº13", 2) { String($0.veces[1]) }
+                        columna("Nº12", 3) { String($0.veces[2]) }
+                        columna("Nº11", 4) { String($0.veces[3]) }
+                        columna("Nº10", 5) { String($0.veces[4]) }
+                        columna("Nºacumulado", 6) { String($0.vecesAcumulado) }
+                    }
+                    Group {
+                        columna("Premio 14", 7) { d(FormatoNET.round($0.premios[0], decimales: 0)) }
+                        columna("Premio 13", 8) { d(FormatoNET.round($0.premios[1], decimales: 0)) }
+                        columna("Premio 12", 9) { d(FormatoNET.round($0.premios[2], decimales: 0)) }
+                        columna("Premio 11", 10) { d(FormatoNET.round($0.premios[3], decimales: 0)) }
+                        columna("Premio 10", 11) { d(FormatoNET.round($0.premios[4], decimales: 0)) }
+                        columna("Premio Acumulado", 12) { $0.premio }
+                    }
+                    Group {
+                        columna("14 medio", 13) { d($0.premioMedio(0)) }
+                        columna("13 medio", 14) { d($0.premioMedio(1)) }
+                        columna("12 medio", 15) { d($0.premioMedio(2)) }
+                        columna("11 medio", 16) { d($0.premioMedio(3)) }
+                        columna("10 medio", 17) { d($0.premioMedio(4)) }
+                        columna("Recuperación", 18) { $0.recuperacion }
                     }
                 }
+                .onChange(of: orden) { columnas.sort(using: orden) }
                 .frame(height: 260)
+                .accessibilityIdentifier("banco-columnas")
+            }
+            .sheet(isPresented: Binding(get: { limitesFiltro != nil }, set: { if !$0 { limitesFiltro = nil } })) {
+                VistaFiltroBanco(limites: limitesFiltro ?? []) { criterios in
+                    limitesFiltro = nil
+                    guard let criterios else { return }
+                    seleccionadas = "\(CasosUtilidades.seleccionarBanco(&columnas, criterios)) filas seleccionadas"
+                }
             }
             Tarjeta("Eliminación de filas") {
                 HStack {
@@ -272,6 +329,53 @@ struct VistaBancoPruebas: View {
             }
             .environment(sesion)
         }
+    }
+}
+
+/// «Selección de columnas» (WinForms `DialogoSeleccionBancoPruebasFrm`, que el port WinUI no trae): mínimo y máximo por
+/// concepto, con los límites de la tabla como valores iniciales y ningún concepto marcado.
+struct VistaFiltroBanco: View {
+    let alTerminar: ([(concepto: Int, minimo: Double, maximo: Double)]?) -> Void
+    @State private var marcados: [Bool]
+    @State private var minimos: [Double]
+    @State private var maximos: [Double]
+
+    init(limites: [(minimo: Double, maximo: Double)], alTerminar: @escaping ([(concepto: Int, minimo: Double, maximo: Double)]?) -> Void) {
+        self.alTerminar = alTerminar
+        let n = CasosUtilidades.conceptosBanco.count
+        let l = limites.count == n ? limites : Array(repeating: (0, 0), count: n)
+        _marcados = State(initialValue: Array(repeating: false, count: n))
+        _minimos = State(initialValue: l.map(\.minimo))
+        _maximos = State(initialValue: l.map(\.maximo))
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Selección de columnas").font(.headline)
+            Text("Se seleccionarán las columnas comprendidas entre los valores mínimo y máximo de los conceptos marcados.")
+                .font(.callout).foregroundStyle(Color.textoSecundario)
+            Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 4) {
+                GridRow {
+                    Text("Concepto").bold()
+                    Text("Mínimo").bold()
+                    Text("Máximo").bold()
+                }
+                ForEach(CasosUtilidades.conceptosBanco.indices, id: \.self) { i in
+                    GridRow {
+                        Toggle(CasosUtilidades.conceptosBanco[i], isOn: $marcados[i])
+                        CampoNumero(etiqueta: "", valor: $minimos[i], ancho: 100)
+                        CampoNumero(etiqueta: "", valor: $maximos[i], ancho: 100)
+                    }
+                }
+            }
+            HStack {
+                Spacer()
+                Button("Cancelar") { alTerminar(nil) }.keyboardShortcut(.cancelAction)
+                Button("Aceptar") { alTerminar(marcados.indices.filter { marcados[$0] }.map { ($0, minimos[$0], maximos[$0]) }) }
+                    .buttonStyle(EstiloPrincipal()).keyboardShortcut(.defaultAction)
+            }
+        }
+        .padding(20)
     }
 }
 
