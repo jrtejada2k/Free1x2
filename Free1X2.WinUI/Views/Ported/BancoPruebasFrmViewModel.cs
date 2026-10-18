@@ -442,6 +442,8 @@ public partial class BancoPruebasFrmViewModel : ObservableObject
             return;
         }
 
+        ActualizarParametrosLAE();
+
         // Combinación, Columnas y Jornadas requieren las aleatorias generadas (paso 3); el
         // autoescrutinio no (legacy: rbOptionEspecial habilita btnOK sin ColumnasAleatorias).
         if (TipoAnalisisSeleccionado != "Autoescrutinio" && _columnasAleatorias.Count == 0)
@@ -539,9 +541,10 @@ public partial class BancoPruebasFrmViewModel : ObservableObject
     private int Profundidad = 0;
     private double _LN = -14.7;
 
-    // Parámetros L.A.E. hardcodeados en el formulario legacy (BancoPruebasFrm.cs 55-56 + ctor 544-548).
-    private const double Recaudacion = 14000000;
-    private const double PrecioApuesta = 0.5;
+    // Parámetros L.A.E. (legacy: 14.000.000 y 0,5 fijos, BancoPruebasFrm.cs 55-56 + ctor 544-548). W16 (DT-93): precio y
+    // recaudación de Configuración ▸ Parámetros LAE; se releen al pulsar «Analizar» (ActualizarParametrosLAE).
+    private double Recaudacion = 14000000;
+    private double PrecioApuesta = 0.5;
     private readonly double[] PctDestinadoAPremiosCategoria = new double[5] { 0.12, 0.08, 0.08, 0.08, 0.09 };
     private readonly double[] DestinadoAPremiosCategoria = new double[5];
     private double ProbabilidadCategoria14 = 1;
@@ -561,7 +564,16 @@ public partial class BancoPruebasFrmViewModel : ObservableObject
 
     public BancoPruebasFrmViewModel()
     {
-        // ctor legacy (BancoPruebasFrm.cs 544-546): DestinadoAPremiosCategoria = Recaudacion * Pct.
+        ActualizarParametrosLAE();
+    }
+
+    // ctor legacy (BancoPruebasFrm.cs 544-546): DestinadoAPremiosCategoria = Recaudacion * Pct. W16: con los valores de
+    // Configuración (el reparto 12/8/8/8/9 sigue igual).
+    private void ActualizarParametrosLAE()
+    {
+        var lae = ParametrosLAEActuales.Calculo();
+        Recaudacion = lae.Recaudacion;
+        PrecioApuesta = lae.Precio;
         for (int i = 0; i < 5; i++)
             DestinadoAPremiosCategoria[i] = Recaudacion * PctDestinadoAPremiosCategoria[i];
     }
@@ -839,7 +851,7 @@ public partial class BancoPruebasFrmViewModel : ObservableObject
         int contador = 0;
         foreach (int j in columnas)
         {
-            resCol[contador] = new ResultadosPorColumna(j, numAleatorias);
+            resCol[contador] = new ResultadosPorColumna(j, numAleatorias) { Precio = PrecioApuesta };
             resCol[contador].Num = (++contador).ToString();
         }
 
@@ -880,7 +892,7 @@ public partial class BancoPruebasFrmViewModel : ObservableObject
             Premios[3] += resCol[k].PremioDe11;
             Premios[4] += resCol[k].PremioDe10;
         }
-        resCol[numApuestas] = new ResultadosPorColumna(numAleatorias, aciertos, Premios, acumular);
+        resCol[numApuestas] = new ResultadosPorColumna(numAleatorias, aciertos, Premios, acumular) { Precio = PrecioApuesta };
 
         PremioTotal = Math.Round(PremioTotal, 0);
         double Recuperacion = GastoTotal > 0 ? Math.Round(100 * PremioTotal / GastoTotal, 0) : 0;
@@ -923,7 +935,7 @@ public partial class BancoPruebasFrmViewModel : ObservableObject
         int contador = 0;
         foreach (int j in columnas)
         {
-            resCol[contador] = new ResultadosPorColumna(j, numApuestas);
+            resCol[contador] = new ResultadosPorColumna(j, numApuestas) { Precio = PrecioApuesta };
             resCol[contador].Num = (++contador).ToString();
         }
 
@@ -963,7 +975,7 @@ public partial class BancoPruebasFrmViewModel : ObservableObject
             Premios[3] += resCol[k].PremioDe11;
             Premios[4] += resCol[k].PremioDe10;
         }
-        resCol[numApuestas] = new ResultadosPorColumna(numApuestas, aciertos, Premios, acumular);
+        resCol[numApuestas] = new ResultadosPorColumna(numApuestas, aciertos, Premios, acumular) { Precio = PrecioApuesta };
 
         _resCol = resCol;
         _numApuestas = numApuestas;
@@ -1315,6 +1327,9 @@ public partial class BancoPruebasFrmViewModel : ObservableObject
         private double _Recuperacion;
         private readonly int _NumEscrutinios;
 
+        /// <summary>Precio de la apuesta para el % de recuperación (W16: el de Configuración, antes 0,5 fijo).</summary>
+        public double Precio { get; init; } = 0.5;
+
         public ResultadosPorColumna(int pNumEscrutinios, int[] pNumVeces, double[] pPremios, bool[] pAcumula)
         {
             _Num = "SUMAS ";
@@ -1356,7 +1371,7 @@ public partial class BancoPruebasFrmViewModel : ObservableObject
                 double Suma = 0;
                 for (byte i = 0; i < 5; i++) { if (_Acumula[i]) Suma += _Premios[i]; }
                 _Recuperacion = _NumEscrutinios > 0
-                    ? Math.Round(Suma * 100 / _NumEscrutinios / 0.5, 0)
+                    ? Math.Round(Suma * 100 / _NumEscrutinios / Precio, 0)
                     : 0;
                 return Math.Round(Suma, 1);
             }

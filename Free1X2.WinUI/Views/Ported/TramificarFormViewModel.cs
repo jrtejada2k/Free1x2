@@ -80,9 +80,6 @@ public partial class TramoFilaViewModel : ObservableObject
 /// </summary>
 public partial class TramificarFormViewModel : ObservableObject
 {
-    // Precio de la apuesta (legacy PrecioApuesta, usado por MontaLinea para des-escalar importes).
-    private const double PrecioApuesta = 0.5;
-
     // Universo de columnas de 14 partidos (legacy noColumnasIniciales = 3^14).
     private const int NoColumnasIniciales = 4782969;
 
@@ -614,7 +611,7 @@ public partial class TramificarFormViewModel : ObservableObject
             tr.ValorDerecha += tr.ValorIzquierda + c + c2 - 1;
             tr.PonerAciertos(Aciertos);
             tr.NumeroDeTramo = _tramos.Count + 1;
-            tr.CalculaTotalImportePremios();
+            tr.CalculaTotalImportePremios(ParametrosLAEActuales.Calculo().Precio); // W16: precio de Configuración
             _tramos.Add(tr);
         }
     }
@@ -671,7 +668,7 @@ public partial class TramificarFormViewModel : ObservableObject
             tr.NumColumnasTramo = c;
             tr.ValorDerecha += tr.ValorIzquierda + c + c2 - 1;
             tr.PonerAciertos(Aciertos);
-            tr.CalculaTotalImportePremios();
+            tr.CalculaTotalImportePremios(ParametrosLAEActuales.Calculo().Precio); // W16: precio de Configuración
             if (NumTramo < Trams.Length) tr.AddTramo(Trams[NumTramo]);
             tr.NumeroDeTramo = _tramos.Count + 1;
 
@@ -1198,36 +1195,12 @@ public partial class TramificarFormViewModel : ObservableObject
     /// </summary>
     private string MontaLinea(string temporadaDeLaJornadaAGuardar, string jornadaAGuardar)
     {
-        const char sep = (char)9;
-        var ci = CultureInfo.CurrentCulture;
-
-        string recaudacionTxt = string.IsNullOrEmpty(Recaudacion) ? "14000000" : Recaudacion;
-        double recaudacion = ToDouble(recaudacionTxt) / PrecioApuesta;
-        double paraEl14 = ToDouble(Premio14) / PrecioApuesta;
-        double paraEl13 = ToDouble(Premio13) / PrecioApuesta;
-        double paraEl12 = ToDouble(Premio12) / PrecioApuesta;
-        double paraEl11 = ToDouble(Premio11) / PrecioApuesta;
-        double paraEl10 = ToDouble(Premio10) / PrecioApuesta;
-
-        var linea = new StringBuilder();
-        linea.Append(ColumnaPremiada);
-        linea.Append(sep);
-        linea.Append(temporadaDeLaJornadaAGuardar);
-        linea.Append(sep);
-        linea.Append(jornadaAGuardar);
-        linea.Append(sep);
-        linea.Append(recaudacion.ToString(ci).Replace(".", ","));
-        linea.Append(sep);
-        linea.Append(paraEl14.ToString(ci).Replace(".", ","));
-        linea.Append(sep);
-        linea.Append(paraEl13.ToString(ci).Replace(".", ","));
-        linea.Append(sep);
-        linea.Append(paraEl12.ToString(ci).Replace(".", ","));
-        linea.Append(sep);
-        linea.Append(paraEl11.ToString(ci).Replace(".", ","));
-        linea.Append(sep);
-        linea.Append(paraEl10.ToString(ci).Replace(".", ","));
-        return linea.ToString();
+        // W16 (DT-93): importes y recaudación ÷ el precio de Configuración (no ÷ 0,5) y recaudación vacía = la de
+        // Configuración (no 14.000.000). Es L.A.E.: siempre los parámetros de España.
+        var lae = ParametrosLAEActuales.Espana();
+        return LineaJornadaLAE.Componer(ColumnaPremiada, temporadaDeLaJornadaAGuardar, jornadaAGuardar, Recaudacion,
+            new[] { Premio14, Premio13, Premio12, Premio11, Premio10 }, lae.Precio, lae.Recaudacion,
+            CultureInfo.CurrentCulture);
     }
 
     // Convierte un importe de texto (coma o punto decimal) a double sin reventar por la cultura.

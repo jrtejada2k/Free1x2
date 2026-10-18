@@ -111,10 +111,19 @@ namespace Free1X2.Utils
 		}
 		public void CalculaTotalImportePremios()
 		{
+			CalculaTotalImportePremios(0.5);
+		}
+
+		/// <summary>
+		/// W16 (DT-93): balance = importe − columnas × <paramref name="precio"/>. El original usa 0,50 fijo
+		/// (la sobrecarga sin parámetros); Tramificar pasa el precio de Configuración ▸ Parámetros LAE.
+		/// </summary>
+		public void CalculaTotalImportePremios(double precio)
+		{
 			double PrAcum=0;
 			for (int i=0;i<5;i++){PrAcum += _Aciertos[i]*premios[i];}
 			_PremiosAcumulados=PrAcum;
-			_Balance=PrAcum - _NumColumnasTramo * 0.5;
+			_Balance=PrAcum - _NumColumnasTramo * precio;
 		}
 		public double Balance
 		{
