@@ -156,7 +156,7 @@ struct FlujosTests {
             let e = EntradaEscrutinio(modo: .simple(ganadora: Self.unos), ficheros: [f], rangoAciertos: rango, registrarPremiadas: true)
             let r = try await CasosCombinacion.escrutarColumnas(e, numeroPartidos: 14, entorno: entorno)
             #expect(Array(r.globales[8...14]) == esperado, "\(nombre)")
-            #expect(r.premiadas.count == esperado[2...].reduce(0, +), "\(nombre)")
+            #expect(r.premiadas?.total == esperado[2...].reduce(0, +), "\(nombre)")
         }
     }
 
@@ -167,7 +167,7 @@ struct FlujosTests {
         let e = EntradaEscrutinio(modo: .contraFichero(g), ficheros: [f], rangoAciertos: Array(10...14), registrarPremiadas: true)
         let r = try await CasosCombinacion.escrutarColumnas(e, numeroPartidos: 14, entorno: entorno)
         #expect(r.globales.reduce(0, +) == 3 * 729)
-        #expect(Array(r.globales[10...14]) == [240, 160, 60, 12, 1] && r.premiadas.count == 473)
+        #expect(Array(r.globales[10...14]) == [240, 160, 60, 12, 1] && r.premiadas?.total == 473)
     }
 
     /// F15: contra jornadas: la 1 (unos) da 473 premiadas y la 2 (doses) ninguna.
@@ -182,7 +182,7 @@ struct FlujosTests {
             ficheros: [], rangoAciertos: Array(10...14), registrarPremiadas: true)
         let r = try await CasosCombinacion.escrutarColumnas(e, numeroPartidos: 14, entorno: entorno)
         #expect(r.filas.map(\.archivo).prefix(2) == ["q2024_01.txt", "q2024_02.txt"])
-        #expect(Array(r.globales[10...14]) == [240, 160, 60, 12, 1] && r.premiadas.count == 473)
+        #expect(Array(r.globales[10...14]) == [240, 160, 60, 12, 1] && r.premiadas?.total == 473)
     }
 
     /// F27: JD-01 y JD-02 combinados: 64 columnas en los 2 filtros y 665 en uno.
@@ -305,10 +305,28 @@ struct FlujosTests {
             modo: .simple(ganadora: Self.unos), ficheros: [f], rangoAciertos: Array(10...14), registrarPremiadas: true)
         let r = try await CasosCombinacion.escrutarColumnas(e, numeroPartidos: 14, entorno: entorno)
         let s = carpeta.appending(path: "Columnas/premiadas.txt")
-        let columnas = CasosCombinacion.filasPremiadas(r.premiadas).map(\.columna)
-        try entorno.archivos.escribir(CasosCombinacion.datosColumnas(columnas, quitarComas: false), en: s, atomico: false)
+        try entorno.archivos.escribir(try #require(r.premiadas).datosColumnas(), en: s, atomico: false)
         let l = try lineas(s)
         #expect(l.count == 473 && Set(l) == Set(Self.seisTriples.filter { Self.aciertos($0, Self.unos) >= 10 }))
+    }
+
+    /// F16b: premiadas en disco por páginas: JD-01 contra 3 ganadoras con todas las categorías da 3 × 729 = 2.187 premiadas,
+    /// 3 páginas (1.000, 1.000 y 187), en el mismo orden y con los mismos datos que el escrutador en memoria.
+    @Test func f16bPremiadasEnDiscoPorPaginas() async throws {
+        let f = try fichero("Columnas/jd01.txt", Self.seisTriples)
+        let ganadoras = [Self.unos, Self.doses, "1X21X21X21X21X"]
+        let g = try fichero("Ganadoras/ganadoras.txt", ganadoras)
+        let e = EntradaEscrutinio(modo: .contraFichero(g), ficheros: [f], rangoAciertos: Array(0...14), registrarPremiadas: true)
+        let r = try await CasosCombinacion.escrutarColumnas(e, numeroPartidos: 14, entorno: entorno)
+        let p = try #require(r.premiadas)
+        defer { p.borrar() }
+        #expect(p.total == 2187 && p.paginas == 3)
+        let leidas = try (0..<p.paginas).map { try p.pagina($0) }
+        #expect(leidas.map(\.count) == [1000, 1000, 187])
+        var esc = Escrutador(
+            premios: Array(0...14), numeroPartidos: 14, archivoColumnas: f.path(percentEncoded: false), anadirAGanadoras: true)
+        _ = try esc.escrutarTemporada(ganadoras: ganadoras, columnas: Self.seisTriples, archivo: "jd01.txt")
+        #expect(leidas.flatMap { $0 } == esc.listaPremiadas)
     }
 
     /// F17: posibles premios de JD-02 frente a la columna de unos (categorías 16…10).

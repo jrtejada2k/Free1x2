@@ -51,8 +51,8 @@ final class Sesion {
     var traspasoCP = TraspasoCP()
     /// `VisorAnalisisColumnasFrmViewModel.UltimoContenedor/UltimoGrupo` (`AnalisisUi.MostrarVisor`).
     var visorAnalisis: (contenedor: ContenedorAnalisisGlobal, grupo: GrupoConfig)?
-    /// `ColumnasPremiadasFrmPage.Entrada`.
-    var premiadasEntrada: [FilaPremiada]?
+    /// `ColumnasPremiadasFrmPage.Entrada`: las premiadas del último escrutinio, en disco (#5).
+    var premiadasEntrada: PremiadasEnDisco?
     /// `ResultadosCalculoMultipleFrmViewModel.UltimosResultados`.
     var resultadosLote: [ResumenLote]?
     /// `AnalizarCombinacionFrmViewModel.UltimoAnalisis`.

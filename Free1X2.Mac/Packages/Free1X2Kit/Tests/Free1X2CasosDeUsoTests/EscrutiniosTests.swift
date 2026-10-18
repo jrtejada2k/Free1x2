@@ -49,13 +49,14 @@ struct EscrutiniosTests {
             modo: .simple(ganadora: "11111111111111"), ficheros: [a, b], rangoAciertos: [13, 14], registrarPremiadas: true)
         let r = try await CasosCombinacion.escrutarColumnas(e, numeroPartidos: 14, entorno: entorno)
         #expect(r.filas.map(\.archivo) == ["a.txt", "b.txt", "-------------"] && r.filas.last?.columna == "----- TOTALES:")
-        #expect(r.globales[14] == 2 && r.globales[13] == 1 && r.globales[0] == 1 && r.premiadas.count == 3)
+        #expect(r.globales[14] == 2 && r.globales[13] == 1 && r.globales[0] == 1 && r.premiadas?.total == 3)
         let p = CasosCombinacion.proyectarEscrutinio(r, rangoAciertos: [13, 14])
         #expect(p.cabeceras == [14, 13] && p.filas[0].conteos == ["1", "1"] && p.filas[0].premios == "14: 1  13: 1")
         #expect(p.histograma.map(\.columnas) == [2, 1])
-        let f = CasosCombinacion.filasPremiadas(r.premiadas)
+        let f = CasosCombinacion.filasPremiadas(try #require(r.premiadas).pagina(0))
         #expect(
             f[0].archivoColumnas == "a.txt" && f[0].numeroBoleto == "1 (1)" && f[1].numeroColumna == "2" && f[1].numeroBoleto == "1 (2)")
+        #expect(f.count == 3 && f[2].archivoColumnas == "b.txt" && f[2].columna == "11111111111111")
         #expect(CasosCombinacion.estadoFinalEscrutinio(0.5) == "Final = 00:00:00.5")
         #expect(
             String(decoding: CasosCombinacion.datosColumnas(["1,X", "----- TOTALES:"], quitarComas: true), as: UTF8.self)

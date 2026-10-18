@@ -25,11 +25,11 @@ public struct EntradaEscrutinio: Sendable, Hashable {
     }
 }
 
-/// Filas (con «TOTALES» al final si se escrutó algo), totales por categoría y premiadas.
+/// Filas (con «TOTALES» al final si se escrutó algo), totales por categoría y premiadas (en disco; `nil` sin registrar).
 public struct ResultadoEscrutinio: Sendable, Hashable {
     public var filas: [FilaEscrutinio]
     public var globales: [Int]
-    public var premiadas: [ColumnaPremiada]
+    public var premiadas: PremiadasEnDisco?
 }
 
 /// Fila de «Columnas Premiadas» (pantalla 20), todo texto.
@@ -142,8 +142,9 @@ extension CasosCombinacion {
     @concurrent public static func escrutarColumnas(
         _ e: EntradaEscrutinio, numeroPartidos n: Int, entorno: Entorno
     ) async throws(ErrorDominio) -> ResultadoEscrutinio {
-        var r = ResultadoEscrutinio(filas: [], globales: Array(repeating: 0, count: n + 1), premiadas: [])
+        var r = ResultadoEscrutinio(filas: [], globales: Array(repeating: 0, count: n + 1), premiadas: nil)
         var ultimo: Escrutador?
+        let escritor = e.registrarPremiadas ? try EscritorPremiadas() : nil
         func columnas(_ ruta: String) throws(ErrorDominio) -> [String] {
             ArchivoColumnasTexto.columnas(try entorno.archivos.leer(URL(filePath: ruta)))
         }
@@ -153,7 +154,7 @@ extension CasosCombinacion {
         ) throws(ErrorDominio) {
             var esc = Escrutador(premios: e.rangoAciertos, numeroPartidos: n, archivoColumnas: ruta, anadirAGanadoras: e.registrarPremiadas)
             r.filas += try hacer(&esc, leer ? try columnas(ruta) : [])
-            if e.registrarPremiadas { r.premiadas += esc.listaPremiadas }
+            try escritor?.anadir(esc.sacarPremiadas())
             for i in 0...n { r.globales[i] += esc.premiosTotales[i] }
             ultimo = esc
         }
@@ -180,13 +181,16 @@ extension CasosCombinacion {
                 let ruta = f.path(percentEncoded: false)
                 let ganadoras = try columnas(referencia.path(percentEncoded: false))
                 try escrutar(ruta, leer: !ganadoras.isEmpty) { x, cols throws(ErrorDominio) in
-                    try x.escrutarTemporada(ganadoras: ganadoras, columnas: cols, archivo: Escrutador.nombreDeArchivo(ruta))
+                    try x.escrutarTemporada(ganadoras: ganadoras, columnas: cols, archivo: Escrutador.nombreDeArchivo(ruta)) {
+                        ps throws(ErrorDominio) in try escritor?.anadir(ps)
+                    }
                 }
             }
         case .contraFichero(nil), .contraJornadas(_, nil, _, _, _):
             break  // `validarEscrutinio` ya lo avisa
         }
         if let u = ultimo { r.filas.append(try u.filaTotales(r.globales)) }
+        r.premiadas = try escritor?.cerrar()
         return r
     }
 

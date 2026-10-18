@@ -21,7 +21,8 @@ struct VistaEscrutinios: View {
     @State private var resultado: ResultadoEscrutinio?
     @State private var proyeccion: ProyeccionEscrutinio?
     @State private var seleccion: Set<Int> = []
-    @State private var premiadas: [FilaPremiada]?
+    @State private var premiadas: PremiadasEnDisco?
+    @State private var seleccionPremiadas: Set<Int> = []
     @State private var escrutando = false
     @State private var tarea: Task<Void, Never>?
     @State private var cargado = false
@@ -54,6 +55,7 @@ struct VistaEscrutinios: View {
             return sesion.alertas.error(error.mensajeUsuario)
         }
         estado = "Calculando..."
+        resultado?.premiadas?.borrar()
         (resultado, proyeccion, premiadas, seleccion) = (nil, nil, nil, [])
         escrutando = true
         let (entorno, n) = (sesion.entorno, n)
@@ -163,7 +165,11 @@ struct VistaEscrutinios: View {
                     acciones
                 }
             }
-            if let premiadas { listaPremiadas(premiadas) }
+            if let premiadas {
+                Tarjeta("Columnas premiadas") {
+                    TablaPremiadas(premiadas: premiadas, seleccion: $seleccionPremiadas).frame(minHeight: 160, maxHeight: 260)
+                }
+            }
         }
         .onAppear {
             guard !cargado else { return }
@@ -180,12 +186,12 @@ struct VistaEscrutinios: View {
             Button("Seleccionar todas") { seleccion = Set(proyeccion?.filas.indices ?? 0..<0) }
             Button("Deseleccionar todas") { seleccion = [] }
             Button("Grabar columnas…") { Task { await grabarColumnas() } }
-            Button("Ver premiadas") { premiadas = CasosCombinacion.filasPremiadas(resultado?.premiadas ?? []) }
+            Button("Ver premiadas") { premiadas = resultado?.premiadas }
             Button("Ver premiadas…") {
-                sesion.premiadasEntrada = CasosCombinacion.filasPremiadas(resultado?.premiadas ?? [])
+                sesion.premiadasEntrada = resultado?.premiadas
                 sesion.router.navegar(.columnasPremiadas)
             }
-            .disabled(!(registrar && !(resultado?.premiadas.isEmpty ?? true)))
+            .disabled(!registrar || (resultado?.premiadas?.total ?? 0) == 0)
             Spacer()
             Button("Cancelar") {
                 tarea?.cancel()
@@ -318,11 +324,21 @@ struct VistaEscrutinios: View {
         }
     }
 
-    /// `Table` (solo crea las filas visibles), no `Grid`: con miles de premiadas el Grid las creaba todas y la pantalla (y
-    /// cada búsqueda de XCUITest, 9-15 s en F16) se volvía lenta.
-    private func listaPremiadas(_ filas: [FilaPremiada]) -> some View {
-        Tarjeta("Columnas premiadas") {
-            Table(filas.indices.map { FilaIndexada(id: $0, f: filas[$0]) }) {
+}
+
+/// Las premiadas de un escrutinio, leídas del disco por páginas de 1.000 (pueden ser millones, #5). `Table` (solo crea
+/// las filas visibles), no `Grid`: con miles de premiadas el Grid las creaba todas y la pantalla (y cada búsqueda de
+/// XCUITest, 9-15 s en F16) se volvía lenta. La selección va por la posición en el escrutinio: sigue al cambiar de página.
+private struct TablaPremiadas: View {
+    @Environment(Sesion.self) private var sesion
+    let premiadas: PremiadasEnDisco
+    @Binding var seleccion: Set<Int>
+    @State private var pagina = 0
+    @State private var filas: [FilaIndexada] = []
+
+    var body: some View {
+        VStack(alignment: .leading) {
+            Table(filas, selection: $seleccion) {
                 TableColumn("Arch. Columnas", value: \.f.archivoColumnas)
                 TableColumn("Jorn.", value: \.f.jornada)
                 TableColumn("Columna") { Text($0.f.columna).monospaced() }
@@ -330,7 +346,24 @@ struct VistaEscrutinios: View {
                 TableColumn("Nº Col.", value: \.f.numeroColumna)
                 TableColumn("Nº Boleto", value: \.f.numeroBoleto)
             }
-            .frame(minHeight: 160, maxHeight: 220)
+            if premiadas.paginas > 1 {
+                HStack {
+                    Button("Anterior") { pagina -= 1 }.disabled(pagina == 0)
+                    Text("Página \(pagina + 1) de \(premiadas.paginas)").monospacedDigit()
+                        .accessibilityIdentifier("premiadas-pagina")
+                    Button("Siguiente") { pagina += 1 }.disabled(pagina + 1 >= premiadas.paginas)
+                }
+            }
+        }
+        .task(id: pagina) {
+            do throws(ErrorDominio) {
+                let base = pagina * PremiadasEnDisco.porPagina
+                filas = CasosCombinacion.filasPremiadas(try premiadas.pagina(pagina)).enumerated().map {
+                    FilaIndexada(id: base + $0.offset, f: $0.element)
+                }
+            } catch {
+                sesion.alertas.error(error.mensajeUsuario)
+            }
         }
     }
 }
@@ -344,20 +377,31 @@ private struct FilaIndexada: Identifiable {
 
 struct VistaColumnasPremiadas: View {
     @Environment(Sesion.self) private var sesion
-    @State private var filas: [FilaPremiada] = []
+    @State private var premiadas: PremiadasEnDisco?
     @State private var seleccion: Set<Int> = []
     @State private var cargado = false
 
-    private func guardar(_ lista: [FilaPremiada]) async {
-        guard !lista.isEmpty else { return sesion.alertas.info("No hay columnas que guardar.") }
+    /// `cuantas` columnas; `datos` las lee del disco al guardar.
+    private func guardar(_ cuantas: Int, _ datos: () throws(ErrorDominio) -> Data) async {
+        guard cuantas > 0 else { return sesion.alertas.info("No hay columnas que guardar.") }
         guard let url = await SelectorFicheros.guardar("columnas", [("Columnas", ".txt")]) else { return }
         do throws(ErrorDominio) {
-            try sesion.entorno.archivos.escribir(
-                CasosCombinacion.datosColumnas(lista.map(\.columna), quitarComas: false), en: url, atomico: false)
-            sesion.alertas.info("Guardadas \(lista.count) columna(s) en \(url.lastPathComponent).")
+            try sesion.entorno.archivos.escribir(try datos(), en: url, atomico: false)
+            sesion.alertas.info("Guardadas \(cuantas) columna(s) en \(url.lastPathComponent).")
         } catch {
             sesion.alertas.error("No se pudieron guardar las columnas: " + error.mensajeUsuario)
         }
+    }
+
+    /// Las seleccionadas, en el orden del escrutinio, leyendo solo sus páginas.
+    private func seleccionadas(_ p: PremiadasEnDisco) throws(ErrorDominio) -> Data {
+        var columnas: [String] = []
+        for (pagina, posiciones) in Dictionary(grouping: seleccion, by: { $0 / PremiadasEnDisco.porPagina }).sorted(by: { $0.key < $1.key })
+        {
+            let filas = try p.pagina(pagina)
+            for i in posiciones.sorted() { columnas.append(filas[i % PremiadasEnDisco.porPagina].columna) }
+        }
+        return CasosCombinacion.datosColumnas(columnas, quitarComas: false)
     }
 
     var body: some View {
@@ -366,20 +410,24 @@ struct VistaColumnasPremiadas: View {
                 "Resumen de las columnas premiadas encontradas. Puedes exportar todas las columnas o solo las seleccionadas a un fichero de texto."
             )
             .foregroundStyle(Color.textoSecundario)
-            Tarjeta("Columnas premiadas (\(filas.count))", icono: "trophy", color: .secundario) {
-                Table(filas.indices.map { FilaIndexada(id: $0, f: filas[$0]) }, selection: $seleccion) {
-                    TableColumn("Arch. Columnas", value: \.f.archivoColumnas)
-                    TableColumn("Jorn.", value: \.f.jornada)
-                    TableColumn("Columna", value: \.f.columna)
-                    TableColumn("Premio", value: \.f.premio)
-                    TableColumn("Nº Col.", value: \.f.numeroColumna)
-                    TableColumn("Nº Boleto", value: \.f.numeroBoleto)
+            Tarjeta("Columnas premiadas (\(premiadas?.total ?? 0))", icono: "trophy", color: .secundario) {
+                if let p = premiadas {
+                    TablaPremiadas(premiadas: p, seleccion: $seleccion).frame(minHeight: 320)
                 }
-                .frame(minHeight: 320)
                 HStack {
-                    Button("Guardar Todas") { Task { await guardar(filas) } }.buttonStyle(EstiloPrincipal())
+                    Button("Guardar Todas") {
+                        Task {
+                            await guardar(premiadas?.total ?? 0) { () throws(ErrorDominio) in try premiadas?.datosColumnas() ?? Data() }
+                        }
+                    }
+                    .buttonStyle(EstiloPrincipal())
                     Button("Guardar Seleccionadas") {
-                        Task { await guardar(filas.indices.filter { seleccion.contains($0) }.map { filas[$0] }) }
+                        Task {
+                            await guardar(seleccion.count) { () throws(ErrorDominio) in
+                                guard let p = premiadas else { return Data() }
+                                return try seleccionadas(p)
+                            }
+                        }
                     }
                 }
             }
@@ -387,7 +435,7 @@ struct VistaColumnasPremiadas: View {
         .onAppear {
             guard !cargado else { return }
             cargado = true
-            if let e = sesion.premiadasEntrada { filas = e }
+            premiadas = sesion.premiadasEntrada
             sesion.premiadasEntrada = nil
         }
     }

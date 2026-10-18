@@ -11,6 +11,11 @@ public struct ColumnaPremiada: Sendable, Hashable, Codable {
     public var premio: Int
     public var noColumna: Int
     public var noBoleto: Int
+
+    public init(columna: String, fichero: String, jornada: Int, premio: Int, noColumna: Int, noBoleto: Int) {
+        (self.columna, self.fichero, self.jornada, self.premio) = (columna, fichero, jornada, premio)
+        (self.noColumna, self.noBoleto) = (noColumna, noBoleto)
+    }
 }
 
 /// Fila de la tabla «Resultados» del escrutinio: `LineaID`, `Columna`, `Archivo`, `P0…PN`, «Ac. Totales».
@@ -58,9 +63,12 @@ public struct Escrutador: Sendable {
 
     /// `EscrutaCombConTemporada` (:117-137): una fila por ganadora. Cancelar (`PararEscrutinio`) corta entre jornadas y
     /// devuelve las filas hechas (DEC-509). El C# relee el fichero en cada jornada; aquí se lee una vez (ESPEC_05 §4.1.6).
-    public mutating func escrutarTemporada(ganadoras: [String], columnas: [String], archivo: String) throws(ErrorDominio)
-        -> [FilaEscrutinio]
-    {
+    /// `porJornada`: recibe las premiadas de cada ganadora, que salen de `listaPremiadas`, para llevarlas a disco: contra
+    /// 1.000 ganadoras, 14 triples dan 19 millones de premiadas (3,7 GB en memoria).
+    public mutating func escrutarTemporada(
+        ganadoras: [String], columnas: [String], archivo: String,
+        porJornada: (([ColumnaPremiada]) throws(ErrorDominio) -> Void)? = nil
+    ) throws(ErrorDominio) -> [FilaEscrutinio] {
         var filas: [FilaEscrutinio] = []
         let columnas = Self.preparar(columnas)
         for (i, ganadora) in ganadoras.enumerated() {
@@ -68,8 +76,16 @@ public struct Escrutador: Sendable {
             if Task.isCancelled { break }
             let ganadora = Self.xMayuscula(ganadora)
             filas.append(ponerPremios(try escrutarColumna(ganadora, columnas), i + 1, ganadora, archivo))
+            if let porJornada { try porJornada(sacarPremiadas()) }
         }
         return filas
+    }
+
+    /// Devuelve las premiadas acumuladas y vacía `listaPremiadas`.
+    public mutating func sacarPremiadas() -> [ColumnaPremiada] {
+        let p = listaPremiadas
+        listaPremiadas.removeAll(keepingCapacity: true)
+        return p
     }
 
     /// `AñadirPremiosGlobales` (:262-276): fila «TOTALES».
