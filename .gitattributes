@@ -27,3 +27,8 @@
 Free1X2.Mac/App/Recursos/Datos/Jornadas/*.txt text eol=crlf
 Free1X2.Mac/App/Recursos/Datos/Ganadoras/*.txt text eol=crlf
 Free1X2.Mac/App/Recursos/Datos/Jornadas/*.csv text eol=crlf
+
+# Mismos históricos en el WinUI (W20–W22): CRLF como en la distribución original, en cualquier checkout.
+Free1X2.WinUI/Datos/Semillas/Jornadas/*.txt text eol=crlf
+Free1X2.WinUI/Datos/Semillas/Ganadoras/*.txt text eol=crlf
+Free1X2.WinUI/Datos/Semillas/Jornadas/*.csv text eol=crlf

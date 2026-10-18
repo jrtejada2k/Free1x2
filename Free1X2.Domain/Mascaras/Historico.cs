@@ -190,7 +190,7 @@ namespace Free1X2.Mascaras
 
 		public static void Borrar(string liga, string carpetaBase) => File.Delete(Ruta(liga, carpetaBase));
 
-		private static void Guardar(List<GanadoraHistorica> ganadoras, string liga, string carpetaBase)
+		internal static void Guardar(List<GanadoraHistorica> ganadoras, string liga, string carpetaBase)
 		{
 			Directory.CreateDirectory(Carpeta(carpetaBase));
 			var sb = new StringBuilder();

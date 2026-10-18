@@ -130,9 +130,12 @@ public partial class App : Application
     /// </summary>
     private static void AsegurarCarpetasDeTrabajo()
     {
+        string baseDir = System.AppContext.BaseDirectory;
+        // W20–W22: sin la carpeta Historico nunca se ha guardado una liga; solo entonces se siembran «España» y
+        // «México» (se mira ANTES de crear nada).
+        bool sinHistorico = !System.IO.Directory.Exists(System.IO.Path.Combine(baseDir, "Historico"));
         try
         {
-            string baseDir = System.AppContext.BaseDirectory;
             foreach (var d in new[] { "Columnas", "Combinaciones", "Condiciones", "Filtros",
                                       "Ganadoras", "Informes", "Jornadas", "Temp", "Comunicaciones",
                                       "Documentacion" })
@@ -145,6 +148,21 @@ public partial class App : Application
             // No bloquear el arranque por permisos de carpeta (comportamiento intacto); se
             // registra para poder diagnosticar el caso "Guardar no hace nada" bajo Program Files.
             Log.Error("App.AsegurarCarpetasDeTrabajo", ex);
+        }
+
+        // W20 (DT-96), W21 (DT-97) y W22 (DT-98): históricos de la distribución original, la liga «España» y la del
+        // Progol, desde Semillas/ y solo si faltan. InfoJornadasLAE.txt se convierte al precio de Configuración (es L.A.E.:
+        // el de España). Nunca bloquea el arranque.
+        try
+        {
+            foreach (string error in Free1X2.Mascaras.SemillasHistoricas.Sembrar(
+                         System.IO.Path.Combine(baseDir, "Semillas"), baseDir, Free1X2.VariablesGlobales.PrecioApuesta,
+                         sinHistorico))
+                Log.Warn("App.Semillas: " + error);
+        }
+        catch (Exception ex)
+        {
+            Log.Error("App.Semillas", ex);
         }
     }
 
