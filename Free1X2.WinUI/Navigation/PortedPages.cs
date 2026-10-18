@@ -56,6 +56,7 @@ public static class PortedPagesRegistry
         new PortedPage("Posibles Premios",                    "", typeof(PosiblesPremiosFrmPage), "Boleto e impresion"),
         new PortedPage("Premiadas",                           "", typeof(PremiadasFrmPage), "Boleto e impresion"),
         new PortedPage("Rentabilidad",                        "", typeof(RentabilidadFrmPage), "Boleto e impresion"),
+        new PortedPage("Esperanza matematica",                "", typeof(EsperanzaPage), "Boleto e impresion"),
         new PortedPage("Subir Categoria",                     "", typeof(SubirCategoriaFrmPage), "Boleto e impresion"),
         new PortedPage("Ver Boletos",                         "", typeof(VerBoletosPage), "Boleto e impresion"),
         new PortedPage("Ver Boletos En Editor",               "", typeof(VerBoletosEnEditorFrmPage), "Boleto e impresion"),

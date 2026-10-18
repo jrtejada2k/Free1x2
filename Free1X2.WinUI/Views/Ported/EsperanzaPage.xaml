@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Free1X2.WinUI.Views.Ported.EsperanzaPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Free1X2.WinUI.Views.Ported"
+    xmlns:controls="using:Free1X2.WinUI.Controls"
+    Background="{ThemeResource AppBackgroundBrush}">
+
+    <!-- W14 (DT-91): pantalla nueva. Mismos textos que la app Mac (Esperanza.swift). -->
+    <ScrollViewer>
+        <StackPanel Padding="10,7" Spacing="8" MaxWidth="1000" HorizontalAlignment="Left">
+
+            <StackPanel Spacing="4">
+                <TextBlock Text="Esperanza matemática" Style="{StaticResource PageTitleTextBlockStyle}" />
+                <TextBlock
+                    Text="Esperanza matemática de una columna por categoría (14 a 10): con los porcentajes apostados se estiman los acertantes y el premio; con los reales, la probabilidad de cada resultado."
+                    Style="{StaticResource SecondaryTextBlockStyle}" />
+            </StackPanel>
+
+            <Grid ColumnSpacing="8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" MinWidth="260" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Datos -->
+                <StackPanel Grid.Column="0" Spacing="8" Width="360">
+                    <Border Style="{StaticResource AppCardStyle}">
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="Columna" Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                            <TextBox Text="{x:Bind ViewModel.Columna, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     PlaceholderText="14 signos (1 X 2)" MaxLength="14" CharacterCasing="Upper"
+                                     FontFamily="Consolas" Width="190" HorizontalAlignment="Left"
+                                     AutomationProperties.Name="Columna de 14 signos" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource AppCardStyle}">
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="Jornada" Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                            <StackPanel Orientation="Horizontal" Spacing="12">
+                                <NumberBox Header="Recaudación" Width="170" Minimum="0"
+                                           Value="{x:Bind ViewModel.Recaudacion, Mode=TwoWay}" />
+                                <NumberBox Header="Precio apuesta" Width="110" Minimum="0" SmallChange="0.05"
+                                           Value="{x:Bind ViewModel.Precio, Mode=TwoWay}" />
+                            </StackPanel>
+                            <TextBlock Text="{x:Bind ViewModel.ApuestasTexto, Mode=OneWay}"
+                                       Style="{StaticResource SecondaryTextBlockStyle}" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource AppCardStyle}">
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="Reparto del fondo (% de la recaudación)" Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                            <ComboBox Header="Reparto" MinWidth="250"
+                                      ItemsSource="{x:Bind ViewModel.OpcionesReparto}"
+                                      SelectedIndex="{x:Bind ViewModel.RepartoElegido, Mode=TwoWay}" />
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <NumberBox Header="14" Width="62" Minimum="0" Maximum="100" Value="{x:Bind ViewModel.Reparto14, Mode=TwoWay}" />
+                                <NumberBox Header="13" Width="62" Minimum="0" Maximum="100" Value="{x:Bind ViewModel.Reparto13, Mode=TwoWay}" />
+                                <NumberBox Header="12" Width="62" Minimum="0" Maximum="100" Value="{x:Bind ViewModel.Reparto12, Mode=TwoWay}" />
+                                <NumberBox Header="11" Width="62" Minimum="0" Maximum="100" Value="{x:Bind ViewModel.Reparto11, Mode=TwoWay}" />
+                                <NumberBox Header="10" Width="62" Minimum="0" Maximum="100" Value="{x:Bind ViewModel.Reparto10, Mode=TwoWay}" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource AppCardStyle}">
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="Cobro" Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                            <StackPanel Orientation="Horizontal" Spacing="12">
+                                <NumberBox Header="Retención %" Width="100" Minimum="0" Maximum="100"
+                                           Value="{x:Bind ViewModel.Retencion, Mode=TwoWay}" />
+                                <NumberBox Header="de lo que pase de" Width="130" Minimum="0"
+                                           Value="{x:Bind ViewModel.Exento, Mode=TwoWay}" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="12">
+                                <NumberBox Header="No se cobra de 14 a 11 por debajo de" Width="160" Minimum="0"
+                                           Value="{x:Bind ViewModel.Minimo, Mode=TwoWay}" />
+                                <NumberBox Header="ni el 10 por debajo de" Width="160" Minimum="0"
+                                           Value="{x:Bind ViewModel.Minimo10, Mode=TwoWay}" />
+                            </StackPanel>
+                            <CheckBox Content="Contarme como un acertante más (+1)"
+                                      IsChecked="{x:Bind ViewModel.MasUno, Mode=TwoWay}" />
+                        </StackPanel>
+                    </Border>
+
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Button Content="Calcular" Style="{StaticResource AccentButtonStyle}"
+                                Command="{x:Bind ViewModel.CalcularCommand}"
+                                AutomationProperties.Name="Calcular la esperanza matemática" />
+                        <ProgressRing IsActive="{x:Bind ViewModel.Calculando, Mode=OneWay}" Width="20" Height="20" />
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Valoraciones (porcentajes) -->
+                <Border Grid.Column="1" Style="{StaticResource AppCardStyle}" VerticalAlignment="Top">
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Valoraciones (porcentajes)" Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                        <TextBlock Text="Porcentajes apostados y reales por partido (1/X/2). Cada fila se toma sobre su suma."
+                                   Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <RadioButtons MaxColumns="2" SelectedIndex="{x:Bind ViewModel.Pestana, Mode=TwoWay}">
+                            <x:String>Apostados</x:String>
+                            <x:String>Reales</x:String>
+                        </RadioButtons>
+                        <controls:PorcentajesControl Filas="{x:Bind ViewModel.Apostados}"
+                                                     Visibility="{x:Bind ViewModel.VerApostados, Mode=OneWay}" />
+                        <controls:PorcentajesControl Filas="{x:Bind ViewModel.Reales}"
+                                                     Visibility="{x:Bind ViewModel.VerReales, Mode=OneWay}" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- Resultado -->
+            <Border Style="{StaticResource AppCardStyle}" Visibility="{x:Bind ViewModel.HayResultado, Mode=OneWay}">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Resultado" Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                    <Grid ColumnSpacing="18">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="70" />
+                            <ColumnDefinition Width="200" />
+                            <ColumnDefinition Width="210" />
+                            <ColumnDefinition Width="140" />
+                            <ColumnDefinition Width="120" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Aciertos" Style="{StaticResource CaptionTextBlockStyle}" FontWeight="SemiBold" />
+                        <TextBlock Grid.Column="1" Text="Probabilidad real" Style="{StaticResource CaptionTextBlockStyle}" FontWeight="SemiBold" HorizontalAlignment="Right" />
+                        <TextBlock Grid.Column="2" Text="Apostado con esos aciertos" Style="{StaticResource CaptionTextBlockStyle}" FontWeight="SemiBold" HorizontalAlignment="Right" />
+                        <TextBlock Grid.Column="3" Text="Premio neto medio" Style="{StaticResource CaptionTextBlockStyle}" FontWeight="SemiBold" HorizontalAlignment="Right" />
+                        <TextBlock Grid.Column="4" Text="EM" Style="{StaticResource CaptionTextBlockStyle}" FontWeight="SemiBold" HorizontalAlignment="Right" />
+                    </Grid>
+                    <ItemsControl ItemsSource="{x:Bind ViewModel.Resultado}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="local:FilaEsperanza">
+                                <Grid ColumnSpacing="18" Padding="0,2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="70" />
+                                        <ColumnDefinition Width="200" />
+                                        <ColumnDefinition Width="210" />
+                                        <ColumnDefinition Width="140" />
+                                        <ColumnDefinition Width="120" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{x:Bind Aciertos}" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Column="1" Text="{x:Bind ProbabilidadReal}" HorizontalAlignment="Right" />
+                                    <TextBlock Grid.Column="2" Text="{x:Bind ProbabilidadApostada}" HorizontalAlignment="Right" />
+                                    <TextBlock Grid.Column="3" Text="{x:Bind PremioMedio}" HorizontalAlignment="Right" />
+                                    <TextBlock Grid.Column="4" Text="{x:Bind Esperanza}" HorizontalAlignment="Right" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock Text="{x:Bind ViewModel.TextoTotal, Mode=OneWay}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                    <TextBlock
+                        Text="Por encima del 100 % la columna devuelve de media más de lo que cuesta, según tus porcentajes reales. «Apostado con esos aciertos» es la parte de las apuestas que tendría esos aciertos si tu columna fuera la ganadora."
+                        Style="{StaticResource SecondaryTextBlockStyle}" />
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</Page>
