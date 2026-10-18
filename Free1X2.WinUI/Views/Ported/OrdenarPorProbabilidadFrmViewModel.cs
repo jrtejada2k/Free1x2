@@ -70,6 +70,17 @@ public partial class OrdenarPorProbabilidadFrmViewModel : ObservableObject
     [ObservableProperty]
     private bool _anadirPremio14;
 
+    // W18 (DT-95, de la 0.77.2): «Obtener intervalo: premio de 14 entre … y …». Con la casilla marcada solo se graban
+    // las columnas cuyo premio de 14 cae en el intervalo (no se aplica a la pestaña «Multiple»).
+    [ObservableProperty]
+    private bool _obtenerIntervalo;
+
+    [ObservableProperty]
+    private double _premio14Minimo;
+
+    [ObservableProperty]
+    private double _premio14Maximo;
+
     // ---- Pestaña activa (tabControl1: 0=Productos, 1=Sumas, 2=Multiple) ----
 
     [ObservableProperty]
@@ -758,6 +769,13 @@ public partial class OrdenarPorProbabilidadFrmViewModel : ObservableObject
                 linea.Append(sep);
                 linea.Append(premio);
             }
+
+            // W18: la probabilidad acumulada ya se sumó (cuentan todas); fuera del intervalo, la columna no se graba.
+            if (ObtenerIntervalo &&
+                !IntervaloPremio14.Admite(
+                    IntervaloPremio14.Premio(_precioApuestaNum, _porcentaje14Num, _recaudacionNum, prob),
+                    Premio14Minimo, Premio14Maximo))
+                continue;
 
             comCols.GuardarColsComa(linea.ToString());
 

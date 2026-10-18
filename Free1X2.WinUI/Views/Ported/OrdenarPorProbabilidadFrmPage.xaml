@@ -84,6 +84,21 @@
                         <CheckBox Content="Añadir Premio de 14 aciertos"
                                   IsChecked="{x:Bind ViewModel.AnadirPremio14, Mode=TwoWay}"
                                   AutomationProperties.Name="Añadir premio de 14 aciertos a la salida" />
+
+                        <!-- W18 (DT-95, de la 0.77.2): solo se graban las columnas con el premio de 14 en el intervalo -->
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <CheckBox Content="Obtener intervalo: premio de 14 entre" VerticalAlignment="Center"
+                                      IsChecked="{x:Bind ViewModel.ObtenerIntervalo, Mode=TwoWay}" />
+                            <NumberBox Width="110" Minimum="0" VerticalAlignment="Center"
+                                       Value="{x:Bind ViewModel.Premio14Minimo, Mode=TwoWay}"
+                                       IsEnabled="{x:Bind ViewModel.ObtenerIntervalo, Mode=OneWay}"
+                                       AutomationProperties.Name="Premio de 14 mínimo" />
+                            <TextBlock Text="y" VerticalAlignment="Center" />
+                            <NumberBox Width="110" Minimum="0" VerticalAlignment="Center"
+                                       Value="{x:Bind ViewModel.Premio14Maximo, Mode=TwoWay}"
+                                       IsEnabled="{x:Bind ViewModel.ObtenerIntervalo, Mode=OneWay}"
+                                       AutomationProperties.Name="Premio de 14 máximo" />
+                        </StackPanel>
                     </StackPanel>
                 </Border>
 
