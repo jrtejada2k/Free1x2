@@ -95,23 +95,21 @@ public enum CasosCombinacion {
         let leer = lectorLineas(entorno)
         switch modo {
         case .contar:
-            let r = try MotorCalculo.calcular(
-                c, configuracion: configuracion, cultura: entorno.cultura, leerLineas: leer, progreso: progreso)
-            return ResultadoCalculoCombinacion(calculo: r, analisis: nil)
+            let r = try await MotorCalculo.calcularEnParalelo(
+                c, configuracion: configuracion, cultura: entorno.cultura, leerLineas: leer, progreso: progreso, grabar: false)
+            return ResultadoCalculoCombinacion(calculo: r.calculo, analisis: nil)
         case .analizar:
             let r = try MotorCalculo.analizar(
                 c, configuracion: configuracion, cultura: entorno.cultura, leerLineas: leer, progreso: progreso)
             return ResultadoCalculoCombinacion(calculo: r.calculo, analisis: r.calculo.aceptadas > 0 ? r.contenedor : nil)
         case .grabar(let url):
-            var datos = Data()
-            let r = try MotorCalculo.calcular(
-                c, configuracion: configuracion, cultura: entorno.cultura, leerLineas: leer, progreso: progreso
-            ) { col throws(ErrorDominio) in
-                datos.append(contentsOf: try UtilColumnas.convLongToStr(col).utf8)
-                datos.append(contentsOf: [0x0D, 0x0A])
-            }
+            // DM-21: en varios núcleos; el texto llega en trozos que, uno tras otro, dan el mismo fichero que en un hilo.
+            let r = try await MotorCalculo.calcularEnParalelo(
+                c, configuracion: configuracion, cultura: entorno.cultura, leerLineas: leer, progreso: progreso, grabar: true)
+            var datos = Data(capacity: r.texto.reduce(0) { $0 + $1.count })
+            for t in r.texto { datos.append(contentsOf: t) }
             if !datos.isEmpty { try entorno.archivos.escribir(datos, en: url, atomico: false) }
-            return ResultadoCalculoCombinacion(calculo: r, analisis: nil)
+            return ResultadoCalculoCombinacion(calculo: r.calculo, analisis: nil)
         }
     }
 

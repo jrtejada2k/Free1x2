@@ -1,4 +1,6 @@
+import Foundation
 import Free1X2Base
+import os
 
 // C#: Free1X2.Domain/MotorCalculo/Analizador.cs y GeneradorColumnas.cs (01 §1-§2.2).
 
@@ -41,6 +43,54 @@ public enum MotorCalculo {
         let r = ResultadoCalculo(analizadas: a.analizadas, aceptadas: a.aceptadas)
         progreso.terminar(Progreso(procesadas: r.analizadas, aceptadas: r.aceptadas))
         return r
+    }
+
+    /// Rutas A/B en varios núcleos (DM-21): el árbol de `genera` (o las líneas del archivo de columnas base) se parte en
+    /// tareas que se reparten entre `hilos` analizadores, uno por hilo (cada columna se valida sola: los contadores de los
+    /// filtros se ponen a cero en cada una). Mismos contadores que `calcular` y, si `grabar`, las aceptadas como texto
+    /// (columna + CRLF) en trozos que, uno tras otro, dan el mismo fichero. Con grupos que leen un archivo filtro durante
+    /// el cálculo (cada hilo lo leería y lo guardaría entero) va en un hilo. Al cancelar, el texto llega hasta la primera
+    /// tarea sin terminar.
+    public static func calcularEnParalelo(
+        _ combinacion: Combinacion, configuracion: Configuracion, cultura: Cultura = .esES,
+        leerLineas: @escaping LectorLineas, progreso: ReportadorProgreso = .ninguno, grabar: Bool,
+        hilos: Int = ProcessInfo.processInfo.activeProcessorCount
+    ) async throws(ErrorDominio) -> (calculo: ResultadoCalculo, texto: [[UInt8]]) {
+        func nuevo() -> Analizador { Analizador(combinacion, configuracion: configuracion, cultura: cultura, leerLineas: leerLineas) }
+        let primero = nuevo()
+        guard hilos > 1, !primero.usaArchivoFiltro else {
+            var texto: [UInt8] = []
+            let r = try calcular(
+                combinacion, configuracion: configuracion, cultura: cultura, leerLineas: leerLineas, progreso: progreso,
+                aceptada: grabar ? { c throws(ErrorDominio) in try Analizador.anadirTexto(c, &texto) } : nil)
+            return (r, [texto])
+        }
+        let lineas = try primero.preparar()
+        let tareas = primero.tareas(lineas: lineas?.count, hilos: hilos)
+        let total = TotalCompartido(progreso)
+        var cajas = [CajaAnalizador(primero)]
+        for _ in 1..<hilos {
+            let a = nuevo()
+            _ = try a.preparar(lineas: lineas)
+            cajas.append(CajaAnalizador(a))
+        }
+        let siguiente = OSAllocatedUnfairLock(initialState: 0)
+        let hechas = await withTaskGroup(of: [Hecha].self) { grupo in
+            for caja in cajas {
+                caja.a.total = total
+                grupo.addTask { caja.trabajar(tareas, lineas, grabar: grabar, siguiente) }
+            }
+            var todas: [Hecha] = []
+            for await h in grupo { todas += h }
+            return todas.sorted { $0.indice < $1.indice }
+        }
+        if let e = hechas.first(where: { $0.error != nil })?.error { throw e }
+        let r = ResultadoCalculo(
+            analizadas: cajas.reduce(0) { $0 + $1.a.analizadas }, aceptadas: cajas.reduce(0) { $0 + $1.a.aceptadas })
+        progreso.terminar(Progreso(procesadas: r.analizadas, aceptadas: r.aceptadas))
+        // Las tareas terminadas seguidas desde la primera (al cancelar, las de después no cuentan para el texto).
+        let seguidas = hechas.enumerated().prefix { $0.offset == $0.element.indice && $0.element.completa }
+        return (r, seguidas.map(\.element.texto))
     }
 
     /// Rutas C/D: además de contar, acumula los histogramas de las columnas aceptadas. If-Then hace AND (no asigna) y no
@@ -89,6 +139,10 @@ final class Analizador {
     private var columnaBase: Columna = 0
     private var noPartidos = 0
     private var enMarcha = false
+    /// En paralelo: lo que se lleva sumado al total de todos los hilos.
+    var total: TotalCompartido?
+    private var avisadas = (analizadas: 0, aceptadas: 0)
+    var usaArchivoFiltro: Bool { grupos.contains(where: \.usaArchivoFiltro) }
 
     init(_ c: Combinacion, configuracion: Configuracion, cultura: Cultura, leerLineas: @escaping LectorLineas) {
         combinacion = c
@@ -104,23 +158,98 @@ final class Analizador {
 
     /// `AnalizaCombinacion(bool)` (:256-349).
     func analizaCombinacion(_ ruta: RutaCalculo = .contar) throws(ErrorDominio) {
+        defer { enMarcha = false }
+        if let lineas = try preparar(ruta) {
+            try usaColumnasArchivo(lineas[...])
+        } else {
+            let inicial = Self.columnaInicial(numeroPartidos)
+            try analizaNueva(inicial)
+            try genera(inicial, 0, 1)
+        }
+    }
+
+    /// El arranque de `AnalizaCombinacion`: contadores a 0 y columnas base. Con archivo de columnas base devuelve sus
+    /// líneas (`lineas`, si ya se leyeron: en paralelo se leen una vez).
+    func preparar(_ ruta: RutaCalculo = .contar, lineas: [String]? = nil) throws(ErrorDominio) -> [String]? {
         self.ruta = ruta
         analizadas = 0
         aceptadas = 0
         pronosticoBase = try Self.columna(combinacion.pronosticos, "Analizador.cs:411")
         enMarcha = true
-        defer { enMarcha = false }
         if !combinacion.archivoColumnasBase.isEmpty {
             columnaBase = 281_474_976_710_655  // 2^48 − 1 (GeneradorColumnas.cs:30)
-            try usaColumnasArchivo(try leerLineas(combinacion.archivoColumnasBase))
-        } else {
-            let pronosticos = combinacion.pronosticos ?? []
-            noPartidos = pronosticos.count
-            columnaBase = try Self.columna(combinacion.pronosticos, "GeneradorColumnas.cs:23")
-            let inicial = Self.columnaInicial(numeroPartidos)
-            try analizaNueva(inicial)
-            try genera(inicial, 0, 1)
+            if let lineas { return lineas }
+            return try leerLineas(combinacion.archivoColumnasBase)
         }
+        noPartidos = (combinacion.pronosticos ?? []).count
+        columnaBase = try Self.columna(combinacion.pronosticos, "GeneradorColumnas.cs:23")
+        return nil
+    }
+
+    /// Un trozo de Generar en paralelo, en el orden de `analizaCombinacion`.
+    enum Tarea: Sendable {
+        /// Una columna sola: un nodo del árbol que se partió.
+        case nodo(Columna)
+        /// Una columna y su subárbol: `genera(valor, desde, profundidad)` si su padre podía bajar
+        /// (`profundidad − 1 < noPartidos`).
+        case rama(Columna, desde: Int, profundidad: Int)
+        /// Un tramo de las líneas del archivo de columnas base.
+        case lineas(Range<Int>)
+    }
+
+    /// Las tareas en orden: tramos de líneas o ramas del árbol de `genera` de unas `3^n / (64 · hilos)` columnas (64 por
+    /// hilo, para repartir bien aunque unos hilos vayan más rápido que otros).
+    func tareas(lineas: Int?, hilos: Int) -> [Tarea] {
+        if let lineas {
+            let paso = Swift.max(4096, lineas / (hilos * 64))
+            return stride(from: 0, to: lineas, by: paso).map { .lineas($0..<Swift.min($0 + paso, lineas)) }
+        }
+        let umbral = Swift.max(729, potencia3(noPartidos) / (hilos * 64))
+        var t: [Tarea] = []
+        // Misma forma que `genera`: el nodo y, por cada partido desde `desde`, su X con su subárbol y su 2 con el suyo.
+        func dividir(_ v: Columna, _ desde: Int, _ profundidad: Int) {
+            guard desde < noPartidos, profundidad <= noPartidos, potencia3(noPartidos - desde) > umbral else {
+                return t.append(.rama(v, desde: desde, profundidad: profundidad))
+            }
+            t.append(.nodo(v))
+            var mascara = Int64(7) &<< (3 * desde)
+            for partido in desde..<noPartidos {
+                dividir((v & ~mascara) ^ (Int64(1) &<< (partido * 3 + 1)), partido + 1, profundidad + 1)
+                dividir((v & ~mascara) ^ (Int64(1) &<< (partido * 3)), partido + 1, profundidad + 1)
+                mascara = mascara &<< 3
+            }
+        }
+        dividir(Self.columnaInicial(numeroPartidos), 0, 1)
+        return t
+    }
+
+    private func potencia3(_ e: Int) -> Int { (0..<e).reduce(1) { r, _ in r * 3 } }
+
+    /// Hace una tarea; `false` si se canceló a medias.
+    func procesar(_ t: Tarea, _ lineas: [String]?) throws(ErrorDominio) -> Bool {
+        switch t {
+        case .nodo(let v): try analizaNueva(v)
+        case .rama(let v, let desde, let profundidad):
+            try analizaNueva(v)
+            if profundidad <= noPartidos { try genera(v, desde, profundidad) }
+        case .lineas(let r): if let lineas { try usaColumnasArchivo(lineas[r]) }
+        }
+        return enMarcha
+    }
+
+    /// `convLongToStr(columna) + CRLF` en bytes, sin pasar por `String`.
+    static func anadirTexto(_ columna: Columna, _ t: inout [UInt8]) throws(ErrorDominio) {
+        var l = columna
+        var n = 0
+        while l != 0 {
+            let k = Int(l & 7) >> 1
+            guard n < 22, k < 3 else { throw .fueraDeRango("UtilColumnas.cs:40") }
+            t.append(k == 0 ? 0x32 : k == 1 ? 0x58 : 0x31)  // "2X1", como `UtilColumnas.signos`
+            l >>= 3
+            n += 1
+        }
+        t.append(0x0D)
+        t.append(0x0A)
     }
 
     /// `ConvStrToLong(Pronosticos)`: `nil` (o un pronóstico `nil`) ⇒ `NullReferenceException`.
@@ -159,7 +288,7 @@ final class Analizador {
 
     /// `UsaColumnasArchivo()` (:272-299): recorta a N o rellena con `CompletarCon`. Ruta C (:300-324) recorta sin
     /// rellenar; ruta D (`UsaColumnasArchivoExterno`, :325-336) ni recorta ni rellena.
-    private func usaColumnasArchivo(_ lineas: [String]) throws(ErrorDominio) {
+    private func usaColumnasArchivo(_ lineas: ArraySlice<String>) throws(ErrorDominio) {
         let n = numeroPartidos
         for linea in lineas {
             guard enMarcha else { break }
@@ -284,7 +413,69 @@ final class Analizador {
 
     /// `BombearUiSiToca` (:127-136): cada 4 096 columnas, progreso y cancelación cooperativa (`PararAnalisis`).
     private func bombear() {
-        progreso.reportar(Progreso(procesadas: analizadas, aceptadas: aceptadas))
+        if let total {
+            total.sumar(analizadas - avisadas.analizadas, aceptadas - avisadas.aceptadas)
+            avisadas = (analizadas, aceptadas)
+        } else {
+            progreso.reportar(Progreso(procesadas: analizadas, aceptadas: aceptadas))
+        }
         if Task.isCancelled { enMarcha = false }
+    }
+}
+
+/// Lo que llevan entre todos los hilos de Generar en paralelo, para el progreso.
+final class TotalCompartido: Sendable {
+    private let cuenta = OSAllocatedUnfairLock(initialState: (analizadas: 0, aceptadas: 0))
+    private let progreso: ReportadorProgreso
+
+    init(_ progreso: ReportadorProgreso) { self.progreso = progreso }
+
+    func sumar(_ analizadas: Int, _ aceptadas: Int) {
+        let t = cuenta.withLock {
+            $0.analizadas += analizadas
+            $0.aceptadas += aceptadas
+            return $0
+        }
+        progreso.reportar(Progreso(procesadas: t.analizadas, aceptadas: t.aceptadas))
+    }
+}
+
+/// Una tarea hecha: su texto (si se graba), si llegó al final y el error, si lo hubo.
+struct Hecha: Sendable {
+    let indice: Int
+    var texto: [UInt8] = []
+    var completa = true
+    var error: ErrorDominio?
+}
+
+/// Un analizador para un hilo: solo lo usa la tarea del grupo que lo recibe (y, al acabar, quien lo creó).
+final class CajaAnalizador: @unchecked Sendable {
+    let a: Analizador
+
+    init(_ a: Analizador) { self.a = a }
+
+    /// Coge tareas de la cola compartida hasta que no quedan, se cancela o falla una.
+    func trabajar(_ tareas: [Analizador.Tarea], _ lineas: [String]?, grabar: Bool, _ siguiente: OSAllocatedUnfairLock<Int>)
+        -> [Hecha]
+    {
+        var hechas: [Hecha] = []
+        while !Task.isCancelled {
+            let i = siguiente.withLock {
+                defer { $0 += 1 }
+                return $0
+            }
+            guard i < tareas.count else { break }
+            var h = Hecha(indice: i)
+            a.aceptada = grabar ? { c throws(ErrorDominio) in try Analizador.anadirTexto(c, &h.texto) } : nil
+            do throws(ErrorDominio) {
+                h.completa = try a.procesar(tareas[i], lineas)
+            } catch {
+                h.error = error
+            }
+            a.aceptada = nil
+            hechas.append(h)
+            if h.error != nil || !h.completa { break }
+        }
+        return hechas
     }
 }

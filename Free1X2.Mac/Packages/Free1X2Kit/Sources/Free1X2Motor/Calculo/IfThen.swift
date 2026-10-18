@@ -173,9 +173,11 @@ final class ControladorIfThen {
 
     init(_ c: IfThenConfig, numeroPartidos: Int) {
         condiciones = c.condiciones.map { CondicionIfThen($0, numeroPartidos: numeroPartidos) }
-        grupos = c.grupos
-        aciertoCondiciones = c.aciertoCondiciones
-        aciertoGrupos = c.aciertoGrupos
+        // Arrays propios (`map` copia): los de la combinación los comparten todos los hilos de Generar en paralelo, y
+        // retenerlos en cada columna hacía que se estorbaran (DM-21).
+        grupos = c.grupos.map { $0 }
+        aciertoCondiciones = c.aciertoCondiciones?.map { $0 }
+        aciertoGrupos = c.aciertoGrupos?.map { $0 }
         activo = c.activo
         esVacio = c.esVacio
     }

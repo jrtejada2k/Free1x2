@@ -50,6 +50,8 @@ final class Grupo {
     private let archivoFiltro: String
     private let leerLineas: LectorLineas
     private var bits: Set<Columna>?
+    /// Lee su archivo filtro durante el cálculo (Generar en paralelo va entonces en un hilo).
+    var usaArchivoFiltro: Bool { !archivoFiltro.isEmpty }
     var reCalcular = true
     private var validoMemoria = true
 

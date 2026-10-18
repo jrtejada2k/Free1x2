@@ -71,6 +71,10 @@ final class ControladorGrupos {
     let controles: [ControlGrupos]
     let conjuntos: [ControlConjuntosConfig]
     let usaControlConjuntos: Bool
+    /// Los conjuntos desplegados en arrays propios (`map` copia): leer los de la combinación en cada columna retenía sus
+    /// arrays, compartidos por todos los hilos de Generar en paralelo, y los hilos se estorbaban (DM-21).
+    private let gruposDeConjuntos: [[Int]]
+    private let fallosDeConjuntos: [[Bool]?]
     private var reCalcular = true
     private var validoMemoria = true
 
@@ -79,6 +83,8 @@ final class ControladorGrupos {
         controles = c.controlesGrupos.map(ControlGrupos.init)
         conjuntos = c.controlesConjuntos
         usaControlConjuntos = c.usaControlConjuntos
+        gruposDeConjuntos = c.controlesConjuntos.map { $0.ctrlGruposControlados.map { $0 } }
+        fallosDeConjuntos = c.controlesConjuntos.map { $0.fallosPermitidos?.map { $0 } }
     }
 
     /// `RecalcularControladorGrupos` (:270-278).
@@ -138,12 +144,12 @@ final class ControladorGrupos {
     /// `AnalizaColumnaConConjuntos` (:95-153): los «libres» del conjunto 0 deben pasar; en los demás se cuentan los
     /// controles que fallan y se mira el presupuesto.
     private func conConjuntos(_ columna: Columna) throws(ErrorDominio) -> Bool {
-        let libres = try conjuntos.leerLista(0, "ControladorGrupos.cs:101")
-        for i in libres.ctrlGruposControlados where !(try control(i).analiza(columna, grupos)) { return false }
-        for conjunto in conjuntos.dropFirst() {
+        let libres = try gruposDeConjuntos.leerLista(0, "ControladorGrupos.cs:101")
+        for i in libres where !(try control(i).analiza(columna, grupos)) { return false }
+        for k in gruposDeConjuntos.indices.dropFirst() {
             var fallados = 0
-            for i in conjunto.ctrlGruposControlados where !(try control(i).analiza(columna, grupos)) { fallados += 1 }
-            guard let fallos = conjunto.fallosPermitidos else { throw .referenciaNula("ControladorGrupos.cs:144") }
+            for i in gruposDeConjuntos[k] where !(try control(i).analiza(columna, grupos)) { fallados += 1 }
+            guard let fallos = fallosDeConjuntos[k] else { throw .referenciaNula("ControladorGrupos.cs:144") }
             if fallos.count < fallados + 1 || !fallos[fallados] { return false }
         }
         return true

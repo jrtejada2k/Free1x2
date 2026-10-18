@@ -310,6 +310,22 @@ struct FlujosTests {
         #expect(l.count == 473 && Set(l) == Set(Self.seisTriples.filter { Self.aciertos($0, Self.unos) >= 10 }))
     }
 
+    /// F06b: Generar en varios núcleos da el mismo texto y los mismos contadores que en un hilo (DM-21), con
+    /// `completa.comb` (todas las condiciones, controles de grupos y conjuntos e If-Then) y 10 partidos triples.
+    @Test func f06bGenerarEnParaleloIgualQueEnUnHilo() async throws {
+        var c = try ArchivoCombinacion.leer(try Golden.bytes("Fixtures/corpus/comb/completa.comb"), numeroPartidos: 14, cultura: .esES)
+            .combinacion
+        c.ponerPronosticos((0..<14).map { $0 < 10 ? "1,X,2" : "1" })
+        var uno: [UInt8] = []
+        let r = try MotorCalculo.calcular(c, configuracion: .porDefecto, leerLineas: { _ in [] }) { col throws(ErrorDominio) in
+            uno.append(contentsOf: try UtilColumnas.convLongToStr(col).utf8)
+            uno.append(contentsOf: [0x0D, 0x0A])
+        }
+        let p = try await MotorCalculo.calcularEnParalelo(c, configuracion: .porDefecto, leerLineas: { _ in [] }, grabar: true, hilos: 3)
+        #expect(p.calculo == r && r.aceptadas > 0)
+        #expect(p.texto.flatMap { $0 } == uno)
+    }
+
     /// F16b: premiadas en disco por páginas: JD-01 contra 3 ganadoras con todas las categorías da 3 × 729 = 2.187 premiadas,
     /// 3 páginas (1.000, 1.000 y 187), en el mismo orden y con los mismos datos que el escrutador en memoria.
     @Test func f16bPremiadasEnDiscoPorPaginas() async throws {
