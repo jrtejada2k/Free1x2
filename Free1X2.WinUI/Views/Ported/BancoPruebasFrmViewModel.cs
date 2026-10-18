@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -49,6 +50,26 @@ public partial class ResultadoColumnaItem : ObservableObject
 
     /// <summary>% recuperación de la fila (legacy: ResCol[i].Recuperacion).</summary>
     public string Recuperacion { get; init; } = string.Empty;
+
+    // W19 (DT-95): la fila completa del WinForms (ResultadosPorColumna) para la tabla por columnas, la ordenación y el
+    // «Filtro de selección de filas». Los textos de abajo son las celdas de la tabla.
+    public Free1X2.Analisis.FilaBancoColumna? Fila { get; init; }
+    public string NumCol => Fila is null ? Numero : (Fila.Indice + 1).ToString();
+    public string NumAcumulado => Fila?.VecesAcumulado.ToString() ?? "";
+    public string Premio14 => Celda(f => f.PremioRedondeado(0));
+    public string Premio13 => Celda(f => f.PremioRedondeado(1));
+    public string Premio12 => Celda(f => f.PremioRedondeado(2));
+    public string Premio11 => Celda(f => f.PremioRedondeado(3));
+    public string Premio10 => Celda(f => f.PremioRedondeado(4));
+    public string PremioAcumuladoTexto => Celda(f => f.PremioAcumulado);
+    public string Medio14 => Celda(f => f.PremioMedio(0));
+    public string Medio13 => Celda(f => f.PremioMedio(1));
+    public string Medio12 => Celda(f => f.PremioMedio(2));
+    public string Medio11 => Celda(f => f.PremioMedio(3));
+    public string Medio10 => Celda(f => f.PremioMedio(4));
+    public string RecuperacionTexto => Fila is null ? Recuperacion : Fila.PorcentajeRecuperacion + " %";
+
+    private string Celda(System.Func<Free1X2.Analisis.FilaBancoColumna, double> v) => Fila is null ? "" : v(Fila).ToString();
 
     /// <summary>Resumen para mostrar en una sola línea de la lista (aciertos por categoría 14..10).</summary>
     public string Resumen =>
@@ -1079,11 +1100,84 @@ public partial class BancoPruebasFrmViewModel : ObservableObject
                 Veces10 = rc.Veces10.ToString(),
                 Premio = rc.PremioAcumulado.ToString(),
                 Recuperacion = rc.Recuperacion,
+                Fila = new Free1X2.Analisis.FilaBancoColumna(i, con.ConvNumAColumna(rc.Columna), rc.VecesPorCategoria,
+                    rc.PremiosPorCategoria, rc.AcumulaPorCategoria, rc.NumEscrutinios, PrecioApuesta),
             });
         }
 
         // C-13: un único Reset en vez de un CollectionChanged por columna (mismo orden).
-        EnUi(() => ColumnasResultado.ReemplazarTodo(filas));
+        EnUi(() =>
+        {
+            _cabeceraOrden = -1;
+            ColumnasResultado.ReemplazarTodo(filas);
+            FiltrarCommand.NotifyCanExecuteChanged();
+            ActualizarFilasSeleccionadas();
+            SeleccionActualizada?.Invoke(this, EventArgs.Empty);
+        });
+    }
+
+    // =====================================================================
+    // W19 (DT-95): ordenar la tabla por cualquier columna, selección múltiple y «Filtro de selección de filas».
+    // Grabar y Simplificar trabajan en el orden que se ve (iteran ColumnasResultado).
+    // =====================================================================
+
+    private int _cabeceraOrden = -1;
+    private bool _ordenDescendente;
+
+    /// <summary>La página resincroniza la selección del ListView con <see cref="ResultadoColumnaItem.Seleccionado"/>.</summary>
+    public event EventHandler? SeleccionActualizada;
+
+    [ObservableProperty]
+    private string _filasSeleccionadasTexto = string.Empty;
+
+    /// <summary>«N filas seleccionadas» (vacío sin filas).</summary>
+    public void ActualizarFilasSeleccionadas()
+    {
+        int n = ColumnasResultado.Count(c => c.Seleccionado);
+        FilasSeleccionadasTexto = ColumnasResultado.Count == 0 ? string.Empty : n + " filas seleccionadas";
+    }
+
+    /// <summary>
+    /// Pulsar una cabecera ordena por esa columna (WinForms ComparaCon): «Nºcol.» de menor a mayor y el resto de mayor a
+    /// menor; una segunda pulsación invierte el orden.
+    /// </summary>
+    public void OrdenarPor(int cabecera)
+    {
+        if (ColumnasResultado.Count == 0 || ColumnasResultado.Any(c => c.Fila is null)) return;
+        _ordenDescendente = cabecera == _cabeceraOrden
+            ? !_ordenDescendente
+            : Free1X2.Analisis.BancoPruebasTabla.DescendentePorDefecto(cabecera);
+        _cabeceraOrden = cabecera;
+        var orden = Free1X2.Analisis.BancoPruebasTabla.Ordenar(ColumnasResultado.ToList(), c => c.Fila!, cabecera,
+            _ordenDescendente);
+        ColumnasResultado.ReemplazarTodo(orden);
+        SeleccionActualizada?.Invoke(this, EventArgs.Empty);
+    }
+
+    /// <summary>
+    /// La página muestra el diálogo «Selección de columnas» (18 conceptos con mínimo y máximo) y devuelve los conceptos
+    /// marcados, o null si se cancela. Un campo vacío llega como NaN (no limita).
+    /// </summary>
+    public Func<(double Minimo, double Maximo)[], Task<(int Concepto, double Minimo, double Maximo)[]?>>? SolicitarFiltro { get; set; }
+
+    private bool HayFilasColumnas() => ColumnasResultado.Count > 0 && ColumnasResultado.All(c => c.Fila is not null);
+
+    [RelayCommand(CanExecute = nameof(HayFilasColumnas))]
+    private async Task Filtrar()
+    {
+        if (SolicitarFiltro is null) return;
+        var filas = ColumnasResultado.Select(c => c.Fila!).ToList();
+        var criterios = await SolicitarFiltro(Free1X2.Analisis.BancoPruebasTabla.Limites(filas));
+        if (criterios is null) return;
+
+        var limpios = criterios.Select(c => (c.Concepto,
+            double.IsNaN(c.Minimo) ? double.NegativeInfinity : c.Minimo,
+            double.IsNaN(c.Maximo) ? double.PositiveInfinity : c.Maximo)).ToList();
+        bool[] sel = Free1X2.Analisis.BancoPruebasTabla.Seleccionar(filas,
+            ColumnasResultado.Select(c => c.Seleccionado).ToArray(), limpios);
+        for (int i = 0; i < sel.Length; i++) ColumnasResultado[i].Seleccionado = sel[i];
+        ActualizarFilasSeleccionadas();
+        SeleccionActualizada?.Invoke(this, EventArgs.Empty);
     }
 
     // =====================================================================
@@ -1236,6 +1330,8 @@ public partial class BancoPruebasFrmViewModel : ObservableObject
             int c = con.ConvColumnaANumero(ColumnasResultado[fila].Columna);
             DeseleccionaColumnasPorDiferencias(c, 0, dif);
             ColumnasResultado[fila].Seleccionado = true; // legacy: dgResultadoEscrutinio.Select(CurrentCell).
+            ActualizarFilasSeleccionadas();
+            SeleccionActualizada?.Invoke(this, EventArgs.Empty);
         }
         else
         {
@@ -1250,6 +1346,8 @@ public partial class BancoPruebasFrmViewModel : ObservableObject
                     DeseleccionaColumnasPorDiferencias(c, i, dif);
                 }
             }
+            ActualizarFilasSeleccionadas();
+            SeleccionActualizada?.Invoke(this, EventArgs.Empty);
         }
     }
 
@@ -1350,6 +1448,12 @@ public partial class BancoPruebasFrmViewModel : ObservableObject
 
         public string Num { get => _Num; set => _Num = value; }
         public bool[] Acumula { set => _Acumula = value; }
+
+        // W19: datos sin redondear para FilaBancoColumna (la tabla del WinForms).
+        public int[] VecesPorCategoria => (int[])_NumVeces.Clone();
+        public double[] PremiosPorCategoria => (double[])_Premios.Clone();
+        public bool[] AcumulaPorCategoria => (bool[])_Acumula.Clone();
+        public int NumEscrutinios => _NumEscrutinios;
         public int Columna => _Columna;
 
         public double PremioDe14 => Math.Round(_Premios[0]);

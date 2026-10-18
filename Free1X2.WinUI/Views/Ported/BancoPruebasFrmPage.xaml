@@ -267,6 +267,14 @@
                                     <Button Content="Grabar"
                                             Command="{x:Bind ViewModel.GrabarCommand}"
                                             AutomationProperties.Name="Grabar resultados" />
+                                    <!-- W19 (DT-95): «Filtro de selección de filas» del WinForms -->
+                                    <Button Content="Filtrar…"
+                                            Command="{x:Bind ViewModel.FiltrarCommand}"
+                                            ToolTipService.ToolTip="Filtro de selección de filas"
+                                            AutomationProperties.Name="Filtro de selección de filas" />
+                                    <TextBlock Text="{x:Bind ViewModel.FilasSeleccionadasTexto, Mode=OneWay}"
+                                               VerticalAlignment="Center"
+                                               Style="{StaticResource SecondaryTextBlockStyle}" />
                                 </StackPanel>
                             </StackPanel>
                         </Border>
@@ -338,43 +346,132 @@
                                           CornerRadius="4"
                                           AutomationProperties.Name="Filas del resultado del escrutinio por combinación" />
 
-                                <!-- Modos "Columnas"/"Autoescrutinio": una fila por columna con casilla
-                                     de selección (legacy dgResultadoEscrutinio enlazado a ResCol[]). -->
+                                <!-- Modos "Columnas"/"Autoescrutinio": una fila por columna (legacy dgResultadoEscrutinio
+                                     enlazado a ResCol[]). W19 (DT-95): las columnas del WinForms, ordenables al pulsar una
+                                     cabecera, y selección múltiple de filas (Ctrl / Mayús) en lugar de una casilla por fila. -->
                                 <TextBlock Text="Columnas / Autoescrutinio (por columna)"
                                            Style="{StaticResource SectionHeaderTextBlockStyle}" />
-                                <ListView ItemsSource="{x:Bind ViewModel.ColumnasResultado}"
-                                          MaxHeight="280"
-                                          SelectionMode="None"
-                                          BorderBrush="{ThemeResource AppBorderBrush}"
-                                          BorderThickness="1"
-                                          CornerRadius="4"
-                                          AutomationProperties.Name="Filas del resultado del escrutinio por columna">
-                                    <ListView.ItemTemplate>
-                                        <DataTemplate x:DataType="local:ResultadoColumnaItem">
-                                            <Grid ColumnSpacing="12">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="Auto" />
-                                                    <ColumnDefinition Width="Auto" />
-                                                    <ColumnDefinition Width="*" />
-                                                </Grid.ColumnDefinitions>
-                                                <CheckBox Grid.Column="0"
-                                                          MinWidth="0"
-                                                          IsChecked="{x:Bind Seleccionado, Mode=TwoWay}"
-                                                          AutomationProperties.Name="Seleccionar columna" />
-                                                <TextBlock Grid.Column="1"
-                                                           VerticalAlignment="Center"
-                                                           MinWidth="32"
-                                                           Foreground="{ThemeResource AppTextBrush}"
-                                                           Text="{x:Bind Numero}" />
-                                                <TextBlock Grid.Column="2"
-                                                           VerticalAlignment="Center"
-                                                           FontFamily="Consolas"
-                                                           Foreground="{ThemeResource AppTextBrush}"
-                                                           Text="{x:Bind Resumen}" />
-                                            </Grid>
-                                        </DataTemplate>
-                                    </ListView.ItemTemplate>
-                                </ListView>
+                                <TextBlock Text="Pulsa una cabecera para ordenar por esa columna; selecciona filas con Ctrl o Mayús para grabarlas."
+                                           Style="{StaticResource SecondaryTextBlockStyle}" />
+                                <ScrollViewer HorizontalScrollMode="Enabled" HorizontalScrollBarVisibility="Auto"
+                                              VerticalScrollMode="Disabled" VerticalScrollBarVisibility="Disabled">
+                                    <StackPanel Spacing="2">
+                                        <Grid x:Name="CabeceraColumnas" ColumnSpacing="4" Padding="12,0,12,0">
+                                            <Grid.Resources>
+                                                <Style TargetType="Button">
+                                                    <Setter Property="Background" Value="Transparent" />
+                                                    <Setter Property="BorderThickness" Value="0" />
+                                                    <Setter Property="Padding" Value="0,2" />
+                                                    <Setter Property="MinHeight" Value="0" />
+                                                    <Setter Property="FontSize" Value="12" />
+                                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                                    <Setter Property="HorizontalAlignment" Value="Stretch" />
+                                                    <Setter Property="HorizontalContentAlignment" Value="Left" />
+                                                </Style>
+                                            </Grid.Resources>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="50" />
+                                                <ColumnDefinition Width="135" />
+                                                <ColumnDefinition Width="44" />
+                                                <ColumnDefinition Width="44" />
+                                                <ColumnDefinition Width="44" />
+                                                <ColumnDefinition Width="44" />
+                                                <ColumnDefinition Width="44" />
+                                                <ColumnDefinition Width="86" />
+                                                <ColumnDefinition Width="72" />
+                                                <ColumnDefinition Width="72" />
+                                                <ColumnDefinition Width="72" />
+                                                <ColumnDefinition Width="72" />
+                                                <ColumnDefinition Width="72" />
+                                                <ColumnDefinition Width="112" />
+                                                <ColumnDefinition Width="64" />
+                                                <ColumnDefinition Width="64" />
+                                                <ColumnDefinition Width="64" />
+                                                <ColumnDefinition Width="64" />
+                                                <ColumnDefinition Width="64" />
+                                                <ColumnDefinition Width="90" />
+                                            </Grid.ColumnDefinitions>
+                                            <Button Grid.Column="0" Content="Nºcol." Tag="0" Click="CabeceraColumna_Click" />
+                                            <TextBlock Grid.Column="1" Text="Columna" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                            <Button Grid.Column="2" Content="Nº14" Tag="1" Click="CabeceraColumna_Click" />
+                                            <Button Grid.Column="3" Content="Nº13" Tag="2" Click="CabeceraColumna_Click" />
+                                            <Button Grid.Column="4" Content="Nº12" Tag="3" Click="CabeceraColumna_Click" />
+                                            <Button Grid.Column="5" Content="Nº11" Tag="4" Click="CabeceraColumna_Click" />
+                                            <Button Grid.Column="6" Content="Nº10" Tag="5" Click="CabeceraColumna_Click" />
+                                            <Button Grid.Column="7" Content="Nºacumulado" Tag="6" Click="CabeceraColumna_Click" />
+                                            <Button Grid.Column="8" Content="Premio 14" Tag="7" Click="CabeceraColumna_Click" />
+                                            <Button Grid.Column="9" Content="Premio 13" Tag="8" Click="CabeceraColumna_Click" />
+                                            <Button Grid.Column="10" Content="Premio 12" Tag="9" Click="CabeceraColumna_Click" />
+                                            <Button Grid.Column="11" Content="Premio 11" Tag="10" Click="CabeceraColumna_Click" />
+                                            <Button Grid.Column="12" Content="Premio 10" Tag="11" Click="CabeceraColumna_Click" />
+                                            <Button Grid.Column="13" Content="Premio Acumulado" Tag="12" Click="CabeceraColumna_Click" />
+                                            <Button Grid.Column="14" Content="14 medio" Tag="13" Click="CabeceraColumna_Click" />
+                                            <Button Grid.Column="15" Content="13 medio" Tag="14" Click="CabeceraColumna_Click" />
+                                            <Button Grid.Column="16" Content="12 medio" Tag="15" Click="CabeceraColumna_Click" />
+                                            <Button Grid.Column="17" Content="11 medio" Tag="16" Click="CabeceraColumna_Click" />
+                                            <Button Grid.Column="18" Content="10 medio" Tag="17" Click="CabeceraColumna_Click" />
+                                            <Button Grid.Column="19" Content="Recuperación" Tag="18" Click="CabeceraColumna_Click" />
+                                        </Grid>
+                                        <ListView x:Name="ListaColumnas"
+                                                  ItemsSource="{x:Bind ViewModel.ColumnasResultado}"
+                                                  MaxHeight="280"
+                                                  SelectionMode="Extended"
+                                                  SelectionChanged="ListaColumnas_SelectionChanged"
+                                                  BorderBrush="{ThemeResource AppBorderBrush}"
+                                                  BorderThickness="1"
+                                                  CornerRadius="4"
+                                                  AutomationProperties.Name="Filas del resultado del escrutinio por columna">
+                                            <ListView.ItemTemplate>
+                                                <DataTemplate x:DataType="local:ResultadoColumnaItem">
+                                                    <Grid ColumnSpacing="4">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="50" />
+                                                            <ColumnDefinition Width="135" />
+                                                            <ColumnDefinition Width="44" />
+                                                            <ColumnDefinition Width="44" />
+                                                            <ColumnDefinition Width="44" />
+                                                            <ColumnDefinition Width="44" />
+                                                            <ColumnDefinition Width="44" />
+                                                            <ColumnDefinition Width="86" />
+                                                            <ColumnDefinition Width="72" />
+                                                            <ColumnDefinition Width="72" />
+                                                            <ColumnDefinition Width="72" />
+                                                            <ColumnDefinition Width="72" />
+                                                            <ColumnDefinition Width="72" />
+                                                            <ColumnDefinition Width="112" />
+                                                            <ColumnDefinition Width="64" />
+                                                            <ColumnDefinition Width="64" />
+                                                            <ColumnDefinition Width="64" />
+                                                            <ColumnDefinition Width="64" />
+                                                            <ColumnDefinition Width="64" />
+                                                            <ColumnDefinition Width="90" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Grid.Column="0" Text="{x:Bind NumCol}" />
+                                                        <TextBlock Grid.Column="1" Text="{x:Bind Columna}" FontFamily="Consolas" />
+                                                        <TextBlock Grid.Column="2" Text="{x:Bind Veces14}" />
+                                                        <TextBlock Grid.Column="3" Text="{x:Bind Veces13}" />
+                                                        <TextBlock Grid.Column="4" Text="{x:Bind Veces12}" />
+                                                        <TextBlock Grid.Column="5" Text="{x:Bind Veces11}" />
+                                                        <TextBlock Grid.Column="6" Text="{x:Bind Veces10}" />
+                                                        <TextBlock Grid.Column="7" Text="{x:Bind NumAcumulado}" />
+                                                        <TextBlock Grid.Column="8" Text="{x:Bind Premio14}" />
+                                                        <TextBlock Grid.Column="9" Text="{x:Bind Premio13}" />
+                                                        <TextBlock Grid.Column="10" Text="{x:Bind Premio12}" />
+                                                        <TextBlock Grid.Column="11" Text="{x:Bind Premio11}" />
+                                                        <TextBlock Grid.Column="12" Text="{x:Bind Premio10}" />
+                                                        <TextBlock Grid.Column="13" Text="{x:Bind PremioAcumuladoTexto}" />
+                                                        <TextBlock Grid.Column="14" Text="{x:Bind Medio14}" />
+                                                        <TextBlock Grid.Column="15" Text="{x:Bind Medio13}" />
+                                                        <TextBlock Grid.Column="16" Text="{x:Bind Medio12}" />
+                                                        <TextBlock Grid.Column="17" Text="{x:Bind Medio11}" />
+                                                        <TextBlock Grid.Column="18" Text="{x:Bind Medio10}" />
+                                                        <TextBlock Grid.Column="19" Text="{x:Bind RecuperacionTexto}" />
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ListView.ItemTemplate>
+                                        </ListView>
+                                    </StackPanel>
+                                </ScrollViewer>
 
                                 <!-- Modo "Jornadas": una fila por columna aleatoria simulada, con su
                                      saldo acumulado (legacy dgResultadoEscrutinio enlazado a
