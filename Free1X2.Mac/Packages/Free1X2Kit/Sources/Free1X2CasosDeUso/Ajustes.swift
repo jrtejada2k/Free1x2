@@ -19,6 +19,8 @@ public struct ConfiguracionEditable: Sendable, Hashable {
     public var precioApuesta = 0.75
     public var porcentajeAl14 = 15.0
     public var moneda = "€"
+    /// DT-97: los parámetros del Progol (México).
+    public var laeMexico = ConfigLAE.mexico
     public var actualizarAlInicio = false
     public var confirmarAlSalir = false
     /// `Idiomas`: `es-ES` y, si falta, el leído.
@@ -106,6 +108,7 @@ public enum CasosAjustes {
             (e.precioApuesta, e.porcentajeAl14, e.recaudacion, e.moneda) = (
                 lae.precioApuesta, lae.porcentaje14, lae.recaudacion, lae.moneda
             )
+            e.laeMexico = p.laeMexico()
             let cp = try p.puntosCP()
             (e.fijos, e.dobles, e.triples) = (Double(cp.fijos), Double(cp.dobles), Double(cp.triples))
             e.desplazamiento = Double(p.desplazamiento(previo: 3))
@@ -148,6 +151,7 @@ public enum CasosAjustes {
                 e.precioApuesta, e.porcentajeAl14, e.recaudacion, e.moneda
             )
             try p.guardarLAE(lae)
+            p.guardarLAEMexico(e.laeMexico)
             try p.guardarPuntosCP(
                 PuntosCP(
                     fijos: Int(FormatoNET.castInt32(e.fijos)), dobles: Int(FormatoNET.castInt32(e.dobles)),

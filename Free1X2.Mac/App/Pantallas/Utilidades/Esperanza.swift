@@ -58,7 +58,7 @@ struct VistaEsperanza: View {
         FormatoNET.toStringMiles(v, decimales: decimales, decimalesNegativo: decimales, cultura: sesion.entorno.cultura)
     }
 
-    private func dinero(_ v: Double, _ decimales: Int = 2) -> String { numero(v, decimales) + " " + sesion.configuracion.lae.moneda }
+    private func dinero(_ v: Double, _ decimales: Int = 2) -> String { numero(v, decimales) + " " + sesion.lae.moneda }
 
     /// «0,0043 % (1 entre 23.142)».
     private func probabilidad(_ p: Double) -> String {
@@ -176,7 +176,7 @@ struct VistaEsperanza: View {
         .onAppear {
             guard !cargado else { return }
             cargado = true
-            (recaudacion, precio) = (sesion.configuracion.lae.recaudacion, sesion.configuracion.lae.precioApuesta)
+            (recaudacion, precio) = (sesion.lae.recaudacion, sesion.lae.precioApuesta)
         }
     }
 }

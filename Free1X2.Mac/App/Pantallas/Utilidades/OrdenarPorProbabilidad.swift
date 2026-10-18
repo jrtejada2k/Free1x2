@@ -188,7 +188,7 @@ struct VistaOrdenarPorProbabilidad: View {
             guard !cargado else { return }
             cargado = true
             valoraciones = Array(repeating: [0, 0, 0], count: sesion.numeroPartidos)
-            let (l, c) = (sesion.configuracion.lae, sesion.entorno.cultura)
+            let (l, c) = (sesion.lae, sesion.entorno.cultura)
             (recaudacion, precio, porcentaje14) = (
                 FormatoNET.toString(l.recaudacion, cultura: c), FormatoNET.toString(l.precioApuesta, cultura: c),
                 FormatoNET.toString(l.porcentaje14, cultura: c)

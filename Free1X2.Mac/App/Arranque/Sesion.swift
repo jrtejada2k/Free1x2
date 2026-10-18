@@ -27,6 +27,9 @@ final class Sesion {
     /// `ArchivoFiltroCols` (ruta tal cual, como la guarda el `.comb`).
     var archivoFiltroCols = ""
     var jornadaActual: JornadaQuiniela?
+    /// DT-97 (dueño): precio, moneda, recaudación y % del 14 del país de la jornada cargada (México ⇒ los del Progol; sin
+    /// jornada, España). Lo que lee o escribe `Jornadas/InfoJornadasLAE.txt` (L.A.E.) usa siempre `configuracion.lae`.
+    var lae: ConfigLAE { jornadaActual?.pais.lowercased() == PaisQuiniela.mx.rawValue ? configuracion.laeMexico : configuracion.lae }
     /// Local y visitante de cada partido tal como se escriben (sin recortar, B-03).
     var locales: [String]
     var visitantes: [String]

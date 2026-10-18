@@ -192,7 +192,7 @@ struct VistaRentabilidad: View {
         do throws(ErrorDominio) {
             let n = try await CasosUtilidades.calcularRentabilidad(
                 entrada: deFichero ? URL(filePath: entrada) : nil, salida: URL(filePath: salida), apostados: apostados, reales: reales,
-                recaudacion: recaudacion, lae: sesion.configuracion.lae, emMin: emMin, emMax: emMax, ordenar: ordenar, conEM: conEM,
+                recaudacion: recaudacion, lae: sesion.lae, emMin: emMin, emMax: emMax, ordenar: ordenar, conEM: conEM,
                 numeroPartidos: sesion.numeroPartidos, entorno: sesion.entorno
             ) { estado = $0 }
             estado = "Finalizado (\(n) columnas)"
@@ -260,7 +260,7 @@ struct VistaRentabilidad: View {
                                 do throws(ErrorDominio) {
                                     valoracion = try CasosUtilidades.valorarColumnaRentabilidad(
                                         columna, apostados: apostados, reales: reales, recaudacion: recaudacion,
-                                        lae: sesion.configuracion.lae, cultura: sesion.entorno.cultura)
+                                        lae: sesion.lae, cultura: sesion.entorno.cultura)
                                     estado = "Valoración calculada"
                                 } catch {
                                     sesion.alertas.inesperado(error)

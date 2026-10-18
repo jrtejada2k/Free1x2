@@ -58,6 +58,11 @@ struct InicioTests {
         }
         let resultados = "1970\t1\tX11121212X11X1\r\n2006\t38\t1X21X21X21X21X1\r\n"
         try entorno.archivos.escribir(Data(resultados.utf8), en: recursos.appending(path: "Jornadas/Resultados.txt"), atomico: true)
+        let progol =
+            "NPRODUCTO,CONCURSO,R1,R2,R3,R4,R5,R6,R7,R8,R9,R10,R11,R12,R13,R14,BOLSA,FECHA\r\n"
+            + "10,2354,L,L,E,E,E,E,E,L,V,L,E,L,L,L,8000000,12/10/2026\r\n10,767,E,L,V,V,L,V,L,V,E,E,E,L,E,L,0,15/08/1993\r\n"
+            + "10,700,L,L,E\r\n"
+        try entorno.archivos.escribir(Data(progol.utf8), en: recursos.appending(path: CasosInicio.semillaProgol), atomico: true)
         let lae = "111111XX211221\t1988/1989\t01\t1000\t0,00\t0\t0\t0\t0\r\n"
         try entorno.archivos.escribir(Data(lae.utf8), en: recursos.appending(path: CasosInicio.semillaJornadasLAE), atomico: true)
         let e = CasosInicio.arrancar(entorno: entorno)
@@ -70,6 +75,12 @@ struct InicioTests {
             CasosHistorico.leer("España", entorno: entorno) == [
                 GanadoraHistorica(jornada: "1970/1971-01", ganadora: "X11121212X11X1"),
                 GanadoraHistorica(jornada: "2006/2007-38", ganadora: "1X21X21X21X21X"),
+            ])
+        // DT-97: «México» del CSV de Lotería Nacional, del concurso más antiguo al más reciente; las filas rotas se saltan.
+        #expect(
+            CasosHistorico.leer("México", entorno: entorno) == [
+                GanadoraHistorica(jornada: "767", ganadora: "X1221212XXX1X1"),
+                GanadoraHistorica(jornada: "2354", ganadora: "11XXXXX121X111"),
             ])
         // Con la carpeta ya creada (aunque se borre la liga) no se vuelve a sembrar.
         try CasosHistorico.borrar("España", entorno: entorno)

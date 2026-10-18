@@ -175,6 +175,7 @@ ficheros reales en carpeta temporal), U = XCUITest, M = manual del dueño.
 | F55 | Ordenar: «premio de 14 entre … y …» (DT-95) | `1…1` y `2…2X` con 50/30/20, 15 M €, 0,5 €, 15 %: 1.000–2.000 ⇒ solo `1…1` (1.228,8 €); 2–3 M ⇒ solo `2…2X` (tope 2,25 M); 0–1.000 ⇒ ninguna y sin fichero | I |
 | F56 | Banco: ordenar y filtro de filas (DT-95) | autoescrutinio de 3 columnas: Nºacumulado [2, 2, 1]; orden por Nº13 y su inversa; Nºcol. vuelve al orden; 18 límites; filtros Nº13 1–1 ⇒ 2 filas, dos conceptos que fallan ⇒ 0, sin conceptos ⇒ sin cambios | I |
 | F57 | Históricos de fábrica (DT-96) | jornadas L.A.E. de 0,50 € convertidas a 0,75 € (dos líneas reales y su lectura en Estimación); siembra de `Jornadas/`, `Ganadoras/` y de la liga «España» desde `Resultados.txt`, sin volver a sembrarla si se borra | I |
+| F58 | Progol: liga «México» y parámetros por país (DT-97) | CSV de Lotería Nacional ⇒ «México» de 767 a 2354 en orden y sin filas rotas; `<Progol>` ausente ⇒ 15 $ / 33 % / 15 M $; guardar lo añade tras `<LAE>` sin tocar España y luego lo cambia | I |
 | F52 | Reducir y filtrar sin fichero (DT-85) | boleto JD-01 ▸ Inicio ▸ Reducir ⇒ Reductor con «ColumnasInicio.txt» (729 columnas) ▸ Reducir ⇒ 73…729 admitidas y «Guardar resultado…» activo | I, U |
 
 ## 5. Cómo se ejecuta
@@ -317,6 +318,7 @@ Leyenda: **I** = `Tests/Free1X2CasosDeUsoTests/FlujosTests.swift` (ficheros real
 | F55 intervalo premio 14 | N4 `OrdenarPorProbabilidadTests.intervaloPremio14` | ✔ |
 | F56 banco orden y filtro | N4 `BancoPruebasTests.ordenYFiltro` | ✔ |
 | F57 históricos | N4 `InicioTests.jornadasLAEAlPrecio`, `InicioTests.arrancarSiembraHistoricos` | ✔ |
+| F58 Progol | N4 `InicioTests.arrancarSiembraHistoricos` (México), `ParametrosTests.laeMexico` | ✔ |
 | F52 sin fichero | I `f52ColumnasDeInicio` (729 = JD-01; 0 columnas ⇒ error y sin fichero viejo); U `testF52ReducirSinFichero`; en local, 14 triples ⇒ Reductor con las columnas en 41 s | ✔ |
 
 **CI:** run 39006120618 verde (19 min): 265 tests del paquete, cobertura de casos de uso 88,5 % y **18 tests de UI** (F02–F52; F16 escruta JD-02 para que «Ver premiadas» no tenga 473 filas, que hacen cada búsqueda de XCUITest de 9-13 s).

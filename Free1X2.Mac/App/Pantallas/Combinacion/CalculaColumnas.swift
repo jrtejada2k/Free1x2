@@ -46,14 +46,14 @@ struct VistaCalculaColumnas: View {
         guard let c = combinacion else { return }
         maximas = CasosCombinacion.estimarColumnasMaximas(c, entorno: sesion.entorno)
         let t = CasosCombinacion.estadisticasDeCalculo(
-            procesadas: 0, aceptadas: 0, maximas: maximas, lae: sesion.configuracion.lae, cultura: cultura)
+            procesadas: 0, aceptadas: 0, maximas: maximas, lae: sesion.lae, cultura: cultura)
         (textos.maximo, textos.costeMaximo) = (t.maximo, t.costeMaximo)
     }
 
     /// `ActualizaDatosCalculo`.
     private func actualizar(_ procesadas: Int, _ aceptadas: Int) {
         let t = CasosCombinacion.estadisticasDeCalculo(
-            procesadas: procesadas, aceptadas: aceptadas, maximas: maximas, lae: sesion.configuracion.lae, cultura: cultura)
+            procesadas: procesadas, aceptadas: aceptadas, maximas: maximas, lae: sesion.lae, cultura: cultura)
         textos = t
     }
 

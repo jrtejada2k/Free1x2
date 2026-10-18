@@ -64,7 +64,7 @@ un sistema se usa tal cual en el otro.
 4. Máscaras, columnas de Inicio, base de ganadoras y esperanza matemática: W9, W10, W12 y W14 (y W15–W16). Comparten la generación de columnas y la pantalla
    «Máscaras».
 5. Enlaces de ayuda (W11) e icono (W13, ya sustituido: solo verificar).
-6. Funciones de la 0.77.2 y del WinForms recuperadas: W17–W19. Históricos de fábrica: W20.
+6. Funciones de la 0.77.2 y del WinForms recuperadas: W17–W19. Históricos de fábrica: W20. Progol: W21.
 7. Cierre (§ «Cierre»): documentación, `CLAUDE.md` e informe al dueño.
 
 ---
@@ -670,6 +670,47 @@ un sistema se usa tal cual en el otro.
 
 ---
 
+## W21 · Progol: liga «México» de fábrica y parámetros L.A.E. por país (DT-97)
+
+- **Qué (aprobado por el dueño, 17-oct-2026; vale para todas las versiones):**
+  1. **Liga «México» de fábrica.** Copiar `Free1X2.Mac/App/Recursos/Datos/Jornadas/Progol.csv` (CSV oficial de Lotería
+     Nacional: `NPRODUCTO,CONCURSO,R1…R14,BOLSA,FECHA`, L/E/V) a `Free1X2.WinUI/Datos/Semillas/Jornadas/Progol.csv`. Con
+     la misma condición que «España» en W20 (la carpeta `Historico/` no existía al arrancar), crear
+     `Historico/México.txt` con una línea `concurso;14 signos` por fila válida (L = 1, E = X, V = 2; la cabecera y las
+     filas sin 14 signos se saltan), del concurso más antiguo al más reciente: 1.579 líneas, de `767;X1221212XXX1X1` a
+     `2354;11XXXXX121X111`. El nº de concurso es la misma clave que usa la descarga de clubprogol para México (W12), así
+     que no se duplican.
+  2. **Parámetros del Progol en Configuración.** Además de `<LAE>`, `parametros.free1x2` lleva
+     `<configuracionONLAE>…<Progol><OrdenarApuestas PrecioApuesta="15,00" PorcentajeDestinadoAl14="33" Recaudacion="15000000" Moneda="$" /></Progol></configuracionONLAE>`
+     (mismos atributos y formatos que `<LAE>`: precio con 2 decimales, el resto con `ToString()` en es-ES). Añadirlo a la
+     semilla `Free1X2.WinUI/Datos/parametros.free1x2`. Al leer: sin el nodo, o con un valor ilegible, los de fábrica
+     (15 $, 33 %, 15.000.000 $, «$»). Al guardar: si falta, se añade como último hijo de `<configuracionONLAE>`.
+     `AConfiguracion` solo lee el primer hijo de `<LAE>`, así que el nodo nuevo no le afecta.
+  3. **Pantalla Configuración:** la tarjeta «Parámetros LAE» pasa a «Parámetros LAE (España)» y debajo va «Parámetros
+     Progol (México)» con los mismos campos (Recaudación, Símbolo moneda (máx. 3), Precio apuesta, % al 14) y la nota «Se
+     usan cuando la jornada cargada (Inicio ▸ Jornada) es de México; si no, los de España.».
+  4. **Qué parámetros usa cada cálculo:** los del **país de la jornada cargada** (la de W6/W7; México ⇒ Progol; sin
+     jornada, España) en Calcular (valoración de la combinación), Rentabilidad (cálculo y «valorar columna»), Esperanza
+     matemática (W14), Ordenar por probabilidad, Tramificar (balance de los tramos) y Banco de pruebas. Lo que es de
+     L.A.E. usa **siempre España**: Estimación de premios, «Guardar escrutinio» y «Guardar jornada L.A.E.» (todo lo que
+     lee o escribe `Jornadas/InfoJornadasLAE.txt`, W16).
+- **Valores de fábrica de México:** 15 $ es el precio oficial de la quiniela sencilla (loterianacional.gob.mx). El 33 % y
+  los 15.000.000 $ son **estimados** que eligió el dueño: el reglamento (art. 20) da un mínimo del 55 % de las ventas a
+  premios y no publica el reparto por lugar. Son editables.
+- **Referencia Mac:** `ConfigLAE.mexico` y `Configuracion.laeMexico` en
+  `Free1X2.Mac/Packages/Free1X2Kit/Sources/Free1X2Motor/Configuracion/Configuracion.swift`; `laeMexico()` y
+  `guardarLAEMexico` en `…/Free1X2Formatos/Configuracion/ArchivoParametros.swift`; `ConfiguracionEditable.laeMexico` en
+  `…/Free1X2CasosDeUso/Ajustes.swift`; `ganadorasDeProgol` en `…/Free1X2CasosDeUso/Inicio.swift`; `Sesion.lae` en
+  `Free1X2.Mac/App/Arranque/Sesion.swift`; la tarjeta en `Free1X2.Mac/App/Pantallas/Free/Ajustes.swift`.
+- **Pruebas** (Mac: `ParametrosTests.laeMexico`, `InicioTests.arrancarSiembraHistoricos`): semilla sin `<Progol>` ⇒ los
+  de fábrica; guardar 20 / 30,5 / 18.000.000 lo añade justo tras `</LAE>` con `PrecioApuesta="20,00"
+  PorcentajeDestinadoAl14="30,5" Recaudacion="18000000" Moneda="$"` y España no cambia; guardarlo otra vez cambia el
+  mismo nodo (sigue habiendo un solo `<Progol>`); el CSV con las filas 2354, 767 y una rota da `767;X1221212XXX1X1` y
+  `2354;11XXXXX121X111`.
+- **R1:** con una jornada de España (o ninguna) todo da lo mismo que antes.
+
+---
+
 ## Lo que cambió en el Mac y **no** se lleva a Windows
 
 | Cambio en el Mac | Por qué no aplica |
@@ -682,7 +723,7 @@ un sistema se usa tal cual en el otro.
 
 ---
 
-## Cierre (después de W1–W20)
+## Cierre (después de W1–W21)
 
 1. **Verificación completa:** build 0 errores, `dotnet test` con 138 + los nuevos en verde, smoke `total=111 ok=111
    fail=0` con el log borrado antes.
@@ -691,8 +732,8 @@ un sistema se usa tal cual en el otro.
 3. **Manual y FAQ** (`docs/MANUAL_USUARIO.md`, `docs/FAQ.md`): quitar las marcas **[Mac]** y los «En la versión Mac…» de lo
    que Windows ya tenga (jornada al arrancar, Jornada ▾, panel lateral, Máscaras, base de ganadoras, Columnas de Inicio,
    `.mas`, `Historico/`, Esperanza matemática, Pegar desde Excel, Posibles premios con la ganadora, intervalo del premio
-   de 14, tabla y filtro del Banco de pruebas y su receta de PacoHH, históricos de fábrica). Luego `python scripts/md-a-wordpress.py`, que regenera `docs/web/manual.html` y
+   de 14, tabla y filtro del Banco de pruebas y su receta de PacoHH, históricos de fábrica, Progol). Luego `python scripts/md-a-wordpress.py`, que regenera `docs/web/manual.html` y
    `docs/web/faq.html`, y avisar al dueño de que hay que volver a subirlos a `clubprogol.com/docwk/` y
    `clubprogol.com/docwk/faq/`.
-4. **Informe al dueño:** una tabla por tarea (W1–W20) con estado (hecha / no hecha y por qué), commit, `fichero:línea`
+4. **Informe al dueño:** una tabla por tarea (W1–W21) con estado (hecha / no hecha y por qué), commit, `fichero:línea`
    del cambio y los tests añadidos. Lo que no se pudo hacer se dice, no se da por hecho.

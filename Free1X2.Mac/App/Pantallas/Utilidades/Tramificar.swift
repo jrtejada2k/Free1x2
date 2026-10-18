@@ -54,7 +54,7 @@ struct VistaTramificar: View {
             columnaInicial: columnaInicial, columnaFinal: columnaFinal, columnasPorTramo: columnasPorTramo,
             columnaPremiada: columnaPremiada, premios: premios, valoraciones: valoraciones, ln: ln, porProductos: porProductos,
             acumular: acumular)
-        p.precio = sesion.configuracion.lae.precioApuesta
+        p.precio = sesion.lae.precioApuesta
         let (flujo, canal) = AsyncStream.makeStream(of: String.self, bufferingPolicy: .bufferingNewest(1))
         let escucha = Task { for await t in flujo { estado = t } }
         do throws(ErrorDominio) {

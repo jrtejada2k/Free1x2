@@ -9,6 +9,9 @@
     <LAE>
       <OrdenarApuestas PrecioApuesta="0,75" PorcentajeDestinadoAl14="12" Recaudacion="14000000" Moneda="€" />
     </LAE>
+    <Progol>
+      <OrdenarApuestas PrecioApuesta="15,00" PorcentajeDestinadoAl14="33" Recaudacion="15000000" Moneda="$" />
+    </Progol>
   </configuracionONLAE>
   <utilidades>
     <separadorJB valores="15,22,29,36,48,61" />

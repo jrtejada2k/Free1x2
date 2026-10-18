@@ -131,6 +131,21 @@ public struct ArchivoParametros: Sendable {
         return l
     }
 
+    /// DT-97: el Progol en `<Progol><OrdenarApuestas …/></Progol>`, con los mismos atributos que `<LAE>` (el C# solo lee el
+    /// primer hijo de `<LAE>`, así que no le afecta). Sin el nodo, o con un valor ilegible, los de fábrica.
+    public func laeMexico() -> ConfigLAE {
+        var l = ConfigLAE.mexico
+        guard let n = documento.primerElemento("Progol")?.hijo(0) else { return l }
+        func numero(_ a: String) -> Double? {
+            n.atributoOpcional(a).flatMap { try? FormatoNET.parseFloat($0, cultura: .esES) }.map(Double.init)
+        }
+        l.precioApuesta = numero("PrecioApuesta") ?? l.precioApuesta
+        l.porcentaje14 = numero("PorcentajeDestinadoAl14") ?? l.porcentaje14
+        l.recaudacion = numero("Recaudacion") ?? l.recaudacion
+        l.moneda = n.atributoOpcional("Moneda") ?? l.moneda
+        return l
+    }
+
     /// `ObtenValoresLAE(ref string…)` (:415-424): los textos tal cual.
     public func laeTextos() throws(ErrorDominio) -> [String] {
         let o = "AConfiguracion.cs:420-423"
@@ -216,6 +231,22 @@ public struct ArchivoParametros: Sendable {
             ], "AConfiguracion.cs:373-376")
     }
 
+    /// DT-97: como `guardarLAE`, en `<Progol>`; si el fichero aún no lo tiene, se añade detrás de `<LAE>` (al final de
+    /// `<configuracionONLAE>`, o de la raíz `<xml>` si falta).
+    public mutating func guardarLAEMexico(_ l: ConfigLAE) {
+        let atributos = [
+            AtributoXML("PrecioApuesta", FormatoNET.toStringFijo(l.precioApuesta, decimales: 2, cultura: .esES)),
+            AtributoXML("PorcentajeDestinadoAl14", FormatoNET.toString(l.porcentaje14, cultura: .esES)),
+            AtributoXML("Recaudacion", FormatoNET.toString(l.recaudacion, cultura: .esES)), AtributoXML("Moneda", l.moneda),
+        ]
+        if let r = documento.rutaPrimerElemento("Progol"), !documento[ruta: r].hijos.isEmpty {
+            documento[ruta: r + [0]].atributos = atributos
+            return
+        }
+        guard let padre = documento.rutaPrimerElemento("configuracionONLAE") ?? documento.rutaPrimerElemento("xml") else { return }
+        documento[ruta: padre].hijos.append(.elemento("Progol", hijos: [.elemento("OrdenarApuestas", atributos)]))
+    }
+
     // MARK: Carga de VariablesGlobales
 
     /// `InicializarVariables` (:72-100): idioma → CP → desplazamiento → partidos → barras → actualizador → análisis → LAE →
@@ -236,6 +267,7 @@ public struct ArchivoParametros: Sendable {
             try p.analisis(&analisis)
             c.analisis = analisis
             c.lae = try p.lae()
+            c.laeMexico = p.laeMexico()
             c.interfaz.confirmarAlSalir = try p.confirmacionSalir()
             return c
         } catch {

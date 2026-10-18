@@ -30,7 +30,7 @@ struct VistaConfiguracion: View {
                     ForEach(0..<6, id: \.self) { i in CampoNumero(etiqueta: "", valor: $e.jb[i], ancho: 60) }
                 }
             }
-            Tarjeta("Parámetros LAE") {
+            Tarjeta("Parámetros LAE (España)") {
                 HStack(spacing: 16) {
                     CampoNumero(etiqueta: "Recaudación", valor: $e.recaudacion, ancho: 120)
                     LabeledContent("Símbolo moneda") {
@@ -42,6 +42,24 @@ struct VistaConfiguracion: View {
                     CampoNumero(etiqueta: "Precio apuesta", valor: $e.precioApuesta, ancho: 80)
                     CampoNumero(etiqueta: "% al 14", valor: $e.porcentajeAl14, minimo: 0, maximo: 100, ancho: 70)
                 }
+            }
+            // DT-97 (dueño): el Progol tiene sus propios parámetros; se usan cuando la jornada cargada es de México.
+            Tarjeta("Parámetros Progol (México)") {
+                HStack(spacing: 16) {
+                    CampoNumero(etiqueta: "Recaudación", valor: $e.laeMexico.recaudacion, ancho: 120)
+                    LabeledContent("Símbolo moneda") {
+                        TextField("", text: $e.laeMexico.moneda).frame(width: 50)
+                            .onChange(of: e.laeMexico.moneda) {
+                                if e.laeMexico.moneda.count > 3 { e.laeMexico.moneda = String(e.laeMexico.moneda.prefix(3)) }
+                            }
+                    }
+                }
+                HStack(spacing: 16) {
+                    CampoNumero(etiqueta: "Precio apuesta", valor: $e.laeMexico.precioApuesta, ancho: 80)
+                    CampoNumero(etiqueta: "% al 14", valor: $e.laeMexico.porcentaje14, minimo: 0, maximo: 100, ancho: 70)
+                }
+                Text("Se usan cuando la jornada cargada (Inicio ▸ Jornada) es de México; si no, los de España.")
+                    .font(.callout).foregroundStyle(Color.textoSecundario)
             }
             Tarjeta("Preferencias") {
                 Toggle(isOn: $e.actualizarAlInicio) {

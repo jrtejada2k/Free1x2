@@ -40,6 +40,8 @@ public enum CasosInicio {
         } + (1983...2008).map { "Ganadoras/\($0)-\(String(String($0 + 101).suffix(2))).txt" }
     /// DT-96: jornadas L.A.E. de 1988/89 a 2006/07, con los importes en apuestas de 0,50 € (ver `jornadasLAEAlPrecio`).
     public static let semillaJornadasLAE = "Jornadas/InfoJornadasLAE.txt"
+    /// DT-97: concursos del Progol de Lotería Nacional (767 a 2354, de 1993 a 2026), CSV que aportó el dueño.
+    public static let semillaProgol = "Jornadas/Progol.csv"
 
     /// CU-S01: carpetas de trabajo, semillas, `Configuracion` (todo o nada) y jornada de la caché, **sin red**. Nunca
     /// lanza: los fallos solo se registran (`App.xaml.cs:92,118`).
@@ -73,12 +75,16 @@ public enum CasosInicio {
                 entorno.registro.registrar("Semilla \(semillaJornadasLAE): \(error.mensajeUsuario)", nivel: .error)
             }
         }
-        if sinHistorico, let datos = try? a.leer(r.recursos.appending(path: "Datos/Jornadas/Resultados.txt")) {
+        let ligas: [(PaisQuiniela, String, (Data) -> [GanadoraHistorica])] = [
+            (.es, "Jornadas/Resultados.txt", ganadorasDeResultados), (.mx, semillaProgol, ganadorasDeProgol),
+        ]
+        for (pais, semilla, convertir) in ligas where sinHistorico {
+            guard let datos = try? a.leer(r.recursos.appending(path: "Datos/" + semilla)) else { continue }
             do throws(ErrorDominio) {
-                let g = ganadorasDeResultados(datos)
-                if !g.isEmpty { try CasosHistorico.guardar(g, en: CasosHistorico.liga(.es), entorno: entorno) }
+                let g = convertir(datos)
+                if !g.isEmpty { try CasosHistorico.guardar(g, en: CasosHistorico.liga(pais), entorno: entorno) }
             } catch {
-                entorno.registro.registrar("Liga España: \(error.mensajeUsuario)", nivel: .error)
+                entorno.registro.registrar("Liga \(CasosHistorico.liga(pais)): \(error.mensajeUsuario)", nivel: .error)
             }
         }
         let cache = CacheJornada(archivos: a, carpeta: r.base, registro: entorno.registro)
@@ -112,6 +118,20 @@ public enum CasosInicio {
             return GanadoraHistorica(
                 jornada: "\(f.temporada)/\(Int(f.temporada) + 1)-" + String(repeating: "0", count: max(0, 2 - j.count)) + j, ganadora: g)
         }
+    }
+
+    /// DT-97 (dueño): la liga «México» de una instalación nueva arranca con el CSV de Lotería Nacional
+    /// (`NPRODUCTO,CONCURSO,R1…R14,BOLSA,FECHA`; L = 1, E = X, V = 2), del concurso más antiguo al más reciente. La jornada
+    /// es el nº de concurso, la misma clave que la descarga de clubprogol, así que no se duplican.
+    static func ganadorasDeProgol(_ datos: Data) -> [GanadoraHistorica] {
+        let signo: [String: String] = ["L": "1", "E": "X", "V": "2"]
+        return TextoNET.lineas(datos).compactMap { l -> (Int, GanadoraHistorica)? in
+            let v = l.split(separator: ",", omittingEmptySubsequences: false).map { FormatoNET.recortar(String($0)).uppercased() }
+            guard v.count >= 16, let n = Int(v[1]) else { return nil }
+            let g = v[2...15].compactMap { signo[$0] }.joined()
+            return g.count == JornadaQuiniela.numeroPartidos ? (n, GanadoraHistorica(jornada: String(n), ganadora: g)) : nil
+        }
+        .sorted { $0.0 < $1.0 }.map(\.1)
     }
 
     /// CU-S02 (:568-572): `new Analizador()` + 14 triples volcados + equipos «? - ?».

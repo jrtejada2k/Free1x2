@@ -5,6 +5,8 @@ public struct Configuracion: Sendable, Hashable {
     public var boleto = ConfigBoleto()
     public var puntosCP = PuntosCP(fijos: 10, dobles: 15, triples: 20)
     public var lae = ConfigLAE()
+    /// DT-97 (dueño): los mismos parámetros para el Progol de México (`<Progol>` en `parametros.free1x2`).
+    public var laeMexico = ConfigLAE.mexico
     public var analisis = OpcionesAnalisis()
     public var interfaz = PreferenciasInterfaz()
 
@@ -43,6 +45,14 @@ public struct ConfigLAE: Sendable, Hashable {
     public var moneda = "€"
 
     public init() {}
+
+    /// DT-97 (dueño, 17-oct-2026): Progol de fábrica. 15 $ la quiniela sencilla (Lotería Nacional); el % del primer lugar
+    /// (33 %: mínimo 55 % de las ventas a premios × ~60 % al primero) y las ventas (15.000.000 $) son estimados, editables.
+    public static let mexico: ConfigLAE = {
+        var l = ConfigLAE()
+        (l.precioApuesta, l.porcentaje14, l.recaudacion, l.moneda) = (15, 33, 15_000_000, "$")
+        return l
+    }()
 }
 
 /// Las 20 banderas `Analizar*` (01 §3.1 c): deciden el `analisisActivo` de cada filtro.

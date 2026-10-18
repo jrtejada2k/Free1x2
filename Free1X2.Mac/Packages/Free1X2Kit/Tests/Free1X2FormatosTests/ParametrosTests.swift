@@ -80,6 +80,30 @@ struct ParametrosTests {
         let e = #expect(throws: ErrorDominio.self) { try sinDesp.guardarPuntosCP(PuntosCP(fijos: 1, dobles: 1, triples: 1)) }
         #expect(e?.excepcion == .referenciaNula)
     }
+
+    /// DT-97: el Progol en `<Progol>`; sin el nodo, los de fábrica; al guardar se añade tras `<LAE>` y luego se cambia.
+    @Test func laeMexico() throws {
+        let semilla = try Self.semilla()
+        var p = try ArchivoParametros(semilla)
+        #expect(p.laeMexico() == ConfigLAE.mexico && ArchivoParametros.cargarConfiguracion(semilla).laeMexico == .mexico)
+        #expect(ConfigLAE.mexico.precioApuesta == 15 && ConfigLAE.mexico.moneda == "$")
+        var l = ConfigLAE.mexico
+        (l.precioApuesta, l.porcentaje14, l.recaudacion) = (20, 30.5, 18_000_000)
+        p.guardarLAEMexico(l)
+        let t = Self.texto(p.datos)
+        #expect(
+            t.contains(
+                "</LAE>\r\n    <Progol>\r\n      <OrdenarApuestas PrecioApuesta=\"20,00\" PorcentajeDestinadoAl14=\"30,5\" "
+                    + "Recaudacion=\"18000000\" Moneda=\"$\" />\r\n    </Progol>"))
+        let leido = try ArchivoParametros(p.datos)
+        #expect(leido.laeMexico() == l)
+        #expect(try leido.lae() == p.lae(), "España no cambia")
+        var otra = leido
+        l.precioApuesta = 15
+        otra.guardarLAEMexico(l)
+        #expect(Self.texto(otra.datos).components(separatedBy: "<Progol>").count == 2 && otra.laeMexico().precioApuesta == 15)
+        #expect(ArchivoParametros.cargarConfiguracion(otra.datos).laeMexico == l)
+    }
 }
 
 /// 07 F05: `ColumnasProbables.xml` de la semilla (DEC-718).

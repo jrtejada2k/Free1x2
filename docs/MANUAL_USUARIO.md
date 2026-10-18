@@ -151,6 +151,10 @@ Permite seleccionar un archivo de columnas que actúa como **base/filtro** de la
 
 1. **Configura** el programa (`Free1x2 → Configuración`): precio de la apuesta, nº de partidos, etc. En la versión Mac el
    precio de partida es **0,75 €** (Configuración ▸ Parámetros LAE ▸ Precio apuesta); cámbialo si la apuesta cuesta otra cosa.
+   **[Mac]** El Progol tiene sus propios parámetros (**Configuración ▸ Parámetros Progol (México)**: 15 $ la quiniela
+   sencilla, 15.000.000 $ de recaudación y 33 % para el 14; los dos últimos son estimados, ajústalos si los conoces). Se
+   usan cuando la jornada cargada es de México; si no, los de España. Estimación de premios y lo que se guarda en
+   `Jornadas/InfoJornadasLAE.txt` son de L.A.E. y usan siempre los de España.
 2. **Carga el boleto base** (equipos + pronóstico inicial de fijos/dobles/triples). **[Mac]** Los equipos de la jornada
    se cargan solos al abrir el programa (o con **Jornada ▾**), y el pronóstico puede salir de una **máscara** guardada
    (**Máscaras ▾**, ver §10).
@@ -780,8 +784,10 @@ día 10 más, no hace falta volver a subir las 1.500.
 - **Descargar de clubprogol ▾ → España** o **México:** baja las jornadas publicadas en clubprogol.com y las suma a la liga
   «España» (Quiniela) o «México» (Progol). Si las descargas otra vez, solo entran las nuevas.
 - En una instalación nueva, la liga **«España»** ya trae **1.454 jornadas de 1970/71 a 2006/07** (las de
-  `Jornadas/Resultados.txt` con sus 14 signos completos), con la jornada escrita como `1970/1971-01`. Las descargas de
-  clubprogol se suman a ellas. Si borras la liga, no vuelve a aparecer.
+  `Jornadas/Resultados.txt` con sus 14 signos completos), con la jornada escrita como `1970/1971-01`, y la liga
+  **«México»** trae los **1.579 concursos del Progol del 767 al 2354** (de 1993 a 2026, Lotería Nacional), con el nº de
+  concurso como jornada. Las descargas de clubprogol se suman a ellas (las de México con el mismo nº de concurso no se
+  duplican). Si borras una liga, no vuelve a aparecer.
 - **Nueva liga…:** crea una liga vacía con el nombre que quieras (por ejemplo «Liga MX 2010-2020») para cargar en ella tu
   propio histórico.
 - **Añadir ganadoras desde archivo…:** suma a la liga elegida un `.txt` con **una jornada por línea** (formato debajo).
@@ -885,7 +891,7 @@ Recalcula el signo de un **partido a tratar** como **combinación lineal** (mód
 | `.comb` / `.xml` | Combinación completa: equipos, pronósticos, grupos, condiciones y filtro asociado. |
 | `.grupos` | Un grupo de condiciones exportado, para reutilizar. |
 | `.txt` | Archivo de columnas: una columna de 14 signos por línea. Es el formato de intercambio (filtros, escrutinio, operaciones). |
-| `parametros.free1x2` | Configuración del programa: puntos de CP, nº de partidos, separador, idioma, datos ONLAE (precio, recaudación). |
+| `parametros.free1x2` | Configuración del programa: puntos de CP, nº de partidos, separador, idioma, datos ONLAE (precio, recaudación). **[Mac]** Los del Progol van en `<Progol>`, junto a `<LAE>`. |
 | `.mas` **[Mac]** | Una máscara (carpeta `Mascaras/`): texto con una línea por partido y sus signos separados por comas (`1`, `1,X`, `1,X,2`). El nombre del archivo es el de la máscara. |
 | `Historico/<liga>.txt` **[Mac]** | La base de ganadoras de una liga: una línea `jornada;columna` por jornada. El nombre del archivo es el de la liga. Se gestiona desde la pantalla «Máscaras»; no hace falta editarlo a mano. |
 | `.z3q` | Archivo de columnas comprimido con el Compresor. |

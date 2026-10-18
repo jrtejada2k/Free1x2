@@ -20,7 +20,7 @@ struct VistaCalculaColumnasMultiple: View {
 
     private func actualizar(_ procesadas: Int, _ aceptadas: Int) {
         textos = CasosCombinacion.estadisticasDeCalculo(
-            procesadas: procesadas, aceptadas: aceptadas, maximas: maximas, lae: sesion.configuracion.lae, cultura: cultura)
+            procesadas: procesadas, aceptadas: aceptadas, maximas: maximas, lae: sesion.lae, cultura: cultura)
     }
 
     private func calcular() async {
