@@ -248,47 +248,66 @@ private final class Reductor {
         var primera = 0
         var ultima = iniciales + numExternas
         while true {
-            var max: Int32 = 0
-            var rmin: Int32 = 100_000
-            var rmayor: Int32 = 0
-            var nr = primera
-            while nr < iniciales {
-                let v = columnas[nr]
-                if !reducidaB[v] {
-                    max = Swift.max(max, flags[v])
-                    if flags[v] > 1 { rmin = Swift.min(rmin, flags[v]) }
+            // DM-23: las tres pasadas de cada vuelta, en varios núcleos por tramos de `columnas` (solo leen), con el mismo
+            // resultado que en un hilo: el máximo y el mínimo no dependen del orden; las pobres se dispersan en su orden
+            // (`dispersa` solo suma en `poorN`), y la elegida es la primera con el mayor (pobres, valor), como el bucle.
+            let (a, b) = (primera, ultima)
+            let (tramosA, tramos) = (trozosParalelos(iniciales - a), trozosParalelos(b - a))
+            let (max, pobres) = columnas.withUnsafeBufferPointer { col in
+                let l = Lectura(self, col)
+                let extremos = enParalelo(tramosA.count) { k in
+                    var (mx, mn): (Int32, Int32) = (0, 100_000)
+                    for nr in tramosA[k] {
+                        let v = l.columnas[a + nr]
+                        if !l.reducida[v] {
+                            mx = Swift.max(mx, l.flags[v])
+                            if l.flags[v] > 1 { mn = Swift.min(mn, l.flags[v]) }
+                        }
+                    }
+                    return (mx, mn)
                 }
-                nr += 1
+                let mx = extremos.reduce(0) { Swift.max($0, $1.0) }
+                let mn = extremos.reduce(100_000) { Swift.min($0, $1.1) }
+                guard mx > 0 else { return (mx, [[Int]]()) }
+                let pobres = enParalelo(tramos.count) { k in
+                    var p: [Int] = []
+                    for nr in tramos[k] {
+                        let v = l.columnas[a + nr]
+                        if l.bits[v] && !l.reducida[v] && l.flags[v] > 1 && l.flags[v] == mn { p.append(v) }
+                    }
+                    return p
+                }
+                return (mx, pobres)
             }
             if max == 0 { break }
-            nr = primera
-            while nr < ultima {
-                let v = columnas[nr]
-                // `14 − nivel` literal, no `noPartidos − nivel` (05 §2.2 P5).
-                if bits[v] && !reducidaB[v] && flags[v] > 1 && flags[v] == rmin { dispersa(v, 1, 14 - nivel, 1) }
-                nr += 1
-            }
+            // `14 − nivel` literal, no `noPartidos − nivel` (05 §2.2 P5).
+            for p in pobres { for v in p { dispersa(v, 1, 14 - nivel, 1) } }
             if bombear() { break }
-            var nextcol = -1
-            var min = -1
-            nr = primera
-            while nr < ultima {
-                let v = columnas[nr]
-                let nv = flags[v]
-                let nnr = Int(poorN[v]) + (nv == max ? 1 : 0)
-                if !reductoraB[v] {
-                    if nnr > min {
-                        min = nnr
-                        nextcol = nr
-                        rmayor = nv
+            let mejores = columnas.withUnsafeBufferPointer { col in
+                let l = Lectura(self, col)
+                return enParalelo(tramos.count) { k in
+                    var (nextcol, min, rmayor): (Int, Int, Int32) = (-1, -1, 0)
+                    for nr in tramos[k] {
+                        let v = l.columnas[a + nr]
+                        let nv = l.flags[v]
+                        let nnr = Int(l.poor[v]) + (nv == max ? 1 : 0)
+                        if !l.reductora[v] {
+                            if nnr > min {
+                                min = nnr
+                                nextcol = a + nr
+                                rmayor = nv
+                            }
+                            if nnr == min && nv > rmayor {
+                                nextcol = a + nr
+                                rmayor = nv
+                            }
+                        }
                     }
-                    if nnr == min && nv > rmayor {
-                        nextcol = nr
-                        rmayor = nv
-                    }
+                    return (nextcol, min, rmayor)
                 }
-                nr += 1
             }
+            var (nextcol, min, rmayor): (Int, Int, Int32) = (-1, -1, 0)
+            for m in mejores where m.0 >= 0 && (m.1 > min || (m.1 == min && m.2 > rmayor)) { (nextcol, min, rmayor) = m }
             for t in pobresTocados { poorN[Int(t)] = 0 }
             pobresTocados.removeAll(keepingCapacity: true)
             if nextcol < 0 { break }
@@ -448,5 +467,22 @@ private final class Reductor {
         case .grandesArchivos:
             return (0..<indices).filter { reductoraB[$0] }
         }
+    }
+}
+
+/// Lo que leen las pasadas en paralelo de «Menos columnas» (DM-23): `columnas` se toma en cada vuelta (puede crecer con
+/// las externas) y solo dentro de su `withUnsafeBufferPointer`.
+private struct Lectura: @unchecked Sendable {
+    let columnas: UnsafeBufferPointer<Int>
+    let flags: UnsafeBufferPointer<Int32>
+    let poor: UnsafeBufferPointer<Int32>
+    let bits: UnsafeBufferPointer<Bool>
+    let reducida: UnsafeBufferPointer<Bool>
+    let reductora: UnsafeBufferPointer<Bool>
+
+    init(_ r: Reductor, _ columnas: UnsafeBufferPointer<Int>) {
+        self.columnas = columnas
+        (flags, poor) = (UnsafeBufferPointer(r.flags), UnsafeBufferPointer(r.poorN))
+        (bits, reducida, reductora) = (UnsafeBufferPointer(r.bits), UnsafeBufferPointer(r.reducidaB), UnsafeBufferPointer(r.reductoraB))
     }
 }
