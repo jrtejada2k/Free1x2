@@ -1,0 +1,24 @@
+{
+  "pais": "ES",
+  "temporada": "2025/26",
+  "jornada": 38,
+  "fecha": "2026-06-21",
+  "actualizado": "2026-06-18T10:30:00Z",
+  "partidos": [
+    { "n": 1,  "local": "Real Madrid",       "visitante": "FC Barcelona" },
+    { "n": 2,  "local": "Atlético de Madrid", "visitante": "Athletic Club" },
+    { "n": 3,  "local": "Sevilla",           "visitante": "Real Betis" },
+    { "n": 4,  "local": "Valencia",          "visitante": "Villarreal" },
+    { "n": 5,  "local": "Real Sociedad",     "visitante": "Osasuna" },
+    { "n": 6,  "local": "Celta",             "visitante": "Rayo Vallecano" },
+    { "n": 7,  "local": "Getafe",            "visitante": "Mallorca" },
+    { "n": 8,  "local": "Girona",            "visitante": "Las Palmas" },
+    { "n": 9,  "local": "Alavés",            "visitante": "Leganés" },
+    { "n": 10, "local": "Espanyol",          "visitante": "Valladolid" },
+    { "n": 11, "local": "Levante",           "visitante": "Elche" },
+    { "n": 12, "local": "Real Oviedo",       "visitante": "Sporting" },
+    { "n": 13, "local": "Racing",            "visitante": "Eibar" },
+    { "n": 14, "local": "Almería",           "visitante": "Granada" }
+  ],
+  "pleno15": { "n": 15, "local": "Cádiz", "visitante": "Tenerife" }
+}

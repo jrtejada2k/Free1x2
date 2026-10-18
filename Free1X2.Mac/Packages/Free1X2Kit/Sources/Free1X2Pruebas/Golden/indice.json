@@ -1,0 +1,263 @@
+{
+  "version": 1,
+  "nota": "Oráculo por lectura (ESPEC_12). Cada suite lista su nº de casos; cada fixture, su origen en el repo C# (solo lectura) y su SHA-256. GoldenIndiceTests valida todo.",
+  "suites": [
+    {
+      "ruta": "base/codificaciones.jsonl",
+      "casos": 45
+    },
+    {
+      "ruta": "motor/utils/rangos.jsonl",
+      "casos": 11
+    },
+    {
+      "ruta": "motor/utils/tramo.jsonl",
+      "casos": 6
+    },
+    {
+      "ruta": "motor/utils/sumador.jsonl",
+      "casos": 5
+    },
+    {
+      "ruta": "motor/flujos.jsonl",
+      "casos": 7
+    },
+    {
+      "ruta": "motor/reduccion/jdc.jsonl",
+      "casos": 7
+    },
+    {
+      "ruta": "motor/cp/relacioncp1.jsonl",
+      "casos": 2
+    },
+    {
+      "ruta": "motor/escrutinio/escrutador.jsonl",
+      "casos": 24
+    },
+    {
+      "ruta": "formatos/z3q.jsonl",
+      "casos": 1
+    },
+    {
+      "ruta": "online/parsers.jsonl",
+      "casos": 18
+    },
+    {
+      "ruta": "base/utilcolumnas.jsonl",
+      "casos": 33
+    },
+    {
+      "ruta": "motor/utils/entradas.jsonl",
+      "casos": 44
+    },
+    {
+      "ruta": "net/formato.jsonl",
+      "casos": 47
+    },
+    {
+      "ruta": "net/colecciones.jsonl",
+      "casos": 10
+    },
+    {
+      "ruta": "motor/nucleo.jsonl",
+      "casos": 15
+    },
+    {
+      "ruta": "motor/filtros/novariantes.jsonl",
+      "casos": 4
+    },
+    {
+      "ruta": "motor/filtros/distancias.jsonl",
+      "casos": 3
+    },
+    {
+      "ruta": "motor/filtros/valoracion.jsonl",
+      "casos": 5
+    },
+    {
+      "ruta": "motor/filtros/formatos123.jsonl",
+      "casos": 5
+    },
+    {
+      "ruta": "motor/filtros/simetrias.jsonl",
+      "casos": 3
+    },
+    {
+      "ruta": "motor/filtros/dibujos.jsonl",
+      "casos": 3
+    },
+    {
+      "ruta": "motor/filtros/formatossignos.jsonl",
+      "casos": 4
+    },
+    {
+      "ruta": "motor/filtros/pesos.jsonl",
+      "casos": 16
+    },
+    {
+      "ruta": "motor/filtros/interrupciones.jsonl",
+      "casos": 6
+    },
+    {
+      "ruta": "motor/filtros/contactos.jsonl",
+      "casos": 7
+    },
+    {
+      "ruta": "motor/filtros/seguidos.jsonl",
+      "casos": 6
+    },
+    {
+      "ruta": "motor/filtros/diferencias.jsonl",
+      "casos": 2
+    },
+    {
+      "ruta": "motor/cp/columnaprobable.jsonl",
+      "casos": 17
+    },
+    {
+      "ruta": "motor/cp/filtro.jsonl",
+      "casos": 28
+    },
+    {
+      "ruta": "motor/cp/relacioncp3.jsonl",
+      "casos": 9
+    },
+    {
+      "ruta": "motor/cp/generador.jsonl",
+      "casos": 20
+    },
+    {
+      "ruta": "motor/filtros/gruposequipos.jsonl",
+      "casos": 17
+    },
+    {
+      "ruta": "motor/analisis.jsonl",
+      "casos": 9
+    },
+    {
+      "ruta": "motor/escrutinio/escrutadorcomb.jsonl",
+      "casos": 4
+    },
+    {
+      "ruta": "motor/reduccion/reductores.jsonl",
+      "casos": 32
+    },
+    {
+      "ruta": "motor/reduccion/subircategoria.jsonl",
+      "casos": 9
+    },
+    {
+      "ruta": "motor/utils/probabilidades.jsonl",
+      "casos": 7
+    },
+    {
+      "ruta": "motor/estadisticas/anastatics.jsonl",
+      "casos": 4
+    },
+    {
+      "ruta": "net/aleatorio.jsonl",
+      "casos": 6
+    },
+    {
+      "ruta": "formatos/condiciones.jsonl",
+      "casos": 30
+    }
+  ],
+  "fixtures": [
+    {
+      "ruta": "Fixtures/cols_a.txt",
+      "origen": "Free1X2.Domain.Tests/Fixtures/cols_a.txt",
+      "sha256": "8b1bdf11a9bfd20aaee0420cb13ad5dfac6782d73c3e5fc79da02fb9b6fb2219"
+    },
+    {
+      "ruta": "Fixtures/cols_b.txt",
+      "origen": "Free1X2.Domain.Tests/Fixtures/cols_b.txt",
+      "sha256": "c49d1d77907254ad6fbd0a63f857fc9c44c574bcff0a2bb358a8c0541c0c1b66"
+    },
+    {
+      "ruta": "Fixtures/cols_con_repetidas.txt",
+      "origen": "Free1X2.Domain.Tests/Fixtures/cols_con_repetidas.txt",
+      "sha256": "c20cbcb5540edd307d83a0313acae391317965300dc265146309f3f5a4783209"
+    },
+    {
+      "ruta": "Fixtures/ganadora.txt",
+      "origen": "Free1X2.Domain.Tests/Fixtures/ganadora.txt",
+      "sha256": "00eebce21ef33fe31dc7869924331cdc1751addaf0d8709e02a6095c118d7d72"
+    },
+    {
+      "ruta": "Fixtures/online/equipos-es.json",
+      "origen": "Free1X2.Domain.Tests/Fixtures/online/equipos-es.json",
+      "sha256": "89ff88c6613afc1fd3e71fa332753d5678e08d1048543a1854415115ba57d6de"
+    },
+    {
+      "ruta": "Fixtures/online/equipos-mx.json",
+      "origen": "Free1X2.Domain.Tests/Fixtures/online/equipos-mx.json",
+      "sha256": "2d22a9a1d5c20780a2a0309a561ad83bf3c91a62ef6e4acca76423eeb4b6a004"
+    },
+    {
+      "ruta": "Fixtures/online/quiniela-es-actual.json",
+      "origen": "Free1X2.Domain.Tests/Fixtures/online/quiniela-es-actual.json",
+      "sha256": "603677dd2ae12a84205c5cad9f6ee24df94a1b3f7c2dd3c1f9cfa418d330403e"
+    },
+    {
+      "ruta": "Fixtures/online/quiniela-mx-actual.json",
+      "origen": "Free1X2.Domain.Tests/Fixtures/online/quiniela-mx-actual.json",
+      "sha256": "404ac97df8278dc83d164105b398c3ea591eefc51d05a45e10b8f033f5dca892"
+    },
+    {
+      "ruta": "Fixtures/online/real-es.json",
+      "origen": "Free1X2.Domain.Tests/Fixtures/online/real-es.json",
+      "sha256": "1d073c9d4d049e3fe245bd81ea09d34b04ba3172f7f41a9801fcdab248ebe4f6"
+    },
+    {
+      "ruta": "Fixtures/online/real-mx.json",
+      "origen": "Free1X2.Domain.Tests/Fixtures/online/real-mx.json",
+      "sha256": "49415f56b8339bc92a72adfcc93488bf1c3d3c9b7fabd369d642deff48169c87"
+    },
+    {
+      "ruta": "Fixtures/datos/parametros.free1x2",
+      "origen": "Free1X2.WinUI/Datos/parametros.free1x2",
+      "sha256": "521eac59c8f1e44c142359568fddf3d5e21bf8ee0e8d48c078b5ac49791143a5"
+    },
+    {
+      "ruta": "Fixtures/datos/ColumnasProbables.xml",
+      "origen": "Free1X2.WinUI/Datos/ColumnasProbables.xml",
+      "sha256": "49377413fe09cdecd7554a0b05dbf9fdf0d8f62dd4f4ffa4042dc9c9e8b42203"
+    },
+    {
+      "ruta": "Fixtures/datos/Impresion/impresoras.cfg",
+      "origen": "Free1X2.WinUI/Datos/Impresion/impresoras.cfg",
+      "sha256": "610c49ff6f1bc4551ca6c60d2015447bdf38c1907c11e075e77b2dbe04e2c090"
+    },
+    {
+      "ruta": "Fixtures/datos/Impresion/imprebol.cfg",
+      "origen": "Free1X2.WinUI/Datos/Impresion/imprebol.cfg",
+      "sha256": "346459ecd41d800d9a3c2394ecfea650f1fee971f00ca0f26b022cf7c41fc2b1"
+    },
+    {
+      "ruta": "Fixtures/datos/Equipos/equipos1.dat",
+      "origen": "Free1X2.WinUI/Datos/Equipos/equipos1.dat",
+      "sha256": "cb080555ca76b9fbe9a4d3a2512f0c5465921cfdba83ded56d002b60a1ce41af"
+    },
+    {
+      "ruta": "Fixtures/datos/Equipos/equipos2.dat",
+      "origen": "Free1X2.WinUI/Datos/Equipos/equipos2.dat",
+      "sha256": "42b3c7f198a127dcf63c0f35d33836bdc54d89645438d1ea7854b30fa7b376c9"
+    },
+    {
+      "ruta": "Fixtures/datos/Equipos/equipos2b.dat",
+      "origen": "Free1X2.WinUI/Datos/Equipos/equipos2b.dat",
+      "sha256": "32265835d997760c4c59490276fb2841fbf7831689b60776d40792e4525cd520"
+    },
+    {
+      "ruta": "Fixtures/datos/Equipos/equiposInt.dat",
+      "origen": "Free1X2.WinUI/Datos/Equipos/equiposInt.dat",
+      "sha256": "38f1f03a03a268666869c05c27ef25e629e25f33a6b3e9c232f76f6c3b65f692"
+    },
+    {
+      "ruta": "Fixtures/datos/Idioma/en-US.lang",
+      "origen": "Free1X2.WinUI/Datos/Idioma/en-US.lang",
+      "sha256": "4d744cc4de3f3d02db5489ee75469f304798906d8fdf6073c9f6a779cb441752"
+    }
+  ]
+}

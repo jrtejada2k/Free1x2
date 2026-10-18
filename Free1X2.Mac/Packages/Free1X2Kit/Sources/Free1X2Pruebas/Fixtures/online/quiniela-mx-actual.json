@@ -1,0 +1,23 @@
+{
+  "pais": "MX",
+  "temporada": "2026",
+  "jornada": 24,
+  "fecha": "2026-06-21",
+  "actualizado": "2026-06-18T10:30:00Z",
+  "partidos": [
+    { "n": 1,  "local": "América",        "visitante": "Guadalajara" },
+    { "n": 2,  "local": "Cruz Azul",      "visitante": "Pumas UNAM" },
+    { "n": 3,  "local": "Monterrey",      "visitante": "Tigres UANL" },
+    { "n": 4,  "local": "Toluca",         "visitante": "León" },
+    { "n": 5,  "local": "Santos Laguna",  "visitante": "Pachuca" },
+    { "n": 6,  "local": "Atlas",          "visitante": "Necaxa" },
+    { "n": 7,  "local": "Puebla",         "visitante": "Querétaro" },
+    { "n": 8,  "local": "Tijuana",        "visitante": "Mazatlán" },
+    { "n": 9,  "local": "Juárez",         "visitante": "San Luis" },
+    { "n": 10, "local": "Pumas Tabasco",  "visitante": "Atlético Morelia" },
+    { "n": 11, "local": "Real Madrid",    "visitante": "FC Barcelona" },
+    { "n": 12, "local": "Manchester City","visitante": "Liverpool" },
+    { "n": 13, "local": "Inter",          "visitante": "Juventus" },
+    { "n": 14, "local": "Boca Juniors",   "visitante": "River Plate" }
+  ]
+}

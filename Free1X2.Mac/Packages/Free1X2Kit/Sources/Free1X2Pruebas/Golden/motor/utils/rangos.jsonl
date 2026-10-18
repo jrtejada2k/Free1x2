@@ -1,0 +1,11 @@
+{"id":"CP-RNG-01-1","fuente":"test","cita":"Free1X2.Domain.Tests/RangosHelperTests.cs:14","componente":"RangosHelper.obtenIntArray","entrada":{"texto":"3"},"salida":{"valores":[3]}}
+{"id":"CP-RNG-01-2","fuente":"test","cita":"Free1X2.Domain.Tests/RangosHelperTests.cs:15","componente":"RangosHelper.obtenIntArray","entrada":{"texto":"2-5"},"salida":{"valores":[2,3,4,5]}}
+{"id":"CP-RNG-01-3","fuente":"test","cita":"Free1X2.Domain.Tests/RangosHelperTests.cs:16","componente":"RangosHelper.obtenIntArray","entrada":{"texto":"1,3,4,5"},"salida":{"valores":[1,3,4,5]}}
+{"id":"CP-RNG-01-4","fuente":"test","cita":"Free1X2.Domain.Tests/RangosHelperTests.cs:17","componente":"RangosHelper.obtenIntArray","entrada":{"texto":"1,2-5,6"},"salida":{"valores":[1,2,3,4,5,6]}}
+{"id":"CP-RNG-01-5","fuente":"test","cita":"Free1X2.Domain.Tests/RangosHelperTests.cs:18","componente":"RangosHelper.obtenIntArray","entrada":{"texto":"10-12"},"salida":{"valores":[10,11,12]}}
+{"id":"CP-RNG-01-6","fuente":"test","cita":"Free1X2.Domain.Tests/RangosHelperTests.cs:26-31","componente":"RangosHelper.obtenIntArray","entrada":{"texto":"7"},"salida":{"valores":[7]}}
+{"id":"CP-RNG-02-1","fuente":"test","cita":"Free1X2.Domain.Tests/RangosHelperBoolTests.cs:18-32","componente":"RangosHelper.obtenBoolArray","entrada":{"texto":"3"},"salida":{"valores":[false,false,false,true,false]}}
+{"id":"CP-RNG-02-2","fuente":"test","cita":"Free1X2.Domain.Tests/RangosHelperBoolTests.cs:34-49","componente":"RangosHelper.obtenBoolArray","entrada":{"texto":"2-5"},"salida":{"valores":[false,false,true,true,true,true,false]}}
+{"id":"CP-RNG-02-3","fuente":"test","cita":"Free1X2.Domain.Tests/RangosHelperBoolTests.cs:51-62","componente":"RangosHelper.obtenBoolArray","entrada":{"texto":"1,3-5,7"},"salida":{"valores":[false,true,false,true,true,true,false,true,false]}}
+{"id":"CP-RNG-02-4","fuente":"test","cita":"Free1X2.Domain.Tests/RangosHelperBoolTests.cs:64-73","componente":"RangosHelper.obtenBoolArray","entrada":{"texto":"1,3,4,5"},"salida":{"valores":[false,true,false,true,true,true,false]}}
+{"id":"CP-RNG-02-5","fuente":"test","cita":"Free1X2.Domain.Tests/RangosHelperBoolTests.cs:75-98","componente":"RangosHelper.obtenBoolArray","entrada":{"texto":"1,2-5,6"},"salida":{"indicesVerdaderos":[1,2,3,4,5,6],"longitud":8}}

@@ -1,0 +1,73 @@
+name: Mac
+
+# App Mac en Swift (docs/mac/ESPEC_14_PRUEBAS.md §7). Cero C# en esta cadena.
+on:
+  push:
+    # Las ramas de trabajo `claude/**` también: así se valida sin abrir un PR, que dispararía `ci.yml` (tests del C#).
+    branches: [main, mac, 'claude/**']
+    paths: ['Free1X2.Mac/**', '.github/workflows/mac.yml']
+  pull_request:
+    paths: ['Free1X2.Mac/**', '.github/workflows/mac.yml']
+
+permissions:
+  contents: read
+
+# Un push nuevo a la misma rama cancela la vuelta anterior, que ya no sirve (cada una tarda ~25 min).
+concurrency:
+  group: mac-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  mac:
+    # Swift 6.2+ (swift-tools-version del paquete) => Xcode 26 o posterior.
+    runs-on: macos-26
+    # Una vuelta normal tarda ~25 min; si algo se cuelga, que no corra las 6 h que permite GitHub.
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: Free1X2.Mac
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Formato
+        run: swift format lint --strict --recursive --configuration .swift-format App UITests Packages/Free1X2Kit/Sources Packages/Free1X2Kit/Tests Packages/Free1X2Kit/Package.swift
+
+      - name: Patrones prohibidos
+        run: scripts/lint-prohibidos.sh
+
+      - name: Compilar el paquete (Release)
+        run: swift build --package-path Packages/Free1X2Kit -c release -Xswiftc -warnings-as-errors
+
+      - name: Tests del paquete
+        run: swift test --package-path Packages/Free1X2Kit -Xswiftc -warnings-as-errors --enable-code-coverage
+
+      # ESPEC_14 §3: cobertura de los casos de uso ≥ 85 % (C6 del plan de pruebas).
+      - name: Cobertura
+        run: >-
+          python3 scripts/cobertura.py
+          "$(swift test --package-path Packages/Free1X2Kit --enable-code-coverage --show-codecov-path)"
+
+      - name: Compilar la app
+        run: >-
+          xcodebuild -project Free1X2.xcodeproj -scheme Free1X2 -configuration Release
+          -destination 'platform=macOS' -derivedDataPath .build/DerivedData
+          build CODE_SIGNING_ALLOWED=NO SWIFT_TREAT_WARNINGS_AS_ERRORS=YES
+
+      # Plan de pruebas funcionales, Fase 2: la app de verdad pulsando sus controles. El runner permite activar el modo
+      # de automatización sin contraseña (en un Mac propio lo hace el dueño una vez).
+      - name: Flujos de UI (XCUITest)
+        run: |
+          sudo automationmodetool enable-automationmode-without-authentication
+          system_profiler SPDisplaysDataType | grep -i resolution || true
+          xcodebuild -project Free1X2.xcodeproj -scheme Free1X2 -configuration Debug -destination 'platform=macOS' \
+            -derivedDataPath .build/DerivedDataUI -resultBundlePath UITests.xcresult test -only-testing:Free1X2UITests \
+            -test-timeouts-enabled YES -default-test-execution-time-allowance 600
+
+      # Si un flujo de UI falla, el .xcresult (con la captura de pantalla de cada fallo) queda 3 días para revisarlo.
+      - name: Resultado de los flujos de UI
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: UITests-xcresult
+          path: Free1X2.Mac/UITests.xcresult
+          retention-days: 3

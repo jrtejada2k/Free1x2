@@ -1,0 +1,385 @@
+# Registro único de decisiones (app Mac)
+
+> Cierra H-07 y H-08 de [`REVISION_SPECS.md`](REVISION_SPECS.md). Fusiona las ≈196 «Abiertas» de ESPEC_01…10, las decisiones
+> D1–D8 del índice y las de PLAN §7. Cada «Abierta» de una spec tiene aquí su estado; **si una spec dice «decisión pendiente»,
+> manda este registro**.
+>
+> **Mandato del dueño (2026-10-13):** (1) las decisiones de producto las define la app actual («usar eso»); (2) las técnicas se
+> toman con buenas prácticas de velocidad, mantenimiento, arquitectura y pruebas; (3) el dueño revisa todo al final.
+>
+> **Cierre de M0 (dueño, 2026-10-14):** el dueño mandó cerrar todo lo pendiente con buenas prácticas. Todas las entradas
+> están **cerradas** (D, o D con candidata R). El valor exacto de cada «replicar» lo fija su caso `lectura` en M1 (ESPEC_12): es
+> trabajo de M1, no una decisión abierta.
+
+Estados: **D** decidida (se aplica) · **R** se replica hoy; **candidata a corrección después de la paridad** (solo con
+orden expresa del dueño; no se implementa).
+
+## 1. Decisiones de producto (= app actual) — detalle en ESPEC_11 §2
+
+| ID | Tema | Decisión | Fusiona |
+|----|------|----------|---------|
+| DP-01 | Cultura numérica | C1–C2 `es-ES` fija; C3–C13 cultura del sistema; golden con `es-ES` | D4; 01 A9; 03 A1; 05 §7 T7; 06 A3; 07 A15; 09 G-3; 10 A-15 (formato: G-NET) |
+| DP-02 | EOL, BOM, codificación | mismos bytes que hoy en Windows (CRLF; BOM y Latin-1 por formato); lectura tolerante como el C# | D5; 05 A10, A14; 06 A14; 07 A1, A7; 09 A-60-1, A-71-1 (este: UTF-8 sin BOM con CRLF, DEC-708) |
+| DP-03 | Nº de partidos | `NumeroPartidos` de configuración (defecto 14); límites por componente como hoy; superarlos = mismo error tipado | 02 A2; 03 A7; 04 A-2, A-11; 06 A15; 10 A-14 |
+| DP-04 | Recarga de configuración | lectura única al arrancar; guardar no recarga (salvo puntos CP y N de `Grupo`) | 01 A8; 08 A6 |
+| DP-05 | Ventana/documento | una ventana, una `Sesion`, sin modelo de documento | 10 A-01 |
+| DP-06 | Distribución | fuera de la Mac App Store, sin sandbox, Developer ID + notarización; rutas absolutas como hoy | D8; PLAN §7.3; 07 A16 |
+| DP-07 | Localización | UI en español; selector es/en que solo traduce Créditos; `.lang` no se porta | PLAN §2 «Idiomas»; 07 A8; 10 A-04 |
+| DP-08 | Código sin uso | no se porta lo inalcanzable desde la app actual (lista en §4) | D3; 01 A11; 03 A8; 04 A-10; 05 A4, A5, A7; 06 A7, A9, A10; 08 A9; 09 A-46-3 (el campo se muestra, no calcula); 10 A-11, A-20 |
+| DP-09 | Defectos aparentes | se replican; cada uno con su caso `lectura` (`G-D2`, ESPEC_12 §4.2) | D2 y todos los «Defecto aparente» (§3) |
+| DP-10 | Mejoras de UX | ninguna; la arquitectura deja preparada la cancelación | 10 A-16; 09 A-50-1, A-72-1; 05 A9 |
+| DP-11 | Navegación y áreas | estructura actual de 7 menús y 6 grupos de barra, traducida a convenciones Mac (ESPEC_15) | D7; PLAN §4 |
+| DP-12 | Preferencias | tema/idioma con las opciones de hoy en `UserDefaults`; barras en `parametros.free1x2` | 10 A-03 |
+| DP-13 | Carpetas | las 10 de hoy bajo `~/Library/Application Support/Free1X2/`; selectores en Documentos; `Ganadoras/` se llena a mano | 08 A20; 09 G-2, A-44-2; 10 A-06 |
+| DP-14 | Ubicación del proyecto | carpeta `Free1X2.Mac/` en este repo (junto al código original, que solo se lee) | PLAN §7.2 |
+| DP-15 | Referencia de comportamiento | **solo la app actual** (WinUI + `Free1X2.Domain`); toda divergencia con el WinForms legacy se resuelve a favor del port | D1; 09 G-1, A-41-1, A-41-2, A-57-1, A-62-1, A-62-2, A-68-2; 08 A2, A5, A17; 10 A-10 (manda el código, no el manual), A-22 |
+
+## 2. Decisiones técnicas — detalle en el documento indicado
+
+| ID | Decisión | Dónde |
+|----|----------|-------|
+| DT-01 | Módulos `Free1X2Base`/`Motor`/`Formatos`/`Online`/`CasosDeUso` + app; grafo acíclico; solo `swift-collections` | ESPEC_11 §3 |
+| DT-02 | Configuración = `struct` `Sendable`; ejecución = `final class` internas por ejecución | ESPEC_11 §4 |
+| DT-02b | Paridad definida por ejecución desde estado limpio (no se arrastra el memo de un `Grupo` no controlado entre cálculos) | ESPEC_11 §4.3 |
+| DT-03 | Errores tipados que replican cada excepción C# en el mismo punto; nunca abortar | ESPEC_11 §5; cierra 01 A7; 04 A-1 (se descarta su propuesta de validar al fijar), S4; 03 B7, A5; 06 §1.8 |
+| DT-04 | Concurrencia Swift 6, operaciones largas `@concurrent`, progreso limitado, cancelación cooperativa, paralelismo solo donde no cambia el resultado | ESPEC_11 §6 |
+| DT-05 | `Entorno` inyectado por parámetro (reloj, aleatorio, archivos, rutas, red, portapapeles, registro, cultura) | ESPEC_11 §7 |
+| DT-06 | Persistencia y rutas (semillas que no se sobrescriben, escrituras atómicas) | ESPEC_11 §9; 07 A13 |
+| DT-07 | `Sesion` única, `Router` con `Destino`, modelos de pantalla sin lógica | ESPEC_11 §8 |
+| DT-08 | Bucles que en C# **no terminan** (09 A-73-1; 10:1341 `ColumnasPorTramo ≤ 0`) ⇒ se detecta la falta de progreso y se lanza `ErrorDominio(.operacionInvalida)` con un mensaje; los casos que terminan dan el mismo resultado | — |
+| DT-09 | Reglas de rendimiento del camino caliente | ESPEC_11 §10 |
+| DT-10 | macOS 14+, arm64, Swift 6.2+, Swift Testing | ESPEC_11 §12 |
+| DT-11 | XML con `Foundation.XMLDocument` + `EscritorXMLNET`; ZIP con `Compression.framework` sin terceros | ESPEC_16 §2-3; 06 A18 (DEC-616) |
+| DT-12 | Convenciones de código y trazabilidad `// C#: fichero:línea` | ESPEC_11 §11 |
+| DT-13 | Mayúsculas ASCII invariantes para letras de tolerancia y columnas (la cultura turca no se emula) | 02 A5; 06 A5 |
+| DT-14 | Orden de ficheros de `DirectoryInfo.GetFiles`: por nombre, ordinal sin distinguir mayúsculas (orden de NTFS); fijado por lectura (`bcl`, ESPEC_12 §1.1) | 03 A3; 10 A-19 |
+| DT-15 | Ordenaciones: **toda** `Array.Sort`/`List<T>.Sort` del C# se porta con `IntrosortNET` (mismo algoritmo de .NET 8, con la pasada previa que pone los `NaN` primero en claves `double`/`float`); los quicksorts escritos a mano en pantallas se transcriben tal cual. Regla única, sin depender de si el orden llega a la salida (el C# no usa `OrderBy`) | 04 A-9; 05 A3; 06 A9 |
+| DT-16 | Cliente HTTP: `URLSession` efímera, timeout 10 s, `Accept: application/json`, `User-Agent: Free1X2/<versión> (macOS)`; redirecciones y descompresión por defecto | 07 A10 |
+| DT-17 | Mensaje genérico HTTP con los nombres de `HttpStatusCode` de .NET 8 (tabla de los códigos estándar) | 07 A11 |
+| DT-18 | Selector «Nuevo…» de valoraciones: se aplica la lógica C# al estado real del fichero; como `NSSavePanel` no crea un fichero vacío (a diferencia de WinUI), «inexistente» ⇒ nuevo | 09 A-64-1 |
+| DT-19 | Ayuda: el menú Ayuda que macOS crea siempre abre la página «Recursos de ayuda» actual (mismo contenido, avisos en inglés incluidos) además de `F1`/`⌘?` | 10 A-02, A-05 |
+| DT-20…27 | Oráculo **por lectura** (decisión del dueño 2026-10-14: el original solo se lee, nunca se ejecuta; no hay GoldenGen): golden JSONL escritos a mano con `fuente` por caso (`test`, `fixture`, `lectura`, `modelo`, `bcl`, `propiedad`), plataforma fijada por lectura (CRLF, T13, `es-ES`), niveles O1/O2/O3, corpus `fixture` + `lectura`, instantáneas solo para regresión | ESPEC_12 §1, §1.1, §2, §5, §6 |
+| DT-28 | Golden y fixtures como recursos de `Free1X2Pruebas` (`Sources/Free1X2Pruebas/{Golden,Fixtures}`): SwiftPM no admite recursos fuera de su target (`.copy("../Golden")` de ESPEC_11 §3.3 no compila); el cargador lee `Bundle.module` | ESPEC_12 §2; ESPEC_11 §3 |
+| DT-29 | M1 = catálogo funcional (ESPEC_17) + 104 casos heredados + infraestructura; cada componente escribe su suite JSONL **antes** de su código (*test-first*) | ESPEC_17 §4; ESPEC_12 §7 |
+| DT-30…39 | Pruebas, cobertura, CI y presupuestos de rendimiento | ESPEC_14 |
+| DT-40 | API de casos de uso (5 formas, `enum` por menú, unificaciones) | ESPEC_13 |
+| DT-42 | Proyecto Xcode como código: `Free1X2.Mac/project.yml` (XcodeGen) es la fuente; `Free1X2.xcodeproj` se genera y se versiona para abrirlo sin herramientas | ESPEC_11 §3.1 |
+| DT-43 | El producto `Free1X2Kit` expone `Free1X2CasosDeUso` y `Free1X2Base`; la app no puede importar Motor, Formatos ni Online | ESPEC_11 §3.2-3.3 |
+| DT-44 | Dependencias y targets se añaden con su primer uso: `swift-collections` y `Free1X2Bench` en M3; `aleatorio` y `cultura` del `Entorno` llegan con `AleatorioNET` y `Cultura` | ESPEC_11 §3.3, §7 |
+| DT-45 | `ClienteHTTP` es transporte (`throws` sin tipar, `URLError`); el cliente online lo traduce a `ErrorOnline` con los textos del C#. `Portapapeles` es asíncrono y la app lo implementa con `NSPasteboard` en el hilo principal | ESPEC_11 §7 |
+| DT-46 | `ReportadorProgreso` limita por tiempo (≥ 100 ms entre eventos; el final siempre sale); el bucle caliente informa cada 65 536 columnas | ESPEC_11 §6.2; ESPEC_17 NF-06 |
+| DT-47 | Versión `0.1.0` (build 1; **`1.0.0` desde el 17-oct-2026**, decisión del dueño, sin el nombre «Rarotonga» de Windows en «Acerca de»), solo `arm64`, firma ad hoc y runtime endurecido hasta M6; CI en `macos-26` (Swift ≥ 6.2) | `project.yml`; ESPEC_14 §7 |
+| DT-48 | El motor no lee ficheros: recibe las líneas ya leídas (`ArchivoColumnasTexto.columnas`) y devuelve filas como valores (`FilaEscrutinio`) en lugar de escribir en un `DataSet`; el escrutinio por temporada lee una vez el fichero que el C# relee por jornada (ESPEC_05 §4.1.6) | ESPEC_05 §4.1; ESPEC_11 §3.3 |
+| DT-49 | Valores esperados de `IntrosortNET` y `HashtableNET` (`net/colecciones`, GE-07, GE-09): fuente `modelo`, transcripción en Python de `ArraySortHelper.cs` y `Hashtable.cs` de .NET 8 leídos, independiente del código Swift | ESPEC_12 §1; ESPEC_16 §6 |
+| DT-50 | ~~Iconos de la barra: SF Symbols en lugar de los PNG de 16×16 px (mismo tooltip y posición)~~ Sustituida por DT-77 | ESPEC_15 §1.4 |
+| DT-51 | Las acciones de la barra «Archivo» (Nueva, Abrir, Guardar, Guardar como, equipos, online, borrar) también en el menú Archivo, donde macOS pone los atajos `⌘N/⌘O/⌘S` (como ya indica el manual) | ESPEC_15 §2.2; 10:140-142 |
+| DT-52 | Cambiar de idioma no recrea la página (la recarga de WinUI era una limitación técnica) | ESPEC_15 §2.4; 10:66 |
+| DT-53 | Los contadores de progreso se refrescan con el progreso limitado (≤ 100 ms) en vez de un temporizador de 3 s; mismos campos y valores finales | ESPEC_15 T3; 10:808 |
+| DT-54 | CP y grupos de equipos: la configuración son `struct` (`CondicionColProbables`, `CondicionGruposEquipos`) y en cada cálculo se construyen las clases de ejecución; las relaciones reciben la lista de CPs/grupos de **ese** filtro, así que el orden de montaje P24 deja de importar (equivale al C# cuando se respeta). `RelacionCP2Config` guarda los textos y las listas D3 se calculan al construir; `GrupoEquiposConfig` recalcula `longPronosticos` al asignar `pronosticos` | ESPEC_04 §0.2; ESPEC_03 §15 P1 |
+| DT-55 | `RelacionCP3` con más índices (K) que CPs: el C# lanza `ArgumentOutOfRange` al cargar; el cargador Swift (M4) debe hacer lo mismo y, si llega al motor, se lanza al primer uso de la serie | ESPEC_04 §15 P12 |
+| DT-56 | `Free1X2Bench` (ESPEC_14 §6) mide ya B1, B5 y B6 (línea base en `Free1X2.Mac/bench/linea-base.json`, M1 Max); B2–B4, B7 y B8 se añaden con el cargador `.comb` y los formatos (M4). Las particiones de §6.3 de ESPEC_11 se implementan cuando B2 sea medible y solo si la mediana secuencial no cumple el techo: B1 secuencial = 0,13 s frente a 1 s | ESPEC_14 §6.3; ESPEC_11 §6.3, §10 |
+| DT-57 | `Free1X2CasosDeUso` reexporta (`@_exported import`) Base, Motor, Formatos y Online: la app ve los tipos de valor (`Combinacion`, `CondicionX`, `JornadaQuiniela`…) importando solo el producto `Free1X2Kit`; la lógica sigue pasando por los casos de uso | ESPEC_11 §3.2 |
+| DT-58 | Editor de figuras (pantalla 49): edita una **copia** de la lista y la devuelve al aceptar; el C# la compartía por referencia, de modo que Borrar/Abrir + Cancelar mutaban la condición (peculiaridad que 09 §49 y 10 §88 dejan al dueño). Pantallas de condición: los «handoffs» estáticos (`GrupoEnEdicion`, `UltimasEstadisticas`, `FigurasEnEdicion`) viven en `Sesion` y `Destino` es un `enum` sin valores asociados (smoke `allCases`) | ESPEC_15 §2.4; 10 §1.8 |
+| DT-59 | Grupos de equipos (pantalla 62): la copia de trabajo y el filtro son valores; se replica que `GuardarDatos` (Guardar/Abrir/Copiar/Pegar/Borrar) escriba en la condición del grupo mientras el filtro es el suyo, y que tras Abrir Aceptar no llegue a la combinación (DEC-927), pero no el alias de lista por el que cambios posteriores sin Aceptar también llegaban al filtro | 09 §62 |
+| DT-60 | Columnas probables (pantalla 19) y satélites 29/30/48/67: el editor es un valor en la vista y nada llega al filtro hasta Aceptar (como DT-59, no se replica el alias por el que Relaciones II/III cambiaban el filtro al navegar). Copiar datos e Importador devuelven por `Sesion.traspasoCP` y al volver no se recarga del grupo, como especifican ESPEC_08 §19.1 y CU-A46/A47: en el port la página se recrea al volver (sin `NavigationCacheMode`) y esos resultados nunca se aplicaban. Relaciones I «<» deshabilitado en la primera (§19.2); `MaxLength=14` del pronóstico con `onChange` | 08 §19, §29, §30; 09 §48, §67 |
+| DT-61 | Escrutinios (pantalla 45): «Insertar /t» y «Insertar /j» añaden al final (SwiftUI de macOS 14 no da la posición del cursor; el port ya hacía eso sin cursor válido); `GetFiles(plantilla)` se resuelve con `fnmatch` sin distinguir mayúsculas (`*`, `?`); los ficheros se leen una vez por escrutinio (ESPEC_05 §4.1.6); el botón Escrutar se deshabilita mientras corre (ESPEC_15 §4) | 09 §45; 08 §20 |
+| DT-62 | Compresor (pantalla 22): el `.z3q` se escribe con `compress2` de la zlib del SDK (sin terceros) quitando cabecera y Adler-32, así «Nivel de compresión» 0–9 cambia el resultado como `SetLevel` del C# (sustituye el nivel fijo de ESPEC_16 §3; la lectura sigue con Compression.framework). Importar/Exportar (66): la salida propuesta es el **nombre** en minúsculas con `.csv`↔`.txt` en la misma carpeta (el `ToLower()` de la ruta completa solo es inocuo en NTFS). Histórico de valoraciones (64): se sigue la réplica viva del VM (`Length >= 2`); la de `Porcentajes` no tiene llamadores | 08 §22; 09 §64, §66; ESPEC_16 §3 |
+| DT-63 | Análisis de signos (97): cada casilla de la columna ganadora es un selector «-/1/X/2» (el `TextBox` de 1 carácter admitía otros caracteres, que el C# trata como comodín igual que «-»). Diferencias entre columnas (41): columnas empaquetadas en 14 grupos de 3 bits (1, 2, 4 one-hot; F = 111) y «diferencia» = grupo con AND 0, equivalente a `(x & y) == '0'`; el universo de triples se recorre con dos tablas de 3^7 en el mismo orden que la recursión. El tiempo se rellena con ceros antes de cortar a 10 (el `Substring(0,10)` del C# lanzaría con 0 *ticks*). Subir categoría (92): el motor vuelve a la pantalla también tras un error, para conservar el estado residual como el C# (DEC-513) | 09 §41; 10 §92, §97 |
+| DT-64 | Añadir P15 (1): con error a mitad no se graba nada (el `StreamWriter` del C# queda sin cerrar y su contenido depende del búfer). Gráfico de columnas (61): las líneas se guardan sin repetir (el C# añade una por apuesta, hasta 4,7 M elementos, y se ven igual); «Copiar imagen» usa `ImageRenderer` y ofrece el PNG en Imágenes | 08 §1; 09 §61 |
+| DT-65 | EstuCol (47): emparejar, escrutar e informar van en un solo caso de uso; el estado muestra «Comprobando Entradas», «Emparejando columnas» y «Listo» (los intermedios «Escrutando Columnas»/«Generando Informe» del C# duran milisegundos). Visor ABDON (101): el informe llega por `Sesion.informeAbdon`, que el visor consume y vacía como el `UltimoInforme` estático; la lógica del VM (contenedores `List<int>[,]`, textos y condición) vive en `VisorAbdon` del paquete | 09 §47; 10 §101 |
+| DT-66 | Impresión de boletos (68): como el port, genera la imagen (portapapeles + PNG en Imágenes) y no abre la impresión del sistema; `impresoras.cfg` se lee de los recursos (`Datos/Impresion/`) y `imprebol.cfg` de la carpeta base. Impresoras conocidas (70): doble clic = acción primaria de la lista; la elegida pasa por `Sesion.impresoraSeleccionada`; el orden es `compare(_:locale: .current)` (T11) | 09 §68, §70 |
+| DT-67 | Selector JuanM (86): «por valor» agrupa por los tres códigos de grupo (la columna ↔ sus códigos) y comprueba el total con conjuntos de sumas de posiciones en bits, en vez de comparar cada columna con las 243·243·81 posiciones; mismo conjunto y mismos contadores (si se cancela, lo parcial sale en otro orden). Los botones no se deshabilitan durante el cálculo, como en el C# (DP-10). Selector MarioSan (87): los vecinos a distancia exacta 1, 2 o 3 se enumeran directamente (28/364/2912) en vez de los caminos con `repes`; mismo recuento. Una fila Q fuera de la tabla al analizar se ignora (el C# lanzaría) | 10 §86, §87 |
+| DT-68 | Separador Juan Bellas (50): el cálculo va en segundo plano y «Cancelar» sigue sin efecto (DEC-915). Diferencias entre filtros (33): `Valida` cuenta los vecinos a distancia exacta 1/2/3 con salida temprana (mismo resultado que los caminos ordenados del C#); el estado `validas`/contador sobrevive entre «Iniciar» como los campos del VM; una columna fuera del espacio de 14 signos se informa como error (el C# lanzaba sin capturar) | 08 §33; 09 §50 |
+| DT-69 | Listado de condiciones (71): el árbol sale de `Sesion.combinacion` (el `Analizador` vivo del C#) con los textos literales; la columna probable lista sus N pronósticos (`textoPronosticos`; el C# podía añadir un N+1 vacío según cómo se creó); listas nulas del C# (agrupaciones, partidos de una diferencia) se tratan como vacías en vez de lanzar | 09 §71 |
+| DT-70 | Banco de pruebas (10) y Grabar apuestas (36): las 3^14 columnas guardan solo diferencia y columna (`Float`, `Int32`; la probabilidad no se lee) y se ordenan con `OrdenacionPropia`; «Fichero» como origen de las aleatorias y «Seleccionar jornadas…» no hacen nada, como en el C#; `Desviación Típica deseada` y `LN mínimo` no se portan (DEC-809); Calcular y Analizar se inhabilitan mientras calculan (`Ocupado` del C#); el diálogo 36 es hoja del Banco y, como destino suelto, solo cambia su estado | 08 §10, §36 |
+| DT-71 | Tramificar (93, 94, 34, 35, 37): `Ap14T`, `Bits`, `MaxiMin` y los tramos viven en `EstadoTramificar` (valor); `OrdenacionPropia` pasa a clave `Comparable` (aquí `Double`). «Filtrar por límites» es hoja de Tramificar, así el filtro se aplica sobre lo tramificado (en WinUI la vuelta atrás recrea la página sin `NavigationCacheMode` y el filtro llega a un VM vacío); abierto desde Tramificar sus difs empiezan en 0 (`ObtenerExtremos`), los defectos solo salen como destino suelto, que vuelve atrás al aceptar o cancelar. «Columnas / tramo» ≤ 0 con rango no vacío da error en vez del bucle infinito del C#. «Tramificar» se inhabilita mientras calcula (`AsyncRelayCommand`). Gráficas: `Canvas` con la geometría de `GraficoLineasControl`. 34 y 37 sin consumidor (DEC-815); leer un `.lst` con una línea corta deja lo leído y avisa con un texto propio (el de la excepción .NET no se reproduce) | 10 §93, §94; 08 §34, §35, §37 |
+| DT-72 | Coincidencias (17): la radiografía trabaja sobre las unidades UTF-16 de los 14 primeros signos (cualquier otro carácter cae en la rama del C#); la entrada es un `ConjuntoBits` y de las válidas se guarda solo índice y coincidencias de la última condición (en vez de `agrabarCOL` de 3^14). Los errores de lectura replican lo parcial del C# (entrada a medias; ganadoras que pisan las primeras y cambian el límite sin mover la actual); el desbordamiento de 3000 ganadoras y el Excel con más de 100 condiciones avisan con el texto de la excepción .NET (`Index was outside the bounds of the array.`), y el Excel no llega a escribir el fichero parcial. «Calcular» se inhabilita mientras calcula (`AsyncRelayCommand`); «Cancelar» lo corta y deja lo procesado. Analizar sin ganadora actual (lectura fallida) da error inesperado en vez de cerrar la app | 08 §17 |
+| DT-73 | Filtro Pim (57) y Aidomnou (105): un solo motor (`columnasAidomnou`, `filtrarAidomnou`; DEC-922) con lo que difiere cada VM (Pim no salta líneas en blanco, rangos y mensajes propios, tiempo de 10 caracteres). El AND de bandas se hace sobre unidades UTF-16 como el C#. PreCol4 corta a las 64 vueltas: toda ejecución que acaba lo hace antes de 50 y así no se cuelga con valoraciones vacías (NaN). En Pim lo que el C# no captura (rangos mal escritos, columna ganadora corta) sale como error inesperado; las >3000 ganadoras avisan con el texto .NET. El «Calcular» de Aidomnou va en una tarea y su «Cancelar» corta de verdad (en el C# el bucle bloquea la UI). Con esto todas las pantallas están portadas y desaparece `PantallaPendiente` | 09 §57; 10 §105 |
+| DT-74 | `Free1X2Bench` completa B2–B4, B7 y B8 (M5). B2–B4 = 14 triples + `Fixtures/corpus/comb/completa.comb` (ESPEC_12 §6, «uno completo con todo a la vez»): los 14 bloques de condición de la golden `formatos/condiciones` activos en el grupo base, dos grupos parciales, controles de grupos y conjuntos, tolerancias con letras e If-Then; Valoración de signos lleva 14 filas y valores en todas las categorías (con `valorUnos=""` el análisis lanza `ArgumentOutOfRange` al tomar el último valor de una lista vacía, como el C#). Su test comprueba la ida y vuelta byte a byte y que el motor calcula y analiza. B8 = ordenar por probabilidad (salida 1000), Tramificar y valoración real del Banco. Medianas M1 Max Release: B2 0,45 s, B3 1,96 s, B4 0,56 s, B7 0,98 s, B8 0,29/0,48/0,45 s, todas bajo techo; RSS aislado B2 8 MB, B3 11 MB, B4 8 MB, B8 ≤ 84 MB (el pico acumulado de una corrida completa no vale para el presupuesto). B2 secuencial cumple el techo, así que las particiones de ESPEC_11 §6.3 siguen sin implementarse (DT-56). Un argumento del bench elige por prefijo («B8» o «B8 tramificar») | ESPEC_14 §6; ESPEC_12 §6 |
+| DT-75 | M6 preparado: `scripts/empaquetar-dmg.sh` compila Release, firma (ad hoc sin `FREE1X2_IDENTIDAD`; con ella, Developer ID con runtime endurecido y sello de tiempo), crea el `.dmg` UDZO con acceso directo «Aplicaciones» (`diskutil image`, o `hdiutil` en macOS < 26) y, con `FREE1X2_PERFIL_NOTARIA`, notariza (`notarytool --wait`), grapa y evalúa con `spctl`. Sin App Sandbox ni entitlements (DP-06: sin sandbox, solo red saliente). Verificado ad hoc: `.dmg` de 4,4 MB, firma válida y smoke 109/109 desde la imagen montada. En este Mac solo hay identidad «Apple Development», así que la firma Developer ID y la notarización quedan para el dueño (README §Siguiente fase). `mac.yml` corre también en push a `claude/**`: validar sin PR evita que `ci.yml` ejecute los tests del C# (prohibido) | PLAN §5 M6; DP-06 |
+| DT-76 | Compatibilidad con el Xcode de `macos-26` (Swift 6.2) de la CI, además del local (Swift 6.4): sin inferir genéricos a través de `.first` con la anotación del `guard let` (`Golden.caso`) y con los menús propios en un `Group`, porque el `@CommandsBuilder` de ese SDK admite 10 elementos por bloque. `mac.yml` en verde en GitHub (run 38853908296) | ESPEC_14 §7; PLAN §5 M2 |
+| DT-77 | Pasada visual para igualar el aspecto del original (`Themes/Tokens.xaml`, `Styles.xaml`, `docs/img/winui3-*.png`). (1) La barra vuelve a los 55 PNG a color de `Assets/Toolbar` (sustituye a DT-50: la barra de la ventana de macOS teñía los SF Symbols de un solo color y escondía casi todos en `»`) y es una franja propia bajo el título que salta de línea como el `WrapPanel` (`BarraHerramientas`, `Flujo`); los PNG de 16 px se pintan sin suavizar. (2) Tema por defecto **Claro** (la paleta «Índigo & Teal» elegida para el original); Ver ▸ Tema sigue ofreciendo Oscuro y Sistema. (3) `Tarjeta`: banda de cabecera tintada con su color y chip de icono elegido por palabras del título (`Tarjeta.estilo`; resultados/estado/aciertos en teal); Boleto Base y Combinación con banda `AppSurfaceAlt` (`bandaTarjeta`). (4) `EstiloPrincipal` (acento lleno también con la ventana inactiva, en lugar de `.borderedProminent`), `EstiloSigno` (1/X/2 en verde) y `EstiloCondicion` (tintes de `CondicionItem.Fondo`, ×1,4 en oscuro). (5) Título de página dentro de `Pagina`. (6) Desarrollo: `-captura <carpeta> [-todas]` (inerte sin el argumento, como el smoke) pinta la ventana a PNG con `cacheDisplay` para revisar las 109 pantallas sin permiso de grabación de pantalla | ESPEC_15 §1.1–1.4; 10 §1.5 |
+| DT-78 | Pruebas funcionales (`PLAN_PRUEBAS_FUNCIONALES.md`): (1) `-datos <carpeta>` de desarrollo aísla datos y registros (inerte sin el argumento); (2) el N5 de ESPEC_14 (modelos de pantalla) se sustituye por flujos de integración con ficheros reales (Fase 1) + XCUITest (Fase 2), porque el port no tiene `<Pantalla>Modelo`; (3) D-01: la ayuda de Variantes, Signos seguidos y Distancias pedía «comas o espacios» con ejemplo `0 1 2`, que el parser rechaza (DEC-904): la ayuda pasa a «comas (p. ej. 0,1,2)»; el parser no cambia (R1) | ESPEC_14 §1; ESPEC_09 A-43-1 |
+| DT-79 | Huecos completados del plan de pruebas (§6): **C2** Rotación de signos recupera del WinForms los paneles «% COMBINACIÓN» (`porcentajesRotacion`: X y 2 con redondeo a par, el 1 completa 100), «Valoraciones JORNADA» (con «Abrir valoración…») y la propuesta automática (`propuestaRotacion` = `PropuestaAutomatica` + `Ordenar3valores`), más «Transposición automática» con `TransponedorAutomatico` (ESPEC_06 §3.10; deja de aplicar DP-08 a este componente): en vez del diálogo de Transposición del legacy pide confirmación con el orden y el fichero, y la salida pasa a ser la entrada; **C3** «CPs por diferencias…» abre el generador (legacy `UI/DifCols.cs:645`; DEC-902 queda sin efecto); **C5** la nota de Aidomnou ya no promete `aidomnou.cfg`; **C4** se cierra sin cambios (sin efecto también en el original) | `RotacionDeSignosFrm.cs:1860-1931,2190-2292`; ESPEC_06 §3.10 |
+| DT-80 | D-04 del plan de pruebas: `Combinacion.modificarGrupo` y `controlGrupoLibre` aplican el cambio a una copia y solo la guardan si no lanza. Con un valor no válido en una condición, el C# (y el port hasta ahora) dejaba el filtro reinicializado y activo, y el cálculo aceptaba 0 columnas sin avisar. Diverge del original **solo en el camino de error**; con datos válidos el resultado es idéntico (256 tests y golden sin cambios) | `NoVariantesFrmViewModel.cs:90-102`; `Combinacion.swift` |
+| DT-81 | Inicio ▸ «Jornada» ▸ España / México rellena local y visitante de los 14 partidos (y el 15º con el pleno si el boleto tiene 15) con la jornada actual de clubprogol (`/quiniela/{pais}/actual`); sin red usa la guardada. «Descarga de boleto» hace lo mismo, como dice su texto. **Funcionalidad nueva**: en el WinUI la descarga solo guardaba la jornada y únicamente `BoletoViewModel.AplicarJornadaActual`, que Inicio no usa, ponía los nombres | `DescargaBoletoFrmViewModel.cs`; `BoletoViewModel.cs`; `CasosArchivo.equiposDeJornada`; prueba `equiposDeJornadaReal`, U `testF49CargarJornada` |
+| DT-82 | **Navegación rediseñada a petición del dueño** (sustituye la franja de 55 iconos de DT-77, cuyos nombres solo salían como tooltip). (1) Panel lateral plegable (`NavigationSplitView`) con las 53 pantallas de los menús y de la antigua barra, por nombre y en 7 grupos (Inicio, Combinación, Filtros, Operaciones, Utilidades, Archivo, Ajustes y ayuda), con buscador sin tildes ni mayúsculas; conserva los PNG originales como icono y pulsar una fila la pone como raíz de la pila. Las filas son botones y la actual se resalta a mano: **sin `List(selection:)`**, porque en un `NavigationSplitView` cambiar esa selección reinicia la pila del detalle y la navegación desde la barra o los menús se perdía al azar (~25 % en local; F13/F16/F46/F52 en la CI); con botones, 25 de 25. En ventanas estrechas las condiciones de Inicio pasan a una columna (`ViewThatFits`) y los nombres largos a dos líneas. (2) Barra nativa de la ventana: Nueva, Abrir y Guardar (solo icono y tooltip: son universales y así la barra cabe en ventanas de 1024 px; los botones de la barra ignoran `accessibilityLabel`, por eso llevan identificador) y Escrutinio con texto en todas las pantallas; Inicio añade con texto sus acciones (Calcular, Reducir, Jornada, Máscaras) y su tarjeta «Combinación» desaparece (el nombre del fichero pasa a la cabecera del Boleto Base). La barra no muestra el título de la ventana (macOS 15+), que ya está dentro de cada página. (3) Sin franja, desaparece Ver ▸ Barras de herramientas; `parametros.free1x2` conserva sus valores de barras sin tocarlos (compatibilidad con Windows). Las demás pantallas siguen con sus botones dentro | petición del dueño 2026-10-16; `Lateral.swift`, `Raiz.swift`, `VistaInicio.swift`; U `testF45PanelLateral` |
+| DT-83 | Al arrancar se descarga la jornada actual del país más reciente de la caché (España si no hay) con **3 s** como máximo: si llega, rellena los equipos; si tarda, falla o no hay red, el boleto queda en blanco **sin aviso y sin usar la caché**, y no pisa lo que el usuario haya escrito o abierto entretanto. Funcionalidad nueva (el WinUI solo sembraba la caché) | petición del dueño 2026-10-16; `CasosArchivo.jornadaAlArrancar`; prueba `jornadaAlArrancar` |
+| DT-84 | **Máscaras** (a petición del dueño; no existen en el C#): una máscara son los signos de cada partido del boleto, con nombre y sin equipos, en `Mascaras/<nombre>.mas` (UTF-8, una línea por partido con su pronóstico, p. ej. `1,X`; CRLF para que Windows la lea igual). Inicio ▸ «Máscaras» guarda el boleto como máscara y aplica una guardada (pone los signos y deja los equipos). La pantalla «Máscaras» (110.ª superficie; entrada 54 del panel lateral) las lista, aplica, borra y las **escruta contra las ganadoras históricas** de clubprogol (`/quiniela/{pais}/historico`, endpoint **propuesto** que el dueño crea en el servidor; contrato en `docs/API_CLUBPROGOL.md`): por cada máscara suma las columnas con 14, 13, 12, 11 y 10 aciertos en todas las jornadas y las jornadas con premio, en una tabla ordenable. El recuento no desarrolla las columnas: por cada ganadora multiplica (fallos + aciertos·x) partido a partido; da lo mismo que desarrollarlas (JD-01: 1/12/60/160/240) | petición del dueño 2026-10-16; `CasosMascaras`, `HistoricoQuiniela`, `Mascaras.swift`; pruebas `MascarasTests`, U `testF51Mascaras` |
+| DT-85 | **Columnas de Inicio sin fichero** (a petición del dueño; no existe en el C#): el Reductor, Combinar filtros, Diferencias entre filtros, Coincidencias, Aidomnou y Pim tienen un botón «Columnas de Inicio» que desarrolla el boleto con sus condiciones (y el filtro de columnas si existe) como «Calcular ▸ Grabar» en `Temp/ColumnasInicio.txt` (se reescribe cada vez) y lo usa de entrada. Inicio ▸ Reducir ya abre el Reductor con esas columnas. El Reductor sin «Archivo salida» reduce a `Temp/Reducido.txt` y ofrece «Guardar resultado…»; los filtros ya guardaban su resultado a petición. Si el boleto pasa del millón de columnas se pide confirmación (14 triples: 4,8 M columnas, 76 MB, ~40 s en Debug). Si las condiciones no dejan ninguna, error y sin fichero viejo | petición del dueño 2026-10-16; `CasosCombinacion.columnasDeInicio`, `BotonColumnasInicio`; pruebas `f52ColumnasDeInicio`, U `testF52ReducirSinFichero` |
+| DT-86 | **Enlaces web** (a petición del dueño, 2026-10-16): clubprogol.com es WordPress y las direcciones antiguas dan 404 (`/DocWK`, `/DocWK/index.php?title=FAQ`, `/foros/index.php`, `/Descargas/Descargas.aspx`). Manual → `/docwk/`, FAQ → `/docwk/faq/` (WordPress pone las direcciones en minúsculas) (páginas que el dueño publica; las FAQ salen de `docs/FAQ.md`), Foro → `/foro/`. «Recursos de ayuda» deja solo Manual, FAQ y Foro: Artículos, Recursos, Notificaciones y Facebook solo mostraban «Online help disabled…» en inglés; «Acerca de» pierde «Descarga» | `Informativas.swift` (`Web`); Windows: W11 de `docs/TAREAS_WINDOWS.md` |
+| DT-87 | **Histórico propio para las máscaras** (sustituido por DT-88) (a petición del dueño, 2026-10-17): además de descargar las ganadoras, «Escrutar con un archivo de ganadoras…» lee el archivo de columnas de siempre (`ArchivoColumnasTexto`: una por línea, recortada y en mayúsculas). Se saltan las líneas en blanco, cuentan los 14 primeros signos de cada línea (lo de detrás, p. ej. el pleno, se ignora) y una línea que no empiece por 14 signos 1/X/2 detiene la lectura con su número. «Liga»: el escrutinio es por juego (Quiniela España / Progol México); por liga de fútbol no tiene sentido, porque la ganadora es la de la jornada entera | sustituido por DT-88, U `testF51Mascaras` |
+| DT-88 | **Base de ganadoras por liga** (a petición del dueño, 2026-10-17; sustituye al archivo suelto de DT-87). La app guarda las ganadoras en `Historico/<liga>.txt` dentro de la carpeta de datos (`Ganadoras/` ya la usa el original para otra cosa), una línea `jornada;columna` (o solo `columna`) por jornada, UTF-8 y CRLF. Cada liga es un archivo y su nombre sigue las reglas de las máscaras. «Añadir ganadoras desde archivo…» **suma**: una jornada que ya está no se duplica, y si trae otra columna se actualiza; las líneas sin jornada se añaden siempre. Las descargas de clubprogol se suman a «España» y «México» (decisión del dueño). El escrutinio usa la liga del selector. Lectura del archivo: líneas en blanco fuera, 14 primeros signos, línea rota ⇒ error con su número; un archivo sin ganadoras ⇒ error | `CasosHistorico`; pruebas `analizarArchivoDeGanadoras`, `baseDeGanadorasPorLiga`, `descargaSeSumaALaLiga`, U `testF51Mascaras` |
+| DT-89 | **Autoría de la app Mac** (dueño, 2026-10-17): el único autor es **jrtejada2k**. Los créditos pierden la lista de colaboradores del original y sus correos. Queda el aviso que pide la GPLv3, porque el Swift traduce el C#: «Programa libre bajo GPLv3, basado en Free1X2 de Joan Duatis» (Créditos y copyright del bundle). Los commits de la rama del Mac van sin línea de coautor; el historial de `main` (Windows) no se toca | `VistaCreditos`, `project.yml` |
+| DT-90 | **Icono y firma para distribuir** (dueño, 2026-10-17): el icono es la imagen elegida por el dueño (`Free1X2.Mac/scripts/icono-original.png`: «FREE 1X2» azul neón, red naranja, marco plateado sobre base azul). Sus esquinas son más cerradas que las de macOS, así que `scripts/icono.swift` toma solo el panel interior y dibuja la base azul y el anillo plateado con la rejilla de macOS; genera los 10 tamaños de `App/Recursos/Assets.xcassets/AppIcon.appiconset` y, para Windows, `Free1X2.WinUI/Assets/app.ico` (16–256 px; tarea W13). Firma: Debug ad hoc (Run, smoke y tests de UI, también en la CI); Release automática con el equipo del dueño para Product ▸ Archive ▸ Direct Distribution | `project.yml`, `scripts/icono.swift` |
+| DT-91 | **Esperanza matemática por categoría** (a petición del dueño, 2026-10-17, a partir de su Excel «EM Categorias.xlsm»): pantalla nueva con la EM **exacta** de una columna para 14…10 aciertos. Recorre los 19.321 resultados con premio; en cada uno, acertantes = fracción apostada con esos aciertos × (recaudación ÷ precio), +1 si «contarme como acertante» (por defecto; como mínimo 1), premio bruto = % de la categoría × recaudación ÷ acertantes, neto tras mínimos (1 € de 14 a 11, 1,5 € el 10) y retención (20 % de lo que pase de 40.000 €), ponderado con la probabilidad real del resultado. Cada fila de porcentajes se normaliza a su suma (el Excel no lo hace; diferencia mínima). Precio y recaudación por defecto: los de Configuración ▸ Parámetros LAE (ya existentes), editables en la pantalla. Reparto con selector: el del Excel (16 · 7,5 · 7,5 · 7,5 · 9) o el de Estimación de premios (12 · 8 · 8 · 8 · 9), editable. Valores de referencia de un cálculo independiente en Python: EM 1,0739 € a 1 € y 0,8942 € a 0,75 € | `CasosEsperanza`; pruebas `EsperanzaTests` |
+| DT-92 | **Precio por defecto, Estimación de premios y «Pegar desde Excel»** (dueño, 2026-10-17): (1) la semilla `App/Recursos/Datos/parametros.free1x2` pasa de `PrecioApuesta="0,50"` a `"0,75"` (solo instalaciones nuevas; `ConfiguracionEditable.precioApuesta` por defecto también 0,75); (2) «Estimación de premios» arranca con el precio de Configuración ▸ Parámetros LAE en vez de 0,50 fijo; (3) `PorcentajesGrid` (las 19 tablas 1/X/2) tiene «Pegar desde Excel»: de cada línea del portapapeles cuentan sus tres últimos números (tabulador, `;` o espacio; coma o punto decimal; «%» opcional), se saltan las líneas con menos de tres, como mucho tantas filas como partidos; si son menos, aviso «Se pegaron X de N filas» | `CasosUtilidades.porcentajesPegados`; pruebas `PegarPorcentajesTests`; comprobado en la app con el portapapeles |
+| DT-93 | **El precio y la recaudación de Configuración sustituyen a los 0,50 € y 14 M € fijos** (dueño, 2026-10-17): `Jornadas/InfoJornadasLAE.txt` guarda los importes ÷ precio sin decir cuál; el original escribía ÷ 0,50 fijo desde Tramificar y ÷ precio configurado desde Escrutinio, y Estimación leía × su campo. El dueño eligió que todos usen el precio de Configuración: Tramificar ▸ Guardar jornada L.A.E. escribe ÷ precio (recaudación vacía = la de Configuración), el balance de los tramos es importe − columnas × precio y el Banco de pruebas usa precio y recaudación de Configuración (el reparto 12/8/8/8/9 sigue fijo). Con 0,50 € y 14 M € los resultados son los del original (los golden pasan esos valores). Pendiente de decisión aparte: el 3·10⁷ de la condición «Valoración por productos», que es del motor de cálculo | `Tramo.calculaTotalImportePremios(precio:)`, `guardarJornadaTramificar(lae:)`, `analizarBanco(lae:)`; pruebas `PrecioConfigurableTests` |
+| DT-94 | **Optimizador de rentabilidad (idea de «OptimizadorEM» de JoanD) — decidido, pendiente de implementar** (dueño, 2026-10-17; diseño en el informe de investigación, §6): elige N columnas de una madre para maximizar P(beneficio) = P(lo cobrado en una jornada > coste), calculada de forma exacta sobre los 3¹⁴ resultados con probabilidades reales y premios estimados con los % apostados; búsqueda por enfriamiento simulado. Decisiones: (1) objetivo P(beneficio) con desempate por EM; (2) beneficio = cobrar más de lo que cuesta; (3) congeladas se suman a N; (4) reparto con el selector de Esperanza matemática; (5) +1 acertante por cada columna propia que acierta; (6) campo «Bote» que se suma al 14; (7) premio bajo el mínimo vale 0; (8) sin columnas repetidas; (9) el P15 se ignora y se conserva el de la madre; (10) parada manual o automática (X minutos / Y ciclos sin mejora); (11) soluciones iniciales: aleatoria, desde archivo y las de más EM; (12) varias búsquedas en paralelo (una por núcleo); (13) botón «Evaluar con otras reales»; (14) en Utilidades, junto a Esperanza; (15) Mac y tarea detallada para Windows; (16) filtro aparte «EM total ≥ x» sobre un archivo para preparar la madre; (17) precio y recaudación de Configuración (DT-92/93); (18) constantes desde Configuración (DT-93) | — |
+| DT-95 | **Funciones de la 0.77.2 y del WinForms recuperadas** (dueño, 2026-10-17; informe del Free1X2 0.77.2 de JoanD): (1) «Posibles premios» abierto desde Escrutinios llega con la columna ganadora repartida en sus 16 casillas (1, X, 2 o `*`; todo `*` si está vacía), como `new PosiblesPremiosFrm(txtColGanadora.Text)` / `MuestraGanadoraImportada`; la ganadora sigue siendo editable. (2) «Ordenar por probabilidad» ▸ casilla «Obtener intervalo: premio de 14 entre X y Y» (desmarcada = igual que antes): en `GrabacionColumnas`, premio = (precio × %14 ÷ 100) ÷ probabilidad con tope recaudación × %14 ÷ 100, y solo se graba la columna si mínimo ≤ premio ≤ máximo; la probabilidad acumulada y su límite siguen contando todas; no se aplica a la ordenación múltiple. Como en el C#, sin ninguna columna grabada no se crea el fichero. (3) «Banco de pruebas»: la tabla por columnas vuelve a tener las 19 columnas del WinForms (Nºcol., Nº14…Nº10, Nºacumulado, Premio 14…10, Premio Acumulado, 14…10 medio, Recuperación) más la columna de signos, se ordena al pulsar una cabecera (`ComparaCon`: «Nºcol.» de menor a mayor, el resto de mayor a menor; la 2.ª pulsación invierte) y la selección es la de la tabla (⌘ / ⇧) en lugar de una casilla por fila; botón «Filtrar…» con la hoja «Selección de columnas» (`DialogoSeleccionBancoPruebasFrm`: 18 conceptos con mínimo y máximo, valores iniciales = `MaxMin`, ninguno marcado; en cada fila el primer concepto que falla la desmarca, si los cumple todos queda marcada, sin conceptos no cambia nada; «N filas seleccionadas»). Se replica que `MaxMin` de los premios totales esté redondeado a euros aunque el filtro compare el importe sin redondear. El % de recuperación usa el precio de Configuración (DT-93), no el 0,5 fijo de `ResultadosPorColumna`. Windows: W17–W19. |
+| DT-96 | **Históricos de la distribución original como datos de fábrica** (dueño, 2026-10-17; ficheros de `Free1x2JoanD_/Jornadas/` y `Ganadoras/`, solo leídos y copiados a `App/Recursos/Datos/`): `Jornadas/Resultados.txt` (1970–2006), los 4 `Jornadas/Historico*.txt` y `Ganadoras/1983-84.txt`…`2008-09.txt` se siembran tal cual si faltan (`CasosInicio.semillasHistoricas`). `Jornadas/InfoJornadasLAE.txt` (1988/89–2006/07) guarda los importes en apuestas de **0,50 €** (1995/96 J23: 47.426.967 × 0,50 = 23,7 M €; 2006/07 J32 da 30 acertantes exactos de 14 con el 12 %): como se lee con el precio de Configuración (DT-93), **al sembrarlo** cada importe ≠ 0 pasa a × 0,50 ÷ precio con 2 decimales (`jornadasLAEAlPrecio`; «0,00» se deja tal cual porque Estimación lo usa para estimar el 14; a 0,50 € se copia sin tocar). **Liga «España»** de Máscaras: si nunca existió la carpeta `Historico` (instalación nueva), se crea con las jornadas de `Resultados.txt` cuyos 14 primeros signos son 1/X/2 (1.454 de 1.471; 17 llevan «-»), con la jornada `1970/1971-01`, que no choca con las de clubprogol (la fecha `20261011`); si el usuario la borra no se vuelve a sembrar. Windows: W20. |
+| DT-97 | **Progol: liga «México» de fábrica y parámetros L.A.E. por país** (dueño, 2026-10-17; para **todas las versiones**: Mac, Windows y las apps móviles). (1) La liga «México» de una instalación nueva (misma condición que «España», DT-96) se crea con el CSV oficial de Lotería Nacional que aportó el dueño (`App/Recursos/Datos/Jornadas/Progol.csv`, `NPRODUCTO,CONCURSO,R1…R14,BOLSA,FECHA`, L = 1, E = X, V = 2): 1.579 concursos del 767 (15-ago-1993) al 2354 (12-oct-2026), del más antiguo al más reciente, con el nº de concurso como jornada, que es la clave de clubprogol para México (no se duplican). El blog progolhistoria.blogspot.com no tiene nada anterior al 767 y sus 888 concursos coinciden con el CSV. (2) `Configuracion.laeMexico` con los mismos 4 campos que `lae` (precio, % del 14, recaudación, moneda), guardado en `parametros.free1x2` como `<configuracionONLAE><Progol><OrdenarApuestas …/></Progol>` (el C# lee solo el primer hijo de `<LAE>`; sin el nodo, los de fábrica; al guardar se añade si falta). De fábrica: **15 $** (precio oficial de la quiniela sencilla, loterianacional.gob.mx), **33 %** al 14 (estimado: el reglamento, art. 20, da un mínimo del 55 % de las ventas a premios y no publica el reparto por lugar; ~60 % al primero según legalbet.mx) y **15.000.000 $** de recaudación (estimado desde la bolsa garantizada de 5 M $), elegidos por el dueño y editables. (3) `Sesion.lae` = los de México si la jornada cargada es de México, si no los de España; lo usan Calcular (valoración), Rentabilidad, Esperanza, Ordenar, Tramificar (balance) y Banco de pruebas. Lo que es de L.A.E. usa siempre España: Estimación de premios, Guardar escrutinio y Guardar jornada L.A.E. (`InfoJornadasLAE.txt`). Windows: W21. |
+| DT-98 | **Liga «España» con las jornadas de 2007/08 a 2026/27** (dueño, 2026-10-17: «que no se repitan»; para **todas las versiones**). Las 1.205 jornadas completas de quinielafutbol.info/historico (2007/08 a 2026/27; la 2008/09-28 lleva un «-» y se salta) van en `App/Recursos/Datos/Jornadas/EspanaDesde2007.txt`, ya en formato de liga y CRLF, y se siembran detrás de las 1.454 de `Resultados.txt` (misma condición que DT-96): 2.659 en total. **Sin duplicados:** la jornada es la fecha `AAAAMMDD`, la misma clave que la descarga de clubprogol (`20261011`), así que `CasosHistorico.anadir` la reconoce; las 406 sin fecha en la tabla de la web (2016/17 una, 2019/20 a 2024/25 todas) se guardan como `2019/2020-01`, y clubprogol no las trae (su histórico empieza el 28-jun-2026). Comprobado: las 19 jornadas de clubprogol del 16-oct-2026 coinciden signo a signo con las de la web. En 2025/26 la tabla de la web tenía 13 filas mal, corregidas con la página de cada jornada; de 2007/08 a 2024/25 no hay otra fuente para verificarlas. Windows: W22. |
+| DT-41 | Piezas transversales `FormatoNET`, `TextoNET`, `AleatorioNET`, ayudantes únicos | ESPEC_16 |
+
+## 3. Registro de las «Abiertas» por spec
+
+Formato: `origen` → decisión (estado). Las que solo remitían a otra spec se cierran con la referencia.
+
+### ESPEC_01 (motor núcleo)
+
+| DEC | Origen | Decisión |
+|-----|--------|----------|
+| DEC-101 | A1 GoldenGen inexistente | ESPEC_12 (D) |
+| DEC-102 | A2 `EsGrupoBase` tras cargar | replicar el bucle tal cual (`ES/ArchivoCombinacion.cs:221-232`): el índice `i` cuenta también los comentarios XML, así que `EsGrupoBase` queda `true` solo si el grupo tiene exactamente un hijo (D) |
+| DEC-103 | A3 `VaciarInformacion` descarta lo del control 0 | replicar: `VaciarInformacion()` antes de cada control libre `j>0` (`MC/ControladorGrupos.cs:224`) (D) |
+| DEC-104 | A4 Diferencias + tolerancias lanza | `throw new Exception("The method or operation is not implemented.")` (`MC/FiltroDiferencias.cs:124-127`) ⇒ `ErrorDominio(.general)` con ese mensaje, en el mismo punto (D; DT-03) |
+| DEC-105 | A5 formato de `Valor*` con negativos | replicar (`MC/Analizador.cs:234-249`): un valor negativo contiene `-` y se trata como intervalo; `Split('-')` deja un trozo vacío y `Convert.ToDouble("")` ⇒ `ErrorDominio(.formato)`; los extremos de intervalo se redondean a par (D) |
+| DEC-106 | A6 tamaños de `ColumnasPorFallos*` | replicar los índices literales; un `nFallados` fuera de rango ⇒ `ErrorDominio(.indiceFueraDeRango)` en el mismo punto (D) |
+| DEC-107 | A7 estructura de errores | DT-03 (D) |
+| DEC-108 | A8 reinicializar = no-op | DP-04 (D) |
+| DEC-109 | A9 cultura | DP-01 (D) |
+| DEC-110 | A10 `ObtenNumCols` supone CRLF | replicar; coherente con DP-02 (D) |
+| DEC-111 | A11 `Signo`, `ReduccionTipo`, `AlgoritmoReduccion`, `IAppPaths`, `IProgressNotifier` sin uso | DP-08 (D) |
+| DEC-112 | A12 alcance de lectura de `ContenedorAnalisis` | cubierto por ESPEC_06 §3.5 (D) |
+
+### ESPEC_02 (filtros A)
+
+| DEC | Origen | Decisión |
+|-----|--------|----------|
+| DEC-201 | A1 celdas multi-signo | replicar el `switch` literal para cualquier valor de celda, incluidas las multi-signo (D) |
+| DEC-202 | A2 rango de N | DP-03 (D) |
+| DEC-203 | A3 If-Then con Peso numérico siempre `false` | replicar (D; R) |
+| DEC-204 | A4 `values=""` no se relee | replicar: el lector lanza ⇒ `ErrorDominio(.indiceFueraDeRango)` al abrir, que llega al mismo `catch` que en C# (D) |
+| DEC-205 | A5 letras de tolerancia y `ToUpper` | DT-13 (D) |
+| DEC-206 | A6 `isLetter` vs `IsLetter` | `FormatoNET.esLetra` con categorías Unicode (D; `G-NET-TXT`) |
+| DEC-207 | A7 máscara del grupo base en análisis | replicar (`GRP:39`, `GRP:232-233`) (D) |
+| DEC-208 | A8 caracteres ≠ `1/X/2/*` en Interrupciones | replicar (rama «X») (D) |
+| DEC-209 | A9 figuras ≥ 16 · A10 duplicados en figuras · A11 tolerancia sin 0 | replicar lo que permita la UI actual (D) |
+
+### ESPEC_03 (filtros B)
+
+| DEC | Origen | Decisión |
+|-----|--------|----------|
+| DEC-301 | A1 cultura de `double` | DP-01 (D) |
+| DEC-302 | A2 `aciertosMax` no se persiste | replicar (D; R) |
+| DEC-303 | A3 orden de `GetFiles` | DT-14 (D) |
+| DEC-304 | A4 `Convert.ToInt32/ToDouble` | `FormatoNET` con la semántica de .NET 8 (`bcl`) + `G-NET-PARSE` (D) |
+| DEC-305 | A5 Diferencias + tolerancias | = DEC-104 |
+| DEC-306 | A6 Dibujos vía If-Then rechaza siempre | replicar (D; R) |
+| DEC-307 | A7 N ≠ 14 | DP-03 (D) |
+| DEC-308 | A8 `Diferencia.AnalizarFallos` sin llamadores | DP-08 (D) |
+| DEC-309 | A9 elemento `""` en textos de fallo / «Columna Fuera de Límites» | replicar; `Substring(0,1)` sobre vacío ⇒ error tipado como el C# (D) |
+| DEC-310 | A10 líneas no válidas en históricos | replicar (D) |
+| DEC-311 | A11 `RelacionGE1` · A12 `IsLetter` · A13 cobertura | ESPEC_04 · DEC-206 · ESPEC_12 (D) |
+
+### ESPEC_04 (CP y relaciones)
+
+| DEC | Origen | Decisión |
+|-----|--------|----------|
+| DEC-401 | A-1 política de errores | DT-03: se replican los fallos del C# (no se valida al fijar) (D) |
+| DEC-402 | A-2 N = 15 en RelacionCP1/CP3 | DP-03: con `noAC = 15`, `ErrorDominio(.indiceFueraDeRango)` como el C# (D) |
+| DEC-403 | A-3, A-4 `values=""` en CP y tolerancias | replicar: el lector lanza `IndexOutOfRange` (`str[-1]`) ⇒ error tipado (D) |
+| DEC-404 | A-5 caché obsoleta de RelacionCP3 (P16) | replicar (D; R) |
+| DEC-405 | A-6 BCL | `G-NET` (`bcl`) (D) |
+| DEC-406 | A-7 RelacionCP3 desde el informe ABDON | replicar el ViewModel (`Columnas = cols`) (O2) (D) |
+| DEC-407 | A-8 unidades de `impresoras.cfg` | centésimas de pulgada → puntos ×0,72 (exacto: 1 pt = 1/72 in); el boleto impreso por el dueño en M5 es prueba de aceptación, no una decisión (D) |
+| DEC-408 | A-9 `NaN` en `OrdenarValoracion` | DT-15: `IntrosortNET` con los `NaN` primero (D) |
+| DEC-409 | A-10 `IO`/`GCP` muertos | DP-08 (D) |
+| DEC-410 | A-11 N cambia durante la vida de una CP | imposible: `Configuracion` inmutable por ejecución (D) |
+| DEC-411 | A-12 `Relaciones.Add` directo | replicar (solo serializa) (D) |
+| DEC-412 | A-13 GoldenGen · A-14 `RelacionGE1` | ESPEC_12 · ESPEC_03 (D) |
+
+### ESPEC_05 (reducción y escrutinio)
+
+| DEC | Origen | Decisión |
+|-----|--------|----------|
+| DEC-501 | A1 `EscrutadorComb` (Hashtable, índice base-3) | replicar (`Escrutinio/EscrutadorComb.cs:114,120,224,243`): las claves de vecinos son `Int32` y la de la ganadora `Int64` con valor `byte`; `Keys.CopyTo(long[])` ensancha, pero la búsqueda con clave `long` no encuentra las `Int32` (`(int)null` ⇒ `NullReferenceException`) y en la ganadora `(int)` sobre un `byte` encajado ⇒ `InvalidCastException`. La primera columna que acepte `AnalizaColumna` (que recibe el índice base 3 como si fuera de 3 bits) lanza; si ninguna la acepta, los premios quedan a 0. El port recorre las claves en el orden de `HashtableNET` (`G-NET-HASH`) y lanza `ErrorDominio(.referenciaNula)` o `(.conversionInvalida)`, que la pantalla muestra como «No se pudo completar el escrutinio:…» (`EscrutarCombinacionesFrmViewModel.cs:496-499`) (D; R) |
+| DEC-502 | A2 orden de `ListaEscrutadasConPremio` | `ListaEscrutadasConPremio` nunca recibe elementos (el `Add` va tras el cast que siempre falla, DEC-501): siempre vacía; su orden no aplica (D) |
+| DEC-503 | A3 `PosiblesPremiosComparer` con empates | DT-15 (D) |
+| DEC-504 | A4 `PonerPremios`/`AñadirPremiosGlobales` | DP-08 (D) |
+| DEC-505 | A5 XFSF, XfsfV3, JLPM | DP-08 (D) |
+| DEC-506 | A6 último partido de `JDCDobleContador.Marca` | replicar `Partido < noPartidos` (`GR-06`) (D) |
+| DEC-507 | A7 `ReductorTM` | **no se porta**: la app no lo ofrece (`Free1X2.WinUI/Views/Ported/ReductorFrmViewModel.cs:43-44`; 10 A-11) (DP-08) |
+| DEC-508 | A8 `nivel ≥ noPartidos` | replicar (inalcanzable desde la UI) (D) |
+| DEC-509 | A9 salida tras cancelar | replicar la salida parcial (DP-09/DP-10) (D) |
+| DEC-510 | A10 EOL | DP-02 (D) |
+| DEC-511 | A11 valores de réplica | ESPEC_12 §4.2 regla 1 (D) |
+| DEC-512 | A12 esquema de `Resultados` | modelo de filas propio del port (O2) (D) |
+| DEC-513 | A13 bordes de `Calculos` (`GS-03`) | replicar (D) |
+| DEC-514 | A14 `ObtenNumCols` | replicar (D) |
+
+### ESPEC_06 (utils y análisis)
+
+| DEC | Origen | Decisión |
+|-----|--------|----------|
+| DEC-601 | A1 cabeceras SharpZipLib | no se exigen los bytes de SharpZipLib: escritor estándar y lector tolerante (ESPEC_16 §3); se compara el contenido descomprimido en ambos sentidos (D) |
+| DEC-602 | A2 `ToString()` e infinito/NaN · A4 parser numérico · A5 funciones de cadena | `G-NET-FMT`, `G-NET-PARSE`, `G-NET-TXT` (`bcl`) (D) |
+| DEC-603 | A3 cultura | DP-01 (D) |
+| DEC-604 | A6 `AnalizadorColumnaCombinacion` corta al primer fallo | replicar (D; R) |
+| DEC-605 | A7 código muerto | DP-08 (D) |
+| DEC-606 | A8 libm | la referencia es la libm de Darwin (la del producto Mac, la misma que usa Swift); diferencia de hasta 1 ulp frente a la UCRT de Windows aceptada (ESPEC_12 §1.1) (D) |
+| DEC-607 | A9 `FigurasComparer` | solo WinForms ⇒ DP-08 (D) |
+| DEC-608 | A10 `Comparador` con 15 signos | `Comparador` del dominio sin uso en la app ⇒ DP-08 (D) |
+| DEC-609 | A11 rangos de propiedades de `ContenedorAnalisis` | replicar; si el C# lanza, error tipado (D) |
+| DEC-610 | A12 `InfoJornadasLAE.txt` | corpus generado (ESPEC_12 §6) (D) |
+| DEC-611 | A13 GoldenGen | ESPEC_12 (D) |
+| DEC-612 | A14 EOL | DP-02 (D) |
+| DEC-613 | A15 `Porcentajes` con N ≠ 14 | replicar (D) |
+| DEC-614 | A16 `ConvLongToStr` con dobles/triples | replicar (error tipado) (D) |
+| DEC-615 | A17 pleno al 15 real | replicar lo que hace hoy el boleto con la jornada online (O2) (D) |
+| DEC-616 | A18 DEFLATE en Swift | ESPEC_16 §3: DEFLATE crudo con `Compression.framework` (`COMPRESSION_ZLIB`, RFC 1951) y contenedor ZIP propio; lector tolerante (método 0/8, descriptor de datos, campos extra y Zip64) (D) |
+| DEC-617 | A19 desfase de documentación | sin efecto en la app Mac (D) |
+
+### ESPEC_07 (formatos y online)
+
+| DEC | Origen | Decisión |
+|-----|--------|----------|
+| DEC-701 | A1 EOL/BOM | DP-02 (D) |
+| DEC-702 | A2 sin `.comb` reales · A3 exactitud de `XmlTextWriter` | corpus `fixture` + `lectura` (ESPEC_12 §6); exactitud de `XmlTextWriter` según `EscritorXMLNET` (ESPEC_16 §2) (D) |
+| DEC-703 | A4 gramáticas delegadas | ESPEC_01–04 (D) |
+| DEC-704 | A5 propiedades JSON duplicadas | gana la **última** definición, como `JsonElement.TryGetProperty` de .NET 8 (`Online/JornadaQuinielaParser.cs:63,87,129,146`; `bcl`); el parser Swift igual, con caso en la suite online (D) |
+| DEC-705 | A6 enteros JSON y `Enum.TryParse` | `TryGetInt32` rechaza `38.0`, `1e2` y valores fuera de `Int32` (`Online/JornadaQuinielaParser.cs:154`); `Enum.TryParse(…, ignoreCase: true)` acepta cifras no definidas (`"99"`) (`WinUI/Services/TemaApp.cs:76`, `IdiomaApp.cs:77`) (`bcl`) (D) |
+| DEC-706 | A7 equipos `.txt` antiguos | DP-02: lectura UTF-8 como hoy, sin *fallback* cp1252 (D) |
+| DEC-707 | A8 `.lang` | DP-07: no se porta (D) |
+| DEC-708 | A9 `FileIO.WriteLinesAsync` | sin Windows no se puede capturar: el port escribe UTF-8 sin BOM con CRLF (regla general de DP-02); los lectores aceptan cualquier variante (D) |
+| DEC-709 | A10 valores por defecto de `HttpClient` | DT-16 (D) |
+| DEC-710 | A11 nombres de `HttpStatusCode` | DT-17 (D) |
+| DEC-711 | A12 `ToString("0.00")` | `G-NET-FMT` (`bcl`) (D) |
+| DEC-712 | A13 semillas ya editadas | sin fusión: copia solo si falta, como hoy (D) |
+| DEC-713 | A14 rutas absolutas heredadas | se conservan; semáforo rojo si no existen (ESPEC_11 §9) (D) |
+| DEC-714 | A15 cultura de las muestras | DP-01 + corpus en `es-ES` (D) |
+| DEC-715 | A16 sandbox | DP-06 (D) |
+| DEC-716 | A17 impresión | se conservan `imprebol.cfg`/`impresoras.cfg` (los usa la app) con `NSPrintOperation` (D; DEC-407) |
+| DEC-717 | A18 `Resultados.txt` | lector de las pantallas (O2) (D) |
+| DEC-718 | A19 `DataSet.ReadXml` | `DataSet.ReadXml` con esquema ignora elementos y atributos que no están en él (`bcl`); el lector Swift lee el esquema conocido y se prueba con `Free1X2.WinUI/Datos/ColumnasProbables.xml` (`fixture`) (D) |
+| DEC-719 | A20 desfase de `API_CLUBPROGOL.md` | fuera del alcance Mac (D) |
+| DEC-720 | A21 carpeta `Idioma/` ausente | no aplica (`.lang` no se porta) (D) |
+| DEC-721 | A22 DTD · A23 espacios en blanco | ESPEC_16 §2.2 (D) |
+| DEC-722 | A24 NoVariantes `values=""` | replicar: error tipado (D) |
+
+### ESPEC_08 (pantallas 1–40)
+
+| DEC | Origen | Decisión |
+|-----|--------|----------|
+| DEC-801 | A1 modos combinados de Pleno al 15 | replicar (D; R) |
+| DEC-802 | A2 `Grabar` de Análisis de grupos | port (DP-15) (D) |
+| DEC-803 | A3 índices fuera de rango en Formatos 123 | replicar: error tipado (D) |
+| DEC-804 | A4 estado «Pronóstico» pisado | replicar (D; R) |
+| DEC-805 | A5 Banco de pruebas LN↔Premio | port (DP-15) (D) |
+| DEC-806 | A6 puntos CP tras guardar | DP-04 (D) |
+| DEC-807 | A7 peculiaridades de Coincidencias | replicar (D) |
+| DEC-808 | A8 `IncluirPleno` sin efecto | replicar: se muestra y no actúa (R) |
+| DEC-809 | A9 propiedades sin uso | no se portan las propiedades; nada visible cambia (DP-08) (D) |
+| DEC-810 | A10 pronósticos CP de un carácter | replicar (D; R) |
+| DEC-811 | A11 parseo de tolerancias/aciertos CP | replicar: error tipado (D) |
+| DEC-812 | A12 `N2s` con ≠ 14 | replicar (D) |
+| DEC-813 | A13 ZIP | DEC-601/DEC-616 (D) |
+| DEC-814 | A14 ruta `.lst` en mayúsculas | replicar: en macOS (APFS sin distinción de mayúsculas por defecto) la ruta sigue resolviéndose (D) |
+| DEC-815 | A15 diálogos 34/37 sin consumidor | replicar (R) |
+| DEC-816 | A16 fila 10 de «Filtrar por límites» | replicar (D; R) |
+| DEC-817 | A17 rejilla de Dibujos con 15 partidos | port: 15 fijo (DP-15) (D) |
+| DEC-818 | A18 formatos de condición y TSV de 44 columnas | ESPEC_07 + corpus (D) |
+| DEC-819 | A19 `System.Random` | `AleatorioNET` + O3 para semillas de reloj (D) |
+| DEC-820 | A20 carpetas y portapapeles de condiciones | DP-13 + fichero `Temp/tmp.<ext>` como hoy (D) |
+| DEC-821 | A21 productor de `ArrayFormatos` | payload de navegación desde la pantalla 51 (ESPEC_11 §8.2) (D) |
+| DEC-822 | A22 rama «en pantalla» inalcanzable | replicar el mensaje (R) |
+
+### ESPEC_09 (pantallas 41–73)
+
+| DEC | Origen | Decisión |
+|-----|--------|----------|
+| DEC-901 | A-41-1, A-41-2 divergencias con el legacy | port (DP-15) (D) |
+| DEC-902 | A-41-3 botón «CPs por diferencias…» sin cablear | replicar (R) |
+| DEC-903 | A-42-1 formato `.dif` | ESPEC_07 + corpus (D) |
+| DEC-904 | A-43-1 la ayuda promete espacios | replicar: con espacios, error inesperado como hoy (R) |
+| DEC-905 | A-44-1 comodín `*` → `X` | replicar (D) |
+| DEC-906 | A-44-2 carpeta inicial | Documentos, como el port (D) |
+| DEC-907 | A-45-1 `Detener` sin control | no se expone, como hoy (D) |
+| DEC-908 | A-45-2 `S: Suspendido` | replicar (D) |
+| DEC-909 | A-45-3 fila TOTALES exportable | replicar (R) |
+| DEC-910 | A-46-1 redondeo bancario · A-46-2 dependencia de la recaudación previa | replicar: `Math.Round(x, n)` de .NET 8 = `x·10ⁿ` redondeado a par ÷ `10ⁿ` (`bcl`, `Math.cs`); la dependencia de la recaudación previa se replica (D) |
+| DEC-911 | A-46-3 «Destinado a premios» sin uso | se muestra y no calcula (D) |
+| DEC-912 | A-46-4 premios guardados ≠ tecleados | replicar (R) |
+| DEC-913 | A-47-1 caracteres ≠ `1/X/2` | replicar con la receta T1 (D) |
+| DEC-914 | A-49-1 editor de figuras (0–16, `*`) | replicar el comportamiento real (R) |
+| DEC-915 | A-50-1 «Cancelar» inoperante | DP-10: igual que hoy (D) |
+| DEC-916 | A-50-2 sin entrada de menú | igual que hoy: se abre desde el Generador de CPs (D) |
+| DEC-917 | A-51-1 dos `TransformarValoracion` | una implementación, mismo resultado (NaN incluido) (ESPEC_13 §3) (D) |
+| DEC-918 | A-53-1 tramos pierden sobrantes | replicar (D; R) |
+| DEC-919 | A-54-1 salida por defecto = entrada | replicar (R) |
+| DEC-920 | A-54-2 comparación con legacy | no aplica (DP-15) (D) |
+| DEC-921 | A-55-1 dígitos por redondeo | replicar (D; R) |
+| DEC-922 | A-57-1 Filtro Pim = motor aidomnou | port: mismo motor (DP-15; ESPEC_13 §3) (D) |
+| DEC-923 | A-57-2 `aidomnou.cfg` | constantes como el port; no se expone (D) |
+| DEC-924 | A-58-1 desalineamiento de `cM` | replicar (D; R) |
+| DEC-925 | A-59-1 `Porcentajes`/tablas CP | versión del cuerpo del VM (O2) (D) |
+| DEC-926 | A-60-1 codificación de `equipos*.dat` | Latin-1 como el port (DP-02) (D) |
+| DEC-927 | A-62-1 «Abrir» no llega al analizador · A-62-2 confirmaciones omitidas | port (DP-15) (R) |
+| DEC-928 | A-63-1 escritura de valoraciones doble y formato 1 | una implementación; inconsistencia del formato 1 replicada (D; R) |
+| DEC-929 | A-64-1 «Nuevo…» crea fichero vacío | DT-18 (D) |
+| DEC-930 | A-64-2 `LeeColumnaSinComas` | replicar (D) |
+| DEC-931 | A-65-1 contrato textual If-Then | replicar el parser de `ControladorIfThen` tal cual (ESPEC_01) (D) |
+| DEC-932 | A-66-1 `ObtenNumCols` estimado | replicar (D) |
+| DEC-933 | A-68-1 unidades de impresión | DEC-407 (D) |
+| DEC-934 | A-68-2 `SetConfig` y «Girar boleto» | port: sin `SetConfig` inicial; girar sin efecto (DP-15) (R) |
+| DEC-935 | A-71-1 BOM de listados | = DEC-708: UTF-8 sin BOM, CRLF (D) |
+| DEC-936 | A-72-1 sin cancelación en Mejores opciones | DP-10 (D) |
+| DEC-937 | A-73-1 bucle infinito latente | DT-08 (D) |
+| DEC-938 | A-73-2 modo aleatorio | `Entorno.aleatorio` + O3 (D) |
+| DEC-939 | G-1 oráculo port/legacy · G-2 carpetas · G-3 cultura · G-4 golden de ViewModels | DP-15 · DP-13 · DP-01 · ESPEC_12 §5 (D) |
+
+### ESPEC_10 (pantallas 74–108 y shell)
+
+| DEC | Origen | Decisión |
+|-----|--------|----------|
+| DEC-1001 | A-01 multiventana | DP-05 (D) |
+| DEC-1002 | A-02 menú Ayuda · A-05 enlaces de ayuda | DT-19 (D) |
+| DEC-1003 | A-03 preferencias | DP-12, sin migración (D) |
+| DEC-1004 | A-04 localización | DP-07 (D) |
+| DEC-1005 | A-06 `Ganadoras/` | DP-13 (D) |
+| DEC-1006 | A-07 smoke | ESPEC_14 §9 (D) |
+| DEC-1007 | A-08 el visor pierde el análisis al salir | replicar (R) |
+| DEC-1008 | A-09 14 secciones del visor | replicar (D) |
+| DEC-1009 | A-10 manual vs código | el código (DP-15) (D) |
+| DEC-1010 | A-11 `ReductorTM` no seleccionable | DP-08 (= DEC-507) (D) |
+| DEC-1011 | A-12 ganadora fija en Tríos | replicar (R) |
+| DEC-1012 | A-13 estado sobrescrito en Rotación | replicar (R) |
+| DEC-1013 | A-14 límite de 15 signos y niveles | replicar (D) |
+| DEC-1014 | A-15 formato .NET | `G-NET-FMT` (`bcl`) (D) |
+| DEC-1015 | A-16 cancelación | DP-10 (D) |
+| DEC-1016 | A-17 boletos +1 con múltiplos de 8 | replicar (D; R) |
+| DEC-1017 | A-18 «Valor» sobre el filtro vivo | replicar (CU-C46) (D) |
+| DEC-1018 | A-19 formato y orden en Estadísticas | `Float.ToString()` como hoy (ida y vuelta más corta, `bcl`) + orden DT-14 (D) |
+| DEC-1019 | A-20 `CalcularValorTotal` | DP-08 (D) |
+| DEC-1020 | A-21 `aidomnou.cfg` | = DEC-923 (D) |
+| DEC-1021 | A-22 diferencias port/legacy | DP-15 (D) |
+| DEC-1022 | A-23 motor aidomnou duplicado | = DEC-922 (D) |
+| DEC-1023 | A-24 dos visores | se mantienen separados (D) |
+| DEC-1024 | A-25 recuento 105/108 | informativo (D) |
+
+## 4. Componentes que no se portan (DP-08)
+
+`XFSF`, `XfsfV3`, `JLPM`, **`ReductorTM`** (no seleccionable), `EscrutadorComb.PonerPremios/AñadirPremiosGlobales`,
+`PosiblesPremiosContenedor.CalcularValorTotal`, `Comparador`, `Comparador2`, `FigurasComparer`, `TransponedorAutomatico`, `clAnalisisColumnas`,
+`ContenedorValoraciones`, `Analisis.Analizador.IteraCols`, `Diferencia.AnalizarFallos`, `IO`/`GCP` muertos (04 A-10), funciones de `UtilColumnas`
+con 0 consumidores (06 §1.4 y A7), `IAppPaths`, `IProgressNotifier`, `UiHooks` (sustituido por `Entorno`), `Signo`/`ReduccionTipo`/`AlgoritmoReduccion`,
+`ArchivoIdioma`/`.lang`, `aidomnou.cfg`, `Comunicaciones/`, propiedades sin lectura de 08 A9. Sus tests y suites golden no se portan ni generan.
+
+## 5. Candidatas a corrección después de la paridad (estado R)
+
+Se replican tal cual; el dueño decide si alguna se corrige **después** de alcanzar la paridad (cada corrección = cambio de golden explicado):
+DEC-203, 302, 306, 404, 604, 801, 804, 808, 810, 815, 816, 822, 902, 904, 909, 912, 914, 918, 919, 921, 924, 927, 928, 934, 1007,
+1011, 1012, 1016; y la mejora de cancelación de DP-10.
+
+## 6. Decisiones del índice M0 y del plan
+
+| Origen | Estado |
+|--------|--------|
+| README D1 | resuelta (2026-10-12) = DP-15 |
+| README D2 | DP-09 + suite `G-D2` (D) |
+| README D3 · D4 · D5 · D7 · D8 | DP-08 · DP-01 · DP-02 · DP-11 · DP-06 |
+| README D6 | resuelta (2026-10-12; 2026-10-14): corpus = ficheros del repo + ficheros escritos a mano leyendo los escritores (ESPEC_12 §6) |
+| PLAN §7.1 aprobar plan y arquitectura | arquitectura en ESPEC_11; revisión final del dueño |
+| PLAN §7.2 ubicación | DP-14 |
+| PLAN §7.3 distribución | DP-06 |

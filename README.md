@@ -1,13 +1,15 @@
 # Free1X2
 
-**Free1X2** es una herramienta de escritorio para Windows de análisis y generación de combinaciones para la **Quiniela** española (14 partidos de fútbol con resultado 1 / X / 2, más el Pleno al 15). Permite construir un boleto, aplicar condiciones y filtros matemáticos, generar y **reducir** columnas de apuesta, escrutar resultados y analizar históricos.
+**Free1X2** es una herramienta de escritorio para **Windows** y **Mac** de análisis y generación de combinaciones para la **Quiniela** española (14 partidos de fútbol con resultado 1 / X / 2, más el Pleno al 15). Permite construir un boleto, aplicar condiciones y filtros matemáticos, generar y **reducir** columnas de apuesta, escrutar resultados y analizar históricos.
 
 La interfaz se ha **migrado a WinUI 3** (Fluent nativo de Windows), conservando intacto el motor de cálculo del programa original y reproduciendo de forma fiel las pantallas clásicas (108 superficies de UI).
 
 Programa libre bajo licencia **GPLv3** — derivado del proyecto original Free1X2 de Joan Duatis (GPL). Ver [`LICENSE`](LICENSE).
 
 - 🌐 **Web**: [clubprogol.com](https://clubprogol.com)
-- 📖 **Manual de usuario**: [`docs/MANUAL_USUARIO.md`](docs/MANUAL_USUARIO.md)
+- 📖 **Manual de usuario**: [`docs/MANUAL_USUARIO.md`](docs/MANUAL_USUARIO.md) (también en [clubprogol.com/docwk](https://clubprogol.com/docwk/))
+- ❓ **Preguntas frecuentes**: [`docs/FAQ.md`](docs/FAQ.md) (también en [clubprogol.com/docwk/faq](https://clubprogol.com/docwk/faq/))
+- 💬 **Foro**: [clubprogol.com/foro](https://clubprogol.com/foro/)
 - 🛡️ **Seguridad**: [`SECURITY.md`](SECURITY.md)
 - 🛠️ **Plan de mejoras en curso**: [`docs/PLAN_MEJORAS.md`](docs/PLAN_MEJORAS.md)
 - 🗄️ **Documentación histórica** (planes ya ejecutados o descartados): [`docs/historico/`](docs/historico/)
@@ -48,6 +50,37 @@ Capturas reales de la interfaz Fluent tras la migración:
 | **Utilidades** | SubeCategoría, generador de CPs, ordenación por probabilidad, tramificar, estimación de premios, banco de pruebas, etc. |
 
 Detalle completo de cada función en el [manual de usuario](docs/MANUAL_USUARIO.md).
+
+---
+
+## Cómo se usa
+
+**Descarga.** Windows 10 (19041+) u 11 de 64 bits: el `.zip` portable de [Releases](https://github.com/jrtejada2k/Free1x2/releases)
+(se descomprime y se ejecuta `Free1X2.WinUI.exe`, sin instalar). Mac: macOS 14 o posterior con procesador Apple (M1 o
+posterior); la versión 1.0 para Mac está en preparación.
+
+**Primeros pasos** (el [manual](docs/MANUAL_USUARIO.md) lo explica con ejemplos):
+
+1. **Configura** el precio de la apuesta y la recaudación de referencia (`Configuración ▸ Parámetros LAE`). Se usan para
+   estimar premios y para el coste del boleto.
+2. **Carga la jornada.** Se descarga sola al abrir el programa (o con **Jornada ▾** en Inicio). Sin conexión, escribe
+   los equipos a mano.
+3. **Marca tu pronóstico** en el boleto base: un signo (fijo), dos (doble) o tres (triple) por partido. El programa
+   muestra al momento cuántas columnas son: 3 elevado a los triples × 2 elevado a los dobles.
+4. **Añade condiciones** para quedarte solo con las columnas que te parecen posibles: variantes, signos seguidos,
+   dibujos, interrupciones, grupos de equipos y, sobre todo, **columnas probables (CP)**.
+5. **Calcula** las columnas que cumplen todo y mira cuántas son y cuánto cuestan.
+6. **Reduce** si siguen siendo muchas: el reductor juega menos columnas a cambio de garantizar un premio menor (al 13, al
+   12…) si el 14 estaba en tu combinación.
+7. **Escruta** después de la jornada: escribe la columna ganadora y verás cuántas columnas tienen 14, 13, 12, 11 y 10
+   aciertos.
+
+**Para decidir qué jugar:** *Rentabilidad* y *Esperanza matemática* (cuánto devuelve de media una columna según tus
+porcentajes reales y los apostados), *Estimación de premios*, *Banco de pruebas* (simula muchas jornadas) y, en Mac,
+*Máscaras* (guarda los signos de tu boleto y compáralos con las jornadas pasadas). Las tablas de porcentajes se pueden
+rellenar copiando de Excel.
+
+Dudas: [preguntas frecuentes](docs/FAQ.md) y [foro de Free1X2](https://clubprogol.com/foro/).
 
 ---
 

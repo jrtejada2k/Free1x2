@@ -19,6 +19,7 @@ Manual de uso del programa **Free1X2** para el análisis y la generación de com
 > 10. [Utilidades](#10-utilidades)
 > 11. [Formatos de archivo](#11-formatos-de-archivo)
 > 12. [Consejos y errores frecuentes](#12-consejos-y-errores-frecuentes)
+> 13. [Recetas de jugadores](#13-recetas-de-jugadores)
 
 ---
 
@@ -46,9 +47,30 @@ La idea central: partes de un pronóstico (que multiplica columnas con cada dobl
 
 Una combinación de *t* triples y *d* dobles genera **3^t × 2^d** columnas. Por ejemplo, 6 triples + 6 dobles + 2 fijos = 3⁶ × 2⁶ = **46 656 columnas**.
 
+**Por qué cuestan tanto los triples.** Sin saber nada de los equipos, un triple acierta siempre, un doble cubre 2 de los
+3 resultados posibles (≈66 %) y un fijo 1 de 3 (≈33 %). Más triples dan más opciones de premio, pero cada doble duplica las
+columnas y cada triple las triplica.
+
+**Cómo se desarrollan.** Cada signo de un partido se combina con todos los de los demás partidos. *Ej.:* un triple en el
+partido 1 y una `X` fija en el 2 dan 3 columnas (`1X`, `XX`, `2X`); un triple y dos dobles `1X` dan 3 × 2 × 2 = 12
+(`111`, `11X`, `1X1`, `1XX`, `X11`, `X1X`, `XX1`, `XXX`, `211`, `21X`, `2X1`, `2XX`). El conjunto de columnas que juegas
+es la **combinación**.
+
 **Columna.** Una apuesta concreta: una cadena de 14 signos, p. ej. `11X211X1X12111`.
 
 **Coste.** Cada columna tiene un precio (configurable; 0,75 € en la actualidad). Reducir columnas = reducir coste.
+
+**Vocabulario.**
+
+| Término | Significado |
+|---------|-------------|
+| **Condición** | Regla que debe cumplir una columna para jugarse; las que no la cumplen se descartan. |
+| **Filtro** | Archivo de columnas que hace de base: solo se aceptan las columnas que están en él (ver §8). |
+| **Sistema** | El conjunto de condiciones y filtros que lleva de la combinación inicial a la que juegas. |
+| **Boleto base** | Los partidos del boleto: 14 más el Pleno al 15. |
+| **Grupo de partidos** | Cualquier subconjunto de los partidos del boleto. |
+| **Grupo de equipos** | Cualquier subconjunto de los 28 equipos del boleto (2 por partido). |
+| **Rebotes** | Premios de categorías inferiores que aún cobras cuando fallas una condición (fallarla te hace perder al menos una categoría). |
 
 **Otras definiciones útiles** (se usan en las condiciones). Para fijar ideas, se ilustran todas sobre la misma columna de ejemplo **`11X211X1X12111`**:
 
@@ -57,12 +79,18 @@ Una combinación de *t* triples y *d* dobles genera **3^t × 2^d** columnas. Por
 | **Interrupción** | Cada cambio de signo a lo largo de la columna. | **9** interrupciones: `11`@`X`@`2`@`11`@`X`@`1`@`X`@`1`@`2`@`111`. |
 | **Interrupción de signo** | Cada vez que tras un signo concreto aparece otro distinto. | **4** del signo `1`. |
 | **Interrupciones seguidas (global)** | Cuando tras una interrupción el siguiente signo también interrumpe; se limita la racha máxima. | **6** seguidas. |
-| **Signos seguidos** | Máximo de signos iguales consecutivos. | 2 unos, 1 equis (la racha máx. de `X` es 1), etc. |
+| **Interrupciones seguidas de un signo** | Racha de interrupciones de un mismo signo en la que cada nueva aparición de ese signo es un signo suelto que vuelve a interrumpir. | **3** del `1` (los `1` de las posiciones 6, 8 y 10). |
+| **Signos seguidos** | Máximo de signos iguales consecutivos. | **3** unos (el tramo final `111`), 1 equis, 1 dos y 2 variantes seguidas (`X2`). |
 | **Distancia** | Mayor separación entre dos apariciones del mismo signo. | `1`→3, `X`→4, `2`→7, `V`→3. |
 | **Dibujo** | La representación `X+Y` (nº de equis + nº de doses). | 3 equis + 2 doses = dibujo `3+2`. |
 | **Figura de signos** | Forma en que se agrupan consecutivamente las apariciones de un signo, ordenadas de mayor a menor grupo. | Figura de `1` = `32211`; de `X` = `111`; de `2` = `11`; de `V` = `2111`. |
 
 **Figuras de zonas.** Además de la figura global, se puede dividir el boleto en zonas y mirar cómo se reparten los signos en cada una. Las zonas habituales son **7+7** (los 7 primeros partidos frente a los 7 últimos) y **Par-Impar** (partidos en posición par frente a impar). En el ejemplo, dividiendo en 7+7 las mitades son `11X211X` y `1X12111`, con figura de variantes `3+2`; dividiendo en par/impar quedan `1211111` y `1X1XX21`. También puede condicionarse el número de *coincidencias* entre zonas para el mismo signo (suele darse 0, 1 ó 3, rara vez 2).
+
+Otras particiones posibles: por bloques del boleto (4+4+3+3) o por categoría de los partidos (p. ej. 10 de 1.ª y 4 de 2.ª).
+La figura de zonas se escribe de mayor a menor: en par/impar, la columna de ejemplo tiene 1 variante en los pares
+(`1211111`) y 4 en los impares (`1X1XX21`), figura `4+1`. Las figuras de zonas del `1` casi no se usan porque son lo
+contrario de las de variantes.
 
 **Suma de aciertos / Recorrido.** Cuando se trabaja con varias columnas probables (ver §7), la **suma de aciertos** es el total acumulado de aciertos de un conjunto de CPs, y el **recorrido** es la diferencia entre la CP con más aciertos y la que menos. Sobre rangos de aciertos `4,6,5,8,7,7` el recorrido es `8−4 = 4`.
 
@@ -117,7 +145,12 @@ Permite seleccionar un archivo de columnas que actúa como **base/filtro** de la
 
 ## 4. Flujo de trabajo paso a paso
 
-1. **Configura** el programa (`Free1x2 → Configuración`): precio de la apuesta, nº de partidos, etc.
+1. **Configura** el programa (`Free1x2 → Configuración`): precio de la apuesta, nº de partidos, etc. En la versión Mac el
+   precio de partida es **0,75 €** (Configuración ▸ Parámetros LAE ▸ Precio apuesta); cámbialo si la apuesta cuesta otra cosa.
+   **[Mac]** El Progol tiene sus propios parámetros (**Configuración ▸ Parámetros Progol (México)**: 15 $ la quiniela
+   sencilla, 15.000.000 $ de recaudación y 33 % para el 14; los dos últimos son estimados, ajústalos si los conoces). Se
+   usan cuando la jornada cargada es de México; si no, los de España. Estimación de premios y lo que se guarda en
+   `Jornadas/InfoJornadasLAE.txt` son de L.A.E. y usan siempre los de España.
 2. **Carga el boleto base** (equipos + pronóstico inicial de fijos/dobles/triples). Los equipos de la jornada
    se cargan solos al abrir el programa (o con **Jornada ▾**), y el pronóstico puede salir de una **máscara** guardada
    (**Máscaras ▾**, ver §10).
@@ -178,10 +211,10 @@ Todas las pantallas de estos menús están también en el **panel lateral**, con
 | Ver / Imprimir Boletos | Muestra / imprime en boletos oficiales. |
 | Ver Boletos en Editor de Texto | Vuelca las columnas de un fichero a un editor de texto para revisarlas/copiarlas. |
 | Reducir | Abre el reductor. |
-| Escrutinios | Escruta archivos de columnas. |
+| Escrutinios | Escruta archivos de columnas. Su botón **Posibles premios** abre esa pantalla con la columna ganadora ya puesta en las casillas (las que falten, con `*`) **[Mac]**. |
 | Escrutar Combinaciones | Escrutinio orientado a combinaciones (no solo a ficheros de columnas sueltas). |
 | Analizar Combinación | Analiza una combinación concreta (su columna, su analizador y sus pronósticos asociados). |
-| Análisis de Fallos / Gráfico / de Signos | Herramientas de análisis. |
+| Análisis de Fallos / Gráfico / de Signos | Fallos: qué condiciones acierta o falla la ganadora. Gráfico: representación de la combinación. Signos: seguir la combinación mientras se juega la jornada. |
 | Probabilidades | Probabilidad de una "hija" respecto a la "madre". |
 | Estadísticas | Distribución de un archivo por condiciones. |
 | Añadir Pleno al 15 | Incorpora el signo del 15. |
@@ -213,6 +246,7 @@ Todas las pantallas de estos menús están también en el **panel lateral**, con
 | Ordenar por Probabilidad | Ordena columnas por probabilidad a partir de una valoración. |
 | Selector (JuanM) / (MarioSan) | Selección de columnas (por nº de 13s, etc.). |
 | Rentabilidad | Calcula la rentabilidad de una combinación. |
+| Esperanza matemática **[Mac]** | Esperanza matemática de una columna por categoría (14 a 10), con precio, reparto, retención y mínimos configurables (ver §«Esperanza matemática»). |
 | Columnas GEPT | Generador de columnas probables. |
 | Tramificar | Separa columnas por tramos. |
 | Premiadas | Utilidad de premiadas. |
@@ -220,6 +254,13 @@ Todas las pantallas de estos menús están también en el **panel lateral**, con
 | Banco de Pruebas | Simulador de escrutinios (ver §10). |
 | Compresor *.z3q | Comprime/descomprime archivos de columnas. |
 | EstuCol | Generador/analizador de columnas probables a partir de reducidas y ganadoras. |
+
+> **Pegar desde Excel [Mac]:** todas las tablas de porcentajes 1 / X / 2 (Esperanza matemática, Rentabilidad, Estimación
+> de premios, Valoración, Banco de pruebas…) tienen el botón **«Pegar desde Excel»**. Copia en tu hoja las filas de
+> porcentajes, una por partido, y púlsalo. De cada fila cuentan los **tres últimos números** (1, X y 2), así que puedes
+> copiar también las columnas del nº de partido o de los equipos. Valen tabuladores, punto y coma o espacios, coma o punto
+> decimal, y con o sin «%». Los encabezados y las filas vacías se saltan; si copias menos filas que partidos, el resto se
+> queda como estaba y el programa te lo dice.
 
 > **Otras herramientas** que no figuran en este menú: **Análisis de grupos**, **Reducciones perfectas** y **Dependencia lineal** (ver §10). Están en el panel lateral (grupo Utilidades).
 
@@ -229,6 +270,10 @@ Todas las pantallas de estos menús están también en el **panel lateral**, con
 
 Cada condición se abre con su botón en el campo Condiciones. Cada pantalla de condición permite introducir un **valor concreto o un rango** (mínimo–máximo) por cada signo. Tras introducir datos, se **activa** con el botón de aceptar; el botón de salir descarta sin guardar. La forma de rellenar es muy parecida en casi todas las condiciones.
 
+**Botones comunes.** Todas las ventanas de condición tienen la misma botonera: **Aceptar** (✓, guarda y activa),
+**Salir** (✗, descarta), **Abrir** y **Guardar** (cargan o guardan los valores de la condición en un archivo) y **Copiar** y
+**Pegar** (pasan los valores de un grupo a otro).
+
 > **Varios valores se separan con comas:** `0,1,2` o rangos como `2-6`. Con espacios (`0 1 2`) el programa responde
 > «La cadena de entrada no tiene el formato correcto». Si un valor no es válido, la condición se queda como
 > estaba (no se activa vacía), así que «Calcular» no da 0 columnas por un error de escritura.
@@ -237,6 +282,13 @@ Las principales:
 
 ### Variantes, X y 2 (botón "Variantes, X y 2")
 Limita el número de **variantes** (X + 2), y opcionalmente de **equis** y **doses**, mediante valores o rangos.
+
+No hay casilla para los unos porque no hace falta: con 14 partidos, los unos son 14 menos las variantes, así que limitar
+las variantes ya limita los unos. Con solo **Var = 9** vale cualquier reparto que sume 9 (3 equis + 6 doses, 0 + 9…); para
+fijar el reparto exacto usa **Dibujos**.
+
+> Otro ejemplo: con 6–10 variantes, 2–4 equis y 2–5 doses, la columna `11X211X1X12111` (3 equis y 2 doses) cumple las
+> equis y los doses, pero se **rechaza**: sus 5 variantes no llegan al mínimo de 6.
 
 > Ejemplo (según el manual oficial): mín. 4 / máx. 9 variantes, mín. 2 / máx. 6 equis, mín. 2 / máx. 6 doses.
 > - Columna con **3 equis + 3 doses** → aceptada (6 variantes, todo en rango).
@@ -254,6 +306,9 @@ Como en las demás, se admiten rangos (p. ej. 2–10 variantes, 1–5 unos, 1–
 ### Dibujos (botón "Dibujos")
 Forma **más exacta** de condicionar variantes: marcas los **dibujos** `X+Y` concretos permitidos (nº de equis + nº de doses), entre todos los posibles para 14 partidos. Mientras "Variantes, X y 2" con 7 variantes admite cualquier reparto (3+4, 2+5, 4+3…), en Dibujos eliges exactamente cuáles. Botones **Marcar Todos** / **Desmarcar Todos**. Otras condiciones activas pueden, a su vez, descartar algunos de los dibujos marcados.
 
+*Ej.:* con «Variantes, X y 2» en 2–9 variantes y 2–6 equis y doses, una columna de 7 variantes puede ser 3+4, 2+5, 4+3…
+Si en Dibujos marcas solo `4+3` y `5+2`, una columna con 3 equis y 4 doses queda fuera aunque también tenga 7 variantes.
+
 ### Interrupciones (botón "Interrupciones")
 Condiciona por **cambios de signo**: interrupciones totales, por signo concreto, y seguidas (globales o por signo). Marcas el número o rango esperado; la condición acierta si las interrupciones de la columna ganadora caen dentro de lo indicado. (Recuerda: en `11X211X1X12111` hay 9 interrupciones totales, 4 del signo `1`, 6 seguidas globales y 3 seguidas de `1`.)
 
@@ -262,12 +317,23 @@ Condición "futbolística", organizada en **dos pestañas**:
 
 - **Pestaña principal (Grupos Equipos).** Si has cargado el boleto, aparecen los nombres de los 28 equipos. Marcas un conjunto de equipos y exiges un nº o rango de **Victorias, Empates, Derrotas y Suma de puntos** (sistema español **3-1-0**). El color de los equipos solo indica su posición en el boleto, no aporta significado. *Ejemplo:* marcas 5 equipos y pides "al menos 3 victorias, 0 ó 1 empate, como máximo 2 derrotas, suma de puntos entre 10 y 15". Con los botones de navegación de grupos puedes crear un **segundo grupo** de equipos (p. ej. 7 equipos) con sus propios límites; el panel indica "Grupo 2 de 2".
 - **Pestaña Relaciones.** Permite relacionar varios grupos entre sí. En el cuadro "Grupos Equipos" indicas qué grupos entran en la relación (p. ej. `1-2`) y defines la suma de victorias/empates/derrotas/puntos **conjunta** de esos grupos. Tiene su propio panel de navegación para crear tantas relaciones como quieras. Botones para eliminar el grupo de equipos en pantalla o borrar relaciones.
+- **Cómo se rellenan.** Cada casilla admite un número o un rango con guion (`3-5`, `0-1`, `10-15`). Ejemplo completo:
+  grupo 1 (5 equipos): Victorias `3-5`, Empates `0-1`, Derrotas `0-2`, Puntos `10-15`; grupo 2 (7 equipos): `3-5`,
+  `0-4`, `1-4`, `10-14`; en **Relaciones**, Grupos `1-2` con suma de victorias `5-11`, de empates `3-7`, de derrotas
+  `3-5` y de puntos `20-34`. Los puntos acotan más de lo que parece: en el grupo 1, «3 victorias, 0 empates y 2 derrotas»
+  cumple las tres primeras casillas, pero suma 9 puntos y queda fuera.
+- **Ideas de uso.** Que los 10 primeros de la clasificación sumen más puntos que los 10 últimos, jueguen donde jueguen; o
+  que los 4 favoritos de tu CP saquen entre 5 y 10 puntos (como poco 1 victoria y 2 empates, como mucho 3 victorias y
+  1 empate).
 
 ### Distancias (botón "Distancias")
 Limita la **distancia** (mayor separación entre dos apariciones del mismo signo) para `1`, `X`, `2` y variantes, con valores o rangos.
 
 ### Valoración de signos
 Asigna un **valor** (normalmente en %) a cada signo de cada partido y exige que la **suma** de los valores de los signos elegidos en la columna esté en un intervalo. Sirve para sesgar la combinación hacia los signos que crees más probables, en vez del reparto matemático al 50%/33%. *Ejemplo:* dos partidos a triple valorados `50,30,20`; con intervalo de suma 60–100 quedan excluidas las combinaciones `X2`, `2X` y `22` (suman 50, 50 y 40), pero sí entra la sorpresa `2` si el otro partido aporta suficiente valor.
+
+También sirve para **inclinar un doble**: si juegas `1X` pero crees que el `1` es mucho más probable, valóralo 75/25 en
+lugar del 50/50 que daría el reparto matemático.
 
 ### Otras condiciones disponibles
 Según la versión, el campo Condiciones incluye además:
@@ -315,6 +381,21 @@ Puedes poner **decenas, cientos o miles de CPs**, cada una con sus condiciones, 
 | **Coincidencias** | Agrupa CPs por nº de aciertos *coincidente* sin acotar el grado. | "2–3 grupos con 2 coincidencias, 1 grupo con 3, 1–2 aciertos aislados". |
 | **Relaciones lógicas** | Reglas "si–entonces" entre CPs. | "Si la CP A acierta hasta 3, la CP B debe acertar al menos 5"; o "la columna de B siempre con más aciertos que la de A". |
 
+**Las relaciones en números.** Partiendo de 6 triples + 6 dobles + 2 fijos y de las dos CPs del ejemplo anterior:
+
+| Planteamiento | Columnas |
+|---------------|---------:|
+| Las dos CPs con 3–6 aciertos | 27.552 |
+| Las dos con 4–5, marcando 3 y 6 como tolerancia y aceptando que **como mucho una** caiga en un valor tolerado | 22.848 (≈4.700 menos) |
+| Las dos con 3–6 y la **suma** de aciertos entre 7 y 11 | 24.288 (≈3.300 menos, más de un 10 %) |
+
+La suma solo descarta los extremos (3+3 y 6+6): ahorra bastante con poco riesgo.
+
+*Recorridos y coincidencias, ejemplo completo:* si un grupo de 10 CPs dio en una semana `4,6,5,8,7,7,6,4,5,6` aciertos y en
+la siguiente `4,2,3,5,7,4,5,2,4,3`, los recorridos fueron 4 (8−4) y 5 (7−2), y todos los valores cayeron entre 2 y 8. En
+las dos semanas hubo tres parejas de columnas con los mismos aciertos, un trío y una columna aislada: ese reparto repetido es
+lo que se condiciona con **Coincidencias**.
+
 > Las CPs permiten **dirigir** la combinación hacia los signos que crees más probables y jugar "por encima de tu presupuesto" controlando el riesgo. Conviene incluir siempre, al menos, una CP con un pronóstico arriesgado que admita algún fallo.
 
 ### Generador CP (menú Utilidades)
@@ -328,6 +409,14 @@ Genera columnas probables a partir de una **valoración** que tú proporcionas. 
    - **Forzar triples** — evita pronósticos vacíos: si ningún signo de un partido cae en el rango Desde–Hasta, se genera un triple, asegurando 14 partidos con signo.
    - La definición se separa en 3 bloques: **pronóstico libre** (Desde/Hasta + forzar triples), **fijos** y **dobles**. Si fuerzas fijos o dobles, Desde/Hasta se ignoran (aun así se recomienda dejarlos en 0–100).
    - Ejemplos de configuración (`Desde,Hasta,ForzarFijos,NºFijos,ForzarDobles,NºDobles,ForzarTriples`): `0,100,sí,14,…` = 14 fijos · `0,100,…,sí,14,…` = 14 dobles · `0,100,sí,6,…` = 6 fijos · `20,30,…` = todos los signos con valoración entre 20 y 30.
+   - La ventana tiene 15 filas de valoración (incluye el Pleno al 15), un campo **Jornada**, **Importar %** y accesos a
+     **Separador de porcentajes** y **CPs por diferencias**.
+   - *Forzar fijos:* con 7 fijos, la columna lleva los 7 partidos más claros según la valoración. *Forzar triples:* con
+     Desde 20 – Hasta 30 y un partido valorado 34/33/33 no entra ningún signo; con la casilla marcada, ese partido sale
+     `1X2`.
+   - Más ejemplos: `0,100,…,sí,8,…` = 8 dobles; `20,30,…,sí` (forzar triples) = signos entre 20 y 30 y triple en los
+     partidos que queden vacíos. Con las seis configuraciones de ejemplo se obtiene un `nombre_xxxxx.txt` de **6
+     columnas**, una por configuración.
 3. Pulsa **Guardar**.
 4. **Generar.** Rellena las valoraciones (a mano o **Importar** desde fichero) y pulsa **OK**: se generan todas las columnas definidas según la valoración indicada.
 
@@ -367,7 +456,11 @@ Cuando el cálculo da más columnas de las que quieres jugar, hay **tres formas*
    - Triple → fijo: divide por **3**.
    Arriesga más en el pronóstico, pero es el mejor método.
 2. **Añadir/apretar condiciones.** Terreno delicado: cada condición extra es una opción de fallo. Mejor apretar los rangos de tus condiciones que añadir otras nuevas que no tengas estudiadas.
+   *Ej.:* si de 600 columnas quitar las de 12 variantes solo ahorra 10, no compensa. Si de 600 hay 300 con 9 variantes y
+   las quitas para jugar 300, asume que si salen 9 variantes tu techo será el 13.
 3. **Jugar una reducción** (`Combinación → Reducir`). Algoritmos que, partiendo de un conjunto mayor, garantizan **como mínimo un premio de la categoría elegida** con muchas menos columnas (p. ej., reducir al 12 garantiza al menos un 12 si la madre tenía el 14). Algunas reducciones garantizan un **porcentaje** del premio a cambio de menos columnas. Free1X2 incluye varios algoritmos (JDC, JLPM, XFSF, TM…).
+   Como orden de magnitud, una reducida al 12 puede quedarse en torno al 10 % de las columnas de la madre, y una que
+   garantiza el 13 «al 95 %» puede tener un 15 % menos de columnas que la del 100 %.
 
 **Reducir sin guardar antes un archivo.**
 - En Inicio, **Reducir** desarrolla el boleto (con sus condiciones) y abre el reductor **con esas columnas ya cargadas**
@@ -412,6 +505,13 @@ Resumen rápido (el detalle de las más completas viene a continuación):
 ### SubeCategoría
 Coge cada columna de un fichero `.txt` y añade todas las que se le diferencian en un solo signo, eliminando repetidas. Opera sobre los 14 partidos por defecto, pero puedes restringir los **partidos involucrados** (solo esos cambiarán de signo). En **Niveles** indicas cuántas categorías subir: el archivo final contiene las columnas de los niveles marcados (marca el **Nivel 0** para incluir también las columnas originales). Entre "Calcular" y "Grabar" hay una casilla informativa que muestra el nº de columnas de origen (`I=`), resultantes (`F=`) y grabadas (`G=`).
 
+- Si desmarcas un **partido involucrado**, su signo no cambia y **se pierde la garantía** cuando ese partido esté fallado.
+- Se pueden marcar varios **niveles** a la vez: `1` y `2` graban las columnas que suben 1 o 2 categorías; solo `2`, las
+  que suben 2. Marca también el `0` para conservar las originales: partiendo de una sola columna, el nivel 1 da **28**
+  (14 partidos × 2 signos alternativos) y los niveles 0+1, **29**.
+- *Ej. de la casilla informativa:* `I=8604` al elegir el origen, `F=151000` tras Calcular y `G=151000` tras Grabar.
+- Se puede grabar con otro nombre, y el título de la ventana muestra la combinación con la que trabajas.
+
 ### Modificador % (modificador de columnas)
 Cambia la **frecuencia de signos** de uno o más partidos de un archivo. *Ej.:* un partido apostado `30,20,50` que crees que infravalora la `X` lo pasas a `25,30,45`. Procedimiento: abrir el `.txt`, seleccionar partido(s), poner los nuevos porcentajes (si no suman 100 se ajustan proporcionalmente), elegir el **tipo de inserción** y aceptar:
 - **Aleatorio** — reparte al azar hasta el tope de cada frecuencia.
@@ -420,19 +520,87 @@ Cambia la **frecuencia de signos** de uno o más partidos de un archivo. *Ej.:* 
 
 Con "Ordenar signos" (no válido para aleatorio) coloca primero el signo más probable. Es un editor automático; después conviene pasar el resultado por `Operaciones → Álgebra → eliminar columnas repetidas`, porque el modificador no comprueba duplicados.
 
+- Sin «Ordenar signos», los bloques van siempre en el orden `1`, `X`, `2`. La combinación recomendada es
+  **Proporcional + Ordenar signos**, que deja al principio y juntos los signos más probables.
+- **Qué esperar** (pruebas de los autores con jornadas reales): si aciertas el nuevo reparto, sueles ganar alguna columna
+  premiada sin jugar más (p. ej. pasar de 2 a 3 columnas de 10); si lo fallas, puedes quedarte igual o perder premios. En
+  torno a la mitad de los aciertos hubo **subida de categoría**: en un caso documentado, una jugada de 1.138 columnas pasó
+  de 10 columnas de 10 aciertos a 3 de 11 y 8 de 10 cambiando un solo partido a 15/35/50.
+
 ### Ordenar por Probabilidad
 Ordena un fichero (o los 14 triples) por proximidad a un **valor central de ordenación**: las columnas más próximas quedan al principio del fichero de salida. El valor central se puede expresar de 4 formas equivalentes —**nº de acertantes**, **importe del premio de 14**, **probabilidad** (producto de los tantos por uno de cada signo) o **logaritmo neperiano** de la probabilidad (para usar las estadísticas de PacoHH)— y al fijar una, las otras tres se recalculan. Pasos: elegir 14 triples o fichero → importar/escribir valoraciones → indicar fichero de salida → definir el valor central → "Ordenar". Con "añadir valor de ordenación" el fichero de salida lleva ese valor junto a cada columna.
 
-> **Nº de acertantes < 1.** Cuando el nº teórico de acertantes baja de 1, el premio supera el 15% de la recaudación; se mantiene como premio teórico para conservar la relación con el nº de acertantes, y aparece un aviso en la barra de estado. Por defecto la recaudación es de 15.000.000 € (30.000.000 de columnas apostadas).
+- **Opciones de salida:** nº máximo de columnas, límite de probabilidad acumulada y casillas para añadir a cada columna la
+  probabilidad acumulada o el premio de 14. Pestañas **Por productos** (probabilidad), **Por sumas** y **Múltiple**.
+- **Obtener intervalo: premio de 14 entre … y …** **[Mac]**: con la casilla marcada solo se graban las columnas cuyo
+  premio de 14 estimado (con la Configuración L.A.E. de la ventana) cae entre los dos importes; las demás se saltan, pero
+  la probabilidad acumulada y su límite siguen contándolas. Desmarcada, todo queda como siempre. No se aplica a la pestaña
+  Múltiple. *Ej.:* con 15.000.000 €, 0,5 € y 15 %, la columna `11111111111111` con 50 % para el 1 en los 14 partidos da
+  0,075 ÷ 0,5¹⁴ ≈ **1.228,8 €**: entra en un intervalo de 1.000 a 2.000 €.
+- **Configuración L.A.E.** (recaudación, precio de la apuesta y % del 14): con ella se pasa de una forma del valor central a
+  las demás. El nº de acertantes es la probabilidad × (recaudación ÷ precio), y el premio de 14 es la recaudación × % del 14
+  ÷ acertantes. *Ej.:* con 13.000.000 €, 0,5 € y 15 %, **1,5 acertantes** = premio de **1.300.000 €** = probabilidad
+  **5,77·10⁻⁸** = logaritmo **−16,67**.
+- Si eliges el logaritmo, una lista ofrece los valores más probables según las estadísticas reales de PacoHH.
+- El **valor de ordenación** que se añade a cada columna es la diferencia, en valor absoluto, entre el logaritmo del valor
+  central y el de la probabilidad de la columna.
+
+> **Nº de acertantes < 1.** Cuando el nº teórico de acertantes baja de 1, el premio supera el 15% de la recaudación; se mantiene como premio teórico para conservar la relación con el nº de acertantes, y aparece un aviso en la barra de estado. La recaudación, el precio de la apuesta y el % del 14 salen de **Configuración L.A.E.**; en una instalación nueva de la
+versión Mac son 14.000.000 €, 0,75 € y 12 %.
 
 ### Rentabilidad
 Una apuesta es **rentable** si `CosteApuesta < Premio × Probabilidad`. Ese producto es la **esperanza matemática (EM)**. La utilidad calcula, columna a columna, el premio de 14 (a partir de los % apostados) y la probabilidad (a partir de las valoraciones probables), y de ahí la EM. Como solo considera el premio de 14, el umbral de rentabilidad no es el coste íntegro: se recomienda una **EM mínima de 0,136 €** (el 27,27% del coste de 0,5 €, precio vigente cuando se escribió el manual oficial; con el precio actual de 0,75 € recalcula este umbral proporcionalmente). Procedimiento: introducir % apostados y % de probabilidad de los 14 partidos → elegir 14 triples o fichero → fichero de salida → fijar EM mínima (0,136) y máxima → "Calcular". Puedes ordenar de mayor a menor EM y analizar una única columna escribiendo sus 14 signos.
 
+*Ej.:* una columna con probabilidad 0,000001 sale una vez de cada millón; jugarla un millón de veces cuesta 500.000 €
+(a 0,5 €), así que solo es rentable si su premio supera esa cifra. Si al 14 solo le pidieras recuperar su parte de la
+recaudación (15 %), el umbral sería 0,075 € por apuesta; el 0,136 € recomendado sale de repartir esa parte en proporción a
+lo que va a premios (15/55).
+**La ventana** pide valoraciones **apostadas** (izquierda) y **reales** (derecha), el origen (14 triples o fichero), el
+fichero de salida, la **recaudación considerada** y la **EM mínima y máxima**, con las opciones «Ordenar columnas por EM» y
+«Añadir EM al fichero salida». En «Calcular valoración de una columna» escribes 14 signos y ves el premio estimado de 14, la
+probabilidad real y la EM. Los botones de cálculo se activan cuando están todos los datos.
+
+### Diferencias entre columnas
+Genera columnas que están a una distancia controlada (nº de signos distintos) de una referencia y entre sí. Se usa sobre
+todo para fabricar CPs, no las columnas que vas a sellar.
+- **Generación por:** los 14 triples o un fichero. De ahí salen las candidatas, en ese orden.
+- **Condicionada por:** una **columna base** o un **fichero** de columnas base.
+- **s/col.Base:** diferencias mínimas y máximas de cada columna con la base (p. ej. `0-5,6,7-14`). `0-14` = la base no
+  cuenta.
+- **s/col.result.:** diferencias de cada columna con las ya aceptadas (p. ej. `6-14`).
+- Una **`F`** en un partido de la base lo deja fuera de la cuenta: `111F1111F1111F`.
+- Bajo **Calcular** aparecen las columnas admitidas y el tiempo; después, **Grabar** y **CPs por diferencias…**.
+
+*Ej.:* con los 14 triples y la base `11111111111111` a 2 diferencias, la primera admitida es `111111111111XX`. La
+siguiente candidata, `111111111111X2`, se rechaza: está a 2 de la base, pero solo a 1 de la anterior.
+Con los 14 triples la primera candidata es siempre `11111111111111`, así que unos mismos rangos dan siempre el mismo
+resultado; para obtener otro, usa como origen un fichero con los 14 triples desordenados. Contra muchas columnas base el
+resultado suele ser 0 columnas.
+
 ### Selector (JuanM)
 Escoge apuestas de mayor a menor probabilidad en **tres grupos** (dos de 5 partidos = 243 columnas cada uno, y uno de 4 = 81 columnas) y los **multiplica**. Pasos: (1) introducir valoraciones; (2) asignar cada partido al grupo 1, 2 ó 3 (cinco al 1, cinco al 2, cuatro al 3); (3) poner el **límite** mín–máx de columnas de cada grupo. *Ej.:* grupo 1 → 60, grupo 2 → 40, grupo 3 → 27 da `60 × 40 × 27 = 64 800` columnas (las 60 más probables del grupo 1, las 40 del 2 y las 27 del 3).
 
+Los límites por defecto son 1–243, 1–243 y 1–81 (todas las columnas de cada grupo) y hay un límite **total** (1–567).
+La ventana tiene también dos modos de examinar (**por corte** / **por valor**), **leer/salvar condiciones** y un bloque de
+**análisis de resultados** contra un fichero de ganadoras o una columna ganadora.
+
 ### Selector (MarioSan)
 Parte de una combinación final que, según tus estadísticas, suele encerrar el 14 con un nº de 13s en un rango estable. Califica cada columna con el **nº de 13s** que la acompañarían si fuera ganadora, repartiéndolas en **29 grupos** (de 0 a 28 treces). Pasos: "Iniciar" → elegir fichero → el programa muestra la distribución → marcar las filas deseadas (con `Ctrl` para varias) → "Grabar". *Nota:* la selección solo garantiza el 14, no los treces.
+
+*Ej.:* un fichero de 2.292.535 columnas se clasificó en unos 33 s. La tabla «distribución» indica cuántas columnas hay con
+cada nº de treces (p. ej. 1.989 con 11 … 446.794 con 28). Seleccionando las filas 11 a 16 y pulsando **Sumar** se ve que se
+grabarían 98.455 columnas.
+
+### Columnas GEPT
+Calcula automáticamente la **columna estadística de Abdon** (José Carlos), que él publicaba junto a sus columnas habituales.
+1. En la 1.ª columna escribe, para cada equipo **local** de la jornada, su último resultado: `G` (ganó), `E` (empató) o
+   `P` (perdió).
+2. En la 2.ª, lo mismo para cada equipo **visitante**.
+3. Pulsa **Calcular**: la 3.ª columna da el pronóstico.
+
+Cuenta el último partido **de liga**, no los de copa ni los europeos. Si el partido de un equipo se aplazó, espera a que se
+juegue o usa el último que se disputó. Según las estadísticas de su autor, con los 14 partidos suele acertar entre 5 y 10;
+lleva tus propias estadísticas, sobre todo si solo la aplicas a una parte del boleto (p. ej. los 10 de 1.ª).
 
 ### Tramificar y Gráficas por tramos
 Idea: en vez de repartir las 4.782.969 columnas por rangos de probabilidad, se ordenan por probabilidad y se dividen en **tramos con el mismo nº de columnas** (igual densidad), para descubrir en qué tramos se concentran los premios de 14, 13, 12, 11 y 10. Recuerda que cada jornada salen 28 columnas con 13, 364 con 12, 2.912 con 11 y 16.016 con 10.
@@ -454,9 +622,36 @@ Idea: en vez de repartir las 4.782.969 columnas por rangos de probabilidad, se o
 
 Se puede **Grabar Tramo** (uno o varios) a un fichero, **acumular** resultados de varias jornadas, analizar **jornadas múltiples** (14 triples o un fichero por jornada) y **filtrar** por los límites de posición de cada categoría (eliminando columnas y las que se les diferencian en *n* signos sin riesgo de perder el 14). El "Resumen de posiciones máximas y mínimas" indica el ancho de existencia de cada categoría de premio.
 
+**Premios de referencia.** Para comparar jornadas puedes fijar tus propios premios (p. ej. 2.401, 343, 49, 7 y 1 € para el
+14…10, cada categoría 7 veces la siguiente) y bloquearlos con el candado de cada casilla para que no cambien al cambiar de
+jornada. Los datos de una jornada se guardan con `L.A.E. → Guardar Jornada`; ese menú tiene un enlace a los sorteos
+oficiales. La valoración (menú *Valoraciones*) puede ser **Por productos** (probabilidad, por defecto) o **Por sumas**.
+
+**Grabar Tramo:** uno o varios tramos a un fichero, con la posición inicial y final y la opción de grabar todas las
+columnas o alternas (por defecto, todas).
+
+**Filtrar** (con varias jornadas analizadas): los límites de posición de cada categoría permiten eliminar columnas sin
+riesgo. *Ej.:* si en ninguna jornada hubo un 10 entre las posiciones 1 y 5, puedes quitar esas columnas y las que estén a
+4 signos o menos de ellas sin perder nunca el 14. Valores por defecto: por debajo de 10 aciertos, eliminar las que estén a
+0–4 diferencias; de 10 a 11, a 1–3 (las del propio intervalo se quedan); de 13 a 14, «1 a 0» (no elimina nada). Para
+quitar solo las columnas del intervalo, «0 a 0». Al Aceptar se ve cuántas quedan y **Guardar filtro** las graba; desde ese
+momento los tramos solo contienen las filtradas. Los límites se pueden guardar, abrir, copiar y pegar (p. ej. a una hoja
+de cálculo).
+
+**Ver columna:** muestra la columna de una posición (y sus aciertos si fue premiada); avanza de una en una o salta a la
+siguiente o anterior premiada de la categoría mínima elegida; **Buscar** da la posición de una columna escrita, y se
+muestra su logaritmo. Si analizas un fichero sobre los 14 triples, las columnas que no están en el fichero salen en rojo.
+
+**Jornadas múltiples** (`Análisis → Jornadas múltiples`): pestaña **14 Triples** (eliges temporadas; hay botones para
+marcarlas o desmarcarlas todas) o **Ficheros** (lista Temporada–Jornada–Fichero con Añadir, Eliminar, Guardar y Leer; la
+jornada sube sola al añadir). Necesita un fichero de valoraciones **históricas** y permite elegir las jornadas por premios o
+recaudación. Con ficheros de distinto tamaño conviene marcar «Analizar ficheros dentro del desarrollo de los 14 triples».
+Aceptar → Tramificar.
+
 **Gráficas.** Desde el menú "Gráficas" se visualizan los resultados; hay 9 gráficas (probabilidades; posiciones de los 14/13/12/11/10; nº de columnas premiadas por tramo; importe de premios por tramo; beneficio por tramo). En el eje X van los tramos y se pueden superponer varias.
 
 ### Premiadas
+Elige antes la categoría que quieres estudiar (13, 12, 11 o 10) y el fichero de ganadoras.
 Escruta un fichero de columnas **ganadoras** contra los 14 triples y cuenta cuántas veces cada columna de los 14 triples resultó premiada. En "Frecuencias" se lee, p. ej., `784 = 1 veces` → hay 784 columnas que salieron premiadas 1 vez. Con "Analiza selección" se ve en qué jornadas ocurrió (para estudiar regularidad) y con "Grabar selección" se vuelcan esas 784 columnas a un fichero para escrutarlas.
 
 ### Estimación de Premios (con Escrutinio Real)
@@ -465,7 +660,21 @@ Predice acertantes y cuantía de cada premio. Lo básico: introducir las **valor
 - **Columna ganadora:** clic sobre cada casilla cicla `1 → X → 2 → 1`; cada cambio recalcula los premios.
 - **Resultados ("Previsión de premios"):** el nº de acertantes es entero salvo el de 14, que se muestra **decimal** porque cuando hay pocos acertantes interesa distinguir 1,1 de 1,8, o 0,3 de 0,9. Para acertantes **< 1**, el premio no supera el máximo que marcan la recaudación y el % asignado al 14.
 - **Recaudación / bote / % a premios:** ajustables; el bote solo afecta al 15 (no contemplado en la utilidad).
+- **Precio de la apuesta [Mac]:** arranca con el de **Configuración ▸ Parámetros LAE** y se puede cambiar para el cálculo.
 - **Escrutinio Real:** muestra los datos reales de la jornada (leídos del fichero de información de jornadas del L.A.E.); se pueden introducir/actualizar a mano y guardar con el botón del disquete asociándolos a la jornada del selector. Hay un enlace directo a la página oficial de resultados del L.A.E.
+- La **recaudación no cambia el premio estimado**, pero sí el **nº de acertantes**: ajústala para que la previsión de
+  acertantes se parezca a la jornada real.
+- **Ficheros de valoraciones:** 3 valores por fila, 1 por fila o todos en una fila, separados por comas, espacios o
+  tabuladores. También admite ficheros de **valoraciones múltiples** (eliges una de la lista) e **históricas**. Si las
+  escribes a mano, sal de la última celda para que el valor se acepte.
+- Si la jornada no está guardada, la ganadora empieza en `11111111111111`. El selector de jornadas abre la temporada en
+  curso en la jornada 0.
+- **Reparto por categorías** (valores de 2005/06 del manual original): 12 % al 14 y 8 %, 8 %, 8 % y 9 % al 13, 12, 11 y
+  10. *Ej.:* con 14.000.000 € (28.000.000 de apuestas a 0,5 €) quedan 1.680.000 € para el 14, 1.120.000 € para cada una de
+  13, 12 y 11 y 1.260.000 € para el 10. Solo se guarda el % del 14.
+- *Ej. real (jornada 10 de 2005/06, recaudación 12.891.267,50 €):* la previsión dio 10,1 / 372 / 5.528 / 46.204 / 247.435
+  acertantes y el escrutinio real fue 6 / 316 / 5.481 / 46.792 / 245.808.
+- El botón de la esquina de «Previsión de premios» copia el resultado al portapapeles.
 
 ### Simulador de Escrutinios (Banco de Pruebas)
 Tres aplicaciones: (1) **comparar dos combinaciones** para elegir una; (2) **comparar las columnas de una combinación** para seleccionar un grupo; (3) **testar una combinación contra sí misma** (autoescrutinio). Se organiza en **4 pasos** (pestañas); la primera vez se hacen en orden, luego se puede volver a cualquiera:
@@ -479,6 +688,33 @@ Tres aplicaciones: (1) **comparar dos combinaciones** para elegir una; (2) **com
    - **Autoescrutinio** — considera cada apuesta como si fuera el 14 premiado y mide qué premios darían el resto de apuestas (marca automáticamente todos los premios).
 
    **Tabla de resultados** (análisis "Columnas" o "Autoescrutinio"): una fila por apuesta, con las columnas **Nº14, Nº13, Nº12, Nº11, Nº10** (veces que esa apuesta obtuvo cada premio en todos los escrutinios), **Premio 14 … Premio 10** (importe en euros), **Premio Ac** (acumulado de los premios marcados; en análisis "Columnas" no conviene contar el 14 por la aleatoriedad) y el **% de recuperación**. Se puede ordenar por cualquier cabecera, filtrar por rangos de cualquier concepto y grabar las apuestas seleccionadas (con `Shift`/`Ctrl`).
+
+   **[Mac]** La tabla tiene las columnas **Nºcol.**, **Columna** (los signos), **Nº14…Nº10**, **Nºacumulado** (veces con
+   las categorías marcadas), **Premio 14…10**, **Premio Acumulado**, **14 medio…10 medio** (premio ÷ veces) y
+   **Recuperación**. Al pulsar una cabecera se ordena por ella: «Nºcol.» de menor a mayor y el resto de mayor a menor (otra
+   pulsación invierte el orden). Las filas se seleccionan con `⌘` o `⇧`, y esa selección es la que usan **Grabar** y
+   **Simplificar**. El botón **Filtrar…** abre el filtro de selección de filas (abajo). En Windows, la tabla todavía es
+   una lista sin ordenar ni filtrar.
+
+Utilidad aportada por **PacoHH**.
+- **Paso 2, de apostadas a reales:** puedes fijar el **premio medio de 14** (el parámetro más intuitivo; por defecto
+  152.755 €, la media de las últimas 550 semanas) o su equivalente, el **logaritmo de la probabilidad media del 14**
+  (−14,75), y el **nº de columnas a considerar** (50.000). La utilidad ordena los 14 triples por cercanía a ese valor y
+  cuenta los signos de las primeras 50.000: si en el partido 1 la `X` aparece en 15.000 de ellas, su valoración real es 30.
+  Subir el premio aleja las reales de las apostadas.
+- **Paso 3:** al generar las columnas aleatorias se muestran el **logaritmo de probabilidad medio** y la **desviación
+  típica** obtenidos. Puede haber columnas repetidas, a propósito: las más probables se repiten más. Se pueden grabar con el
+  disquete para reutilizarlas o escrutarlas con el 14 real.
+- **Resultados globales** (análisis Combinación): nº de columnas, gasto total (columnas × catorces simulados × precio),
+  premio total, veces premiada, veces con beneficio y % recuperado (premio total ÷ gasto). Para comparar otra combinación,
+  vuelve al paso 1, cambia el fichero y analiza sin tocar nada más: se usan las mismas valoraciones y los mismos catorces.
+- **Filtro de selección de filas** **[Mac]**: la ventana «Selección de columnas» tiene un mínimo y un máximo por concepto:
+  veces con 14…10, veces con premio, premio total, acumulado y medio por categoría, y % de recuperación. Arranca con el
+  mínimo y el máximo que hay en la tabla y sin nada marcado. Marcas el concepto, ajustas el rango y al Aceptar quedan
+  seleccionadas las filas que cumplen todos los conceptos marcados; las demás se deseleccionan. Se indica cuántas quedan
+  (p. ej. «28 filas seleccionadas»).
+- **Grabar apuestas:** fila inicial, fila final, nº máximo de apuestas y la casilla «sólo si están seleccionadas»
+  (marcada por defecto). Sin selección previa, desmarca la casilla e indica las filas a mano.
 
 ### Gestión de Equipos
 Mantiene la base de **equipos** que se ofrecen al rellenar el boleto. Muestra los equipos repartidos en sus **cuatro categorías** (1ª, 2ª, 2ªB e Internacionales) y permite **moverlos** de una categoría a otra, **eliminarlos**, dar de **alta** nuevos (pantalla "Agregar equipo": nombre + categoría) y **guardar** los cambios con **«Guardar archivos»**.
@@ -542,6 +778,13 @@ día 10 más, no hace falta volver a subir las 1.500.
   jornadas»*). **«Escrutar las máscaras»** compara tus máscaras con las ganadoras de esa liga.
 - **Descargar de clubprogol ▾ → España** o **México:** baja las jornadas publicadas en clubprogol.com y las suma a la liga
   «España» (Quiniela) o «México» (Progol). Si las descargas otra vez, solo entran las nuevas.
+- En una instalación nueva, la liga **«España»** ya trae **2.659 jornadas de 1970/71 a 2026/27**: las 1.454 de
+  `Jornadas/Resultados.txt` (1970/71 a 2006/07, con sus 14 signos completos), con la jornada escrita como `1970/1971-01`,
+  y 1.205 de 2007/08 a 2026/27 sacadas de quinielafutbol.info, con la fecha como jornada (`20261011`, igual que
+  clubprogol) o, si no se conoce, `2019/2020-01`. Así una descarga de clubprogol no repite las que ya están. La liga
+  **«México»** trae los **1.579 concursos del Progol del 767 al 2354** (de 1993 a 2026, Lotería Nacional), con el nº de
+  concurso como jornada. Las descargas de clubprogol se suman a ellas sin duplicar (en España, la misma fecha; en
+  México, el mismo nº de concurso). Si borras una liga, no vuelve a aparecer.
 - **Nueva liga…:** crea una liga vacía con el nombre que quieras (por ejemplo «Liga MX 2010-2020») para cargar en ella tu
   propio histórico.
 - **Añadir ganadoras desde archivo…:** suma a la liga elegida un `.txt` con **una jornada por línea** (formato debajo).
@@ -579,6 +822,46 @@ hace nada. Encima de la tabla se indica cuántas jornadas se escrutaron y de qu�
 
 Las máscaras se guardan como archivos `.mas` (ver §11), con el mismo formato en Mac y en Windows.
 
+### Esperanza matemática **[Mac]**
+Calcula cuánto **devuelve de media** una columna de 14 signos por cada apuesta: su **esperanza matemática (EM)**, categoría
+por categoría (14, 13, 12, 11 y 10 aciertos). Está en el panel lateral, grupo Utilidades, y en el menú de Utilidades.
+
+Datos que pide:
+
+- **Columna:** los 14 signos (`1`, `X` o `2`).
+- **Valoraciones:** los porcentajes de cada partido en dos pestañas. **Apostados** es lo que juega la gente (sirve para
+  estimar cuántos acertantes habría); **Reales** es tu estimación de lo que va a pasar (sirve para la probabilidad de cada
+  resultado). Si una fila no suma 100, se toma sobre su suma. Con **«Pegar desde Excel»** se rellenan de una vez (ver la
+  nota de Utilidades).
+- **Jornada:** la **recaudación** y el **precio de la apuesta**. Las dos salen de **Configuración ▸ Parámetros LAE**, donde
+  se guardan, y aquí se pueden cambiar para un cálculo. El número de apuestas es recaudación ÷ precio.
+- **Reparto del fondo:** el % de la recaudación para cada categoría. El selector trae dos repartos (el del Excel
+  «EM Categorias»: 16 · 7,5 · 7,5 · 7,5 · 9, y el de Estimación de premios: 12 · 8 · 8 · 8 · 9) y se puede editar a mano.
+- **Cobro:** la **retención** (por defecto, el 20 % de lo que pase de 40.000 €), los **mínimos** por debajo de los que no se
+  cobra (1 € de 14 a 11 aciertos y 1,5 € con 10) y **«Contarme como un acertante más (+1)»**: si aciertas, eres un
+  acertante más de los estimados (es lo más realista y viene activado).
+
+El cálculo es **exacto**: recorre los 19.321 resultados que darían premio a la columna (el propio, los 28 que cambian un
+signo, los 364 que cambian dos, los 2.912 que cambian tres y los 16.016 que cambian cuatro). En cada uno estima los
+acertantes con los porcentajes apostados, calcula el premio neto y lo pondera con su probabilidad real.
+
+La tabla de resultado muestra, por categoría:
+
+| Columna | Significado |
+|---------|-------------|
+| **Probabilidad real** | Probabilidad de que la columna saque exactamente esos aciertos (y «1 entre N»). |
+| **Apostado con esos aciertos** | Parte de las apuestas que tendría esos aciertos si tu columna fuera la ganadora. |
+| **Premio neto medio** | Lo que cobrarías de media al sacar esa categoría, tras la retención y los mínimos. |
+| **EM** | Lo que aporta esa categoría a lo que devuelve la columna por apuesta. |
+
+Debajo, la **EM total** y qué **% de lo apostado** supone: por encima del 100 %, la columna devuelve de media más de lo que
+cuesta según tus porcentajes reales.
+
+> **El precio cambia los premios, no las columnas.** Con la misma recaudación, un precio mayor significa menos apuestas,
+> menos acertantes y premios más altos. Con el ejemplo del Excel «EM Categorias» (columna `1121121221112X`, recaudación
+> 3.153.494,25 €), la EM es de 1,07 € por apuesta a 1 € (el 107 % de lo apostado) y de 0,89 € por apuesta a 0,75 € (el
+> 119 %). El precio no afecta a las condiciones, al cálculo de columnas, a las reducciones ni al escrutinio.
+
 ### Compresor *.z3q
 Comprime un archivo de columnas (`.txt`) a un **formato propio comprimido `.z3q`** (con un nivel de compresión 0–9) y lo descomprime de vuelta a `.txt`. Útil para almacenar o intercambiar ficheros de columnas grandes ocupando menos espacio.
 
@@ -605,10 +888,14 @@ Recalcula el signo de un **partido a tratar** como **combinación lineal** (mód
 | `.comb` / `.xml` | Combinación completa: equipos, pronósticos, grupos, condiciones y filtro asociado. |
 | `.grupos` | Un grupo de condiciones exportado, para reutilizar. |
 | `.txt` | Archivo de columnas: una columna de 14 signos por línea. Es el formato de intercambio (filtros, escrutinio, operaciones). |
-| `parametros.free1x2` | Configuración del programa: puntos de CP, nº de partidos, separador, idioma, datos ONLAE (precio, recaudación). |
+| `parametros.free1x2` | Configuración del programa: puntos de CP, nº de partidos, separador, idioma, datos ONLAE (precio, recaudación). **[Mac]** Los del Progol van en `<Progol>`, junto a `<LAE>`. |
 | `.mas` | Una máscara (carpeta `Mascaras/`): texto con una línea por partido y sus signos separados por comas (`1`, `1,X`, `1,X,2`). El nombre del archivo es el de la máscara. |
 | `Historico/<liga>.txt` | La base de ganadoras de una liga: una línea `jornada;columna` por jornada. El nombre del archivo es el de la liga. Se gestiona desde la pantalla «Máscaras»; no hace falta editarlo a mano. |
 | `.z3q` | Archivo de columnas comprimido con el Compresor. |
+| `Jornadas/InfoJornadasLAE.txt` | Jornadas L.A.E. (columna, temporada, jornada, recaudación y premios de 14 a 10), divididos por el precio de la apuesta. Lo leen Estimación de premios y Tramificar. **[Mac]** Una instalación nueva trae las de **1988/89 a 2006/07**, ya pasadas al precio de Configuración. |
+| `Jornadas/Resultados.txt` | Ganadoras por temporada y jornada (`1970⇥1⇥X11121212X11X1`), para el escrutinio histórico. **[Mac]** Trae las de **1970 a 2006**. |
+| `Jornadas/Historico*.txt` | Porcentajes de jornadas pasadas (temporada, jornada y 42 porcentajes): `HistoricoQuinielista.txt`, `HistoricoQuinielista.com.txt`, `HistoricoConcurso.txt` y `HistoricoMarca.txt`. **[Mac]** Se incluyen los de la distribución original: Quinielista de 1994/95 a 2006/07, Quinielista.com de 1994/95 a 2004/05, Concurso de 2000/01 a 2006/07 y Marca de 2004/05 a 2006/07. |
+| `Ganadoras/<temporada>.txt` | Una columna ganadora por línea. **[Mac]** Se incluyen las temporadas **1983-84 a 2008-09**; sirven, por ejemplo, para **Premiadas** o para añadirlas a una liga de Máscaras. |
 
 Las combinaciones temporales se guardan como backups y se pueden limpiar desde `Archivo → Borrar Combinaciones Temporales`.
 
@@ -634,6 +921,81 @@ grabar de cada pantalla.
 - **El programa no da premios.** Solo aplica lo que tú le indicas. Y al final, siempre hay un componente de **suerte**.
 - **El historial no es una garantía.** Que una máscara o una condición haya funcionado en las jornadas pasadas no asegura
   que funcione la próxima; compara planteamientos, pero sin perder de vista lo anterior.
+- **Mismo efecto, distinto camino.** Con 4 partidos a triple, jugar 2 de ellos como fijos (9 columnas) cuesta lo mismo que
+  una CP de 4 fijos que admita 1 fallo (también 9). Elige qué riesgo prefieres.
+- **Mide cada recorte.** Pasar un triple a doble ahorra un 33 % y un doble a fijo un 50 %; quitar 5 variantes, apenas un
+  5–10 %. Con 14 triples, prohibir exactamente 10 variantes ahorra ≈21 % de columnas, pero eso pasa ≈7 % de las jornadas
+  y entonces los premios son altos; prohibir 4 variantes solo ahorra ≈0,3 %.
+- **20 columnas** son el 0,0004 % de las 4.782.969 posibles: con tan pocas no se juega al 14, se juega a la suerte.
+
+## 13. Recetas de jugadores
+
+Métodos que jugadores veteranos publicaron en el foro, traducidos a los pasos de Free1X2. Son ideas para probar y comparar,
+no garantías (ver la sección anterior).
+
+### PacoHH: los 14 triples por tramos y a distancia 6
+
+**Idea.** Diversificar mucho el pronóstico para acertar la mayoría de las jornadas (regularidad en el acierto) en vez de
+buscar el golpe. Se ordenan los 14 triples de más a menos apostado con los porcentajes de L.A.E. de la jornada, se parten
+en **9 tramos** iguales y del **tramo 1**, las **531.441** columnas más apostadas (4.782.969 ÷ 9), se juegan columnas que se
+diferencien entre sí en **6 signos o más**. Según PacoHH, a distancia 6 salen entre **75 y 150 columnas**, según los
+porcentajes de cada jornada. En la lista que publicó de la temporada 2009/10, el 14 de las doce primeras jornadas quedó
+entre las posiciones 2.383 y 526.026, dentro del tramo 1; el de la jornada 13, en la 2.084.273, fuera de él.
+
+**Pasos.**
+1. **Ordenar por probabilidad:** origen **14 Triples**; los porcentajes de L.A.E. de la jornada (en la versión Mac,
+   **Pegar desde Excel**); pestaña **Por productos** con el valor central **Log. neperiano = 0**, que ordena de más a menos
+   probable; **Nº máximo de columnas = 531441**; las casillas de añadir, sin marcar; un fichero de salida, p. ej.
+   `tramo1.txt` → **Ordenar**.
+2. **Diferencias entre columnas:** generación por **Fichero** (`tramo1.txt`); condicionada por **Columna Base** con
+   cualquier columna (p. ej. `11111111111111`) y **s/ col. base = `0-14`**, para que la base no cuente;
+   **s/ col. result. = `6-14`** → **Calcular** → **Grabar**. Las candidatas se recorren en el orden del fichero, así que
+   entran primero las más apostadas.
+3. Si quieres un número concreto de apuestas, pon el **Límite de columnas**: se graban las primeras admitidas, que son las
+   más apostadas. PacoHH usaba el tramificador de otro programa, que permite pedir ese número directamente.
+
+> Para ver en qué tramo cayó el 14 de jornadas pasadas, usa **Tramificar** con **Nº de tramos = 9** y la columna
+> premiada: la tabla dice en qué tramo cae cada premio. **Grabar tramos** no graba nada, como en el programa original;
+> por eso el tramo 1 se saca con Ordenar por probabilidad.
+
+### PacoHH: elegir columnas con el Banco de pruebas **[Mac]**
+
+**Idea.** Simular muchas jornadas y quedarse con las columnas que, a la vez, aciertan a menudo y cobran bien. Los consejos
+son de PacoHH, el autor del Banco de pruebas. Hace falta ordenar la tabla del Banco, que de momento solo se puede en la
+versión Mac.
+
+**Pasos.**
+1. **Paso 1:** abre la combinación que quieres estudiar.
+2. **Paso 2:** a la izquierda, los porcentajes **apostados** (PacoHH recomienda los de L.A.E. del jueves, que se publican el
+   viernes); a la derecha, los **reales** (por ejemplo, los de Betfair del mismo viernes).
+3. **Paso 3:** genera las columnas aleatorias. Con unas **100.000** basta para estudiar el 13, 12, 11 y 10; para que el 14
+   cuente haría falta del orden de 100.000.000.
+4. **Las más probables (paso 4):** análisis **Columnas** con todas las categorías marcadas en «Premios acumulados que se
+   consideran» → **Analizar** → ordena por **Nºacumulado** (las veces con premio).
+5. **Las más rentables:** desmarca el 14 (salvo que simules millones de jornadas), **Analizar** otra vez y ordena por
+   **Premio Acumulado**. Las columnas aleatorias del paso 3 son las mismas.
+6. PacoHH se queda con el **66 % más probable** y con el **66 % más rentable**, y juega las columnas que están en los dos
+   grupos (entre el 33 % y el 67 % del total). En Free1X2: tras el paso 4, selecciona con `⇧` las dos primeras terceras
+   partes de la tabla y **Grabar**; tras el paso 5, lo mismo en otro fichero; luego **Álgebra de columnas** con «Suma
+   Combinaciones: selecciona columnas comunes».
+7. Con el **Filtro de selección de filas** puedes hacerlo por importes: por ejemplo, un % de recuperación mínimo.
+
+**Cómo leer el resultado** (los totales del paso 4):
+- **Veces beneficio** es lo más importante: intenta que pase del **10 %** de las jornadas simuladas.
+- **% recuperado** también cuenta, con cuidado: el 14 influye mucho y es poco fiable.
+- Una combinación rentable, para PacoHH, recupera más o menos esto en cada categoría:
+
+  | Categoría | Recuperación | Reparto de entonces |
+  |-----------|--------------|---------------------|
+  | 10 | 12 % | 9 % |
+  | 11 | 13 % | 8 % |
+  | 12 | 16 % | 8 % |
+  | 13 | 21 % | 8 % |
+  | 14 | 45 % | 12 % |
+
+  Suman un **107 %**, sin contar el Pleno al 15. Según PacoHH, si recuperas un 12 % con el 10, el resto llega solo.
+- Otros consejos suyos: pide en cada categoría una rentabilidad mayor que su parte del reparto, sobre todo en el 10 y el
+  11. Para maximizar los arrastres, ordena por las veces con premio.
 
 **¿Dudas?** Pregunta en el **foro de Free1X2**: [clubprogol.com/foro](https://clubprogol.com/foro/).
 

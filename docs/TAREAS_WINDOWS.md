@@ -47,7 +47,7 @@ dotnet build Free1X2.WinUI/Free1X2.WinUI.csproj -c Debug -p:Platform=x64   # 0 e
 dotnet test  Free1X2.Domain.Tests/Free1X2.Domain.Tests.csproj              # 138 + los nuevos
 $env:FREE1X2_SMOKE = '1'
 .\Free1X2.WinUI\bin\x64\Debug\net8.0-windows10.0.19041.0\win-x64\Free1X2.WinUI.exe
-Get-Content "$env:TEMP\free1x2_smoke.log" -Tail 1   # hoy total=109; tras W9, total=110
+Get-Content "$env:TEMP\free1x2_smoke.log" -Tail 1   # hoy total=109; tras W9 y W14, total=111
 ```
 
 Borra `free1x2_smoke.log` antes de cada smoke: un log viejo puede dar por bueno un smoke que no terminó.
@@ -61,10 +61,11 @@ un sistema se usa tal cual en el otro.
 1. Correcciones pequeñas: W1–W5.
 2. Jornada: W6–W7.
 3. Navegación: W8.
-4. Máscaras, columnas de Inicio y base de ganadoras: W9, W10 y W12. Comparten la generación de columnas y la pantalla
+4. Máscaras, columnas de Inicio, base de ganadoras y esperanza matemática: W9, W10, W12 y W14 (y W15–W16). Comparten la generación de columnas y la pantalla
    «Máscaras».
-5. Enlaces de ayuda: W11.
-6. Cierre (§ «Cierre»): documentación, `CLAUDE.md` e informe al dueño.
+5. Enlaces de ayuda (W11) e icono (W13, ya sustituido: solo verificar).
+6. Funciones de la 0.77.2 y del WinForms recuperadas: W17–W19. Históricos de fábrica: W20 y W22. Progol: W21.
+7. Cierre (§ «Cierre»): documentación, `CLAUDE.md` e informe al dueño.
 
 ---
 
@@ -191,9 +192,9 @@ un sistema se usa tal cual en el otro.
 - **Cómo:**
   1. `NavigationView` nativo de WinUI (`PaneDisplayMode="Left"`, plegable) con `AutoSuggestBox` para
      buscar.
-  2. Grupos con `NavigationViewItemHeader`; las **54 entradas** son exactamente las de
+  2. Grupos con `NavigationViewItemHeader`; las **55 entradas** son exactamente las de
      `Free1X2.Mac/App/Navegacion/Lateral.swift` (Inicio; Combinación 17 con Máscaras; Filtros 5;
-     Operaciones 5; Utilidades 18; Archivo 3; Ajustes y ayuda 5). Con icono, el PNG de
+     Operaciones 5; Utilidades 19 con Esperanza matemática; Archivo 3; Ajustes y ayuda 5). Con icono, el PNG de
      `Assets/Toolbar`.
   3. Pulsar una entrada la pone como **raíz** de la navegación (no apila).
   4. `CommandBar` con `AppBarButton` y `Label` visible:
@@ -424,6 +425,310 @@ un sistema se usa tal cual en el otro.
 
 ---
 
+## W13 · Icono nuevo de la app (DT-90)
+
+- **Qué (aprobado por el dueño, 17-oct-2026):** el mismo icono que la app Mac («FREE 1X2» azul neón, red naranja, marco
+  plateado sobre base azul).
+- **Ya hecho desde el Mac:** `Free1X2.WinUI/Assets/app.ico` se sustituyó por uno de 7 tamaños (16, 24, 32, 48, 64, 128 y
+  256 px, 32 bits; el de 256 en PNG). Mismo nombre y ruta, así que **no** cambia código ni el `.csproj`: lo usan
+  `<ApplicationIcon>` (icono del `.exe`) y `AppWindow.SetIcon` (ventana y barra de tareas). Se genera con
+  `swift Free1X2.Mac/scripts/icono.swift …` (ver su cabecera); en Windows no hace falta regenerarlo.
+- **No se toca** el `.ico` del WinForms (`Free1X2/`), que está congelado.
+- **Pendiente en Windows (no se pudo compilar desde el Mac):** build, smoke y comprobar a la vista el icono del `.exe` en
+  el Explorador, el de la ventana y el de la barra de tareas; después `pwsh ./scripts/publish-winui.ps1`. Si el Explorador
+  sigue mostrando el icono viejo, es su caché: `ie4uinit.exe -show`.
+- **Aceptación:** los tres sitios muestran el icono nuevo; build 0 errores y smoke completo.
+
+---
+
+## W14 · Esperanza matemática de una columna por categoría (DT-91)
+
+- **Qué (aprobado por el dueño, 17-oct-2026):** pantalla nueva **«Esperanza matemática»** (grupo Utilidades del panel de W8,
+  junto a Rentabilidad, y en el menú Utilidades) que calcula la EM **exacta** de una columna para 14, 13, 12, 11 y 10
+  aciertos, como el Excel «EM Categorias.xlsm» del dueño. Rentabilidad sigue igual (solo da la EM del 14).
+- **Entradas:**
+  - Columna de 14 signos.
+  - Porcentajes **apostados** y **reales** por partido (14 × 3), con el mismo editor que Rentabilidad. Cada fila se divide
+    por su suma; una fila que sume 0 o tenga negativos es un error: «Faltan los porcentajes apostados|reales del partido N.».
+  - **Recaudación** y **precio de la apuesta**: por defecto los de Configuración ▸ Parámetros LAE (ya existen y se guardan
+    en `parametros.free1x2`); editables en la pantalla para un cálculo. Muestra «Apuestas: recaudación ÷ precio = N».
+  - **Reparto** (% de la recaudación para 14…10) con un selector: «Excel: 16 · 7,5 · 7,5 · 7,5 · 9», «Free1X2: 12 · 8 · 8 · 8 · 9»
+    y «Personalizado» (el selector muestra el que coincide con los 5 campos; elegir uno los rellena).
+  - **Cobro:** retención 20 % de lo que pase de 40.000 €; no se cobra de 14 a 11 por debajo de 1 € ni el 10 por debajo de
+    1,5 €; casilla «Contarme como un acertante más (+1)», activada por defecto.
+- **Cálculo** (n = recaudación ÷ precio; `p_i(s)` = porcentaje normalizado del signo s en el partido i):
+  1. Para cada resultado W con premio para la columna C (W = C, y todos los que cambian 1, 2, 3 o 4 signos: 1 + 28 + 364
+     + 2.912 + 16.016 = 19.321) y k = aciertos de C con W (14 − cambios):
+     - x = probabilidad, con los porcentajes **apostados**, de que una apuesta tenga exactamente k aciertos con W
+       (distribución de Poisson-binomial con los `p_i(W_i)` apostados) × n;
+     - acertantes = `floor(x + 1,5)` con «+1» o `redondeo(x)` (a la mitad, lejos de cero) sin él; como mínimo 1;
+     - bruto = reparto_k % × recaudación ÷ acertantes; neto = 0 si bruto < mínimo (1,5 € para k = 10); si bruto > 40.000,
+       40.000 + (bruto − 40.000) × (1 − 20 %);
+     - EM_k += Π `p_i(W_i)` **reales** × neto; ProbReal_k += Π `p_i(W_i)` reales.
+  2. Salidas por categoría: probabilidad real (ProbReal_k), «apostado con esos aciertos» (Poisson-binomial apostada de la
+     propia C con k aciertos), premio neto medio (EM_k ÷ ProbReal_k) y EM_k. Total = Σ EM_k; «% de lo apostado» = total ÷
+     precio.
+- **Textos** (iguales que en el Mac): ver `Free1X2.Mac/App/Pantallas/Utilidades/Esperanza.swift` («Calcular», tarjetas
+  «Columna», «Jornada», «Reparto del fondo (% de la recaudación)», «Cobro», «Valoraciones (porcentajes)», «Resultado»; total
+  «EM total: X € por cada apuesta de Y €, el Z % de lo apostado (N apuestas).»; probabilidades como «0,0043 % (1 entre
+  23.142)»).
+- **Dónde:** nuevo. Cálculo en `Free1X2.Domain/` (en `double`); página `EsperanzaPage` (+ ViewModel) en `Views/Ported/`,
+  registrada en `Navigation/PortedPages.cs` (una entrada más: el smoke suma 1).
+- **Referencia Mac:** `Free1X2.Mac/Packages/Free1X2Kit/Sources/Free1X2CasosDeUso/Utilidades/Esperanza.swift`
+  (`ParametrosEsperanza`, `CasosEsperanza.calcular`) y la pantalla citada.
+- **Pruebas** (nuevo `Free1X2.Domain.Tests/EsperanzaTests.cs`; en el Mac, `EsperanzaTests.swift`, que trae los datos):
+  - Distribución con 0,6 en los 14 partidos: P(14) = 0,6¹⁴ y P(13) = 14 · 0,6¹³ · 0,4; suma 1.
+  - Ejemplo del Excel: columna `1121121221112X`, recaudación 3.153.494,25, porcentajes de `EsperanzaTests.swift`, reparto
+    del Excel, con «+1»: a 1 € ⇒ EM por categoría 0,339387083746 · 0,259952860574 · 0,199802964982 · 0,145122171329 ·
+    0,129636490232 y total 1,073901570862; a 0,75 € ⇒ total 0,894180459434 (4.204.659 apuestas); a 1 € sin «+1» ⇒
+    1,423042097518. Tolerancia 1e-9.
+  - Retención 0 ⇒ EM del 14 mayor; mínimo del 10 enorme ⇒ EM del 10 = 0 y las demás igual; columna de 6 signos, fila de
+    ceros y precio 0 ⇒ error.
+- **Aceptación:** los tests en verde y, a mano, el ejemplo del Excel da «el 107,4 % de lo apostado» a 1 €.
+
+---
+
+## W15 · Precio por defecto 0,75 €, Estimación de premios con el precio de Configuración y «Pegar desde Excel» (DT-92)
+
+- **Qué (aprobado por el dueño, 17-oct-2026):**
+  1. **Precio por defecto 0,75 €** en instalaciones nuevas: en la semilla de `parametros.free1x2` que reparte el WinUI,
+     `<OrdenarApuestas PrecioApuesta="0,50" …>` pasa a `"0,75"` (el resto igual). Buscar la semilla y cualquier valor
+     por defecto de `PrecioApuesta` en el código del WinUI/Domain (p. ej. el modelo de Configuración) y ponerlo a 0,75. A
+     quien ya tenga su `parametros.free1x2` no le afecta.
+  2. **«Estimación de premios»** (`EstimadorPremiosFrmViewModel`) arranca con el precio de Configuración ▸ Parámetros LAE
+     en lugar de 0,50 fijo (sigue siendo editable).
+  3. **«Pegar desde Excel»** en TODAS las tablas de porcentajes 1 / X / 2 (las de Esperanza matemática, Rentabilidad,
+     Estimación de premios, Valoración, Banco de pruebas, Ordenar por probabilidad, Tramificar, Aidomnou, Selectores,
+     Modificador, Filtros, Formatos, Configuración de CPs, Guardar valoración…): un botón «Pegar desde Excel» encima de la
+     tabla, con el tooltip «Copia en Excel las filas de porcentajes (una por partido: 1, X y 2; pueden llevar el partido o
+     los equipos delante) y pulsa aquí.». Lo ideal es un control común reutilizado por todas.
+- **Regla de lectura del texto pegado** (en `Free1X2.Domain`, para probarla): se recorre línea a línea; cada línea se parte
+  por tabuladores, `;` o espacios; de cada trozo se quita «%», la coma pasa a punto y se intenta leer como número (los que
+  no son número, como los equipos, se ignoran); si la línea tiene **al menos 3 números** se toman **los 3 últimos** (1, X,
+  2), y si no se salta (encabezados, vacías). Un número negativo, infinito o NaN: error «La fila «…» tiene un porcentaje no
+  válido.». Como mucho tantas filas como partidos tenga la tabla. Ninguna fila: error «No hay ninguna fila con tres
+  porcentajes (1, X y 2) en lo copiado.». Portapapeles vacío: «El portapapeles está vacío: copia antes en Excel las filas de
+  porcentajes.». Si se pegan menos filas que partidos, se rellenan esas y se avisa «Se pegaron X de N filas; el resto queda
+  como estaba.».
+- **Referencia Mac:** `CasosUtilidades.porcentajesPegados` (al final de
+  `Free1X2.Mac/Packages/Free1X2Kit/Sources/Free1X2CasosDeUso/Utilidades/Esperanza.swift`), `PorcentajesGrid` en
+  `Free1X2.Mac/App/Compartido/Estilo.swift`, `VistaEstimadorPremios.onAppear` en `Free1X2.Mac/App/Pantallas/Utilidades/Premios.swift`.
+- **Pruebas** (`PegarPorcentajesTests` en el Mac): el texto `"Part.\tPartido\t1\tX\t2\r\n1\tVILLARREAL-NAPOLI\t50,483\t29,487\t20,03\r\n7\tFEYENOORD-COMO 1907\t45\t30\t25\r\n\r\n3 ; 60% ; 25% ; 15%\n"`
+  da `[[50.483, 29.487, 20.03], [45, 30, 25], [60, 25, 15]]`; `"65.5 26 8.5\n8 16 76\n15 25 60"` con 2 filas da las dos
+  primeras; `"1 X 2\nhola"` y `"50\t-10\t60"` dan error.
+- **Aceptación:** los tests; a mano, copiar en Excel un bloque de 14 × 3 (con o sin equipos), pulsar «Pegar desde Excel» y
+  ver las 42 casillas rellenas; instalación nueva con 0,75 € en Configuración y en Estimación de premios.
+
+---
+
+## W16 · Precio y recaudación de Configuración en lugar de 0,50 € y 14 M € fijos (DT-93)
+
+- **Qué (aprobado por el dueño, 17-oct-2026):** donde el original usa constantes, se usan Configuración ▸ Parámetros LAE
+  (`PrecioApuesta`, `Recaudacion` de `parametros.free1x2`):
+  1. **Tramificar ▸ Guardar jornada L.A.E.** (`GuardarJornadaLAE`, CU-C38): importes y recaudación ÷ **precio** (no ÷ 0,5);
+     recaudación vacía = la de Configuración (no 14.000.000). Así `Jornadas/InfoJornadasLAE.txt` queda siempre en las
+     mismas unidades que escribe Escrutinio (÷ precio configurado) y que lee Estimación de premios (× su precio, que con
+     W15 arranca con el de Configuración).
+  2. **Balance de los tramos** (`Tramo.CalculaTotalImportePremios`): importe − columnas × **precio** (no × 0,5).
+  3. **Banco de pruebas** (`CalcularPremios`, `Analizar`): precio y recaudación de Configuración en vez de 0,5 y
+     14.000.000 (premios, tope por categoría, gasto = columnas × precio, % de recuperación ÷ precio). El reparto
+     12/8/8/8/9 sigue igual.
+- **R1:** con precio 0,50 y recaudación 14.000.000 los resultados son idénticos a los de ahora: los tests existentes deben
+  pasar esos valores explícitamente y seguir en verde sin cambiar sus expectativas.
+- **No se toca** el 3·10⁷ de la condición «Valoración por productos» (es del motor; decisión pendiente del dueño).
+- **Referencia Mac:** `Free1X2.Mac/Packages/Free1X2Kit/Sources/Free1X2Motor/Utils/Tramo.swift`,
+  `…/Free1X2CasosDeUso/Utilidades/Tramificar.swift` (`guardarJornadaTramificar(lae:)`, `ParametrosTramificar.precio`),
+  `…/Free1X2CasosDeUso/Utilidades/BancoPruebas.swift` (`analizarBanco(lae:)`).
+- **Pruebas** (Mac: `PrecioConfigurableTests` en `TramificarTests.swift`): guardar con Tramificar a 0,75 € y recaudación
+  9.000.000 la jornada 7 con premios 1165207,35 · 29877,11 · 1753,51 · 165,38 · 22,79 y leerla con Estimación a 0,75 € ⇒
+  recaudación 9.000.000 y los mismos premios; tramo con 1 acierto de 14 a 1.000 € y 100 columnas ⇒ balance 925 a 0,75 € y
+  950 a 0,50 €.
+
+---
+
+## W17 · Posibles premios con la ganadora de Escrutinios (DT-95)
+
+- **Qué (aprobado por el dueño, 17-oct-2026; es lo que hacía la 0.77.2):** al pulsar «Posibles premios» en Escrutinios, la
+  pantalla se abre con la columna ganadora ya repartida en sus 16 casillas: 1, X o 2 donde los haya (una `x` minúscula
+  pasa a X) y «*» en lo demás; con la ganadora vacía, las 16 en «*». Sigue siendo editable.
+- **Dónde:** `Free1X2.WinUI/Views/Ported/EscrutiniosFrmViewModel.cs:975-982` (`PosiblesPremios()` navega con `null`):
+  pasar la ganadora como parámetro de navegación. `PosiblesPremiosFrmViewModel.cs` (`Partidos`, 16 `PartidoPremioItem`) la
+  recibe desde `OnNavigatedTo` de su página (`e.Parameter`); si la página aún no lo sobreescribe, añadirlo.
+- **Lógica en `Free1X2.Domain`** (para probarla): `SignosGanadoraImportada(string) → string[16]`.
+- **Referencia Mac:** `CasosCombinacion.signosGanadoraImportada` en
+  `Free1X2.Mac/Packages/Free1X2Kit/Sources/Free1X2CasosDeUso/Combinacion/PosiblesPremios.swift`; `Sesion.ganadoraPosiblesPremios`
+  (`Free1X2.Mac/App/Arranque/Sesion.swift`), el botón en `Free1X2.Mac/App/Pantallas/Combinacion/Escrutinios.swift` y
+  `VistaPosiblesPremios.onAppear` en `Free1X2.Mac/App/Pantallas/Combinacion/PosiblesPremios.swift`.
+- **Pruebas:** `"1x2-"` ⇒ `["1", "X", "2"]` + 13 «*»; `""` ⇒ 16 «*».
+- **Aceptación:** los tests; a mano, escribir una ganadora en Escrutinios, pulsar «Posibles premios» y verla en las casillas.
+
+---
+
+## W18 · Ordenar por probabilidad: «Obtener intervalo: premio de 14 entre … y …» (DT-95)
+
+- **Qué (aprobado por el dueño, 17-oct-2026; es de la 0.77.2):** debajo de «Añadir Premio de 14 aciertos», una fila con la
+  casilla «Obtener intervalo: premio de 14 entre», un campo numérico (mínimo), el texto «y» y otro campo (máximo). Los
+  campos solo se activan con la casilla marcada. Por defecto, desmarcada y 0 / 0.
+- **Regla** (en `GrabacionColumnas`, `Free1X2.WinUI/Views/Ported/OrdenarPorProbabilidadFrmViewModel.cs:718`): para cada
+  columna, `premio = (precio × %14 ÷ 100) ÷ probabilidad` (en `float`, la misma cuenta de «Añadir Premio de 14») con tope
+  `recaudación × %14 ÷ 100`. Si la casilla está marcada y `premio < mínimo` o `premio > máximo`, la columna **no se graba**
+  y se pasa a la siguiente. La probabilidad acumulada y su límite se calculan **antes** del filtro (cuentan todas las
+  columnas); «Finalizado N columnas» cuenta solo las grabadas. No se aplica a `GrabarAdmitidasMultiples` (pestaña
+  «Multiple»). Sin ninguna columna grabada pasa lo mismo que hoy con cero columnas.
+- **Dónde (UI):** `Free1X2.WinUI/Views/Ported/OrdenarPorProbabilidadFrmPage.xaml:84`.
+- **Referencia Mac:** `ParametrosOrdenacion.premio14Entre` y `grabar` en
+  `Free1X2.Mac/Packages/Free1X2Kit/Sources/Free1X2CasosDeUso/Utilidades/OrdenarPorProbabilidad.swift`; la fila de la UI en
+  `Free1X2.Mac/App/Pantallas/Utilidades/OrdenarPorProbabilidad.swift`.
+- **Pruebas** (Mac: `OrdenarPorProbabilidadTests.intervaloPremio14`): fichero de entrada con `11111111111111` y
+  `2222222222222X`, valoraciones 50 / 30 / 20 en los 14 partidos, recaudación 15.000.000, precio 0,5, %14 15, pestaña «Por
+  productos» con LN central 0. Intervalo 1.000–2.000 ⇒ solo `1…1` (premio 0,075 ÷ 0,5¹⁴ = 1.228,8 €);
+  2.000.000–3.000.000 ⇒ solo `2…2X` (tope 2.250.000 €); 0–1.000 ⇒ ninguna.
+- **R1:** con la casilla desmarcada la salida es idéntica; los tests existentes siguen sin tocarse.
+
+---
+
+## W19 · Banco de pruebas: ordenar por cualquier columna y «Filtro de selección de filas» (DT-95)
+
+- **Qué (aprobado por el dueño, 17-oct-2026):** recuperar lo que el WinForms tenía y el WinUI perdió (lo usa el método de
+  PacoHH del manual, § 13).
+  1. **Tabla por columnas** con estas columnas: «Nºcol.», «Columna» (los signos), «Nº14»…«Nº10», «Nºacumulado», «Premio
+     14»…«Premio 10», «Premio Acumulado», «14 medio»…«10 medio» y «Recuperación». Valores (`ResultadosPorColumna`):
+     Premio k = `Math.Round(importe)`; Premio Acumulado = `Math.Round(suma de las categorías marcadas en «Premios
+     acumulados que se consideran», 1)`; Nºacumulado = veces de esas mismas categorías; medio k = `Math.Round(importe ÷
+     veces)`, o 0 sin veces. El % de recuperación usa el precio de Configuración (W16), no el 0,5 fijo.
+  2. **Ordenar al pulsar una cabecera** (`ComparaCon`): «Nºcol.» de menor a mayor y el resto de mayor a menor; una segunda
+     pulsación invierte el orden. Criterio por cabecera: Nº14…Nº10 las veces, Nºacumulado, Premio 14…10 el importe **sin
+     redondear**, Premio Acumulado y Recuperación el premio acumulado, los medios. «Columna» no ordena. Grabar y
+     Simplificar trabajan en el orden que se ve.
+  3. **Selección múltiple de filas** de la tabla (Ctrl / Mayús) en lugar de una casilla por fila: es la selección que usan
+     Grabar («sólo si están seleccionadas») y Simplificar. Encima de la tabla: «Pulsa una cabecera para ordenar por esa
+     columna; selecciona filas con Ctrl o Mayús para grabarlas.» (en el Mac dice ⌘ o ⇧).
+  4. **Botón «Filtrar…»** junto a «Grabar» (tooltip «Filtro de selección de filas»), activo cuando hay filas. Abre
+     «Selección de columnas» con el texto «Se seleccionarán las columnas comprendidas entre los valores mínimo y máximo de
+     los conceptos marcados.» y 18 filas (casilla + Mínimo + Máximo): «Nº de veces 14 aciertos»…«Nº de veces 10
+     aciertos», «Nº de veces con premio», «Premio total de 14»…«Premio total de 10», «Premio acumulado», «Premio medio de
+     14»…«Premio medio de 10» y «% de recuperación». Valores iniciales: el mínimo y el máximo de cada concepto entre las
+     filas (`MaxMin`; los premios totales redondeados a euros, como el original), ninguno marcado. **Aceptar:** en cada
+     fila se recorren los conceptos marcados en orden; el primero cuyo valor sea menor que su mínimo o mayor que su máximo
+     desmarca la fila y corta; si los cumple todos, la fila queda marcada; sin conceptos marcados no cambia nada. Junto a
+     los botones aparece «N filas seleccionadas». Un campo vacío no limita.
+- **Dónde:** `Free1X2.WinUI/Views/Ported/BancoPruebasFrmViewModel.cs` (`ResultadoColumnaItem`, :40-56, solo guarda las
+  veces y dos textos; `ColumnasResultado`, :265) y `Free1X2.WinUI/Views/Ported/BancoPruebasFrmPage.xaml:345-377` (el
+  `ListView`). Legacy: `Free1X2/UI/BancoPruebasFrm.cs` (`ResultadosPorColumna` :336, `MaxMin` :3690-3756,
+  `myDataGrid_MouseDown` :4134, `btFiltrar_Click` :4217) y `Free1X2/UI/DialogoSeleccionBancoPruebasFrm.cs`.
+- **Lógica en `Free1X2.Domain`** (valores por fila, comparador, límites y selección), para probarla.
+- **Referencia Mac:** `FilaBancoColumna` (`premios`, `vecesAcumulado`, `premioAcumulado`, `porcentajeRecuperacion`,
+  `premioMedio`, `valor(cabecera:)`, `valor(concepto:)`), `OrdenBanco` y `CasosUtilidades.conceptosBanco` /
+  `limitesBanco` / `seleccionarBanco` en
+  `Free1X2.Mac/Packages/Free1X2Kit/Sources/Free1X2CasosDeUso/Utilidades/BancoPruebas.swift`; la tabla y la hoja
+  `VistaFiltroBanco` en `Free1X2.Mac/App/Pantallas/Utilidades/BancoPruebas.swift`.
+- **Pruebas** (Mac: `BancoPruebasTests.ordenYFiltro`): autoescrutinio de `11111111111111`, `X1111111111111` y
+  `22222222222222` con valoraciones 34 / 33 / 33, el 14 y el 13 marcados, 0,50 € y 14.000.000 €: Nºacumulado = [2, 2, 1];
+  ordenar por Nº13 deja la tercera al final (al principio con la segunda pulsación) y por Nºcol. vuelve a 1, 2, 3; 18
+  límites, Nº13 = (0, 1) y «con premio» = (1, 2); filtro «Nº de veces 13» entre 1 y 1 ⇒ 2 filas (sí, sí, no); «con premio»
+  0–9 y «Nº de veces 14» 2–9 ⇒ 0 filas; sin conceptos ⇒ no cambia.
+- **R1:** el análisis da los mismos números; solo cambian la tabla, el orden y la selección.
+
+---
+
+## W20 · Históricos de la distribución original como datos de fábrica (DT-96)
+
+- **Qué (aprobado por el dueño, 17-oct-2026):** el programa trae los históricos que traía el Free1X2 original y que
+  nuestras versiones habían perdido. Los ficheros ya están en el repo, copiados tal cual (CRLF, ASCII):
+  `Free1X2.Mac/App/Recursos/Datos/Jornadas/` (`InfoJornadasLAE.txt`, `Resultados.txt`, `HistoricoConcurso.txt`,
+  `HistoricoMarca.txt`, `HistoricoQuinielista.com.txt`, `HistoricoQuinielista.txt`) y
+  `Free1X2.Mac/App/Recursos/Datos/Ganadoras/` (`1983-84.txt` … `2008-09.txt`, 26 ficheros).
+- **Ojo con el empaquetado del WinUI:** `Datos\**\*` se copia junto al exe con `PreserveNewest`
+  (`Free1X2.WinUI/Free1X2.WinUI.csproj:78-82`) y la carpeta del exe es también la de los datos del usuario (portable).
+  Si los históricos fueran a `Datos/Jornadas/`, una actualización **pisaría** el `Jornadas/InfoJornadasLAE.txt` del
+  usuario. Por eso van a `Free1X2.WinUI/Datos/Semillas/Jornadas/` y `Free1X2.WinUI/Datos/Semillas/Ganadoras/` (se copian
+  como `Semillas/…`), y al arrancar, junto a `AsegurarCarpetasDeTrabajo` (`Free1X2.WinUI/App.xaml.cs:102`):
+  1. Cada fichero de `Semillas/Jornadas/` (menos `InfoJornadasLAE.txt`) y de `Semillas/Ganadoras/` se copia a `Jornadas/`
+     o `Ganadoras/` **solo si allí no existe**.
+  2. `Jornadas/InfoJornadasLAE.txt`, solo si no existe, se escribe **convertido al precio de Configuración**: sus importes
+     están en apuestas de 0,50 € y el programa los lee × el precio configurado (W16). En cada línea con 9 campos
+     (columna, temporada, jornada, recaudación, premios de 14 a 10), los campos 4 a 9 que no sean 0 pasan a
+     `Math.Round(valor × 0,50 ÷ precio, 2)` escrito en es-ES sin separador de miles (`9262888,45`, `31617978`,
+     `185988,1`). Un 0 se deja tal cual (`0,00` = sin acertantes de 14: Estimación de premios lo estima). Con precio 0,50
+     se copia sin tocar. CRLF.
+  3. **Liga «España»** (`Historico/España.txt`, W12): si la carpeta `Historico/` **no existía** al arrancar (no se ha
+     guardado nunca una liga), se crea con las jornadas de `Semillas/Jornadas/Resultados.txt` cuyos 14 primeros signos son
+     1, X o 2: una línea `temporada/temporada+1-jornada a 2 cifras;14 signos` (`1970/1971-01;X11121212X11X1`). Son 1.454
+     (17 de las 1.471 llevan «-» y se saltan). Si el usuario la borra, la carpeta sigue y no se vuelve a sembrar.
+- **Referencia Mac:** `CasosInicio.semillasHistoricas`, `semillaJornadasLAE`, `jornadasLAEAlPrecio`,
+  `ganadorasDeResultados` y `arrancar` en `Free1X2.Mac/Packages/Free1X2Kit/Sources/Free1X2CasosDeUso/Inicio.swift`.
+- **Pruebas** (Mac: `InicioTests.jornadasLAEAlPrecio` y `arrancarSiembraHistoricos`): las líneas
+  `111111XX211221⇥1988/1989⇥01⇥13894332,67⇥1042074,97⇥18946,83⇥1053,67⇥150,52⇥21,50` y
+  `21X121XXX22X2X⇥1995/1996⇥23⇥47426967,00⇥0,00⇥278982,15⇥14503,65⇥1097,85⇥156,84` a 0,75 € dan
+  `…⇥9262888,45⇥694716,65⇥12631,22⇥702,45⇥100,35⇥14,33` y `…⇥31617978⇥0,00⇥185988,1⇥9669,1⇥731,9⇥104,56`; leída con
+  Estimación a 0,75 €, la jornada 1995/96-23 da 23.713.483,5 € de recaudación (0,50 × 47.426.967); a 0,50 € el fichero
+  no cambia. `Resultados.txt` con `1970⇥1⇥X11121212X11X1` y `2006⇥38⇥1X21X21X21X21X1` siembra «España» con
+  `1970/1971-01` y `2006/2007-38` (14 signos); tras borrar la liga y volver a arrancar, sigue vacía.
+- **Aceptación:** los tests; en una carpeta limpia, arrancar y ver en Estimación de premios ◀ ▶ las jornadas de 1988/89
+  a 2006/07 con euros coherentes (1995/96-23: 23,7 M €), las 1.454 jornadas de «España» en Máscaras y el histórico del
+  Escrutinio con temporadas; y que una segunda copia del programa encima no pise un `InfoJornadasLAE.txt` ya existente.
+
+---
+
+## W21 · Progol: liga «México» de fábrica y parámetros L.A.E. por país (DT-97)
+
+- **Qué (aprobado por el dueño, 17-oct-2026; vale para todas las versiones):**
+  1. **Liga «México» de fábrica.** Copiar `Free1X2.Mac/App/Recursos/Datos/Jornadas/Progol.csv` (CSV oficial de Lotería
+     Nacional: `NPRODUCTO,CONCURSO,R1…R14,BOLSA,FECHA`, L/E/V) a `Free1X2.WinUI/Datos/Semillas/Jornadas/Progol.csv`. Con
+     la misma condición que «España» en W20 (la carpeta `Historico/` no existía al arrancar), crear
+     `Historico/México.txt` con una línea `concurso;14 signos` por fila válida (L = 1, E = X, V = 2; la cabecera y las
+     filas sin 14 signos se saltan), del concurso más antiguo al más reciente: 1.579 líneas, de `767;X1221212XXX1X1` a
+     `2354;11XXXXX121X111`. El nº de concurso es la misma clave que usa la descarga de clubprogol para México (W12), así
+     que no se duplican.
+  2. **Parámetros del Progol en Configuración.** Además de `<LAE>`, `parametros.free1x2` lleva
+     `<configuracionONLAE>…<Progol><OrdenarApuestas PrecioApuesta="15,00" PorcentajeDestinadoAl14="33" Recaudacion="15000000" Moneda="$" /></Progol></configuracionONLAE>`
+     (mismos atributos y formatos que `<LAE>`: precio con 2 decimales, el resto con `ToString()` en es-ES). Añadirlo a la
+     semilla `Free1X2.WinUI/Datos/parametros.free1x2`. Al leer: sin el nodo, o con un valor ilegible, los de fábrica
+     (15 $, 33 %, 15.000.000 $, «$»). Al guardar: si falta, se añade como último hijo de `<configuracionONLAE>`.
+     `AConfiguracion` solo lee el primer hijo de `<LAE>`, así que el nodo nuevo no le afecta.
+  3. **Pantalla Configuración:** la tarjeta «Parámetros LAE» pasa a «Parámetros LAE (España)» y debajo va «Parámetros
+     Progol (México)» con los mismos campos (Recaudación, Símbolo moneda (máx. 3), Precio apuesta, % al 14) y la nota «Se
+     usan cuando la jornada cargada (Inicio ▸ Jornada) es de México; si no, los de España.».
+  4. **Qué parámetros usa cada cálculo:** los del **país de la jornada cargada** (la de W6/W7; México ⇒ Progol; sin
+     jornada, España) en Calcular (valoración de la combinación), Rentabilidad (cálculo y «valorar columna»), Esperanza
+     matemática (W14), Ordenar por probabilidad, Tramificar (balance de los tramos) y Banco de pruebas. Lo que es de
+     L.A.E. usa **siempre España**: Estimación de premios, «Guardar escrutinio» y «Guardar jornada L.A.E.» (todo lo que
+     lee o escribe `Jornadas/InfoJornadasLAE.txt`, W16).
+- **Valores de fábrica de México:** 15 $ es el precio oficial de la quiniela sencilla (loterianacional.gob.mx). El 33 % y
+  los 15.000.000 $ son **estimados** que eligió el dueño: el reglamento (art. 20) da un mínimo del 55 % de las ventas a
+  premios y no publica el reparto por lugar. Son editables.
+- **Referencia Mac:** `ConfigLAE.mexico` y `Configuracion.laeMexico` en
+  `Free1X2.Mac/Packages/Free1X2Kit/Sources/Free1X2Motor/Configuracion/Configuracion.swift`; `laeMexico()` y
+  `guardarLAEMexico` en `…/Free1X2Formatos/Configuracion/ArchivoParametros.swift`; `ConfiguracionEditable.laeMexico` en
+  `…/Free1X2CasosDeUso/Ajustes.swift`; `ganadorasDeProgol` en `…/Free1X2CasosDeUso/Inicio.swift`; `Sesion.lae` en
+  `Free1X2.Mac/App/Arranque/Sesion.swift`; la tarjeta en `Free1X2.Mac/App/Pantallas/Free/Ajustes.swift`.
+- **Pruebas** (Mac: `ParametrosTests.laeMexico`, `InicioTests.arrancarSiembraHistoricos`): semilla sin `<Progol>` ⇒ los
+  de fábrica; guardar 20 / 30,5 / 18.000.000 lo añade justo tras `</LAE>` con `PrecioApuesta="20,00"
+  PorcentajeDestinadoAl14="30,5" Recaudacion="18000000" Moneda="$"` y España no cambia; guardarlo otra vez cambia el
+  mismo nodo (sigue habiendo un solo `<Progol>`); el CSV con las filas 2354, 767 y una rota da `767;X1221212XXX1X1` y
+  `2354;11XXXXX121X111`.
+- **R1:** con una jornada de España (o ninguna) todo da lo mismo que antes.
+
+## W22 · Liga «España» con las jornadas de 2007/08 a 2026/27 (DT-98)
+
+- **Qué:** en una instalación nueva, la liga «España» trae también las 1.205 jornadas de 2007/08 a 2026/27
+  (quinielafutbol.info), sin que la descarga de clubprogol las repita.
+- **Cómo:**
+  1. Copiar `Free1X2.Mac/App/Recursos/Datos/Jornadas/EspanaDesde2007.txt` a `Free1X2.WinUI/Datos/Semillas/Jornadas/`
+     (CRLF; ya en formato de liga: `20070826;XX11222X11X21X` o, sin fecha conocida, `2019/2020-01;…`).
+  2. En la siembra de W20 punto 3, detrás de las de `Resultados.txt`, añadir las líneas de este fichero leídas con el
+     mismo analizador de la importación de ligas (W12). Total: 2.659 líneas.
+  3. Nada más: la descarga de clubprogol ya usa la fecha como jornada (`20261011`) y la suma no duplica claves.
+- **Referencia Mac:** `CasosInicio.semillaEspanaWeb` y `arrancar` en
+  `Free1X2.Mac/Packages/Free1X2Kit/Sources/Free1X2CasosDeUso/Inicio.swift`.
+- **Pruebas** (Mac: `InicioTests.arrancarSiembraHistoricos`): con `Resultados.txt` de 2 filas y la semilla web
+  `2019/2020-01;1X21X21X21X21X` + `20261011;X21X11XX111121`, «España» tiene 4 jornadas en ese orden; sumar después la
+  descarga `{"jornada":20261011,"ganadora":"X21X11XX111121"}` da `yaEstaban = 1` y siguen 4.
+- **Aceptación:** en una carpeta limpia, Máscaras muestra «España» con 2.659 jornadas; «Descargar de clubprogol ▾ →
+  España» no añade ninguna de las 19 que ya trae.
+
+---
+
 ## Lo que cambió en el Mac y **no** se lleva a Windows
 
 | Cambio en el Mac | Por qué no aplica |
@@ -436,16 +741,17 @@ un sistema se usa tal cual en el otro.
 
 ---
 
-## Cierre (después de W1–W12)
+## Cierre (después de W1–W22)
 
-1. **Verificación completa:** build 0 errores, `dotnet test` con 138 + los nuevos en verde, smoke `total=110 ok=110
+1. **Verificación completa:** build 0 errores, `dotnet test` con 138 + los nuevos en verde, smoke `total=111 ok=111
    fail=0` con el log borrado antes.
-2. **`CLAUDE.md`:** al día con los números nuevos: páginas (`PortedPages.cs` 109 entradas), superficies del smoke (110),
+2. **`CLAUDE.md`:** al día con los números nuevos: páginas (`PortedPages.cs` 110 entradas), superficies del smoke (111),
    tests (138 + los nuevos).
 3. **Manual y FAQ** (`docs/MANUAL_USUARIO.md`, `docs/FAQ.md`): quitar las marcas **[Mac]** y los «En la versión Mac…» de lo
    que Windows ya tenga (jornada al arrancar, Jornada ▾, panel lateral, Máscaras, base de ganadoras, Columnas de Inicio,
-   `.mas`, `Historico/`). Luego `python scripts/md-a-wordpress.py`, que regenera `docs/web/manual.html` y
+   `.mas`, `Historico/`, Esperanza matemática, Pegar desde Excel, Posibles premios con la ganadora, intervalo del premio
+   de 14, tabla y filtro del Banco de pruebas y su receta de PacoHH, históricos de fábrica, Progol). Luego `python scripts/md-a-wordpress.py`, que regenera `docs/web/manual.html` y
    `docs/web/faq.html`, y avisar al dueño de que hay que volver a subirlos a `clubprogol.com/docwk/` y
    `clubprogol.com/docwk/faq/`.
-4. **Informe al dueño:** una tabla por tarea (W1–W12) con estado (hecha / no hecha y por qué), commit, `fichero:línea`
+4. **Informe al dueño:** una tabla por tarea (W1–W22) con estado (hecha / no hecha y por qué), commit, `fichero:línea`
    del cambio y los tests añadidos. Lo que no se pudo hacer se dice, no se da por hecho.
