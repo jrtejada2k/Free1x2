@@ -33,4 +33,12 @@ public sealed partial class PosiblesPremiosFrmPage : Page
         //   (contexto como parámetro de navegación).
         ViewModel.Navegar = (tipo, parametro) => Frame?.Navigate(tipo, parametro);
     }
+
+    // W17 (DT-95): desde Escrutinios llega la columna ganadora como parámetro de navegación.
+    protected override void OnNavigatedTo(Microsoft.UI.Xaml.Navigation.NavigationEventArgs e)
+    {
+        base.OnNavigatedTo(e);
+        if (e.Parameter is string ganadora && e.NavigationMode == Microsoft.UI.Xaml.Navigation.NavigationMode.New)
+            ViewModel.AplicarGanadora(ganadora);
+    }
 }

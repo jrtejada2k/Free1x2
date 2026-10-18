@@ -98,6 +98,19 @@ public partial class PosiblesPremiosFrmViewModel : ObservableObject
     }
 
     /// <summary>
+    /// W17 (DT-95): la ganadora que llega de Escrutinios, repartida en las 16 casillas (1, X o 2; «*» en lo demás).
+    /// Sigue siendo editable.
+    /// </summary>
+    public void AplicarGanadora(string ganadora)
+    {
+        string[] signos = Free1X2.Escrutinio.GanadoraImportada.SignosGanadoraImportada(ganadora);
+        for (int i = 0; i < Partidos.Count && i < signos.Length; i++)
+        {
+            Partidos[i].SignoGanador = signos[i];
+        }
+    }
+
+    /// <summary>
     /// Navegación a otra página del ContentFrame, inyectada por la Page (mismo patrón que
     /// MainPageViewModel.Navegar). El segundo argumento es el parámetro de navegación opcional
     /// (e.Parameter); para los handoffs estáticos basta con pasar null.

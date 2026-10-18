@@ -978,8 +978,9 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
     private void PosiblesPremios()
     {
         // Legacy btnPosiblesPremios_Click -> new PosiblesPremiosFrm().Show(). En WinUI navega a
-        // PosiblesPremiosFrmPage (su ViewModel ya está cableado), sin parámetro (se abría sin estado).
-        Navegar?.Invoke(typeof(PosiblesPremiosFrmPage), null);
+        // PosiblesPremiosFrmPage. W17 (DT-95, como la 0.77.2): le pasa la columna ganadora para que la
+        // reparta en sus 16 casillas.
+        Navegar?.Invoke(typeof(PosiblesPremiosFrmPage), ColumnaGanadora ?? string.Empty);
     }
 
     /// <summary>
