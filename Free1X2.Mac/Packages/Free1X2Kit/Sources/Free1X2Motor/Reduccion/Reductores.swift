@@ -69,7 +69,8 @@ private final class Reductor {
     var reducidaB: UnsafeMutableBufferPointer<Bool>
     var reductoraB: UnsafeMutableBufferPointer<Bool>
     var poorN: UnsafeMutableBufferPointer<Int32>
-    var pobresTocados: [Int] = []
+    /// Las posiciones de `poorN` tocadas en la vuelta, cada una una vez (a lo sumo 3^14, 19 MB en `Int32`).
+    var pobresTocados: [Int32] = []
     var iniciales = 0
     var finales = 0
     var procesadas = 0
@@ -278,7 +279,7 @@ private final class Reductor {
                 }
                 nr += 1
             }
-            for t in pobresTocados { poorN[t] = 0 }
+            for t in pobresTocados { poorN[Int(t)] = 0 }
             pobresTocados.removeAll(keepingCapacity: true)
             if nextcol < 0 { break }
             while reducidaB[columnas[primera]] { primera += 1 }
@@ -297,8 +298,10 @@ private final class Reductor {
     /// `DispersaColumnaPobre` (`JDCdobleContador.cs:210-229`).
     func dispersa(_ ini: Int, _ pos: Int, _ prof: Int, _ nivel: Int) {
         vecinos(ini, pos, noPartidos) { idx, p in
+            // Solo la primera vez que se toca: con repeticiones la lista llegaba a cientos de millones de entradas
+            // (4 GB con 12 triples). Al empezar cada vuelta todo `poorN` está a 0, así que 0 = aún no tocada.
+            if poorN[idx] == 0 { pobresTocados.append(Int32(idx)) }
             poorN[idx] &+= 1
-            pobresTocados.append(idx)
             if nivel < prof { dispersa(idx, p + 1, prof, nivel + 1) }
         }
     }
