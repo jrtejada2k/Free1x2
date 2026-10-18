@@ -145,9 +145,9 @@ Permite seleccionar un archivo de columnas que actúa como **base/filtro** de la
 
 ## 4. Flujo de trabajo paso a paso
 
-1. **Configura** el programa (`Free1x2 → Configuración`): precio de la apuesta, nº de partidos, etc. En la versión Mac el
+1. **Configura** el programa (`Free1x2 → Configuración`): precio de la apuesta, nº de partidos, etc. El
    precio de partida es **0,75 €** (Configuración ▸ Parámetros LAE ▸ Precio apuesta); cámbialo si la apuesta cuesta otra cosa.
-   **[Mac]** El Progol tiene sus propios parámetros (**Configuración ▸ Parámetros Progol (México)**: 15 $ la quiniela
+   El Progol tiene sus propios parámetros (**Configuración ▸ Parámetros Progol (México)**: 15 $ la quiniela
    sencilla, 15.000.000 $ de recaudación y 33 % para el 14; los dos últimos son estimados, ajústalos si los conoces). Se
    usan cuando la jornada cargada es de México; si no, los de España. Estimación de premios y lo que se guarda en
    `Jornadas/InfoJornadasLAE.txt` son de L.A.E. y usan siempre los de España.
@@ -211,7 +211,7 @@ Todas las pantallas de estos menús están también en el **panel lateral**, con
 | Ver / Imprimir Boletos | Muestra / imprime en boletos oficiales. |
 | Ver Boletos en Editor de Texto | Vuelca las columnas de un fichero a un editor de texto para revisarlas/copiarlas. |
 | Reducir | Abre el reductor. |
-| Escrutinios | Escruta archivos de columnas. Su botón **Posibles premios** abre esa pantalla con la columna ganadora ya puesta en las casillas (las que falten, con `*`) **[Mac]**. |
+| Escrutinios | Escruta archivos de columnas. Su botón **Posibles premios** abre esa pantalla con la columna ganadora ya puesta en las casillas (las que falten, con `*`). |
 | Escrutar Combinaciones | Escrutinio orientado a combinaciones (no solo a ficheros de columnas sueltas). |
 | Analizar Combinación | Analiza una combinación concreta (su columna, su analizador y sus pronósticos asociados). |
 | Análisis de Fallos / Gráfico / de Signos | Fallos: qué condiciones acierta o falla la ganadora. Gráfico: representación de la combinación. Signos: seguir la combinación mientras se juega la jornada. |
@@ -246,7 +246,7 @@ Todas las pantallas de estos menús están también en el **panel lateral**, con
 | Ordenar por Probabilidad | Ordena columnas por probabilidad a partir de una valoración. |
 | Selector (JuanM) / (MarioSan) | Selección de columnas (por nº de 13s, etc.). |
 | Rentabilidad | Calcula la rentabilidad de una combinación. |
-| Esperanza matemática **[Mac]** | Esperanza matemática de una columna por categoría (14 a 10), con precio, reparto, retención y mínimos configurables (ver §«Esperanza matemática»). |
+| Esperanza matemática | Esperanza matemática de una columna por categoría (14 a 10), con precio, reparto, retención y mínimos configurables (ver §«Esperanza matemática»). |
 | Columnas GEPT | Generador de columnas probables. |
 | Tramificar | Separa columnas por tramos. |
 | Premiadas | Utilidad de premiadas. |
@@ -255,7 +255,7 @@ Todas las pantallas de estos menús están también en el **panel lateral**, con
 | Compresor *.z3q | Comprime/descomprime archivos de columnas. |
 | EstuCol | Generador/analizador de columnas probables a partir de reducidas y ganadoras. |
 
-> **Pegar desde Excel [Mac]:** todas las tablas de porcentajes 1 / X / 2 (Esperanza matemática, Rentabilidad, Estimación
+> **Pegar desde Excel:** todas las tablas de porcentajes 1 / X / 2 (Esperanza matemática, Rentabilidad, Estimación
 > de premios, Valoración, Banco de pruebas…) tienen el botón **«Pegar desde Excel»**. Copia en tu hoja las filas de
 > porcentajes, una por partido, y púlsalo. De cada fila cuentan los **tres últimos números** (1, X y 2), así que puedes
 > copiar también las columnas del nº de partido o de los equipos. Valen tabuladores, punto y coma o espacios, coma o punto
@@ -532,7 +532,7 @@ Ordena un fichero (o los 14 triples) por proximidad a un **valor central de orde
 
 - **Opciones de salida:** nº máximo de columnas, límite de probabilidad acumulada y casillas para añadir a cada columna la
   probabilidad acumulada o el premio de 14. Pestañas **Por productos** (probabilidad), **Por sumas** y **Múltiple**.
-- **Obtener intervalo: premio de 14 entre … y …** **[Mac]**: con la casilla marcada solo se graban las columnas cuyo
+- **Obtener intervalo: premio de 14 entre … y …**: con la casilla marcada solo se graban las columnas cuyo
   premio de 14 estimado (con la Configuración L.A.E. de la ventana) cae entre los dos importes; las demás se saltan, pero
   la probabilidad acumulada y su límite siguen contándolas. Desmarcada, todo queda como siempre. No se aplica a la pestaña
   Múltiple. *Ej.:* con 15.000.000 €, 0,5 € y 15 %, la columna `11111111111111` con 50 % para el 1 en los 14 partidos da
@@ -545,8 +545,8 @@ Ordena un fichero (o los 14 triples) por proximidad a un **valor central de orde
 - El **valor de ordenación** que se añade a cada columna es la diferencia, en valor absoluto, entre el logaritmo del valor
   central y el de la probabilidad de la columna.
 
-> **Nº de acertantes < 1.** Cuando el nº teórico de acertantes baja de 1, el premio supera el 15% de la recaudación; se mantiene como premio teórico para conservar la relación con el nº de acertantes, y aparece un aviso en la barra de estado. La recaudación, el precio de la apuesta y el % del 14 salen de **Configuración L.A.E.**; en una instalación nueva de la
-versión Mac son 14.000.000 €, 0,75 € y 12 %.
+> **Nº de acertantes < 1.** Cuando el nº teórico de acertantes baja de 1, el premio supera el 15% de la recaudación; se mantiene como premio teórico para conservar la relación con el nº de acertantes, y aparece un aviso en la barra de estado. La recaudación, el precio de la apuesta y el % del 14 salen de **Configuración L.A.E.**; en una instalación nueva
+son 14.000.000 €, 0,75 € y 12 %.
 
 ### Rentabilidad
 Una apuesta es **rentable** si `CosteApuesta < Premio × Probabilidad`. Ese producto es la **esperanza matemática (EM)**. La utilidad calcula, columna a columna, el premio de 14 (a partir de los % apostados) y la probabilidad (a partir de las valoraciones probables), y de ahí la EM. Como solo considera el premio de 14, el umbral de rentabilidad no es el coste íntegro: se recomienda una **EM mínima de 0,136 €** (el 27,27% del coste de 0,5 €, precio vigente cuando se escribió el manual oficial; con el precio actual de 0,75 € recalcula este umbral proporcionalmente). Procedimiento: introducir % apostados y % de probabilidad de los 14 partidos → elegir 14 triples o fichero → fichero de salida → fijar EM mínima (0,136) y máxima → "Calcular". Puedes ordenar de mayor a menor EM y analizar una única columna escribiendo sus 14 signos.
@@ -660,7 +660,7 @@ Predice acertantes y cuantía de cada premio. Lo básico: introducir las **valor
 - **Columna ganadora:** clic sobre cada casilla cicla `1 → X → 2 → 1`; cada cambio recalcula los premios.
 - **Resultados ("Previsión de premios"):** el nº de acertantes es entero salvo el de 14, que se muestra **decimal** porque cuando hay pocos acertantes interesa distinguir 1,1 de 1,8, o 0,3 de 0,9. Para acertantes **< 1**, el premio no supera el máximo que marcan la recaudación y el % asignado al 14.
 - **Recaudación / bote / % a premios:** ajustables; el bote solo afecta al 15 (no contemplado en la utilidad).
-- **Precio de la apuesta [Mac]:** arranca con el de **Configuración ▸ Parámetros LAE** y se puede cambiar para el cálculo.
+- **Precio de la apuesta:** arranca con el de **Configuración ▸ Parámetros LAE** y se puede cambiar para el cálculo.
 - **Escrutinio Real:** muestra los datos reales de la jornada (leídos del fichero de información de jornadas del L.A.E.); se pueden introducir/actualizar a mano y guardar con el botón del disquete asociándolos a la jornada del selector. Hay un enlace directo a la página oficial de resultados del L.A.E.
 - La **recaudación no cambia el premio estimado**, pero sí el **nº de acertantes**: ajústala para que la previsión de
   acertantes se parezca a la jornada real.
@@ -689,12 +689,11 @@ Tres aplicaciones: (1) **comparar dos combinaciones** para elegir una; (2) **com
 
    **Tabla de resultados** (análisis "Columnas" o "Autoescrutinio"): una fila por apuesta, con las columnas **Nº14, Nº13, Nº12, Nº11, Nº10** (veces que esa apuesta obtuvo cada premio en todos los escrutinios), **Premio 14 … Premio 10** (importe en euros), **Premio Ac** (acumulado de los premios marcados; en análisis "Columnas" no conviene contar el 14 por la aleatoriedad) y el **% de recuperación**. Se puede ordenar por cualquier cabecera, filtrar por rangos de cualquier concepto y grabar las apuestas seleccionadas (con `Shift`/`Ctrl`).
 
-   **[Mac]** La tabla tiene las columnas **Nºcol.**, **Columna** (los signos), **Nº14…Nº10**, **Nºacumulado** (veces con
+   La tabla tiene las columnas **Nºcol.**, **Columna** (los signos), **Nº14…Nº10**, **Nºacumulado** (veces con
    las categorías marcadas), **Premio 14…10**, **Premio Acumulado**, **14 medio…10 medio** (premio ÷ veces) y
    **Recuperación**. Al pulsar una cabecera se ordena por ella: «Nºcol.» de menor a mayor y el resto de mayor a menor (otra
-   pulsación invierte el orden). Las filas se seleccionan con `⌘` o `⇧`, y esa selección es la que usan **Grabar** y
-   **Simplificar**. El botón **Filtrar…** abre el filtro de selección de filas (abajo). En Windows, la tabla todavía es
-   una lista sin ordenar ni filtrar.
+   pulsación invierte el orden). Las filas se seleccionan con `Ctrl` o `Mayús` (en Mac, `⌘` o `⇧`), y esa selección es la que usan
+   **Grabar** y **Simplificar**. El botón **Filtrar…** abre el filtro de selección de filas (abajo).
 
 Utilidad aportada por **PacoHH**.
 - **Paso 2, de apostadas a reales:** puedes fijar el **premio medio de 14** (el parámetro más intuitivo; por defecto
@@ -708,7 +707,7 @@ Utilidad aportada por **PacoHH**.
 - **Resultados globales** (análisis Combinación): nº de columnas, gasto total (columnas × catorces simulados × precio),
   premio total, veces premiada, veces con beneficio y % recuperado (premio total ÷ gasto). Para comparar otra combinación,
   vuelve al paso 1, cambia el fichero y analiza sin tocar nada más: se usan las mismas valoraciones y los mismos catorces.
-- **Filtro de selección de filas** **[Mac]**: la ventana «Selección de columnas» tiene un mínimo y un máximo por concepto:
+- **Filtro de selección de filas**: la ventana «Selección de columnas» tiene un mínimo y un máximo por concepto:
   veces con 14…10, veces con premio, premio total, acumulado y medio por categoría, y % de recuperación. Arranca con el
   mínimo y el máximo que hay en la tabla y sin nada marcado. Marcas el concepto, ajustas el rango y al Aceptar quedan
   seleccionadas las filas que cumplen todos los conceptos marcados; las demás se deseleccionan. Se indica cuántas quedan
@@ -822,7 +821,7 @@ hace nada. Encima de la tabla se indica cuántas jornadas se escrutaron y de qu�
 
 Las máscaras se guardan como archivos `.mas` (ver §11), con el mismo formato en Mac y en Windows.
 
-### Esperanza matemática **[Mac]**
+### Esperanza matemática
 Calcula cuánto **devuelve de media** una columna de 14 signos por cada apuesta: su **esperanza matemática (EM)**, categoría
 por categoría (14, 13, 12, 11 y 10 aciertos). Está en el panel lateral, grupo Utilidades, y en el menú de Utilidades.
 
@@ -888,14 +887,14 @@ Recalcula el signo de un **partido a tratar** como **combinación lineal** (mód
 | `.comb` / `.xml` | Combinación completa: equipos, pronósticos, grupos, condiciones y filtro asociado. |
 | `.grupos` | Un grupo de condiciones exportado, para reutilizar. |
 | `.txt` | Archivo de columnas: una columna de 14 signos por línea. Es el formato de intercambio (filtros, escrutinio, operaciones). |
-| `parametros.free1x2` | Configuración del programa: puntos de CP, nº de partidos, separador, idioma, datos ONLAE (precio, recaudación). **[Mac]** Los del Progol van en `<Progol>`, junto a `<LAE>`. |
+| `parametros.free1x2` | Configuración del programa: puntos de CP, nº de partidos, separador, idioma, datos ONLAE (precio, recaudación). Los del Progol van en `<Progol>`, junto a `<LAE>`. |
 | `.mas` | Una máscara (carpeta `Mascaras/`): texto con una línea por partido y sus signos separados por comas (`1`, `1,X`, `1,X,2`). El nombre del archivo es el de la máscara. |
 | `Historico/<liga>.txt` | La base de ganadoras de una liga: una línea `jornada;columna` por jornada. El nombre del archivo es el de la liga. Se gestiona desde la pantalla «Máscaras»; no hace falta editarlo a mano. |
 | `.z3q` | Archivo de columnas comprimido con el Compresor. |
-| `Jornadas/InfoJornadasLAE.txt` | Jornadas L.A.E. (columna, temporada, jornada, recaudación y premios de 14 a 10), divididos por el precio de la apuesta. Lo leen Estimación de premios y Tramificar. **[Mac]** Una instalación nueva trae las de **1988/89 a 2006/07**, ya pasadas al precio de Configuración. |
-| `Jornadas/Resultados.txt` | Ganadoras por temporada y jornada (`1970⇥1⇥X11121212X11X1`), para el escrutinio histórico. **[Mac]** Trae las de **1970 a 2006**. |
-| `Jornadas/Historico*.txt` | Porcentajes de jornadas pasadas (temporada, jornada y 42 porcentajes): `HistoricoQuinielista.txt`, `HistoricoQuinielista.com.txt`, `HistoricoConcurso.txt` y `HistoricoMarca.txt`. **[Mac]** Se incluyen los de la distribución original: Quinielista de 1994/95 a 2006/07, Quinielista.com de 1994/95 a 2004/05, Concurso de 2000/01 a 2006/07 y Marca de 2004/05 a 2006/07. |
-| `Ganadoras/<temporada>.txt` | Una columna ganadora por línea. **[Mac]** Se incluyen las temporadas **1983-84 a 2008-09**; sirven, por ejemplo, para **Premiadas** o para añadirlas a una liga de Máscaras. |
+| `Jornadas/InfoJornadasLAE.txt` | Jornadas L.A.E. (columna, temporada, jornada, recaudación y premios de 14 a 10), divididos por el precio de la apuesta. Lo leen Estimación de premios y Tramificar. Una instalación nueva trae las de **1988/89 a 2006/07**, ya pasadas al precio de Configuración. |
+| `Jornadas/Resultados.txt` | Ganadoras por temporada y jornada (`1970⇥1⇥X11121212X11X1`), para el escrutinio histórico. Trae las de **1970 a 2006**. |
+| `Jornadas/Historico*.txt` | Porcentajes de jornadas pasadas (temporada, jornada y 42 porcentajes): `HistoricoQuinielista.txt`, `HistoricoQuinielista.com.txt`, `HistoricoConcurso.txt` y `HistoricoMarca.txt`. Se incluyen los de la distribución original: Quinielista de 1994/95 a 2006/07, Quinielista.com de 1994/95 a 2004/05, Concurso de 2000/01 a 2006/07 y Marca de 2004/05 a 2006/07. |
+| `Ganadoras/<temporada>.txt` | Una columna ganadora por línea. Se incluyen las temporadas **1983-84 a 2008-09**; sirven, por ejemplo, para **Premiadas** o para añadirlas a una liga de Máscaras. |
 
 Las combinaciones temporales se guardan como backups y se pueden limpiar desde `Archivo → Borrar Combinaciones Temporales`.
 
@@ -943,7 +942,7 @@ porcentajes de cada jornada. En la lista que publicó de la temporada 2009/10, e
 entre las posiciones 2.383 y 526.026, dentro del tramo 1; el de la jornada 13, en la 2.084.273, fuera de él.
 
 **Pasos.**
-1. **Ordenar por probabilidad:** origen **14 Triples**; los porcentajes de L.A.E. de la jornada (en la versión Mac,
+1. **Ordenar por probabilidad:** origen **14 Triples**; los porcentajes de L.A.E. de la jornada (con
    **Pegar desde Excel**); pestaña **Por productos** con el valor central **Log. neperiano = 0**, que ordena de más a menos
    probable; **Nº máximo de columnas = 531441**; las casillas de añadir, sin marcar; un fichero de salida, p. ej.
    `tramo1.txt` → **Ordenar**.
@@ -958,11 +957,11 @@ entre las posiciones 2.383 y 526.026, dentro del tramo 1; el de la jornada 13, e
 > premiada: la tabla dice en qué tramo cae cada premio. **Grabar tramos** no graba nada, como en el programa original;
 > por eso el tramo 1 se saca con Ordenar por probabilidad.
 
-### PacoHH: elegir columnas con el Banco de pruebas **[Mac]**
+### PacoHH: elegir columnas con el Banco de pruebas
 
 **Idea.** Simular muchas jornadas y quedarse con las columnas que, a la vez, aciertan a menudo y cobran bien. Los consejos
-son de PacoHH, el autor del Banco de pruebas. Hace falta ordenar la tabla del Banco, que de momento solo se puede en la
-versión Mac.
+son de PacoHH, el autor del Banco de pruebas. Hace falta ordenar la tabla del Banco (pulsando sus
+cabeceras).
 
 **Pasos.**
 1. **Paso 1:** abre la combinación que quieres estudiar.
@@ -975,7 +974,7 @@ versión Mac.
 5. **Las más rentables:** desmarca el 14 (salvo que simules millones de jornadas), **Analizar** otra vez y ordena por
    **Premio Acumulado**. Las columnas aleatorias del paso 3 son las mismas.
 6. PacoHH se queda con el **66 % más probable** y con el **66 % más rentable**, y juega las columnas que están en los dos
-   grupos (entre el 33 % y el 67 % del total). En Free1X2: tras el paso 4, selecciona con `⇧` las dos primeras terceras
+   grupos (entre el 33 % y el 67 % del total). En Free1X2: tras el paso 4, selecciona con `Mayús` (en Mac, `⇧`) las dos primeras terceras
    partes de la tabla y **Grabar**; tras el paso 5, lo mismo en otro fichero; luego **Álgebra de columnas** con «Suma
    Combinaciones: selecciona columnas comunes».
 7. Con el **Filtro de selección de filas** puedes hacerlo por importes: por ejemplo, un % de recuperación mínimo.

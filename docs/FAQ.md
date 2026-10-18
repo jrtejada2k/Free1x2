@@ -110,7 +110,7 @@ como garantía.
 ## Premios y rentabilidad
 
 ### ¿Cómo sé si una columna es rentable?
-En la versión Mac, en **Esperanza matemática** (panel lateral, grupo Utilidades): escribe la columna, los porcentajes
+En **Esperanza matemática** (panel lateral, grupo Utilidades): escribe la columna, los porcentajes
 **apostados** (lo que juega la gente) y los **reales** (tu estimación) y pulsa **Calcular**. Verás, de 14 a 10 aciertos, la
 probabilidad, el premio neto medio y la **esperanza matemática**, y el total como % de lo que cuesta la apuesta: por encima
 del 100 %, la columna devuelve de media más de lo que cuesta. Es una media a largo plazo, no una garantía.
@@ -123,7 +123,7 @@ apuestas (recaudación ÷ precio) y con él los acertantes y los premios estimad
 programa.
 
 ### ¿Tengo que escribir los porcentajes uno a uno?
-No. En la versión Mac, todas las tablas de porcentajes (1 / X / 2) tienen el botón **«Pegar desde Excel»**: copia en tu
+No. Todas las tablas de porcentajes (1 / X / 2) tienen el botón **«Pegar desde Excel»**: copia en tu
 hoja las filas (una por partido; pueden llevar delante el nº de partido o los equipos) y púlsalo. Se toman los tres últimos
 números de cada fila, con coma o punto decimal.
 
