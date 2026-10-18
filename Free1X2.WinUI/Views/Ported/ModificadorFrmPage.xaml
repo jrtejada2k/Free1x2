@@ -38,10 +38,17 @@
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
 
-                    <TextBlock
-                        Grid.Row="0"
-                        Text="Partidos"
-                        Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12">
+                        <TextBlock
+                            Text="Partidos"
+                            VerticalAlignment="Center"
+                            Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                        <!-- W15 (DT-92) -->
+                        <Button Content="Pegar desde Excel" Padding="10,3" MinHeight="0" FontSize="12"
+                                Command="{x:Bind ViewModel.PegarDesdeExcelCommand}"
+                                ToolTipService.ToolTip="Copia en Excel las filas de porcentajes (una por partido: 1, X y 2; pueden llevar el partido o los equipos delante) y pulsa aquí."
+                                AutomationProperties.Name="Pegar desde Excel" />
+                    </StackPanel>
 
                     <!-- Cabecera de columnas -->
                     <Grid Grid.Row="1" ColumnSpacing="12" Margin="0,12,0,8">

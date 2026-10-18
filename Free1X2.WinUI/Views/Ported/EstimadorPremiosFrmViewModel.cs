@@ -117,6 +117,10 @@ public partial class EstimadorPremiosFrmViewModel : ObservableObject
             EscrutinioReal.Add(new EscrutinioRealItem { Categoria = cat });
         }
 
+        // W15 (DT-92): el precio de partida es el de Configuración ▸ Parámetros LAE (España: Estimación de premios
+        // lee Jornadas/InfoJornadasLAE.txt), no 0,50 fijo. Sigue siendo editable.
+        PrecioApuesta = ParametrosLAEActuales.Espana().Precio;
+
         // Temporada por defecto según el mes actual (legacy: EstimadorPremiosFrm ctor):
         // mes < 7 -> año-1/año ; en otro caso año/año+1.
         var ahora = DateTime.Now;

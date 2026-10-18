@@ -9,14 +9,21 @@
     <!-- MaxHeight: red de seguridad para que la rejilla nunca empuje la página por
          encima del área visible (~620px). El ScrollViewer interno permite recorrer
          los 14 partidos sin forzar scroll del Page que la hospeda. -->
-    <Grid RowSpacing="4" MaxHeight="260">
+    <Grid RowSpacing="4" MaxHeight="300">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
+        <!-- W15 (DT-92): pegar las filas 1 / X / 2 copiadas de una hoja de cálculo -->
+        <Button Grid.Row="0" Content="Pegar desde Excel" Padding="10,3" MinHeight="0" FontSize="12"
+                Click="PegarDesdeExcel_Click"
+                ToolTipService.ToolTip="Copia en Excel las filas de porcentajes (una por partido: 1, X y 2; pueden llevar el partido o los equipos delante) y pulsa aquí."
+                AutomationProperties.Name="Pegar desde Excel" />
+
         <!-- Cabecera de columnas -->
-        <Grid Grid.Row="0" ColumnSpacing="8" Padding="4,0">
+        <Grid Grid.Row="1" ColumnSpacing="8" Padding="4,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="56" />
                 <ColumnDefinition Width="*" />
@@ -29,7 +36,7 @@
             <TextBlock Grid.Column="3" Text="2" FontWeight="SemiBold" HorizontalAlignment="Center" />
         </Grid>
 
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
             <muxc:ItemsRepeater ItemsSource="{x:Bind Filas, Mode=OneWay}">
                 <muxc:ItemsRepeater.Layout>
                     <muxc:StackLayout Spacing="4" />

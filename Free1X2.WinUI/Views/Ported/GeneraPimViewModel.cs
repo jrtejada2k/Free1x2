@@ -111,6 +111,20 @@ namespace Free1X2.WinUI.Views.Ported
         /// </summary>
         public ObservableCollection<PartidoValores> Partidos { get; } = new();
 
+        // W15 (DT-92): «Pegar desde Excel» rellena los valores 1 / X / 2 de cada partido.
+        [RelayCommand]
+        private async Task PegarDesdeExcel()
+        {
+            var filas = await PegarPorcentajes.LeerAsync(Partidos.Count);
+            if (filas is null) return;
+            for (int i = 0; i < filas.Count && i < Partidos.Count; i++)
+            {
+                Partidos[i].Valor1 = filas[i][0];
+                Partidos[i].ValorX = filas[i][1];
+                Partidos[i].Valor2 = filas[i][2];
+            }
+        }
+
         // ===== Estado interno del motor (campos del form aidomnou) =====
         private readonly double[,] _nvals = new double[14, 3];
         // Límites por defecto del legacy (aidomnou.cfg no se porta; ver GetConfig/SetConfig).

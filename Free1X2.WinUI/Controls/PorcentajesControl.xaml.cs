@@ -30,4 +30,18 @@ public sealed partial class PorcentajesControl : UserControl
         typeof(ObservableCollection<FilaPorcentaje>),
         typeof(PorcentajesControl),
         new PropertyMetadata(null));
+
+    // W15 (DT-92): «Pegar desde Excel» rellena las filas con lo copiado (1, X y 2 por partido).
+    private async void PegarDesdeExcel_Click(object sender, RoutedEventArgs e)
+    {
+        if (Filas is null || Filas.Count == 0) return;
+        var filas = await Services.PegarPorcentajes.LeerAsync(Filas.Count);
+        if (filas is null) return;
+        for (int i = 0; i < filas.Count && i < Filas.Count; i++)
+        {
+            Filas[i].Uno = filas[i][0];
+            Filas[i].Equis = filas[i][1];
+            Filas[i].Dos = filas[i][2];
+        }
+    }
 }

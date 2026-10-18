@@ -77,6 +77,20 @@ namespace Free1X2.WinUI.Views.Ported
         // Legacy: gbPartidos con un ModificadorOptions por partido.
         public ObservableCollection<ModificadorPartido> Partidos { get; } = new();
 
+        // W15 (DT-92): «Pegar desde Excel» rellena los porcentajes 1 / X / 2 de cada partido.
+        [RelayCommand]
+        private async Task PegarDesdeExcel()
+        {
+            var filas = await PegarPorcentajes.LeerAsync(Partidos.Count);
+            if (filas is null) return;
+            for (int i = 0; i < filas.Count && i < Partidos.Count; i++)
+            {
+                Partidos[i].Valor1 = filas[i][0];
+                Partidos[i].ValorX = filas[i][1];
+                Partidos[i].Valor2 = filas[i][2];
+            }
+        }
+
         // Legacy: TextBox 'fichero' (ReadOnly) que muestra el nombre del fichero abierto.
         [ObservableProperty]
         private string _ficheroNombre = "(ningún fichero cargado)";

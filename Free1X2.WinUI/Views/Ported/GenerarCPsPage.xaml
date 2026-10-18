@@ -22,6 +22,11 @@
                     <TextBlock
                         Text="Valoración"
                         Style="{StaticResource SectionHeaderTextBlockStyle}" />
+                    <!-- W15 (DT-92) -->
+                    <Button Content="Pegar desde Excel" Padding="10,3" MinHeight="0" FontSize="12"
+                            Command="{x:Bind ViewModel.PegarDesdeExcelCommand}"
+                            ToolTipService.ToolTip="Copia en Excel las filas de porcentajes (una por partido: 1, X y 2; pueden llevar el partido o los equipos delante) y pulsa aquí."
+                            AutomationProperties.Name="Pegar desde Excel" />
 
                     <!-- Cabecera de columnas -->
                     <Grid>

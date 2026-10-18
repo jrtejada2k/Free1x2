@@ -68,6 +68,20 @@ public partial class GenerarCPsViewModel : ObservableObject
     /// </summary>
     public ObservableCollection<ValoracionPartidoItem> Valoraciones { get; }
 
+    // W15 (DT-92): «Pegar desde Excel» rellena la valoración 1 / X / 2 de cada partido.
+    [RelayCommand]
+    private async Task PegarDesdeExcel()
+    {
+        var filas = await PegarPorcentajes.LeerAsync(Valoraciones.Count);
+        if (filas is null) return;
+        for (int i = 0; i < filas.Count && i < Valoraciones.Count; i++)
+        {
+            Valoraciones[i].Valor1 = filas[i][0];
+            Valoraciones[i].ValorX = filas[i][1];
+            Valoraciones[i].Valor2 = filas[i][2];
+        }
+    }
+
     // Jornada destino. En el legacy era el NumTextBox 'numJornada'.
     [ObservableProperty]
     private double _jornada;
