@@ -460,9 +460,9 @@ final class CajaAnalizador: @unchecked Sendable {
     {
         var hechas: [Hecha] = []
         while !Task.isCancelled {
-            let i = siguiente.withLock {
-                defer { $0 += 1 }
-                return $0
+            let i = siguiente.withLock { n in
+                n += 1
+                return n - 1
             }
             guard i < tareas.count else { break }
             var h = Hecha(indice: i)
