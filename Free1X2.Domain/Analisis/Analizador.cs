@@ -22,6 +22,8 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Runtime.ExceptionServices;
 using Free1X2.EntradaSalida;
 using Free1X2.Utils;
 
@@ -40,7 +42,6 @@ namespace Free1X2.Analisis
         private int[] pot = new int[] { 1, 3, 9, 27, 81, 243, 729, 2187, 6561, 19683, 59049, 177147, 531441, 1594323, 4782969, 14348907, 43046721 };
 
         private int premioMinimo = 10;
-		private short Profundidad;
 
 		private ProbabilidadesPremios probabilidadesPremios;
 		
@@ -109,53 +110,113 @@ namespace Free1X2.Analisis
 			}
 
 			
-			while( comBaseCols.SiguienteColumna() )
+			// #11: la madre se lee y se convierte en orden, en un hilo, como antes: un error de lectura,
+			// de conversión o de índice salta en la misma línea, tras sumar lo de las anteriores.
+			var nums = new List<int>();
+			Exception error = null;
+			try
 			{
-                InicializaTemporales();
-	
-				Num=col.ConvColumnaANumero (comBaseCols.LeeColumnaSinComas());
-				if (Bits[Num])
+				while( comBaseCols.SiguienteColumna() )
+				{
+					Num=col.ConvColumnaANumero (comBaseCols.LeeColumnaSinComas());
+					_ = Bits[Num];
+					nums.Add(Num);
+				}
+			}
+			catch (Exception e)
+			{
+				error = e;
+			}
+
+			// Y cada columna de la madre se busca sola, por tramos en varios núcleos (solo lee Bits).
+			// Se suman enteros: da lo mismo en cualquier orden.
+			int[] tramos = Paralelo.Tramos(nums.Count);
+			var partes = Paralelo.EnParalelo(tramos.Length - 1, k =>
+			{
+				var v = new Vecindad(this);
+				for (int i = tramos[k]; i < tramos[k + 1]; i++) v.Columna(nums[i]);
+				return v;
+			});
+			foreach (var v in partes)
+			{
+				for (int i = 0; i < premios.Length; i++)
+				{
+					premios[i] += v.Premios[i];
+					if (v.Directos[i] != 0) probabilidadesPremios.AddPremioDirecto(i, v.Directos[i]);
+				}
+			}
+			if (error != null) ExceptionDispatchInfo.Capture(error).Throw();
+			noColumnasBase = nums.Count;
+			probabilidadesPremios.NoColsComb = noColumnasHijas;
+			probabilidadesPremios.NoColsCombBase = noColumnasBase;
+		}
+
+		/// <summary>
+		/// Lo que cuenta un tramo de columnas de la madre: sus premios, sus premios directos (una vez por
+		/// columna y categoría) y el estado de la búsqueda de vecinas, que antes eran campos del Analizador.
+		/// </summary>
+		private sealed class Vecindad
+		{
+			private readonly Analizador a;
+			public readonly int[] Premios = new int[17];
+			public readonly int[] Directos = new int[17];
+			private readonly int[] temp = new int[17];
+			private short Profundidad;
+
+			public Vecindad(Analizador a) { this.a = a; }
+
+			public void Columna(int Num)
+			{
+				Array.Clear(temp, 0, temp.Length);
+				if (a.Bits[Num])
 				{
 					ObtenPremios(0);
 				}
 				else
 				{
 					Profundidad=0;
-					EncontrarDistantes1(Num, 0, noPartidosA - premioMinimo);
+					EncontrarDistantes1(Num, 0, a.noPartidosA - a.premioMinimo);
 				}
-				ObtenPremiosDirectos();
-				noColumnasBase++;
-			}
-			probabilidadesPremios.NoColsComb = noColumnasHijas;
-			probabilidadesPremios.NoColsCombBase = noColumnasBase;			
-		}
-
-		private void EncontrarDistantes1(int IndiceInicial, short PosicionInicial,int pProfundidad)
-		{
-			short Partido,z;
-			int SigIni, Indice;
-
-			//--encontramos las apuestas que se diferencian en un solo signo ----
-			Profundidad++;
-			for (Partido = PosicionInicial; Partido<noPartidosA; Partido++)
-			{
-				SigIni = ((IndiceInicial / pot[Partido]) % 3);//signo inicial del partido
-				for (z = 0; z<3; z++)
+				for (int i = 0; i < temp.Length; i++)
 				{
-					if (z == SigIni) continue;
-					Indice = IndiceInicial + pot[Partido] * (z - SigIni);
-					if (Bits[Indice] ) 
-					{
-						ObtenPremios(Profundidad);
-					}
-					else
-					{
-						if (Profundidad < pProfundidad)
-						{EncontrarDistantes1 ( Indice, (short)(Partido + 1), pProfundidad);}
-					}
+					if (temp[i] != 0) Directos[i]++;
 				}
 			}
-			Profundidad--;
+
+			private void ObtenPremios(int diferencias)
+			{
+				Premios[a.noPartidosA - diferencias]++;
+				temp[a.noPartidosA - diferencias]++;
+			}
+
+			private void EncontrarDistantes1(int IndiceInicial, short PosicionInicial,int pProfundidad)
+			{
+				short Partido,z;
+				int SigIni, Indice;
+				int[] pot = a.pot;
+
+				//--encontramos las apuestas que se diferencian en un solo signo ----
+				Profundidad++;
+				for (Partido = PosicionInicial; Partido<a.noPartidosA; Partido++)
+				{
+					SigIni = ((IndiceInicial / pot[Partido]) % 3);//signo inicial del partido
+					for (z = 0; z<3; z++)
+					{
+						if (z == SigIni) continue;
+						Indice = IndiceInicial + pot[Partido] * (z - SigIni);
+						if (a.Bits[Indice] )
+						{
+							ObtenPremios(Profundidad);
+						}
+						else
+						{
+							if (Profundidad < pProfundidad)
+							{EncontrarDistantes1 ( Indice, (short)(Partido + 1), pProfundidad);}
+						}
+					}
+				}
+				Profundidad--;
+			}
 		}
 
 		protected void IteraCols()
