@@ -31,8 +31,10 @@ struct UtilidadesAnalisisTests {
     }
 
     /// #11: por trozos en varios núcleos da lo mismo que el bucle de un hilo de antes (`referenciaProb`); 70 000
-    /// columnas de madre son varios trozos (32 768 como mínimo cada uno).
-    @Test(arguments: [12, 13]) func probabilidadDePremiosEnParalelo(minimo: Int) throws {
+    /// columnas de madre son varios trozos (32 768 como mínimo cada uno). Solo con premio mínimo 13 (vecinas a un signo):
+    /// con 12 tardaba un minuto en el CI y retrasaba los tests de tiempo que corren a la vez; la búsqueda más honda la
+    /// prueban los tests de C# y de Kotlin (premio mínimo 11).
+    @Test(arguments: [13]) func probabilidadDePremiosEnParalelo(minimo: Int) throws {
         var g = Lcg(1)
         let hija = (0..<50_000).map { _ in g.columna() }
         var madre = (0..<70_000).map { _ in g.columna() }

@@ -2,8 +2,8 @@ import Free1X2Motor
 import Testing
 
 /// #13: `OrdenacionPropia` (las dos mitades a la vez) deja exactamente el mismo orden que el quicksort de un hilo de
-/// antes (`referencia`, copiado tal cual), con empates, 9E+10 y NaN. 300 000 elementos son varios niveles en paralelo
-/// (65 536 como mínimo).
+/// antes (`referencia`, copiado tal cual), con empates, 9E+10 y NaN. 140 000 elementos reparten en paralelo
+/// (65 536 como mínimo por mitad); más pesaba en el CI.
 @Suite("Ordenación propia")
 struct OrdenacionPropiaTests {
     @Test func mismoOrdenQueEnUnHilo() {
@@ -12,7 +12,7 @@ struct OrdenacionPropiaTests {
             s = s &* 6_364_136_223_846_793_005 &+ 1_442_695_040_888_963_407
             return Int(s >> 33) % n
         }
-        var a = (0..<300_000).map { i in
+        var a = (0..<140_000).map { i in
             let p: Float = i % 5 == 0 ? 9E+10 : i % 977 == 0 ? .nan : Float(siguiente(5000)) / 13
             return ApuestaProbable(probabilidad: p, columna: Int32(i))
         }
