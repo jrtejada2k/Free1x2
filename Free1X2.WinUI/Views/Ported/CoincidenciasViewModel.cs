@@ -4,9 +4,11 @@ using System.Collections;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Free1X2.Utils;
 using Free1X2.WinUI.Services;
 using Microsoft.UI.Dispatching;
 using Windows.Storage.Pickers;
@@ -544,6 +546,9 @@ public partial class CoincidenciasViewModel : ObservableObject
     }
 
     // Núcleo del bucle de Calcular (legacy), fuera del hilo de UI.
+    // #12: cada columna se valida sola (solo lee _entrada, _condis, _grN, _rks y _limGrN): por tramos en varios
+    // núcleos, cada uno con su radiografía y sus recuentos (Parcial), juntados en orden. Al cancelar, lo hecho es
+    // un tramo seguido desde el principio (los tramos enteros hasta el primero a medias, incluido), como en un hilo.
     private void EjecutarCalcular(DateTime dt0)
     {
         _validas.SetAll(false);
@@ -553,65 +558,98 @@ public partial class CoincidenciasViewModel : ObservableObject
         Array.Clear(_agrabarCOL, 0, _agrabarCOL.Length);
 
         _ctadm = 0;
-        int procesadas = 0;
-        for (int idx = 0; idx < TotalCombinaciones; idx++)
+        int vistas = 0, admitidas = 0; // solo para el progreso
+        int[] tramos = Paralelo.Tramos(TotalCombinaciones);
+        var partes = Paralelo.EnParalelo(tramos.Length - 1, k =>
         {
-            if (_salida) break;
-            if (_entrada[idx])
+            var p = new Parcial();
+            int idx = tramos[k], avisadas = 0;
+            for (; idx < tramos[k + 1]; idx++)
             {
-                string columna = N2S(idx);
-                procesadas++;
-                Valida(columna, idx);
-
-                if ((procesadas & 0xFFF) == 0)
+                if (_salida) break;
+                if (_entrada[idx])
                 {
-                    int procActual = procesadas;
-                    int admActual = _ctadm;
-                    DateTime ahora = DateTime.Now;
-                    // C-25/C-26: antes se tomaba AppServices.UiDispatcher! y se ignoraba el
-                    // retorno de TryEnqueue. Sin hilo de UI (smoke/tests) eso reventaba dentro del
-                    // Task.Run con un NullReferenceException que el catch del llamador mostraba
-                    // como «Error al calcular: Object reference…». UiHilo cubre ambos casos.
-                    UiHilo.Ejecutar(() =>
+                    p.Procesadas++;
+                    Valida(N2S(idx), idx, p);
+
+                    if ((p.Procesadas & 0xFFF) == 0)
                     {
-                        ColumnasProcesadas = procActual.ToString();
-                        ColumnasValidas = admActual.ToString();
-                        Tiempo = FormatearTiempo(ahora - dt0);
-                    }, "CoincidenciasViewModel.Calcular");
+                        int procActual = Interlocked.Add(ref vistas, 0x1000);
+                        int admActual = Interlocked.Add(ref admitidas, p.Validas.Count - avisadas);
+                        avisadas = p.Validas.Count;
+                        DateTime ahora = DateTime.Now;
+                        // C-25/C-26: UiHilo cubre también el caso sin hilo de UI (smoke/tests).
+                        UiHilo.Ejecutar(() =>
+                        {
+                            ColumnasProcesadas = procActual.ToString();
+                            ColumnasValidas = admActual.ToString();
+                            Tiempo = FormatearTiempo(ahora - dt0);
+                        }, "CoincidenciasViewModel.Calcular");
+                    }
                 }
             }
+            p.Completo = idx == tramos[k + 1];
+            return p;
+        });
+
+        int procesadas = 0;
+        foreach (var p in partes)
+        {
+            procesadas += p.Procesadas;
+            foreach (var (idx, nc) in p.Validas)
+            {
+                _validas[idx] = true;
+                _agrabarCOL[idx] = nc;
+            }
+            _ctadm += p.Validas.Count;
+            for (int nr = 0; nr < 109; nr++) { _agrabarAC[nr] += p.AC[nr]; _agrabarGR[nr] += p.GR[nr]; }
+            for (int ng = 0; ng < 100; ng++)
+                for (int nr = 0; nr < 109; nr++) _agrabarAMC[ng, nr] += p.AMC[ng, nr];
+            if (!p.Completo) break;
         }
         _ctproc = procesadas;
     }
 
+    /// <summary>Lo que cuenta un tramo de Calcular (#12): sus válidas, en orden, y sus recuentos.</summary>
+    private sealed class Parcial
+    {
+        public readonly int[] Rsls = new int[108];
+        public readonly bool[] Coin = new bool[108];
+        public readonly int[] AC = new int[109];
+        public readonly int[] GR = new int[109];
+        public readonly int[,] AMC = new int[100, 109];
+        public readonly List<(int Idx, int Nc)> Validas = new();
+        public int Procesadas;
+        public bool Completo;
+    }
+
     // legacy: Valida(string columna)
-    private void Valida(string columna, int idx)
+    private void Valida(string columna, int idx, Parcial p)
     {
         int nc = 0;
-        Calcondis(columna);
-        _coin.SetAll(false);
-        for (int nr = 0; nr < 108; nr++) if (_condis[nr] == _rsls[nr]) _coin[nr] = true;
+        Calcondis(columna, p.Rsls);
+        bool[] coin = p.Coin;
+        for (int nr = 0; nr < 108; nr++) coin[nr] = _condis[nr] == p.Rsls[nr];
         for (int ng = 0; ng < _limGrN; ng++)
         {
             nc = 0;
             for (int nr = 0; nr < 108; nr++)
             {
-                if (_grN[ng, nr] && _coin[nr]) nc++;
+                if (_grN[ng, nr] && coin[nr]) nc++;
             }
             if (!_rks[ng, nc]) return;
         }
-        _validas[idx] = true; _ctadm++;
-        _agrabarCOL[idx] = nc;
-        _agrabarAC[nc]++;
-        for (int nr = 0; nr < 108; nr++) if (_coin[nr]) _agrabarGR[nr + 1]++;
+        p.Validas.Add((idx, nc));
+        p.AC[nc]++;
+        for (int nr = 0; nr < 108; nr++) if (coin[nr]) p.GR[nr + 1]++;
         for (int ng = 0; ng < _limGrN; ng++)
         {
             nc = 0;
             for (int nr = 0; nr < 109; nr++)
             {
-                if (nr < 108 && _grN[ng, nr] && _coin[nr]) nc++;
+                if (nr < 108 && _grN[ng, nr] && coin[nr]) nc++;
             }
-            _agrabarAMC[ng, nc]++;
+            p.AMC[ng, nc]++;
         }
     }
 
@@ -852,14 +890,16 @@ public partial class CoincidenciasViewModel : ObservableObject
     }
 
     // legacy: Calcondis(string col) -> rsls[0..107]
-    private void Calcondis(string col)
+    private void Calcondis(string col) => Calcondis(col, _rsls);
+
+    private static void Calcondis(string col, int[] rsls)
     {
         col = col.Substring(0, 14);
-        for (int nr = 0; nr < 108; nr++) _rsls[nr] = 0;
-        CalVX2(col); CalSS(col); CalDist(col); CalContac(col); CalPN(col); CalInterr(col);
+        for (int nr = 0; nr < 108; nr++) rsls[nr] = 0;
+        CalVX2(col, rsls); CalSS(col, rsls); CalDist(col, rsls); CalContac(col, rsls); CalPN(col, rsls); CalInterr(col, rsls);
     }
 
-    private void CalVX2(string columna)
+    private static void CalVX2(string columna, int[] rsls)
     {
         int nv7p, nx7p, n27p, nv7u, nx7u, n27u;
         char ch;
@@ -878,12 +918,12 @@ public partial class CoincidenciasViewModel : ObservableObject
             else if (ch == '2') { nv7u++; n27u++; }
             else { nv7u++; nx7u++; }
         }
-        _rsls[0] = nv7p + nv7u; _rsls[1] = nx7p + nx7u; _rsls[2] = n27p + n27u;
-        _rsls[3] = nv7p; _rsls[4] = nx7p; _rsls[5] = n27p;
-        _rsls[6] = nv7u; _rsls[7] = nx7u; _rsls[8] = n27u;
+        rsls[0] = nv7p + nv7u; rsls[1] = nx7p + nx7u; rsls[2] = n27p + n27u;
+        rsls[3] = nv7p; rsls[4] = nx7p; rsls[5] = n27p;
+        rsls[6] = nv7u; rsls[7] = nx7u; rsls[8] = n27u;
     }
 
-    private void CalSS(string columna)
+    private static void CalSS(string columna, int[] rsls)
     {
         for (int pas = 0; pas < 3; pas++)
         {
@@ -897,13 +937,13 @@ public partial class CoincidenciasViewModel : ObservableObject
                 if (ch == 'X') { nx++; if (nx > mx) mx = nx; } else nx = 0;
                 if (ch == '2') { nd++; if (nd > md) md = nd; } else nd = 0;
             }
-            if (pas == 0) { _rsls[9] = mv; _rsls[10] = mu; _rsls[11] = mx; _rsls[12] = md; }
-            else if (pas == 1) { _rsls[13] = mv; _rsls[14] = mu; _rsls[15] = mx; _rsls[16] = md; }
-            else { _rsls[17] = mv; _rsls[18] = mu; _rsls[19] = mx; _rsls[20] = md; }
+            if (pas == 0) { rsls[9] = mv; rsls[10] = mu; rsls[11] = mx; rsls[12] = md; }
+            else if (pas == 1) { rsls[13] = mv; rsls[14] = mu; rsls[15] = mx; rsls[16] = md; }
+            else { rsls[17] = mv; rsls[18] = mu; rsls[19] = mx; rsls[20] = md; }
         }
     }
 
-    private void CalDist(string columna)
+    private static void CalDist(string columna, int[] rsls)
     {
         for (int pas = 0; pas < 3; pas++)
         {
@@ -919,13 +959,13 @@ public partial class CoincidenciasViewModel : ObservableObject
             tmp = tmp.Replace('X', '2');
             ant = tmp.IndexOf('2');
             do { act = tmp.IndexOf('2', ant + 1); if (act >= 0) { dv = Math.Max(act - ant, dv); ant = act; } } while (act >= 0);
-            if (pas == 0) { _rsls[21] = dv; _rsls[22] = du; _rsls[23] = dx; _rsls[24] = dd; }
-            else if (pas == 1) { _rsls[25] = dv; _rsls[26] = du; _rsls[27] = dx; _rsls[28] = dd; }
-            else { _rsls[29] = dv; _rsls[30] = du; _rsls[31] = dx; _rsls[32] = dd; }
+            if (pas == 0) { rsls[21] = dv; rsls[22] = du; rsls[23] = dx; rsls[24] = dd; }
+            else if (pas == 1) { rsls[25] = dv; rsls[26] = du; rsls[27] = dx; rsls[28] = dd; }
+            else { rsls[29] = dv; rsls[30] = du; rsls[31] = dx; rsls[32] = dd; }
         }
     }
 
-    private void CalContac(string columna)
+    private static void CalContac(string columna, int[] rsls)
     {
         for (int pas = 0; pas < 3; pas++)
         {
@@ -948,23 +988,23 @@ public partial class CoincidenciasViewModel : ObservableObject
             }
             if (pas == 0)
             {
-                _rsls[33] = n1x; _rsls[34] = n12; _rsls[35] = nx2; _rsls[36] = n11; _rsls[37] = nxx;
-                _rsls[38] = n22; _rsls[39] = n1v; _rsls[40] = nxv; _rsls[41] = n2v; _rsls[42] = nvv;
+                rsls[33] = n1x; rsls[34] = n12; rsls[35] = nx2; rsls[36] = n11; rsls[37] = nxx;
+                rsls[38] = n22; rsls[39] = n1v; rsls[40] = nxv; rsls[41] = n2v; rsls[42] = nvv;
             }
             else if (pas == 1)
             {
-                _rsls[43] = n1x; _rsls[44] = n12; _rsls[45] = nx2; _rsls[46] = n11; _rsls[47] = nxx;
-                _rsls[48] = n22; _rsls[49] = n1v; _rsls[50] = nxv; _rsls[51] = n2v; _rsls[52] = nvv;
+                rsls[43] = n1x; rsls[44] = n12; rsls[45] = nx2; rsls[46] = n11; rsls[47] = nxx;
+                rsls[48] = n22; rsls[49] = n1v; rsls[50] = nxv; rsls[51] = n2v; rsls[52] = nvv;
             }
             else
             {
-                _rsls[53] = n1x; _rsls[54] = n12; _rsls[55] = nx2; _rsls[56] = n11; _rsls[57] = nxx;
-                _rsls[58] = n22; _rsls[59] = n1v; _rsls[60] = nxv; _rsls[61] = n2v; _rsls[62] = nvv;
+                rsls[53] = n1x; rsls[54] = n12; rsls[55] = nx2; rsls[56] = n11; rsls[57] = nxx;
+                rsls[58] = n22; rsls[59] = n1v; rsls[60] = nxv; rsls[61] = n2v; rsls[62] = nvv;
             }
         }
     }
 
-    private void CalPN(string columna)
+    private static void CalPN(string columna, int[] rsls)
     {
         int[] indicesUnos = new[] { 7, 5, 3, 1, 8, 6, 4, 2, 9, 7, 5, 3, 1, 8 };
         int[] indicesEquis = new[] { 5, 1, 6, 2, 7, 3, 8, 4, 9, 5, 1, 6, 2, 7 };
@@ -987,9 +1027,9 @@ public partial class CoincidenciasViewModel : ObservableObject
             int pesoDoses = CalculaPeso(nSuma2);
             int pesoVar = CalculaPeso(pesoEquis + pesoDoses);
             int pesoGlobal = CalculaPeso(pesoVar + pesoUnos);
-            if (pas == 0) { _rsls[63] = pesoGlobal; _rsls[64] = pesoVar; _rsls[65] = pesoUnos; _rsls[66] = pesoEquis; _rsls[67] = pesoDoses; }
-            else if (pas == 1) { _rsls[68] = pesoGlobal; _rsls[69] = pesoVar; _rsls[70] = pesoUnos; _rsls[71] = pesoEquis; _rsls[72] = pesoDoses; }
-            else { _rsls[73] = pesoGlobal; _rsls[74] = pesoVar; _rsls[75] = pesoUnos; _rsls[76] = pesoEquis; _rsls[77] = pesoDoses; }
+            if (pas == 0) { rsls[63] = pesoGlobal; rsls[64] = pesoVar; rsls[65] = pesoUnos; rsls[66] = pesoEquis; rsls[67] = pesoDoses; }
+            else if (pas == 1) { rsls[68] = pesoGlobal; rsls[69] = pesoVar; rsls[70] = pesoUnos; rsls[71] = pesoEquis; rsls[72] = pesoDoses; }
+            else { rsls[73] = pesoGlobal; rsls[74] = pesoVar; rsls[75] = pesoUnos; rsls[76] = pesoEquis; rsls[77] = pesoDoses; }
         }
     }
 
@@ -1003,7 +1043,7 @@ public partial class CoincidenciasViewModel : ObservableObject
         return peso;
     }
 
-    private void CalInterr(string columna)
+    private static void CalInterr(string columna, int[] rsls)
     {
         for (int pas = 0; pas < 3; pas++)
         {
@@ -1052,27 +1092,27 @@ public partial class CoincidenciasViewModel : ObservableObject
             if (nvs > noIntVarSeg) noIntVarSeg = nvs;
             if (pas == 0)
             {
-                _rsls[78] = noIntGlobal; _rsls[93] = noIntGlobalSeg;
-                _rsls[79] = noIntVar; _rsls[94] = noIntVarSeg;
-                _rsls[80] = noInt1; _rsls[95] = noInt1Seg;
-                _rsls[81] = noIntX; _rsls[96] = noIntXSeg;
-                _rsls[82] = noInt2; _rsls[97] = noInt2Seg;
+                rsls[78] = noIntGlobal; rsls[93] = noIntGlobalSeg;
+                rsls[79] = noIntVar; rsls[94] = noIntVarSeg;
+                rsls[80] = noInt1; rsls[95] = noInt1Seg;
+                rsls[81] = noIntX; rsls[96] = noIntXSeg;
+                rsls[82] = noInt2; rsls[97] = noInt2Seg;
             }
             else if (pas == 1)
             {
-                _rsls[83] = noIntGlobal; _rsls[98] = noIntGlobalSeg;
-                _rsls[84] = noIntVar; _rsls[99] = noIntVarSeg;
-                _rsls[85] = noInt1; _rsls[100] = noInt1Seg;
-                _rsls[86] = noIntX; _rsls[101] = noIntXSeg;
-                _rsls[87] = noInt2; _rsls[102] = noInt2Seg;
+                rsls[83] = noIntGlobal; rsls[98] = noIntGlobalSeg;
+                rsls[84] = noIntVar; rsls[99] = noIntVarSeg;
+                rsls[85] = noInt1; rsls[100] = noInt1Seg;
+                rsls[86] = noIntX; rsls[101] = noIntXSeg;
+                rsls[87] = noInt2; rsls[102] = noInt2Seg;
             }
             else
             {
-                _rsls[88] = noIntGlobal; _rsls[103] = noIntGlobalSeg;
-                _rsls[89] = noIntVar; _rsls[104] = noIntVarSeg;
-                _rsls[90] = noInt1; _rsls[105] = noInt1Seg;
-                _rsls[91] = noIntX; _rsls[106] = noIntXSeg;
-                _rsls[92] = noInt2; _rsls[107] = noInt2Seg;
+                rsls[88] = noIntGlobal; rsls[103] = noIntGlobalSeg;
+                rsls[89] = noIntVar; rsls[104] = noIntVarSeg;
+                rsls[90] = noInt1; rsls[105] = noInt1Seg;
+                rsls[91] = noIntX; rsls[106] = noIntXSeg;
+                rsls[92] = noInt2; rsls[107] = noInt2Seg;
             }
         }
     }
