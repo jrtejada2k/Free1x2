@@ -95,7 +95,7 @@ namespace Free1X2.Reduccion
 		{
 			//este método utiliza columnas en formato numerico: un nº entre 0 y 3^14-1)
 			//inicializar datos
-			int nr, nextcol, nv, primera, ultima;
+			int nr, nextcol, primera, ultima;
 
 			Profundidad=0;
 			numExternas=0;
@@ -131,42 +131,77 @@ namespace Free1X2.Reduccion
 			//---------Seleccionamos los reductores-------------------------------------
 			while (true) 
 			{
-				max=0;
-				Rmin=100000;
+				// #10: las tres pasadas de cada vuelta, en varios núcleos por tramos de 'columnas' (solo
+				// leen), con el mismo resultado que en un hilo: el máximo y el mínimo no dependen del
+				// orden; las pobres se dispersan en su orden (DispersaColumnaPobre solo suma en poorN), y
+				// la elegida es la primera con el mayor (pobres, valor), como el bucle.
+				int a=primera, b=ultima;
+				int[] tramosA=Paralelo.Tramos(noColumnasIniciales-a);
+				int[] tramos=Paralelo.Tramos(b-a);
 				int Rmayor = 0;
 				
 				//calculo del valor de reduccion maximo y minimo
-				for (nr=primera; nr<noColumnasIniciales; nr++) 
+				var extremos=Paralelo.EnParalelo<(int mx, int mn)>(tramosA.Length-1, k =>
 				{
-					if(Reducida[(int) columnas[nr]] == false) max=Math.Max (max,flags[(int) columnas[nr]]);
-					if(Reducida[(int) columnas[nr]] == false && flags[(int) columnas[nr]] > 1) Rmin=Math.Min (Rmin,flags[(int) columnas[nr]]);
-				}
+					int mx=0, mn=100000;
+					for (int i=a+tramosA[k]; i<a+tramosA[k+1]; i++)
+					{
+						int v=(int)columnas[i];
+						if (Reducida[v]==false)
+						{
+							mx=Math.Max(mx,flags[v]);
+							if (flags[v]>1) mn=Math.Min(mn,flags[v]);
+						}
+					}
+					return (mx, mn);
+				});
+				max=0;
+				Rmin=100000;
+				foreach (var e in extremos) { max=Math.Max(max,e.mx); Rmin=Math.Min(Rmin,e.mn); }
 				if (max==0) break;
 				// P-21: dispersa desde cada columna POBRE (flags==Rmin, viva) a su vecindario de
 				// Hamming. poorN[v] queda idéntico a n[v] del doble bucle original (vecindad simétrica),
 				// con coste O(pobres × vecindario) por pasada en vez de O(n × vecindario).
-				for (nr=primera; nr<ultima; nr++)
+				// Se buscan en paralelo y se dispersan en un hilo, en su orden.
+				int rmin=Rmin;
+				var pobres=Paralelo.EnParalelo(tramos.Length-1, k =>
 				{
-					int valP=(int)columnas[nr];
-					if (Bits[valP] && Reducida[valP]==false && flags[valP]>1 && flags[valP]==Rmin)
-						DispersaColumnaPobre(valP, 1, (short)(14-nivelReduccion));
-				}
+					var p=new List<int>();
+					for (int i=a+tramos[k]; i<a+tramos[k+1]; i++)
+					{
+						int v=(int)columnas[i];
+						if (Bits[v] && Reducida[v]==false && flags[v]>1 && flags[v]==rmin) p.Add(v);
+					}
+					return p;
+				});
+				foreach (var lista in pobres)
+					foreach (int valP in lista) DispersaColumnaPobre(valP, 1, (short)(14-nivelReduccion));
 				//permitimos que el programa ejecute los eventos correspondientes
 				Free1X2.Abstractions.UiPump.Pump();	
 				if (salida) break;
-				nextcol=(-1); min=(-1);
 
-			    // seleccion de la maxima reductora que elimina a mas columnas pobres
-				for (nr=primera; nr<ultima; nr++) 
+			    // seleccion de la maxima reductora que elimina a mas columnas pobres: en cada tramo, la
+				// primera con el mayor (pobres, valor); se juntan en orden con la misma regla (gana la
+				// mayor y, en empate, la del tramo anterior).
+				int maxV=max;
+				var mejores=Paralelo.EnParalelo<(int col, int nnr, int valor)>(tramos.Length-1, k =>
 				{
-					int val=(int)columnas[nr];
-					nv=flags[val];
-					// n[nr] original = poorN (pobres que reduce) + 1 si su propio flags==max.
-					int nnr = poorN[val] + (flags[val]==max ? 1 : 0);
-					if(Reductora[val]) continue;
-					if (nnr>min) { min=nnr; nextcol=nr; Rmayor=nv;}
-					if (nnr==min && nv>Rmayor) {nextcol=nr; Rmayor=nv;}
-				}
+					int col=-1, mn=-1, mayor=0;
+					for (int i=a+tramos[k]; i<a+tramos[k+1]; i++)
+					{
+						int v=(int)columnas[i];
+						int f=flags[v];
+						// n[nr] original = poorN (pobres que reduce) + 1 si su propio flags==max.
+						int nn=poorN[v] + (f==maxV ? 1 : 0);
+						if (Reductora[v]) continue;
+						if (nn>mn) { mn=nn; col=i; mayor=f; }
+						if (nn==mn && f>mayor) { col=i; mayor=f; }
+					}
+					return (col, mn, mayor);
+				});
+				nextcol=(-1); min=(-1);
+				foreach (var m in mejores)
+					if (m.col>=0 && (m.nnr>min || (m.nnr==min && m.valor>Rmayor))) { nextcol=m.col; min=m.nnr; Rmayor=m.valor; }
 				// P-21: repone a 0 sólo los valores tocados por la dispersión de esta pasada.
 				for (int t=0; t<pobresTocados.Count; t++) poorN[pobresTocados[t]]=0;
 				pobresTocados.Clear();
