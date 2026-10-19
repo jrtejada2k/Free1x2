@@ -108,6 +108,8 @@ namespace Free1X2.Analisis
 				Bits[col.ConvColumnaANumero (comCols.LeeColumnaSinComas())]=true;
 				noColumnasHijas++;
 			}
+			// Cerrado al acabar de leer (antes quedaba abierto hasta el finalizador: en Windows, bloqueado).
+			comCols.Cerrar();
 
 			
 			// #11: la madre se lee y se convierte en orden, en un hilo, como antes: un error de lectura,
@@ -127,6 +129,7 @@ namespace Free1X2.Analisis
 			{
 				error = e;
 			}
+			comBaseCols.Cerrar();
 
 			// Y cada columna de la madre se busca sola, por tramos en varios núcleos (solo lee Bits).
 			// Se suman enteros: da lo mismo en cualquier orden.
