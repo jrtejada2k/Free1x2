@@ -22,7 +22,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
+using System.Runtime.ExceptionServices;
 using Free1X2.EntradaSalida;
+using Free1X2.Utils;
 
 namespace Free1X2.Escrutinio
 {
@@ -36,7 +38,6 @@ namespace Free1X2.Escrutinio
 		private int limiteCol;
 		private bool pararEscrutinio;
 		protected ArrayList listaPremiadas=new ArrayList();
-		private ColumnasPremiadas colPremiada;
 		private int[] premiosAceptados;
 		private int numJornada=1;
 		protected bool añadirAGanadoras;
@@ -123,9 +124,11 @@ namespace Free1X2.Escrutinio
 			//de este metodo para parar el escrutinio
 			pararEscrutinio = false;
 			escrutinioDS = escDS;
-			LeeArchivoTemporada( archivoRef );	
+			LeeArchivoTemporada( archivoRef );
 			premios = null;
-			
+			// #9: el fichero de columnas se lee una vez, no una por ganadora (con 1.000, 1.000 lecturas).
+			Preparadas cols = null;
+
 			for(int i = 0; i < limiteCol; i++)
 			{
 				numJornada=i+1;
@@ -134,7 +137,8 @@ namespace Free1X2.Escrutinio
 					break;
 				}
 				Free1X2.Abstractions.UiPump.Pump();
-				premios = EscrutaColumna( columnas[i] );				
+				cols ??= LeerColumnas();
+				premios = EscrutaColumna( columnas[i], cols );
 				PonerPremios( premios, i+1, columnas[i], archivo);				
 				porJornada?.Invoke(SacarPremiadas());
 			}
@@ -168,66 +172,115 @@ namespace Free1X2.Escrutinio
 			archComb.Cerrar();
 		}	
 		
-		protected int[] EscrutaColumna( string columnaGanadora ) 
+		protected int[] EscrutaColumna( string columnaGanadora )
 		{
-			int[]nc = new int[VariablesGlobales.NumeroPartidos+1]; //numero de aciertos por categoria
-		    int numCol=0;	// Orden de la columna
-            IArchivoColumnas archComb = InicializaArchivoCols(archivoCols);
-			columnaGanadora = columnaGanadora.Replace('x','X');
-            
+			return EscrutaColumna( columnaGanadora, LeerColumnas() );
+		}
 
-			while(archComb.SiguienteColumna() ) 
+		/// <summary>
+		/// Las columnas del fichero (<c>LeeColumnaSinComas</c> con <c>Replace('x','X')</c>) en un solo bloque:
+		/// la i va de Inicios[i] a Inicios[i+1]. Un string por columna eran 4,8 millones de objetos con 14 triples.
+		/// ponytail: todo el fichero en memoria (14 triples: ~140 MB); el tope son unos 140 millones de
+		/// columnas (2^31 signos). Leer por trozos si alguna vez hace falta más.
+		/// </summary>
+		private sealed class Preparadas
+		{
+			public char[] Signos;
+			public int[] Inicios;
+			public int Count => Inicios.Length - 1;
+		}
+
+		private Preparadas LeerColumnas()
+		{
+			IArchivoColumnas archComb = InicializaArchivoCols(archivoCols);
+			var signos = new char[Math.Max(1 << 16, archComb.NumColumnas * 15)];
+			int n = 0;
+			var inicios = new List<int> { 0 };
+			while(archComb.SiguienteColumna() )
 			{
-                int maxSignos;
-				numCol++;
-				string columna = archComb.LeeColumnaSinComas();
-				string colTst = columna.Replace('x','X');	
-				int na = 0;
-                if (columna.Length <= columnaGanadora.Length)
-                {
-                    maxSignos = columna.Length;
-                }
-                else
-                {
-                    maxSignos = columnaGanadora.Length;
-                }
-				for (int nr=0; nr<maxSignos; nr++) 
-				{
-					char ch = columnaGanadora[nr]; 
-					char ch2 = colTst[nr];
-					if (ch == '*' || ch == ch2)
-					{
-						na++;
-					}
-                   
-				}
-
-				if(añadirAGanadoras)
-				{
-					AñadeAGanadoras(colTst, numCol, na);
-				}
-
-				nc[na]++;			
+				string colTst = archComb.LeeColumnaSinComas().Replace('x','X');
+				if (n + colTst.Length > signos.Length) Array.Resize(ref signos, Math.Max(signos.Length * 2, n + colTst.Length));
+				colTst.CopyTo(0, signos, n, colTst.Length);
+				n += colTst.Length;
+				inicios.Add(n);
 			}
-			
 			archComb.Cerrar();
-			return nc;
-		}	
+			return new Preparadas { Signos = signos, Inicios = inicios.ToArray() };
+		}
 
-		private void AñadeAGanadoras(string col, int numCol, int numAciertos)
+		/// <summary>Lo que cuenta un tramo de columnas.</summary>
+		private sealed class Parcial
 		{
-			// Si la columna no está en el rango de premios, se vuelve
-			if(Array.IndexOf(Premios,numAciertos) >= 0)
-			{			
-				colPremiada = new ColumnasPremiadas();
-				colPremiada.Columna = col;
-				colPremiada.Fichero = archivoCols;
-				colPremiada.Jornada = numJornada;
-				colPremiada.NoColumna = numCol;
-				colPremiada.Premio = numAciertos;
-				colPremiada.NoBoleto = ObtenBoleto(numCol);
-				listaPremiadas.Add(colPremiada);
+			public int[] Nc;
+			public List<ColumnasPremiadas> Premiadas;
+			public Exception Error;
+		}
+
+		/// <summary>
+		/// #9: cada tramo de columnas cuenta sus aciertos y apunta sus premiadas por su cuenta, en varios
+		/// núcleos, y se juntan en orden: lo mismo que en un hilo. Un tramo para en su primer error y el
+		/// error salta tras juntar lo de antes, como en un hilo (p. ej. 15 aciertos: fuera de rango).
+		/// </summary>
+		private int[] EscrutaColumna( string columnaGanadora, Preparadas cols )
+		{
+			string g = columnaGanadora.Replace('x','X');
+			int[] tramos = Paralelo.Tramos(cols.Count);
+			var partes = Paralelo.EnParalelo(tramos.Length - 1, k => Contar(tramos[k], tramos[k + 1], cols, g));
+			int[]nc = new int[VariablesGlobales.NumeroPartidos+1]; //numero de aciertos por categoria
+			foreach (var p in partes)
+			{
+				for (int i = 0; i < nc.Length; i++) nc[i] += p.Nc[i];
+				if (p.Premiadas != null) listaPremiadas.AddRange(p.Premiadas);
+				if (p.Error != null) ExceptionDispatchInfo.Capture(p.Error).Throw();
 			}
+			return nc;
+		}
+
+		private Parcial Contar( int desde, int hasta, Preparadas cols, string columnaGanadora )
+		{
+			var p = new Parcial { Nc = new int[VariablesGlobales.NumeroPartidos+1] };
+			if (añadirAGanadoras) p.Premiadas = new List<ColumnasPremiadas>();
+			char[] s = cols.Signos;
+			try
+			{
+				for (int i = desde; i < hasta; i++)
+				{
+					int numCol = i + 1;	// Orden de la columna
+					int a = cols.Inicios[i];
+					int largo = cols.Inicios[i + 1] - a;
+					int maxSignos = largo <= columnaGanadora.Length ? largo : columnaGanadora.Length;
+					int na = 0;
+					for (int nr=0; nr<maxSignos; nr++)
+					{
+						char ch = columnaGanadora[nr];
+						if (ch == '*' || ch == s[a + nr])
+						{
+							na++;
+						}
+					}
+
+					// Si la columna no está en el rango de premios, no se apunta
+					if(añadirAGanadoras && Array.IndexOf(Premios,na) >= 0)
+					{
+						p.Premiadas.Add(new ColumnasPremiadas
+						{
+							Columna = new string(s, a, largo),
+							Fichero = archivoCols,
+							Jornada = numJornada,
+							NoColumna = numCol,
+							Premio = na,
+							NoBoleto = ObtenBoleto(numCol),
+						});
+					}
+
+					p.Nc[na]++;
+				}
+			}
+			catch (Exception e)
+			{
+				p.Error = e;
+			}
+			return p;
 		}
 
 		protected int ObtenBoleto(int numCol)
