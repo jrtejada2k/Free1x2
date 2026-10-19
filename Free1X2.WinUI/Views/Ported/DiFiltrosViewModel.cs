@@ -386,14 +386,29 @@ public partial class DiFiltrosViewModel : ObservableObject
         _tst2 = tmp[2] == '1';
         _tst3 = tmp[3] == '1';
 
-        for (int nc = 0; nc < EspacioColumnas; nc++)
+        // #12: cada posición se valida sola (Valida solo lee _filtro2, _tst* y _mincol): por tramos en varios
+        // núcleos, y las que caen se aplican en orden. Al cancelar, lo hecho es un tramo seguido desde el
+        // principio (los tramos enteros hasta el primero a medias, incluido), como en un hilo.
+        int[] tramos = Paralelo.Tramos(EspacioColumnas);
+        var partes = Paralelo.EnParalelo(tramos.Length - 1, k =>
         {
-            if (_salida) break;
-            if (_validas[nc] && !Valida(nc))
+            var caen = new List<int>();
+            int nc = tramos[k];
+            for (; nc < tramos[k + 1]; nc++)
+            {
+                if (_salida) break;
+                if (_validas[nc] && !Valida(nc)) caen.Add(nc);
+            }
+            return (Caen: caen, Completo: nc == tramos[k + 1]);
+        });
+        foreach (var p in partes)
+        {
+            foreach (int nc in p.Caen)
             {
                 _validas[nc] = false;
                 _ctFR--;
             }
+            if (!p.Completo) break;
         }
         int ctFRFinal = _ctFR;
         UiHilo.Ejecutar(() => fila.Admitidas = ctFRFinal, "DiFiltrosViewModel");
