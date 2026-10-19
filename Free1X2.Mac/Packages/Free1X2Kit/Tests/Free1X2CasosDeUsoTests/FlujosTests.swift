@@ -298,6 +298,41 @@ struct FlujosTests {
         #expect(c.grupos.count == 1)
     }
 
+    /// F07b: con `completa.comb`, añadir un grupo con su propio control y su conjunto y borrarlo deja la combinación
+    /// como estaba y Generar da las mismas columnas. Antes el control seguía apuntando al grupo borrado y Generar fallaba.
+    @Test func f07bEliminarGrupoConSuControl() throws {
+        var original = try ArchivoCombinacion.leer(
+            try Golden.bytes("Fixtures/corpus/comb/completa.comb"), numeroPartidos: 14, cultura: .esES
+        )
+        .combinacion
+        original.ponerPronosticos((0..<14).map { $0 < 8 ? "1,X,2" : "1" })
+        func generar(_ c: Combinacion) throws -> [UInt8] {
+            var texto: [UInt8] = []
+            _ = try MotorCalculo.calcular(c, configuracion: .porDefecto, leerLineas: { _ in [] }) { col throws(ErrorDominio) in
+                texto.append(contentsOf: try UtilColumnas.convLongToStr(col).utf8)
+            }
+            return texto
+        }
+        var c = original
+        let nuevo = c.grupos.count
+        _ = try CasosInicio.cambiarGrupo(&c, a: nuevo)
+        try c.controlesGrupos[0].ponerGruposControlados(original.controlesGrupos[0].textoGruposControlados)
+        var control = ControlGruposConfig()
+        try control.ponerGruposControlados("\(nuevo)")
+        try control.ponerFallosPermitidos("0")
+        c.controlesGrupos.append(control)
+        var conjunto = ControlConjuntosConfig()
+        try conjunto.ponerCtrlGruposControlados("\(c.controlesGrupos.count - 1)")
+        try conjunto.ponerFallosPermitidos("0")
+        c.controlesConjuntos.append(conjunto)
+        _ = try generar(c)
+        #expect(try CasosInicio.eliminarGrupo(&c, nuevo) == nuevo - 1)
+        #expect(c == original)
+        let antes = try generar(original)
+        let despues = try generar(c)
+        #expect(!antes.isEmpty && despues == antes)
+    }
+
     /// F16: «Ver premiadas ▸ Guardar todas» tras el escrutinio de JD-01: las 473 columnas con 10 o más aciertos.
     @Test func f16ColumnasPremiadas() async throws {
         let f = try fichero("Columnas/jd01.txt", Self.seisTriples)

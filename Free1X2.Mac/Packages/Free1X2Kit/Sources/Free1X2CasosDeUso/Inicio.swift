@@ -235,24 +235,48 @@ public enum CasosInicio {
         return d
     }
 
-    /// `EliminarGrupo` (:423-472): borra el grupo, renumera los controles de grupos y va al anterior. `nil` = no hace nada
-    /// (boleto base o un solo grupo).
+    /// `EliminarGrupo` (:423-472): borra el grupo, lo quita de los controles de grupos, renumera los de detrás y va al anterior.
+    /// `nil` = no hace nada (boleto base o un solo grupo).
+    ///
+    /// Arreglo: el C# recorría el texto del control en lugar de sus números (un rango «3-4» son dos trozos para dos
+    /// grupos, pero «2-4» son dos trozos para tres) y no tocaba el control que solo tenía el grupo borrado: ese control seguía
+    /// apuntando a él, así que Generar fallaba («índice fuera del intervalo») o, si había más grupos detrás, usaba otro. Ahora
+    /// se recorren los números; el control que se queda sin grupos se quita (no controla nada) y los conjuntos que lo nombran
+    /// se renumeran igual (el que se queda sin controles también se quita). Los controles y conjuntos sin el grupo borrado ni
+    /// otros detrás se quedan como estaban, con su texto; los fallos permitidos no cambian.
     public static func eliminarGrupo(_ c: inout Combinacion, _ g: Int) throws(ErrorDominio) -> Int? {
         guard g != 0, c.grupos.count > 1 else { return nil }
         try c.borrarGrupo(g)
-        for k in c.controlesGrupos.indices {
-            let partes = c.controlesGrupos[k].textoGruposControlados.split(
-                omittingEmptySubsequences: false, whereSeparator: { $0 == "," || $0 == "-" })
-            let n = c.controlesGrupos[k].gruposControlados
-            var temp = ""
-            for j in partes.indices {
-                guard n.indices.contains(j) else { throw .fueraDeRango("MainPageViewModel.cs:446") }
-                if n[j] > g { temp += "\(n[j] - 1)," } else if n[j] < g { temp += "\(n[j])," }
+        var vacios: [Int] = []
+        for k in c.controlesGrupos.indices where c.controlesGrupos[k].gruposControlados.contains(where: { $0 >= g }) {
+            let quedan = renumerar(c.controlesGrupos[k].gruposControlados, sin: [g])
+            // El control 0 (libres) siempre tiene el grupo 0.
+            if quedan.isEmpty, k > 0 {
+                vacios.append(k)
+            } else {
+                try c.controlesGrupos[k].ponerGruposControlados(quedan.map(String.init).joined(separator: ","))
             }
-            guard temp.utf16.count > 1 else { continue }
-            try c.controlesGrupos[k].ponerGruposControlados(String(temp.dropLast()))
+        }
+        if let primero = vacios.first {
+            for k in vacios.reversed() { c.controlesGrupos.remove(at: k) }
+            var conjuntos: [ControlConjuntosConfig] = []
+            for (k, var conjunto) in c.controlesConjuntos.enumerated() {
+                if conjunto.ctrlGruposControlados.contains(where: { $0 >= primero }) {
+                    let quedan = renumerar(conjunto.ctrlGruposControlados, sin: vacios)
+                    // El conjunto 0 (libres) siempre tiene el control 0.
+                    if quedan.isEmpty, k > 0 { continue }
+                    try conjunto.ponerCtrlGruposControlados(quedan.map(String.init).joined(separator: ","))
+                }
+                conjuntos.append(conjunto)
+            }
+            c.controlesConjuntos = conjuntos
         }
         return try cambiarGrupo(&c, a: g - 1)
+    }
+
+    /// Quita de `lista` los números `borrados` y baja cada uno de los demás tantos puestos como borrados tenga delante.
+    static func renumerar(_ lista: [Int], sin borrados: [Int]) -> [Int] {
+        lista.filter { !borrados.contains($0) }.map { n in n - borrados.filter { $0 < n }.count }
     }
 
     /// `FiltroColumnasAsync` (:498-529): más signos que partidos ⇒ error; si no se puede leer se asigna igual.

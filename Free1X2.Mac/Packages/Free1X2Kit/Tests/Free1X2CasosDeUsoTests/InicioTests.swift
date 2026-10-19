@@ -189,6 +189,34 @@ struct InicioTests {
         #expect(c.grupos.count == 2 && c.controlesGrupos[0].gruposControlados == [0, 1])
     }
 
+    /// Borrar un grupo que nombra Control de grupos. El control que solo lo tenía se quita y los conjuntos se
+    /// renumeran; el rango «2-4» pierde el 2 y baja los otros (el C# perdía el 4 y dejaba el control 1 apuntando al 2).
+    @Test func eliminarGrupoDeLosControles() throws {
+        var c = Combinacion(numeroPartidos: 14)
+        for g in 1...4 { _ = try CasosInicio.cambiarGrupo(&c, a: g) }
+        func control(_ grupos: String, _ fallos: String) throws -> ControlGruposConfig {
+            var x = ControlGruposConfig()
+            try x.ponerGruposControlados(grupos)
+            try x.ponerFallosPermitidos(fallos)
+            return x
+        }
+        func conjunto(_ controles: String, _ fallos: String) throws -> ControlConjuntosConfig {
+            var x = ControlConjuntosConfig()
+            try x.ponerCtrlGruposControlados(controles)
+            try x.ponerFallosPermitidos(fallos)
+            return x
+        }
+        try c.controlesGrupos[0].ponerGruposControlados("0,1")
+        c.controlesGrupos += [try control("2", "0,1"), try control("2-4", "0,1"), try control("3-4", "1")]
+        c.asignarControlesConjuntos([try conjunto("0", "0"), try conjunto("1,3", "0,1"), try conjunto("1", "0")])
+        #expect(try CasosInicio.eliminarGrupo(&c, 2) == 1)
+        #expect(c.grupos.count == 4)
+        #expect(c.controlesGrupos.map(\.gruposControlados) == [[0, 1], [2, 3], [2, 3]])
+        #expect(c.controlesGrupos[0].textoGruposControlados == "0,1" && c.controlesGrupos[2].textoFallosPermitidos == "1")
+        #expect(c.controlesConjuntos.map(\.ctrlGruposControlados) == [[0], [2]])
+        #expect(c.controlesConjuntos[1].textoFallosPermitidos == "0,1" && c.usaControlConjuntos)
+    }
+
     @Test func filtros() throws {
         let url = base.appending(path: "f.txt")
         try entorno.archivos.escribir(Data("1X21X21X21X21X2\r\n".utf8), en: url, atomico: true)
