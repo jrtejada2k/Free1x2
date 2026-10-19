@@ -275,6 +275,9 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
     // C-13: ColeccionUi para volcar cientos/miles de premiadas con un único Reset.
     public ColeccionUi<ColumnaPremiadaItem> Premiadas { get; } = new();
 
+    // #5: la tarjeta lee las premiadas del disco por páginas de 1.000 (pueden ser millones).
+    public PaginasPremiadas PaginasPremiadas { get; }
+
     // Visibilidad de la tarjeta de premiadas (sólo tras VerPremiadas con datos).
     [ObservableProperty]
     private bool _mostrarPremiadas;
@@ -288,8 +291,11 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
     // la colección observable Resultados a través de la propiedad Seleccionado).
     private DataSet? _resultadosDS;
 
-    // Lista de columnas premiadas acumulada en el último escrutinio (legacy: listaPremiadas).
-    private readonly List<ColumnasPremiadas> _listaPremiadas = new();
+    // Columnas premiadas del último escrutinio (legacy: listaPremiadas). #5: en un fichero
+    // temporal y no en memoria (14 triples contra 1.000 ganadoras dan 19 millones); null sin registrar.
+    // ponytail: el temporal se borra al escrutar de nuevo o si el escrutinio falla; el del último
+    // escrutinio queda en %TEMP% al cerrar la app (como en la Mac).
+    private PremiadasEnDisco? _premiadas;
 
     // DataSet con las jornadas del histórico (legacy: dsJornadas, leído de Resultados.txt).
     private DataSet? _dsJornadas;
@@ -307,6 +313,7 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
 
     public EscrutiniosFrmViewModel()
     {
+        PaginasPremiadas = new PaginasPremiadas(Premiadas);
         // Rango por defecto con el nº real de partidos (legacy ctor: "10-" + NumeroPartidos).
         RangoAciertos = "10-" + Free1X2.VariablesGlobales.NumeroPartidos;
         // Genera las casillas por partido (legacy ctor: GenerarCasillasPartidos()), todas a "*".
@@ -544,11 +551,12 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
         Estado = "Calculando...";
         Resultados.Clear();
         Histograma.Clear();
-        Premiadas.Clear();
+        PaginasPremiadas.Cargar(null);
         MostrarPremiadas = false;
         PuedeVerPremiadas = false;
         HayResultados = false;
-        _listaPremiadas.Clear();
+        _premiadas?.Borrar();
+        _premiadas = null;
 
         var hora0 = DateTime.Now;
 
@@ -563,7 +571,8 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
             var salida = await Task.Run(() =>
             {
                 int[] globales = new int[Free1X2.VariablesGlobales.NumeroPartidos + 1];
-                var premiadas = new List<ColumnasPremiadas>();
+                // #5: las premiadas van al fichero temporal según salen; si algo falla, se borra.
+                using var escritor = verPremiadas ? new EscritorPremiadas() : null;
                 // El Escrutador escribe filas en la tabla "Resultados" vía PonerPremios; hay que
                 // crear su esquema ANTES de escrutar (réplica de EscrutiniosFrm.InicializaResultadosDataSet).
                 // Sin esto, Tables["Resultados"] es null y PonerPremios lanza NullReferenceException
@@ -575,7 +584,7 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
                 {
                     // ===== Rama tipoEscrutinio==3 de RealizaEscrutinio (escrutinio contra jornadas) =====
                     EscrutarContraJornadas(resultadosDS, colAciertos, verPremiadas, plantilla,
-                        carpeta, dt, dj, temporadasSel, globales, premiadas, ref ultimo);
+                        carpeta, dt, dj, temporadasSel, globales, escritor, ref ultimo);
                 }
                 else
                 {
@@ -592,14 +601,11 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
 
                         if (tipo == 1)
                             escrutador.EscrutaCombConColumna(colGan, resultadosDS, Path.GetFileName(archivo));
-                        else // tipo == 2
-                            escrutador.EscrutaCombConTemporada(archivoRef, resultadosDS, Path.GetFileName(archivo));
+                        else // tipo == 2: las premiadas de cada ganadora, al disco según salen (#5).
+                            escrutador.EscrutaCombConTemporada(archivoRef, resultadosDS, Path.GetFileName(archivo),
+                                escritor is null ? null : new Action<System.Collections.ArrayList>(escritor.Anadir));
 
-                        if (verPremiadas)
-                        {
-                            foreach (var p in escrutador.ListaPremiadas)
-                                premiadas.Add((ColumnasPremiadas)p);
-                        }
+                        escritor?.Anadir(escrutador.SacarPremiadas());
 
                         int[] premios = escrutador.PremiosTotales;
                         for (int i = 0; i <= Free1X2.VariablesGlobales.NumeroPartidos; i++)
@@ -611,12 +617,12 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
                 // Legacy: escrutador.AñadirPremiosGlobales(premiosGlobales) — fila resumen "TOTALES".
                 ultimo?.AñadirPremiosGlobales(globales);
 
-                return (globales, resultadosDS, premiadas);
+                return (globales, resultadosDS, premiadas: escritor?.Cerrar());
             });
 
             int[] premiosGlobales = salida.globales;
             _resultadosDS = salida.resultadosDS;
-            _listaPremiadas.AddRange(salida.premiadas);
+            _premiadas = salida.premiadas;
 
             // Proyecta las filas del DataSet a la colección observable (legacy: dgResultados).
             ProyectarResultados(colAciertos);
@@ -632,7 +638,7 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
             }
 
             HayResultados = Resultados.Count > 0;
-            PuedeVerPremiadas = verPremiadas && _listaPremiadas.Count > 0;
+            PuedeVerPremiadas = verPremiadas && (_premiadas?.Total ?? 0) > 0;
         }
         catch (Exception ex)
         {
@@ -659,7 +665,7 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
     private void EscrutarContraJornadas(
         DataSet resultadosDS, int[] colAciertos, bool verPremiadas, string plantilla,
         string carpeta, int dt, int dj, List<int> temporadasSel,
-        int[] premiosGlobales, List<ColumnasPremiadas> premiadas, ref Escrutador? ultimo)
+        int[] premiosGlobales, EscritorPremiadas? escritor, ref Escrutador? ultimo)
     {
         if (_dsJornadas is null || _dsJornadas.Tables.Count == 0) return;
 
@@ -738,11 +744,7 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
             _escrutadorActual = escrutador;
             escrutador.EscrutaCombConColumna(colGanJornada, resultadosDS, Path.GetFileName(archivo));
 
-            if (verPremiadas)
-            {
-                foreach (var p in escrutador.ListaPremiadas)
-                    premiadas.Add((ColumnasPremiadas)p);
-            }
+            escritor?.Anadir(escrutador.SacarPremiadas());
 
             int[] premios = escrutador.PremiosTotales;
             for (int i = 0; i <= Free1X2.VariablesGlobales.NumeroPartidos; i++)
@@ -919,24 +921,8 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
     [RelayCommand]
     private void VerPremiadas()
     {
-        // C-13: se construye la lista completa y se vuelca con un único Reset (mismo orden).
-        var filas = new List<ColumnaPremiadaItem>(_listaPremiadas.Count);
-        foreach (var p in _listaPremiadas)
-        {
-            // Legacy: NoBoleto + " (" + orden + ")", con orden = NoColumna % 8 (8 si 0).
-            int orden = p.NoColumna % 8;
-            if (orden == 0) orden = 8;
-            filas.Add(new ColumnaPremiadaItem
-            {
-                ArchivoColumnas = Path.GetFileName(p.Fichero),
-                Jornada = p.Jornada.ToString(),
-                Columna = p.Columna,
-                Premio = p.Premio.ToString(),
-                NumeroColumna = p.NoColumna.ToString(),
-                NumeroBoleto = p.NoBoleto + " (" + orden + ")",
-            });
-        }
-        Premiadas.ReemplazarTodo(filas);
+        // #5: la primera página de 1.000; «Anterior» / «Siguiente» leen las demás del disco.
+        PaginasPremiadas.Cargar(_premiadas);
         MostrarPremiadas = true;
     }
 
@@ -950,24 +936,8 @@ public partial class EscrutiniosFrmViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(PuedeVerPremiadas))]
     private void VerPremiadasEnVentana()
     {
-        var filas = new List<ColumnaPremiadaItem>();
-        foreach (var p in _listaPremiadas)
-        {
-            // Legacy: NoBoleto + " (" + orden + ")", con orden = NoColumna % 8 (8 si 0).
-            int orden = p.NoColumna % 8;
-            if (orden == 0) orden = 8;
-            filas.Add(new ColumnaPremiadaItem
-            {
-                ArchivoColumnas = Path.GetFileName(p.Fichero),
-                Jornada = p.Jornada.ToString(),
-                Columna = p.Columna,
-                Premio = p.Premio.ToString(),
-                NumeroColumna = p.NoColumna.ToString(),
-                NumeroBoleto = p.NoBoleto + " (" + orden + ")",
-            });
-        }
-
-        ColumnasPremiadasFrmPage.Entrada = filas;
+        // #5: se pasan las del disco; la página las muestra por páginas.
+        ColumnasPremiadasFrmPage.EntradaEnDisco = _premiadas;
         Navegar?.Invoke(typeof(ColumnasPremiadasFrmPage), null);
     }
 

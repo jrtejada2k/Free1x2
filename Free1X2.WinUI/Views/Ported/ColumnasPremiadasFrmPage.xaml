@@ -104,6 +104,27 @@
             </Grid>
         </Border>
 
+        <!-- #5: las premiadas de Escrutinios, por páginas de 1.000 -->
+        <StackPanel
+            Grid.Row="2"
+            Orientation="Horizontal"
+            Spacing="8"
+            HorizontalAlignment="Left"
+            Margin="0,8,0,0"
+            Visibility="{x:Bind ViewModel.Paginas.VariasPaginas, Mode=OneWay}">
+            <Button
+                Content="Anterior"
+                Command="{x:Bind ViewModel.Paginas.AnteriorCommand}"
+                AutomationProperties.Name="Página anterior de columnas premiadas" />
+            <TextBlock
+                VerticalAlignment="Center"
+                Text="{x:Bind ViewModel.Paginas.Texto, Mode=OneWay}"
+                Foreground="{ThemeResource AppTextBrush}" />
+            <Button
+                Content="Siguiente"
+                Command="{x:Bind ViewModel.Paginas.SiguienteCommand}"
+                AutomationProperties.Name="Página siguiente de columnas premiadas" />
+        </StackPanel>
         <!-- Acciones (legacy btnGuardarTodas / btnGuardarSeleccionadas) -->
         <StackPanel
             Grid.Row="2"

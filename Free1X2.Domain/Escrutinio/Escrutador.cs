@@ -114,7 +114,10 @@ namespace Free1X2.Escrutinio
 			}
 		}
 		
-		public void EscrutaCombConTemporada( string archivoRef, DataSet escDS, string archivo )
+		/// <param name="porJornada">#5: recibe las premiadas de cada ganadora, que salen de la lista,
+		/// para llevarlas a disco (contra 1.000 ganadoras, 14 triples dan 19 millones). Sin él, todo
+		/// sigue como antes.</param>
+		public void EscrutaCombConTemporada( string archivoRef, DataSet escDS, string archivo, Action<ArrayList> porJornada = null )
 		{
 			//esta variable pararEscrutinio se puede poner a true desde fuera 
 			//de este metodo para parar el escrutinio
@@ -133,7 +136,16 @@ namespace Free1X2.Escrutinio
 				Free1X2.Abstractions.UiPump.Pump();
 				premios = EscrutaColumna( columnas[i] );				
 				PonerPremios( premios, i+1, columnas[i], archivo);				
+				porJornada?.Invoke(SacarPremiadas());
 			}
+		}
+
+		/// <summary>Devuelve las premiadas acumuladas y vacía la lista (#5).</summary>
+		public ArrayList SacarPremiadas()
+		{
+			ArrayList p = listaPremiadas;
+			listaPremiadas = new ArrayList();
+			return p;
 		}
 		
 		protected void LeeArchivoTemporada( string archivoRef )

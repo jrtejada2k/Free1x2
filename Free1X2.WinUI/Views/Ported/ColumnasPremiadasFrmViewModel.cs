@@ -3,10 +3,13 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+
+using Free1X2.Escrutinio;
 
 using Windows.Storage;
 using Windows.Storage.Pickers;
@@ -37,6 +40,99 @@ public sealed class ColumnaPremiadaItem
 
     /// <summary>Número de boleto (legacy: columnHeader6 "Nº Boleto").</summary>
     public string NumeroBoleto { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Posición de la premiada en el escrutinio (#5): con las premiadas por páginas, la selección
+    /// va por ella para que siga al cambiar de página.
+    /// </summary>
+    public int Posicion { get; set; }
+
+    /// <summary>Fila de una premiada del escrutinio (legacy: listaResumen.Items.Add en EscrutiniosFrm).</summary>
+    public static ColumnaPremiadaItem De(ColumnasPremiadas p, int posicion)
+    {
+        // Legacy: NoBoleto + " (" + orden + ")", con orden = NoColumna % 8 (8 si 0).
+        int orden = p.NoColumna % 8;
+        if (orden == 0) orden = 8;
+        return new ColumnaPremiadaItem
+        {
+            ArchivoColumnas = Path.GetFileName(p.Fichero),
+            Jornada = p.Jornada.ToString(),
+            Columna = p.Columna,
+            Premio = p.Premio.ToString(),
+            NumeroColumna = p.NoColumna.ToString(),
+            NumeroBoleto = p.NoBoleto + " (" + orden + ")",
+            Posicion = posicion,
+        };
+    }
+}
+
+/// <summary>
+/// Las premiadas de un escrutinio, leídas del disco por páginas de 1.000 (pueden ser millones, #5),
+/// para la tarjeta de Escrutinios y para «Columnas Premiadas». Vuelca cada página en <c>filas</c>.
+/// </summary>
+public sealed partial class PaginasPremiadas : ObservableObject
+{
+    private readonly ColeccionUi<ColumnaPremiadaItem> _filas;
+    private int _pagina;
+
+    public PaginasPremiadas(ColeccionUi<ColumnaPremiadaItem> filas) => _filas = filas;
+
+    /// <summary>Antes de cambiar de página: para guardar la selección de la que se deja.</summary>
+    public event Action? Cambiando;
+
+    /// <summary>Con la página nueva ya en las filas.</summary>
+    public event Action? Cargada;
+
+    public PremiadasEnDisco? Premiadas { get; private set; }
+
+    public bool VariasPaginas => (Premiadas?.Paginas ?? 0) > 1;
+
+    public string Texto => Premiadas is null ? string.Empty : $"Página {_pagina + 1} de {Premiadas.Paginas}";
+
+    /// <summary>Muestra la primera página de <paramref name="premiadas"/> (nada con <c>null</c>).</summary>
+    public void Cargar(PremiadasEnDisco? premiadas)
+    {
+        Premiadas = premiadas;
+        OnPropertyChanged(nameof(VariasPaginas));
+        Ir(0);
+    }
+
+    private bool HayAnterior() => _pagina > 0;
+
+    private bool HaySiguiente() => Premiadas is not null && _pagina + 1 < Premiadas.Paginas;
+
+    [RelayCommand(CanExecute = nameof(HayAnterior))]
+    private void Anterior() => Ir(_pagina - 1);
+
+    [RelayCommand(CanExecute = nameof(HaySiguiente))]
+    private void Siguiente() => Ir(_pagina + 1);
+
+    private void Ir(int pagina)
+    {
+        Cambiando?.Invoke();
+        _pagina = pagina;
+        OnPropertyChanged(nameof(Texto));
+        AnteriorCommand.NotifyCanExecuteChanged();
+        SiguienteCommand.NotifyCanExecuteChanged();
+        var filas = new List<ColumnaPremiadaItem>();
+        if (Premiadas is { } p)
+        {
+            try
+            {
+                int primera = pagina * PremiadasEnDisco.PorPagina;
+                var premiadas = p.Pagina(pagina);
+                for (int i = 0; i < premiadas.Count; i++) filas.Add(ColumnaPremiadaItem.De(premiadas[i], primera + i));
+            }
+            catch (Exception ex)
+            {
+                Services.Log.Error("PaginasPremiadas.Ir [" + p.Ruta + "]", ex);
+                Services.AppServices.MostrarError("No se pudieron leer las premiadas: " + ex.Message);
+            }
+        }
+        // C-13: un único Reset por página.
+        _filas.ReemplazarTodo(filas);
+        Cargada?.Invoke();
+    }
 }
 
 /// <summary>
@@ -58,10 +154,22 @@ public partial class ColumnasPremiadasFrmViewModel : ObservableObject
     /// Exporta TODAS las columnas del listado a un fichero de texto
     /// (legacy: btnGuardarTodas_Click).
     /// </summary>
+    /// <summary>Las premiadas del escrutinio por páginas (#5); sin cargar si vienen en una lista.</summary>
+    public PaginasPremiadas Paginas { get; }
+
+    public ColumnasPremiadasFrmViewModel()
+    {
+        Paginas = new PaginasPremiadas(Columnas);
+    }
+
     [RelayCommand]
     private async Task GuardarTodasAsync()
     {
-        await GuardarAsync(Columnas);
+        // #5: las del escrutinio se leen del disco página a página.
+        if (Paginas.Premiadas is { } p)
+            await GuardarAsync(p.Total, p.Columnas);
+        else
+            await GuardarAsync(Columnas.Count, () => Columnas.Select(f => f.Columna));
     }
 
     /// <summary>
@@ -76,7 +184,33 @@ public partial class ColumnasPremiadasFrmViewModel : ObservableObject
     /// </remarks>
     public Task GuardarSeleccionadasAsync(IReadOnlyList<ColumnaPremiadaItem> seleccionadas)
     {
-        return GuardarAsync(seleccionadas);
+        return GuardarAsync(seleccionadas.Count, () => seleccionadas.Select(f => f.Columna));
+    }
+
+    /// <summary>
+    /// #5: las seleccionadas de las premiadas en disco, por su posición en el escrutinio y en ese
+    /// orden, leyendo solo sus páginas.
+    /// </summary>
+    public Task GuardarSeleccionadasAsync(PremiadasEnDisco premiadas, IEnumerable<int> posiciones)
+    {
+        var orden = posiciones.OrderBy(i => i).ToList();
+        return GuardarAsync(orden.Count, () => Seleccionadas(premiadas, orden));
+    }
+
+    private static IEnumerable<string> Seleccionadas(PremiadasEnDisco premiadas, List<int> orden)
+    {
+        int cargada = -1;
+        List<ColumnasPremiadas> filas = new();
+        foreach (int i in orden)
+        {
+            int pagina = i / PremiadasEnDisco.PorPagina;
+            if (pagina != cargada)
+            {
+                filas = premiadas.Pagina(pagina);
+                cargada = pagina;
+            }
+            yield return filas[i % PremiadasEnDisco.PorPagina].Columna;
+        }
     }
 
     /// <summary>
@@ -84,9 +218,9 @@ public partial class ColumnasPremiadasFrmViewModel : ObservableObject
     /// Legacy: SaveFileDialog filtro "Columnas(*.txt)|*.txt|Todos los archivos (*.*)|*.*",
     /// StreamWriter -> writer.WriteLine(item.SubItems[2].Text) por fila.
     /// </summary>
-    private static async Task GuardarAsync(IReadOnlyList<ColumnaPremiadaItem> filas)
+    private static async Task GuardarAsync(int cuantas, Func<IEnumerable<string>> columnas)
     {
-        if (filas is null || filas.Count == 0)
+        if (cuantas == 0)
         {
             Services.AppServices.MostrarInfo("No hay columnas que guardar.");
             return;
@@ -105,13 +239,13 @@ public partial class ColumnasPremiadasFrmViewModel : ObservableObject
             await Task.Run(() =>
             {
                 using var writer = new StreamWriter(file.Path);
-                foreach (var fila in filas)
+                foreach (string columna in columnas())
                 {
-                    writer.WriteLine(fila.Columna);
+                    writer.WriteLine(columna);
                 }
             });
 
-            Services.AppServices.MostrarInfo($"Guardadas {filas.Count} columna(s) en {file.Name}.");
+            Services.AppServices.MostrarInfo($"Guardadas {cuantas} columna(s) en {file.Name}.");
         }
         catch (Exception ex)
         {
