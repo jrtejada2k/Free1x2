@@ -30,6 +30,63 @@ struct UtilidadesAnalisisTests {
         }
     }
 
+    /// #11: por trozos en varios núcleos da lo mismo que el bucle de un hilo de antes (`referenciaProb`); 70 000
+    /// columnas de madre son varios trozos (32 768 como mínimo cada uno).
+    @Test(arguments: [12, 13]) func probabilidadDePremiosEnParalelo(minimo: Int) throws {
+        var g = Lcg(1)
+        let hija = (0..<50_000).map { _ in g.columna() }
+        var madre = (0..<70_000).map { _ in g.columna() }
+        for i in stride(from: 0, to: madre.count, by: 97) { madre[i] = hija[i % hija.count] }
+        let r = try ProbabilidadPremios.comparar(madre: madre, hija: hija, premioMinimo: minimo)
+        let esperados = Self.referenciaProb(madre, hija, minimo)
+        #expect(esperados[14] > 0 && esperados[minimo] > esperados[14])
+        #expect(r.premios == esperados)
+        #expect(r.noColumnasBase == madre.count)
+    }
+
+    struct Lcg {
+        var s: UInt64
+        init(_ s: UInt64) { self.s = s }
+        mutating func columna() -> String {
+            var c = ""
+            for _ in 0..<14 {
+                s = s &* 6_364_136_223_846_793_005 &+ 1_442_695_040_888_963_407
+                c.append(["1", "X", "2"][Int(s >> 33) % 3])
+            }
+            return c
+        }
+    }
+
+    /// `ComparaCombinaciones` de un hilo, como antes de #11.
+    static func referenciaProb(_ madre: [String], _ hija: [String], _ minimo: Int) -> [Int] {
+        let pot = (0...14).map { Int(pow(3.0, Double($0))) }
+        func num(_ s: String) -> Int {
+            var b = 0
+            for (i, c) in s.enumerated() { b += c == "1" ? 0 : c == "2" ? 2 * pot[i] : pot[i] }
+            return b
+        }
+        var bits = [Bool](repeating: false, count: pot[14])
+        for h in hija { bits[num(h)] = true }
+        var premios = [Int](repeating: 0, count: 17)
+        var temp = premios
+        func distantes(_ idx: Int, _ desde: Int, _ nivel: Int) {
+            for p in desde..<14 {
+                let s = idx / pot[p] % 3
+                for z in 0..<3 where z != s {
+                    let j = idx + pot[p] * (z - s)
+                    if bits[j] { temp[14 - nivel] += 1 } else if nivel < 14 - minimo { distantes(j, p + 1, nivel + 1) }
+                }
+            }
+        }
+        for m in madre {
+            temp = [Int](repeating: 0, count: 17)
+            let n = num(m)
+            if bits[n] { temp[14] += 1 } else { distantes(n, 0, 1) }
+            for i in 0..<17 where temp[i] != 0 { premios[i] += 1 }
+        }
+        return premios
+    }
+
     /// 06 §2.8: `Math.Round(premio + 0.005, 2)`; 0 acertantes ⇒ ∞; jornada `"7"` ⇒ `"07"`.
     @Test func premiosLAE() throws {
         var config = ConfigLAE()

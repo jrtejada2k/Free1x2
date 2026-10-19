@@ -48,8 +48,30 @@ public enum ProbabilidadPremios {
             guard bits.indices.contains(k) else { throw .fueraDeRango(o) }
             bits[k] = true
         }
-        var temp = [Int](repeating: 0, count: 17)
+        // #11: la madre se convierte en orden, como antes (el primer error salta en la misma línea), y cada columna se
+        // busca sola (solo lee `bits`) por trozos en varios núcleos. Se suman enteros: lo mismo en cualquier orden.
+        var nums: [Int] = []
+        nums.reserveCapacity(madre.count)
+        for l in madre {
+            let num = Int(try conv.numero(l))
+            guard bits.indices.contains(num) else { throw .fueraDeRango(o) }
+            nums.append(num)
+        }
         let profundidad = a - premioMinimo
+        let (columnas, mapa) = (nums, bits)
+        let trozos = trozosParalelos(columnas.count)
+        let parciales = enParalelo(trozos.count) { t in contar(columnas[trozos[t]], mapa, a, profundidad) }
+        for p in parciales { for i in 0..<17 { r.premios[i] += p[i] } }
+        r.noColumnasBase = nums.count
+        r.noColumnasComb = hija.count
+        r.calculaProbabilidades()
+        return r
+    }
+
+    /// Lo que cuenta un trozo de la madre: por categoría, cuántas de sus columnas tienen alguna hija en ella.
+    private static func contar(_ cols: ArraySlice<Int>, _ bits: [Bool], _ a: Int, _ profundidad: Int) -> [Int] {
+        var premios = [Int](repeating: 0, count: 17)
+        var temp = [Int](repeating: 0, count: 17)
         /// `EncontrarDistantes1` (:133-159).
         func distantes(_ idx: Int, _ desde: Int, _ nivel: Int) {
             for partido in stride(from: desde, to: a, by: 1) {
@@ -65,16 +87,11 @@ public enum ProbabilidadPremios {
                 }
             }
         }
-        for l in madre {
+        for num in cols {
             for i in temp.indices { temp[i] = 0 }
-            let num = Int(try conv.numero(l))
-            guard bits.indices.contains(num) else { throw .fueraDeRango(o) }
             if bits[num] { temp[a] += 1 } else { distantes(num, 0, 1) }
-            for i in 0..<17 where temp[i] != 0 { r.premios[i] += 1 }
-            r.noColumnasBase += 1
+            for i in 0..<17 where temp[i] != 0 { premios[i] += 1 }
         }
-        r.noColumnasComb = hija.count
-        r.calculaProbabilidades()
-        return r
+        return premios
     }
 }
