@@ -93,23 +93,41 @@ namespace Free1X2.Reduccion
 			primera=0;
 			ultima = noColumnasIniciales+numExternas;
 			//---------Seleccionamos los reductores-------------------------------------
+			// #7: antes se recorrían todas las columnas en cada elección para tomar la primera con el
+			// valor más alto. En esta fase los valores de las vivas solo bajan (MarcarReducidas y
+			// CalculaLasQueReduce con -1), así que ninguna anterior a la última elegida puede tener ese
+			// valor: se sigue buscando desde ella y solo hace falta otra pasada completa cuando el valor
+			// se agota. Misma elección, con una pasada por valor distinto (unas 400) y no una por
+			// columna elegida (44.321 con 14 triples a nivel 12).
+			int desde=0;
 			while (true) 
 			{
 				//permitimos que el programa ejecute los eventos correspondientes
 				Free1X2.Abstractions.UiPump.Pump();	
 				if (salida) break;
-				nextcol=(-1); min=(-1);
+				nextcol=(-1);
 
-			    // seleccion de la maxima reductora. 0 es posible
-				for (nr=primera; nr<ultima; nr++) 
+				// la siguiente con el mismo máximo, desde la última elegida
+				if (max>=0)
 				{
-					nv=flags[(int)columnas[nr]];
-					if (nv>20000000) continue;
-					if (nv==max && nr<noColumnasIniciales) {min=nv; nextcol=nr; break;}
-					if (nv>min) { min=nv; nextcol=nr;}
+					for (nr=System.Math.Max(desde, primera); nr<ultima; nr++)
+					{
+						if (flags[(int)columnas[nr]]==max) {nextcol=nr; break;}
+					}
 				}
-				if (nextcol<0) break;
-				max=min;
+				if (nextcol<0)
+				{
+				    // se agotó: pasada completa, seleccion de la maxima reductora. 0 es posible
+					min=(-1);
+					for (nr=primera; nr<ultima; nr++) 
+					{
+						nv=flags[(int)columnas[nr]];
+						if (nv<=20000000 && nv>min) { min=nv; nextcol=nr;}
+					}
+					if (nextcol<0) break;
+					max=min;
+				}
+				desde=nextcol;
 				
 				//estrechamos el intervalo para rebajar el tiempo de búsqueda
 				while (flags[(int)columnas[primera]]>20000000)
