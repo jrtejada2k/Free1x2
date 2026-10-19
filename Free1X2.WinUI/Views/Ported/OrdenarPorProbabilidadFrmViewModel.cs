@@ -704,28 +704,8 @@ public partial class OrdenarPorProbabilidadFrmViewModel : ObservableObject
     }
 
     // OrdenarPorProbabilidadFrm.cs 1378-1399.
-    private void ordena(int izq, int der)
-    {
-        int i = 0, j = 0;
-        ApuestaProbableCentral x = new ApuestaProbableCentral();
-        ApuestaProbableCentral aux = new ApuestaProbableCentral();
-        i = izq; j = der;
-        x = Ap14T[(izq + der) / 2];
-        do
-        {
-            while (Ap14T[i].ProbabilidadDiferencial < x.ProbabilidadDiferencial && j <= der) i++;
-            while (x.ProbabilidadDiferencial < Ap14T[j].ProbabilidadDiferencial && j > izq) j--;
-            if (i <= j)
-            {
-                aux = Ap14T[i];
-                Ap14T[i] = Ap14T[j];
-                Ap14T[j] = aux;
-                i++; j--;
-            }
-        } while (i <= j);
-        if (izq < j) ordena(izq, j);
-        if (i < der) ordena(i, der);
-    }
+    // #13: el mismo quicksort, con las dos mitades de cada partición a la vez (mismo orden).
+    private void ordena(int izq, int der) => OrdenacionPropia.Ordenar<ApuestaProbableCentral, PorProbabilidadDiferencial>(Ap14T, izq, der);
 
     // OrdenarPorProbabilidadFrm.cs 1401-1460.
     private void GrabacionColumnas()

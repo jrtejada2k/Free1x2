@@ -372,36 +372,8 @@ public partial class RentabilidadFrmViewModel : ObservableObject
     }
 
     // RentabilidadFrm.cs 1078-1107.
-    private void ordena(int izq, int der)
-    {
-        int i = 0, j = 0;
-        ApuestaProbable x = new ApuestaProbable();
-        ApuestaProbable aux = new ApuestaProbable();
-        i = izq;
-        j = der;
-        x = Ap14T[(izq + der) / 2];
-
-        do
-        {
-            while ((Ap14T[i].Probabilidad < x.Probabilidad) && (j <= der))
-            {
-                i++;
-            }
-            while ((x.Probabilidad < Ap14T[j].Probabilidad) && (j > izq))
-            {
-                j--;
-            }
-            if (i <= j)
-            {
-                aux = Ap14T[i];
-                Ap14T[i] = Ap14T[j];
-                Ap14T[j] = aux;
-                i++; j--;
-            }
-        } while (i <= j);
-        if (izq < j) ordena(izq, j);
-        if (i < der) ordena(i, der);
-    }
+    // #13: el mismo quicksort, con las dos mitades de cada partición a la vez (mismo orden).
+    private void ordena(int izq, int der) => OrdenacionPropia.Ordenar<ApuestaProbable, PorProbabilidad>(Ap14T, izq, der);
 
     // RentabilidadFrm.cs 1051-1077.
     private void GrabacionColumnas(string archivoSalida, double emMinTxt, double emMaxTxt, bool ponerEm)

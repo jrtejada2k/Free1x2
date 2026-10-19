@@ -533,28 +533,8 @@ public partial class TramificarFormViewModel : ObservableObject
     }
 
     // ordena() (legacy línea 2585): quicksort por Probabilidad.
-    private void ordena(int izq, int der)
-    {
-        int i = izq;
-        int j = der;
-        ApuestaProbEscrutada x = Ap14T[(izq + der) / 2];
-
-        do
-        {
-            while (Ap14T[i].Probabilidad < x.Probabilidad && j <= der) i++;
-            while (x.Probabilidad < Ap14T[j].Probabilidad && j > izq) j--;
-
-            if (i <= j)
-            {
-                ApuestaProbEscrutada aux = Ap14T[i];
-                Ap14T[i] = Ap14T[j];
-                Ap14T[j] = aux;
-                i++; j--;
-            }
-        } while (i <= j);
-        if (izq < j) ordena(izq, j);
-        if (i < der) ordena(i, der);
-    }
+    // #13: el mismo quicksort, con las dos mitades de cada partición a la vez (mismo orden).
+    private void ordena(int izq, int der) => OrdenacionPropia.Ordenar<ApuestaProbEscrutada, PorProbabilidad>(Ap14T, izq, der);
 
     // Tramificar() (legacy línea 2402): reparte el array ordenado en tramos.
     private void TramificarTramos()
