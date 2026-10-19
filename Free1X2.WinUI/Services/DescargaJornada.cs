@@ -36,7 +36,7 @@ public static class DescargaJornada
             // así que una caché podía presentarse como recién actualizada.
             // C-05: la fecha la trae el propio servicio (marca de tiempo del fichero); ya no se
             // relee ni se re-parsea el JSON completo en el hilo de UI solo para el timestamp.
-            string resumen = "Jornada " + jornada.Jornada + " · " + jornada.Partidos.Count +
+            string resumen = NombreJornada(jornada.Jornada) + " · " + jornada.Partidos.Count +
                              " partidos cargados";
             string mensaje = resultado.DesdeCache
                 ? resumen + " — mostrando la última guardada" + SufijoFecha(resultado.GuardadoUtc, " (", ")") + "."
@@ -73,6 +73,13 @@ public static class DescargaJornada
     /// </summary>
     private static string SufijoFecha(DateTime? guardadoUtc, string prefijo, string sufijo) =>
         guardadoUtc is DateTime f ? prefijo + FormatearFechaLocal(f) + sufijo : string.Empty;
+
+    /// <summary>
+    /// En España la API da como número de jornada su fecha (20261018): el aviso muestra la fecha.
+    /// Un número corto (la jornada 38 de antes o el concurso del Progol) se queda como está.
+    /// </summary>
+    internal static string NombreJornada(int v) =>
+        v >= 19000101 ? $"Jornada del {v % 100:00}/{v / 100 % 100:00}/{v / 10000:0000}" : $"Jornada {v}";
 
     /// <summary>Formatea una marca UTC a hora local legible para el usuario.</summary>
     private static string FormatearFechaLocal(DateTime utc) =>
