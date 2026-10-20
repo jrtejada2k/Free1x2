@@ -23,6 +23,7 @@
   <ItemGroup>
     <None Include="Fixtures\**\*.txt" CopyToOutputDirectory="PreserveNewest" />
     <None Include="Fixtures\**\*.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Fixtures\**\*.comb" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <!-- Datos semilla del motor (parametros.free1x2, etc.) junto al exe de pruebas:

@@ -54,6 +54,57 @@ namespace Free1X2.Domain.Tests
             Assert.Equal("0,1", cg.ControlesConjuntos[1].ObtenFallosPermitidosStr());
         }
 
+        /// <summary>
+        /// Como la prueba f07bEliminarGrupoConSuControl de la Mac: con <c>completa.comb</c>, añadir un grupo con su
+        /// propio control y su conjunto y borrarlo (como EliminarGrupo de la pantalla) deja que Generar dé las mismas
+        /// columnas que antes. Antes el control seguía apuntando al grupo borrado.
+        /// </summary>
+        [Fact]
+        public void CompletaComb_AnadirYBorrarGrupoConSuControl_GeneraLoMismo()
+        {
+            // Su If-Then activo decide solo (AnalizaColumna(long) asigna, no hace AND, como el original): no todas pasan.
+            string antes = Generar(Abrir(), "free1x2_q15_antes.txt", out _, out var aceptadas);
+            Assert.True(aceptadas > 0);
+
+            var a = Abrir();
+            var cg = a.CtrlGrupos;
+            string libres = cg.ControlesGrupos[0].ObtenGruposControlados();
+            int nuevo = a.GruposPartidos.Count;
+            a.GruposPartidos.AddGrupo(new Grupo()); // como CambiarGrupo de la pantalla: lo pone en el control 0
+            cg.ControlesGrupos[0].PonerGruposControlados(libres);
+            cg.AddControlGrupo(Control(nuevo.ToString(), "0"));
+            cg.ControlesConjuntos.Add(Conjunto((cg.ControlesGrupos.Count - 1).ToString(), "0"));
+            Generar(a, "free1x2_q15_con.txt", out _, out _); // con el grupo nuevo también genera
+
+            a.GruposPartidos.BorrarGrupo(nuevo);
+            cg.QuitarGrupo(nuevo);
+            string despues = Generar(a, "free1x2_q15_despues.txt", out _, out _);
+            Assert.Equal(antes, despues);
+        }
+
+        private static Analizador Abrir()
+        {
+            var arch = new Free1X2.EntradaSalida.ArchivoCombinacion();
+            arch.AbrirArchivoCombinacion(FixturePaths.Ruta("completa.comb"));
+            var a = new Analizador();
+            arch.CargaControladorGrupos(a.CtrlGrupos);
+            a.IfThen = arch.CargaIfThen();
+            for (int i = 0; i < 14; i++) a.SetPronostico(i, i < 8 ? "1,X,2" : "1");
+            return a;
+        }
+
+        private static string Generar(Analizador a, string nombre, out int analizadas, out int aceptadas)
+        {
+            string ruta = System.IO.Path.Combine(System.IO.Path.GetTempPath(), nombre);
+            System.IO.File.Delete(ruta);
+            a.AnalizaCombinacion(ruta);
+            analizadas = a.ColsAnalizadas;
+            aceptadas = a.ColsAceptadas;
+            string texto = System.IO.File.ReadAllText(ruta);
+            System.IO.File.Delete(ruta);
+            return texto;
+        }
+
         [Fact]
         public void BorrarUnGrupoSinControles_NoToca()
         {
