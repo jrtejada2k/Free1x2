@@ -18,6 +18,7 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 using System.Collections.Generic;
+using System.Linq;
 
 using Free1X2.Analisis;
 
@@ -307,6 +308,46 @@ namespace Free1X2.MotorCalculo
 				}
 			}
 		}
+
+		/// <summary>
+		/// #15: tras borrar el grupo <paramref name="grupo"/>, lo quita de los controles de grupos y baja los de detrás,
+		/// recorriendo sus números y no el texto («2-4» son tres grupos). El control que se queda sin grupos (salvo el 0,
+		/// el de libres) se quita, y los conjuntos se renumeran igual (el que se queda sin controles, salvo el 0, también).
+		/// Lo que no tiene el grupo borrado ni otros detrás no se toca; los fallos permitidos no cambian. Como la Mac
+		/// (CasosInicio.eliminarGrupo).
+		/// </summary>
+		public void QuitarGrupo(int grupo)
+		{
+			var vacios = new List<int>();
+			for (int k = 0; k < controlesGrupos.Count; k++)
+			{
+				int[] n = controlesGrupos[k].GruposControlados;
+				if (n == null || !n.Any(x => x >= grupo)) continue;
+				int[] quedan = Renumerar(n, new List<int> { grupo });
+				if (quedan.Length == 0 && k > 0) vacios.Add(k);           // el control 0 siempre tiene el grupo 0
+				else controlesGrupos[k].PonerGruposControlados(string.Join(",", quedan));
+			}
+			if (vacios.Count == 0) return;
+			for (int i = vacios.Count - 1; i >= 0; i--) controlesGrupos.RemoveAt(vacios[i]);
+			var conjuntos = new List<ControlConjuntos>();
+			for (int k = 0; k < controlesConjuntos.Count; k++)
+			{
+				var c = controlesConjuntos[k];
+				int[] n = c.ObtenCtrolGruposConjunto();
+				if (n != null && n.Any(x => x >= vacios[0]))
+				{
+					int[] quedan = Renumerar(n, vacios);
+					if (quedan.Length == 0 && k > 0) continue;          // el conjunto 0 siempre tiene el control 0
+					c.PonerCtrlGruposControlados(string.Join(",", quedan));
+				}
+				conjuntos.Add(c);
+			}
+			ControlesConjuntos = conjuntos;
+		}
+
+		/// <summary>Quita de <paramref name="lista"/> los <paramref name="borrados"/> y baja cada número tantos puestos como borrados tenga delante.</summary>
+		private static int[] Renumerar(int[] lista, List<int> borrados) =>
+			lista.Where(n => !borrados.Contains(n)).Select(n => n - borrados.Count(b => b < n)).ToArray();
 
 		public bool UsaControlConjuntos
 		{

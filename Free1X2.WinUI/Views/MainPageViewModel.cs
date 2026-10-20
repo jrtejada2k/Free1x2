@@ -417,9 +417,8 @@ public partial class MainPageViewModel : ObservableObject
     /// <summary>
     /// Elimina el grupo en pantalla (mEliminarGrupos → BorraGrupoEnPantalla). No permite borrar
     /// el boleto base (grupo 0). Réplica fiel de <c>MainForm.BorraGrupoEnPantalla</c>
-    /// (Free1X2/UI/MainForm.cs ~1006-1052): borra el grupo y reindexa los grupos controlados de
-    /// cada control de grupos (los mayores que el borrado bajan una posición; el igual al borrado
-    /// se descarta).
+    /// (Free1X2/UI/MainForm.cs ~1006-1052): borra el grupo y lo quita de los controles de grupos
+    /// y de los conjuntos (<see cref="ControladorGrupos.QuitarGrupo"/>, #15).
     /// </summary>
     [RelayCommand]
     private void EliminarGrupo()
@@ -435,40 +434,9 @@ public partial class MainPageViewModel : ObservableObject
         // recarga desde el motor al refrescar la pantalla).
         grupos.BorrarGrupo(grupoPantalla);
 
-        // Reindexar los grupos controlados de cada control de grupos (BorraGrupoEnPantalla):
-        // los grupos > grupoPantalla bajan una posición; el grupo == grupoPantalla se descarta.
-        char[] separadores = new char[] { ',', '-' };
-        foreach (var control in analizador.CtrlGrupos.ControlesGrupos)
-        {
-            string[] gControlados = control.ObtenGruposControlados().Split(separadores);
-            int[] gControladosInt = control.GruposControlados;
-            string temp = "";
-            for (int j = 0; j < gControlados.Length; j++)
-            {
-                if (gControladosInt[j] > grupoPantalla)
-                {
-                    temp += (gControladosInt[j] - 1);
-                    temp += ",";
-                }
-                else if (gControladosInt[j] < grupoPantalla)
-                {
-                    temp += gControladosInt[j];
-                    temp += ",";
-                }
-            }
-            if (temp.Length > 1)
-            {
-                string def = temp.Substring(0, temp.Length - 1);
-                string[] defString = def.Split(',');
-                gControladosInt = new int[defString.Length];
-                for (int j = 0; j < gControladosInt.Length; j++)
-                {
-                    gControladosInt[j] = Convert.ToInt32(defString[j]);
-                }
-                control.PonerGruposControlados(def);
-                control.GruposControlados = gControladosInt;
-            }
-        }
+        // #15: quitar el grupo de los controles y conjuntos (antes se recorría el texto del control y el
+        // control que solo tenía ese grupo seguía apuntando a él).
+        analizador.CtrlGrupos.QuitarGrupo(grupoPantalla);
 
         CambiarGrupo(grupoPantalla - 1);
     }
