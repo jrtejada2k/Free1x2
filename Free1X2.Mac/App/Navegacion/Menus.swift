@@ -19,6 +19,9 @@ struct Menus: Commands {
         CommandGroup(replacing: .appSettings) {
             item("Ajustes…", .configuracion).keyboardShortcut(",")
             item("Configurar análisis…", .configuracionAnalisis)
+            if AccesoSandbox.activo {
+                Button("Carpeta de trabajo…") { Task { await AccesoSandbox.elegirCarpetaTrabajo() } }
+            }
         }
         CommandGroup(replacing: .newItem) {
             Button("Nueva combinación") { sesion.ejecutar(.nuevaCombinacion) }.keyboardShortcut("n")

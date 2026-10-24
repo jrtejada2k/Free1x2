@@ -21,7 +21,8 @@ No. Todo el cálculo se hace en tu ordenador. Internet solo se usa, si quieres, 
 jornada**, el **catálogo de equipos** y las **ganadoras históricas**. Sin conexión el programa funciona igual.
 
 ### ¿Dónde guarda mis archivos?
-En Windows, en la carpeta del programa. En Mac, en `~/Library/Application Support/Free1X2/` (en el Finder: menú
+En Windows, en la carpeta del programa. En Mac, en `~/Library/Application Support/Free1X2/` si la instalaste desde el `.dmg`, o en
+`~/Library/Containers/com.free1x2.app/Data/Library/Application Support/Free1X2/` si la instalaste desde la Mac App Store (en el Finder: menú
 Ir → Ir a la carpeta…, y pega esa ruta).
 
 ## La jornada y los equipos

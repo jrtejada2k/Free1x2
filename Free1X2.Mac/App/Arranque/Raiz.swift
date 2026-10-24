@@ -47,6 +47,7 @@ struct Raiz: View {
         }
         .task {
             sesion.aplicarTema()
+            AccesoSandbox.restaurar()
             if CommandLine.arguments.contains("-smoke") { await Smoke.ejecutar(sesion) }
             let args = CommandLine.arguments
             if let i = args.firstIndex(of: "-captura"), i + 1 < args.count {
@@ -60,6 +61,7 @@ struct Raiz: View {
             {
                 sesion.cargarJornada(j)
             }
+            if !args.contains("-captura") { await AccesoSandbox.pedirSiFalta() }
         }
     }
 

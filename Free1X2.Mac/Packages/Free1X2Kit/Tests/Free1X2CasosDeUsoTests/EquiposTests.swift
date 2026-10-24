@@ -53,16 +53,18 @@ struct EquiposTests {
         #expect(nada.jornada == nil && nada.mensaje.hasSuffix(" El boleto sigue en modo manual."))
     }
 
-    /// Cliente que no contesta nunca (hasta que lo cancelan).
+    /// Cliente que no contesta nunca (hasta que lo cancelan): una hora, más que el `timeLimit` del test.
     struct ClienteMudo: ClienteHTTP {
         func datos(para peticion: URLRequest) async throws -> (Data, HTTPURLResponse) {
-            try await Task.sleep(for: .seconds(60))
+            try await Task.sleep(for: .seconds(3600))
             throw URLError(.timedOut)
         }
     }
 
     /// DT-83: al arrancar, la jornada si llega a tiempo; lenta o con error ⇒ `nil` sin usar la caché, y sin esperar de más.
-    @Test func jornadaAlArrancar() async throws {
+    /// Sin reloj de pared: con los tests pesados en paralelo el CI tardó 71 s en dar turno al plazo de 200 ms. Si el plazo no
+    /// cancelara la descarga, el cliente mudo colgaría el test una hora y lo cortaría `timeLimit`.
+    @Test(.timeLimit(.minutes(10))) func jornadaAlArrancar() async throws {
         let json = try Golden.bytes("Fixtures/online/real-es.json")
         let url = try #require(URL(string: "https://clubprogol.com/wp-json/clubprogol/v1/quiniela/es/actual"))
         let conRed = Entorno.pruebas(red: ClienteHTTPGrabado(respuestas: [url: .init(cuerpo: json)]))
@@ -71,9 +73,7 @@ struct EquiposTests {
 
         let cache = CacheJornada(archivos: conRed.archivos, carpeta: conRed.rutas.base, registro: conRed.registro)  // ya guardada
         let lento = ServicioQuiniela(red: ClienteMudo(), reloj: conRed.reloj, cache: cache)
-        let inicio = ContinuousClock.now
-        let nada = await CasosArchivo.jornadaAlArrancar(.es, servicio: lento, limite: .milliseconds(200))
-        #expect(nada == nil && ContinuousClock.now - inicio < .seconds(5))
+        #expect(await CasosArchivo.jornadaAlArrancar(.es, servicio: lento, limite: .milliseconds(200)) == nil)
 
         let error = Entorno.pruebas(red: ClienteHTTPGrabado(respuestas: [url: .init(estado: 500)]))
         #expect(await CasosArchivo.jornadaAlArrancar(.es, servicio: CasosArchivo.servicioOnline(entorno: error)) == nil)

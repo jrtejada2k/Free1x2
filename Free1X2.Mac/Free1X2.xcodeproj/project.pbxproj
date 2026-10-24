@@ -60,6 +60,7 @@
 		5C9D30F2113E8B54EA846093 /* Menus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04868F81389E8058D7698462 /* Menus.swift */; };
 		5CBF4AEFEDF4E37ACDC318FA /* PortapapelesSistema.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49BDD4273F4F33E1C72948C9 /* PortapapelesSistema.swift */; };
 		5D1ED6CD38BD591C94EA26BC /* Mascaras.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6759C8643F77D4843627256F /* Mascaras.swift */; };
+		5E433E21A7CAB7CFE533AFE2 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 85F127BC51B57B31497ABC20 /* PrivacyInfo.xcprivacy */; };
 		5FCAD03AB81F53170F987D2B /* bAnalisisFallos.png in Resources */ = {isa = PBXBuildFile; fileRef = 12D871214F4F847AFC6EE8CB /* bAnalisisFallos.png */; };
 		6307204BC6733B651606A3E9 /* Premios.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61FF07E693D4BC6A8149F8F3 /* Premios.swift */; };
 		63707C7EA6B6A0D5BEB0F881 /* Grupos.swift in Sources */ = {isa = PBXBuildFile; fileRef = 180A7A586EA6E5884322C901 /* Grupos.swift */; };
@@ -106,6 +107,7 @@
 		BCE842585A26ABC2E7A87807 /* SignosSeguidos.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14C149043FCB6537B8F6385D /* SignosSeguidos.swift */; };
 		BFBC10F002A9AD96099FC3D8 /* Free1X2Kit in Frameworks */ = {isa = PBXBuildFile; productRef = 6F000FF4E643EABD960549DE /* Free1X2Kit */; };
 		C237AC7023B64538F1414252 /* bImportExport.png in Resources */ = {isa = PBXBuildFile; fileRef = 4D19C53D6138F04366436CCC /* bImportExport.png */; };
+		C42700014EEDD925AB678829 /* AccesoSandbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D0744442DCDE81867740984 /* AccesoSandbox.swift */; };
 		C4D8549A87B89CF5F06A0F09 /* Datos in Resources */ = {isa = PBXBuildFile; fileRef = C0344B454C66C01D3073E748 /* Datos */; };
 		C64B5767D2A83E1C4D9019F2 /* bMultiplicacion.png in Resources */ = {isa = PBXBuildFile; fileRef = 47E9E8A7E5855E658223766E /* bMultiplicacion.png */; };
 		C7851790BA203E4850460001 /* bAyuda.png in Resources */ = {isa = PBXBuildFile; fileRef = E2F009293E4525733884E174 /* bAyuda.png */; };
@@ -163,6 +165,7 @@
 		19B6A06520278BAB278E48F4 /* VistaDestino.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VistaDestino.swift; sourceTree = "<group>"; };
 		1A57939A2138CDE1A9AB1891 /* CalculaColumnas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculaColumnas.swift; sourceTree = "<group>"; };
 		25CCF7EA617679CACFA9AACF /* Free1X2Kit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Free1X2Kit; path = Packages/Free1X2Kit; sourceTree = SOURCE_ROOT; };
+		26E7C871ED63B798B69EEE51 /* Free1X2.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Free1X2.entitlements; sourceTree = "<group>"; };
 		2771D91198F31E3165598E0F /* DistanciasInterrupciones.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DistanciasInterrupciones.swift; sourceTree = "<group>"; };
 		2E9E9F6BCD264AD543A28B9F /* Informativas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Informativas.swift; sourceTree = "<group>"; };
 		2F6260112EAFE7E79B25D7BB /* bPremiadas.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bPremiadas.png; sourceTree = "<group>"; };
@@ -205,8 +208,10 @@
 		7F59B3CEA1AEBEAD252C31AD /* Simetrias.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Simetrias.swift; sourceTree = "<group>"; };
 		8504D37A077B74C14229C301 /* Boletos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Boletos.swift; sourceTree = "<group>"; };
 		850A5E66731FABDDC2D9FD72 /* Router.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Router.swift; sourceTree = "<group>"; };
+		85F127BC51B57B31497ABC20 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		87035E3CE2455A628A33499F /* bAnalisisSignos.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bAnalisisSignos.png; sourceTree = "<group>"; };
 		8AB7CAABF6E86A07C2401496 /* logo.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = logo.jpg; sourceTree = "<group>"; };
+		8D0744442DCDE81867740984 /* AccesoSandbox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccesoSandbox.swift; sourceTree = "<group>"; };
 		8DDBA85E6EC92CCB2EAAA6F0 /* bAnalisisGrupos.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bAnalisisGrupos.png; sourceTree = "<group>"; };
 		8E15404EEE589D02ABCA7585 /* VisorAnalisisColumnas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisorAnalisisColumnas.swift; sourceTree = "<group>"; };
 		901BDD3D79E749E8ECCBA7CC /* Sesion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sesion.swift; sourceTree = "<group>"; };
@@ -432,6 +437,7 @@
 				F61C0C728D14C35446197B05 /* Assets.xcassets */,
 				C0344B454C66C01D3073E748 /* Datos */,
 				8AB7CAABF6E86A07C2401496 /* logo.jpg */,
+				85F127BC51B57B31497ABC20 /* PrivacyInfo.xcprivacy */,
 				216496C1FE0B15E933B52FEF /* Barra */,
 			);
 			path = Recursos;
@@ -477,6 +483,7 @@
 		55FE6F3CE034679DD92FC7DE /* Plataforma */ = {
 			isa = PBXGroup;
 			children = (
+				8D0744442DCDE81867740984 /* AccesoSandbox.swift */,
 				62B44320D069342A326F7B49 /* Alertas.swift */,
 				49BDD4273F4F33E1C72948C9 /* PortapapelesSistema.swift */,
 				AF9B1577FF3F685F277AE21A /* SelectorFicheros.swift */,
@@ -536,6 +543,7 @@
 		F5445EFE55304770FDADE307 /* App */ = {
 			isa = PBXGroup;
 			children = (
+				26E7C871ED63B798B69EEE51 /* Free1X2.entitlements */,
 				394EEBBB2592B5EDFFE85299 /* Arranque */,
 				07418446D507AA8084A5ED52 /* Compartido */,
 				17B2087F4CAA2BCB85F2B1AF /* Navegacion */,
@@ -652,6 +660,7 @@
 			files = (
 				7D200EEF4CA092C7557D1C2E /* Assets.xcassets in Resources */,
 				C4D8549A87B89CF5F06A0F09 /* Datos in Resources */,
+				5E433E21A7CAB7CFE533AFE2 /* PrivacyInfo.xcprivacy in Resources */,
 				E2B30E73654C0B1B34A3282F /* bAcercaDe.png in Resources */,
 				4E817E578D9D7C45FB6F4B0A /* bAlgebra.png in Resources */,
 				3C2D5D14A42CDC1C4FF3D366 /* bAnalisisColumnas.png in Resources */,
@@ -717,6 +726,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C42700014EEDD925AB678829 /* AccesoSandbox.swift in Sources */,
 				4F20F4D2A2C40AC87C79FC96 /* Aidomnou.swift in Sources */,
 				A666D0BE2B4F6C79C0F127C9 /* Ajustes.swift in Sources */,
 				D55851FF07C4F9C15C9ABDEA /* Alertas.swift in Sources */,
@@ -947,6 +957,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Free1X2;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2026 jrtejada2k. Programa libre bajo GPLv3, basado en Free1X2 de Joan Duatis.";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1002,15 +1013,17 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = App/Free1X2.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 84JHK2MSAL;
-				ENABLE_APP_SANDBOX = NO;
+				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Free1X2;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2026 jrtejada2k. Programa libre bajo GPLv3, basado en Free1X2 de Joan Duatis.";
 				LD_RUNPATH_SEARCH_PATHS = (

@@ -902,8 +902,10 @@ Las «Columnas de Inicio» y las reducciones sin archivo de salida van a la carp
 y `Reducido.txt`) y se reescriben cada vez: guarda lo que quieras conservar con «Guardar resultado…» o el botón de
 grabar de cada pantalla.
 
-**Dónde están tus datos.** En **Windows**, junto al programa (es portable: se copia la carpeta y listo). En **Mac**, en
-`~/Library/Application Support/Free1X2/` (en el Finder: menú Ir → Ir a la carpeta…, y pega esa ruta).
+**Dónde están tus datos.** En **Windows**, junto al programa (es portable: se copia la carpeta y listo). En **Mac**, en `~/Library/Application Support/Free1X2/` si la instalaste desde el `.dmg`, o en
+`~/Library/Containers/com.free1x2.app/Data/Library/Application Support/Free1X2/` si la instalaste desde la Mac App Store (en el Finder: menú Ir → Ir a la carpeta…, y pega esa ruta).
+La versión de la Mac App Store pide al primer arranque una **carpeta de trabajo** (donde guardas combinaciones y
+columnas) y solo lee y escribe en ella y en los ficheros que elijas; se cambia en Free1X2 ▸ Carpeta de trabajo….
 
 ---
 

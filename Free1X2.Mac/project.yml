@@ -42,7 +42,9 @@ targets:
         INFOPLIST_KEY_CFBundleDisplayName: Free1X2
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.utilities
         INFOPLIST_KEY_NSHumanReadableCopyright: "© 2026 jrtejada2k. Programa libre bajo GPLv3, basado en Free1X2 de Joan Duatis."
-        # DP-06: fuera de la Mac App Store, sin App Sandbox; runtime endurecido para la notarización de M6.
+        # Cifrado: solo HTTPS del sistema (exento); App Store Connect no pregunta en cada envío.
+        INFOPLIST_KEY_ITSAppUsesNonExemptEncryption: NO
+        # Debug (Run, smoke, tests de UI y CI) sin sandbox; Release con App Sandbox para la Mac App Store (DP-06; DT-99).
         ENABLE_APP_SANDBOX: NO
         ENABLE_HARDENED_RUNTIME: YES
       configs:
@@ -50,12 +52,14 @@ targets:
         Debug:
           CODE_SIGN_IDENTITY: "-"
           CODE_SIGN_STYLE: Manual
-        # Release (Product ▸ Archive ▸ Direct Distribution): firma automática con el equipo del dueño. La CI y
+        # Release (Product ▸ Archive ▸ App Store Connect): firma automática con el equipo del dueño. La CI y
         # empaquetar-dmg.sh compilan Release con CODE_SIGNING_ALLOWED=NO, así que no necesitan la cuenta.
         Release:
           CODE_SIGN_IDENTITY: "Apple Development"
           CODE_SIGN_STYLE: Automatic
           DEVELOPMENT_TEAM: 84JHK2MSAL
+          ENABLE_APP_SANDBOX: YES
+          CODE_SIGN_ENTITLEMENTS: App/Free1X2.entitlements
     # Plan de pruebas funcionales, Fase 2 (ESPEC_14 N6): flujos de punta a punta con XCUITest.
     scheme:
       testTargets:
