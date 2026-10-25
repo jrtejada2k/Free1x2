@@ -3,8 +3,7 @@ import Free1X2Base
 import Free1X2Formatos
 import Free1X2Motor
 
-// C#: Views/Ported/AnastaticsViewModel.cs (08 pantalla 9; CU-A15) y sus visores DibFormViewModel.cs (38, CU-A88),
-// DibRepFrmViewModel.cs (39, CU-A89), StaInterFrmViewModel.cs (90, CU-C32) y StaSSFormViewModel.cs (91).
+// Ref.: 08 pantalla 9; CU-A15, y sus visores (38, CU-A88; 39, CU-A89; 90, CU-C32; 91).
 
 /// Matriz 15 × 15 de «Calcular» con el nº de columnas analizadas (handoff `MatrizEntrada` / `NumColEntrada`).
 public struct MatrizEstadistica: Sendable, Hashable {

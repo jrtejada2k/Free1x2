@@ -2,7 +2,7 @@ import Foundation
 import Free1X2Base
 import Free1X2Formatos
 
-// C#: Views/Ported/SelecJMViewModel.cs (10 §86; CU-C23…C27) y SelectorMSViewModel.cs (10 §87; CU-C28, CU-C29). Ambas
+// Ref.: 10 §86; CU-C23…C27; 10 §87; CU-C28, CU-C29. Ambas
 // usan la base 3 propia de `FiltroPorGrupos.s1n`/`n1s` (X = 0, 1 = 1, 2 = 2; primer partido el más significativo).
 
 extension CasosUtilidades {
@@ -116,7 +116,7 @@ extension CasosUtilidades {
 
     /// CU-C24 / CU-C25: columnas válidas «por corte» (posiciones) o «por valor» (productos iguales a alguno dentro de los
     /// límites). La cancelación corta y deja lo calculado.
-    /// ponytail: «por valor» no compara cada columna con las 243·243·81 posiciones como el C#: agrupa por código de grupo
+    /// ponytail: «por valor» no compara cada columna con las 243·243·81 posiciones como Windows: agrupa por código de grupo
     /// (la columna ↔ sus tres códigos) y comprueba el total con conjuntos de sumas de posiciones; mismo resultado.
     @concurrent public static func seleccionJM(
         _ t: TablasJM, porCorte: Bool
@@ -263,7 +263,7 @@ public struct DistribucionMS: Sendable {
 extension CasosUtilidades {
     /// `LeerYCalcular` + `Calcular13/12/11`; `nil` = cancelado.
     /// ponytail: enumera directamente los vecinos a distancia exacta d (28, 364 o 2912) en vez de los caminos con
-    /// `repes` del C#; cuenta lo mismo.
+    /// `repes` de Windows; cuenta lo mismo.
     @concurrent public static func distribucionMS(
         _ url: URL, limite: Int, entorno: Entorno
     ) async throws(ErrorDominio) -> DistribucionMS? {

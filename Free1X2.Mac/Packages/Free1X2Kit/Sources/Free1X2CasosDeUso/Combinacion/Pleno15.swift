@@ -2,9 +2,9 @@ import Foundation
 import Free1X2Base
 import Free1X2Formatos
 
-// C#: Views/Ported/AgregaP15FrmViewModel.cs (08 pantalla 1; CU-A01).
+// Ref.: 08 pantalla 1; CU-A01.
 
-/// Los cuatro modos de «Añade P15 (Indeciso)»; combinables como en el C# (DEC-801).
+/// Los cuatro modos de «Añade P15 (Indeciso)»; combinables como en Windows (DEC-801).
 public struct OpcionesP15: Sendable, Hashable {
     public var fijo = false
     public var condicional = false
@@ -41,7 +41,7 @@ extension CasosCombinacion {
     @concurrent public static func agregarP15(
         entrada: URL, salida: URL, opciones o: OpcionesP15, entorno: Entorno
     ) async throws(ErrorDominio) -> Int {
-        let origen = "AgregaP15FrmViewModel.cs"
+        let origen = "Pleno15:44"
         var lineas: [String] = []
         var buffers: [[String]] = [[], [], []]
         var repetidas = 0

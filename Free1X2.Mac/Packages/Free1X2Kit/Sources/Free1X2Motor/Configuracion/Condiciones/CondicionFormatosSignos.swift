@@ -1,6 +1,6 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/MotorCalculo/FiltroFormatosSignos.cs, FormatosSignos.cs y FormatoSignos.cs (03 §9-11).
+// Ref.: 03 §9-11.
 
 /// Una línea: un patrón de signos (`1`, `X`, `2`, `V` = X o 2, `*` = cualquiera) y el rango de apariciones.
 public struct FormatoSignos: Sendable, Hashable {

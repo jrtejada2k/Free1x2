@@ -2,7 +2,7 @@ import Foundation
 import Free1X2Base
 import Free1X2Motor
 
-// C#: Views/Ported/DistanciasFrmViewModel.cs y InterrupcionesFrmViewModel.cs (09 pantallas 43 y 69; CU-B03, CU-B37).
+// Ref.: 09 pantallas 43 y 69; CU-B03, CU-B37.
 
 extension CasosCondiciones {
     /// `Aceptar` de Distancias (:94-129): Var, 1, X, 2; vacío = `0…N`.

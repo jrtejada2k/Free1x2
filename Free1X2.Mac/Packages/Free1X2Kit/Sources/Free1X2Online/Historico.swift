@@ -1,7 +1,7 @@
 import Foundation
 import Free1X2Base
 
-// Nuevo (DT-84, a petición del dueño; no existe en el C#): `GET /quiniela/{pais}/historico`, contrato propuesto en
+// Nuevo (DT-84, a petición del dueño; no existe en Windows): `GET /quiniela/{pais}/historico`, contrato propuesto en
 // `docs/API_CLUBPROGOL.md` §«Histórico (propuesto)».
 
 /// La columna ganadora de una jornada pasada.

@@ -1,4 +1,4 @@
-// C#: Free1X2.Domain/VariablesGlobales.cs (01 §3) — sustituye al estado global por un valor inyectado.
+// Ref.: 01 §3 — sustituye al estado global por un valor inyectado.
 
 /// Configuración de la aplicación (`parametros.free1x2`), leída una vez al arrancar (DP-04).
 public struct Configuracion: Sendable, Hashable {
@@ -10,7 +10,7 @@ public struct Configuracion: Sendable, Hashable {
     public var analisis = OpcionesAnalisis()
     public var interfaz = PreferenciasInterfaz()
 
-    /// `SetDefaultValues` (`VariablesGlobales.cs:149-175`).
+    /// `SetDefaultValues`.
     public static let porDefecto = Configuracion()
 
     public init() {}

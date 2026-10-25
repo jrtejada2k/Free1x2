@@ -3,7 +3,7 @@ import Free1X2Base
 import Free1X2Formatos
 import Free1X2Motor
 
-// C#: Views/Ported/ModificadorFrmViewModel.cs (09 pantalla 73).
+// Ref.: 09 pantalla 73.
 
 /// «Modificador de columnas»: las columnas del fichero y los porcentajes enteros 1/X/2 de cada partido.
 public struct EditorModificador: Sendable {
@@ -16,7 +16,7 @@ public struct EditorModificador: Sendable {
 
     /// `Abrir` → `LeeFichero`: un fichero con más líneas que `ObtenNumCols` o columnas cortas lanza.
     public static func cargar(_ url: URL, entorno: Entorno) throws(ErrorDominio) -> EditorModificador {
-        let o = "ModificadorFrmViewModel.cs:243"
+        let o = "Modificador:19"
         let d = try entorno.archivos.leer(url)
         let n = ArchivoColumnasTexto.numSignos(d)
         var cols = [String?](repeating: nil, count: ArchivoColumnasTexto.numColumnas(d))
@@ -55,12 +55,12 @@ public struct EditorModificador: Sendable {
 
     /// `CambiarSigno`: la columna con el partido `k` sustituido (`partidos` caracteres).
     func cambiar(_ c: Int, _ k: Int, _ s: UInt16) throws(ErrorDominio) -> String {
-        guard let col = try columnas.leer(c, "ModificadorFrmViewModel.cs:395") else {
-            throw .referenciaNula("ModificadorFrmViewModel.cs:395")
+        guard let col = try columnas.leer(c, "Modificador:58") else {
+            throw .referenciaNula("Modificador:59")
         }
         let u = Array(col.utf16)
         var r: [UInt16] = []
-        for i in 0..<partidos { r.append(i == k ? s : try u.leer(i, "ModificadorFrmViewModel.cs:397")) }
+        for i in 0..<partidos { r.append(i == k ? s : try u.leer(i, "Modificador:63")) }
         return String(decoding: r, as: UTF16.self)
     }
 
@@ -116,16 +116,16 @@ public struct EditorModificador: Sendable {
     public func datos() throws(ErrorDominio) -> Data? {
         var r: [String] = []
         for c in columnas {
-            guard let c else { throw .referenciaNula("ArchivoColumnasTexto.cs:79") }
+            guard let c else { throw .referenciaNula("Modificador:119") }
             r.append(c)
         }
         return ArchivoColumnasTexto.datos(r)
     }
 }
 
-// C#: Views/Ported/BuscaLimsFrmViewModel.cs (08 pantalla 12; CU-A27).
+// Ref.: 08 pantalla 12; CU-A27.
 
-/// Resultado de «Calcular Límites» (`-1`/`0` = sin valor, como el C#).
+/// Resultado de «Calcular Límites» (`-1`/`0` = sin valor, como Windows).
 public struct LimitesValoracion: Sendable, Hashable {
     public let columnaBase: String
     public let sumaMin, sumaMax, productoMin, productoMax: Double
@@ -150,7 +150,7 @@ extension CasosUtilidades {
         var rangos = [Bool](repeating: false, count: n + 1)
         for a in UtilidadesEntradasValores.obtenerListaFromTxtAciertos(rango) where a >= 0 && a < rangos.count { rangos[a] = true }
         var (mn, mx, mnP, mxP, nca, ncv) = (-1.0, 0.0, -1.0, 0.0, 0, 0)
-        // Odómetro en el orden 1, X, 2 con el primer partido como el más significativo (= la recursión del C#).
+        // Odómetro en el orden 1, X, 2 con el primer partido como el más significativo (= la recursión de Windows).
         var d = [Int](repeating: 0, count: n)
         var seguir = n > 0
         while seguir {
@@ -184,7 +184,7 @@ extension CasosUtilidades {
     }
 }
 
-// C#: Views/Ported/CombinarFiltrosViewModel.cs (08 pantalla 21; CU-A53…A57). Codificación propia (la de Pares).
+// Ref.: 08 pantalla 21; CU-A53…A57. Codificación propia (la de Pares).
 extension CasosUtilidades {
     /// `ObtenNumSignos` de un filtro (0 si no se puede leer).
     public static func signosDeFiltro(_ url: URL, entorno: Entorno) -> Int {
@@ -219,7 +219,7 @@ extension CasosUtilidades {
                 if Task.isCancelled { break }
                 ct += 1
                 if i < 0 { break }
-                guard i < tam else { throw .fueraDeRango("CombinarFiltrosViewModel.cs:294") }
+                guard i < tam else { throw .fueraDeRango("Modificador:222") }
                 if !repes[i] {
                     cuentas[i] += 1
                     repes[i] = true

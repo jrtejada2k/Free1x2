@@ -23,7 +23,7 @@ public protocol SistemaArchivos: Sendable {
 }
 
 /// Red: una petición y su respuesta HTTP (`URLSession` en producción). Es transporte puro: lanza el `URLError`
-/// tal cual y el cliente online lo traduce a `ErrorOnline` con los textos del C# (07 §6.10).
+/// tal cual y el cliente online lo traduce a `ErrorOnline` con los textos de Windows (07 §6.10).
 public protocol ClienteHTTP: Sendable {
     func datos(para peticion: URLRequest) async throws -> (Data, HTTPURLResponse)
 }
@@ -45,7 +45,7 @@ public enum NivelRegistro: String, Sendable {
 
 /// Carpetas de la app (DP-13, ESPEC_11 §9).
 public struct RutasApp: Sendable, Equatable {
-    /// Las 10 carpetas de trabajo que hoy se crean junto al `.exe` (10:33; `Free1X2.WinUI/App.xaml.cs:102-120`).
+    /// Las 10 carpetas de trabajo que hoy se crean junto al `.exe` (10:33).
     public enum Carpeta: String, Sendable, CaseIterable {
         case columnas = "Columnas"
         case combinaciones = "Combinaciones"

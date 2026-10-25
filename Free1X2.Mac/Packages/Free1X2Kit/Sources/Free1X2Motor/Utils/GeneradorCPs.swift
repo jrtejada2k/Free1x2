@@ -1,9 +1,8 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/EntradaSalida/GenerarCPs/CPs.cs y Valoracion.cs (04 §16); salida F06 de
-// GenerarCPsViewModel.cs:116-131,239-302 (07 F06). `IO` salvo `GuardarTexto` es código muerto (DEC-409).
+// Ref.: 04 §16; salida F06 (07 F06). `IO` salvo `GuardarTexto` es código muerto (DEC-409).
 
-/// Valoración 1/X/2 de un partido (`Valoracion.cs`).
+/// Valoración 1/X/2 de un partido.
 public struct Valoracion: Sendable, Equatable {
     public var uno, equis, dos: Double
 
@@ -44,7 +43,7 @@ public struct ConfigCP: Sendable, Equatable {
 
 /// Generador de columnas probables (`CPs`).
 public enum GeneradorCPs {
-    /// `Generar` (`GenerarCPsViewModel.cs:116-131`) sin E/S: por cada tipo, en su orden, el fichero
+    /// `Generar` sin E/S: por cada tipo, en su orden, el fichero
     /// `{Nombre}_j{jornada}.txt` (los espacios se conservan: el `Replace` no se asigna) y su contenido F06.
     public static func generar(
         tipos: [TipoCP], configuraciones: [ConfigCP], valor: [Valoracion], jornada: Int, numeroPartidos n: Int
@@ -68,18 +67,18 @@ public enum GeneradorCPs {
             var tipo = 3
             if fila.forzarFijos == true { tipo = 1 }
             if fila.forzarDobles == true { tipo = 2 }  // pisa a «Fijos» (P22 e)
-            let desde = Double(try int16(fila.desde, "CPs.cs:45"))
-            let hasta = Double(try int16(fila.hasta, "CPs.cs:46"))
+            let desde = Double(try int16(fila.desde, "GeneradorCPs:70"))
+            let hasta = Double(try int16(fila.hasta, "GeneradorCPs:71"))
             switch tipo {
             case 1, 2:
                 let tmp =
                     tipo == 1
-                    ? try obtenerFijos(try int16(fila.numFijos, "CPs.cs:50"), valor, numeroPartidos: n)
-                    : try obtenerDobles(try int16(fila.numDobles, "CPs.cs:57"), valor, numeroPartidos: n)
+                    ? try obtenerFijos(try int16(fila.numFijos, "GeneradorCPs:76"), valor, numeroPartidos: n)
+                    : try obtenerDobles(try int16(fila.numDobles, "GeneradorCPs:77"), valor, numeroPartidos: n)
                 for k in tmp.indices { columnas[k][j] = tmp[k] }
             default:
                 for (k, v) in valor.enumerated() {
-                    guard k < n else { throw .fueraDeRango("CPs.cs:66") }
+                    guard k < n else { throw .fueraDeRango("GeneradorCPs:81") }
                     var s = ""
                     if v.uno >= desde && v.uno <= hasta { s += "1" }
                     if v.equis >= desde && v.equis <= hasta { s += "X" }
@@ -99,12 +98,12 @@ public enum GeneradorCPs {
     ) throws(ErrorDominio) -> [String?] {
         if cuantos == n { return try obtenerTodosFijos(valor, numeroPartidos: n) }
         var t: [Valoracion] = []
-        for i in 0..<n { t.append(try valor.leer(i, "CPs.cs:105")) }
+        for i in 0..<n { t.append(try valor.leer(i, "GeneradorCPs:101")) }
         let m = Array(ordenarValoracion(t, numeroPartidos: n).reversed())
         var s = [String?](repeating: nil, count: n)
         for i in stride(from: 0, to: cuantos, by: 1) {
             for j in t.indices {
-                let x = try m.leer(i, "CPs.cs:115")
+                let x = try m.leer(i, "GeneradorCPs:106")
                 if t[j].uno == x {
                     (s[j], t[j].uno) = ("1", 0)
                     break
@@ -129,12 +128,12 @@ public enum GeneradorCPs {
     ) throws(ErrorDominio) -> [String?] {
         if cuantos == n { return try obtenerTodosDobles(valor, numeroPartidos: n) }
         var t: [Valoracion] = []
-        for i in 0..<n { t.append(try valor.leer(i, "CPs.cs:175")) }
+        for i in 0..<n { t.append(try valor.leer(i, "GeneradorCPs:131")) }
         let m = ordenarValoracion(t, numeroPartidos: n)
         var s = [String?](repeating: nil, count: n)
         for i in stride(from: 0, to: cuantos, by: 1) {
             for j in t.indices {
-                let x = try m.leer(i, "CPs.cs:184")
+                let x = try m.leer(i, "GeneradorCPs:136")
                 if t[j].uno == x {
                     (s[j], t[j].uno) = ("X2", 99.99)
                     break
@@ -156,9 +155,9 @@ public enum GeneradorCPs {
     public static func obtenerTodosFijos(_ valor: [Valoracion], numeroPartidos n: Int) throws(ErrorDominio) -> [String?] {
         var s = [String?](repeating: nil, count: n)
         for (i, v) in valor.enumerated() {
-            if v.uno > v.equis && v.uno > v.dos { try s.escribir("1", en: i, "CPs.cs:143") }
-            if v.equis > v.uno && v.equis > v.dos { try s.escribir("X", en: i, "CPs.cs:144") }
-            if v.dos > v.equis && v.dos > v.uno { try s.escribir("2", en: i, "CPs.cs:145") }
+            if v.uno > v.equis && v.uno > v.dos { try s.escribir("1", en: i, "GeneradorCPs:158") }
+            if v.equis > v.uno && v.equis > v.dos { try s.escribir("X", en: i, "GeneradorCPs:159") }
+            if v.dos > v.equis && v.dos > v.uno { try s.escribir("2", en: i, "GeneradorCPs:160") }
         }
         return s
     }
@@ -167,9 +166,9 @@ public enum GeneradorCPs {
     public static func obtenerTodosDobles(_ valor: [Valoracion], numeroPartidos n: Int) throws(ErrorDominio) -> [String?] {
         var s = [String?](repeating: nil, count: n)
         for (i, v) in valor.enumerated() {
-            if v.uno < v.equis && v.uno < v.dos { try s.escribir("X2", en: i, "CPs.cs:155") }
-            if v.equis < v.uno && v.equis < v.dos { try s.escribir("12", en: i, "CPs.cs:156") }
-            if v.dos < v.equis && v.dos < v.uno { try s.escribir("1X", en: i, "CPs.cs:157") }
+            if v.uno < v.equis && v.uno < v.dos { try s.escribir("X2", en: i, "GeneradorCPs:169") }
+            if v.equis < v.uno && v.equis < v.dos { try s.escribir("12", en: i, "GeneradorCPs:170") }
+            if v.dos < v.equis && v.dos < v.uno { try s.escribir("1X", en: i, "GeneradorCPs:171") }
         }
         return s
     }

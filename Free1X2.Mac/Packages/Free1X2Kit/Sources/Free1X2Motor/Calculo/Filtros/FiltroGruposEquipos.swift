@@ -1,7 +1,6 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/MotorCalculo/GrupoEquipos.cs, RelacionGE1.cs, ControladorRelacionesGE1.cs y
-// FiltroGruposEquipos.cs (03 §14-15; 04 §11-12).
+// Ref.: 03 §14-15; 04 §11-12.
 
 /// Un grupo de equipos en ejecución: sus contadores los leen las relaciones (B5: clase compartida).
 final class GrupoEquipos {
@@ -84,7 +83,7 @@ final class RelacionGE1 {
 
     /// Orden de comprobación: puntos, victorias, empates, derrotas.
     private func limites() throws(ErrorDominio) -> [(ConjuntoRangos, Int, String)] {
-        let o = "RelacionGE1.cs:70-84"
+        let o = "FiltroGruposEquipos:86"
         guard let relacionados = c.geRelacionados else { throw .referenciaNula(o) }
         var (v, e, d, p) = (0, 0, 0, 0)
         for n in relacionados {

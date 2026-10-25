@@ -130,7 +130,7 @@ struct PantallaCondicion<Contenido: View>: View {
         }
     }
 
-    /// Sin fichero temporal no hace nada; sus errores no se capturan en el C# (llegan al manejador global).
+    /// Sin fichero temporal no hace nada; sus errores no se capturan en Windows (llegan al manejador global).
     private func pegar() {
         let url = CasosCondiciones.rutaTemporal(archivo.extensionTemporal, entorno: sesion.entorno)
         guard sesion.entorno.archivos.existe(url) else { return }

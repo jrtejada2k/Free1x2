@@ -2,7 +2,7 @@ import Foundation
 import Free1X2Base
 import Free1X2Motor
 
-// C#: Views/Ported/DiferenciasFrmViewModel.cs (09 pantalla 42; CU-B02). La pantalla trabaja sobre la condición **del
+// Ref.: 09 pantalla 42; CU-B02. La pantalla trabaja sobre la condición **del
 // grupo**: navegar entre conjuntos ya escribe en ella (Cancelar no lo deshace).
 
 /// Lo que muestra la pantalla de un conjunto: líneas de partidos y los 6 conceptos (Variantes, Equis, Doses, Dibujos,

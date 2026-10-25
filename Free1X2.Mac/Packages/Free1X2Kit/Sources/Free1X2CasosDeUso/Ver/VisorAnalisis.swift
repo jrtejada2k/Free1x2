@@ -2,7 +2,7 @@ import Foundation
 import Free1X2Base
 import Free1X2Motor
 
-// C#: Views/Ported/VisorAnalisisColumnasFrmViewModel.cs (10 pantalla 102; CU-C53, CU-C54).
+// Ref.: 10 pantalla 102; CU-C53, CU-C54.
 
 /// Una matriz del visor: filas con etiqueta y celdas ya en texto (`int.ToString()`).
 public struct MatrizAnalisis: Sendable, Hashable {

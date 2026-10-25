@@ -1,6 +1,6 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/MotorCalculo/FiltroFormatos123.cs y Formato123.cs (03 §3-4); transformación de FFormatos123Data.cs:69-122.
+// Ref.: 03 §3-4, con la transformación de los datos del filtro.
 
 /// Un formato (cadena de dígitos 1-3) con su rango de apariciones.
 public struct Formato123: Sendable, Hashable {
@@ -14,7 +14,7 @@ public struct Formato123: Sendable, Hashable {
         self.aciertosMax = aciertosMax
     }
 
-    /// `FormatoLong` (`Formato123.cs:61-70`): `res = (res << 3) ^ (1 << "321".IndexOf(c))`; un carácter ajeno da `1 << -1`
+    /// `FormatoLong`: `res = (res << 3) ^ (1 << "321".IndexOf(c))`; un carácter ajeno da `1 << -1`
     /// = `Int32.min`, que se extiende de signo (B3).
     public var formatoLong: Int64 {
         var res: Int64 = 0
@@ -60,8 +60,8 @@ public struct CondicionFormatos123: Sendable, Hashable {
     public static func transformar(_ valoracion: [[Double]]) throws(ErrorDominio) -> [[UInt8]] {
         var t: [[UInt8]] = []
         for i in 0..<14 {
-            let v = try valoracion.leer(i, "FFormatos123Data.cs:74")
-            guard v.count == 3 else { throw .fueraDeRango("FFormatos123Data.cs:74") }
+            let v = try valoracion.leer(i, "CondicionFormatos123:63")
+            guard v.count == 3 else { throw .fueraDeRango("CondicionFormatos123:64") }
             t.append(puestos(v, bits: [4, 2, 1]))
         }
         return t
@@ -72,8 +72,8 @@ public struct CondicionFormatos123: Sendable, Hashable {
     public func col1X2ToCol123(_ columna: String, numeroPartidos: Int) throws(ErrorDominio) -> String {
         var texto = ""
         for (i, c) in FormatoNET.mayusculas(columna).utf16.enumerated() {
-            let fila = try valoracion.leer(i, "FiltroFormatos123.cs:318")
-            guard fila.count == 3, i < numeroPartidos else { throw .fueraDeRango("FiltroFormatos123.cs:318") }
+            let fila = try valoracion.leer(i, "CondicionFormatos123:75")
+            guard fila.count == 3, i < numeroPartidos else { throw .fueraDeRango("CondicionFormatos123:76") }
             let p = Self.puestos(fila, bits: [1, 2, 3])
             // Con un `NaN` la fila queda en `null` y concatenarla no añade nada.
             if p != [0, 0, 0] { texto += String(c == 0x31 ? p[0] : c == 0x58 ? p[1] : p[2]) }

@@ -3,7 +3,7 @@ import Free1X2Base
 import Free1X2Formatos
 import Free1X2Motor
 
-// C#: Views/Ported/EscrutarCombinacionesFrmViewModel.cs (09 pantalla 44; CU-B04). El cálculo es `EscrutadorComb` (05 §4.2):
+// Ref.: 09 pantalla 44; CU-B04. El cálculo es `EscrutadorComb` (05 §4.2):
 // la primera candidata que cumple lanza (DEC-501) y las premiadas nunca reciben elementos (DEC-502).
 
 extension CasosCombinacion {

@@ -34,7 +34,7 @@ struct VistaModificador: View {
 
     private func aceptar() {
         guard var e = editor else { return }
-        // DEC-938: el reloj del C# se sustituye por el generador del entorno sembrado con los milisegundos.
+        // DEC-938: el reloj de Windows se sustituye por el generador del entorno sembrado con los milisegundos.
         var r = sesion.entorno.aleatorio(Int32(truncatingIfNeeded: Int(sesion.entorno.reloj.ahora().timeIntervalSince1970 * 1000)))
         do throws(ErrorDominio) {
             for i in filas.indices where filas[i].activo {
@@ -106,7 +106,7 @@ struct VistaModificador: View {
                     HStack {
                         Button("Ok", action: aceptar).buttonStyle(EstiloPrincipal()).disabled(editor == nil)
                         Button("Grabar") { Task { await grabar() } }.disabled(editor == nil)
-                        // «Cancelar» no hace nada en el C#.
+                        // «Cancelar» no hace nada en Windows.
                         Button("Cancelar") {}
                     }
                 }

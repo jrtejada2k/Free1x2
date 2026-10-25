@@ -1,6 +1,6 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/MotorCalculo/GrupoEquipos.cs, RelacionGE1.cs y FiltroGruposEquipos.cs (03 §14-15; 04 §11-12).
+// Ref.: 03 §14-15; 04 §11-12.
 
 /// Un grupo de equipos: en qué partidos juega el equipo y sus límites de puntos, victorias, empates y derrotas.
 public struct GrupoEquiposConfig: Sendable, Hashable {

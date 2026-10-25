@@ -1,7 +1,7 @@
-// C#: Free1X2.Domain/Utils/Tramo.cs (06 §2.10); consumidor: TramificarFormViewModel.cs:582-680
+// Ref.: 06 §2.10. Consumidor:
 
 /// Acumulador de un tramo del escrutinio por tramos: aciertos de 14 a 10, importes y balance (0,5 por columna).
-/// Valor en vez de clase: el C# solo comparte por referencia `premios`, que nadie vuelve a leer tras calcular.
+/// Valor en vez de clase: Windows solo comparte por referencia `premios`, que nadie vuelve a leer tras calcular.
 public struct Tramo: Sendable, Equatable {
     public let premios: [Double]
     public var numeroDeTramo = 0

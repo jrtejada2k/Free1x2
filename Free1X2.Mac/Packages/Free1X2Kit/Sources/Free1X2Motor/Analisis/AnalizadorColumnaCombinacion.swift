@@ -1,6 +1,6 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/Analisis/AnalizadorColumnaCombinacion.cs (06 §3.3).
+// Ref.: 06 §3.3.
 
 /// ¿Cumple esta columna la combinación? Sin memo ni filtro parcial; corta al primer fallo y **nunca** marca grupos ni
 /// conjuntos como válidos, así que los controles cuentan todos sus grupos como fallados (P1) [PRESERVAR].
@@ -8,7 +8,7 @@ enum AnalizadorColumnaCombinacion {
     /// `AnalizaColumna(long, Analizador, string[])` (:38-110). ponytail: sin If-Then; su único llamador
     /// (`EscrutadorComb`) usa un `Analizador` que solo carga grupos, controles y conjuntos.
     static func analizaColumna(_ columna: Columna, _ a: Analizador, _ pronosticos: [String]) throws(ErrorDominio) -> Bool {
-        let o = "AnalizadorColumnaCombinacion.cs:38-160"
+        let o = "AnalizadorColumnaCombinacion:11"
         let grupos = [Bool](repeating: false, count: a.grupos.count)
         for (i, g) in a.grupos.enumerated() {
             if i == 0, try hayFallosPronostico(columna, pronosticos) { return false }
@@ -45,7 +45,7 @@ enum AnalizadorColumnaCombinacion {
         var fallo = false
         while c != 0 {
             let signo = UInt8(truncatingIfNeeded: c & 7)
-            let p = UtilColumnas.convPartidoStrToByte(try pronosticos.leer(partido, "AnalizadorColumnaCombinacion.cs:119"))
+            let p = UtilColumnas.convPartidoStrToByte(try pronosticos.leer(partido, "AnalizadorColumnaCombinacion:48"))
             if signo & p != signo { fallo = true }
             c >>= 3
             partido += 1

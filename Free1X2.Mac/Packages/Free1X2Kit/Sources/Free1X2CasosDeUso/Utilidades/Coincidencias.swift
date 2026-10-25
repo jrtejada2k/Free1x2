@@ -3,7 +3,7 @@ import Free1X2Base
 import Free1X2Formatos
 import os
 
-// C#: Views/Ported/CoincidenciasViewModel.cs (08 §17; CU-A38…A42). Columnas con la codificación `S2N`/`N2S`
+// Ref.: 08 §17; CU-A38…A42. Columnas con la codificación `S2N`/`N2S`
 // (`FiltroPorGrupos.s1n/n1s`: X = 0, primer partido el más significativo).
 
 /// Resultado de «Calcular»: las válidas (índice y coincidencias de la última condición) y las distribuciones.
@@ -31,7 +31,7 @@ extension CasosUtilidades {
         "ISX7U", "ISD7U",
     ]
 
-    /// CU-A38 `Calcondis`: las 108 características de los 14 primeros signos (cualquier otro carácter cuenta como en el C#).
+    /// CU-A38 `Calcondis`: las 108 características de los 14 primeros signos (cualquier otro carácter cuenta como en Windows).
     public static func radiografia(_ columna: String) -> [Int] {
         var r = [Int](repeating: 0, count: 108)
         let c = Array(columna.utf16.prefix(14))

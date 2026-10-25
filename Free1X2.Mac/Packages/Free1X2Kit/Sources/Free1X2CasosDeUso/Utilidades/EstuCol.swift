@@ -2,8 +2,7 @@ import Foundation
 import Free1X2Base
 import Free1X2Motor
 
-// C#: Views/Ported/EstucolFrmViewModel.cs (09 pantalla 47; CU-B11) y VisorAnalisisColumnasAbdonFrmViewModel.cs (10 §101;
-// CU-C50…C52).
+// Ref.: 09 pantalla 47; CU-B11; 10 §101; CU-C50…C52.
 
 /// «Agrupación de Columnas»: A = (1,2)(3,4)…, B = (1,2)(2,3)…, C = (1,3)(2,4)…
 public enum AgrupacionEstuCol: Sendable, Hashable, CaseIterable {
@@ -155,7 +154,7 @@ public struct VisorAbdon: Sendable {
     }
 
     static func anadir(_ c: inout Contenedor, _ j: Int, _ k: Int, _ v: Int) throws(ErrorDominio) -> Bool {
-        guard c.indices.contains(j), c[j].indices.contains(k) else { throw .fueraDeRango("VisorAnalisisColumnasAbdonFrmViewModel.cs") }
+        guard c.indices.contains(j), c[j].indices.contains(k) else { throw .fueraDeRango("EstuCol:157") }
         var l = c[j][k] ?? []
         defer { c[j][k] = l }
         guard !l.contains(v) else { return false }
@@ -272,7 +271,7 @@ public struct VisorAbdon: Sendable {
     }
 
     /// CU-C52 `GenerarCondicion`: con los textos y contenedores globales. Una lista de agrupaciones vacía lanza al
-    /// grabar en el C# (`Substring(0, -1)`).
+    /// grabar en Windows (`Substring(0, -1)`).
     public func condicion(numeroPartidos n: Int) throws(ErrorDominio) -> CondicionesGrupo {
         let todos = CasosCondiciones.todosValores(n)
         let k = informe.columnas.count
@@ -309,7 +308,7 @@ public struct VisorAbdon: Sendable {
         r3.sandwichs = try UtilidadesEntradasValores.obtenerBoolArrayFromTxt(sandwichs, longitud: k / 4)
         r3.sandwichsTexto = sandwichs
         func unir(_ t: [String]) throws(ErrorDominio) -> String {
-            guard !t.isEmpty else { throw .fueraDeRangoLista("FColProbablesData.cs:569") }
+            guard !t.isEmpty else { throw .fueraDeRangoLista("EstuCol:311") }
             return t.joined(separator: "#")
         }
         r3.agrupacionesPasoFijoTexto = try unir(Self.textoAgrupaciones(pasoFijoGlobal))

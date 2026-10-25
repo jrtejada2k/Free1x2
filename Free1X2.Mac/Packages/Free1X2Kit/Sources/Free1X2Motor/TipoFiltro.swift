@@ -1,6 +1,6 @@
-// C#: Free1X2.Domain/MotorCalculo/Grupo.cs:94-133 (01 §4.2)
+// Ref.: 01 §4.2.
 
-/// Los 14 filtros de un grupo, en el orden fijo de `Grupo.filtros`. El `rawValue` es el `NombreFiltro` del C#.
+/// Los 14 filtros de un grupo, en el orden fijo de `Grupo.filtros`. El `rawValue` es el `NombreFiltro` de Windows.
 public enum TipoFiltro: String, Sendable, Codable, CaseIterable {
     case noVariantes = "NoVariantes"
     case valoracionSignos = "ValoracionSignos"

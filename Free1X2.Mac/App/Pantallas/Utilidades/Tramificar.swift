@@ -15,7 +15,7 @@ struct VistaTramificar: View {
     @State private var recaudacion = "7768049"
     // 14…10.
     @State private var premios = ["1165207,35", "29877,11", "1753,51", "165,38", "22,79"]
-    // Los «Bloq.» no se usan en ningún cálculo, como en el C#.
+    // Los «Bloq.» no se usan en ningún cálculo, como en Windows.
     @State private var bloqueados = [false, false, false, false, false]
     @State private var valoraciones: [[Double]] = []
     // Mín14, Máx14, Mín13 … Máx10.
@@ -556,7 +556,7 @@ struct VistaDialogoFiltrarPorLimites: View {
     }
 }
 
-/// «Grabar Tramos» (pantalla 37, `DialogoGrabarTramosFrm`): como en el C#, nadie consume el resultado (DEC-815).
+/// «Grabar Tramos» (pantalla 37, `DialogoGrabarTramosFrm`): como en Windows, nadie consume el resultado (DEC-815).
 struct VistaDialogoGrabarTramos: View {
     @State private var inicial = 0.0
     @State private var final = 0.0
@@ -579,7 +579,7 @@ struct VistaDialogoGrabarTramos: View {
     }
 }
 
-/// «Definición múltiple de jornadas y ficheros» (pantalla 34, `DialogoAnalisisMultipleDeTramosFrm`): como en el C#,
+/// «Definición múltiple de jornadas y ficheros» (pantalla 34, `DialogoAnalisisMultipleDeTramosFrm`): como en Windows,
 /// nadie consume el resultado (DEC-815).
 struct VistaDialogoAnalisisMultipleDeTramos: View {
     @Environment(Sesion.self) private var sesion

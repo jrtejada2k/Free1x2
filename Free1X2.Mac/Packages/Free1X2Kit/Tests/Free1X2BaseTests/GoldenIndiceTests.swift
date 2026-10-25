@@ -13,7 +13,6 @@ struct GoldenIndiceTests {
         }
         struct Fixture: Decodable {
             let ruta: String
-            let origen: String
             let sha256: String
         }
         let suites: [Suite]
@@ -75,12 +74,12 @@ struct GoldenIndiceTests {
         #expect(Set(enDisco) == Set(indice.suites.map(\.ruta)))
     }
 
-    @Test("INF-02: los fixtures son copias exactas de los del repo C#")
+    @Test("INF-02: los fixtures no han cambiado (SHA-256)")
     func fixturesIntactos() throws {
         #expect(!indice.fixtures.isEmpty)
         for fixture in indice.fixtures {
             let resumen = SHA256.hash(data: try Golden.bytes(fixture.ruta)).map { String(format: "%02x", $0) }.joined()
-            #expect(resumen == fixture.sha256, "\(fixture.ruta) (origen \(fixture.origen)): SHA-256 \(resumen)")
+            #expect(resumen == fixture.sha256, "\(fixture.ruta): SHA-256 \(resumen)")
         }
     }
 

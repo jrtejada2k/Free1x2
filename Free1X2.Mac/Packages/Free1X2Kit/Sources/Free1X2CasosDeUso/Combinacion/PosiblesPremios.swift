@@ -3,8 +3,7 @@ import Free1X2Base
 import Free1X2Formatos
 import Free1X2Motor
 
-// C#: Views/Ported/PosiblesPremiosFrmViewModel.cs (10 §79; CU-C11…C13), VisorPosiblesPremiosViewModel.cs (10 §104;
-// CU-C57) y MejoresOpcionesFrmViewModel.cs (09 §72; CU-B40).
+// Ref.: 10 §79; CU-C11…C13; 10 §104; CU-C57; 09 §72; CU-B40.
 
 /// Resultado de «Calcular» en «Posibles premios».
 public struct ResultadoPosiblesPremios: Sendable {
@@ -176,7 +175,7 @@ extension CasosCombinacion {
 
     /// `Escrutar` de «Mis mejores opciones»: no mira la última posición salvo con pleno.
     static func escrutarMejores(_ a: [UInt16], _ g: [UInt16], partidos n: Int, pleno: Bool) throws(ErrorDominio) -> Int {
-        let o = "MejoresOpcionesFrmViewModel.cs:254"
+        let o = "PosiblesPremios:178"
         var (aciertos, posibles) = (0, n)
         for i in stride(from: 0, to: a.count - 1, by: 1) {
             if posibles < 10 { break }

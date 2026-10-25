@@ -1,6 +1,6 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/MotorCalculo/FiltroDibujos.cs (03 §8).
+// Ref.: 03 §8.
 
 /// Dibujos `"e+d"` (nº de X + nº de 2) permitidos.
 public struct CondicionDibujos: Sendable, Hashable {
@@ -22,8 +22,8 @@ public struct CondicionDibujos: Sendable, Hashable {
         for texto in lista {
             let partes = trozos(texto, "+")
             let e = Int(try FormatoNET.convertToInt32(partes[0]))
-            let d = Int(try FormatoNET.convertToInt32(try partes.leer(1, "FiltroDibujos.cs:130")))
-            guard (0..<17).contains(e), (0..<17).contains(d) else { throw .fueraDeRango("FiltroDibujos.cs:130") }
+            let d = Int(try FormatoNET.convertToInt32(try partes.leer(1, "CondicionDibujos:25")))
+            guard (0..<17).contains(e), (0..<17).contains(d) else { throw .fueraDeRango("CondicionDibujos:26") }
             tabla[e * 17 + d] = true
         }
     }

@@ -1,6 +1,6 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/MotorCalculo/FiltroDiferencias.cs y Diferencia.cs (03 §12-13).
+// Ref.: 03 §12-13.
 
 final class FiltroDiferencias: FiltroColumna {
     /// Contadores de una `Diferencia` tras `analizar`: nº de valores distintos entre sub-grupos.
@@ -30,7 +30,7 @@ final class FiltroDiferencias: FiltroColumna {
         var vistosI = vistosV
         var vistosDib = [Bool](repeating: false, count: 17 * 17)
         var formatos = Set<Int64>()
-        let o = "Diferencia.cs:30-119"
+        let o = "FiltroDiferencias:33"
         for sel in d.partidosSimetricos {
             guard let sel else { throw .referenciaNula(o) }
             let c = UtilColumnas.ignorarPartidos(sel, col)
@@ -79,8 +79,8 @@ final class FiltroDiferencias: FiltroColumna {
 
     /// `AcX[n]`: `nil` ⇒ `NullReference`; fuera de rango ⇒ `IndexOutOfRange`.
     private static func ac(_ a: [Bool]?, _ n: Int) throws(ErrorDominio) -> Bool {
-        guard let a else { throw .referenciaNula("Diferencia.cs:108") }
-        return try a.leer(n, "Diferencia.cs:108")
+        guard let a else { throw .referenciaNula("FiltroDiferencias:82") }
+        return try a.leer(n, "FiltroDiferencias:83")
     }
 
     func analizar(_ c: Columna) throws(ErrorDominio) -> Bool {
@@ -108,6 +108,6 @@ final class FiltroDiferencias: FiltroColumna {
 
     /// (:124-127) [PRESERVAR] (DEC-104).
     func obtenNoAciertosTolerancias(_ letras: String) throws(ErrorDominio) -> Int {
-        throw ErrorDominio(.general, "The method or operation is not implemented.", origen: "FiltroDiferencias.cs:126")
+        throw ErrorDominio(.general, "The method or operation is not implemented.", origen: "FiltroDiferencias:111")
     }
 }

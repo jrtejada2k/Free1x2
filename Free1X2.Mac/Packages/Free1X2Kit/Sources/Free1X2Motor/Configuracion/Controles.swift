@@ -1,10 +1,10 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/MotorCalculo/ControlGrupos.cs y ControlConjuntos.cs (01 §2.7-2.8).
+// Ref.: 01 §2.7-2.8.
 
 /// Un control de grupos: los grupos que agrupa y, opcionalmente, cuántos pueden fallar.
 public struct ControlGruposConfig: Sendable, Hashable {
-    /// Mensaje que el C# muestra con `UserDialogs.ShowError` al poner valores incorrectos (:194,222).
+    /// Mensaje que Windows muestra con `UserDialogs.ShowError` al poner valores incorrectos.
     public static let mensajeError = "Hay errores en los valores introducidos"
 
     public var usaControlGrupos = false
@@ -15,7 +15,7 @@ public struct ControlGruposConfig: Sendable, Hashable {
 
     public init() {}
 
-    /// `PonerGruposControlados` (:179-197). Devuelve `false` si el C# habría mostrado `mensajeError`: el array queda
+    /// `PonerGruposControlados`. Devuelve `false` si Windows habría mostrado `mensajeError`: el array queda
     /// parcial (ceros desde el valor que falló). `ObtenerValoresSeparadosPorComas` lanza fuera del `try`.
     @discardableResult
     public mutating func ponerGruposControlados(_ texto: String) throws(ErrorDominio) -> Bool {
@@ -30,7 +30,7 @@ public struct ControlGruposConfig: Sendable, Hashable {
     }
 
     /// `PonerFallosPermitidos` (:199-232). `""` ⇒ sin control de fallos (el array anterior se queda). Devuelve `false` si el
-    /// C# habría mostrado `mensajeError`: el array queda parcial y `usaControlGrupos` sin cambiar.
+    /// Windows habría mostrado `mensajeError`: el array queda parcial y `usaControlGrupos` sin cambiar.
     @discardableResult
     public mutating func ponerFallosPermitidos(_ texto: String) throws(ErrorDominio) -> Bool {
         textoFallosPermitidos = texto

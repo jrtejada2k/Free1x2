@@ -3,10 +3,9 @@ import Free1X2Base
 import Free1X2Formatos
 import Free1X2Motor
 
-// C#: Views/Ported/CambioPuntosFrmViewModel.cs, ConfiguracionAnalisisFrmViewModel.cs y ConfiguracionFrmViewModel.cs
-// (08 pantallas 16, 24, 25; ESPEC_13 §4.2). Guardar escribe `parametros.free1x2` y no recarga la configuración (DP-04).
+// Ref.: 08 pantallas 16, 24, 25; ESPEC_13 §4.2. Guardar escribe `parametros.free1x2` y no recarga la configuración (DP-04).
 
-/// Valores de la pantalla «Configuración» (`ConfiguracionFrmViewModel.cs:25-90`), con sus defectos antes de cargar.
+/// Valores de la pantalla «Configuración», con sus defectos antes de cargar.
 public struct ConfiguracionEditable: Sendable, Hashable {
     public var numeroPartidos = 14.0
     public var separador = "5,9,12"
@@ -38,7 +37,7 @@ public enum CasosAjustes {
     static func ruta(_ entorno: Entorno) -> URL { entorno.rutas.base.appending(path: CasosInicio.ficheroParametros) }
 
     /// Aplica cambios en orden y escribe el fichero; si uno falla, lo ya cambiado se queda escrito (cada `Guardar*` del
-    /// C# reescribe el XML completo).
+    /// Windows reescribe el XML completo).
     static func guardar(
         _ entorno: Entorno, _ prefijo: String, _ cambios: (inout ArchivoParametros) throws(ErrorDominio) -> Void
     ) throws(ErrorDominio) {
@@ -56,7 +55,7 @@ public enum CasosAjustes {
 
     // MARK: Pantalla 16 · Cambiar Puntuación
 
-    /// CU-A36 (`CambioPuntosFrmViewModel.cs:35-49`): cualquier fallo ⇒ los tres a 0.
+    /// CU-A36: cualquier fallo ⇒ los tres a 0.
     public static func leerPuntosCP(entorno: Entorno) -> PuntosCP {
         (try? archivo(entorno).puntosCP()) ?? PuntosCP(fijos: 0, dobles: 0, triples: 0)
     }
@@ -73,7 +72,7 @@ public enum CasosAjustes {
 
     // MARK: Pantalla 24 · Configurar Análisis
 
-    /// CU-A62 (`ConfiguracionAnalisisFrmViewModel.cs:174-222`): cualquier fallo ⇒ log y las 20 a `false` (también `aTodo`).
+    /// CU-A62: cualquier fallo ⇒ log y las 20 a `false` (también `aTodo`).
     public static func leerOpcionesAnalisis(entorno: Entorno) -> OpcionesAnalisis {
         var leidas = OpcionesAnalisis()
         leidas.todo = false
@@ -96,7 +95,7 @@ public enum CasosAjustes {
 
     // MARK: Pantalla 25 · Configuración
 
-    /// CU-A64 (`ConfiguracionFrmViewModel.cs:98-158`): asigna en orden; el primer fallo corta (log) y el resto queda con los
+    /// CU-A64: asigna en orden; el primer fallo corta (log) y el resto queda con los
     /// defectos.
     public static func leerConfiguracionEditable(entorno: Entorno) -> ConfiguracionEditable {
         var e = ConfiguracionEditable()
@@ -141,7 +140,7 @@ public enum CasosAjustes {
         }
     }
 
-    /// CU-A65 (:166-208): valida, guarda en el orden del C# y devuelve el aviso de éxito.
+    /// CU-A65: valida, guarda en el orden de Windows y devuelve el aviso de éxito.
     public static func guardarConfiguracion(_ e: ConfiguracionEditable, entorno: Entorno) throws(ErrorDominio) -> String {
         try validarSeparadorJB(e.jb)
         try guardar(entorno, "No se pudo guardar la configuración: ") { (p: inout ArchivoParametros) throws(ErrorDominio) in

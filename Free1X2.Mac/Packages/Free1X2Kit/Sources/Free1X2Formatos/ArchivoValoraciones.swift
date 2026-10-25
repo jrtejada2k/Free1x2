@@ -2,7 +2,7 @@ import Foundation
 import Free1X2Base
 import Free1X2Motor
 
-// C#: Free1X2.Domain/Utils/Porcentajes.cs:81-498 (06 §2.7; 07 F07). Los diálogos de error del C# (`UserDialogs.ShowError`)
+// Ref.: 06 §2.7; 07 F07. Los diálogos de error de Windows (`UserDialogs.ShowError`)
 // se devuelven como `aviso`; la lectura se abandona y los valores ya leídos se quedan.
 
 /// Resultado de `new Porcentajes(…)` + `Leer()`.
@@ -41,8 +41,8 @@ public enum ArchivoValoraciones {
         /// `valores[fila, 0..2]` desde `partes[desde…]`; fuera de rango o mal formado lanza.
         func fila(_ fila: Int, _ partes: [String], _ desde: Int) throws(ErrorDominio) {
             for s in 0..<3 {
-                let v = try numero(try partes.leer(desde + s, "Porcentajes.cs"))
-                guard valores.indices.contains(fila) else { throw .fueraDeRango("Porcentajes.cs") }
+                let v = try numero(try partes.leer(desde + s, "ArchivoValoraciones:44"))
+                guard valores.indices.contains(fila) else { throw .fueraDeRango("ArchivoValoraciones:45") }
                 valores[fila][s] = v
             }
         }
@@ -52,7 +52,7 @@ public enum ArchivoValoraciones {
             do throws(ErrorDominio) {
                 for i in 0..<n {
                     for s in 0..<3 {
-                        let l = try lineas.leer(i * 3 + s, "Porcentajes.cs:109")
+                        let l = try lineas.leer(i * 3 + s, "ArchivoValoraciones:55")
                         valores[i][s] = try FormatoNET.convertToDouble(l.replacingOccurrences(of: ".", with: ","), cultura: cultura)
                     }
                 }
@@ -143,8 +143,8 @@ public enum ArchivoValoraciones {
         _ valores: [[Double]], formato: Int16, separador: Character, numeroPartidos n: Int, cultura: Cultura
     ) throws(ErrorDominio) -> Data {
         func v(_ i: Int, _ j: Int) throws(ErrorDominio) -> String {
-            let fila = try valores.leer(i, "Porcentajes.cs:369")
-            return FormatoNET.toString(try fila.leer(j, "Porcentajes.cs:369"), cultura: cultura)
+            let fila = try valores.leer(i, "ArchivoValoraciones:146")
+            return FormatoNET.toString(try fila.leer(j, "ArchivoValoraciones:147"), cultura: cultura)
         }
         var lineas: [String] = []
         switch formato {
@@ -168,7 +168,7 @@ public enum ArchivoValoraciones {
     /// `GuardarValoraciones(nombre, sep, valores, temporada, jornada)` (:422-481): histórico (formato 44). Con fichero,
     /// su separador detectado manda; la línea de esa temporada y jornada se sustituye o se añade al final, y se reescribe
     /// todo (líneas recortadas y en mayúsculas). Si el fichero no es de formato 44 devuelve el aviso y no escribe. Con la
-    /// guarda `Length >= 2` de la réplica viva (`HistoriaValoracionesFrmViewModel.cs:226`; la de `Porcentajes` no se llama).
+    /// guarda `Length >= 2` de la réplica viva (la de `Porcentajes` no se llama).
     public static func datosHistorico(
         existente: Data?, separador: Character, valores: [[Double]], temporada: String, jornada: String,
         numeroPartidos n: Int, cultura: Cultura
@@ -181,11 +181,11 @@ public enum ArchivoValoraciones {
         guard formato == 44 else { return (nil, avisoNoHistorico) }
         var nueva = temporada + String(sep) + jornada
         for i in 0..<n {
-            let fila = try valores.leer(i, "Porcentajes.cs:494")
+            let fila = try valores.leer(i, "ArchivoValoraciones:184")
             for x in 0..<3 {
                 nueva +=
                     String(sep)
-                    + FormatoNET.toString(try fila.leer(x, "Porcentajes.cs:494"), cultura: cultura)
+                    + FormatoNET.toString(try fila.leer(x, "ArchivoValoraciones:188"), cultura: cultura)
                     .replacingOccurrences(of: ".", with: ",")
             }
         }

@@ -1,6 +1,6 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/MotorCalculo/IFiltro.cs:25-40 (01 §4.1).
+// Ref.: 01 §4.1.
 
 /// Un filtro en ejecución: guarda el estado de su último `analizar`, que leen las tolerancias y el análisis.
 protocol FiltroColumna: AnyObject {

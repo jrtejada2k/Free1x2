@@ -1,10 +1,10 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/Utils/RangosHelper.cs (06 §2.5)
+// Ref.: 06 §2.5.
 
 /// Texto de rangos `"1,3-5,7"` → enteros o `[Bool]` indexado por valor.
 public enum RangosHelper {
-    /// Límite de memoria razonable para `obtenBoolArray` (el C# pediría `bool[10^9]`; 06 §2.5-6).
+    /// Límite de memoria razonable para `obtenBoolArray` (Windows pediría `bool[10^9]`; 06 §2.5-6).
     static let maximoValor = 10_000_000
 
     /// `ObtenIntArray` (:32-74): `"a-b"` ⇒ a…b (invertido ⇒ nada); con 3 o más partes, solo la primera; sin deduplicar.
@@ -31,7 +31,7 @@ public enum RangosHelper {
             for sub in trozos(parte, "-") { maximo = max(maximo, Int(try FormatoNET.convertToInt32(sub))) }
         }
         guard maximo <= maximoValor else {
-            throw ErrorDominio(.argumentoFueraDeRango, "Valor demasiado grande: \(maximo).", origen: "RangosHelper.cs:113")
+            throw ErrorDominio(.argumentoFueraDeRango, "Valor demasiado grande: \(maximo).", origen: "RangosHelper:34")
         }
         var valores = [Bool](repeating: false, count: maximo + 2)
         for parte in partes {
@@ -51,7 +51,7 @@ public enum RangosHelper {
 
     private static func marcar(_ valores: inout [Bool], _ i: Int) throws(ErrorDominio) {
         guard valores.indices.contains(i) else {
-            throw ErrorDominio(.argumentoFueraDeRango, "El índice estaba fuera del intervalo.", origen: "RangosHelper.cs:132")
+            throw ErrorDominio(.argumentoFueraDeRango, "El índice estaba fuera del intervalo.", origen: "RangosHelper:54")
         }
         valores[i] = true
     }
@@ -64,7 +64,7 @@ public struct ConjuntoRangos: Sendable, Hashable {
 
     public init() {}
 
-    /// El texto se fija antes de parsear: si lanza, queda el texto nuevo con el array anterior, como en C#.
+    /// El texto se fija antes de parsear: si lanza, queda el texto nuevo con el array anterior, como en Windows.
     public mutating func poner(_ s: String) throws(ErrorDominio) {
         texto = s
         if s.isEmpty {

@@ -3,7 +3,7 @@ import Free1X2Base
 import Free1X2Formatos
 import Free1X2Motor
 
-// C#: Views/Ported/ColGanadoraFrmViewModel.cs (08 pantalla 18) y AnalizarCombinacionFrmViewModel.cs (pantalla 7).
+// Ref.: 08 pantalla 18; pantalla 7.
 
 /// Lo que analiza el árbol de fallos (`UltimoAnalisis`).
 public struct EntradaAnalisisFallos: Sendable {

@@ -7,7 +7,7 @@ struct VistaControlGrupos: View {
     @State private var e = EditorControlGrupos(Combinacion(numeroPartidos: 14))
     @State private var cargado = false
 
-    /// Ejecuta una acción del editor y muestra los avisos «Hay errores…» que el C# habría sacado.
+    /// Ejecuta una acción del editor y muestra los avisos «Hay errores…» que Windows habría sacado.
     private func hacer(_ accion: (inout EditorControlGrupos) throws -> Void) -> Bool {
         let antes = e.errores
         defer { for _ in antes..<max(e.errores, antes) { sesion.alertas.error(ControlGruposConfig.mensajeError) } }

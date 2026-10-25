@@ -61,7 +61,7 @@ struct VistaRotacionDeSignos: View {
             estado = "Error: " + error.mensajeUsuario
         }
         ocupado = false
-        // DEC-1012: el `finally` del C# reescribe el estado con «Preparado»/«Faltan datos».
+        // DEC-1012: el `finally` de Windows reescribe el estado con «Preparado»/«Faltan datos».
         actualizar()
     }
 
@@ -85,7 +85,7 @@ struct VistaRotacionDeSignos: View {
         }
     }
 
-    /// Botón «Transponer» del legacy (`RotacionDeSignosFrm.cs:2264-2286`): `TransponedorAutomatico` con la jornada y la
+    /// Botón «Transponer» del legacy: `TransponedorAutomatico` con la jornada y la
     /// combinación, transposición a la salida (o a «<entrada>T») y esta pasa a ser la entrada.
     private func transponerAutomatico() async {
         guard let entrada else { return }
@@ -200,7 +200,7 @@ struct VistaRotacionDeSignos: View {
             HStack {
                 Text(estado).foregroundStyle(Color.textoSecundario)
                 Spacer()
-                // «Cancelar» no hace nada en el C# (`VM:206-210`).
+                // «Cancelar» no hace nada en Windows.
                 Button("Cancelar") {}
                 Button("Aceptar") { Task { await aceptar() } }.buttonStyle(EstiloPrincipal())
                     .disabled(ocupado || entrada == nil || salida == nil)

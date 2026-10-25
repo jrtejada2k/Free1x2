@@ -1,6 +1,6 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/MotorCalculo/FiltroSignosSeguidos.cs (02 §4).
+// Ref.: 02 §4.
 
 final class FiltroSignosSeguidos: FiltroColumna {
     /// Máscaras de clase (16 celdas): variantes `011`, unos `100`, equis `010`, doses `001`.
@@ -64,7 +64,7 @@ final class FiltroSignosSeguidos: FiltroColumna {
 
     func analizar(_ c: Columna) throws(ErrorDominio) -> Bool {
         rachas = Self.contar(c)
-        for (i, n) in rachas.enumerated() where !(try condicion.valores[i].permite(n, "FiltroSignosSeguidos.cs:77-80")) {
+        for (i, n) in rachas.enumerated() where !(try condicion.valores[i].permite(n, "FiltroSignosSeguidos:67")) {
             return false
         }
         // `AnalizaFiguras` (`SEG:387-394`): V ∧ 1 ∧ X ∧ 2 con corte.
@@ -81,7 +81,7 @@ final class FiltroSignosSeguidos: FiltroColumna {
         let nombres = ["variantes seguidas", "unos seguidos", "equis seguidas", "doses seguidos"]
         let tolerancia = ["!Tolerancia  en", "!Tolerancia en", "!Tolerancia en", "!Tolerancia en"]  // S5: dos espacios
         var texto = ""
-        let o = "FiltroSignosSeguidos.cs:82-100"
+        let o = "FiltroSignosSeguidos:84"
         for i in 0..<4 {
             let n = rachas[i]
             if !(try condicion.valores[i].permite(n, o)) { texto += "Fallo en \(nombres[i])  (\(n))#" }
@@ -101,7 +101,7 @@ final class FiltroSignosSeguidos: FiltroColumna {
         var n = 0
         for letra in letras.utf16 {
             for (i, valor) in rachas.enumerated()
-            where try condicion.valores[i].letra(valor, "FiltroSignosSeguidos.cs:319-347") == letra {
+            where try condicion.valores[i].letra(valor, "FiltroSignosSeguidos:104") == letra {
                 n += 1
             }
         }

@@ -3,7 +3,7 @@ import Free1X2Base
 import Free1X2Formatos
 import Free1X2Motor
 
-// C#: Views/Ported/ValoracionFrmViewModel.cs (10 pantalla 98; CU-C44…C47).
+// Ref.: 10 pantalla 98; CU-C44…C47.
 
 /// `PrepararValores`: arrays, Mín-Máx y los rangos con los vacíos rellenos.
 public struct ValoracionPreparada: Sendable, Hashable {
@@ -105,8 +105,7 @@ extension CasosCondiciones {
     }
 }
 
-// C#: Views/Ported/GuardarValoracionFrmViewModel.cs (09 pantalla 63; CU-B31) y HistoriaValoracionesFrmViewModel.cs
-// (09 pantalla 64; CU-B32).
+// Ref.: 09 pantalla 63; CU-B31; 09 pantalla 64; CU-B32.
 extension CasosCondiciones {
     /// CU-B31 `Aceptar`: disposición 3, 42 o 1 (en la 1 el separador no se usa).
     public static func guardarValoracion(

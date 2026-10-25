@@ -80,7 +80,7 @@ struct VistaImportExport: View {
             HStack {
                 Text(estado).foregroundStyle(Color.textoSecundario)
                 Spacer()
-                // «Cancelar» no hace nada en el C# (`VM:184-188`).
+                // «Cancelar» no hace nada en Windows.
                 Button("Cancelar") {}
                 Button("Hacer") { Task { await hacer() } }.buttonStyle(EstiloPrincipal())
             }
@@ -362,7 +362,7 @@ struct VistaFraccionador: View {
                 Text("Tiempo: " + tiempo)
             }
             HStack {
-                // «Cerrar» no hace nada en el C# (`VM:228-231`).
+                // «Cerrar» no hace nada en Windows.
                 Button("Cerrar") {}
                 Button("Fraccionar") { Task { await fraccionar() } }.buttonStyle(EstiloPrincipal()).disabled(!cargada)
             }

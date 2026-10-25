@@ -1,6 +1,6 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/MotorCalculo/FiltroFormatosSignos.cs, FormatosSignos.cs y FormatoSignos.cs (03 §9-11).
+// Ref.: 03 §9-11.
 
 final class FiltroFormatosSignos: FiltroColumna {
     let condicion: CondicionFormatosSignos
@@ -46,7 +46,7 @@ final class FiltroFormatosSignos: FiltroColumna {
     }
 
     static func cumple(_ f: FormatoSignos, _ n: Int) throws(ErrorDominio) -> Bool {
-        guard let a = f.arrayRangos else { throw .referenciaNula("FormatoSignos.cs:58") }
+        guard let a = f.arrayRangos else { throw .referenciaNula("FiltroFormatosSignos:49") }
         return a.count > n && a[n]
     }
 
@@ -70,11 +70,11 @@ final class FiltroFormatosSignos: FiltroColumna {
         guard contado else { return valida }
         var ok = true
         if !g.lineas.isEmpty {
-            guard let a = g.arrayLineas else { throw .referenciaNula("FormatosSignos.cs:66") }
+            guard let a = g.arrayLineas else { throw .referenciaNula("FiltroFormatosSignos:73") }
             ok = a.count > lineas && a[lineas]
         }
         if !g.global.isEmpty && ok {
-            guard let a = g.arrayGlobal else { throw .referenciaNula("FormatosSignos.cs:74") }
+            guard let a = g.arrayGlobal else { throw .referenciaNula("FiltroFormatosSignos:77") }
             ok = a.count > global && a[global]
         }
         return ok
@@ -112,11 +112,11 @@ final class FiltroFormatosSignos: FiltroColumna {
             }
             (lineasValidasGrupo[i], aparicionesGrupo[i]) = (lineas, global)
             if !g.lineas.isEmpty {
-                guard let a = g.arrayLineas else { throw .referenciaNula("FormatosSignos.cs:114") }
+                guard let a = g.arrayLineas else { throw .referenciaNula("FiltroFormatosSignos:115") }
                 if !(a.count > lineas && a[lineas]) { texto += "Fallo en Líneas en grupo \(numGrupo)  (\(lineas))#" }
             }
             if !g.global.isEmpty {
-                guard let a = g.arrayGlobal else { throw .referenciaNula("FormatosSignos.cs:119") }
+                guard let a = g.arrayGlobal else { throw .referenciaNula("FiltroFormatosSignos:119") }
                 if !(a.count > global && a[global]) { texto += "Fallo en Global en grupo \(numGrupo)  (\(global))#" }
             }
         }

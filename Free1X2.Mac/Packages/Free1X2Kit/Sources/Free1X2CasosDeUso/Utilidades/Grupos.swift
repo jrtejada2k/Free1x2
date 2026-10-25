@@ -1,7 +1,7 @@
 import Foundation
 import Free1X2Base
 
-// C#: Views/Ported/ParejasFrmViewModel.cs (10 §77; CU-C09) y TriosFrmViewModel.cs (10 §96; CU-C41).
+// Ref.: 10 §77; CU-C09; 10 §96; CU-C41.
 
 /// Filtro por parejas (`k` = 2: 14 filas, 7 niveles) o tríos (`k` = 3: 12 filas, 5 niveles).
 public struct FiltroPorGrupos: Sendable {
@@ -35,7 +35,7 @@ public struct FiltroPorGrupos: Sendable {
             }
             let nv = conocida ? f[k + combinacion] : 0
             guard nv > 0 else { continue }
-            guard nv <= recuento.count else { throw .fueraDeRango("ParejasFrmViewModel.cs:351") }
+            guard nv <= recuento.count else { throw .fueraDeRango("Grupos:38") }
             recuento[nv - 1] += 1
         }
         return (zip(recuento, limites).allSatisfy { $0 >= $1.minimo && $0 <= $1.maximo }, recuento)
@@ -45,7 +45,7 @@ public struct FiltroPorGrupos: Sendable {
     /// 14 caracteres lanza.
     static func s1n(_ columna: String) throws(ErrorDominio) -> Int {
         let u = Array(columna.utf16)
-        guard u.count >= 14 else { throw .fueraDeRango("ParejasFrmViewModel.cs:383") }
+        guard u.count >= 14 else { throw .fueraDeRango("Grupos:48") }
         return u.prefix(14).reduce(0) { $0 * 3 + ($1 == 0x31 ? 1 : $1 == 0x32 ? 2 : 0) }
     }
 
@@ -140,7 +140,7 @@ extension CasosUtilidades {
     }
 }
 
-// C#: Views/Ported/PremiadasFrmViewModel.cs (10 §80; CU-C14…C16). Misma codificación propia que Pares.
+// Ref.: 10 §80; CU-C14…C16. Misma codificación propia que Pares.
 extension CasosUtilidades {
     /// Columnas a distancia exacta `d` (1…4 ⇔ 13…10 aciertos) de `n`, en el orden de los bucles anidados (`Genera`).
     static func distantes(_ n: Int, _ d: Int, _ accion: (Int) -> Void) {
@@ -200,7 +200,7 @@ extension CasosUtilidades {
     }
 }
 
-// C#: Views/Ported/AnaCombiViewModel.cs (08 pantalla 4; CU-A04, CU-A05). Codificación propia (la de Pares).
+// Ref.: 08 pantalla 4; CU-A04, CU-A05. Codificación propia (la de Pares).
 
 /// Una fila de «Resultados»: combinación de signos del grupo y columnas que caen en ella.
 public struct FilaAnaCombi: Sendable, Hashable {
@@ -258,7 +258,7 @@ extension CasosUtilidades {
     }
 }
 
-// C#: Views/Ported/AnalizadorJPMViewModel.cs (08 pantalla 6; CU-A09…A11). Codificación propia (la de Pares).
+// Ref.: 08 pantalla 6; CU-A09…A11. Codificación propia (la de Pares).
 
 /// Resultado de «Iniciar»: casilla (0…35) de cada columna única (−1 = ausente), recuentos y la columna corta si la hubo.
 public struct ClasificacionJPM: Sendable {
@@ -341,7 +341,7 @@ extension CasosUtilidades {
     }
 
     /// CU-A11 `Analizar` (columna ya recortada y en mayúsculas, ≥ 14): puntuación y los 5 contadores tal como se muestran
-    /// (14, 13 y las restas de acumulados 12-13, 11-12, 10-11). `BuscaPremios` recorre en el orden del C#, con la
+    /// (14, 13 y las restas de acumulados 12-13, 11-12, 10-11). `BuscaPremios` recorre en el orden de Windows, con la
     /// recursión incondicional que puede contar una columna en varios niveles.
     @concurrent public static func premiosJPM(_ columna: String, valores: [Int], marcadas: [Bool]) async throws(ErrorDominio) -> (
         puntuacion: Int, premios: [Int]

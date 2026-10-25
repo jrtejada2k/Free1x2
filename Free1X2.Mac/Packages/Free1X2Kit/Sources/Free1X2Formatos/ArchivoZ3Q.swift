@@ -3,7 +3,7 @@ import Foundation
 import Free1X2Base
 import zlib
 
-// C#: Free1X2.Domain/Utils/CompresorZip.cs (06 §2.14; ESPEC_16 §3; F16). ZIP de una entrada con el bitmap de columnas:
+// Ref.: 06 §2.14; ESPEC_16 §3; F16. ZIP de una entrada con el bitmap de columnas:
 // contenedor propio; escritura con `compress2` de la zlib del sistema (respeta el nivel, DT-62) y lectura con
 // Compression.framework.
 
@@ -13,7 +13,7 @@ public enum ArchivoZ3Q {
     static let maximo = 14_348_907
 
     /// `Comprimir(bs, fichZip, fichBin, tamano, nivel)` (:41-85): `⌊tamano/8⌋ + 1` bytes con el bit `i` en el bit `i % 8`
-    /// del byte `i / 8`; devuelve el fichero y esa longitud sin comprimir (lo que devuelve el C#).
+    /// del byte `i / 8`; devuelve el fichero y esa longitud sin comprimir (lo que devuelve Windows).
     public static func comprimir(
         _ bits: ConjuntoBits, tamano: Int, nombreEntrada: String = "columnas.bin", fecha: Date, nivel: Int = 5
     ) throws(ErrorDominio) -> (datos: Data, tamano: Int) {
@@ -80,7 +80,7 @@ public enum ArchivoZ3Q {
     }
 
     static func error(_ motivo: String) -> ErrorDominio {
-        ErrorDominio(.entradaSalida, "El fichero comprimido no es válido: \(motivo).", origen: "CompresorZip.cs:94-120")
+        ErrorDominio(.entradaSalida, "El fichero comprimido no es válido: \(motivo).", origen: "ArchivoZ3Q:83")
     }
 
     /// Localiza el fin del directorio central, toma la primera entrada y la extrae (método 0 u 8; CRC comprobado).
@@ -93,7 +93,7 @@ public enum ArchivoZ3Q {
                 Array(z[$0..<$0 + 4]) == firma
             })
         else { throw error("sin directorio central") }
-        guard u16(fin + 10) > 0 else { throw .referenciaNula("CompresorZip.cs:99") }
+        guard u16(fin + 10) > 0 else { throw .referenciaNula("ArchivoZ3Q:96") }
         let cd = u32(fin + 16)
         guard u32(cd) == 0x0201_4B50 else { throw error("directorio central dañado") }
         let metodo = u16(cd + 10)

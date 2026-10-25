@@ -1,6 +1,6 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/MotorCalculo/FiltroSignosSeguidos.cs (02 §4) — estado configurable y sus `Set*`/`Get*`.
+// Ref.: 02 §4 — estado configurable y sus `Set*`/`Get*`.
 
 /// Racha máxima de variantes, 1, X y 2 permitida, con letras de tolerancia y figuras de rachas por clase.
 public struct CondicionSignosSeguidos: Sendable, Hashable {
@@ -20,7 +20,7 @@ public struct CondicionSignosSeguidos: Sendable, Hashable {
 
     /// `SetNoVariantes`, `SetNoUnos`, `SetNoEquis`, `SetNoDoses` (`SEG:414-516`).
     public mutating func set(_ c: Clase, _ texto: String) throws(ErrorDominio) {
-        try valores[c.rawValue].poner(texto, "FiltroSignosSeguidos.cs:414-516")
+        try valores[c.rawValue].poner(texto, "CondicionSignosSeguidos:23")
     }
 
     public func get(_ c: Clase) -> String { valores[c.rawValue].texto }

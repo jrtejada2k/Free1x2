@@ -3,8 +3,7 @@ import Free1X2Base
 import Free1X2Formatos
 import Free1X2Motor
 
-// C#: Views/Ported/TramificarFormViewModel.cs (10 §93; CU-C36…C38), TramificarGraficasFrmViewModel.cs (§94; CU-C39),
-// DialogoFiltrarPorLimitesFrmViewModel.cs (08 §35) y DialogoAnalisisMultipleDeTramosFrmViewModel.cs (08 §34).
+// Ref.: 10 §93; CU-C36…C38; §94; CU-C39; 08 §35; 08 §34.
 
 /// Lo que «Tramificar» deja para «Filtrar», «Ver columna», las gráficas y el modo acumulado.
 public struct EstadoTramificar: Sendable {
@@ -80,7 +79,7 @@ extension CasosUtilidades {
         return Int(FormatoNET.castInt32(FormatoNET.tryParseDouble(t, cultura: cultura) ?? 0))
     }
 
-    /// CU-C36 `Tramifica`: escruta y ordena (si hace falta) y reparte en tramos; `aviso` recibe los estados del C#.
+    /// CU-C36 `Tramifica`: escruta y ordena (si hace falta) y reparte en tramos; `aviso` recibe los estados de Windows.
     @concurrent public static func tramificar(
         _ estado: EstadoTramificar, _ p: ParametrosTramificar, cultura: Cultura, aviso: @Sendable (String) -> Void
     ) async throws(ErrorDominio) -> EstadoTramificar {
@@ -96,7 +95,7 @@ extension CasosUtilidades {
         var prob: Float = 0
         var cr = [[Double]](repeating: [0, 0, 0], count: 14)
         for i in 0..<14 {
-            let f = try v.leer(i, "TramificarFormViewModel.cs:OrdenaPorProductos")
+            let f = try v.leer(i, "Tramificar:98")
             prob += f[0]
             (cr[i][1], cr[i][2]) = (Double(f[1] - f[0]), Double(f[2] - f[0]))
         }
@@ -104,7 +103,7 @@ extension CasosUtilidades {
             aviso("Escrutando ...")
             var ap = (0..<n).map { ApuestaProbEscrutada(probabilidad: 0, columna: Int32($0), aciertos: 0) }
             let num = Int(try ConvertidorDeBases(numeroPartidos: 14).numero(p.columnaPremiada))
-            _ = try ap.leer(num, "TramificarFormViewModel.cs:Escrutar")
+            _ = try ap.leer(num, "Tramificar:106")
             ap[num].aciertos = 14
             func distancia1(_ ini: Int, _ desde: Int, _ d: Int) {
                 for partido in desde..<14 {
@@ -139,7 +138,7 @@ extension CasosUtilidades {
         let premios = p.premios.map { parseEsp($0, cultura) }
         let (ini, fin) = (Int(try FormatoNET.convertToInt32(p.columnaInicial)), Int(try FormatoNET.convertToInt32(p.columnaFinal)))
         let inc = Int(try FormatoNET.convertToInt32(p.columnasPorTramo))
-        // El C# se queda en un bucle infinito.
+        // Windows se queda en un bucle infinito.
         guard inc > 0 || ini >= fin else { throw ErrorDominio(.general, "El nº de columnas por tramo debe ser mayor que 0.") }
         let previos = p.acumular ? e.tramos : []
         var tramos: [Tramo] = []
@@ -151,7 +150,7 @@ extension CasosUtilidades {
             var aciertos = [0, 0, 0, 0, 0]
             var nc = nr
             while Double(nc) < Double(nr) + p.columnasPorTramo && nc <= n - 1 {
-                let a = try e.apuestas.leer(nc, "TramificarFormViewModel.cs:TramificarTramos")
+                let a = try e.apuestas.leer(nc, "Tramificar:153")
                 if !p.acumular { acum = -a.probabilidad }
                 if !e.eliminadas[Int(a.columna)] {
                     if p.acumular { acum = -a.probabilidad }
@@ -218,7 +217,7 @@ extension CasosUtilidades {
         for var x in extremos {
             if x[0] > 0 { x[0] -= 1 }
             for i in stride(from: x[0], to: x[1], by: 1) {
-                let c = Int(try e.apuestas.leer(i, "TramificarFormViewModel.cs:EjecutarFiltro").columna)
+                let c = Int(try e.apuestas.leer(i, "Tramificar:220").columna)
                 if x[2] == 0 { e.eliminadas[c] = true }
                 if x[3] > 0 { eliminar(c, 0, 1, x[3]) }
             }

@@ -1,4 +1,4 @@
-// Acceso a arrays con la semántica de C#: fuera de rango lanza `IndexOutOfRangeException` en vez de abortar (DT-03).
+// Acceso a arrays con la semántica de .NET: fuera de rango lanza `IndexOutOfRangeException` en vez de abortar (DT-03).
 
 extension Array {
     /// `a[i]`.

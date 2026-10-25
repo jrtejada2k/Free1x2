@@ -226,7 +226,7 @@ struct VistaBancoPruebas: View {
                 }
                 HStack {
                     Button("Analizar") { Task { await analizar() } }.buttonStyle(EstiloPrincipal()).disabled(ocupado)
-                    // El C# no cablea «Seleccionar jornadas…» (botón oculto y sin handler en el original).
+                    // Windows no cablea «Seleccionar jornadas…» (botón oculto y sin handler en el original).
                     Button("Seleccionar jornadas…") {}
                     Button("Grabar", action: grabar)
                     Button("Filtrar…") { limitesFiltro = CasosUtilidades.limitesBanco(columnas) }
@@ -309,7 +309,7 @@ struct VistaBancoPruebas: View {
                 CampoNumero(etiqueta: "Fila Nº", valor: $numFila)
                 HStack {
                     Button("Simplificar", action: simplificar)
-                    // El C# no cablea este «Cancelar» (DEC-915).
+                    // Windows no cablea este «Cancelar» (DEC-915).
                     Button("Cancelar") {}
                 }
             }

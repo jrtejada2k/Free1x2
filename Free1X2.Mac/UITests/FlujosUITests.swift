@@ -196,7 +196,7 @@ final class FlujosUITests: XCTestCase {
         menu(app, "Idioma", "English", en: "Visualización")
         menu(app, "Créditos…", en: "Free1X2")
         XCTAssertTrue(
-            app.staticTexts["Free software under the GPLv3 license, based on Free1X2 by Joan Duatis."].waitForExistence(timeout: 10))
+            app.staticTexts["Free software under the GPLv3 license."].waitForExistence(timeout: 10))
         menu(app, "Idioma", "Español", en: "Visualización")
     }
 

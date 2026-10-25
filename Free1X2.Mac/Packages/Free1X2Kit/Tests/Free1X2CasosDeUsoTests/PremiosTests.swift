@@ -104,7 +104,7 @@ struct OrdenarPorProbabilidadTests {
             _ = try await CasosUtilidades.ordenarPorProbabilidad(p, centrales: ValoresCentrales(), numeroPartidos: 14, entorno: entorno) {
                 _ in
             }
-            // Como en el C#, sin ninguna columna grabada no se crea el fichero.
+            // Como en Windows, sin ninguna columna grabada no se crea el fichero.
             guard entorno.archivos.existe(p.salida) else { return [] }
             return String(decoding: try entorno.archivos.leer(p.salida), as: UTF8.self).components(separatedBy: "\r\n").filter {
                 !$0.isEmpty

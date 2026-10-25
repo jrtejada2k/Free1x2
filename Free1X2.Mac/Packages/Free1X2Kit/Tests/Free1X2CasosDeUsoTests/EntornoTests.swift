@@ -49,7 +49,7 @@ struct SistemaArchivosLocalTests {
     }
 }
 
-/// 07 F22: formato de `log.txt`, BOM al crear y rotación a 1 MiB (`SV/Log.cs:88-132`).
+/// 07 F22: formato de `log.txt`, BOM al crear y rotación a 1 MiB.
 @Test func registroEnFichero() throws {
     let fecha = try #require(ISO8601DateFormatter().date(from: "2026-01-01T12:00:00Z"))
     #expect(RegistroSistema.linea(fecha, .aviso, "hola") == "2026-01-01 12:00:00.000Z [WARN] hola\r\n")

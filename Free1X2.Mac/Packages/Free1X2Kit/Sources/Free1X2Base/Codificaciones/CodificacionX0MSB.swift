@@ -1,4 +1,4 @@
-// C#: S14N/N14S, S2n/N2s, S2N/N2S, S1n/N1s y s1n de 9 pantallas; Free1X2.Domain/Utils/Comparador2.cs:56-89
+// S14N/N14S, S2n/N2s, S2N/N2S, S1n/N1s y s1n de 9 pantallas;
 // (ESPEC_16 §6; 08 §1.4; 10:578, 741, 1002, 1064, 1804)
 
 /// Columna ↔ número con `X`→0, `1`→1, `2`→2 (cualquier otro → 0) y el **primer** partido como dígito más
@@ -8,7 +8,7 @@ public enum CodificacionX0MSB {
     public static func numero(_ columna: String, partidos: Int) throws(ErrorDominio) -> Int32 {
         let texto = Array(columna.utf16)
         guard partidos <= texto.count else {
-            throw ErrorDominio(.argumentoFueraDeRango, "La columna tiene menos de \(partidos) signos.", origen: "Comparador2.cs:48")
+            throw ErrorDominio(.argumentoFueraDeRango, "La columna tiene menos de \(partidos) signos.", origen: "CodificacionX0MSB:11")
         }
         var n: Int32 = 0
         for c in texto.prefix(partidos) {

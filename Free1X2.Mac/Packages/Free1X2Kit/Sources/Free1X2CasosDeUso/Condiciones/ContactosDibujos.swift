@@ -2,7 +2,7 @@ import Foundation
 import Free1X2Base
 import Free1X2Motor
 
-// C#: Views/Ported/ContactosFrmViewModel.cs y DibujosFrmViewModel.cs (08 pantallas 26 y 40; CU-A67, CU-A90).
+// Ref.: 08 pantallas 26 y 40; CU-A67, CU-A90.
 
 extension CasosCondiciones {
     /// `GuardarDatos` de Contactos (:136-171): vacío = `0…15` (con N = 14 el 15 se sale del array y lanza, como hoy);

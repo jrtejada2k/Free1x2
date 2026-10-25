@@ -3,7 +3,7 @@ import Free1X2Base
 import Free1X2Formatos
 import Free1X2Motor
 
-// C#: Views/Ported/_Helpers/FiltroArchivoViewModelBase.cs:30-115 y el patrón de condición (10 §1.10; ESPEC_13 §4.6).
+// Y el patrón de condición (10 §1.10; ESPEC_13 §4.6).
 // Cada pantalla arma su «filtro temporal» como un `CondicionesGrupo` nuevo con solo su condición.
 
 public enum CasosCondiciones {
@@ -55,7 +55,7 @@ public enum CasosCondiciones {
 
     // MARK: Pantalla 75 · Variantes X y 2 (CU-C02)
 
-    /// `AplicarCondicionNoVariantes` (`NoVariantesFrmViewModel.cs:82-114`): un campo vacío = todos los valores; sin datos
+    /// `AplicarCondicionNoVariantes`: un campo vacío = todos los valores; sin datos
     /// la condición queda inactiva y vacía; con datos solo se activa la primera vez.
     public static func aplicarNoVariantes(
         variantes: String, equis: String, doses: String, en f: inout CondicionNoVariantes

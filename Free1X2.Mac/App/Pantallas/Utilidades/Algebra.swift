@@ -79,7 +79,7 @@ struct VistaAlgebraColumnas: View {
                 Text(resultado).foregroundStyle(Color.exito)
             }
             HStack {
-                // «Cancelar» no hace nada en el C# (`VM:205-209`).
+                // «Cancelar» no hace nada en Windows.
                 Button("Cancelar") {}
                 Button("Calcular") { Task { await calcular() } }.buttonStyle(EstiloPrincipal()).disabled(ocupado)
             }

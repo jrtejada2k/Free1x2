@@ -1,4 +1,4 @@
-// C#: Free1X2.WinUI/Services/QuinielaOnlineService.cs, JornadaCache.cs:52 (07 §6.9-6.11; docs/API_CLUBPROGOL.md)
+// Ref.: 07 §6.9-6.11; docs/API_CLUBPROGOL.md.
 
 /// País de la jornada online: España (con Pleno al 15) o México.
 public enum PaisQuiniela: String, Sendable, Codable, CaseIterable {

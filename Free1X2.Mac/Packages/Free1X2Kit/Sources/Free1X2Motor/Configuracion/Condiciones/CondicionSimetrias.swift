@@ -1,6 +1,6 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/MotorCalculo/FiltroSimetrias.cs y Simetria.cs (03 §6-7).
+// Ref.: 03 §6-7.
 
 /// Un grupo de partidos (1-based) que deben llevar el mismo signo.
 public struct Simetria: Sendable, Hashable {

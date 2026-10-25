@@ -1,7 +1,7 @@
 import Free1X2Motor
 import Testing
 
-/// 01 §4.2: orden fijo de `Grupo.filtros` y `NombreFiltro` del C# (`MC/Grupo.cs:94-133`).
+/// 01 §4.2: orden fijo de `Grupo.filtros` y `NombreFiltro` de Windows.
 @Test func losCatorceFiltrosEnElOrdenDeGrupo() {
     #expect(
         TipoFiltro.allCases.map(\.rawValue) == [

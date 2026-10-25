@@ -1,6 +1,6 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/Escrutinio/PosiblesPremiosContenedor.cs y PosiblesPremiosComparer.cs (ESPEC_05 §4.4).
+// Ref.: ESPEC_05 §4.4.
 
 /// Columnas que logran 10…16 aciertos con una ganadora hipotética. `CalcularValorTotal`/`ValorTotal` no tienen
 /// llamadores en la app y no se portan (DP-08).

@@ -2,8 +2,7 @@ import Foundation
 import Free1X2Base
 import Free1X2Formatos
 
-// C#: Views/Ported/FrmDependenciaLinealViewModel.cs (09 pantalla 54; CU-B21) y FrmReducidasPerfectasViewModel.cs
-// (pantalla 55; CU-B22). Toda la lógica vive en los VM.
+// Ref.: 09 pantalla 54; CU-B21; pantalla 55; CU-B22. Toda la lógica vive en los VM.
 
 /// `TestSignosPartidoATratar`: signo nuevo = `(Σ coef·signo) % modulo · corrector + independiente`.
 public struct ParametrosDependencia: Sendable, Hashable {
@@ -84,7 +83,7 @@ public struct FilaReducidaPerfecta: Sendable, Hashable {
 }
 
 extension CasosUtilidades {
-    /// Matrices de «Fortuna» (`VM:96-118`): filas = signos dependientes, columnas = independientes.
+    /// Matrices de «Fortuna»: filas = signos dependientes, columnas = independientes.
     static let m4TR13 = [[1, 1], [1, 2]]
     static let m13TR13 = [[0, 0, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 0, 0, 1, 1, 1, 2, 2, 2], [1, 2, 1, 2, 0, 1, 2, 0, 1, 2]]
     static let m11TR12 = [[1, 0, 1, 2, 2, 2], [1, 1, 0, 1, 1, 2], [1, 1, 2, 0, 2, 1], [1, 2, 1, 1, 0, 1], [1, 2, 2, 2, 1, 0]]
@@ -100,7 +99,7 @@ extension CasosUtilidades {
         func error(_ m: String) -> ErrorDominio { ErrorDominio(.general, m) }
         func activo(_ f: FilaReducidaPerfecta, _ s: Int) -> Bool { f.pronostico[min(s, 2)] }
         for i in stride(from: 0, to: longitud, by: 1) {
-            let f = try filas.leer(i, "FrmReducidasPerfectasViewModel.cs:TestSignos")
+            let f = try filas.leer(i, "Dependencia:102")
             if !activo(f, f.base) { throw error("La columna base no está incluida en el pronóstico") }
         }
         let marcados = filas.map { $0.pronostico.count(where: \.self) }

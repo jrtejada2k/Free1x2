@@ -1,6 +1,6 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/Utils/SumadorCombinaciones.cs (06 §2.9); pantalla «Operaciones con combinaciones» (CU-A03)
+// Ref.: 06 §2.9. Pantalla «Operaciones con combinaciones» (CU-A03)
 
 /// Operación del álgebra de combinaciones (`AlgebraCombTipo`).
 public enum AlgebraComb: String, Sendable, Codable, CaseIterable {
@@ -8,11 +8,11 @@ public enum AlgebraComb: String, Sendable, Codable, CaseIterable {
 }
 
 public struct ResultadoAlgebra: Sendable, Equatable {
-    /// Columnas a grabar, en orden; vacío ⇒ el C# no llega a crear el fichero de salida.
+    /// Columnas a grabar, en orden; vacío ⇒ Windows no llega a crear el fichero de salida.
     public var columnas: [String]
     public var columnasFinal: Int
     public var columnasRepetidas: Int
-    /// `MensajeFinCalculo`, con `\n` literal como en el C#.
+    /// `MensajeFinCalculo`, con `\n` literal como en Windows.
     public var mensaje: String
 }
 

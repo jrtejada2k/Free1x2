@@ -1,10 +1,10 @@
-// C#: Free1X2.Domain/Utils/UtilColumnas.cs (06 §1.4, §2.1). Solo lo que tiene consumidores.
+// Ref.: 06 §1.4, §2.1. Solo lo que tiene consumidores.
 
 /// Conversiones texto ↔ `Columna` de 3 bits. El partido 1 ocupa los bits bajos.
 public enum UtilColumnas {
     private static let signos: [UInt16] = Array("2X1".utf16)
 
-    /// Peso de un carácter en la columna: `2`→1, `X`→2, `1`→4. Cualquier otro: `IndexOf = −1` y C# hace `1 << −1`
+    /// Peso de un carácter en la columna: `2`→1, `X`→2, `1`→4. Cualquier otro: `IndexOf = −1` y Windows hace `1 << −1`
     /// (contador enmascarado a 5 bits) = `Int32.min`, que se extiende con signo al combinarse con `long` [PRESERVAR].
     @inline(__always)
     static func peso(_ c: UInt16) -> Int64 {
@@ -30,7 +30,7 @@ public enum UtilColumnas {
 
     /// `ConvStrToLong(s, int)` (:186-195): completa con `faltan` unos (1…15).
     public static func convStrToLong(_ s: String, faltan: Int) throws(ErrorDominio) -> Columna {
-        guard (1...15).contains(faltan) else { throw fueraDeRango("UtilColumnas.cs:188") }
+        guard (1...15).contains(faltan) else { throw fueraDeRango("UtilColumnas:33") }
         return convStrToLong(s + String(repeating: "1", count: faltan))
     }
 
@@ -43,7 +43,7 @@ public enum UtilColumnas {
     /// `ConvStrToLong(s, bool[])` (:205-220): los partidos no marcados quedan a 0.
     public static func convStrToLong(_ s: String, marcados: [Bool]) throws(ErrorDominio) -> Columna {
         let texto = Array(s.utf16)
-        guard marcados.count >= texto.count else { throw fueraDeRango("UtilColumnas.cs:210") }
+        guard marcados.count >= texto.count else { throw fueraDeRango("UtilColumnas:46") }
         var res: Int64 = 0
         for i in stride(from: texto.count - 1, through: 0, by: -1) {
             res = marcados[i] ? (res &<< 3) ^ peso(texto[i]) : res &<< 3
@@ -70,14 +70,14 @@ public enum UtilColumnas {
         salida.reserveCapacity(16)
         while l != 0 {
             let k = Int(l & 7) >> 1
-            guard salida.count < 22, k < 3 else { throw fueraDeRango("UtilColumnas.cs:40") }
+            guard salida.count < 22, k < 3 else { throw fueraDeRango("UtilColumnas:73") }
             salida.append(signos[k])
             l >>= 3
         }
         return String(decoding: salida, as: UTF16.self)
     }
 
-    /// `ObtenerSignoInt` (:66-76): contador de desplazamiento enmascarado a 6 bits, como C#.
+    /// `ObtenerSignoInt`: contador de desplazamiento enmascarado a 6 bits, como Windows.
     @inline(__always)
     public static func obtenerSignoInt(_ columna: Columna, partido: Int) -> Int {
         Int((columna &>> Int64((partido - 1) * 3)) & 7)
@@ -111,11 +111,11 @@ public enum UtilColumnas {
         }
     }
 
-    /// `ObtenerStringFromLongApuestaMultiple` (:379-388): `0` lanza (`Substring(0, −1)`); un negativo no termina en C#.
+    /// `ObtenerStringFromLongApuestaMultiple`: `0` lanza (`Substring(0, −1)`); un negativo no termina en Windows.
     public static func obtenerStringFromLongApuestaMultiple(_ columna: Columna) throws(ErrorDominio) -> String {
         guard columna > 0 else {
             throw ErrorDominio(
-                columna == 0 ? .argumentoFueraDeRango : .operacionInvalida, "", origen: "UtilColumnas.cs:387")
+                columna == 0 ? .argumentoFueraDeRango : .operacionInvalida, "", origen: "UtilColumnas:118")
         }
         var l = columna
         var partes: [String] = []

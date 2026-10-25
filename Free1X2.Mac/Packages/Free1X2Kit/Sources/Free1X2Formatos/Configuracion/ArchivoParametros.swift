@@ -2,10 +2,10 @@ import Foundation
 import Free1X2Base
 import Free1X2Motor
 
-// C#: Free1X2.Domain/EntradaSalida/AConfiguracion.cs y la carga de VariablesGlobales.cs:62-175 (07 F01).
+// La carga de (07 F01).
 // No se portan el diccionario `.lang` (DEC-707), la fecha de notificaciones ni `ObtenEquipos` (vestigiales, DP-08).
 
-/// `parametros.free1x2` cargado: cada `Obten*` navega como el C# y cada `Guardar*` cambia sus atributos y re-serializa
+/// `parametros.free1x2` cargado: cada `Obten*` navega como Windows y cada `Guardar*` cambia sus atributos y re-serializa
 /// el documento entero (los nodos desconocidos y comentarios se conservan).
 public struct ArchivoParametros: Sendable {
     public private(set) var documento: NodoXML
@@ -39,7 +39,7 @@ public struct ArchivoParametros: Sendable {
     // MARK: Obten* (:58-453)
 
     public func puntosCP() throws(ErrorDominio) -> PuntosCP {
-        let o = "AConfiguracion.cs:62-66"
+        let o = "ArchivoParametros:42"
         let n = try nodo("CP", o)
         return PuntosCP(
             fijos: Int(try FormatoNET.convertToInt32(try n.atributo("fijos", o))),
@@ -55,18 +55,18 @@ public struct ArchivoParametros: Sendable {
     }
 
     public func actualizarAlInicio() throws(ErrorDominio) -> Bool {
-        let o = "AConfiguracion.cs:103-105"
+        let o = "ArchivoParametros:58"
         return try FormatoNET.convertToBoolean(try nodo("actualizador", o).atributo("actualizarAlInicio", o))
     }
 
     public func confirmacionSalir() throws(ErrorDominio) -> Bool {
-        let o = "AConfiguracion.cs:112-114"
+        let o = "ArchivoParametros:63"
         return try FormatoNET.convertToBoolean(try nodo("salir", o).atributo("confirmacionSalir", o))
     }
 
     /// `ObtenConfiguracionAnalisis` (:117-143): asigna bandera a bandera (`ref`); lo leído antes de un error se queda.
     public func analisis(_ a: inout OpcionesAnalisis) throws(ErrorDominio) {
-        let o = "AConfiguracion.cs:121-142"
+        let o = "ArchivoParametros:69"
         let n = try nodo("analisis", o)
         func b(_ nombre: String) throws(ErrorDominio) -> Bool {
             try FormatoNET.convertToBoolean(try n.atributo(nombre, o))
@@ -95,7 +95,7 @@ public struct ArchivoParametros: Sendable {
 
     /// `ObtenNumPartidos(ref int, ref string[])` (:145-152): `Convert.ToInt16` y `separador.Split(',')`.
     public func partidos() throws(ErrorDominio) -> (numero: Int, separador: [String]) {
-        let o = "AConfiguracion.cs:148-151"
+        let o = "ArchivoParametros:98"
         let n = try nodo("partidos", o)
         let numero = Int(try FormatoNET.convertToInt16(try n.atributo("numero", o)))
         return (numero, trozos(try n.atributo("separador", o), ","))
@@ -103,7 +103,7 @@ public struct ArchivoParametros: Sendable {
 
     /// `ObtenNumPartidos(ref int, ref string)` (:153-159): el separador como texto.
     public func separadorTexto() throws(ErrorDominio) -> String {
-        let o = "AConfiguracion.cs:156-158"
+        let o = "ArchivoParametros:106"
         return try nodo("partidos", o).atributo("separador", o)
     }
 
@@ -115,13 +115,13 @@ public struct ArchivoParametros: Sendable {
     }
 
     public func idioma() throws(ErrorDominio) -> String {
-        let o = "AConfiguracion.cs:175-176"
+        let o = "ArchivoParametros:118"
         return try nodo("idioma", o).atributo("valor", o)
     }
 
     /// `ObtenValoresLAE(ref double…)` (:402-413): `float.Parse(…, es-ES)` ensanchado a `Double` (T3).
     public func lae() throws(ErrorDominio) -> ConfigLAE {
-        let o = "AConfiguracion.cs:407-412"
+        let o = "ArchivoParametros:124"
         let n = try nodo("LAE", o)
         var l = ConfigLAE()
         l.precioApuesta = Double(try FormatoNET.parseFloat(try n.atributo("PrecioApuesta", o), cultura: .esES))
@@ -131,7 +131,7 @@ public struct ArchivoParametros: Sendable {
         return l
     }
 
-    /// DT-97: el Progol en `<Progol><OrdenarApuestas …/></Progol>`, con los mismos atributos que `<LAE>` (el C# solo lee el
+    /// DT-97: el Progol en `<Progol><OrdenarApuestas …/></Progol>`, con los mismos atributos que `<LAE>` (Windows solo lee el
     /// primer hijo de `<LAE>`, así que no le afecta). Sin el nodo, o con un valor ilegible, los de fábrica.
     public func laeMexico() -> ConfigLAE {
         var l = ConfigLAE.mexico
@@ -148,7 +148,7 @@ public struct ArchivoParametros: Sendable {
 
     /// `ObtenValoresLAE(ref string…)` (:415-424): los textos tal cual.
     public func laeTextos() throws(ErrorDominio) -> [String] {
-        let o = "AConfiguracion.cs:420-423"
+        let o = "ArchivoParametros:151"
         let n = try nodo("LAE", o)
         var r: [String] = []
         for a in ["PrecioApuesta", "PorcentajeDestinadoAl14", "Recaudacion", "Moneda"] { r.append(try n.atributo(a, o)) }
@@ -157,7 +157,7 @@ public struct ArchivoParametros: Sendable {
 
     /// `ObtenValoresUtilSeparadorJB` (:448-453): el propio `separadorJB`, no su hijo.
     public func separadorJB() throws(ErrorDominio) -> String {
-        let o = "AConfiguracion.cs:452"
+        let o = "ArchivoParametros:160"
         guard let n = documento.primerElemento("separadorJB") else { throw .referenciaNula(o) }
         return try n.atributo("valores", o)
     }
@@ -167,23 +167,23 @@ public struct ArchivoParametros: Sendable {
     public mutating func guardarPuntosCP(_ p: PuntosCP) throws(ErrorDominio) {
         try cambiar(
             "CP", [("fijos", String(p.fijos)), ("dobles", String(p.dobles)), ("triples", String(p.triples))],
-            "AConfiguracion.cs:213-215")
+            "ArchivoParametros:170")
     }
 
     public mutating func guardarBarras(_ b: [Bool]) throws(ErrorDominio) {
         let nombres = ["tsFree", "tsFiltros", "tsCombinacion", "tsOperaciones", "tsArchivo", "tsUtilidades"]
-        try cambiar("toolbars", zip(nombres, b).map { ($0, DatosFiltro.bool($1)) }, "AConfiguracion.cs:228-233")
+        try cambiar("toolbars", zip(nombres, b).map { ($0, DatosFiltro.bool($1)) }, "ArchivoParametros:175")
     }
 
     public mutating func guardarActualizarAlInicio(_ v: Bool) throws(ErrorDominio) {
-        try cambiar("actualizador", [("actualizarAlInicio", DatosFiltro.bool(v))], "AConfiguracion.cs:246")
+        try cambiar("actualizador", [("actualizarAlInicio", DatosFiltro.bool(v))], "ArchivoParametros:179")
     }
 
     public mutating func guardarConfirmacionSalir(_ v: Bool) throws(ErrorDominio) {
-        try cambiar("salir", [("confirmacionSalir", DatosFiltro.bool(v))], "AConfiguracion.cs:393")
+        try cambiar("salir", [("confirmacionSalir", DatosFiltro.bool(v))], "ArchivoParametros:183")
     }
 
-    /// `GuardarConfiguracionAnalisis` (:254-286): en el orden de escritura del C#.
+    /// `GuardarConfiguracionAnalisis`: en el orden de escritura de Windows.
     public mutating func guardarAnalisis(_ a: OpcionesAnalisis) throws(ErrorDominio) {
         let b = DatosFiltro.bool
         try cambiar(
@@ -196,28 +196,28 @@ public struct ArchivoParametros: Sendable {
                 ("aCPs", b(a.cps)), ("aValoracion", b(a.valoracion)), ("aGruposEquipos", b(a.gruposEquipos)),
                 ("aDistancias", b(a.distancias)), ("aControlGrupos", b(a.controlGrupos)),
                 ("aControlConjuntos", b(a.controlConjuntos)), ("aDiferencias", b(a.diferencias)),
-            ], "AConfiguracion.cs:260-279")
+            ], "ArchivoParametros:199")
     }
 
     public mutating func guardarBoleto(numeroPartidos: Int, separador: String) throws(ErrorDominio) {
-        try cambiar("partidos", [("numero", String(numeroPartidos)), ("separador", separador)], "AConfiguracion.cs:292-293")
+        try cambiar("partidos", [("numero", String(numeroPartidos)), ("separador", separador)], "ArchivoParametros:203")
     }
 
     /// `GuardarDesplazamiento` (:301-315): dentro de `try/catch` vacío; si falla no se guarda nada (`false`).
     @discardableResult
     public mutating func guardarDesplazamiento(_ num: String) -> Bool {
-        (try? cambiar("desplazamiento", [("valor", num)], "AConfiguracion.cs:307")) != nil
+        (try? cambiar("desplazamiento", [("valor", num)], "ArchivoParametros:209")) != nil
     }
 
     /// `GuardarIdioma` (:332-346): como `GuardarDesplazamiento`.
     @discardableResult
     public mutating func guardarIdioma(_ idioma: String) -> Bool {
-        (try? cambiar("idioma", [("valor", idioma)], "AConfiguracion.cs:338")) != nil
+        (try? cambiar("idioma", [("valor", idioma)], "ArchivoParametros:215")) != nil
     }
 
     /// `GuardarValoresSeparadorJB` (:349-365): sobre el primer hijo de `utilidades`.
     public mutating func guardarSeparadorJB(_ valores: [String]) throws(ErrorDominio) {
-        try cambiar("utilidades", [("valores", valores.joined(separator: ","))], "AConfiguracion.cs:359")
+        try cambiar("utilidades", [("valores", valores.joined(separator: ","))], "ArchivoParametros:220")
     }
 
     /// `GuardarValoresLAE` (:367-385): precio con `"0.00"` y el resto con `ToString()`, todo en `es-ES`.
@@ -228,7 +228,7 @@ public struct ArchivoParametros: Sendable {
                 ("PrecioApuesta", FormatoNET.toStringFijo(l.precioApuesta, decimales: 2, cultura: .esES)),
                 ("PorcentajeDestinadoAl14", FormatoNET.toString(l.porcentaje14, cultura: .esES)),
                 ("Recaudacion", FormatoNET.toString(l.recaudacion, cultura: .esES)), ("Moneda", l.moneda),
-            ], "AConfiguracion.cs:373-376")
+            ], "ArchivoParametros:231")
     }
 
     /// DT-97: como `guardarLAE`, en `<Progol>`; si el fichero aún no lo tiene, se añade detrás de `<LAE>` (al final de

@@ -3,7 +3,7 @@ import Free1X2Base
 
 // Formatos de texto sencillos (07 F09, F10, F12, F13, F17). Escritura con CRLF (DP-02).
 
-/// F10 `Equipos/equipos{1,2,2b,Int}.dat` (`GestorEquiposFrmViewModel.cs:230-251,336-348`): un equipo por línea, Latin-1.
+/// F10 `Equipos/equipos{1,2,2b,Int}.dat`: un equipo por línea, Latin-1.
 public enum ArchivoEquiposCategoria {
     /// `StreamReader(ruta, Latin1)` + `ReadLine` mientras `Peek() != -1`: las líneas vacías cuentan.
     public static func leer(_ datos: Data) -> [String] {
@@ -21,7 +21,7 @@ public enum ArchivoEquiposCategoria {
     }
 }
 
-/// F17 equipos del boleto `*.txt` (`MainPageViewModel.cs:674-732`).
+/// F17 equipos del boleto `*.txt`.
 public enum ArchivoEquiposBoleto {
     public static let sinEquipos = "? - ?"
 
@@ -37,7 +37,7 @@ public enum ArchivoEquiposBoleto {
     }
 }
 
-/// F09 `Jornadas/Resultados.txt` (`EscrutiniosFrmViewModel.cs:323-369`).
+/// F09 `Jornadas/Resultados.txt`.
 public enum ArchivoResultados {
     public struct Fila: Sendable, Hashable {
         public var temporada: Int16
@@ -70,7 +70,7 @@ public enum ArchivoResultados {
     }
 }
 
-/// F12 `Impresion/impresoras.cfg` (`ControladoresImpresion.cs:45-62`): impresoras conocidas, sin deduplicar.
+/// F12 `Impresion/impresoras.cfg`: impresoras conocidas, sin deduplicar.
 public enum ArchivoImpresoras {
     public struct Impresora: Sendable, Hashable {
         public var modelo: String
@@ -85,7 +85,7 @@ public enum ArchivoImpresoras {
 
     /// Todos los hijos de `impresoras` (un comentario dentro ⇒ NRE).
     public static func leer(_ datos: Data) throws(ErrorDominio) -> [Impresora] {
-        let o = "ControladoresImpresion.cs:53-56"
+        let o = "ArchivosTexto:88"
         guard let lista = try LectorXML.cargar(datos).primerElemento("impresoras") else { throw .referenciaNula(o) }
         var r: [Impresora] = []
         for h in lista.hijos {
@@ -99,7 +99,7 @@ public enum ArchivoImpresoras {
     }
 }
 
-/// F13 `Impresion/imprebol.cfg` (`ImprimirBoletoFrmViewModel.cs:275-355`).
+/// F13 `Impresion/imprebol.cfg`.
 public enum ArchivoConfigImpresion {
     public struct Config: Sendable, Hashable {
         public var margenSuperior: Double
@@ -121,7 +121,7 @@ public enum ArchivoConfigImpresion {
         ])
     }
 
-    /// `nil` si faltan líneas (el C# devuelve `false`); cada valor es lo que sigue al primer `=` y, si no se puede leer,
+    /// `nil` si faltan líneas (Windows devuelve `false`); cada valor es lo que sigue al primer `=` y, si no se puede leer,
     /// queda el `previo`.
     public static func leer(_ datos: Data, previo: Config, cultura: Cultura) -> Config? {
         let l = TextoNET.lineas(datos)

@@ -39,7 +39,7 @@ struct VistaColProbables: View {
         }
     }
 
-    /// `AplicarImportacionAsync` (`ColProbablesFrmPage.xaml.cs`): «Sí» es el botón por defecto.
+    /// `AplicarImportacionAsync`: «Sí» es el botón por defecto.
     private func importar() async {
         let imp = sesion.traspasoCP.importadas ?? []
         sesion.traspasoCP.importadas = nil
@@ -471,7 +471,7 @@ struct VistaExportadorCPs: View {
         guard let url = await SelectorFicheros.guardar("columnas", [tipo, (etiqueta: "Todos los archivos", ext: ".")]) else { return }
         let clase = clm ? "con aciertos" : "simples"
         do throws(ErrorDominio) {
-            // Sin CPs el `.txt` no se crea (el C# solo abre el fichero al escribir la primera).
+            // Sin CPs el `.txt` no se crea (Windows solo abre el fichero al escribir la primera).
             if let datos = clm ? CasosCondiciones.datosCPsClm(lista) : CasosCondiciones.datosCPsSimples(lista) {
                 try sesion.entorno.archivos.escribir(datos, en: url, atomico: true)
             }

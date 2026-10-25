@@ -2,7 +2,7 @@ import Foundation
 import Free1X2Base
 import Free1X2Formatos
 
-// C#: Views/Ported/GraficoColumnasFrmViewModel.cs (09 pantalla 61; CU-B29) y el dibujo de GraficoColumnasFrmPage.xaml.cs.
+// Ref.: 09 pantalla 61; CU-B29, con el dibujo del gráfico.
 
 /// «Código de barras» de una combinación en 10 franjas de 959×25 (lienzo 977×309).
 public struct GraficoCombinacion: Sendable {
@@ -13,7 +13,7 @@ public struct GraficoCombinacion: Sendable {
         public let x, y, ancho, alto: Int
     }
 
-    /// ponytail: sin repetir (el C# añade una por apuesta; se ven igual), en orden de primera aparición.
+    /// ponytail: sin repetir (Windows añade una por apuesta; se ven igual), en orden de primera aparición.
     public var lineas: [Linea] = []
     public var rellenos: [Relleno] = []
     public var minimo = 0
@@ -27,7 +27,7 @@ extension CasosVer {
     /// `Convert.ToInt16(double)`: redondeo al par; fuera de rango (o NaN) lanza.
     static func int16NET(_ d: Double) throws(ErrorDominio) -> Int {
         let r = d.rounded(.toNearestOrEven)
-        guard r >= -32768 && r <= 32767 else { throw .desbordamiento("GraficoColumnasFrmViewModel.cs:ToInt16") }
+        guard r >= -32768 && r <= 32767 else { throw .desbordamiento("Grafico:30") }
         return Int(r)
     }
 

@@ -1,6 +1,6 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/MotorCalculo/FiltroDibujos.cs (03 §8).
+// Ref.: 03 §8.
 
 final class FiltroDibujos: FiltroColumna {
     /// Aquí las dos máscaras son de 16 partidos (en NoVariantes la de `2` es de 15).

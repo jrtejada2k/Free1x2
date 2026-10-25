@@ -1,6 +1,6 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/MotorCalculo/CondicionIfThen.cs, ControladorIfThen.cs y GrupoIfThen.cs (01 §2.16-2.18).
+// Ref.: 01 §2.16-2.18.
 
 /// `CondicionIfThen` en ejecución: los dos filtros se construyen en la primera columna (P-01), no antes.
 final class CondicionIfThen {
@@ -136,10 +136,10 @@ final class CondicionIfThen {
             c.contieneDatos = true
             return FiltroContactos(c, analisisActivo: false)
         }
-        throw .referenciaNula("CondicionIfThen.cs:247")
+        throw .referenciaNula("IfThen:139")
     }
 
-    /// Primera opción cuyo texto aparece en `nombre` (cadena de `else if` del C#).
+    /// Primera opción cuyo texto aparece en `nombre` (cadena de `else if` de Windows).
     static func primera<T>(_ nombre: String, _ opciones: [(String, T)]) -> T? {
         opciones.first { nombre.contains($0.0) }?.1
     }
@@ -148,7 +148,7 @@ final class CondicionIfThen {
     static func ultimaPalabra(_ texto: String) throws(ErrorDominio) -> String {
         guard let i = texto.utf16.lastIndex(of: 0x20) else {
             throw ErrorDominio(
-                .argumentoFueraDeRango, "El índice de inicio no puede ser menor que cero.", origen: "CondicionIfThen.cs:104")
+                .argumentoFueraDeRango, "El índice de inicio no puede ser menor que cero.", origen: "IfThen:151")
         }
         return FormatoNET.recortar(String(texto[i...]))
     }
@@ -156,7 +156,7 @@ final class CondicionIfThen {
     /// `texto.Substring(0, LastIndexOf(" ") - 1)`: el nombre sin el `:` final.
     static func nombreCondicion(_ texto: String) throws(ErrorDominio) -> String {
         guard let i = texto.utf16.lastIndex(of: 0x20), texto.utf16.distance(from: texto.utf16.startIndex, to: i) >= 1 else {
-            throw ErrorDominio(.argumentoFueraDeRango, "La longitud no puede ser menor que cero.", origen: "CondicionIfThen.cs:126")
+            throw ErrorDominio(.argumentoFueraDeRango, "La longitud no puede ser menor que cero.", origen: "IfThen:159")
         }
         return String(texto[..<texto.utf16.index(before: i)])
     }
@@ -187,24 +187,24 @@ final class ControladorIfThen {
         var fallos = 0
         for c in condiciones where !(try c.comprueba(columna)) { fallos += 1 }
         if !condiciones.isEmpty {
-            guard let a = aciertoCondiciones else { throw .referenciaNula("ControladorIfThen.cs:287") }
-            if !(try a.leer(condiciones.count - fallos, "ControladorIfThen.cs:287")) { return false }
+            guard let a = aciertoCondiciones else { throw .referenciaNula("IfThen:190") }
+            if !(try a.leer(condiciones.count - fallos, "IfThen:191")) { return false }
         }
         fallos = 0
         for g in grupos where !(try Self.comprueba(g, columna, gruposPartidos)) { fallos += 1 }
         if !grupos.isEmpty {
-            guard let a = aciertoGrupos else { throw .referenciaNula("ControladorIfThen.cs:296") }
-            return try a.leer(grupos.count - fallos, "ControladorIfThen.cs:296")
+            guard let a = aciertoGrupos else { throw .referenciaNula("IfThen:196") }
+            return try a.leer(grupos.count - fallos, "IfThen:197")
         }
         return true
     }
 
     /// `GrupoIfThen.CompruebaPronostico` (:67-81): el veredicto memoizado del grupo en la columna en curso.
     static func comprueba(_ g: GrupoIfThenConfig, _ columna: Columna, _ grupos: [Grupo]) throws(ErrorDominio) -> Bool {
-        var valido = try grupos.leerLista(g.numGrupoIf, "GrupoIfThen.cs:69").analiza(columna)
+        var valido = try grupos.leerLista(g.numGrupoIf, "IfThen:204").analiza(columna)
         if g.noIf { valido = !valido }
         if !valido { return true }
-        valido = try grupos.leerLista(g.numGrupoThen, "GrupoIfThen.cs:74").analiza(columna)
+        valido = try grupos.leerLista(g.numGrupoThen, "IfThen:207").analiza(columna)
         if g.noThen { valido = !valido }
         return valido
     }

@@ -1,4 +1,4 @@
-// C#: Free1X2.Domain/Utils/TablaDeSeleccion.cs, Combinacion.cs y Pral.cs (06 §2.11-§2.13).
+// Ref.: 06 §2.11-§2.13.
 
 /// Fila de mínimos/máximos del diálogo de selección del banco de pruebas: asignar `minimo` o `maximo` la marca.
 public struct TablaDeSeleccion: Sendable, Hashable {

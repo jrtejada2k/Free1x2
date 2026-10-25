@@ -3,9 +3,9 @@ import Free1X2Base
 import Free1X2Formatos
 import Free1X2Motor
 
-// C#: Views/Ported/BoletoFrmViewModel.cs:91-310 (08 pantalla 11; CU-A25, CU-A26) y VerBoletosViewModel.cs (10 pantalla 99).
+// Ref.: 08 pantalla 11; CU-A25, CU-A26; 10 pantalla 99.
 
-/// `OrdenarMatriz` (`Enums.cs:59-67`).
+/// `OrdenarMatriz`.
 public enum OrdenBoletos: Sendable, Hashable {
     case signo, variantes, equis, doses, signosSeguidos, interrupciones
 }
@@ -34,7 +34,7 @@ extension CasosVer {
 
     /// CU-A26 `OrdenarMatrizColumnas`: «No ordenar» = orden de cadenas (ordinal; equivale a la cultura con `1 X 2`) y se
     /// invierte en descendente; el resto, cubos por métrica `0…longitud(primera)` en orden de fichero; lo que queda fuera
-    /// de ese rango se pierde y la lista se completa con `""` (los `null` del C#).
+    /// de ese rango se pierde y la lista se completa con `""` (los `null` de Windows).
     public static func ordenarColumnas(_ cols: [String], orden: OrdenBoletos, descendente: Bool) -> [String] {
         guard let primera = cols.first else { return cols }
         if orden == .signo {
@@ -71,7 +71,7 @@ extension CasosVer {
 }
 
 extension CasosVer {
-    /// `CargarColumnas` (`VerBoletosEnEditorFrmViewModel.cs`, pantalla 100): boletos verticales en texto. El nº de
+    /// `CargarColumnas` (pantalla 100): boletos verticales en texto. El nº de
     /// boletos es `n/8 + 1` siempre que `n/8 < n` (sobra uno si n es múltiplo de 8) [PRESERVAR]; una columna más larga
     /// que la primera lanza como `colsTransformadas[i, j]`.
     public static func boletosEnTexto(_ columnas: [String], separador: [String]) throws(ErrorDominio) -> String {
@@ -80,7 +80,7 @@ extension CasosVer {
         var m: [[String]] = []
         for c in columnas {
             let u = Array(c.utf16)
-            guard u.count <= largo else { throw .fueraDeRango("VerBoletosEnEditorFrmViewModel.cs:TransformarColumnas") }
+            guard u.count <= largo else { throw .fueraDeRango("Boletos:83") }
             m.append((0..<largo).map { $0 < u.count ? String(decoding: [u[$0]], as: UTF16.self) : "" })
         }
         var boletos = columnas.count / 8

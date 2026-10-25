@@ -1,6 +1,6 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/MotorCalculo/FiltroDiferencias.cs y Diferencia.cs (03 §12-13).
+// Ref.: 03 §12-13.
 
 /// Sub-grupos de partidos y cuántos valores distintos pueden tomar entre ellos variantes, X, 2, dibujos, interrupciones y
 /// formatos.

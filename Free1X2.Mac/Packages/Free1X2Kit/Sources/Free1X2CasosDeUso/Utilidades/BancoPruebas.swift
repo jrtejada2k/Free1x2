@@ -3,8 +3,8 @@ import Free1X2Base
 import Free1X2Formatos
 import Free1X2Motor
 
-// C#: Views/Ported/BancoPruebasFrmViewModel.cs (08 pantalla 10; CU-A16…A24) y DialogoGrabarBancoPruebasFrmViewModel.cs
-// (pantalla 36). Columnas como índices de `ConvertidorDeBases` (partido 1 el dígito menos significativo, 1 = 0, X = 1, 2 = 2).
+// Ref.: 08 pantalla 10; CU-A16…A24; pantalla 36. Columnas como índices de `ConvertidorDeBases` (partido 1 el dígito menos significativo, 1
+// = 0, X = 1, 2 = 2).
 
 /// Una fila del resultado por columnas (modos «Columnas» y «Autoescrutinio»).
 public struct FilaBancoColumna: Sendable, Hashable, Identifiable {
@@ -88,7 +88,7 @@ public struct OrdenBanco: SortComparator {
     }
 }
 
-/// Lo que cambia un análisis; `nil` = el C# no toca ese texto o esa lista.
+/// Lo que cambia un análisis; `nil` = Windows no toca ese texto o esa lista.
 public struct ResultadoBanco: Sendable {
     public var numColumnas: String?
     public var gasto: String?
@@ -135,7 +135,7 @@ extension CasosUtilidades {
         var prob: Float = 0
         var cra = [[Float]](repeating: [0, 0, 0], count: 14)
         for p in 0..<14 {
-            let f = try va.leer(p, "BancoPruebasFrmViewModel.cs:CalcularReales")
+            let f = try va.leer(p, "BancoPruebas:138")
             prob += f[0]
             (cra[p][1], cra[p][2]) = (f[1] - f[0], f[2] - f[0])
         }
@@ -157,7 +157,7 @@ extension CasosUtilidades {
         OrdenacionPropia.ordenar(&ap) { $0.dif }
         var r = [[Double]](repeating: [0, 0, 0], count: 14)
         for i in stride(from: 0, to: numCol, by: 1) {
-            let c = Int(try ap.leer(i, "BancoPruebasFrmViewModel.cs:Calcula14Triples").col)
+            let c = Int(try ap.leer(i, "BancoPruebas:160").col)
             for p in 0..<14 { r[p][(c / potencias3[p]) % 3] += 1 }
         }
         let divisor = Double(numCol / 100)

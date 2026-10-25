@@ -3,7 +3,7 @@ import Free1X2Base
 import Free1X2Formatos
 import Free1X2Motor
 
-// C#: Views/Ported/EstimadorPremiosFrmViewModel.cs (09 pantalla 46; CU-B09, CU-B10).
+// Ref.: 09 pantalla 46; CU-B09, CU-B10.
 
 /// «Previsión de premios»: textos de acertantes y premio por categoría (14…10) y el nº de apuestas.
 public struct PrevisionPremios: Sendable, Hashable {
@@ -124,7 +124,7 @@ extension CasosUtilidades {
     }
 }
 
-// C#: Views/Ported/RentabilidadFrmViewModel.cs (10 §83; CU-C20, CU-C21). Todo el cálculo masivo en `Float` (T3).
+// Ref.: 10 §83; CU-C20, CU-C21. Todo el cálculo masivo en `Float` (T3).
 extension CasosUtilidades {
     static func base100Porcentajes(_ v: [[Double]]) throws(ErrorDominio) -> [[Float]] {
         try Porcentajes(valores: v).valoresBase100(numeroPartidos: 14)
@@ -167,7 +167,7 @@ extension CasosUtilidades {
             let conv = ConvertidorDeBases(numeroPartidos: numeroPartidos)
             for c in ArchivoColumnasTexto.columnas(try entorno.archivos.leer(entrada)) {
                 let n = Int(try conv.numero(c, partidos: 14))
-                guard n < total else { throw .fueraDeRango("ArchivoColumnasTexto.cs:285") }
+                guard n < total else { throw .fueraDeRango("Premios:170") }
                 bits[n] = true
             }
         }

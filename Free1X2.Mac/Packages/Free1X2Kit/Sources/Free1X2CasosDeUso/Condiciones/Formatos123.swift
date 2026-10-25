@@ -3,7 +3,7 @@ import Free1X2Base
 import Free1X2Formatos
 import Free1X2Motor
 
-// C#: Views/Ported/Formatos123FrmViewModel.cs (09 pantalla 51; CU-B18).
+// Ref.: 09 pantalla 51; CU-B18.
 
 /// Una fila de la lista de formatos tal como se escribe.
 public struct FilaFormato123: Sendable, Hashable {
@@ -79,7 +79,7 @@ extension CasosCondiciones {
     }
 }
 
-// C#: Views/Ported/AnalisisFormatos123FrmViewModel.cs (08 pantalla 5; CU-A06…A08).
+// Ref.: 08 pantalla 5; CU-A06…A08.
 
 /// Una fila del informe «Formato / Apariciones».
 public struct ConteoFormato: Sendable, Hashable {
@@ -110,8 +110,8 @@ extension CasosCondiciones {
         }
         var r = ""
         for (i, s) in columna.utf16.enumerated() {
-            let v = try valoracion.leer(i, "AnalisisFormatos123FrmViewModel.cs:301")
-            guard v.count >= 3 else { throw .fueraDeRango("AnalisisFormatos123FrmViewModel.cs:301") }
+            let v = try valoracion.leer(i, "Formatos123:113")
+            guard v.count >= 3 else { throw .fueraDeRango("Formatos123:114") }
             r += rangos(v)?[s == 0x31 ? 0 : s == 0x58 ? 1 : 2] ?? ""
         }
         return r
@@ -146,7 +146,7 @@ extension CasosCondiciones {
         var cuenta: [String: Int] = [:]
         for l in stride(from: 1, through: n, by: 1) {
             for p in 0...(n - l) {
-                guard p + l <= t.count else { throw .fueraDeRango("AnalisisFormatos123FrmViewModel.cs:262") }
+                guard p + l <= t.count else { throw .fueraDeRango("Formatos123:149") }
                 let s = String(decoding: t[p..<p + l], as: UTF16.self)
                 if cuenta[s] == nil { orden.append(s) }
                 cuenta[s, default: 0] += 1
@@ -156,7 +156,7 @@ extension CasosCondiciones {
     }
 }
 
-// C#: Views/Ported/CalculoFormatosFrmViewModel.cs (08 pantalla 15; CU-A34, CU-A35).
+// Ref.: 08 pantalla 15; CU-A34, CU-A35.
 extension CasosCondiciones {
     /// CU-A34/A35 `SacarFormato`: ventanas de 2…5 signos en orden de primera aparición (capacidades 9/12/11/10: lo que no
     /// cabe se pierde) y contactos (sobre la columna sin `*`); `AppendLine` = `\r\n`.

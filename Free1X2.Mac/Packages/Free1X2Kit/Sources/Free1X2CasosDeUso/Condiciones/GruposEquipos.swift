@@ -2,8 +2,8 @@ import Foundation
 import Free1X2Base
 import Free1X2Motor
 
-// C#: Views/Ported/GruposEquiposFrmViewModel.cs (09 pantalla 62; CU-B30). Copia de trabajo de grupos y relaciones; el
-// filtro `_filtroGE` es el del grupo en edición hasta Borrar o Abrir. DT-59: las listas son valores (el C# compartía la
+// Ref.: 09 pantalla 62; CU-B30. Copia de trabajo de grupos y relaciones; el
+// filtro `_filtroGE` es el del grupo en edición hasta Borrar o Abrir. DT-59: las listas son valores (Windows compartía la
 // lista con el filtro tras `GuardarDatos`, y los cambios posteriores sin Aceptar llegaban al filtro).
 
 /// Estado de la pantalla «Grupos de Equipos».
@@ -109,7 +109,7 @@ public struct EditorGruposEquipos: Sendable {
         }
         let i = noGE < grupos.count ? noGE : grupos.count - 1
         var g = grupos[i]
-        defer { grupos[i] = g }  // lo ya escrito se queda aunque lance (objeto compartido en el C#)
+        defer { grupos[i] = g }  // lo ya escrito se queda aunque lance (objeto compartido en Windows)
         try guardarDatos(en: &g)
     }
 
@@ -129,7 +129,7 @@ public struct EditorGruposEquipos: Sendable {
         if noGE == 0 {
             if !grupos.isEmpty { grupos.remove(at: 0) }
         } else {
-            guard grupos.indices.contains(noGE) else { throw .fueraDeRangoLista("GruposEquiposFrmViewModel.cs:762") }
+            guard grupos.indices.contains(noGE) else { throw .fueraDeRangoLista("GruposEquipos:132") }
             grupos.remove(at: noGE)
             noGE -= 1
         }
@@ -215,7 +215,7 @@ public struct EditorGruposEquipos: Sendable {
         if noRel == 0 {
             if !relaciones.isEmpty { relaciones.remove(at: 0) }
         } else {
-            guard relaciones.indices.contains(noRel) else { throw .fueraDeRangoLista("GruposEquiposFrmViewModel.cs:807") }
+            guard relaciones.indices.contains(noRel) else { throw .fueraDeRangoLista("GruposEquipos:218") }
             relaciones.remove(at: noRel)
             noRel -= 1
         }
@@ -271,7 +271,7 @@ public struct EditorGruposEquipos: Sendable {
     }
 
     /// `ObtenerFiltroTemporal` (:916-993): el grupo en pantalla también se vuelca en la copia de trabajo y, si el último
-    /// queda vacío, se quita de ella (efecto lateral del C#).
+    /// queda vacío, se quita de ella (efecto lateral de Windows).
     public mutating func temporal() throws(ErrorDominio) -> CondicionGruposEquipos {
         var t = CondicionGruposEquipos()
         var g = grupos
@@ -283,7 +283,7 @@ public struct EditorGruposEquipos: Sendable {
             try guardarDatos(en: &g[g.count - 1])
         }
         if let u = g.last, Self.necesitaBorrar(u) {
-            guard grupos.indices.contains(g.count - 1) else { throw .fueraDeRangoLista("GruposEquiposFrmViewModel.cs:942") }
+            guard grupos.indices.contains(g.count - 1) else { throw .fueraDeRangoLista("GruposEquipos:286") }
             grupos.remove(at: g.count - 1)
         }
         if !g.isEmpty { (t.contieneDatos, t.activa) = (true, true) }

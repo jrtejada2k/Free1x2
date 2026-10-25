@@ -1,12 +1,12 @@
 import Free1X2Base
 
-// C#: el estado configurable de Analizador.cs, ControladorGrupos.cs, GrupoPartidos.cs y ControladorIfThen.cs (01 §2.2-2.8,
+// El estado configurable del analizador, los controles de grupos, los grupos de partidos y los «si… entonces» (01 §2.2-2.8,
 // §2.16-2.18): lo que guarda un `.comb` y edita la pantalla de inicio (ESPEC_11 §4.2).
 
 /// Pronósticos, grupos, controles e If-Then de una combinación.
 public struct Combinacion: Sendable, Hashable {
     public let numeroPartidos: Int
-    /// `Pronosticos`: `nil` hasta el primer `setPronostico`; entonces N elementos `nil` (`Analizador.cs:439-443`).
+    /// `Pronosticos`: `nil` hasta el primer `setPronostico`; entonces N elementos `nil`.
     public var pronosticos: [String?]?
     /// Archivo-filtro de columnas (`""` = modo pronóstico) y relleno de líneas cortas (`CompletarCon`).
     public var archivoColumnasBase = ""
@@ -17,7 +17,7 @@ public struct Combinacion: Sendable, Hashable {
     public var usaControlConjuntos = false
     public var ifThen: IfThenConfig?
 
-    /// `new Analizador()` (`Analizador.cs:57-82`) con `new ControladorGrupos()` (`ControladorGrupos.cs:38-62`): control 0 con
+    /// `new Analizador()` con `new ControladorGrupos()`: control 0 con
     /// el grupo 0, conjunto 0 = `{"0", "0"}` y el grupo base añadido con `AddGrupo`.
     public init(numeroPartidos: Int) {
         self.numeroPartidos = numeroPartidos
@@ -37,22 +37,22 @@ public struct Combinacion: Sendable, Hashable {
     /// `SetPronostico(i, texto)` (:436-445).
     public mutating func setPronostico(_ partido: Int, _ texto: String) throws(ErrorDominio) {
         var p = pronosticos ?? Array(repeating: nil, count: numeroPartidos)
-        try p.escribir(texto, en: partido, "Analizador.cs:444")
+        try p.escribir(texto, en: partido, "Combinacion:40")
         pronosticos = p
     }
 
     /// Asigna todos los pronósticos (lo que hace la UI desde el boleto).
     public mutating func ponerPronosticos(_ p: [String]) { pronosticos = p }
 
-    /// `ControlesConjuntos = lista` (`ControladorGrupos.cs:298-309`): con más de uno activa el control de conjuntos.
+    /// `ControlesConjuntos = lista`: con más de uno activa el control de conjuntos.
     public mutating func asignarControlesConjuntos(_ lista: [ControlConjuntosConfig]) {
         controlesConjuntos = lista
         if lista.count > 1 { usaControlConjuntos = true }
     }
 
-    // MARK: GrupoPartidos (`GrupoPartidos.cs:37-59`)
+    // MARK: GrupoPartidos
 
-    /// `GruposPartidos = new GrupoPartidos()` (`ArchivoCombinacion.cs:149-151`): sin grupos; los controles no cambian.
+    /// `GruposPartidos = new GrupoPartidos()`: sin grupos; los controles no cambian.
     public mutating func vaciarGrupos() { grupos = [] }
 
     /// `AddGrupo`: calcula la máscara, añade y lo pone en el control 0.
@@ -66,7 +66,7 @@ public struct Combinacion: Sendable, Hashable {
 
     /// `InsertarGrupo`: no calcula la máscara y pone `posicion` en el control 0 (`0` lo reinicia a `"0"`).
     public mutating func insertarGrupo(_ grupo: GrupoConfig, en posicion: Int) throws(ErrorDominio) {
-        guard (0...grupos.count).contains(posicion) else { throw .fueraDeRangoLista("GrupoPartidos.cs:50") }
+        guard (0...grupos.count).contains(posicion) else { throw .fueraDeRangoLista("Combinacion:69") }
         grupos.insert(grupo, at: posicion)
         try controlGrupoLibre { c throws(ErrorDominio) in try c.ponerGrupo(posicion) }
     }
@@ -74,7 +74,7 @@ public struct Combinacion: Sendable, Hashable {
     /// `BorrarGrupo`: no reindexa los controles (lo hace la UI).
     public mutating func borrarGrupo(_ posicion: Int) throws(ErrorDominio) {
         guard grupos.indices.contains(posicion) else {
-            throw .fueraDeRangoLista("GrupoPartidos.cs:58")
+            throw .fueraDeRangoLista("Combinacion:77")
         }
         grupos.remove(at: posicion)
     }
@@ -82,10 +82,10 @@ public struct Combinacion: Sendable, Hashable {
     /// Edita un grupo en su sitio.
     public mutating func modificarGrupo(_ i: Int, _ cambio: (inout GrupoConfig) throws(ErrorDominio) -> Void) throws(ErrorDominio) {
         guard grupos.indices.contains(i) else {
-            throw .fueraDeRangoLista("GrupoPartidos.cs:66")
+            throw .fueraDeRangoLista("Combinacion:85")
         }
         // Atómico (D-04 del plan de pruebas, DT-80): si `cambio` lanza, el grupo queda como estaba. Con `&grupos[i]`, Swift
-        // devolvía al grupo lo que la condición ya había tocado (p. ej. activa y sin valores) y el C# hace lo mismo.
+        // devolvía al grupo lo que la condición ya había tocado (p. ej. activa y sin valores) y Windows hace lo mismo.
         var g = grupos[i]
         try cambio(&g)
         grupos[i] = g
@@ -93,20 +93,20 @@ public struct Combinacion: Sendable, Hashable {
 
     private mutating func controlGrupoLibre(_ cambio: (inout ControlGruposConfig) throws(ErrorDominio) -> Void) throws(ErrorDominio) {
         guard !controlesGrupos.isEmpty else {
-            throw .fueraDeRangoLista("GrupoPartidos.cs:44")
+            throw .fueraDeRangoLista("Combinacion:96")
         }
         var c = controlesGrupos[0]  // atómico, como `modificarGrupo` (D-04)
         try cambio(&c)
         controlesGrupos[0] = c
     }
 
-    /// `HayDatos` (`Analizador.cs:463-479`).
+    /// `HayDatos`.
     public var hayDatos: Bool {
         get throws(ErrorDominio) {
             if !archivoColumnasBase.isEmpty || controlesGrupos.count > 1 || grupos.count > 1 { return true }
             if grupos.first?.condiciones.hayActivas == true { return true }
             if let ifThen, !ifThen.esVacio { return true }
-            guard let pronosticos else { throw .referenciaNula("Analizador.cs:474") }
+            guard let pronosticos else { throw .referenciaNula("Combinacion:109") }
             return pronosticos.contains { $0 != "1,X,2" }
         }
     }
@@ -129,12 +129,12 @@ public struct IfThenConfig: Sendable, Hashable {
     /// `RangoAciertoCondiciones = s` (:57-72): el array mide `condiciones.count + 1` **ahora** [PRESERVAR].
     public mutating func ponerRangoAciertoCondiciones(_ s: String) throws(ErrorDominio) {
         rangoAciertoCondiciones = s
-        aciertoCondiciones = try Self.rango(s, condiciones.count, "ControladorIfThen.cs:68")
+        aciertoCondiciones = try Self.rango(s, condiciones.count, "Combinacion:132")
     }
 
     public mutating func ponerRangoAciertoGrupos(_ s: String) throws(ErrorDominio) {
         rangoAciertoGrupos = s
-        aciertoGrupos = try Self.rango(s, grupos.count, "ControladorIfThen.cs:85")
+        aciertoGrupos = try Self.rango(s, grupos.count, "Combinacion:137")
     }
 
     private static func rango(_ s: String, _ n: Int, _ origen: String) throws(ErrorDominio) -> [Bool] {

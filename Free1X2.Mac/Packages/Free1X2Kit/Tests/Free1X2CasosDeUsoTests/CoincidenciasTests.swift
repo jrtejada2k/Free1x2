@@ -8,7 +8,7 @@ import Testing
 struct CoincidenciasTests {
     func datos(_ lineas: [String]) -> Data { Data(lineas.map { $0 + "\r\n" }.joined().utf8) }
 
-    /// `n1s` de una vez (DM-22) da lo mismo que anteponiendo signo a signo, como el C#.
+    /// `n1s` de una vez (DM-22) da lo mismo que anteponiendo signo a signo, como Windows.
     @Test func n1sComoAntes() {
         func antes(_ n: Int) -> String {
             var (x, s) = (n, "")

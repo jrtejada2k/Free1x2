@@ -1,6 +1,6 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/MotorCalculo/FiltroValoracionSignos.cs (03 §5).
+// Ref.: 03 §5.
 
 final class FiltroValoracionSignos: FiltroColumna {
     static let k = 0.03420425138
@@ -34,7 +34,7 @@ final class FiltroValoracionSignos: FiltroColumna {
         if esMultiplo { (valoracion, valoracionUnos, valoracionEquis, valoracionDoses) = (1, 1, 1, 1) }
         var c = columna
         var i = 0
-        let o = "FiltroValoracionSignos.cs:76-158"
+        let o = "FiltroValoracionSignos:37"
         while c != 0 {
             switch c & 7 {
             case 4:

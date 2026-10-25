@@ -1,9 +1,9 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/MotorCalculo/Grupo.cs, ToleranciaFiltros.cs y ControladorTol.cs (01 §2.4, §2.9-2.10).
+// Ref.: 01 §2.4, §2.9-2.10.
 
 /// Lee las líneas de un fichero (`LeerTodasCols(false)`: `Trim().ToUpper()` por línea) cuando el motor lo necesita, para
-/// conservar el momento del error de E/S del C# (el filtro parcial se carga en la primera columna que llega a él).
+/// conservar el momento del error de E/S de Windows (el filtro parcial se carga en la primera columna que llega a él).
 public typealias LectorLineas = @Sendable (String) throws(ErrorDominio) -> [String]
 
 /// Lo que los filtros leen del entorno al construirse: N, banderas de análisis, cultura de los `Convert.ToDouble` y
@@ -28,7 +28,7 @@ final class Tolerancia {
 
     /// `CumpleTolerancia` (:43-59).
     func cumple() throws(ErrorDominio) -> Bool {
-        guard let a = aciertosPermitidos else { throw .referenciaNula("ToleranciaFiltros.cs:46") }
+        guard let a = aciertosPermitidos else { throw .referenciaNula("Grupo:31") }
         return acumulados < a.count && a[acumulados]
     }
 }
@@ -172,7 +172,7 @@ final class Grupo {
         try acumular()
         var falladas = 0
         for t in tolerancias where !(try t.cumple()) { falladas += 1 }
-        guard let a = arrayFallosTolerancias else { throw .referenciaNula("ControladorTol.cs:113") }
+        guard let a = arrayFallosTolerancias else { throw .referenciaNula("Grupo:175") }
         return falladas < a.count && a[falladas]
     }
 

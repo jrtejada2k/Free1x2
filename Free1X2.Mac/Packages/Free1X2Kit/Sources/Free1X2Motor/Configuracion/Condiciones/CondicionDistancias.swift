@@ -1,6 +1,6 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/MotorCalculo/FiltroDistancias.cs (03 §1) — estado configurable y sus `Set*`/`Get*`.
+// Ref.: 03 §1 — estado configurable y sus `Set*`/`Get*`.
 
 /// Mayor separación entre apariciones consecutivas de `1`, `X`, `2` y variantes, con letras de tolerancia.
 public struct CondicionDistancias: Sendable, Hashable {
@@ -20,12 +20,12 @@ public struct CondicionDistancias: Sendable, Hashable {
         (variantes, unos, equis, doses) = (global, global, global, global)
     }
 
-    public mutating func setNoIntGlobales(_ v: String) throws(ErrorDominio) { try global.poner(v, "FiltroDistancias.cs:260") }
+    public mutating func setNoIntGlobales(_ v: String) throws(ErrorDominio) { try global.poner(v, "CondicionDistancias:23") }
     /// `SetdistVar` = `SetNoIntVar`.
-    public mutating func setDistVariantes(_ v: String) throws(ErrorDominio) { try variantes.poner(v, "FiltroDistancias.cs:360") }
-    public mutating func setDistUnos(_ v: String) throws(ErrorDominio) { try unos.poner(v, "FiltroDistancias.cs:285") }
-    public mutating func setDistEquis(_ v: String) throws(ErrorDominio) { try equis.poner(v, "FiltroDistancias.cs:310") }
-    public mutating func setDistDoses(_ v: String) throws(ErrorDominio) { try doses.poner(v, "FiltroDistancias.cs:335") }
+    public mutating func setDistVariantes(_ v: String) throws(ErrorDominio) { try variantes.poner(v, "CondicionDistancias:25") }
+    public mutating func setDistUnos(_ v: String) throws(ErrorDominio) { try unos.poner(v, "CondicionDistancias:26") }
+    public mutating func setDistEquis(_ v: String) throws(ErrorDominio) { try equis.poner(v, "CondicionDistancias:27") }
+    public mutating func setDistDoses(_ v: String) throws(ErrorDominio) { try doses.poner(v, "CondicionDistancias:28") }
 
     public var getIntVar: String { variantes.texto }
     public var getInt1: String { unos.texto }

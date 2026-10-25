@@ -2,7 +2,7 @@ import Free1X2Online
 import Free1X2Pruebas
 import Testing
 
-/// CP-ONL-17 (golden `test`, `JornadaCacheRoundTripTests.cs:26-63`): nombre del fichero de caché por país.
+/// CP-ONL-17 (golden `test`): nombre del fichero de caché por país.
 @Test func ficheroDeCacheComoElGolden() throws {
     struct Entrada: Decodable, Sendable { let pais: String }
     struct Salida: Decodable, Sendable { let nombreFichero: String }

@@ -2,7 +2,7 @@ import Foundation
 import Free1X2Base
 import os
 
-// C#: Free1X2.Domain/MotorCalculo/Analizador.cs y GeneradorColumnas.cs (01 §1-§2.2).
+// Ref.: 01 §1-§2.2.
 
 /// Las rutas de cálculo de la combinación (01 §1.1).
 public enum RutaCalculo: Sendable {
@@ -174,15 +174,15 @@ final class Analizador {
         self.ruta = ruta
         analizadas = 0
         aceptadas = 0
-        pronosticoBase = try Self.columna(combinacion.pronosticos, "Analizador.cs:411")
+        pronosticoBase = try Self.columna(combinacion.pronosticos, "Analizador:177")
         enMarcha = true
         if !combinacion.archivoColumnasBase.isEmpty {
-            columnaBase = 281_474_976_710_655  // 2^48 − 1 (GeneradorColumnas.cs:30)
+            columnaBase = 281_474_976_710_655  // 2^48 − 1
             if let lineas { return lineas }
             return try leerLineas(combinacion.archivoColumnasBase)
         }
         noPartidos = (combinacion.pronosticos ?? []).count
-        columnaBase = try Self.columna(combinacion.pronosticos, "GeneradorColumnas.cs:23")
+        columnaBase = try Self.columna(combinacion.pronosticos, "Analizador:185")
         return nil
     }
 
@@ -243,7 +243,7 @@ final class Analizador {
         var n = 0
         while l != 0 {
             let k = Int(l & 7) >> 1
-            guard n < 22, k < 3 else { throw .fueraDeRango("UtilColumnas.cs:40") }
+            guard n < 22, k < 3 else { throw .fueraDeRango("Analizador:246") }
             t.append(k == 0 ? 0x32 : k == 1 ? 0x58 : 0x31)  // "2X1", como `UtilColumnas.signos`
             l >>= 3
             n += 1
@@ -257,7 +257,7 @@ final class Analizador {
         guard let pronosticos else { throw .referenciaNula(origen) }
         var p: [String] = []
         for x in pronosticos {
-            guard let x else { throw .referenciaNula("UtilColumnas.cs:82") }
+            guard let x else { throw .referenciaNula("Analizador:260") }
             p.append(x)
         }
         return UtilColumnas.convStrToLong(pronosticos: p)
@@ -337,7 +337,7 @@ final class Analizador {
             g.esAnalisisExterno = true
             return RegistroAnalisis(g, analisis: configuracion.analisis)
         }
-        let c = try combinacion.grupos.leerLista(0, "Analizador.cs:355").condiciones
+        let c = try combinacion.grupos.leerLista(0, "Analizador:340").condiciones
         g.analisisGrupos.usaSimetrias = c.simetrias.activa
         g.analisisGrupos.usaDiferencias = c.diferencias.activa
         g.analisisGrupos.usaValoraciones = c.valoracionSignos.activa
@@ -382,11 +382,11 @@ final class Analizador {
                 let p = trozos(t, "-")
                 func redondear(_ s: String) throws(ErrorDominio) -> Int {
                     let v = try FormatoNET.convertToDouble(s, cultura: cultura).rounded(.toNearestOrEven)
-                    guard let i = Int32(exactly: v) else { throw .desbordamiento("Analizador.cs:244") }
+                    guard let i = Int32(exactly: v) else { throw .desbordamiento("Analizador:385") }
                     return Int(i)
                 }
                 let a = try redondear(p[0])
-                let b = try redondear(try p.leer(1, "Analizador.cs:244"))
+                let b = try redondear(try p.leer(1, "Analizador:389"))
                 if a <= b { r += Array(a...b) }
             }
         }

@@ -1,7 +1,7 @@
 import Free1X2Base
 import Free1X2Motor
 
-// C#: Free1X2.Domain/EntradaSalida/FColProbablesData.cs (07 F03.b; 04 §15).
+// Ref.: 07 F03.b; 04 §15.
 
 /// `<condicion id="ColProbables">`: CPs, relaciones I/II/III y control de fallos.
 enum DatosColProbables {
@@ -22,7 +22,7 @@ enum DatosColProbables {
             case "CP": cps.append(try cp(h, numeroPartidos))
             case "RELACION1": r1.append(try relacion1(h))
             case "FALLOSCP": fallos.append(try controlFallosCP(h))
-            case "CONTROLFALLOS": controlFallos = try h.atributo("noFallos", "FColProbablesData.cs:72")
+            case "CONTROLFALLOS": controlFallos = try h.atributo("noFallos", "DatosColProbables:25")
             case "RELACION2": r2.append(try relacion2(h))
             case "RELACION3": r3.append(try relacion3(h, cps))
             default: break
@@ -38,7 +38,7 @@ enum DatosColProbables {
 
     /// `ObtenCP` (:97-121) con `ObtenPronosticosCP` (:342-370): `"1X"` ⇒ `"1,X"`.
     static func cp(_ n: NodoXML, _ numeroPartidos: Int) throws(ErrorDominio) -> ColumnaProbableConfig {
-        let o = "FColProbablesData.cs:109-337"
+        let o = "DatosColProbables:41"
         var cp = ColumnaProbableConfig(numeroPartidos: numeroPartidos)
         for g in n.hijos {
             switch g.nombre {
@@ -73,7 +73,7 @@ enum DatosColProbables {
 
     /// `ObtenRelacionCP1` (:123-152).
     static func relacion1(_ n: NodoXML) throws(ErrorDominio) -> RelacionCP1Config {
-        let o = "FColProbablesData.cs:135-147"
+        let o = "DatosColProbables:76"
         var r = RelacionCP1Config()
         for g in n.hijos {
             switch g.nombre {
@@ -91,7 +91,7 @@ enum DatosColProbables {
 
     /// `ObtenRelacionCP2` (:154-204): los textos; las listas las deriva la ejecución.
     static func relacion2(_ n: NodoXML) throws(ErrorDominio) -> RelacionCP2Config {
-        let o = "FColProbablesData.cs:166-200"
+        let o = "DatosColProbables:94"
         var r = RelacionCP2Config()
         for g in n.hijos {
             switch g.nombre {
@@ -113,7 +113,7 @@ enum DatosColProbables {
 
     /// `ObtenRelacionCP3` (:206-262): `columnas` toma las **primeras** K CPs (P12) y lanza si K supera las leídas (DT-55).
     static func relacion3(_ n: NodoXML, _ cps: [ColumnaProbableConfig]) throws(ErrorDominio) -> RelacionCP3Config {
-        let o = "FColProbablesData.cs:221-256"
+        let o = "DatosColProbables:116"
         var r = RelacionCP3Config()
         var k: Int?
         let escaleras = cps.count / 3
@@ -122,7 +122,7 @@ enum DatosColProbables {
             case "columnas":
                 let cols = try g.atributo("values", o)
                 let indices = UtilidadesEntradasValores.obtenerListaFromTxt(cols)
-                for i in indices.indices { _ = try cps.leerLista(i, "FColProbablesData.cs:720") }
+                for i in indices.indices { _ = try cps.leerLista(i, "DatosColProbables:125") }
                 k = indices.count
                 r.columnasImplicadas = cols
             case "sandwichs":
@@ -177,7 +177,7 @@ enum DatosColProbables {
 
     /// `ObtenCPCrtlFallos` (:264-290).
     static func controlFallosCP(_ n: NodoXML) throws(ErrorDominio) -> CPControlFallosConfig {
-        let o = "FColProbablesData.cs:276-284"
+        let o = "DatosColProbables:180"
         var c = CPControlFallosConfig()
         for g in n.hijos {
             switch g.nombre {

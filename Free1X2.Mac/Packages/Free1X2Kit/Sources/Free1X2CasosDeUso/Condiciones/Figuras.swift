@@ -2,8 +2,8 @@ import Foundation
 import Free1X2Base
 import Free1X2Motor
 
-// C#: Views/Ported/FigurasFiltrosFrmViewModel.cs (09 pantalla 49; CU-B13, CU-B14). DT-58: la pantalla edita una copia y la
-// devuelve al aceptar (el C# compartía la lista por referencia).
+// Ref.: 09 pantalla 49; CU-B13, CU-B14. DT-58: la pantalla edita una copia y la
+// devuelve al aceptar (Windows compartía la lista por referencia).
 
 extension CasosCondiciones {
     /// `Aceptar` (:126-150): casillas no vacías convertibles y sin repetir (las no convertibles, p. ej. `*`, se omiten).

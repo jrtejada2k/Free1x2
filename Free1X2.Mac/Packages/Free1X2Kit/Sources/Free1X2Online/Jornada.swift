@@ -1,8 +1,7 @@
 import Foundation
 import Free1X2Base
 
-// C#: Free1X2.Domain/Online/JornadaQuiniela.cs, JornadaQuinielaParser.cs, CatalogoEquipos.cs y CatalogoEquiposParser.cs
-// (07 §5.4, F18, F19). Todos los errores son `FormatException` con el texto exacto del C#.
+// Ref.: 07 §5.4, F18, F19. Todos los errores son `FormatException` con el texto exacto de Windows.
 
 /// Un partido de la jornada online (`n` = 1…14, o 15 el pleno).
 public struct PartidoJornada: Sendable, Hashable {

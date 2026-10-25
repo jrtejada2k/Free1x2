@@ -1,7 +1,7 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/MotorCalculo/RelacionCP1.cs, RelacionCP2.cs, RelacionCP3.cs (+ EscaleraAciertos, SandwichAciertos,
-// AgrupacionColumnas) y sus controladores (04 §5-§10). Leen los contadores vivos de las CPs del filtro (S3).
+// Relaciones de CPs I, II y III (con EscaleraAciertos, SandwichAciertos y AgrupacionColumnas) y sus controladores
+// (04 §5-§10). Leen los contadores vivos de las CPs del filtro (S3).
 
 /// Relación I (04 §5).
 final class RelacionCP1 {
@@ -13,7 +13,7 @@ final class RelacionCP1 {
     private(set) var sumaTemp = 0
     /// No se reinicia entre llamadas.
     private(set) var recorrido = 0
-    private let o = "RelacionCP1.cs:72-270"
+    private let o = "RelacionesCP:16"
 
     init(_ c: RelacionCP1Config, cps: [ColumnaProbable]) {
         self.c = c
@@ -105,7 +105,7 @@ final class RelacionCP2 {
     let columnasA: [Int], columnasB: [Int], aciertos: [Int]
     let columnasA2: [Int], columnasB2: [Int], aciertos2: [Int]
     let concepto: String, cantidad: String, concepto2: String, cantidad2: String
-    private let o = "RelacionCP2.cs:46-150"
+    private let o = "RelacionesCP:108"
 
     init(_ c: RelacionCP2Config, cps: [ColumnaProbable]) {
         self.cps = cps
@@ -197,14 +197,14 @@ final class RelacionCP3 {
     let c: RelacionCP3Config
     /// `nil` con serie explícita.
     let columnas: [ColumnaProbable]?
-    /// K > nº de CPs: el C# lanza al cargar (`grupoCP[i]`); aquí, al primer uso.
+    /// K > nº de CPs: Windows lanza al cargar (`grupoCP[i]`); aquí, al primer uso.
     private let faltanColumnas: Bool
     private var serieCache: [Int]?
     private var escalerasCache: [[Int]]?
     private var sandwichsCache: [[Int]]?
     private var pasoFijoCache: [[Int]]?
     private var solapadasCache: [[Int]]?
-    private let o = "RelacionCP3.cs:68-430"
+    private let o = "RelacionesCP:207"
 
     init(_ c: RelacionCP3Config, cps: [ColumnaProbable]) {
         self.c = c
@@ -234,7 +234,7 @@ final class RelacionCP3 {
     func serie() throws(ErrorDominio) -> [Int] {
         if let s = serieCache { return s }
         guard let columnas else { throw .referenciaNula(o) }
-        if faltanColumnas { throw .fueraDeRangoLista("FColProbablesData.cs:714-723") }
+        if faltanColumnas { throw .fueraDeRangoLista("RelacionesCP:237") }
         let s: [Int] = columnas.map { cp in
             switch c.concepto {
             case "AC": cp.noAC
@@ -342,7 +342,7 @@ final class RelacionCP3 {
         var m = [[Int]](repeating: [Int](repeating: 0, count: 15), count: 1)
         func sumar(_ racha: Int, _ valor: Int) throws(ErrorDominio) {
             while m.count <= racha { m.append([Int](repeating: 0, count: 15)) }
-            try m[racha].escribir(try m[racha].leer(valor, "RelacionCP3.cs:291-348") + 1, en: valor, "RelacionCP3.cs:291-348")
+            try m[racha].escribir(try m[racha].leer(valor, "RelacionesCP:345") + 1, en: valor, "RelacionesCP:345")
         }
         guard var actual = s.first else { return m }
         var racha = 1

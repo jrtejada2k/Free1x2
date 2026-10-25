@@ -75,7 +75,7 @@ struct FlujosTests {
         let (n, salida) = try await calcular(c, en: "todas.txt")
         #expect(n == 729)
         #expect(Set(try lineas(salida)) == Set(Self.seisTriples))
-        // Con espacios («0 1 2») el parser lanza «formato» como el C# (DEC-904); por eso la ayuda pide comas (DT-78).
+        // Con espacios («0 1 2») el parser lanza «formato» como Windows (DEC-904); por eso la ayuda pide comas (DT-78).
         try c.modificarGrupo(0) { g throws(ErrorDominio) in
             #expect(throws: ErrorDominio.self) {
                 try CasosCondiciones.aplicarNoVariantes(variantes: "0 1 2", equis: "", doses: "", en: &g.condiciones.noVariantes)
@@ -493,7 +493,7 @@ struct FlujosTests {
         #expect(dibujos == cols.filter { ["1+1", "0+0"].contains(dibujo($0)) }.count && dibujos == 31)
     }
 
-    /// F05 y D-04: un valor no válido («a») lanza y **no** deja la condición a medias (el C# la dejaba activa y sin valores,
+    /// F05 y D-04: un valor no válido («a») lanza y **no** deja la condición a medias (Windows la dejaba activa y sin valores,
     /// y el cálculo daba 0): el grupo queda como estaba y Calcular sigue dando 729.
     @Test func f05CondicionNoValidaNoAltera() async throws {
         var c = Self.combinacion()

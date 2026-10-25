@@ -4,7 +4,7 @@ import Free1X2Formatos
 import Free1X2Pruebas
 import Testing
 
-/// 06 §2.14 y ESPEC_16 §3: `.z3q` (suite `formatos/z3q`, CP-Z3Q-01 de `CompresorZipTests.cs`).
+/// 06 §2.14 y ESPEC_16 §3: `.z3q` (suite `formatos/z3q`, caso CP-Z3Q-01).
 @Suite("Ficheros .z3q")
 struct Z3QTests {
     struct Entrada: Decodable, Sendable {

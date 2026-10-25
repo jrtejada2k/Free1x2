@@ -97,7 +97,7 @@ struct VistaGestorEquipos: View {
             }
             Text(e.estado).foregroundStyle(Color.textoSecundario)
         }
-        // Al volver del formulario de alta la página se recrea en el C# y relee los ficheros.
+        // Al volver del formulario de alta la página se recrea en Windows y relee los ficheros.
         .onAppear { e = EditorEquipos.cargar(entorno: sesion.entorno) }
     }
 

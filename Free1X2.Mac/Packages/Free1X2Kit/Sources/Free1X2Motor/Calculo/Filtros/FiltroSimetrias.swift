@@ -1,6 +1,6 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/MotorCalculo/FiltroSimetrias.cs (03 §6).
+// Ref.: 03 §6.
 
 final class FiltroSimetrias: FiltroColumna {
     let condicion: CondicionSimetrias
@@ -26,7 +26,7 @@ final class FiltroSimetrias: FiltroColumna {
                 let signo = UtilColumnas.obtenerSignoInt(c, partido: primero)
                 valida = p.dropFirst().allSatisfy { UtilColumnas.obtenerSignoInt(c, partido: $0) == signo }
             } else if !enFallos {
-                throw .fueraDeRangoLista("FiltroSimetrias.cs:71")  // `PartidosSimetricos[0]`
+                throw .fueraDeRangoLista("FiltroSimetrias:29")  // `PartidosSimetricos[0]`
             }
             // En `AnalizarFallosComb` una simetría vacía conserva el `esValida` de la anterior (:95-120).
             if valida { n += 1 }

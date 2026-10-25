@@ -1,4 +1,4 @@
-// C#: Free1X2.Domain/Analisis/ApuestaProbable.cs, ApuestaProbableCentral.cs y ApuestaProbEscrutada.cs (06 §3.7).
+// Ref.: 06 §3.7.
 // Registros de las matrices de 3^14 de Rentabilidad, Banco de pruebas y Tramificar; `columna` es el índice base 3.
 
 import Free1X2Base

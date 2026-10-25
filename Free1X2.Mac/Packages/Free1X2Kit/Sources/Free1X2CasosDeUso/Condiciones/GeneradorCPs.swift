@@ -3,7 +3,7 @@ import Free1X2Base
 import Free1X2Formatos
 import Free1X2Motor
 
-// C#: Views/Ported/ConfigCPsFrmViewModel.cs (08 pantalla 23; CU-A60, CU-A61).
+// Ref.: 08 pantalla 23; CU-A60, CU-A61.
 
 /// Fila de «Configuración de CPs» como la muestra la pantalla (nulos ⇒ 0 / `false`).
 public struct FilaConfigCP: Sendable, Hashable {
@@ -73,7 +73,7 @@ public struct EditorConfigCPs: Sendable {
     }
 }
 
-// C#: Views/Ported/GenerarCPsViewModel.cs (09 pantalla 59; CU-B27).
+// Ref.: 09 pantalla 59; CU-B27.
 extension CasosCondiciones {
     /// «Importar %»: `Porcentajes(ruta).valores`; el aviso del lector se muestra y los valores se usan igual.
     public static func importarValoracion(
@@ -99,7 +99,7 @@ extension CasosCondiciones {
     }
 }
 
-// C#: Views/Ported/GeneradorCPSDiferenciasViewModel.cs (09 pantalla 58; CU-B26).
+// Ref.: 09 pantalla 58; CU-B26.
 extension CasosCondiciones {
     /// `EsValida`: exactamente 14 signos de «1X2».
     public static func columnaCPValida(_ c: String) -> Bool {

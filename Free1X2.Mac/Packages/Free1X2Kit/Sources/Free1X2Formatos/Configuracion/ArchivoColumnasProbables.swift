@@ -2,7 +2,7 @@ import Foundation
 import Free1X2Base
 import Free1X2Motor
 
-// C#: Free1X2.Domain/EntradaSalida/GenerarCPs/DatosHelper.cs y el DataSet tipado ColumnasProbables.cs (07 F05; DEC-718).
+// El DataSet tipado (07 F05; DEC-718).
 
 /// Tipos y configuración del generador de CPs (`ColumnasProbables.xml`).
 public enum ArchivoColumnasProbables {
@@ -24,11 +24,11 @@ public enum ArchivoColumnasProbables {
             switch decodificar(local(e.nombre)) {
             case tablaTipos:
                 guard let t = a["Tipo"] else {
-                    throw ErrorDominio(.argumento, "La columna 'Tipo' no admite valores NULL.", origen: "ColumnasProbables.cs:280")
+                    throw ErrorDominio(.argumento, "La columna 'Tipo' no admite valores NULL.", origen: "ArchivoColumnasProbables:27")
                 }
                 let tipo = try entero(t)
                 guard !tipos.contains(where: { $0.tipo == tipo }) else {
-                    throw ErrorDominio(.argumento, "La columna 'Tipo' está restringida a ser única.", origen: "ColumnasProbables.cs:287")
+                    throw ErrorDominio(.argumento, "La columna 'Tipo' está restringida a ser única.", origen: "ArchivoColumnasProbables:31")
                 }
                 tipos.append(TipoCP(tipo: tipo, nombre: a["Nombre"]))
             case tablaConfig:

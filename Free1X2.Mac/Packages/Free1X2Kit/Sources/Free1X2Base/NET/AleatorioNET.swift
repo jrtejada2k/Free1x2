@@ -1,5 +1,5 @@
-// C#/.NET: `new System.Random(int semilla)` = `Random.Net5CompatSeedImpl` (ESPEC_16 §5): generador sustractivo de Knuth.
-// Aritmética `int` sin `checked` de C#: `&-`/`&+` (T1).
+// .NET: `new System.Random(int semilla)` = `Random.Net5CompatSeedImpl` (ESPEC_16 §5): generador sustractivo de Knuth.
+// Aritmética `int` sin `checked` de .NET: `&-`/`&+` (T1).
 
 /// Secuencia de `System.Random(semilla)`, bit a bit. Sin semilla, los casos de uso usan el generador del sistema.
 public struct AleatorioNET: Sendable {

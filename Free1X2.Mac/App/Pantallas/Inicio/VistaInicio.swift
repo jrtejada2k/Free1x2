@@ -1,7 +1,7 @@
 import Free1X2CasosDeUso
 import SwiftUI
 
-/// Inicio (`MainPage`, plantilla T0; `MainPageViewModel.cs`, `BoletoBaseControl`).
+/// Inicio (`MainPage`, plantilla T0; `BoletoBaseControl`).
 struct VistaInicio: View {
     @Environment(Sesion.self) private var sesion
     @State private var descargando = false

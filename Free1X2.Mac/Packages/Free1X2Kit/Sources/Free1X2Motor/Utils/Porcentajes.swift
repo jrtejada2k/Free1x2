@@ -1,7 +1,7 @@
 import Foundation
 import Free1X2Base
 
-// C#: Free1X2.Domain/Utils/Porcentajes.cs (06 §2.7) — la parte numérica y el portapapeles. La lectura y escritura de
+// Ref.: 06 §2.7 — la parte numérica y el portapapeles. La lectura y escritura de
 // los ficheros de valoraciones es de Free1X2Formatos.
 
 /// Matriz `N×3` de valoraciones (1, X, 2 por partido).
@@ -14,8 +14,8 @@ public struct Porcentajes: Sendable, Hashable {
     public func valoresBase100(numeroPartidos n: Int) throws(ErrorDominio) -> [[Float]] {
         var r: [[Float]] = []
         for i in 0..<n {
-            let v = try valores.leer(i, "Porcentajes.cs:333")
-            guard v.count >= 3 else { throw .fueraDeRango("Porcentajes.cs:333") }
+            let v = try valores.leer(i, "Porcentajes:17")
+            guard v.count >= 3 else { throw .fueraDeRango("Porcentajes:18") }
             let factor = Float(v[0] + v[1] + v[2])
             r.append((0..<3).map { Float(v[$0] / Double(factor)) })
         }

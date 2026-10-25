@@ -1,10 +1,10 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/SubirCategoria/Calculos.cs (05 §3). `SubirUnaCategoria` es código muerto: no se porta.
+// Ref.: 05 §3. `SubirUnaCategoria` es código muerto: no se porta.
 
 /// «Subir categoría»: todas las columnas que salen de la madre cambiando signos en los partidos involucrados, en los
 /// niveles (nº de cambios) elegidos y con `seguidos` cambios consecutivos de la lista circular de involucrados.
-/// Con estado, como el C#: `listaInvolucrados` (29 posiciones) conserva valores de la llamada anterior (05 §3 P2).
+/// Con estado, como Windows: `listaInvolucrados` (29 posiciones) conserva valores de la llamada anterior (05 §3 P2).
 public struct SubidaCategoria: Sendable {
     /// Índices base 3 de la madre (con duplicados), leídos con los signos de la primera línea.
     public let columnas: [Int]
@@ -35,13 +35,13 @@ public struct SubidaCategoria: Sendable {
     public mutating func calcular(
         involucrados: [Bool], niveles: [Bool], seguidos: Int, externas: [String]?, numeroPartidos noPartidos: Int
     ) throws(ErrorDominio) {
-        let o = "Calculos.cs:116-254"
+        let o = "SubidaCategoria:38"
         var invariante = [Bool](repeating: false, count: noPartidos)
         numeroPartidos = noPartidos
         var admitidas = [Bool](repeating: externas == nil, count: Self.tamano)
         for l in externas ?? [] {
             let k = Int(try ConvertidorDeBases(numeroPartidos: noPartidos).numero(l))
-            guard admitidas.indices.contains(k) else { throw .fueraDeRangoLista("Calculos.cs:178") }
+            guard admitidas.indices.contains(k) else { throw .fueraDeRangoLista("SubidaCategoria:44") }
             admitidas[k] = true
         }
         var num = 0
@@ -56,7 +56,7 @@ public struct SubidaCategoria: Sendable {
         }
         var profMaxima = noPartidos + 1
         repeat { profMaxima -= 1 } while !(try niveles.leer(profMaxima, o))
-        // Estado local que se vuelca al salir, también si se lanza a medias (como los campos del C#).
+        // Estado local que se vuelca al salir, también si se lanza a medias (como los campos de Windows).
         var cuenta = 0
         var b = [Bool](repeating: false, count: Self.tamano)
         defer {
@@ -66,14 +66,14 @@ public struct SubidaCategoria: Sendable {
         let lista = listaInvolucrados
 
         func marcar(_ idx: Int) throws(ErrorDominio) {
-            guard b.indices.contains(idx) else { throw .fueraDeRangoLista("Calculos.cs:205") }
+            guard b.indices.contains(idx) else { throw .fueraDeRangoLista("SubidaCategoria:69") }
             if !b[idx] && admitidas[idx] {
                 b[idx] = true
                 cuenta += 1
             }
         }
         func poner(_ p: Int) throws(ErrorDominio) {
-            guard invariante.indices.contains(p) else { throw .fueraDeRangoLista("Calculos.cs:190") }
+            guard invariante.indices.contains(p) else { throw .fueraDeRangoLista("SubidaCategoria:76") }
             invariante[p] = true
         }
         /// `SubirUnaCategoriaExceptoSeguidos` (:221-254): recursa **antes** de marcar.

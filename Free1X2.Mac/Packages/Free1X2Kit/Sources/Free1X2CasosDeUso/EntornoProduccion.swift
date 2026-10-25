@@ -134,7 +134,7 @@ package struct ClienteHTTPSistema: ClienteHTTP {
     }
 }
 
-/// Registro en `os.Logger` y en `log.txt` (`SV/Log.cs`, 07 F22): `{UTC aaaa-MM-dd HH:mm:ss.fff}Z [NIVEL] mensaje` + CRLF;
+/// Registro en `os.Logger` y en `log.txt` (07 F22): `{UTC aaaa-MM-dd HH:mm:ss.fff}Z [NIVEL] mensaje` + CRLF;
 /// BOM UTF-8 solo al crear el fichero; con 1 MiB o más pasa a `log.1.txt` (sobrescribe). Nunca lanza; un candado global.
 package final class RegistroSistema: Registro {
     private let logger = Logger(subsystem: "com.free1x2.app", category: "app")

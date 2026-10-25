@@ -21,7 +21,7 @@ struct CondicionesXMLTests {
 
     static func crlf(_ s: String) -> String { s.replacingOccurrences(of: "\n", with: "\r\n") }
 
-    /// Lee con el lector del C# que corresponde y vuelve a guardar.
+    /// Lee con el lector de Windows que corresponde y vuelve a guardar.
     static func idaYVuelta(_ e: Entrada) throws(ErrorDominio) -> Data {
         let datos = Data(crlf(e.xml).utf8)
         switch e.archivo {

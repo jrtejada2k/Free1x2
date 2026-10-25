@@ -2,7 +2,7 @@ import Foundation
 import Free1X2Base
 import Free1X2Formatos
 
-// C#: Views/Ported/aidomnouViewModel.cs (10 §105; CU-C58…C62) y GeneraPimViewModel.cs (09 §57), que llevan el mismo
+// Ref.: 10 §105; CU-C58…C62; 09 §57. Que llevan el mismo
 // motor (DEC-922). `lims` fijos (DEC-923). Columnas con `S2n`/`N2s` = `FiltroPorGrupos.s1n/n1s`.
 
 /// Las 6 columnas probables.
@@ -34,7 +34,7 @@ extension CasosUtilidades {
     public static func columnasAidomnou(_ valores: [[Double]]) throws(ErrorDominio) -> ColumnasAidomnou {
         var nv: [[Double]] = []
         for p in 0..<14 {
-            let f = try valores.leer(p, "aidomnouViewModel.cs:PreparaColumnas")
+            let f = try valores.leer(p, "Aidomnou:37")
             nv.append([try f.leer(0, "PreCol"), try f.leer(1, "PreCol"), try f.leer(2, "PreCol")])
         }
         let lims = limsAidomnou
@@ -72,7 +72,7 @@ extension CasosUtilidades {
             for s in 0..<3 where nv[p][s] < v { (v, q) = (nv[p][s], s) }
             cps[p][2] = [6, 3, 5][q]
         }
-        // ponytail: el C# hace `while (true)`; toda vuelta que termina lo hace antes de 50 (42 casillas + 8 del partido 0),
+        // ponytail: Windows hace `while (true)`; toda vuelta que termina lo hace antes de 50 (42 casillas + 8 del partido 0),
         // así que 64 solo corta el bucle infinito de valoraciones vacías (NaN).
         porPuntos(3, 64, lims[4])
         porCantidades(4, lims[5], lims[6], lims[7])
@@ -99,14 +99,14 @@ extension CasosUtilidades {
         return r
     }
 
-    /// Aciertos de una columna (con «X» ya como «4») contra cada una de las 6: AND de códigos de carácter, como el C#.
+    /// Aciertos de una columna (con «X» ya como «4») contra cada una de las 6: AND de códigos de carácter, como Windows.
     public static func aciertosAidomnou(_ c: ColumnasAidomnou, columna: String) throws(ErrorDominio) -> [Int] {
         let u = Array(columna.utf16)
         var r: [Int] = []
         for banda in c.scps {
             var na = 0
             for p in 0..<14 where banda[p] != 48 {
-                if banda[p] & (try u.leer(p, "aidomnouViewModel.cs:Analizar")) > 48 { na += 1 }
+                if banda[p] & (try u.leer(p, "Aidomnou:109")) > 48 { na += 1 }
             }
             r.append(na)
         }

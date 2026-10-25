@@ -1,6 +1,6 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/MotorCalculo/FiltroValoracionSignos.cs y RangosOpciones.cs (03 §5; 01 §2.11).
+// Ref.: 03 §5; 01 §2.11.
 
 /// Intervalos cerrados `[min, max]` de `Double` (`RangosOpciones`).
 public struct RangosOpciones: Sendable, Hashable {
@@ -82,9 +82,9 @@ public struct CondicionValoracionSignos: Sendable, Hashable {
     /// `ReinicializaValores` (:225-233): pone a 0 los N primeros de cada array.
     public mutating func reinicializaValores(numeroPartidos: Int) throws(ErrorDominio) {
         for i in 0..<numeroPartidos {
-            try valores1.escribir(0, en: i, "FiltroValoracionSignos.cs:229")
-            try valoresX.escribir(0, en: i, "FiltroValoracionSignos.cs:230")
-            try valores2.escribir(0, en: i, "FiltroValoracionSignos.cs:231")
+            try valores1.escribir(0, en: i, "CondicionValoracionSignos:85")
+            try valoresX.escribir(0, en: i, "CondicionValoracionSignos:86")
+            try valores2.escribir(0, en: i, "CondicionValoracionSignos:87")
         }
     }
 }

@@ -191,7 +191,7 @@ struct VistaIfThen: View {
         p = PantallaIfThen()
     }
 
-    /// `GuardarCondicion`: los avisos de rango se muestran; otros errores no se capturaban en el C#.
+    /// `GuardarCondicion`: los avisos de rango se muestran; otros errores no se capturaban en Windows.
     private func construir() -> IfThenConfig? {
         do throws(ErrorDominio) {
             return try CasosCondiciones.construirIfThen(p, combinacion: sesion.combinacion)

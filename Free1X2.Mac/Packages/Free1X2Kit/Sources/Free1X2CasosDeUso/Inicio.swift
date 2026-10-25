@@ -4,8 +4,7 @@ import Free1X2Formatos
 import Free1X2Motor
 import Free1X2Online
 
-// C#: Free1X2.WinUI/App.xaml.cs:57-120, Views/MainPageViewModel.cs:202-788 y Controls/BoletoBaseViewModel.cs
-// (10 §1.1-1.2, §1.9-1.10; ESPEC_13 §4.1).
+// Ref.: 10 §1.1-1.2, §1.9-1.10; ESPEC_13 §4.1.
 
 /// CU-S01: lo que deja el arranque.
 public struct EstadoInicial: Sendable {
@@ -46,7 +45,7 @@ public enum CasosInicio {
     public static let semillaEspanaWeb = "Jornadas/EspanaDesde2007.txt"
 
     /// CU-S01: carpetas de trabajo, semillas, `Configuracion` (todo o nada) y jornada de la caché, **sin red**. Nunca
-    /// lanza: los fallos solo se registran (`App.xaml.cs:92,118`).
+    /// lanza: los fallos solo se registran.
     public static func arrancar(entorno: Entorno) -> EstadoInicial {
         let (a, r) = (entorno.archivos, entorno.rutas)
         // Sin la carpeta `Historico` nunca se ha guardado una liga: la liga «España» se puede sembrar sin pisar nada.
@@ -194,7 +193,7 @@ public enum CasosInicio {
         }
     }
 
-    /// CU-S09 (`CondicionItem.cs:61-80`; `MainPageViewModel.cs:228-241`).
+    /// CU-S09.
     public static func estadoDeCondiciones(_ c: Combinacion, grupo: Int) -> EstadoCondiciones {
         let g = c.grupos.indices.contains(grupo) ? c.grupos[grupo].condiciones : c.grupos.first?.condiciones
         var condiciones: [TipoFiltro: Semaforo] = [:]
@@ -208,14 +207,14 @@ public enum CasosInicio {
     }
 
     /// CU-S10: visibilidad de los 6 grupos de la barra en el orden del fichero (`tsFree, tsFiltros, tsCombinacion,
-    /// tsOperaciones, tsArchivo, tsUtilidades`); Filtros siempre visible al arrancar (`MainWindow.xaml.cs:445`).
+    /// tsOperaciones, tsArchivo, tsUtilidades`); Filtros siempre visible al arrancar.
     public static func leerBarrasVisibles(_ configuracion: Configuracion) -> [Bool] {
         var b = configuracion.interfaz.barras
         if b.count > 1 { b[1] = true }
         return b
     }
 
-    /// CU-S10 (`MainWindow.xaml.cs:717-729`): al cerrar la ventana; el que llama solo registra el fallo.
+    /// CU-S10: al cerrar la ventana; el que llama solo registra el fallo.
     public static func guardarBarrasVisibles(_ barras: [Bool], entorno: Entorno) throws(ErrorDominio) {
         let url = entorno.rutas.base.appending(path: ficheroParametros)
         var p = try ArchivoParametros(try entorno.archivos.leer(url))
@@ -238,7 +237,7 @@ public enum CasosInicio {
     /// `EliminarGrupo` (:423-472): borra el grupo, lo quita de los controles de grupos, renumera los de detrás y va al anterior.
     /// `nil` = no hace nada (boleto base o un solo grupo).
     ///
-    /// Arreglo: el C# recorría el texto del control en lugar de sus números (un rango «3-4» son dos trozos para dos
+    /// Arreglo: Windows recorría el texto del control en lugar de sus números (un rango «3-4» son dos trozos para dos
     /// grupos, pero «2-4» son dos trozos para tres) y no tocaba el control que solo tenía el grupo borrado: ese control seguía
     /// apuntando a él, así que Generar fallaba («índice fuera del intervalo») o, si había más grupos detrás, usaba otro. Ahora
     /// se recorren los números; el control que se queda sin grupos se quita (no controla nada) y los conjuntos que lo nombran
@@ -295,7 +294,7 @@ public enum CasosInicio {
         }
     }
 
-    // MARK: Boleto base (`BoletoBaseViewModel.cs`)
+    // MARK: Boleto base
 
     /// `DividirEquipos` (:88-96): «? - ?» o blanco ⇒ vacíos; corta en el primer « - » y recorta cada parte.
     public static func dividirEquipos(_ e: String) -> (local: String, visitante: String) {
@@ -361,7 +360,7 @@ public enum CasosInicio {
 }
 
 extension CasosInicio {
-    /// «Crear nuevos grupos» (pantalla 31, `CrearGruposFrmViewModel.cs:Crear`): grupos con los partidos 1…14 activos.
+    /// «Crear nuevos grupos» (pantalla 31): grupos con los partidos 1…14 activos.
     public static func crearGrupos(_ c: inout Combinacion, cuantos: Int) throws(ErrorDominio) {
         for _ in 0..<max(cuantos, 0) {
             var g = GrupoConfig(numeroPartidos: c.numeroPartidos)

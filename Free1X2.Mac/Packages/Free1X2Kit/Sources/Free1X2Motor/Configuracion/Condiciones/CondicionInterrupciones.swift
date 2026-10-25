@@ -1,6 +1,6 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/MotorCalculo/FiltroInterrupciones.cs (02 §2) — estado configurable y sus `Set*`/`Get*`.
+// Ref.: 02 §2 — estado configurable y sus `Set*`/`Get*`.
 
 /// Cambios de signo entre partidos consecutivos y sus rachas, con letras de tolerancia.
 public struct CondicionInterrupciones: Sendable, Hashable {
@@ -38,7 +38,7 @@ public struct CondicionInterrupciones: Sendable, Hashable {
 
     /// `SetNoIntGlobales`, `SetNoIntVar`, …, `SetNoInt2Seg` (`INT:523-1012`).
     public mutating func set(_ c: Contador, _ texto: String) throws(ErrorDominio) {
-        try valores[c.rawValue].poner(texto, "FiltroInterrupciones.cs:523-1012")
+        try valores[c.rawValue].poner(texto, "CondicionInterrupciones:41")
     }
 
     /// `GetIntGlobales`, …, `GetInt2Seg`.

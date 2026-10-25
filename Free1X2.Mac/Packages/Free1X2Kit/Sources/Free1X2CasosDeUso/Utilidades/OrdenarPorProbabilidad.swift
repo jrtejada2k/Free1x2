@@ -3,7 +3,7 @@ import Free1X2Base
 import Free1X2Formatos
 import Free1X2Motor
 
-// C#: Views/Ported/OrdenarPorProbabilidadFrmViewModel.cs (10 §76; CU-C05…C08). `Float` donde el C# usa `float` (T3).
+// Ref.: 10 §76; CU-C05…C08. `Float` donde Windows usa `float` (T3).
 
 /// Valores centrales que el VM guarda entre ejecuciones (un texto que no se lee deja el anterior).
 public struct ValoresCentrales: Sendable, Hashable {
@@ -162,7 +162,7 @@ struct MotorOrdenacion {
             let conv = ConvertidorDeBases(numeroPartidos: numeroPartidos)
             for col in ArchivoColumnasTexto.columnas(d) {
                 let n = Int(try conv.numero(col, partidos: 14))
-                guard n < Self.total else { throw .fueraDeRango("ArchivoColumnasTexto.cs:285") }
+                guard n < Self.total else { throw .fueraDeRango("OrdenarPorProbabilidad:165") }
                 bits[n] = true
             }
             await estado("Calculando probabilidades ...")
@@ -253,7 +253,7 @@ struct MotorOrdenacion {
         var lineas: [String] = []
         let indices = admitidasMultiples ? admitidas.indices.filter { admitidas[$0] } : Array(0..<max(0, min(numApuestas, maxColumnas)))
         for nr in indices {
-            guard ap.indices.contains(nr) else { throw .fueraDeRango("OrdenarPorProbabilidadFrmViewModel.cs:735") }
+            guard ap.indices.contains(nr) else { throw .fueraDeRango("OrdenarPorProbabilidad:256") }
             var linea = try conv.columna(Int64(admitidasMultiples ? nr : Int(ap[nr].columna)))
             let prob: Float
             if porExp {

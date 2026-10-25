@@ -1,7 +1,6 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/MotorCalculo/ColumnaProbable.cs, CPControlFallos.cs, ControladorCPControlFallos.cs,
-// RelacionCP1.cs, RelacionCP2.cs, RelacionCP3.cs y FiltroColProbables.cs (04 §1-§10) — la parte configurable.
+// Ref.: 04 §1-§10 — la parte configurable.
 
 /// Una columna probable: pronóstico propio con rangos de aciertos, aciertos seguidos, fallos seguidos y puntos (04 §1).
 public struct ColumnaProbableConfig: Sendable, Hashable {
@@ -33,15 +32,15 @@ public struct ColumnaProbableConfig: Sendable, Hashable {
 
     /// `SetNoAciertos` … `SetNoFallosSeguidos` (:376-452): P6, acumulan (P5).
     public mutating func setNoAciertos(_ s: String) throws(ErrorDominio) {
-        try aciertos.poner(s, "ColumnaProbable.cs:376-400")
+        try aciertos.poner(s, "CondicionColProbables:35")
     }
 
     public mutating func setNoAciertosSeguidos(_ s: String) throws(ErrorDominio) {
-        try aciertosSeguidos.poner(s, "ColumnaProbable.cs:402-426")
+        try aciertosSeguidos.poner(s, "CondicionColProbables:39")
     }
 
     public mutating func setNoFallosSeguidos(_ s: String) throws(ErrorDominio) {
-        try fallosSeguidos.poner(s, "ColumnaProbable.cs:428-452")
+        try fallosSeguidos.poner(s, "CondicionColProbables:43")
     }
 
     public mutating func setPuntos(_ s: String) throws(ErrorDominio) { try puntos.poner(s) }
@@ -49,22 +48,22 @@ public struct ColumnaProbableConfig: Sendable, Hashable {
     /// `SetACTol` … `SetFSTol` (:470-501): activan la tolerancia local **antes** de parsear.
     public mutating func setACTol(_ s: String) throws(ErrorDominio) {
         toleranciaLocalActiva = true
-        try Self.marcar(&acTolLocal, s, "ColumnaProbable.cs:470-480")
+        try Self.marcar(&acTolLocal, s, "CondicionColProbables:51")
     }
 
     public mutating func setACSTol(_ s: String) throws(ErrorDominio) {
         toleranciaLocalActiva = true
-        try Self.marcar(&acsTolLocal, s, "ColumnaProbable.cs:482-490")
+        try Self.marcar(&acsTolLocal, s, "CondicionColProbables:56")
     }
 
     public mutating func setFSTol(_ s: String) throws(ErrorDominio) {
         toleranciaLocalActiva = true
-        try Self.marcar(&fsTolLocal, s, "ColumnaProbable.cs:492-501")
+        try Self.marcar(&fsTolLocal, s, "CondicionColProbables:61")
     }
 
     /// `SetTolerancias` (:503-511): no activa la tolerancia local.
     public mutating func setTolerancias(_ s: String) throws(ErrorDominio) {
-        try Self.marcar(&tolLocales, s, "ColumnaProbable.cs:503-511")
+        try Self.marcar(&tolLocales, s, "CondicionColProbables:66")
     }
 
     private static func marcar(_ a: inout [Bool], _ s: String, _ origen: String) throws(ErrorDominio) {
@@ -74,7 +73,7 @@ public struct ColumnaProbableConfig: Sendable, Hashable {
     /// `Pronosticos = v` (:711-720): D1 por posición (`nil`/inválido ⇒ 0); no limpia el resto; más de `N+1` ⇒ lanza.
     public mutating func ponerPronosticos(_ valores: [String?]) throws(ErrorDominio) {
         for (i, v) in valores.enumerated() {
-            try pronosticos.escribir(v.map(UtilColumnas.convPartidoStrToByte) ?? 0, en: i, "ColumnaProbable.cs:716")
+            try pronosticos.escribir(v.map(UtilColumnas.convPartidoStrToByte) ?? 0, en: i, "CondicionColProbables:76")
         }
     }
 
@@ -123,12 +122,12 @@ public struct CPControlFallosConfig: Sendable, Hashable {
 
     public mutating func ponerColumnas(_ s: String) throws(ErrorDominio) {
         columnas = s
-        try ListasCP.columnas(s, en: &columnasRelacionadas, "CPControlFallos.cs:66-103")
+        try ListasCP.columnas(s, en: &columnasRelacionadas, "CondicionColProbables:125")
     }
 
     public mutating func ponerAciertos(_ s: String) throws(ErrorDominio) {
         aciertos = s
-        try ListasCP.aciertos(s, en: &aciertosPermitidos, "CPControlFallos.cs:105-158")
+        try ListasCP.aciertos(s, en: &aciertosPermitidos, "CondicionColProbables:130")
     }
 }
 
@@ -148,19 +147,19 @@ public struct RelacionCP1Config: Sendable, Hashable {
 
     public mutating func ponerColumnas(_ s: String) throws(ErrorDominio) {
         columnas = s
-        try ListasCP.columnas(s, en: &columnasRelacionadas, "RelacionCP1.cs:272-309")
+        try ListasCP.columnas(s, en: &columnasRelacionadas, "CondicionColProbables:150")
     }
 
     /// `SumaAciertos` (:311-351): `""` no toca el array.
     public mutating func ponerSumaAciertos(_ s: String) throws(ErrorDominio) {
         sumaAciertos = s
-        if !s.isEmpty { try ListasCP.aciertos(s, en: &sumas, "RelacionCP1.cs:311-351") }
+        if !s.isEmpty { try ListasCP.aciertos(s, en: &sumas, "CondicionColProbables:156") }
     }
 
     /// `Recorridos` (:353-393): siempre `bool[15]`; un valor ≥ 15 lanza.
     public mutating func ponerRecorridos(_ s: String) throws(ErrorDominio) {
         recorridos = s
-        let o = "RelacionCP1.cs:353-393"
+        let o = "CondicionColProbables:162"
         var r = [Bool](repeating: false, count: 15)
         defer { recorridosPermitidos = r }
         guard !s.isEmpty else { return }
@@ -195,7 +194,7 @@ public struct RelacionCP2Config: Sendable, Hashable {
     public init() {}
 }
 
-/// `AgrupacionColumnas` (`AgrupacionColumnas.cs:6-30`): `numero` = nº de rachas permitido de longitud `noElementos` con
+/// `AgrupacionColumnas`: `numero` = nº de rachas permitido de longitud `noElementos` con
 /// los valores `noAciertos`.
 public struct AgrupacionColumnas: Sendable, Hashable {
     public var numero: [Int]
@@ -221,7 +220,7 @@ public struct RelacionCP3Config: Sendable, Hashable {
     public var sandwichs: [Bool]?
     public var agrupacionesPasoFijo: [AgrupacionColumnas]?
     public var agrupacionesSolapadas: [AgrupacionColumnas]?
-    /// Textos tal cual se leyeron (`*String` del C#), que son los que se reescriben; `nil` ⇒ `values=""`.
+    /// Textos tal cual se leyeron (`*String` de Windows), que son los que se reescriben; `nil` ⇒ `values=""`.
     public var sandwichsTexto: String?
     public var escalerasAscTexto: String?
     public var escalerasDescTexto: String?
@@ -258,7 +257,7 @@ public struct CondicionColProbables: Sendable, Hashable {
 }
 
 /// Parseo propio de CPControlFallos y RelacionCP1: el **primer** `,` o `-` decide la forma; no admite mezclas. Escriben
-/// en el destino en cuanto el C# asigna el array, para dejar el mismo estado parcial si un trozo lanza.
+/// en el destino en cuanto Windows asigna el array, para dejar el mismo estado parcial si un trozo lanza.
 enum ListasCP {
     /// `EncuentraSeparador`.
     static func separador(_ s: String) -> Character? { s.first { $0 == "," || $0 == "-" } }

@@ -65,7 +65,7 @@ struct VistaDependenciaLineal: View {
             estado = "Error al calcular/grabar las columnas: " + error.mensajeUsuario
             return sesion.alertas.error(estado)
         }
-        // Como el C#: lo siguiente opera sobre el fichero grabado.
+        // Como Windows: lo siguiente opera sobre el fichero grabado.
         bits = (try? await CasosUtilidades.leerDependencia(salida, entorno: sesion.entorno).bits) ?? ConjuntoBits(cantidad: 4_782_969)
     }
 
@@ -136,7 +136,7 @@ struct VistaReducidasPerfectas: View {
     private func generar() {
         estadoSalida = ""
         guard let salida else { return estado = "Es necesario indicar el archivo de salida" }
-        // Síncrono como el C# (como mucho 3^11 vueltas).
+        // Síncrono como Windows (como mucho 3^11 vueltas).
         let columnas: [String]
         do throws(ErrorDominio) {
             columnas = try CasosUtilidades.reduccionPerfecta(filas, longitud: Int(FormatoNET.castInt32(longitud)))

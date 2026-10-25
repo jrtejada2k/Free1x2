@@ -1,6 +1,6 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/Analisis/ContenedorAnalisis.cs:109-344 (06 §3.5) — la parte que mira los filtros vivos.
+// Ref.: 06 §3.5 — la parte que mira los filtros vivos.
 
 /// Estado de un análisis en curso: el contenedor y los filtros del grupo base registrados en la columna actual.
 final class RegistroAnalisis {
@@ -32,7 +32,7 @@ final class RegistroAnalisis {
 
     /// `IncrementarContador` (:109-334): lee el estado que dejó el último `analizar` de cada filtro registrado.
     func incrementarContador(_ columna: Columna) throws(ErrorDominio) {
-        let o = "ContenedorAnalisis.cs:109-334"
+        let o = "RegistroAnalisis:35"
         for f in filtrosTemp where f.analisisActivo {
             switch f {
             case let x as FiltroNoVariantes:
@@ -72,7 +72,7 @@ final class RegistroAnalisis {
                 global.analisisGrupos.tipoValoracion = x.condicion.tipoValoracion
             case let x as FiltroColProbables where x.activa:
                 for (j, cp) in x.cps.enumerated() {
-                    let c = "ContenedorAnalisis.cs:271-284"
+                    let c = "RegistroAnalisis:75"
                     guard global.analisisGrupos.columnasProbables.indices.contains(j) else { throw .fueraDeRangoLista(c) }
                     try global.analisisGrupos.columnasProbables[j].noAC.incrementar(cp.noAC, c)
                     try global.analisisGrupos.columnasProbables[j].noACS.incrementar(cp.noACS, c)
@@ -80,14 +80,14 @@ final class RegistroAnalisis {
                 }
             case let x as FiltroFormatosSignos where x.activa:
                 for j in x.lineasValidasGrupo.indices {
-                    let c = "ContenedorAnalisis.cs:285-302"
+                    let c = "RegistroAnalisis:83"
                     guard global.analisisGrupos.formatosSignos.indices.contains(j) else { throw .fueraDeRangoLista(c) }
                     try global.analisisGrupos.formatosSignos[j].aciertosFormatosSignos.incrementar(x.lineasValidasGrupo[j], c)
                     global.analisisGrupos.formatosSignos[j].aciertosGlobalesFormatos.incrementar(x.aparicionesGrupo[j])
                 }
             case let x as FiltroDiferencias where x.activa:
                 for (j, d) in x.condicion.diferencias.enumerated() {
-                    let c = "ContenedorAnalisis.cs:303-331"
+                    let c = "RegistroAnalisis:90"
                     guard global.analisisGrupos.diferencias.indices.contains(j) else { throw .fueraDeRangoLista(c) }
                     let r = x.recuentos[j]
                     if d.analizaVX2Dib {

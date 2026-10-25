@@ -26,7 +26,7 @@ struct VistaGeneraPim: View {
     @State private var validas: ConjuntoBits?
     @State private var calculando = false
 
-    /// `RecuperaPantalla` + `PreparaColumnas`: en el C# un rango mal escrito lanza sin capturar.
+    /// `RecuperaPantalla` + `PreparaColumnas`: en Windows un rango mal escrito lanza sin capturar.
     private func preparar() -> (ColumnasAidomnou, [[Int]])? {
         do throws(ErrorDominio) {
             guard let r = CasosUtilidades.rangosAidomnou(rangos) else { throw ErrorDominio(.general, "error en datos de entrada") }

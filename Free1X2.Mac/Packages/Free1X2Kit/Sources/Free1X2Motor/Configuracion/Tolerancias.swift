@@ -1,6 +1,6 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/MotorCalculo/ToleranciaFiltros.cs y ControladorTol.cs (01 §2.9-2.10).
+// Ref.: 01 §2.9-2.10.
 
 /// Una tolerancia: letras y rango de aciertos permitidos sobre la suma de coincidencias de los filtros activos.
 public struct ToleranciaConfig: Sendable, Hashable {
@@ -16,7 +16,7 @@ public struct ToleranciaConfig: Sendable, Hashable {
     /// `Aciertos = s` (:148-162): guarda el texto y después lo parsea; si el parseo lanza, el array anterior se queda.
     public mutating func ponerAciertos(_ s: String) throws(ErrorDominio) {
         aciertos = s
-        aciertosPermitidos = try ArrayAciertosTol.parsear(s, "ToleranciaFiltros.cs:61-114")
+        aciertosPermitidos = try ArrayAciertosTol.parsear(s, "Tolerancias:19")
     }
 }
 
@@ -31,11 +31,11 @@ public struct ControladorTolConfig: Sendable, Hashable {
     /// `FallosPermitidos = s` (:127-139): `""` no borra el array anterior.
     public mutating func ponerFallosPermitidos(_ s: String) throws(ErrorDominio) {
         fallosPermitidos = s
-        if !s.isEmpty { arrayFallos = try ArrayAciertosTol.parsear(s, "ControladorTol.cs:43-81") }
+        if !s.isEmpty { arrayFallos = try ArrayAciertosTol.parsear(s, "Tolerancias:34") }
     }
 }
 
-/// `InicializaArrayAciertos` / `InicializarFallos`: el array mide `máximo + 2` [PRESERVAR]. Aritmética `int` de C#: `máximo + 2`
+/// `InicializaArrayAciertos` / `InicializarFallos`: el array mide `máximo + 2` [PRESERVAR]. Aritmética `int` de Windows: `máximo + 2`
 /// desborda y da un tamaño negativo (`OverflowException`).
 enum ArrayAciertosTol {
     static func parsear(_ s: String, _ origen: String) throws(ErrorDominio) -> [Bool] {

@@ -1,6 +1,6 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/Utils/LAE.cs (06 §2.8). El fichero `Jornadas/InfoJornadasLAE.txt` lo leen y escriben los casos de
+// Ref.: 06 §2.8. El fichero `Jornadas/InfoJornadasLAE.txt` lo leen y escriben los casos de
 // uso; aquí, el cálculo de premios y la sustitución de la línea de la jornada.
 
 /// Importes de premio por categoría (14…10) a partir de la recaudación y los acertantes de una jornada.
@@ -35,7 +35,7 @@ public struct LAE: Sendable, Hashable {
     /// `CalculaPremios` (:141-148): `Math.Round(premio + 0.005, 2)` (no es «redondear hacia arriba», P1); 0 acertantes ⇒ ∞.
     public mutating func calculaPremios(acertantes: [Int]) throws(ErrorDominio) {
         for i in 0..<5 {
-            let a = try acertantes.leer(i, "LAE.cs:145")
+            let a = try acertantes.leer(i, "LAE:38")
             premios[i] = Self.redondear2(recaudacion / precioApuesta * porcentajes[i] / 100 / Double(a) + 0.005)
         }
     }
@@ -54,7 +54,7 @@ public struct LAE: Sendable, Hashable {
         var existe = false
         for l in lineas {
             let v = trozos(l, "\t")
-            if try v.leer(1, "LAE.cs:93") == temporada, try v.leer(2, "LAE.cs:93") == jornada {
+            if try v.leer(1, "LAE:57") == temporada, try v.leer(2, "LAE:57") == jornada {
                 existe = true
                 salida.append(linea(cultura: cultura))
             } else {

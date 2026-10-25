@@ -2,8 +2,7 @@ import Foundation
 import Free1X2Base
 import Free1X2Formatos
 
-// C#: Views/Ported/ImprimirBoletoFrmViewModel.cs (09 pantalla 68; CU-B36) y ListaImpresorasViewModel.cs (pantalla 70;
-// CU-B38).
+// Ref.: 09 pantalla 68; CU-B36; pantalla 70; CU-B38.
 
 /// Un boleto: cabecera y marcas (rectángulos) en la unidad de impresión del legacy.
 public struct BoletoImpresion: Sendable, Hashable {
@@ -44,7 +43,7 @@ extension CasosCombinacion {
         lista.first { $0.modelo == modelo } ?? lista.last
     }
 
-    /// `ComputarBoletos` (= `imprimirBoleto.cs:519-559`): 8 columnas por boleto; márgenes como `float`.
+    /// `ComputarBoletos`: 8 columnas por boleto; márgenes como `float`.
     public static func boletosImpresion(
         _ cols: [String], fichero: String, margenSuperior: Double, margenIzquierdo: Double, desde: Int, hasta: Int
     ) -> [BoletoImpresion] {

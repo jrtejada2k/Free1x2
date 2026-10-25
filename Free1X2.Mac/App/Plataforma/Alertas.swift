@@ -31,7 +31,7 @@ final class Alertas {
         }
     }
 
-    /// Excepción no capturada en el C#: llega al manejador global de `App` (10 §1.1).
+    /// Excepción no capturada en Windows: llega al manejador global de `App` (10 §1.1).
     func inesperado(_ e: ErrorDominio) { error("Se produjo un error inesperado:\n\n" + e.mensajeUsuario) }
 
     /// `ConfirmarAsync`: `true` solo con «Sí».

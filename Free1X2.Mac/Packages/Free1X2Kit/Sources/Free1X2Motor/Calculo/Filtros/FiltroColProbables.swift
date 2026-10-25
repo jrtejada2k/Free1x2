@@ -1,7 +1,6 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/MotorCalculo/ColumnaProbable.cs, CPControlFallos.cs, ControladorCPControlFallos.cs y
-// FiltroColProbables.cs (04 §0-§4).
+// Ref.: 04 §0-§4.
 
 /// Una columna probable en ejecución. Clase compartida (S3): las relaciones leen los contadores de la última `analizar`.
 final class ColumnaProbable {
@@ -17,7 +16,7 @@ final class ColumnaProbable {
     private var falloAC = false
     private var falloACS = false
     private var falloFS = false
-    private let o = "ColumnaProbable.cs:130-360"
+    private let o = "FiltroColProbables:19"
 
     init(_ c: ColumnaProbableConfig, numeroPartidos: Int, puntos: PuntosCP) {
         self.c = c
@@ -148,7 +147,7 @@ final class CPControlFallos {
 
     /// `Analiza` (:41-64): usa las letras globales de la CP, no las tolerancias locales.
     func analiza() throws(ErrorDominio) -> Bool {
-        let o = "CPControlFallos.cs:41-64"
+        let o = "FiltroColProbables:150"
         toleranciasAcumuladas = 0
         guard let columnas = c.columnasRelacionadas else { throw .referenciaNula(o) }
         for n in columnas {

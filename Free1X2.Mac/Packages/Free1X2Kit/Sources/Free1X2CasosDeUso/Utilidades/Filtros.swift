@@ -2,8 +2,7 @@ import Foundation
 import Free1X2Base
 import Free1X2Formatos
 
-// C#: Views/Ported/FiltroPorcenJBViewModel.cs (09 pantalla 50; CU-B15…B17) y DiFiltrosViewModel.cs (08 pantalla 33;
-// CU-A80…A83). Toda la lógica vive en los VM.
+// Ref.: 09 pantalla 50; CU-B15…B17; 08 pantalla 33; CU-A80…A83. Toda la lógica vive en los VM.
 
 /// `RecuperaPantalla` del separador de Juan Bellas: por banda, el dígito (bits 1 = «1», 2 = «2», 4 = «X») de cada partido.
 public struct BandasJB: Sendable {
@@ -120,7 +119,7 @@ public struct FilaDiFiltros: Sendable, Hashable, Identifiable {
     public init(ruta: String, nombre: String) { (self.ruta, self.nombre) = (ruta, nombre) }
 }
 
-/// Estado que el C# guarda en campos y sobrevive entre «Iniciar»: el conjunto resultante y su contador.
+/// Estado que Windows guarda en campos y sobrevive entre «Iniciar»: el conjunto resultante y su contador.
 public struct EstadoDiFiltros: Sendable {
     public var validas = [Bool](repeating: false, count: 4_782_969)
     var ctFR = 0
@@ -132,13 +131,13 @@ extension CasosUtilidades {
     /// `S2n` = `ConvColumnaANumero` (línea entera, partido 1 el menos significativo); fuera del espacio de 14 lanza.
     static func indiceDiFiltros(_ c: String) throws(ErrorDominio) -> Int {
         let n = Int(try ConvertidorDeBases(numeroPartidos: 14).numero(c))
-        guard n >= 0 && n < 4_782_969 else { throw .fueraDeRangoLista("DiFiltrosViewModel.cs:S2n") }
+        guard n >= 0 && n < 4_782_969 else { throw .fueraDeRangoLista("Filtros:134") }
         return n
     }
 
     /// `Valida`: sobrevive si está en el filtro (nivel 0) o si tiene al menos `minimo` columnas del filtro a distancia
     /// exacta 1, 2 o 3 (niveles marcados). ponytail: cuenta los vecinos a distancia exacta con salida temprana, como los
-    /// caminos ordenados del C#.
+    /// caminos ordenados de Windows.
     static func validaDiFiltros(_ n: Int, _ filtro: [Bool], _ t: [Bool], _ minimo: Int) -> Bool {
         if t[0] && filtro[n] { return true }
         guard t[1] || t[2] || t[3] else { return false }

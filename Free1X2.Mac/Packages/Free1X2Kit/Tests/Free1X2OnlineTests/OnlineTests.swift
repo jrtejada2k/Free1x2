@@ -120,7 +120,7 @@ struct OnlineParsersTests {
         }
     }
 
-    /// 07 §5.4: reglas no cubiertas por los tests del C# (lectura de `JornadaQuinielaParser.cs`).
+    /// 07 §5.4: reglas no cubiertas por los tests de Windows (lectura del parser de la jornada).
     @Test func reglasJornada() throws {
         func partidos(_ n: Int, desde: Int = 1) -> String {
             (desde..<desde + n).map { "{\"n\":\($0),\"local\":\"L\($0)\",\"visitante\":\"V\($0)\"}" }.joined(separator: ",")
@@ -189,7 +189,7 @@ final class RedSecuencial: ClienteHTTP {
     }
 }
 
-/// 07 §5.1-5.3 (lectura de `QuinielaOnlineService.cs`).
+/// 07 §5.1-5.3 (lectura del servicio online).
 @Suite("Online: servicio")
 struct ServicioQuinielaTests {
     static func servicio(_ red: RedSecuencial, reloj: RelojManual = RelojManual(), base: String? = nil) -> (

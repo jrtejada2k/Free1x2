@@ -3,7 +3,7 @@ import Free1X2Base
 import Free1X2Formatos
 import Free1X2Online
 
-// C#: Views/Ported/GestorEquiposFrmViewModel.cs (09 pantalla 60), AgregarEquipoFrmViewModel.cs (08 pantalla 2) y el
+// Ref.: 09 pantalla 60; 08 pantalla 2. Y el
 // servicio online (`QuinielaOnlineService`, 07 §5).
 
 /// Categorías de `Equipos/equipos{1,2,2b,Int}.dat`.
@@ -133,7 +133,7 @@ public enum CasosArchivo {
     }
 }
 
-// C#: Views/Ported/DescargaBoletoFrmViewModel.cs (08 pantalla 32).
+// Ref.: 08 pantalla 32.
 extension CasosArchivo {
     static func cache(_ entorno: Entorno) -> CacheJornada {
         CacheJornada(archivos: entorno.archivos, carpeta: entorno.rutas.base, registro: entorno.registro)
@@ -201,7 +201,7 @@ extension CasosArchivo {
         }
     }
 
-    /// «Local - Visitante» de los `n` primeros partidos de la jornada; el 15º es el pleno (DT-81: el C# no rellena Inicio).
+    /// «Local - Visitante» de los `n` primeros partidos de la jornada; el 15º es el pleno (DT-81: Windows no rellena Inicio).
     public static func equiposDeJornada(_ j: JornadaQuiniela, partidos n: Int) -> [String] {
         (j.partidos + (j.pleno15.map { [$0] } ?? [])).prefix(n).map {
             CasosInicio.componerEquipos(local: $0.local, visitante: $0.visitante)

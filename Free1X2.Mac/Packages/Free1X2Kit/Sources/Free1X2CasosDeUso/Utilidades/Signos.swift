@@ -3,8 +3,7 @@ import Free1X2Base
 import Free1X2Formatos
 import Free1X2Motor
 
-// C#: Views/Ported/VSignosFrmViewModel.cs (10 §97), DifColsViewModel.cs (09 §41) y SubirCategoriaFrmViewModel.cs
-// (10 §92; CU-C33…C35).
+// Ref.: 10 §97; 09 §41; 10 §92; CU-C33…C35.
 
 /// «Valoración de signos»: recuentos por partido (1, X, 2) de las columnas que llegan a la aspiración.
 public struct ResultadoVSignos: Sendable {
@@ -21,7 +20,7 @@ public struct ResultadoVSignos: Sendable {
 }
 
 extension CasosUtilidades {
-    /// `TimeSpan` + «0000000000» cortado a 10 (en DifCols el C# corta sin rellenar; solo difiere con 0 ticks).
+    /// `TimeSpan` + «0000000000» cortado a 10 (en DifCols Windows corta sin rellenar; solo difiere con 0 ticks).
     public static func tiempoCorto(_ segundos: TimeInterval) -> String {
         String((FormatoNET.toStringTimeSpan(segundos) + "0000000000").prefix(10))
     }
@@ -129,7 +128,7 @@ extension CasosUtilidades {
         return dif
     }
 
-    /// `Compara`: el C# cuenta `(x & y) == '0'`: solo 1, 2 y 4 distintos; «F» (la fija de cualquiera de las dos) nunca
+    /// `Compara`: Windows cuenta `(x & y) == '0'`: solo 1, 2 y 4 distintos; «F» (la fija de cualquiera de las dos) nunca
     /// cuenta. Con los grupos de 3 bits es «AND del grupo = 0».
     static func diferencias(_ x: UInt64, _ y: UInt64) -> Int {
         let m = x & y
@@ -198,7 +197,7 @@ extension CasosUtilidades {
         return (try SubidaCategoria(lineas: ArchivoColumnasTexto.columnas(d)), ArchivoColumnasTexto.numSignos(d))
     }
 
-    /// CU-C34: el motor vuelve también con error (como el C#, conserva el estado que dejó la llamada).
+    /// CU-C34: el motor vuelve también con error (como Windows, conserva el estado que dejó la llamada).
     @concurrent public static func calcularSubirCategoria(
         _ motor: SubidaCategoria, involucrados: [Bool], niveles: [Bool], seguidos: Int, externas: URL?, signos: Int,
         entorno: Entorno

@@ -1,6 +1,6 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/MotorCalculo/FiltroContactos.cs (02 §3).
+// Ref.: 02 §3.
 
 final class FiltroContactos: FiltroColumna {
     let condicion: CondicionContactos
@@ -55,7 +55,7 @@ final class FiltroContactos: FiltroColumna {
 
     func analizar(_ c: Columna) throws(ErrorDominio) -> Bool {
         contadores = Self.contar(c)
-        for (i, n) in contadores.enumerated() where !(try condicion.valores[i].permite(n, "FiltroContactos.cs:204-223")) {
+        for (i, n) in contadores.enumerated() where !(try condicion.valores[i].permite(n, "FiltroContactos:58")) {
             return false
         }
         if usaFiguras { return condicion.figuras?.contains(figura) == true }
@@ -65,7 +65,7 @@ final class FiltroContactos: FiltroColumna {
     func analizarFallos(_ c: Columna) throws(ErrorDominio) -> [String]? {
         contadores = Self.contar(c)
         var texto = ""
-        let o = "FiltroContactos.cs:225-280"
+        let o = "FiltroContactos:68"
         for k in CondicionContactos.Contacto.ordenFallos {
             let n = contadores[k.rawValue]
             let v = condicion.valores[k.rawValue]
@@ -82,7 +82,7 @@ final class FiltroContactos: FiltroColumna {
         var n = 0
         for letra in letras.utf16 {
             for (i, valor) in contadores.enumerated()
-            where try condicion.valores[i].letra(valor, "FiltroContactos.cs:327-376") == letra {
+            where try condicion.valores[i].letra(valor, "FiltroContactos:85") == letra {
                 n += 1
             }
         }

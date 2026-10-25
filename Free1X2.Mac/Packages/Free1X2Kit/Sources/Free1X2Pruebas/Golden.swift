@@ -20,7 +20,7 @@ public struct CasoGolden<Entrada: Decodable & Sendable, Salida: Decodable & Send
     public let salida: Salida?
     /// Nombre .NET de la excepción esperada (`ExcepcionNET.rawValue`).
     public let error: String?
-    /// Obligatoria si `fuente == .test`: `fichero:línea` del test C# leído.
+    /// Obligatoria si `fuente == .test`: el caso de prueba de referencia.
     public let cita: String?
     /// Obligatoria si `fuente == .lectura`: pasos con `fichero:línea`.
     public let traza: [String]?

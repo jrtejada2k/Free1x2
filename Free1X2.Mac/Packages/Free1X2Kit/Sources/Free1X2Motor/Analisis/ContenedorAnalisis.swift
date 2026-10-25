@@ -1,6 +1,6 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/Analisis/ContenedorAnalisisGlobal.cs, ContenedorAnalisis.cs y los contenedores simples
+// Y los contenedores simples
 // (06 §3.4-§3.6). Resultado de las rutas C/D: valores, no referencias (lo lee el visor en otro actor).
 
 /// Raíz del análisis: histogramas del grupo base y columnas por nº de fallos de grupos/conjuntos.
@@ -8,7 +8,7 @@ public struct ContenedorAnalisisGlobal: Sendable, Hashable {
     public internal(set) var analisisGrupos: ContenedorAnalisis
     /// Tamaño = nº de grupos.
     public internal(set) var columnasPorFallosDeGrupos: [Int]
-    /// Tamaño = nº de **controles de grupos** (el C# llama `noConjuntos` al parámetro).
+    /// Tamaño = nº de **controles de grupos** (Windows llama `noConjuntos` al parámetro).
     public internal(set) var columnasPorFallosDeConjuntos: [Int]
     public let noGrupos: Int
     public let noConjuntos: Int
@@ -102,7 +102,7 @@ public struct ContenedorAnalisis: Sendable, Hashable {
 
     /// `InicializarValoraciones` (:385-403): con el **último** valor de cada lista; añade (dos llamadas duplican).
     mutating func inicializarValoraciones() throws(ErrorDominio) {
-        let o = "ContenedorAnalisis.cs:385-403"
+        let o = "ContenedorAnalisis:105"
         valoracionGlobal += Array(
             repeating: 0, count: max(0, try noValoresValoracionGlobal.leerLista(noValoresValoracionGlobal.count - 1, o) + 1))
         valoracionUnos += Array(
@@ -120,9 +120,9 @@ public struct ContenedorAnalisis: Sendable, Hashable {
 
     /// `IncrementarColumnasValoracion` (:424-435): `double → float → Math.Round` (a par) `→ int` (T3, T4).
     mutating func incrementarColumnasValoracion(_ g: Double, _ u: Double, _ x: Double, _ d: Double) throws(ErrorDominio) {
-        let o = "ContenedorAnalisis.cs:430-433"
+        let o = "ContenedorAnalisis:123"
         func clave(_ v: Double) -> Int {
-            // `(int)` de un valor no representable da `int.MinValue` en C#: índice negativo.
+            // `(int)` de un valor no representable da `int.MinValue` en Windows: índice negativo.
             Int(exactly: Double(Float(v)).rounded(.toNearestOrEven)) ?? Int(Int32.min)
         }
         try valoracionGlobal.incrementarLista(clave(g), o)

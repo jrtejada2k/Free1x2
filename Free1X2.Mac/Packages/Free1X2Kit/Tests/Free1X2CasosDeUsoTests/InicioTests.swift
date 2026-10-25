@@ -114,7 +114,7 @@ struct InicioTests {
         try CasosInicio.guardarCombinacion(
             nueva.combinacion, equipos: nueva.equipos, filtroColumnas: "/x/f.txt", en: url, entorno: entorno)
         let leida = try CasosInicio.abrirCombinacion(url, numeroPartidos: 14, entorno: entorno)
-        // `GetGrupoFromXmlNode` reescribe `EsGrupoBase` en cada hijo (ArchivoCombinacion.cs:225-232): no es igualdad total.
+        // `GetGrupoFromXmlNode` reescribe `EsGrupoBase` en cada hijo: no es igualdad total.
         #expect(leida.combinacion.pronosticos == nueva.combinacion.pronosticos)
         #expect(leida.combinacion.grupos.count == 1 && leida.combinacion.controlesGrupos == nueva.combinacion.controlesGrupos)
         #expect(leida.equipos == nueva.equipos)
@@ -190,7 +190,7 @@ struct InicioTests {
     }
 
     /// Borrar un grupo que nombra Control de grupos. El control que solo lo tenía se quita y los conjuntos se
-    /// renumeran; el rango «2-4» pierde el 2 y baja los otros (el C# perdía el 4 y dejaba el control 1 apuntando al 2).
+    /// renumeran; el rango «2-4» pierde el 2 y baja los otros (Windows perdía el 4 y dejaba el control 1 apuntando al 2).
     @Test func eliminarGrupoDeLosControles() throws {
         var c = Combinacion(numeroPartidos: 14)
         for g in 1...4 { _ = try CasosInicio.cambiarGrupo(&c, a: g) }

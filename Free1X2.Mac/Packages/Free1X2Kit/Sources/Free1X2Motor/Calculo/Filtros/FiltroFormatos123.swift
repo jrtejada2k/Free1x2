@@ -1,6 +1,6 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/MotorCalculo/FiltroFormatos123.cs (03 §3).
+// Ref.: 03 §3.
 
 final class FiltroFormatos123: FiltroColumna {
     let condicion: CondicionFormatos123
@@ -32,8 +32,8 @@ final class FiltroFormatos123: FiltroColumna {
                 default: nil
                 }
             if let k {
-                let fila = try condicion.valoracionTransformada.leer(i, "FiltroFormatos123.cs:276")
-                r = (r &<< 3) | Int64(try fila.leer(k, "FiltroFormatos123.cs:276"))
+                let fila = try condicion.valoracionTransformada.leer(i, "FiltroFormatos123:35")
+                r = (r &<< 3) | Int64(try fila.leer(k, "FiltroFormatos123:36"))
             }
             c >>= 3
             i += 1

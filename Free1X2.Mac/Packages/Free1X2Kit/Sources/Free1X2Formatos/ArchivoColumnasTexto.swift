@@ -1,7 +1,7 @@
 import Foundation
 import Free1X2Base
 
-// C#: Free1X2.Domain/EntradaSalida/ArchivoColumnasTexto.cs (07 §6.5; F04). Sin estado: lee y escribe valores.
+// Ref.: 07 §6.5; F04. Sin estado: lee y escribe valores.
 
 /// Ficheros de columnas `.txt`: una columna por línea.
 public enum ArchivoColumnasTexto {
@@ -34,7 +34,7 @@ public enum ArchivoColumnasTexto {
         columnas(datos).first?.utf16.count ?? 0
     }
 
-    /// `GuardarCols` en bucle (:62-71): quita las comas; `\r\n`; UTF-8 sin BOM. Sin columnas ⇒ `nil`: el C# solo
+    /// `GuardarCols` en bucle: quita las comas; `\r\n`; UTF-8 sin BOM. Sin columnas ⇒ `nil`: Windows solo
     /// crea el fichero al escribir la primera.
     public static func datos(_ columnas: [String]) -> Data? {
         columnas.isEmpty ? nil : TextoNET.codificarLineas(columnas.map { $0.replacingOccurrences(of: ",", with: "") })

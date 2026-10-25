@@ -255,7 +255,7 @@ struct ColProbablesTests {
         var textosDistintos: [String]
     }
 
-    /// `ColumnaSintetica(indice, 5)` de `RelacionCP1GoldenTests.cs:84-96`.
+    /// `ColumnaSintetica(indice, 5)`.
     static func sintetica(_ indice: Int) -> Columna {
         var (col, i): (Columna, Int) = (0, indice)
         for p in 0..<n {

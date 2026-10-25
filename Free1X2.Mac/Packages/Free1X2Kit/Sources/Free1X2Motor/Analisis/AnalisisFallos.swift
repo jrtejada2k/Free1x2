@@ -1,7 +1,7 @@
 import Foundation
 import Free1X2Base
 
-// C#: Free1X2.WinUI/Views/Ported/AnalizarCombinacionFrmViewModel.cs:188-467 (08 pantalla 7; CU-A12, CU-A13) sobre el
+// Ref.: 08 pantalla 7; CU-A12, CU-A13. Sobre el
 // grafo de ejecución del motor: `AnalizarFallos` de cada filtro activo, tolerancias, controles e If-Then.
 
 /// Estado de una condición en el árbol: verde, neutro (aceptada por tolerancias) o rojo.
@@ -18,7 +18,7 @@ public struct NodoAnalisis: Sendable, Hashable, Identifiable {
 }
 
 public enum AnalisisFallos {
-    /// Construcción mutable (el C# cambia estados de nodos ya añadidos).
+    /// Construcción mutable (Windows cambia estados de nodos ya añadidos).
     private final class N {
         var titulo: String
         var estado: EstadoNodo
@@ -58,7 +58,7 @@ public enum AnalisisFallos {
         while c != 0 {
             let signo = UInt8(truncatingIfNeeded: c & 7)
             let p = UtilColumnas.convPartidoStrToByte(
-                try pronosticos.leer(partido, "AnalizarCombinacionFrmViewModel.cs:EvaluarPronosticos"))
+                try pronosticos.leer(partido, "AnalisisFallos:61"))
             if signo & p != signo { fallos.insert(partido + 1, at: 0) }
             c >>= 3
             partido += 1
@@ -72,7 +72,7 @@ public enum AnalisisFallos {
         _ c: Combinacion, columna: Columna, pronosticosBase: [String], configuracion: Configuracion, cultura: Cultura,
         leerLineas: @escaping LectorLineas
     ) throws(ErrorDominio) -> [NodoAnalisis] {
-        let o = "AnalizarCombinacionFrmViewModel.cs"
+        let o = "AnalisisFallos:75"
         let a = Analizador(c, configuracion: configuracion, cultura: cultura, leerLineas: leerLineas)
         var raices: [N] = []
         let base = N("Combinación")
@@ -214,9 +214,9 @@ public enum AnalisisFallos {
                     errores.append("!Fallo en condición relacionada \(i + 1)")
                 }
                 if !errores.isEmpty {
-                    guard let ac = it.aciertoCondiciones else { throw .referenciaNula("ControladorIfThen.cs:313") }
+                    guard let ac = it.aciertoCondiciones else { throw .referenciaNula("AnalisisFallos:217") }
                     errores.append(
-                        try ac.leer(it.condiciones.count - errores.count, "ControladorIfThen.cs:313")
+                        try ac.leer(it.condiciones.count - errores.count, "AnalisisFallos:219")
                             ? "*Rango de aciertos de condiciones acertado" : "Rango de aciertos de condiciones fallado")
                 }
                 try anadir("Condiciones sencillas", errores)
@@ -227,9 +227,9 @@ public enum AnalisisFallos {
                     errores.append("!Fallo en grupo relacionado \(i + 1)")
                 }
                 if !errores.isEmpty {
-                    guard let ac = it.aciertoGrupos else { throw .referenciaNula("ControladorIfThen.cs:340") }
+                    guard let ac = it.aciertoGrupos else { throw .referenciaNula("AnalisisFallos:230") }
                     errores.append(
-                        try ac.leer(it.grupos.count - errores.count, "ControladorIfThen.cs:340")
+                        try ac.leer(it.grupos.count - errores.count, "AnalisisFallos:232")
                             ? "*Rango de aciertos de grupos acertado" : "Rango de aciertos de grupos fallado")
                 }
                 try anadir("Grupos relacionados", errores)

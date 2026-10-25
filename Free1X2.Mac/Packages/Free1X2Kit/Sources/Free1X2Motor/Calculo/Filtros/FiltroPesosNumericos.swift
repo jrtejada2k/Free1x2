@@ -1,6 +1,6 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/MotorCalculo/FiltroPesosNumericos.cs (02 §1).
+// Ref.: 02 §1.
 
 final class FiltroPesosNumericos: FiltroColumna {
     static let indicesUnos = [7, 5, 3, 1, 8, 6, 4, 2, 9, 7, 5, 3, 1, 8, 6, 4]
@@ -35,7 +35,7 @@ final class FiltroPesosNumericos: FiltroColumna {
     private func calcular(_ columna: Columna) throws(ErrorDominio) {
         var c = columna
         var (s1, sX, s2, k) = (0, 0, 0, 0)
-        let o = "FiltroPesosNumericos.cs:127-145"
+        let o = "FiltroPesosNumericos:38"
         while c != 0 {
             switch c & 7 {
             case 4:
@@ -63,7 +63,7 @@ final class FiltroPesosNumericos: FiltroColumna {
     /// `esColumnaValida` (:243-278): marca **todos** los que fallan (sin cortocircuito).
     private func marcar() throws(ErrorDominio) -> Bool {
         var ok = true
-        for i in 0..<5 where !(try condicion.permitidos[i].permite(pesos[i], "FiltroPesosNumericos.cs:243-278")) {
+        for i in 0..<5 where !(try condicion.permitidos[i].permite(pesos[i], "FiltroPesosNumericos:66")) {
             fallos[i] = true
             ok = false
         }
@@ -73,10 +73,10 @@ final class FiltroPesosNumericos: FiltroColumna {
     /// `SonToleranciasValidas` (:331-395): orden G, V, U, E, D; muta `noFallosActual`.
     private func toleranciasValidas() throws(ErrorDominio) -> Bool {
         for i in 0..<5 where fallos[i] {
-            guard try condicion.tolerados[i].permite(pesos[i], "FiltroPesosNumericos.cs:331-395") else { return false }
+            guard try condicion.tolerados[i].permite(pesos[i], "FiltroPesosNumericos:76") else { return false }
             noFallosActual += 1
         }
-        return try condicion.tolerancias.permite(noFallosActual, "FiltroPesosNumericos.cs:394")
+        return try condicion.tolerancias.permite(noFallosActual, "FiltroPesosNumericos:79")
     }
 
     /// `AnalizaFiguras` (:164-172): con 5 figuras acepta sin calcular.
@@ -106,7 +106,7 @@ final class FiltroPesosNumericos: FiltroColumna {
         try calcular(columna)
         // `CumpleCondiciones` (:397-425).
         var valida = false
-        if try marcar(), try condicion.tolerancias.permite(0, "FiltroPesosNumericos.cs:404") { valida = true }
+        if try marcar(), try condicion.tolerancias.permite(0, "FiltroPesosNumericos:109") { valida = true }
         if !valida { valida = try toleranciasValidas() }
         if valida && usaFiguras { valida = figurasValidas() }
         return valida
@@ -117,7 +117,7 @@ final class FiltroPesosNumericos: FiltroColumna {
         try calcular(columna)
         let nombres = ["global", "de variantes", "de unos", "de equis", "de doses"]
         var texto = ""
-        for i in 0..<5 where !(try condicion.permitidos[i].permite(pesos[i], "FiltroPesosNumericos.cs:280-329")) {
+        for i in 0..<5 where !(try condicion.permitidos[i].permite(pesos[i], "FiltroPesosNumericos:120")) {
             fallos[i] = true
             texto += "Fallo en peso \(nombres[i])  (\(pesos[i]))#"
         }

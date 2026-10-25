@@ -1,6 +1,6 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/MotorCalculo/FiltroPesosNumericos.cs (02 §1) — estado configurable y sus `Set*`/`Get*`.
+// Ref.: 02 §1 — estado configurable y sus `Set*`/`Get*`.
 
 /// Conjunto de enteros permitidos sin letras (`bool[]`), con los setters `SetX(string)` de Pesos numéricos.
 public struct ValoresPermitidos: Sendable, Hashable {
@@ -50,11 +50,11 @@ public struct CondicionPesosNumericos: Sendable, Hashable {
     }
 
     public mutating func setPN(_ p: Peso, _ valores: String) throws(ErrorDominio) {
-        try permitidos[p.rawValue].poner(valores, "FiltroPesosNumericos.cs:526-764")
+        try permitidos[p.rawValue].poner(valores, "CondicionPesosNumericos:53")
     }
 
     public mutating func setPNTol(_ p: Peso, _ valores: String) throws(ErrorDominio) {
-        try tolerados[p.rawValue].poner(valores, "FiltroPesosNumericos.cs:526-764")
+        try tolerados[p.rawValue].poner(valores, "CondicionPesosNumericos:57")
     }
 
     public func getPN(_ p: Peso) -> String { permitidos[p.rawValue].texto }
@@ -62,11 +62,11 @@ public struct CondicionPesosNumericos: Sendable, Hashable {
 
     /// `PonerTolerancia(string)`.
     public mutating func ponerTolerancia(_ valores: String) throws(ErrorDominio) {
-        try tolerancias.poner(valores, "FiltroPesosNumericos.cs:520")
+        try tolerancias.poner(valores, "CondicionPesosNumericos:65")
     }
 
     public mutating func ponerTolerancia(_ n: Int, _ activa: Bool) throws(ErrorDominio) {
-        try tolerancias.poner(n, activa, "FiltroPesosNumericos.cs:516")
+        try tolerancias.poner(n, activa, "CondicionPesosNumericos:69")
     }
 
     public var getTolerancias: String { tolerancias.texto }

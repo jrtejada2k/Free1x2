@@ -1,4 +1,4 @@
-// C#: Free1X2.Domain/Utils/ConvertidorDeBases.cs (06 §1.7, §2.4)
+// Ref.: 06 §1.7, §2.4.
 
 /// Columna ↔ número en base 3 que indexa los conjuntos de 3^N columnas: `1`→0, `X`→1, `2`→2;
 /// el partido 1 es el dígito **menos** significativo. Cualquier carácter distinto de `1`/`2` pesa como `X`.
@@ -55,7 +55,7 @@ public struct ConvertidorDeBases: Sendable {
         let faltan = numeroPartidos - texto.count
         guard faltan >= 0 else {
             throw ErrorDominio(
-                .argumentoFueraDeRango, "El número no cabe en \(numeroPartidos) partidos.", origen: "ConvertidorDeBases.cs:107")
+                .argumentoFueraDeRango, "El número no cabe en \(numeroPartidos) partidos.", origen: "ConvertidorDeBases:58")
         }
         return texto + String(repeating: "1", count: faltan)
     }
@@ -72,6 +72,6 @@ public struct ConvertidorDeBases: Sendable {
     }
 
     private static func fueraDeRango(_ linea: String) -> ErrorDominio {
-        ErrorDominio(.indiceFueraDeRango, "Índice fuera de los límites de la matriz.", origen: "ConvertidorDeBases.cs\(linea)")
+        ErrorDominio(.indiceFueraDeRango, "Índice fuera de los límites de la matriz.", origen: "ConvertidorDeBases\(linea)")
     }
 }

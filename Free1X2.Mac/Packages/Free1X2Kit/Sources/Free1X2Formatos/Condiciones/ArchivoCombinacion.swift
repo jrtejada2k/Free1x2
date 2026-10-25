@@ -2,8 +2,7 @@ import Foundation
 import Free1X2Base
 import Free1X2Motor
 
-// C#: Free1X2.Domain/EntradaSalida/ArchivoCombinacion.cs (07 F02; 07 §6.2) y la secuencia de apertura y guardado de
-// MainPageViewModel.cs:577-648.
+// Ref.: 07 F02; 07 §6.2, con la secuencia de apertura y guardado de la pantalla de inicio.
 
 /// Lo que devuelve abrir un `.comb`: la combinación, los equipos del boleto y el filtro de columnas.
 public struct CombinacionLeida: Sendable {
@@ -22,13 +21,13 @@ public enum ArchivoCombinacion {
     /// `SetPronostico` de cada pronóstico (más de N ⇒ lanza).
     public static func leer(_ datos: Data, numeroPartidos: Int, cultura: Cultura) throws(ErrorDominio) -> CombinacionLeida {
         let doc = try LectorXML.cargar(datos)
-        let equipos = try lista(doc, "equipos", "equipos", "ArchivoCombinacion.cs:53-59")
+        let equipos = try lista(doc, "equipos", "equipos", "ArchivoCombinacion:24")
         var filtro = ""
-        if let f = doc.primerElemento("filtroColumnas") { filtro = try f.atributo("nombreArchivo", "ArchivoCombinacion.cs:70") }
+        if let f = doc.primerElemento("filtroColumnas") { filtro = try f.atributo("nombreArchivo", "ArchivoCombinacion:26") }
         var c = Combinacion(numeroPartidos: numeroPartidos)
         try cargarControladorGrupos(doc, &c, numeroPartidos: numeroPartidos, cultura: cultura)
         c.ifThen = try ArchivoCondiciones.leerIfThen(doc)
-        for (i, p) in try lista(doc, "columnaBase", "pronostico", "ArchivoCombinacion.cs:79-84").enumerated() {
+        for (i, p) in try lista(doc, "columnaBase", "pronostico", "ArchivoCombinacion:30").enumerated() {
             try c.setPronostico(i, p)
         }
         return CombinacionLeida(combinacion: c, equipos: equipos, filtroColumnas: filtro)
@@ -47,7 +46,7 @@ public enum ArchivoCombinacion {
         _ doc: NodoXML, _ c: inout Combinacion, numeroPartidos: Int, cultura: Cultura
     ) throws(ErrorDominio) {
         // LeeGrupos (:147-172): `AddGrupo` pone cada grupo en el control 0 antes de leer los controles.
-        guard let gp = doc.primerElemento("gruposPartidos") else { throw .referenciaNula("ArchivoCombinacion.cs:157") }
+        guard let gp = doc.primerElemento("gruposPartidos") else { throw .referenciaNula("ArchivoCombinacion:49") }
         c.vaciarGrupos()
         for h in gp.hijos where h.tipo != .comentario {
             var g = try ArchivoCondiciones.grupo(h, numeroPartidos: numeroPartidos, cultura: cultura, combinacion: true)
@@ -55,8 +54,8 @@ public enum ArchivoCombinacion {
             try c.addGrupo(g)
         }
         // LeeControlesGrupos (:183-215): el índice 0 es el de **hijo** (un comentario delante lo desplaza).
-        let o = "ArchivoCombinacion.cs:200-209"
-        guard let cg = doc.primerElemento("controlGrupos") else { throw .referenciaNula("ArchivoCombinacion.cs:191") }
+        let o = "ArchivoCombinacion:57"
+        guard let cg = doc.primerElemento("controlGrupos") else { throw .referenciaNula("ArchivoCombinacion:58") }
         for (i, h) in cg.hijos.enumerated() where h.tipo != .comentario {
             var control = i == 0 ? try c.controlesGrupos.leerLista(0, o) : ControlGruposConfig()
             _ = try control.ponerGruposControlados(try h.atributo("grupos", o))
@@ -70,7 +69,7 @@ public enum ArchivoCombinacion {
         }
         // LeeControlesConjuntos (:109-145): opcional.
         guard let cc = doc.primerElemento("controlConjuntos") else { return }
-        let oc = "ArchivoCombinacion.cs:128-136"
+        let oc = "ArchivoCombinacion:72"
         for (i, h) in cc.hijos.enumerated() where h.tipo != .comentario {
             var conjunto = i == 0 ? try c.controlesConjuntos.leerLista(0, oc) : ControlConjuntosConfig()
             try conjunto.ponerCtrlGruposControlados(try h.atributo("conjuntos", oc))
@@ -92,7 +91,7 @@ public enum ArchivoCombinacion {
         w.iniciarElemento("equipos")
         for (i, e) in equipos.enumerated() { DatosFiltro.elemento(&w, "partido", [("id", String(i)), ("equipos", e)]) }
         w.cerrarElemento()
-        guard let pronosticos = c.pronosticos else { throw .referenciaNula("ArchivoCombinacion.cs:355") }
+        guard let pronosticos = c.pronosticos else { throw .referenciaNula("ArchivoCombinacion:94") }
         w.iniciarElemento("columnaBase")
         for (i, p) in pronosticos.enumerated() {
             DatosFiltro.elemento(&w, "partido", [("id", String(i)), ("pronostico", p ?? "")])

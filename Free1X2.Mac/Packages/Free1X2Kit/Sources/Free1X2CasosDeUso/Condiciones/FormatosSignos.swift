@@ -2,7 +2,7 @@ import Foundation
 import Free1X2Base
 import Free1X2Motor
 
-// C#: Views/Ported/FormatosFrmViewModel.cs (09 pantalla 52; CU-B19). Las relaciones viven en pantalla hasta Aceptar.
+// Ref.: 09 pantalla 52; CU-B19. Las relaciones viven en pantalla hasta Aceptar.
 
 /// Una relación de la pantalla: 30 líneas formato + rango y los límites «Líneas» y «Global».
 public struct RelacionFormatos: Sendable, Hashable {

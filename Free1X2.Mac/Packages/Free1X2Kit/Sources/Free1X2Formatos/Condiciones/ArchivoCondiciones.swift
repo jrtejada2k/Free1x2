@@ -2,7 +2,7 @@ import Foundation
 import Free1X2Base
 import Free1X2Motor
 
-// C#: Free1X2.Domain/EntradaSalida/ArchivoCondiciones.cs (07 F03; 07 §6.3).
+// Ref.: 07 F03; 07 §6.3.
 
 /// Ficheros de condición sueltos (un filtro, un grupo o un If-Then) y lector del If-Then de las combinaciones.
 public enum ArchivoCondiciones {
@@ -13,13 +13,13 @@ public enum ArchivoCondiciones {
 
     /// `LeeCondicion()` (:77-83): el grupo armado con el nodo `Condiciones` (ausente ⇒ NRE).
     public static func leerCondicion(_ doc: NodoXML, numeroPartidos: Int, cultura: Cultura) throws(ErrorDominio) -> GrupoConfig {
-        guard let nodo = doc.primerElemento("Condiciones") else { throw .referenciaNula("ArchivoCondiciones.cs:81") }
+        guard let nodo = doc.primerElemento("Condiciones") else { throw .referenciaNula("ArchivoCondiciones:16") }
         return try grupo(nodo, numeroPartidos: numeroPartidos, cultura: cultura)
     }
 
     /// `LeeGrupos(ref grupo)` (:53-75): procesa **todos** los `grupo` y devuelve el último (`nil` si no hay ninguno).
     public static func leerGrupo(_ doc: NodoXML, numeroPartidos: Int, cultura: Cultura) throws(ErrorDominio) -> GrupoConfig? {
-        guard let gp = doc.primerElemento("gruposPartidos") else { throw .referenciaNula("ArchivoCondiciones.cs:61") }
+        guard let gp = doc.primerElemento("gruposPartidos") else { throw .referenciaNula("ArchivoCondiciones:22") }
         var ultimo: GrupoConfig?
         for h in gp.hijos where h.tipo != .comentario {
             var g = try grupo(h, numeroPartidos: numeroPartidos, cultura: cultura)
@@ -30,7 +30,7 @@ public enum ArchivoCondiciones {
     }
 
     /// `GetGrupoFromXmlNode` (:148-177): despacha por `Name`, salta comentarios; aquí sin `filtroParcial`.
-    /// Con `combinacion` (versión de `ArchivoCombinacion.cs:217-261`): `EsGrupoBase = (i == 0)` en cada hijo y `filtroParcial`.
+    /// Con `combinacion` (versión del fichero de combinación): `EsGrupoBase = (i == 0)` en cada hijo y `filtroParcial`.
     static func grupo(
         _ nodo: NodoXML, numeroPartidos: Int, cultura: Cultura, combinacion: Bool = false
     ) throws(ErrorDominio) -> GrupoConfig {
@@ -41,15 +41,15 @@ public enum ArchivoCondiciones {
             switch h.nombre {
             case "condicion":
                 // `GetFiltro(id)`: un nombre desconocido devuelve el último filtro del grupo (Diferencias).
-                let tipo = TipoFiltro(rawValue: try h.atributo("id", "ArchivoCondiciones.cs:228")) ?? .diferencias
+                let tipo = TipoFiltro(rawValue: try h.atributo("id", "ArchivoCondiciones:44")) ?? .diferencias
                 try DatosFiltro.leer(tipo, h, en: &g.condiciones, numeroPartidos: numeroPartidos, cultura: cultura)
             case "partidosActivos":
-                let p = try h.atributo("noPartidos", "ArchivoCondiciones.cs:164")
+                let p = try h.atributo("noPartidos", "ArchivoCondiciones:47")
                 if !p.isEmpty { try g.ponerPartidosActivos(p) }
             case "tolerancias":
                 g.tolerancias = try tolerancias(h)
             case "filtroParcial" where combinacion:
-                g.archivoFiltro = try h.atributo("archivo", "ArchivoCombinacion.cs:254")
+                g.archivoFiltro = try h.atributo("archivo", "ArchivoCondiciones:52")
             default: break
             }
         }
@@ -58,7 +58,7 @@ public enum ArchivoCondiciones {
 
     /// `PonerToleranciasGrupo` (:195-223).
     static func tolerancias(_ nodo: NodoXML) throws(ErrorDominio) -> ControladorTolConfig {
-        let o = "ArchivoCondiciones.cs:210-217"
+        let o = "ArchivoCondiciones:61"
         var c = ControladorTolConfig()
         var lista: [ToleranciaConfig] = []
         var noFallos = ""
@@ -81,7 +81,7 @@ public enum ArchivoCondiciones {
     /// `LeeIfThen()` (:85-146): `nil` sin `If-Then`; el **último** hijo de `Condiciones`/`Grupos` es siempre `Rangos`.
     public static func leerIfThen(_ doc: NodoXML) throws(ErrorDominio) -> IfThenConfig? {
         guard let it = doc.primerElemento("If-Then") else { return nil }
-        let o = "ArchivoCondiciones.cs:111-140"
+        let o = "ArchivoCondiciones:84"
         var cfg = IfThenConfig()
         var condiciones: NodoXML?
         var grupos: NodoXML?

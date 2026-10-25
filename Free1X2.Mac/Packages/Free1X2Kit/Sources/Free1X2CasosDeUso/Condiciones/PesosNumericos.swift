@@ -2,7 +2,7 @@ import Foundation
 import Free1X2Base
 import Free1X2Motor
 
-// C#: Views/Ported/PesosNumFrmViewModel.cs (10 pantalla 78; CU-C10).
+// Ref.: 10 pantalla 78; CU-C10.
 
 extension CasosCondiciones {
     /// Las 5 casillas de figuras de la pantalla (sin «5» ni «4-1», que darían 0 columnas).

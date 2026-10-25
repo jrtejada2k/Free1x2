@@ -1,6 +1,6 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/Analisis/Analizador.cs y ProbabilidadesPremios.cs (06 §3.1-§3.2). `IteraCols` y `premios[]` del
+// Ref.: 06 §3.1-§3.2. `IteraCols` y `premios[]` del
 // analizador son código muerto (DP-08).
 
 /// Recuentos por categoría (0…16) y su porcentaje sobre las columnas de la madre.
@@ -20,7 +20,7 @@ public struct ProbabilidadesPremios: Sendable, Hashable {
 
     /// `ObtenProbabilidadPremioDirecto(c)`.
     public func probabilidad(_ categoria: Int) throws(ErrorDominio) -> Double {
-        try probabilidades.leer(categoria, "ProbabilidadesPremios.cs:69")
+        try probabilidades.leer(categoria, "ProbabilidadPremios:23")
     }
 }
 
@@ -40,7 +40,7 @@ public enum ProbabilidadPremios {
             r.calculaProbabilidades()
             return r
         }
-        let o = "Analizador.cs:80-159"
+        let o = "ProbabilidadPremios:43"
         var bits = [Bool](repeating: false, count: try pot.leer(a, o))
         let conv = ConvertidorDeBases(numeroPartidos: a)
         for l in hija {

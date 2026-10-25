@@ -312,7 +312,7 @@ struct VistaAnaCombi: View {
         let t = Task {
             do throws(ErrorDominio) {
                 let r = try await CasosUtilidades.analizarGrupos(url, seleccion: sel, fallos: f, entorno: sesion.entorno)
-                // ponytail: «Procesadas» y «Tiempo» solo al terminar (el C# los refresca cada 1024 líneas).
+                // ponytail: «Procesadas» y «Tiempo» solo al terminar (Windows los refresca cada 1024 líneas).
                 (filas, procesadas, tiempo) = (r.filas, String(r.procesadas), tiempoRecortado(t0, sesion))
             } catch {
                 sesion.alertas.error("Error al calcular: " + error.mensajeUsuario)

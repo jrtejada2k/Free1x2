@@ -1,6 +1,6 @@
 import Free1X2Motor
 
-// C#: Free1X2.WinUI/Views/Ported/*FrmViewModel.cs (`ExtensionesAbrir`/`TiposGuardar`); 07 §1 F03 (07:294)
+// Ref.: `ExtensionesAbrir`/`TiposGuardar`. 07 §1 F03 (07:294)
 
 extension TipoFiltro {
     /// Extensión propia del fichero de condición (F03). Cada pantalla ofrece además `.xml`, con el mismo contenido.

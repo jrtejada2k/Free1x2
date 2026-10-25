@@ -3,7 +3,7 @@ import Free1X2Base
 import Free1X2Formatos
 import Free1X2Motor
 
-// C#: Views/Ported/EscrutiniosFrmViewModel.cs (09 pantalla 45; CU-B05…B08) y ColumnasPremiadasFrmViewModel.cs (08 pantalla 20).
+// Ref.: 09 pantalla 45; CU-B05…B08; 08 pantalla 20.
 
 /// Contra qué se escrutan los ficheros (pestañas Simple · Contra fichero · Contra jornadas).
 public enum ModoEscrutinio: Sendable, Hashable {
@@ -113,7 +113,7 @@ extension CasosCombinacion {
         for archivo in lista {
             let u = Array(archivo.utf16)
             func sub(_ i: Int, _ n: Int) throws(ErrorDominio) -> [UInt16] {
-                guard i >= 0, n >= 0, i + n <= u.count else { throw .fueraDeRango("EscrutiniosFrmViewModel.cs:Substring") }
+                guard i >= 0, n >= 0, i + n <= u.count else { throw .fueraDeRango("Escrutinios:116") }
                 return Array(u[i..<i + n])
             }
             func numero(_ t: [UInt16]) throws(ErrorDominio) -> Int16 { try FormatoNET.convertToInt16(String(decoding: t, as: UTF16.self)) }
@@ -148,7 +148,7 @@ extension CasosCombinacion {
         func columnas(_ ruta: String) throws(ErrorDominio) -> [String] {
             ArchivoColumnasTexto.columnas(try entorno.archivos.leer(URL(filePath: ruta)))
         }
-        /// Sin ganadoras (referencia vacía) el C# no llega a abrir el fichero de columnas.
+        /// Sin ganadoras (referencia vacía) Windows no llega a abrir el fichero de columnas.
         func escrutar(
             _ ruta: String, leer: Bool = true, _ hacer: (inout Escrutador, [String]) throws(ErrorDominio) -> [FilaEscrutinio]
         ) throws(ErrorDominio) {

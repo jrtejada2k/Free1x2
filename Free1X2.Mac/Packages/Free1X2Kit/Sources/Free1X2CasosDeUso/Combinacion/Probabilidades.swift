@@ -3,7 +3,7 @@ import Free1X2Base
 import Free1X2Formatos
 import Free1X2Motor
 
-// C#: Views/Ported/ProbabilidadPremiosViewModel.cs (10 §81; CU-C17).
+// Ref.: 10 §81; CU-C17.
 
 /// Una fila de «Probabilidades por categoría».
 public struct FilaProbabilidad: Sendable, Hashable, Identifiable {

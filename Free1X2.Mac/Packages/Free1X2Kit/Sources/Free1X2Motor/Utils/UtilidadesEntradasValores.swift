@@ -1,11 +1,11 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/Utils/UtilidadesEntradasValores.cs (06 §2.6). Sin consumidores, no se portan:
+// Ref.: 06 §2.6. Sin consumidores, no se portan:
 // ValidarCamposDeTexto, ObtenerRangosSeparadosPorGuion (salvo como paso interno) y PonerEnMayuscula.
 
 /// Conversiones texto ↔ listas, `[Bool]` y figuras de los campos de condiciones.
 public enum UtilidadesEntradasValores {
-    /// Rangos de más de un millón de valores: en C# el bucle no termina (06 §2.6-4).
+    /// Rangos de más de un millón de valores: en Windows el bucle no termina (06 §2.6-4).
     static let maximoRango = 1_000_000
 
     /// `ObtenerArrayAciertos` (:26-36).
@@ -15,7 +15,7 @@ public enum UtilidadesEntradasValores {
         return salida
     }
 
-    /// `ObtenerListaFromTxt` (:42-108): índices 0-based **con el fallo de deduplicado del C#** [PRESERVAR, G-D2]:
+    /// `ObtenerListaFromTxt`: índices 0-based **con el fallo de deduplicado de Windows** [PRESERVAR, G-D2]:
     /// compara el valor sin restar 1 contra índices ya restados. Cualquier error ⇒ lista vacía.
     public static func obtenerListaFromTxt(_ entrada: String) -> [Int] {
         lista(entrada, desplazamiento: 1)
@@ -71,7 +71,7 @@ public enum UtilidadesEntradasValores {
 
     /// `ObtenerTextoFiguraFromLong` (:238-253): los nibbles 0 de la izquierda se pierden; 0 ⇒ `"0"`.
     public static func obtenerTextoFiguraFromLong(_ figura: Int64) throws(ErrorDominio) -> String {
-        guard figura >= 0 else { throw ErrorDominio(.operacionInvalida, "", origen: "UtilidadesEntradasValores.cs:241") }
+        guard figura >= 0 else { throw ErrorDominio(.operacionInvalida, "", origen: "UtilidadesEntradasValores:74") }
         var f = figura
         var partes: [String] = []
         while f != 0 {
@@ -86,11 +86,11 @@ public enum UtilidadesEntradasValores {
         guard !texto.isEmpty else { return nil }
         let lista = obtenerListaFromTxtAciertos(texto).sorted()
         guard let mayor = lista.last else {
-            throw ErrorDominio(.argumentoFueraDeRango, "El índice estaba fuera del intervalo.", origen: "UtilidadesEntradasValores.cs:263")
+            throw ErrorDominio(.argumentoFueraDeRango, "El índice estaba fuera del intervalo.", origen: "UtilidadesEntradasValores:89")
         }
         let tamano = longitud > mayor ? longitud + 1 : mayor + 1
         guard tamano <= RangosHelper.maximoValor else {
-            throw ErrorDominio(.argumentoFueraDeRango, "Valor demasiado grande: \(mayor).", origen: "UtilidadesEntradasValores.cs:269")
+            throw ErrorDominio(.argumentoFueraDeRango, "Valor demasiado grande: \(mayor).", origen: "UtilidadesEntradasValores:93")
         }
         let conjunto = Set(lista)
         return (0..<max(tamano, 0)).map { conjunto.contains($0) }
@@ -112,7 +112,7 @@ public enum UtilidadesEntradasValores {
     public static func obtenerTodosValores(_ minimo: Int, _ maximo: Int) throws(ErrorDominio) -> String {
         guard minimo <= maximo else {
             throw ErrorDominio(
-                .argumentoFueraDeRango, "La longitud no puede ser menor que cero.", origen: "UtilidadesEntradasValores.cs:339")
+                .argumentoFueraDeRango, "La longitud no puede ser menor que cero.", origen: "UtilidadesEntradasValores:115")
         }
         guard maximo - minimo < maximoRango else { throw ErrorDominio(.operacionInvalida) }
         return (minimo...maximo).map(String.init).joined(separator: ",")

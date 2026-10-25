@@ -2,7 +2,7 @@ import Foundation
 import Free1X2Base
 import Free1X2Motor
 
-// C#: Views/Ported/ControlGruposFrmViewModel.cs y ControlTolFrmViewModel.cs (08 pantallas 27 y 28; CU-A72…A74).
+// Ref.: 08 pantallas 27 y 28; CU-A72…A74.
 
 /// «Control de Grupos»: copias de los controles de grupos y de conjuntos; el control 0 (libres) no se muestra.
 public struct EditorControlGrupos: Sendable {
@@ -17,7 +17,7 @@ public struct EditorControlGrupos: Sendable {
     public private(set) var cc = 1
     public private(set) var contadorGrupos = "1/1"
     public private(set) var contadorConjuntos = "1/1"
-    /// Veces que el C# habría mostrado `ControlGruposConfig.mensajeError` («Hay errores en los valores introducidos»).
+    /// Veces que Windows habría mostrado `ControlGruposConfig.mensajeError` («Hay errores en los valores introducidos»).
     public var errores = 0
     let numeroGrupos: Int
 
@@ -74,7 +74,7 @@ public struct EditorControlGrupos: Sendable {
         if cg == 1 {
             if controles.count > 1 { controles.remove(at: cg) }
         } else {
-            guard controles.indices.contains(cg) else { throw .fueraDeRangoLista("ControlGruposFrmViewModel.cs:377") }
+            guard controles.indices.contains(cg) else { throw .fueraDeRangoLista("ControlGrupos:77") }
             controles.remove(at: cg)
             cg -= 1
         }
@@ -89,7 +89,7 @@ public struct EditorControlGrupos: Sendable {
         }
         var libres = "0"
         for g in 1..<max(numeroGrupos, 1) where !controles.dropFirst().contains(where: { $0.contieneGrupo(g) }) { libres += ",\(g)" }
-        guard !controles.isEmpty else { throw .fueraDeRangoLista("ControlGruposFrmViewModel.cs:201") }
+        guard !controles.isEmpty else { throw .fueraDeRangoLista("ControlGrupos:92") }
         if !(try controles[0].ponerGruposControlados(libres)) { errores += 1 }
         controles[0].usaControlGrupos = false
     }
@@ -131,7 +131,7 @@ public struct EditorControlGrupos: Sendable {
         if cc == 1 {
             if controlesConjuntos.count > 1 { controlesConjuntos.remove(at: cc) }
         } else {
-            guard controlesConjuntos.indices.contains(cc) else { throw .fueraDeRangoLista("ControlGruposFrmViewModel.cs:403") }
+            guard controlesConjuntos.indices.contains(cc) else { throw .fueraDeRangoLista("ControlGrupos:134") }
             controlesConjuntos.remove(at: cc)
             cc -= 1
         }
@@ -150,7 +150,7 @@ public struct EditorControlGrupos: Sendable {
         for k in 1..<max(numeroControles, 1) where !controlesConjuntos.dropFirst().contains(where: { $0.contieneConjunto(k) }) {
             libres += ",\(k)"
         }
-        guard !controlesConjuntos.isEmpty else { throw .fueraDeRangoLista("ControlGruposFrmViewModel.cs:310") }
+        guard !controlesConjuntos.isEmpty else { throw .fueraDeRangoLista("ControlGrupos:153") }
         try controlesConjuntos[0].ponerCtrlGruposControlados(libres)
         try controlesConjuntos[0].ponerFallosPermitidos("0")
     }
@@ -166,7 +166,7 @@ public struct EditorControlGrupos: Sendable {
 }
 
 extension CasosCondiciones {
-    /// «Control Tolerancias» al entrar (`ControlTolFrmViewModel.cs:60-80`): al menos 30 filas.
+    /// «Control Tolerancias» al entrar: al menos 30 filas.
     public static func filasTolerancias(_ t: ControladorTolConfig) -> [(letras: String, aciertos: String)] {
         var f = t.tolerancias.map { ($0.letrasTol, $0.aciertos) }
         while f.count < 30 { f.append(("", "")) }

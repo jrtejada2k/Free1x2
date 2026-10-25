@@ -64,7 +64,7 @@ struct VistaCoincidencias: View {
         guard let u = await SelectorFicheros.abrir(".txt", "*") else { return }
         do throws(ErrorDominio) {
             let r = CasosUtilidades.ganadorasCoincidencias(try sesion.entorno.archivos.leer(u))
-            // Las leídas pisan las primeras del fichero anterior, como el array fijo del C#.
+            // Las leídas pisan las primeras del fichero anterior, como el array fijo de Windows.
             for (i, c) in r.columnas.enumerated() {
                 if i < g.columnas.count { g.columnas[i] = c } else { g.columnas.append(c) }
             }
@@ -130,8 +130,8 @@ struct VistaCoincidencias: View {
             return sesion.alertas.error("Error en condiciones")
         }
         do throws(ErrorDominio) {
-            let a = try anterior.columnas.leer(anterior.actual - 1, "CoincidenciasViewModel.cs:Analizar")
-            let r = try reciente.columnas.leer(reciente.actual - 1, "CoincidenciasViewModel.cs:Analizar")
+            let a = try anterior.columnas.leer(anterior.actual - 1, "Coincidencias:133")
+            let r = try reciente.columnas.leer(reciente.actual - 1, "Coincidencias:134")
             let (ax, rx) = (a.replacingOccurrences(of: "x", with: "X"), r.replacingOccurrences(of: "x", with: "X"))
             condis = CasosUtilidades.radiografia(ax)
             let n = CasosUtilidades.analizarCoincidencias(ax, rx, grupos: c.grupos)
@@ -299,7 +299,7 @@ struct VistaCoincidencias: View {
                     }
                     Button("Grabar distribuciones en Excel") {
                         Task {
-                            // ponytail: con más de 100 condiciones el C# rompe a mitad de fichero; aquí solo avisa.
+                            // ponytail: con más de 100 condiciones Windows rompe a mitad de fichero; aquí solo avisa.
                             guard limGrN <= 100 else {
                                 return sesion.alertas.error("No se pudo exportar a Excel: Index was outside the bounds of the array.")
                             }

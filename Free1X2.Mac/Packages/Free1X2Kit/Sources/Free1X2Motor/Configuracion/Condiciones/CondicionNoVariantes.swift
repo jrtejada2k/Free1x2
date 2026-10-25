@@ -1,6 +1,6 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/MotorCalculo/FiltroNoVariantes.cs (03 §2) — estado configurable y sus `Set*`/`Get*`.
+// Ref.: 03 §2 — estado configurable y sus `Set*`/`Get*`.
 
 /// Nº de variantes (X o 2), de X y de 2 permitidos, con letras de tolerancia.
 public struct CondicionNoVariantes: Sendable, Hashable {
@@ -20,27 +20,27 @@ public struct CondicionNoVariantes: Sendable, Hashable {
     }
 
     public mutating func setNoVariantes(_ n: Int, _ activo: Bool) throws(ErrorDominio) {
-        try variantes.poner(n, activo, "FiltroNoVariantes.cs:220")
+        try variantes.poner(n, activo, "CondicionNoVariantes:23")
     }
 
     public mutating func setNoEquis(_ n: Int, _ activo: Bool) throws(ErrorDominio) {
-        try equis.poner(n, activo, "FiltroNoVariantes.cs:259")
+        try equis.poner(n, activo, "CondicionNoVariantes:27")
     }
 
     public mutating func setNoDoses(_ n: Int, _ activo: Bool) throws(ErrorDominio) {
-        try doses.poner(n, activo, "FiltroNoVariantes.cs:298")
+        try doses.poner(n, activo, "CondicionNoVariantes:31")
     }
 
     public mutating func setNoVariantes(_ valores: String) throws(ErrorDominio) {
-        try variantes.poner(valores, "FiltroNoVariantes.cs:231-255")
+        try variantes.poner(valores, "CondicionNoVariantes:35")
     }
 
     public mutating func setNoEquis(_ valores: String) throws(ErrorDominio) {
-        try equis.poner(valores, "FiltroNoVariantes.cs:270-294")
+        try equis.poner(valores, "CondicionNoVariantes:39")
     }
 
     public mutating func setNoDoses(_ valores: String) throws(ErrorDominio) {
-        try doses.poner(valores, "FiltroNoVariantes.cs:309-333")
+        try doses.poner(valores, "CondicionNoVariantes:43")
     }
 
     public var getVariantes: String { variantes.texto }

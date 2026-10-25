@@ -1,6 +1,6 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/MotorCalculo/ControladorGrupos.cs y ControlGrupos.cs (01 §2.6-2.7).
+// Ref.: 01 §2.6-2.7.
 
 /// `ControlGrupos` en ejecución.
 final class ControlGrupos {
@@ -22,21 +22,21 @@ final class ControlGrupos {
             // `AnalizaGruposConControlFallos` (:61-90): se evalúan todos, sin corte.
             guard reCalcular else { return validoMemoria }
             var fallos = 0
-            for g in gruposControlados where !(try grupos.leerLista(g, "ControlGrupos.cs:69").analiza(columna)) { fallos += 1 }
-            guard let a = fallosPermitidos else { throw .referenciaNula("ControlGrupos.cs:78") }
-            validoMemoria = try a.leer(fallos, "ControlGrupos.cs:78")
+            for g in gruposControlados where !(try grupos.leerLista(g, "ControladorGrupos:25").analiza(columna)) { fallos += 1 }
+            guard let a = fallosPermitidos else { throw .referenciaNula("ControladorGrupos:26") }
+            validoMemoria = try a.leer(fallos, "ControladorGrupos:27")
             reCalcular = false
             return validoMemoria
         }
         // `AnalizaGruposSinControlFallos` (:92-103): corte en el primero que falla; sin memo propio.
-        for g in gruposControlados where !(try grupos.leerLista(g, "ControlGrupos.cs:97").analiza(columna)) { return false }
+        for g in gruposControlados where !(try grupos.leerLista(g, "ControladorGrupos:32").analiza(columna)) { return false }
         return true
     }
 
     /// `AnalizaColumna(long, ContenedorAnalisisGlobal)` (:52-59, 105-161): rutas C/D. Con fallos permitidos evalúa sus
     /// grupos **sin** análisis; sin ellos, con análisis y corte.
     func analiza(_ columna: Columna, _ grupos: [Grupo], _ r: RegistroAnalisis) throws(ErrorDominio) -> Bool {
-        let o = "ControlGrupos.cs:105-161"
+        let o = "ControladorGrupos:39"
         if usaControlGrupos {
             guard reCalcular else { return validoMemoria }
             try grupos.leerLista(0, o).marcarBase()
@@ -61,7 +61,7 @@ final class ControlGrupos {
     /// `RecalcularControlGrupos` (:283-291).
     func recalcular(_ grupos: [Grupo]) throws(ErrorDominio) {
         reCalcular = true
-        for g in gruposControlados { try grupos.leerLista(g, "ControlGrupos.cs:288").reCalcular = true }
+        for g in gruposControlados { try grupos.leerLista(g, "ControladorGrupos:64").reCalcular = true }
     }
 }
 
@@ -118,7 +118,7 @@ final class ControladorGrupos {
     /// (:201-269): antes de cada libre salvo el primero se vacía lo registrado; los demás conjuntos evalúan sin análisis
     /// y cuentan las columnas por nº de controles fallados.
     private func conConjuntos(_ columna: Columna, _ r: RegistroAnalisis) throws(ErrorDominio) -> Bool {
-        let o = "ControladorGrupos.cs:201-269"
+        let o = "ControladorGrupos:121"
         let libres = try conjuntos.leerLista(0, o)
         for (j, i) in libres.ctrlGruposControlados.enumerated() {
             let c = try control(i)
@@ -144,18 +144,18 @@ final class ControladorGrupos {
     /// `AnalizaColumnaConConjuntos` (:95-153): los «libres» del conjunto 0 deben pasar; en los demás se cuentan los
     /// controles que fallan y se mira el presupuesto.
     private func conConjuntos(_ columna: Columna) throws(ErrorDominio) -> Bool {
-        let libres = try gruposDeConjuntos.leerLista(0, "ControladorGrupos.cs:101")
+        let libres = try gruposDeConjuntos.leerLista(0, "ControladorGrupos:147")
         for i in libres where !(try control(i).analiza(columna, grupos)) { return false }
         for k in gruposDeConjuntos.indices.dropFirst() {
             var fallados = 0
             for i in gruposDeConjuntos[k] where !(try control(i).analiza(columna, grupos)) { fallados += 1 }
-            guard let fallos = fallosDeConjuntos[k] else { throw .referenciaNula("ControladorGrupos.cs:144") }
+            guard let fallos = fallosDeConjuntos[k] else { throw .referenciaNula("ControladorGrupos:152") }
             if fallos.count < fallados + 1 || !fallos[fallados] { return false }
         }
         return true
     }
 
     private func control(_ i: Int) throws(ErrorDominio) -> ControlGrupos {
-        try controles.leerLista(i, "ControladorGrupos.cs:110")
+        try controles.leerLista(i, "ControladorGrupos:159")
     }
 }

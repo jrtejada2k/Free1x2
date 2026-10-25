@@ -1,4 +1,4 @@
-/// Tipo de excepción .NET que el C# lanza en el mismo punto lógico (ESPEC_11 §5, DT-03).
+/// Tipo de excepción .NET que Windows lanza en el mismo punto lógico (ESPEC_11 §5, DT-03).
 /// El `rawValue` es el nombre .NET, que es lo que registran los golden (`"error":"FormatException"`).
 public enum ExcepcionNET: String, Sendable, Codable, CaseIterable {
     case formato = "FormatException"
@@ -21,12 +21,12 @@ public enum ExcepcionNET: String, Sendable, Codable, CaseIterable {
     case general = "Exception"
 }
 
-/// Error del dominio: reproduce la excepción C# sin abortar nunca (principio A5).
+/// Error del dominio: reproduce excepción de Windows sin abortar nunca (principio A5).
 public struct ErrorDominio: Error, Sendable, Equatable {
     public let excepcion: ExcepcionNET
-    /// Texto que hoy ve el usuario cuando el C# lo fija; si lo genera .NET, su equivalente en español.
+    /// Texto que hoy ve el usuario cuando Windows lo fija; si lo genera .NET, su equivalente en español.
     public let mensajeUsuario: String
-    /// Punto del C# que lo origina, para trazabilidad y log: `"Free1X2.Domain/…/Fichero.cs:231"`.
+    /// Punto de Windows que lo origina, para trazabilidad y log.
     public let origen: String
 
     public init(_ excepcion: ExcepcionNET, _ mensajeUsuario: String = "", origen: String = "") {
@@ -45,7 +45,7 @@ public struct ErrorOnline: Error, Sendable, Equatable {
     }
 }
 
-// Excepciones que genera .NET (no el código del C#): mismo tipo y su texto en español (ESPEC_11 §5.2).
+// Excepciones que genera .NET (no el código de Windows): mismo tipo y su texto en español (ESPEC_11 §5.2).
 extension ErrorDominio {
     public static func fueraDeRango(_ origen: String) -> ErrorDominio {
         ErrorDominio(.indiceFueraDeRango, "Índice fuera de los límites de la matriz.", origen: origen)

@@ -5,7 +5,7 @@ import Free1X2Motor
 extension CasosCondiciones {
     // MARK: Pantalla 88 · Signos Seguidos (CU-C30)
 
-    /// `Aceptar` (`SignosSeguidosFrmViewModel.cs:141-178`): «todos» es la constante 0…14; las figuras no cuentan como
+    /// `Aceptar`: «todos» es la constante 0…14; las figuras no cuentan como
     /// datos y una lista vacía deja la que tuviera la condición.
     public static func aplicarSignosSeguidos(
         _ textos: [String], figuras: [[Int64]?], en f: inout CondicionSignosSeguidos
@@ -33,7 +33,7 @@ extension CasosCondiciones {
     public static let mensajeSimetriaInvalida =
         "Verifique que ha introducido una simetría correcta: (a,b) ó (a-b) ó (a,b-c), y que ha introducido un número válido de aciertos"
 
-    /// `EntradaValida` (`SimetriasFrmViewModel.cs:96-117`): cada número en 1…N.
+    /// `EntradaValida`: cada número en 1…N.
     static func simetriaValida(_ t: String, _ n: Int) -> Bool {
         guard !blanco(t) else { return false }
         var valida = false

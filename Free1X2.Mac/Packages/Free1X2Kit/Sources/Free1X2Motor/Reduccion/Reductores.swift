@@ -1,9 +1,9 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/Reduccion/JDC.cs, JDCdobleContador.cs, Redu1305Xfsf.cs y ReductorBase.cs (05 §1-§2).
+// Ref.: 05 §1-§2.
 // ReductorTM, XFSF, XfsfV3 y JLPM no se portan (DP-08, DEC-507).
 
-/// Los reductores que ofrece la pantalla (`ReductorFrmViewModel.cs:174-181`).
+/// Los reductores que ofrece la pantalla.
 public enum AlgoritmoReduccion: Sendable, Hashable, CaseIterable {
     /// «Menos tiempo»: `JDC`.
     case menosTiempo
@@ -13,7 +13,7 @@ public enum AlgoritmoReduccion: Sendable, Hashable, CaseIterable {
     case grandesArchivos
 }
 
-/// Contadores y columnas reductoras. `lineas` vacía ⇒ el C# no crea ni toca el fichero de salida.
+/// Contadores y columnas reductoras. `lineas` vacía ⇒ Windows no crea ni toca el fichero de salida.
 public struct ResultadoReduccion: Sendable, Hashable {
     public let iniciales: Int
     public let finales: Int
@@ -85,7 +85,7 @@ private final class Reductor {
         admiteExternas = externas
         self.progreso = progreso
         noPartidos = lineas.first?.utf16.count ?? 0
-        indices = try Self.pot.leer(noPartidos, "JDC.cs:57")
+        indices = try Self.pot.leer(noPartidos, "Reductores:88")
         flags = .allocate(capacity: indices)
         flags.initialize(repeating: 0)
         bits = .allocate(capacity: indices)
@@ -102,7 +102,7 @@ private final class Reductor {
         let conv = ConvertidorDeBases(numeroPartidos: noPartidos)
         for l in lineas {
             let num = Int(try conv.numero(l))
-            guard num >= 0 && num < indices else { throw .fueraDeRango("JDC.cs:229") }
+            guard num >= 0 && num < indices else { throw .fueraDeRango("Reductores:105") }
             flags[num] = 1
             columnas.append(num)
             bits[num] = true
@@ -125,7 +125,7 @@ private final class Reductor {
 
     /// `ncent = procesadas·100 / iniciales` (división entera; con 0 iniciales, `DivideByZero`).
     func porcentaje() throws(ErrorDominio) -> Int {
-        guard iniciales != 0 else { throw ErrorDominio(.divisionPorCero, "Intento de dividir por cero.", origen: "JDC.cs:135") }
+        guard iniciales != 0 else { throw ErrorDominio(.divisionPorCero, "Intento de dividir por cero.", origen: "Reductores:128") }
         return procesadas * 100 / iniciales
     }
 
@@ -144,7 +144,7 @@ private final class Reductor {
 
     // MARK: JDC
 
-    /// `Reduce` (`JDC.cs:73-138`).
+    /// `Reduce`.
     func reduceJDC(_ nivel: Int, _ maxColIn: Int, _ percent: Int) throws(ErrorDominio) {
         let d = noPartidos - nivel
         let maxCol = maxColIn == 0 ? iniciales : maxColIn
@@ -157,10 +157,10 @@ private final class Reductor {
         var max: Int32 = -1
         var primera = 0
         var ultima = iniciales + numExternas
-        // El C# recorre todas las columnas en cada elección para tomar la primera con el valor más alto. En esta fase los
+        // Windows recorre todas las columnas en cada elección para tomar la primera con el valor más alto. En esta fase los
         // valores de las vivas solo bajan (`marcaJDC` y `calculaJDC` con −1), así que ninguna anterior a la última
         // elegida puede tener ese valor: se sigue buscando desde ella y solo hace falta otra pasada completa cuando el
-        // valor se agota. Misma elección que el C#, con una pasada por valor distinto (unas 400) y no una por columna
+        // valor se agota. Misma elección que Windows, con una pasada por valor distinto (unas 400) y no una por columna
         // elegida (44.321 con 14 triples a nivel 12: 10 minutos).
         var desde = 0
         while true {
@@ -203,7 +203,7 @@ private final class Reductor {
         }
     }
 
-    /// `CalculaLasQueReduce` (`JDC.cs:140-179`): las externas se dan de alta al vuelo.
+    /// `CalculaLasQueReduce`: las externas se dan de alta al vuelo.
     func calculaJDC(_ ini: Int, _ pos: Int, _ prof: Int, _ delta: Int32, _ nivel: Int) {
         vecinos(ini, pos, noPartidos) { idx, p in
             if bits[idx] {
@@ -220,7 +220,7 @@ private final class Reductor {
         }
     }
 
-    /// `MarcarReducidas` (`JDC.cs:181-212`): resta 1 a **todo** visitado.
+    /// `MarcarReducidas`: resta 1 a **todo** visitado.
     func marcaJDC(_ ini: Int, _ pos: Int, _ prof: Int, _ nivel: Int) {
         vecinos(ini, pos, noPartidos) { idx, p in
             flags[idx] &-= 1
@@ -235,7 +235,7 @@ private final class Reductor {
 
     // MARK: JDCDobleContador
 
-    /// `Reduce` (`JDCdobleContador.cs:94-200`).
+    /// `Reduce`.
     func reduceDoble(_ nivel: Int, _ maxColIn: Int, _ percent: Int) throws(ErrorDominio) {
         let d = noPartidos - nivel
         let maxCol = maxColIn == 0 ? iniciales : maxColIn
@@ -324,7 +324,7 @@ private final class Reductor {
         }
     }
 
-    /// `DispersaColumnaPobre` (`JDCdobleContador.cs:210-229`).
+    /// `DispersaColumnaPobre`.
     func dispersa(_ ini: Int, _ pos: Int, _ prof: Int, _ nivel: Int) {
         vecinos(ini, pos, noPartidos) { idx, p in
             // Solo la primera vez que se toca: con repeticiones la lista llegaba a cientos de millones de entradas
@@ -335,7 +335,7 @@ private final class Reductor {
         }
     }
 
-    /// `CalculaLasQueReduce` (`JDCdobleContador.cs:231-270`): las reductoras quedan congeladas (salvo externas).
+    /// `CalculaLasQueReduce`: las reductoras quedan congeladas (salvo externas).
     func calculaDoble(_ ini: Int, _ pos: Int, _ prof: Int, _ delta: Int32, _ nivel: Int) {
         vecinos(ini, pos, noPartidos) { idx, p in
             if bits[idx] {
@@ -352,7 +352,7 @@ private final class Reductor {
         }
     }
 
-    /// `MarcarReducidas` (`JDCdobleContador.cs:272-305`): **excluye el último partido** (`Partido < noPartidos`)
+    /// `MarcarReducidas`: **excluye el último partido** (`Partido < noPartidos`)
     /// [PRESERVAR, 05 §2.2 P1].
     func marcaDoble(_ ini: Int, _ pos: Int, _ prof: Int, _ nivel: Int) {
         vecinos(ini, pos, noPartidos - 1) { idx, p in
@@ -369,10 +369,10 @@ private final class Reductor {
 
     // MARK: Redu1305Xfsf
 
-    /// `Reduce`/`ReduceConExternas` (`Redu1305Xfsf.cs:66-155`, idénticos): elige en orden de índice, marca a distancia
+    /// `Reduce`/`ReduceConExternas` (idénticos): elige en orden de índice, marca a distancia
     /// `N − nivel` y señala las influenciadas hasta el doble; después, las influenciadas que queden.
     func reduce1305(_ nivel: Int, _ maxColIn: Int, _ percent: Int, _ numeroPartidos: Int) throws(ErrorDominio) {
-        let o = "Redu1305Xfsf.cs:66-155"
+        let o = "Reductores:375"
         let prof = numeroPartidos - nivel
         procesadas = 0
         finales = 0
@@ -419,7 +419,7 @@ private final class Reductor {
         vecinos(ini, desde + 1, noPartidos) { idx, p in cuerpo(idx, p - 1) }
     }
 
-    /// `MarcarReducidas` (`Redu1305Xfsf.cs:157-180`): el contador `Profundidad` es compartido con
+    /// `MarcarReducidas`: el contador `Profundidad` es compartido con
     /// `MarcarInfluenciadas`, que sigue desde el nivel actual hasta `2·prof`.
     func marca1305(_ ini: Int, _ pos: Int, _ prof: Int, _ nivel: Int) {
         vecinos0(ini, pos) { idx, p in
@@ -435,7 +435,7 @@ private final class Reductor {
         }
     }
 
-    /// `Marcar1` (`Redu1305Xfsf.cs:181-201`).
+    /// `Marcar1`.
     func marcar1(_ ini: Int, _ pos: Int, _ prof: Int, _ nivel: Int) {
         vecinos0(ini, pos) { idx, p in
             if flags[idx] > 0 {
@@ -446,7 +446,7 @@ private final class Reductor {
         }
     }
 
-    /// `MarcarInfluenciadas` (`Redu1305Xfsf.cs:202-219`).
+    /// `MarcarInfluenciadas`.
     func influenciadas(_ ini: Int, _ pos: Int, _ limite: Int, _ nivel: Int) {
         vecinos0(ini, pos) { idx, p in
             if flags[idx] > 0 { flags[idx] = 2 }

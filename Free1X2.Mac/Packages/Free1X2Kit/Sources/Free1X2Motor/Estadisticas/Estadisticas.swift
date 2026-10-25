@@ -1,6 +1,6 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/MotorCalculo/Estadisticas/*.cs (03 §16-§20) y la agregación de `AnastaticsViewModel.cs:222-298`.
+// Ref.: 03 §16-§20, con la agregación de la pantalla «Estadísticas».
 
 /// Cumplimiento de un filtro sobre un fichero de columnas (porcentaje en `Float`, T3).
 public struct Estadistica: Sendable, Hashable {
@@ -47,7 +47,7 @@ public enum Anastatics {
         case dibujos, dibRepes, staInter, staSigSeg
     }
 
-    /// Tope de columnas leídas (`AnastaticsViewModel.cs:107`).
+    /// Tope de columnas leídas.
     public static let maximoColumnas = 500_000
 
     /// `VerColumna`: exactamente 14 signos de `12xX`, con `x` → `X`; `nil` si es errónea.
@@ -60,7 +60,7 @@ public enum Anastatics {
     /// `Proceso(modo, columnas)`: matriz 15 × 15 acumulada con la salida del procesador de cada columna.
     public static func proceso(_ modo: Modo, columnas: [String]) throws(ErrorDominio) -> [[Int]] {
         var rsl = [[Int]](repeating: [Int](repeating: 0, count: 15), count: 15)
-        let o = "AnastaticsViewModel.cs:222-283"
+        let o = "Estadisticas:63"
         switch modo {
         case .dibujos:
             for c in columnas {
@@ -100,7 +100,7 @@ public enum Anastatics {
         return Array(u.prefix(14))
     }
 
-    /// `Dibujos.Procesar` (`Dibujos.cs:22-35`): `[0, 0, 0, nX, n2]`; todo lo que no es `1` ni `2` cuenta como `X`.
+    /// `Dibujos.Procesar`: `[0, 0, 0, nX, n2]`; todo lo que no es `1` ni `2` cuenta como `X`.
     public static func dibujos(_ c: String) throws(ErrorDominio) -> [Int] {
         var (nx, n2) = (0, 0)
         for ch in try signos(c) where ch != 0x31 {
@@ -109,7 +109,7 @@ public enum Anastatics {
         return [0, 0, 0, nx, n2]
     }
 
-    /// `DibRepes` (`DibRepes.cs:21-40`): coincidencias exactas con la columna anterior (la primera, con 14 ceros).
+    /// `DibRepes`: coincidencias exactas con la columna anterior (la primera, con 14 ceros).
     public struct DibRepes: Sendable {
         var anterior = Array("00000000000000".utf16)
 
@@ -132,7 +132,7 @@ public enum Anastatics {
         }
     }
 
-    /// `StaInter.Procesar` (`StaInter.cs:22-39`): `[cambios, hacia 1, desde 1, desde X, desde 2]`.
+    /// `StaInter.Procesar`: `[cambios, hacia 1, desde 1, desde X, desde 2]`.
     public static func staInter(_ c: String) throws(ErrorDominio) -> [Int] {
         let s = try signos(c)
         var ch0 = s[0]
@@ -150,7 +150,7 @@ public enum Anastatics {
         return [ng, nv, n1, nx, n2]
     }
 
-    /// `StaSigSeg.Procesar` (`StaSigSeg.cs:22-75`), máquina de estados literal: `[0, mV, m1, mX, m2]`.
+    /// `StaSigSeg.Procesar`, máquina de estados literal: `[0, mV, m1, mX, m2]`.
     public static func staSigSeg(_ c: String) throws(ErrorDominio) -> [Int] {
         let s = try signos(c)
         let uno: UInt16 = 0x31

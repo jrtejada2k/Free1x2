@@ -3,10 +3,10 @@ import Free1X2Base
 import Free1X2Formatos
 import Free1X2Motor
 
-// C#: Views/Ported/CalculaColumnasFrmViewModel.cs (08 pantalla 13; CU-A28…A31).
+// Ref.: 08 pantalla 13; CU-A28…A31.
 
 /// Modo de «Calcular columnas». «Incluir pleno al 15» no aparece: solo cambia el `numPartidos` del analizador, que el
-/// análisis de la combinación no lee (`Analizador.cs:356` usa `VariablesGlobales.NumeroPartidos`).
+/// análisis de la combinación no lee (usa `VariablesGlobales.NumeroPartidos`).
 public enum ModoCalculo: Sendable, Hashable {
     case contar
     case analizar
@@ -19,7 +19,7 @@ public struct ResultadoCalculoCombinacion: Sendable {
     public let analisis: ContenedorAnalisisGlobal?
 }
 
-/// Tabla «Resultados» de la pantalla 13 con los textos iniciales del C#.
+/// Tabla «Resultados» de la pantalla 13 con los textos iniciales de Windows.
 public struct TextosCalculo: Sendable, Hashable {
     public var procesadas = "0"
     public var costeProcesadas = "0.0"
@@ -86,7 +86,7 @@ public enum CasosCombinacion {
     }
 
     /// CU-A28: rutas A (contar), B (grabar) y C (analizar). Al grabar, el `.txt` solo se crea si hay alguna aceptada
-    /// (el `StreamWriter` del C# se abre con la primera) y al cancelar queda lo grabado.
+    /// (el `StreamWriter` de Windows se abre con la primera) y al cancelar queda lo grabado.
     /// ponytail: grabar acumula en memoria (~16 B por columna); escritura por bloques si el universo crece.
     @concurrent public static func calcularCombinacion(
         _ c: Combinacion, modo: ModoCalculo, configuracion: Configuracion, entorno: Entorno,
@@ -134,8 +134,7 @@ public enum CasosCombinacion {
     }
 }
 
-// C#: Views/Ported/CalculaColumnasMultipleFrmViewModel.cs y ResultadosCalculoMultipleFrmViewModel.cs (08 pantallas 14 y 84;
-// CU-A32, CU-A33).
+// Ref.: 08 pantallas 14 y 84; CU-A32, CU-A33.
 
 /// Una fila de «Resultados de la Generación Múltiple».
 public struct ResumenLote: Sendable, Hashable {
@@ -187,7 +186,7 @@ extension CasosCombinacion {
         ArchivoColumnasTexto.columnas(try entorno.archivos.leer(url))
     }
 
-    /// CU-A14 `Analizar` (`AnalizarFicheroFrmViewModel.cs:99-135`): ruta D con un analizador de `ObtenNumSignos` partidos
+    /// CU-A14 `Analizar`: ruta D con un analizador de `ObtenNumSignos` partidos
     /// a «1,X,2» y el fichero como columnas base. «Incluir pleno al 15» no interviene (DEC-808). Contenedor solo si hay
     /// aceptadas (el visor se abre entonces).
     @concurrent public static func analizarFicheroDeColumnas(

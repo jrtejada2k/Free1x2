@@ -63,7 +63,7 @@ struct VistaTransposicion: View {
             }
             Tarjeta("Estado") { Text(estado) }
             HStack {
-                // «Cancelar» no hace nada en el C# (`VM:186-191`).
+                // «Cancelar» no hace nada en Windows.
                 Button("Cancelar") {}
                 Button("Transponer") { Task { await transponer() } }.buttonStyle(EstiloPrincipal()).disabled(ocupado)
             }

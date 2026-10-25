@@ -320,7 +320,7 @@ struct VistaSelectorMS: View {
                     do throws(ErrorDominio) {
                         let r = try CasosUtilidades.ganadorasSelector(u, entorno: sesion.entorno)
                         if let e = r.erronea {
-                            // Como el C#: avisa y deja las leídas sin actualizar el índice.
+                            // Como Windows: avisa y deja las leídas sin actualizar el índice.
                             ganadoras.columnas = r.columnas
                             return sesion.alertas.error("col.G. errónea=" + e)
                         }

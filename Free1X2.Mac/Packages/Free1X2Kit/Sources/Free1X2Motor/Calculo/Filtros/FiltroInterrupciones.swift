@@ -1,6 +1,6 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/MotorCalculo/FiltroInterrupciones.cs (02 §2).
+// Ref.: 02 §2.
 
 final class FiltroInterrupciones: FiltroColumna {
     let condicion: CondicionInterrupciones
@@ -98,7 +98,7 @@ final class FiltroInterrupciones: FiltroColumna {
 
     func analizar(_ c: Columna) throws(ErrorDominio) -> Bool {
         contadores = Self.contar(c)
-        for (i, n) in contadores.enumerated() where !(try condicion.valores[i].permite(n, "FiltroInterrupciones.cs:338-355")) {
+        for (i, n) in contadores.enumerated() where !(try condicion.valores[i].permite(n, "FiltroInterrupciones:101")) {
             return false
         }
         return true
@@ -107,7 +107,7 @@ final class FiltroInterrupciones: FiltroColumna {
     func analizarFallos(_ c: Columna) throws(ErrorDominio) -> [String]? {
         contadores = Self.contar(c)
         var texto = ""
-        let o = "FiltroInterrupciones.cs:357-407"
+        let o = "FiltroInterrupciones:110"
         for k in CondicionInterrupciones.Contador.allCases {
             let n = contadores[k.rawValue]
             let v = condicion.valores[k.rawValue]
@@ -121,7 +121,7 @@ final class FiltroInterrupciones: FiltroColumna {
         var n = 0
         for letra in letras.utf16 {
             for (i, valor) in contadores.enumerated()
-            where try condicion.valores[i].letra(valor, "FiltroInterrupciones.cs:436-488") == letra {
+            where try condicion.valores[i].letra(valor, "FiltroInterrupciones:124") == letra {
                 n += 1
             }
         }

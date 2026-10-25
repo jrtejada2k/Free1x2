@@ -1,7 +1,7 @@
 import Foundation
 import Free1X2Base
 
-// C#: Free1X2.WinUI/Services/JornadaCache.cs y QuinielaOnlineService.cs (07 §5.1-5.5, §6.10-6.11; DT-16, DT-17).
+// Ref.: 07 §5.1-5.5, §6.10-6.11; DT-16, DT-17.
 
 /// Caché offline-first: el cuerpo HTTP tal cual en `<base>/jornada-{es|mx}.json`; la fecha es el *mtime*.
 public struct CacheJornada: Sendable {

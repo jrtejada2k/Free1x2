@@ -1,7 +1,7 @@
 import Foundation
 import Free1X2Base
 
-// Nuevo (DT-91, a petición del dueño; no existe en el C#): esperanza matemática (EM) de una columna por categoría, como el
+// Nuevo (DT-91, a petición del dueño; no existe en Windows): esperanza matemática (EM) de una columna por categoría, como el
 // Excel «EM Categorias.xlsm» del dueño (hojas «EM A 1 EURO» y «EM A 0.75 EURO», con y sin «+1 AC»), en su versión exacta.
 
 /// Parámetros de la jornada y del cobro de premios.

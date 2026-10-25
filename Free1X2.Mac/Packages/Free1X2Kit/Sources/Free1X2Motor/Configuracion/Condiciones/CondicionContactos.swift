@@ -1,6 +1,6 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/MotorCalculo/FiltroContactos.cs (02 §3) — estado configurable y sus `Set*`/`Get*`.
+// Ref.: 02 §3 — estado configurable y sus `Set*`/`Get*`.
 
 /// Contactos (pares de partidos consecutivos) por tipo, con letras de tolerancia y figuras.
 public struct CondicionContactos: Sendable, Hashable {
@@ -31,7 +31,7 @@ public struct CondicionContactos: Sendable, Hashable {
 
     /// `SetNum1X` … `SetNumVV`.
     public mutating func set(_ c: Contacto, _ texto: String) throws(ErrorDominio) {
-        try valores[c.rawValue].poner(texto, "FiltroContactos.cs:411-899")
+        try valores[c.rawValue].poner(texto, "CondicionContactos:34")
     }
 
     public func get(_ c: Contacto) -> String { valores[c.rawValue].texto }

@@ -3,7 +3,7 @@ import Free1X2Base
 import Free1X2Formatos
 import Free1X2Motor
 
-// C#: Views/Ported/GEPTFrmViewModel.cs (09 pantalla 56; CU-B23).
+// Ref.: 09 pantalla 56; CU-B23.
 
 public enum CasosUtilidades {
     /// `while (sr.Peek() > 0) sr.ReadLine()`: también se detiene en una línea que empieza por NUL.
@@ -25,7 +25,7 @@ public enum CasosUtilidades {
     }
 }
 
-// C#: Views/Ported/TransposicionFrmViewModel.cs (10 §95; CU-C40).
+// Ref.: 10 §95; CU-C40.
 extension CasosUtilidades {
     /// `orde[i] = (int)Pos_i − 1`; `nil` («Error en condiciones») si no es una permutación de 0…13.
     public static func ordenTransposicion(_ posiciones: [Double]) -> [Int]? {
@@ -43,7 +43,7 @@ extension CasosUtilidades {
         for l in lineasPeek(try entorno.archivos.leer(entrada)) {
             let u = Array(l.utf16)
             guard u.count >= 14 else {
-                fallo = .fueraDeRango("TransposicionFrmViewModel.cs:166")
+                fallo = .fueraDeRango("Utilidades:46")
                 break
             }
             datos.append(contentsOf: String(decoding: orden.map { u[$0] }, as: UTF16.self).utf8)
@@ -54,7 +54,7 @@ extension CasosUtilidades {
     }
 }
 
-// C#: Views/Ported/AlgebraColumnasFrmViewModel.cs (08 pantalla 3; CU-A03).
+// Ref.: 08 pantalla 3; CU-A03.
 extension CasosUtilidades {
     /// Al elegir un fichero: `ObtenNumSignos` (1.ª línea recortada) y `NumColumnas` (`ObtenNumCols`).
     public static func resumenColumnas(_ url: URL, entorno: Entorno) throws(ErrorDominio) -> (signos: Int, columnas: Int) {
@@ -76,7 +76,7 @@ extension CasosUtilidades {
     }
 }
 
-// C#: Views/Ported/ImportExportFrmViewModel.cs (09 pantalla 66; CU-B34).
+// Ref.: 09 pantalla 66; CU-B34.
 extension CasosUtilidades {
     /// `AbrirEntrada`: CSV→TXT (`LeerTodasColsSeparadasPorComas`) o TXT→CSV (`LeerTodasCols(true)`) y la salida
     /// propuesta: el nombre en minúsculas con `.csv`↔`.txt`, en la misma carpeta (DT-62).
@@ -100,13 +100,13 @@ extension CasosUtilidades {
     }
 }
 
-// C#: Views/Ported/CompresorViewModel.cs (08 pantalla 22; CU-A58, CU-A59).
+// Ref.: 08 pantalla 22; CU-A58, CU-A59.
 extension CasosUtilidades {
     /// CU-A58, lectura: conjunto de 3^L (L = longitud de la 1.ª línea) con cada columna; `nil` si alguna no mide 14 o 15
     /// («Error leyendo columnas»). Fichero vacío ⇒ NRE; índice fuera del conjunto ⇒ error.
     public static func bitmapDeColumnas(_ url: URL, entorno: Entorno) throws(ErrorDominio) -> ConjuntoBits? {
         let lineas = ArchivoColumnasTexto.columnas(try entorno.archivos.leer(url))
-        guard let primera = lineas.first else { throw .referenciaNula("CompresorViewModel.cs:76") }
+        guard let primera = lineas.first else { throw .referenciaNula("Utilidades:109") }
         let conv = ConvertidorDeBases(numeroPartidos: primera.utf16.count)
         var bits = ConjuntoBits(cantidad: try ConvertidorDeBases.tamanoConjunto(partidos: primera.utf16.count))
         for c in lineas {
@@ -143,7 +143,7 @@ extension CasosUtilidades {
     }
 }
 
-// C#: Views/Ported/MultiplicadorFrmViewModel.cs (10 §74; CU-C01).
+// Ref.: 10 §74; CU-C01.
 extension CasosUtilidades {
     /// `CargarColumnas`: `(línea + "11111111111111").Substring(0, 14).Trim()`.
     public static func columnasMultiplicador(_ url: URL, entorno: Entorno) throws(ErrorDominio) -> [String] {
@@ -170,7 +170,7 @@ extension CasosUtilidades {
                 let s = Array((a + b).utf16)
                 var aux: [UInt16] = []
                 for i in plantilla {
-                    guard i - 1 < s.count else { throw .fueraDeRango("MultiplicadorFrmViewModel.cs:181") }
+                    guard i - 1 < s.count else { throw .fueraDeRango("Utilidades:173") }
                     aux.append(s[i - 1])
                 }
                 r.append(String(decoding: aux, as: UTF16.self))
@@ -180,7 +180,7 @@ extension CasosUtilidades {
     }
 }
 
-// C#: Views/Ported/FraccionadorFrmViewModel.cs (09 pantalla 53; CU-B20).
+// Ref.: 09 pantalla 53; CU-B20.
 extension CasosUtilidades {
     /// «Entrada…»: las líneas tal cual (las vacías cuentan).
     public static func lineasFraccionador(_ url: URL, entorno: Entorno) throws(ErrorDominio) -> [String] {
@@ -198,7 +198,7 @@ extension CasosUtilidades {
         _ columnas: [String], base: URL, cuotas: [Int]?, tramos: Int, entorno: Entorno
     ) async throws(ErrorDominio) -> Int {
         func escribir(_ k: Int, _ desde: Int, _ hasta: Int) throws(ErrorDominio) {
-            guard desde >= 0 else { throw .fueraDeRango("FraccionadorFrmViewModel.cs:184") }
+            guard desde >= 0 else { throw .fueraDeRango("Utilidades:201") }
             let trozo = desde < hasta ? Array(columnas[desde..<hasta]) : []
             try entorno.archivos.escribir(TextoNET.codificarLineas(trozo), en: nombreFraccion(base, k), atomico: false)
         }
@@ -225,7 +225,7 @@ extension CasosUtilidades {
     }
 }
 
-// C#: Views/Ported/RotacionDeSignosFrmViewModel.cs (10 §85; CU-C22).
+// Ref.: 10 §85; CU-C22.
 extension CasosUtilidades {
     /// Al elegir la entrada: `ObtenNumSignos` (≤ 0 ⇒ `numeroPartidos`) y la primera columna (para «Base»).
     public static func entradaRotacion(
@@ -239,9 +239,9 @@ extension CasosUtilidades {
     /// `IndiceSigno`: posición en «1X2» (desconocido ⇒ 0).
     public static func indiceSigno(_ s: String) -> Int { ["1", "X", "2"].firstIndex(of: s) ?? 0 }
 
-    /// Panel «% COMBINACIÓN» del legacy (`RotacionDeSignosFrm.cs:1860-1931`, `LeerColumnas` + `ConvertirAPorcentaje`): el
+    /// Panel «% COMBINACIÓN» del legacy (`LeerColumnas` + `ConvertirAPorcentaje`): el
     /// porcentaje de 1/X/2 de cada partido en las columnas de la entrada; X y 2 con `Math.Round` (a par) y el 1 completa
-    /// 100. ponytail: sin columnas, ceros (el C# daría NaN).
+    /// 100. ponytail: sin columnas, ceros (Windows daría NaN).
     public static func porcentajesRotacion(_ url: URL, partidos: Int, entorno: Entorno) throws(ErrorDominio) -> [[Double]] {
         let pot = ConvertidorDeBases.potenciasDe3.map(Int.init)
         let conv = ConvertidorDeBases(numeroPartidos: partidos)
@@ -258,8 +258,8 @@ extension CasosUtilidades {
         }
     }
 
-    /// `Ordenar3valores` (`RotacionDeSignosFrm.cs:2190-2216`): índices 0/1/2 de mayor a menor valor, con los desempates
-    /// de ±0,001 del C# (si aún coinciden, gana el último índice comprobado).
+    /// `Ordenar3valores`: índices 0/1/2 de mayor a menor valor, con los desempates
+    /// de ±0,001 de Windows (si aún coinciden, gana el último índice comprobado).
     static func ordenar3(_ a: Double, _ b: Double, _ c: Double) -> [Int] {
         var (v1, vX, v2) = (a, b, c)
         if v1 == vX { v1 += 0.001 }
@@ -271,7 +271,7 @@ extension CasosUtilidades {
         }
     }
 
-    /// `PropuestaAutomatica` (`RotacionDeSignosFrm.cs:2217-2230`): en cada partido, el k-ésimo signo más frecuente de la
+    /// `PropuestaAutomatica`: en cada partido, el k-ésimo signo más frecuente de la
     /// combinación pasa al k-ésimo más valorado de la jornada. Devuelve `nuevos[partido][signo]` como `rotarSignos`.
     public static func propuestaRotacion(combinacion: [[Double]], jornada: [[Double]]) -> [[Int]] {
         zip(combinacion, jornada).map { c, j in

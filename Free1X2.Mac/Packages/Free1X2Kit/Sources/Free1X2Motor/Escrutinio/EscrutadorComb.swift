@@ -1,6 +1,6 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/Escrutinio/EscrutadorComb.cs y ColumnasPremiadasComb.cs (ESPEC_05 §4.2, DEC-501, DEC-502).
+// Ref.: ESPEC_05 §4.2, DEC-501, DEC-502.
 
 /// Valor encajado del `Hashtable` de aciertos: la ganadora guarda un `byte`, los vecinos un `int` (DEC-501).
 public enum EtiquetaAciertos: Sendable, Hashable {
@@ -18,7 +18,7 @@ public enum EtiquetaAciertos: Sendable, Hashable {
 /// Escrutinio de combinaciones: conjunto de columnas candidatas a premio alrededor de una ganadora.
 public struct EscrutadorComb: Sendable {
     public let numeroPartidos: Int
-    /// `Premios`: `obtenerPosiblesPremios` lo deja ordenado de mayor a menor (el C# ordena el mismo array, §4.2.3).
+    /// `Premios`: `obtenerPosiblesPremios` lo deja ordenado de mayor a menor (Windows ordena el mismo array, §4.2.3).
     public private(set) var premios: [Int]
     /// `PremiosTotales[i]` = columnas con la categoría `premios[i]` (por posición, no por aciertos: ESC-06).
     public internal(set) var premiosTotales: [Int]
@@ -41,7 +41,7 @@ public struct EscrutadorComb: Sendable {
         IntrosortNET.ordenar(&premios)
         premios.reverse()
         guard let primera = premios.first, let ultima = premios.last else {
-            throw ErrorDominio(.indiceFueraDeRango, "Índice fuera de los límites de la matriz.", origen: "EscrutadorComb.cs:240")
+            throw ErrorDominio(.indiceFueraDeRango, "Índice fuera de los límites de la matriz.", origen: "EscrutadorComb:44")
         }
         var profundidad = UInt8(truncatingIfNeeded: primera)
         let col = Int64(try ConvertidorDeBases(numeroPartidos: numeroPartidos).numero(columna))
@@ -57,14 +57,14 @@ public struct EscrutadorComb: Sendable {
         guard posicion < numeroPartidos else { return }
         for partido in posicion..<numeroPartidos {
             guard partido < Self.pot.count else {
-                throw ErrorDominio(.indiceFueraDeRango, "Índice fuera de los límites de la matriz.", origen: "EscrutadorComb.cs:213")
+                throw ErrorDominio(.indiceFueraDeRango, "Índice fuera de los límites de la matriz.", origen: "EscrutadorComb:60")
             }
             let signo = (inicial / Self.pot[partido]) % 3
             for z in Int64(0)..<3 where z != signo {
                 let indice = Int32(truncatingIfNeeded: inicial + Self.pot[partido] * (z - signo))
                 if let previa = aciertos[.int32(indice)] {
                     guard case .int(let n) = previa else {
-                        throw .conversionInvalida(de: "System.Byte", a: "System.Int32", "EscrutadorComb.cs:222")
+                        throw .conversionInvalida(de: "System.Byte", a: "System.Int32", "EscrutadorComb:67")
                     }
                     if n < actual { try aciertos.asignar(.int(actual), a: .int32(indice)) }
                 } else {
@@ -88,10 +88,10 @@ extension EscrutadorComb {
         var sinIfThen = combinacion
         sinIfThen.ifThen = nil
         let a = Analizador(sinIfThen, configuracion: configuracion, cultura: cultura, leerLineas: { _ in [] })
-        guard let p = combinacion.pronosticos else { throw .referenciaNula("EscrutadorComb.cs:106") }
+        guard let p = combinacion.pronosticos else { throw .referenciaNula("EscrutadorComb:91") }
         var pronosticos: [String] = []
         for x in p {
-            guard let x else { throw .referenciaNula("EscrutadorComb.cs:110") }
+            guard let x else { throw .referenciaNula("EscrutadorComb:94") }
             pronosticos.append(x.filter { $0 != "," })
         }
         for k in aciertos.claves {
@@ -101,9 +101,9 @@ extension EscrutadorComb {
                 case .int64(let v): v
                 }
             guard try AnalizadorColumnaCombinacion.analizaColumna(clave, a, pronosticos) else { continue }
-            guard let v = aciertos[.int64(clave)] else { throw .referenciaNula("EscrutadorComb.cs:120") }
+            guard let v = aciertos[.int64(clave)] else { throw .referenciaNula("EscrutadorComb:104") }
             guard case .int(let premio) = v else {
-                throw .conversionInvalida(de: "System.Byte", a: "System.Int32", "EscrutadorComb.cs:120")
+                throw .conversionInvalida(de: "System.Byte", a: "System.Int32", "EscrutadorComb:106")
             }
             if let orden = premios.firstIndex(of: premio) { premiosTotales[orden] += 1 }
         }

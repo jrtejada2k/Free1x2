@@ -1,6 +1,6 @@
 import Foundation
 
-/// `TransponedorAutomatico` (ESPEC_06 §3.10; `A/TransponedorAutomatico.cs:27-89`): la transposición automática de la
+/// `TransponedorAutomatico` (ESPEC_06 §3.10): la transposición automática de la
 /// rotación de signos del WinForms (C2 del plan de pruebas). Empareja los 14 partidos ordenados por concentración de la
 /// valoración con los ordenados por concentración de la frecuencia.
 public enum TransponedorAutomatico {
@@ -17,7 +17,7 @@ public enum TransponedorAutomatico {
         return r
     }
 
-    /// `base100`: cada fila entre su suma (suma 0 ⇒ NaN, como el C#).
+    /// `base100`: cada fila entre su suma (suma 0 ⇒ NaN, como Windows).
     static func base100(_ x: [[Double]]) -> [[Double]] {
         (0..<14).map { i in
             let factor = x[i][0] + x[i][1] + x[i][2]
@@ -30,7 +30,7 @@ public enum TransponedorAutomatico {
         (0..<14).map { i in (p[i][0] * p[i][0] + p[i][1] * p[i][1] + p[i][2] * p[i][2], i) }
     }
 
-    /// Ordenación por intercambio, descendente y estricta (no estable): los empates quedan como los deja el C#.
+    /// Ordenación por intercambio, descendente y estricta (no estable): los empates quedan como los deja Windows.
     static func ordenar(_ m: inout [(valor: Double, indice: Int)]) {
         for x in 0..<13 {
             for y in (x + 1)..<14 where m[y].valor > m[x].valor { m.swapAt(x, y) }

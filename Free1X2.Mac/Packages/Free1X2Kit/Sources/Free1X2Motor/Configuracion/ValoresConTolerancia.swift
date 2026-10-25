@@ -1,7 +1,7 @@
 import Free1X2Base
 
-// C#: el parser «valores con tolerancia» que repiten los `Set*(string)` de varios filtros (03 §0.4 P6; 02 §0.5).
-// Ejemplo: FiltroNoVariantes.cs:231-255.
+// El parser «valores con tolerancia» que repiten los `Set*(string)` de varios filtros (03 §0.4 P6; 02 §0.5).
+// Ejemplo.
 
 /// Conjunto de valores permitidos con su letra de tolerancia (`' '` = sin letra), indexado por valor.
 public struct ValoresConTolerancia: Sendable, Hashable {
@@ -10,7 +10,7 @@ public struct ValoresConTolerancia: Sendable, Hashable {
 
     public static let sinLetra: UInt16 = 0x20
 
-    /// `new bool[n]` y `new char[n]` rellenos con `false` y `' '` (o `'\0'` donde el C# no los inicializa).
+    /// `new bool[n]` y `new char[n]` rellenos con `false` y `' '` (o `'\0'` donde Windows no los inicializa).
     public init(tamano: Int, letraInicial: UInt16 = sinLetra) {
         permitidos = Array(repeating: false, count: tamano)
         letras = Array(repeating: letraInicial, count: tamano)
@@ -25,7 +25,7 @@ public struct ValoresConTolerancia: Sendable, Hashable {
 
     /// `SetX(string)` — `"6,7A,8"`: cada trozo es un entero con una letra final opcional. Acumula; un valor repetido pisa la
     /// letra. Trozo vacío ⇒ `IndexOutOfRange` (`str[-1]`); no numérico ⇒ `Format`; fuera de `0…tamaño−1` ⇒ `IndexOutOfRange`.
-    /// Lo aplicado antes del trozo que falla se queda, como en C#.
+    /// Lo aplicado antes del trozo que falla se queda, como en Windows.
     public mutating func poner(_ valores: String, _ origen: @autoclosure () -> String) throws(ErrorDominio) {
         for trozo in trozos(valores, ",") {
             let u = Array(trozo.utf16)

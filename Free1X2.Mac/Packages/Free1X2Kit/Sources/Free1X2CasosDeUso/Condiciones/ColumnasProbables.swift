@@ -3,8 +3,7 @@ import Free1X2Base
 import Free1X2Formatos
 import Free1X2Motor
 
-// C#: Views/Ported/ColProbablesFrmViewModel.cs (08 pantalla 19; CU-A44…A51) y sus satélites CopiarCPFrm (29),
-// CopiarDatosCPFrm (30), ImportadorCPsFrm (67) y ExportadorCPsFrm (48).
+// Ref.: 08 pantalla 19; CU-A44…A51. Y sus satélites CopiarCPFrm (29), CopiarDatosCPFrm (30), ImportadorCPsFrm (67) y ExportadorCPsFrm (48).
 
 /// Fila de las tablas de agrupaciones de Relaciones III.
 public struct FilaAgrupacion: Sendable, Hashable, Identifiable {
@@ -39,7 +38,7 @@ public enum ModoImportacionCP: Sendable {
 }
 
 /// «Columnas Probables»: buffer de trabajo con las cinco pestañas; nada llega al filtro hasta `aceptar` (tampoco las
-/// listas de Relaciones II y III, que en el C# son las del propio filtro; DT-60).
+/// listas de Relaciones II y III, que en Windows son las del propio filtro; DT-60).
 public struct EditorColumnasProbables: Sendable {
     public static let conceptos = ["AC", "ACS", "FS"]
     public static let masMenos = ["Más", "Menos"]
@@ -301,7 +300,7 @@ public struct EditorColumnasProbables: Sendable {
     /// Pregunta «¿Añadir…?» si ya hay CPs.
     public func confirmarAgregar(_ importadas: [ColumnaProbableConfig]) -> Bool { !importadas.isEmpty && !columnas.isEmpty }
 
-    /// `AplicarImportacion*` (:744-787). «Sustituir» recorre las CPs **del filtro** y luego las del editor (como el C#).
+    /// `AplicarImportacion*`. «Sustituir» recorre las CPs **del filtro** y luego las del editor (como Windows).
     public mutating func importar(_ importadas: [ColumnaProbableConfig], modo: ModoImportacionCP, delFiltro: [ColumnaProbableConfig])
         throws(ErrorDominio)
     {
@@ -546,8 +545,8 @@ public struct EditorColumnasProbables: Sendable {
 }
 
 extension CasosCondiciones {
-    /// `ObtenCopiaCP` (`ColProbablesFrmViewModel.cs:295-319`) y la copia de `CopiarCPFrm` (sin puntos): rehace la CP con
-    /// sus *setters*. Un rango vacío lanza como en el C# (`str[str.Length-1]`).
+    /// `ObtenCopiaCP` y la copia de `CopiarCPFrm` (sin puntos): rehace la CP con
+    /// sus *setters*. Un rango vacío lanza como en Windows (`str[str.Length-1]`).
     public static func copiaCP(_ cp: ColumnaProbableConfig, puntos: Bool) throws(ErrorDominio) -> ColumnaProbableConfig {
         var c = ColumnaProbableConfig(numeroPartidos: cp.numeroPartidos)
         try c.ponerPronosticos(cp.textoPronosticos)
@@ -566,10 +565,10 @@ extension CasosCondiciones {
 
     // MARK: Pantalla 29 · Copiar Columnas
 
-    /// `ObtenCP` + `IndicesValidos` (`CopiarCPFrmViewModel.cs`): `5` · `1,3,5` · `1-5` (el primer separador manda).
+    /// `ObtenCP` + `IndicesValidos`: `5` · `1,3,5` · `1-5` (el primer separador manda).
     /// Lanza si la expresión no vale; `nil` si algún índice no está en `1…disponibles`.
     static func indicesCP(_ s: String, disponibles: Int) throws(ErrorDominio) -> [Int]? {
-        let o = "CopiarCPFrmViewModel.cs"
+        let o = "ColumnasProbables:571"
         var r: [Int]
         switch s.first(where: { $0 == "," || $0 == "-" }) {
         case ",":
@@ -581,7 +580,7 @@ extension CasosCondiciones {
             let n = Int(try FormatoNET.convertToInt32(t[1]) &- a &+ 1)
             // `new int[n]`: negativo ⇒ OverflowException; por encima del máximo de .NET ⇒ OutOfMemoryException.
             guard n >= 0, n <= 0x7FFF_FFC7 else { throw .desbordamiento(o) }
-            // ponytail: valida antes de materializar el rango (el C# reserva int[n]).
+            // ponytail: valida antes de materializar el rango (Windows reserva int[n]).
             if n > 0 && (a < 1 || Int(a) + n - 1 > disponibles) { return nil }
             r = Array(Int(a)..<Int(a) + n)
         default:
@@ -590,7 +589,7 @@ extension CasosCondiciones {
         return r.allSatisfy { $0 >= 1 && $0 <= disponibles } ? r : nil
     }
 
-    /// `Copiar` (`CopiarCPFrmViewModel.cs`): copia CPs del grupo en edición a los grupos marcados; el grupo en pantalla
+    /// `Copiar`: copia CPs del grupo en edición a los grupos marcados; el grupo en pantalla
     /// recibe las copias en la lista de origen y sin activar nada. Devuelve el estado y si se cierra la pantalla.
     public static func copiarColumnasCP(
         _ texto: String, destinos: Set<Int>, grupoEnEdicion: Int, grupoPantalla: Int, en c: inout Combinacion
@@ -639,7 +638,7 @@ extension CasosCondiciones {
         let l = FormatoNET.mayusculas(linea)
         if l.contains(",") { return trozos(l, ",") }
         let u = Array(l.utf16)
-        guard u.count >= n else { throw .fueraDeRango("ImportadorCPsFrmViewModel.cs:ObtenPronostico") }
+        guard u.count >= n else { throw .fueraDeRango("ColumnasProbables:641") }
         return (0..<n).map { String(decoding: [u[$0]], as: UTF16.self) }
     }
 

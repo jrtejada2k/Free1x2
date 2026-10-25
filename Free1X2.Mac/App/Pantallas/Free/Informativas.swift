@@ -15,7 +15,7 @@ private func abrirWeb(_ s: String) {
     if let u = URL(string: s) { NSWorkspace.shared.open(u) }
 }
 
-/// «Acerca de»: logo, versión del bundle y enlaces (`AcercaDeFrmPage.xaml.cs:19-175`).
+/// «Acerca de»: logo, versión del bundle y enlaces.
 struct VistaAcercaDe: View {
     @Environment(Sesion.self) private var sesion
 
@@ -58,7 +58,7 @@ struct VistaAcercaDe: View {
     }
 }
 
-/// «Recursos de ayuda» (DT-86, a petición del dueño): solo los enlaces que existen. El original (`AyudaFrmPage.xaml.cs:16-81`)
+/// «Recursos de ayuda» (DT-86, a petición del dueño): solo los enlaces que existen. El original
 /// tenía además Artículos, Recursos, Notificaciones y Facebook, que solo avisaban en inglés de que estaban desactivados.
 struct VistaAyuda: View {
     var body: some View {
@@ -93,10 +93,7 @@ struct VistaCreditos: View {
                     .accessibilityLabel(t("Visitar el sitio web clubprogol.com", "Visit the clubprogol.com website"))
             }
             Tarjeta(t("Licencia", "License")) {
-                Text(
-                    t(
-                        "Programa libre bajo la licencia GPLv3, basado en Free1X2 de Joan Duatis.",
-                        "Free software under the GPLv3 license, based on Free1X2 by Joan Duatis."))
+                Text(t("Programa libre bajo la licencia GPLv3.", "Free software under the GPLv3 license."))
             }
         }
     }

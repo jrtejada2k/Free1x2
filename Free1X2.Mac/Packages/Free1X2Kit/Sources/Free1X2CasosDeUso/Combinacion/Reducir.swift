@@ -3,7 +3,7 @@ import Free1X2Base
 import Free1X2Formatos
 import Free1X2Motor
 
-// C#: Views/Ported/ReductorFrmViewModel.cs (10 pantalla 82; CU-C18, CU-C19).
+// Ref.: 10 pantalla 82; CU-C18, CU-C19.
 
 /// Parámetros de «Reducir» (más de 3 ⇒ `struct`, ESPEC_13 §1).
 public struct EntradaReduccion: Sendable, Hashable {

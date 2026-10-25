@@ -1,6 +1,6 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/Escrutinio/Escrutador.cs y ColumnasPremiadas.cs (ESPEC_05 §4.1, §4.3).
+// Ref.: ESPEC_05 §4.1, §4.3.
 
 /// `ColumnasPremiadas`: una columna con premio y dónde está.
 public struct ColumnaPremiada: Sendable, Hashable, Codable {
@@ -30,7 +30,7 @@ public struct FilaEscrutinio: Sendable, Hashable, Codable {
 }
 
 /// Escrutinio de un fichero de columnas contra una ganadora (o contra las ganadoras de una temporada).
-/// `premiosTotales` y `listaPremiadas` acumulan entre llamadas, como en el C# (:51,57, peculiaridad 2).
+/// `premiosTotales` y `listaPremiadas` acumulan entre llamadas, como en Windows (peculiaridad 2).
 /// Solo se portan las rutas que usa la app (DP-08): `PonerPremios` de 3 argumentos y `LeerPremios` quedan fuera.
 public struct Escrutador: Sendable {
     public let numeroPartidos: Int
@@ -62,7 +62,7 @@ public struct Escrutador: Sendable {
     }
 
     /// `EscrutaCombConTemporada` (:117-137): una fila por ganadora. Cancelar (`PararEscrutinio`) corta entre jornadas y
-    /// devuelve las filas hechas (DEC-509). El C# relee el fichero en cada jornada; aquí se lee una vez (ESPEC_05 §4.1.6).
+    /// devuelve las filas hechas (DEC-509). Windows relee el fichero en cada jornada; aquí se lee una vez (ESPEC_05 §4.1.6).
     /// `porJornada`: recibe las premiadas de cada ganadora, que salen de `listaPremiadas`, para llevarlas a disco: contra
     /// 1.000 ganadoras, 14 triples dan 19 millones de premiadas (3,7 GB en memoria).
     public mutating func escrutarTemporada(
@@ -91,7 +91,7 @@ public struct Escrutador: Sendable {
     /// `AñadirPremiosGlobales` (:262-276): fila «TOTALES».
     public func filaTotales(_ globales: [Int]) throws(ErrorDominio) -> FilaEscrutinio {
         guard globales.count > numeroPartidos else {
-            throw ErrorDominio(.indiceFueraDeRango, "Índice fuera de los límites de la matriz.", origen: "Escrutador.cs:270")
+            throw ErrorDominio(.indiceFueraDeRango, "Índice fuera de los límites de la matriz.", origen: "Escrutador:94")
         }
         return FilaEscrutinio(
             lineaID: 0, columna: "----- TOTALES:", archivo: "-------------", premios: Array(globales[0...numeroPartidos]),
@@ -129,7 +129,7 @@ public struct Escrutador: Sendable {
     }
 
     /// Cuenta un trozo. `AñadeAGanadoras` + `ObtenBoleto` (:205-226): con `apuntar`, la premiada (8 apuestas por boleto).
-    /// Al primer índice fuera de rango para, como el C#.
+    /// Al primer índice fuera de rango para, como Windows.
     private static func contar(
         _ r: Range<Int>, _ cols: Preparadas, _ g: [UInt16], _ n: Int,
         _ apuntar: (premios: [Int], fichero: String, jornada: Int)?
@@ -151,7 +151,7 @@ public struct Escrutador: Sendable {
                         }
                         guard na < p.nc.count else {
                             p.error = ErrorDominio(
-                                .indiceFueraDeRango, "Índice fuera de los límites de la matriz.", origen: "Escrutador.cs:199")
+                                .indiceFueraDeRango, "Índice fuera de los límites de la matriz.", origen: "Escrutador:154")
                             return
                         }
                         p.nc[na] += 1

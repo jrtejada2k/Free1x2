@@ -1,8 +1,8 @@
 import Free1X2Base
 import Free1X2Motor
 
-// C#: Free1X2.Domain/EntradaSalida/DatosFiltroHelper.cs, FiltroDatosBase.cs y las 14 F*Data.cs (07 F03.a; 07 §6.4).
-// Leer muta la condición en su sitio, como el C#: lo leído antes de un error se queda.
+// Las 14 (07 F03.a; 07 §6.4).
+// Leer muta la condición en su sitio, como Windows: lo leído antes de un error se queda.
 
 /// `<condicion id=… activa=…>` de cada filtro.
 public enum DatosFiltro {
@@ -10,7 +10,7 @@ public enum DatosFiltro {
     public static func leer(
         _ tipo: TipoFiltro, _ n: NodoXML, en c: inout CondicionesGrupo, numeroPartidos: Int, cultura: Cultura
     ) throws(ErrorDominio) {
-        let activa = try FormatoNET.convertToBoolean(try n.atributo("activa", "F*Data.cs: activa"))
+        let activa = try FormatoNET.convertToBoolean(try n.atributo("activa", "DatosFiltro:13"))
         switch tipo {
         case .noVariantes: try leerNoVariantes(n, &c.noVariantes, activa)
         case .valoracionSignos: try leerValoracion(n, &c.valoracionSignos, activa, cultura)
@@ -178,8 +178,8 @@ public enum DatosFiltro {
         f.contieneDatos = true
         for h in n.hijos {
             for g in h.hijos {
-                let t = try g.atributo("tipo", "FNoVariantesData.cs:52")
-                let v = try g.atributo("values", "FNoVariantesData.cs:54")
+                let t = try g.atributo("tipo", "DatosFiltro:181")
+                let v = try g.atributo("values", "DatosFiltro:182")
                 switch t {
                 case "var": try f.setNoVariantes(v)
                 case "equis": try f.setNoEquis(v)
@@ -194,7 +194,7 @@ public enum DatosFiltro {
     static func leerValoracion(
         _ n: NodoXML, _ f: inout CondicionValoracionSignos, _ activa: Bool, _ cultura: Cultura
     ) throws(ErrorDominio) {
-        let o = "FValoracionData.cs:34-52"
+        let o = "DatosFiltro:197"
         f.activa = activa
         f.contieneDatos = true
         f.tipoValoracion = try n.atributo("tipoValoracion", o)
@@ -219,7 +219,7 @@ public enum DatosFiltro {
 
     /// `FSignosSeguidosData` (:32-165).
     static func leerSignosSeguidos(_ n: NodoXML, _ f: inout CondicionSignosSeguidos, _ activa: Bool) throws(ErrorDominio) {
-        let o = "FSignosSeguidosData.cs:69-159"
+        let o = "DatosFiltro:222"
         f.activa = activa
         f.contieneDatos = true
         for h in n.hijos {
@@ -249,7 +249,7 @@ public enum DatosFiltro {
         f.contieneDatos = true
         for h in n.hijos where h.nombre == "standard" {
             var seguidas = false
-            try recorrer(h, "FInterrupcionesData.cs:67-69") { t, v throws(ErrorDominio) in
+            try recorrer(h, "DatosFiltro:252") { t, v throws(ErrorDominio) in
                 guard let k = tiposInterrupciones.firstIndex(of: t),
                     let contador = CondicionInterrupciones.Contador(rawValue: k)
                 else { return }
@@ -266,7 +266,7 @@ public enum DatosFiltro {
 
     /// `FPesosNumericosData` (:32-154): `noTolerancias=""` ⇒ `PonerTolerancia(null)` ⇒ NRE [PRESERVAR] (02 §1 P8).
     static func leerPesos(_ n: NodoXML, _ f: inout CondicionPesosNumericos, _ activa: Bool) throws(ErrorDominio) {
-        let o = "FPesosNumericosData.cs:66-148"
+        let o = "DatosFiltro:269"
         let pesos = [
             "global": CondicionPesosNumericos.Peso.global, "variantes": .variantes, "unos": .unos, "equis": .equis, "doses": .doses,
         ]
@@ -278,7 +278,7 @@ public enum DatosFiltro {
                 let tol = h.nombre == "tolerancias"
                 if tol {
                     guard let t = try valores(try h.atributo("noTolerancias", o)) else {
-                        throw .referenciaNula("FiltroPesosNumericos.cs:520")
+                        throw .referenciaNula("DatosFiltro:281")
                     }
                     for x in t { try f.ponerTolerancia(Int(x), true) }
                 }
@@ -300,7 +300,7 @@ public enum DatosFiltro {
         f.activa = activa
         f.contieneDatos = true
         for h in n.hijos where h.nombre == "standard" {
-            try recorrer(h, "FDistanciasData.cs:60-62") { t, v throws(ErrorDominio) in
+            try recorrer(h, "DatosFiltro:303") { t, v throws(ErrorDominio) in
                 switch t {
                 case "var": try f.setDistVariantes(v)
                 case "unos": try f.setDistUnos(v)
@@ -316,7 +316,7 @@ public enum DatosFiltro {
     static func leerGruposEquipos(
         _ n: NodoXML, _ f: inout CondicionGruposEquipos, _ activa: Bool, _ numeroPartidos: Int
     ) throws(ErrorDominio) {
-        let o = "FGruposEquiposData.cs:77-121"
+        let o = "DatosFiltro:319"
         f.activa = activa
         f.contieneDatos = true
         var grupos: [GrupoEquiposConfig] = []
@@ -360,7 +360,7 @@ public enum DatosFiltro {
 
     /// `FContactosData` (:35-137).
     static func leerContactos(_ n: NodoXML, _ f: inout CondicionContactos, _ activa: Bool) throws(ErrorDominio) {
-        let o = "FContactosData.cs:65-128"
+        let o = "DatosFiltro:363"
         f.activa = activa
         f.contieneDatos = true
         for h in n.hijos {
@@ -377,7 +377,7 @@ public enum DatosFiltro {
 
     /// `FFormatosSignosData` (:33-70): todos los hijos de `condicion`, sin `standard`.
     static func leerFormatosSignos(_ n: NodoXML, _ f: inout CondicionFormatosSignos, _ activa: Bool) throws(ErrorDominio) {
-        let o = "FFormatosSignosData.cs:48-59"
+        let o = "DatosFiltro:380"
         f.activa = activa
         f.contieneDatos = true
         var lista: [FormatosSignos] = []
@@ -400,7 +400,7 @@ public enum DatosFiltro {
     static func leerFormatos123(
         _ n: NodoXML, _ f: inout CondicionFormatos123, _ activa: Bool, _ cultura: Cultura
     ) throws(ErrorDominio) {
-        let o = "FFormatos123Data.cs:31-58"
+        let o = "DatosFiltro:403"
         f.activa = activa
         var formatos: [Formato123] = []
         var valoracion = [[Double]](repeating: [0, 0, 0], count: 14)
@@ -410,7 +410,7 @@ public enum DatosFiltro {
             f.pasoFijo = try FormatoNET.convertToBoolean(try h.atributo("repeticiones", o))
             for (l, v) in trozos(try h.atributo("valoracion", o), "/").enumerated() {
                 let d = try FormatoNET.convertToDouble(v, cultura: cultura)
-                guard l / 3 < 14 else { throw .fueraDeRango("FFormatos123Data.cs:42") }
+                guard l / 3 < 14 else { throw .fueraDeRango("DatosFiltro:413") }
                 valoracion[l / 3][l % 3] = d
             }
             for g in h.hijos {
@@ -421,7 +421,7 @@ public enum DatosFiltro {
             }
         }
         f.formatos = formatos
-        guard let aciertos = f.aciertosFiltro else { throw .referenciaNula("FFormatos123Data.cs:200") }
+        guard let aciertos = f.aciertosFiltro else { throw .referenciaNula("DatosFiltro:424") }
         f.aciertos = try trozos(aciertos, ",").map { s throws(ErrorDominio) in Int(try FormatoNET.convertToInt32(s)) }
         f.valoracion = valoracion
         f.valoracionTransformada = try CondicionFormatos123.transformar(valoracion)
@@ -429,7 +429,7 @@ public enum DatosFiltro {
 
     /// `FSimetriasData` (:16-47).
     static func leerSimetrias(_ n: NodoXML, _ f: inout CondicionSimetrias, _ activa: Bool) throws(ErrorDominio) {
-        let o = "FSimetriasData.cs:28-38"
+        let o = "DatosFiltro:432"
         f.activa = activa
         var lista: [Simetria] = []
         for h in n.hijos {
@@ -445,7 +445,7 @@ public enum DatosFiltro {
     static func leerDiferencias(
         _ n: NodoXML, _ f: inout CondicionDiferencias, _ activa: Bool, _ numeroPartidos: Int
     ) throws(ErrorDominio) {
-        let o = "FDiferenciasData.cs:33-87"
+        let o = "DatosFiltro:448"
         f.activa = activa
         f.ponerContieneDatos(true)
         var lista: [Diferencia] = []
@@ -498,7 +498,7 @@ public enum DatosFiltro {
         w.atributo("valorDoses", f.valorDoses)
         func texto(_ d: Double) -> String { FormatoNET.toString(d, cultura: cultura).replacingOccurrences(of: ",", with: ".") }
         for i in f.valores1.indices {
-            let o = "FValoracionData.cs:93-94"
+            let o = "DatosFiltro:501"
             let s = texto(f.valores1[i]) + "," + texto(try f.valoresX.leer(i, o)) + "," + texto(try f.valores2.leer(i, o))
             w.iniciarElemento("valores")
             w.atributo("id", String(i))
@@ -553,8 +553,8 @@ public enum DatosFiltro {
     ) throws(ErrorDominio) {
         var v: [String] = []
         for i in 0..<14 {
-            let fila = try f.valoracion.leer(i, "FFormatos123Data.cs:188")
-            for j in 0..<3 { v.append(FormatoNET.toString(try fila.leer(j, "FFormatos123Data.cs:188"), cultura: cultura)) }
+            let fila = try f.valoracion.leer(i, "DatosFiltro:556")
+            for j in 0..<3 { v.append(FormatoNET.toString(try fila.leer(j, "DatosFiltro:557"), cultura: cultura)) }
         }
         w.iniciarElemento("grupoformato")
         w.atributo("id", "0")
@@ -570,7 +570,7 @@ public enum DatosFiltro {
     }
 
     static func escribirDiferencias(_ f: CondicionDiferencias, _ w: inout EscritorXMLNET) throws(ErrorDominio) {
-        let o = "FDiferenciasData.cs:140-172"
+        let o = "DatosFiltro:573"
         func texto(_ a: [Bool]?) throws(ErrorDominio) -> String {
             guard let a else { throw .referenciaNula(o) }
             return UtilidadesEntradasValores.obtenerTextoFromBool(a)

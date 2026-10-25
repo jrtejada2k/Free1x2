@@ -3,7 +3,7 @@ import Free1X2Base
 import Free1X2Formatos
 import Free1X2Online
 
-// Nuevo (DT-84, a petición del dueño; no existe en el C#): máscaras guardadas y su escrutinio contra el histórico.
+// Nuevo (DT-84, a petición del dueño; no existe en Windows): máscaras guardadas y su escrutinio contra el histórico.
 
 /// Una máscara: el signo o signos de cada partido del boleto, con un nombre y sin equipos (se aplica a la jornada cargada).
 public struct Mascara: Sendable, Hashable, Identifiable {

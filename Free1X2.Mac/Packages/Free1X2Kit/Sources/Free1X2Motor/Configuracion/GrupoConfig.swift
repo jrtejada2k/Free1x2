@@ -1,6 +1,6 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/MotorCalculo/Grupo.cs (01 §2.4) — la parte configurable de un grupo.
+// Ref.: 01 §2.4 — la parte configurable de un grupo.
 
 /// Las condiciones de los 14 filtros de un grupo (orden fijo de `Grupo.filtros`).
 public struct CondicionesGrupo: Sendable, Hashable {
@@ -81,7 +81,7 @@ public struct GrupoConfig: Sendable, Hashable {
         todosPartidosActivos = partes.count == numeroPartidos
         for parte in partes {
             let n = Int(try FormatoNET.convertToInt32(parte))
-            if n <= partidosActivos.count { try partidosActivos.escribir(true, en: n - 1, "Grupo.cs:488") }
+            if n <= partidosActivos.count { try partidosActivos.escribir(true, en: n - 1, "GrupoConfig:84") }
         }
     }
 

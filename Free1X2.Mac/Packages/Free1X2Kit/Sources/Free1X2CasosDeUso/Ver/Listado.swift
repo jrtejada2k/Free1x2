@@ -2,7 +2,7 @@ import Foundation
 import Free1X2Base
 import Free1X2Motor
 
-// C#: Views/Ported/ListadoCondicionesFrmViewModel.cs (09 pantalla 71; CU-B39). Textos literales del legacy, erratas incluidas.
+// Ref.: 09 pantalla 71; CU-B39. Textos literales del legacy, erratas incluidas.
 
 /// Nodo del árbol de condiciones; `hijos == nil` en las hojas (para `OutlineGroup`).
 public struct NodoListado: Sendable, Hashable, Identifiable {
@@ -279,7 +279,7 @@ extension CasosVer {
         return s
     }
 
-    /// `ExportarAHtml`, envuelto en la página del C#.
+    /// `ExportarAHtml`, envuelto en la página de Windows.
     public static func listadoHtml(_ raiz: NodoListado) -> String {
         func cuerpo(_ nodo: NodoListado, _ p: Int) -> String {
             var s = ""

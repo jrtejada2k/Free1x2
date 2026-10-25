@@ -3,7 +3,7 @@ import Free1X2Base
 import Free1X2Formatos
 import Free1X2Motor
 
-// C#: Views/Ported/IfThenFrmViewModel.cs (09 pantalla 65; CU-B33). Las relaciones se guardan como texto (contrato `.if`).
+// Ref.: 09 pantalla 65; CU-B33. Las relaciones se guardan como texto (contrato `.if`).
 
 /// Una relación «si … entonces …» tal como se lista.
 public struct RelacionIfThen: Sendable, Hashable, Identifiable {
@@ -117,9 +117,9 @@ extension CasosCondiciones {
             var t = texto
             let no = t.hasPrefix("(NO)")
             if no { t = String(t.dropFirst(5)) }
-            guard let e = t.firstIndex(of: " ") else { throw .fueraDeRangoLista("IfThenFrmViewModel.cs:479") }
+            guard let e = t.firstIndex(of: " ") else { throw .fueraDeRangoLista("IfThen:120") }
             let n = Int(try FormatoNET.convertToInt16(String(t[..<e])))
-            guard c.grupos.indices.contains(n) else { throw .fueraDeRangoLista("IfThenFrmViewModel.cs:481") }
+            guard c.grupos.indices.contains(n) else { throw .fueraDeRangoLista("IfThen:122") }
             return (n, no)
         }
         for r in p.grupos {

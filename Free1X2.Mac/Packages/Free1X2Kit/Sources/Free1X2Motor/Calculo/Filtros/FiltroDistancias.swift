@@ -1,6 +1,6 @@
 import Free1X2Base
 
-// C#: Free1X2.Domain/MotorCalculo/FiltroDistancias.cs (03 §1).
+// Ref.: 03 §1.
 
 final class FiltroDistancias: FiltroColumna {
     /// 21 grupos de 3 bits `100`, `010`, `001` y `011` (:27-30).
@@ -51,7 +51,7 @@ final class FiltroDistancias: FiltroColumna {
 
     func analizar(_ c: Columna) throws(ErrorDominio) -> Bool {
         contar(c)
-        let o = "FiltroDistancias.cs:143"
+        let o = "FiltroDistancias:54"
         guard try condicion.variantes.permite(distVariantes, o) else { return false }
         guard try condicion.unos.permite(distUnos, o) else { return false }
         guard try condicion.equis.permite(distEquis, o) else { return false }
@@ -60,7 +60,7 @@ final class FiltroDistancias: FiltroColumna {
 
     func analizarFallos(_ c: Columna) throws(ErrorDominio) -> [String]? {
         contar(c)
-        let o = "FiltroDistancias.cs:146-170"
+        let o = "FiltroDistancias:63"
         var texto = ""
         for (nombre, valores, n) in [
             ("variantes", condicion.variantes, distVariantes), ("unos", condicion.unos, distUnos),
@@ -74,7 +74,7 @@ final class FiltroDistancias: FiltroColumna {
 
     /// (:207-237): `noIntGlobal` vale siempre 0 [PRESERVAR].
     func obtenNoAciertosTolerancias(_ letras: String) throws(ErrorDominio) -> Int {
-        let o = "FiltroDistancias.cs:207-237"
+        let o = "FiltroDistancias:77"
         var n = 0
         for letra in letras.utf16 {
             if try condicion.global.letra(0, o) == letra { n += 1 }
