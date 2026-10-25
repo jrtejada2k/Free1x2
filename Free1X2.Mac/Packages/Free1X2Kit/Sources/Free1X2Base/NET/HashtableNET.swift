@@ -1,4 +1,4 @@
-// .NET 8: dotnet/runtime release/8.0, System/Collections/Hashtable.cs y HashHelpers.cs (ESPEC_16 §6, DEC-501).
+// .NET 8 (ESPEC_16 §6, DEC-501).
 
 /// `System.Collections.Hashtable` con claves `Int32`/`Int64` encajadas y sin borrados: lo justo para reproducir
 /// el orden de `Keys` y las búsquedas que no encuentran una clave de otro tipo (`Int32.Equals(Int64)` es falso).
@@ -108,7 +108,7 @@ public struct HashtableNET<Valor: Sendable>: Sendable {
             if cubos[i].hashColl & 0x7FFF_FFFF == hash && guardada == clave {
                 if anadir {
                     throw ErrorDominio(
-                        .argumento, "Item has already been added. Key in dictionary: '\(guardada)'", origen: "Hashtable.cs Insert")
+                        .argumento, "Item has already been added. Key in dictionary: '\(guardada)'", origen: "HashtableNET:111")
                 }
                 cubos[i].valor = valor
                 return
@@ -119,7 +119,7 @@ public struct HashtableNET<Valor: Sendable>: Sendable {
             }
             i = (i + incremento) % cubos.count
         }
-        throw ErrorDominio(.operacionInvalida, "Hashtable insert failed. Load factor too high.", origen: "Hashtable.cs Insert")
+        throw ErrorDominio(.operacionInvalida, "Hashtable insert failed. Load factor too high.", origen: "HashtableNET:122")
     }
 
     /// `rehash(newsize)` + `putEntry`: recoloca en el orden de los cubos viejos y reinicia la ocupación.

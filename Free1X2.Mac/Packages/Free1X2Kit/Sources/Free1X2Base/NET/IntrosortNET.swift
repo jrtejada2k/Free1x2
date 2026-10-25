@@ -1,4 +1,4 @@
-// .NET 8: dotnet/runtime release/8.0, ArraySortHelper.cs (IntrospectiveSort) y SortUtils.MoveNansToFront (DT-15).
+// .NET 8: `IntrospectiveSort` y `SortUtils.MoveNansToFront` (DT-15).
 
 /// `Array.Sort` / `List<T>.Sort` de .NET 8. No es estable: el orden de los empates es el de .NET y forma parte
 /// de la salida (ESPEC_16 §6, golden `net/colecciones`).

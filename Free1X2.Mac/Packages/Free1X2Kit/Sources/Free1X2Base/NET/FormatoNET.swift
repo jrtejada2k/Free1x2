@@ -1,7 +1,6 @@
 import Foundation
 
-// Parseo y formato con la semántica de .NET 8 (ESPEC_16 §1; trampas T4, T7, T13, T14). Fuente leída:
-// dotnet/runtime release/8.0 — Number.Parsing.cs, Number.Formatting.cs, Convert.cs, Boolean.cs.
+// Parseo y formato con la semántica de .NET 8 (ESPEC_16 §1; trampas T4, T7, T13, T14).
 // Nada de esto está en el camino caliente: prima la exactitud.
 
 public enum FormatoNET {
@@ -70,7 +69,7 @@ public enum FormatoNET {
         return Int32(truncado)
     }
 
-    /// `Convert.ToInt32(double)` (Convert.cs): redondeo a par; NaN o fuera de rango ⇒ `OverflowException`.
+    /// `Convert.ToInt32(double)`: redondeo a par; NaN o fuera de rango ⇒ `OverflowException`.
     public static func convertToInt32(_ valor: Double) throws(ErrorDominio) -> Int32 {
         if valor >= 0 {
             if valor < 2_147_483_647.5 {

@@ -4,7 +4,7 @@ import Testing
 
 @testable import Free1X2Base
 
-/// ESPEC_17 NET-01…11: suite `net/formato` (comportamiento .NET 8 leído del fuente de dotnet/runtime).
+/// ESPEC_17 NET-01…11: suite `net/formato` (comportamiento de .NET 8).
 @Suite("Formato .NET")
 struct FormatoNETTests {
     static func casos(_ componente: String) throws -> [CasoGolden<Campos, Campos>] {
