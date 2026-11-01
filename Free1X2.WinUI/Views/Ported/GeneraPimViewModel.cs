@@ -1,11 +1,13 @@
 // Free1X2 · WinUI 3 — WIN3
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Free1X2.Analisis;
 using Free1X2.WinUI.Services;
 using Windows.Storage;
 using Windows.Storage.Pickers;
@@ -13,16 +15,14 @@ using Windows.Storage.Pickers;
 namespace Free1X2.WinUI.Views.Ported
 {
     /// <summary>
-    /// ViewModel para la Page portada del WinForms "Filtro Pim" (clase legacy
-    /// Free1X2.UI.aidomnou, en Free1X2/UI/Aidomnou.cs). Genera/reduce columnas probables a
-    /// partir de los valores (1/X/2) de los 14 partidos, aplica rangos de aciertos por
-    /// "ranking" y un rango de recorrido (max-min).
+    /// ViewModel para la Page portada del WinForms "Filtro Pim" (clase legacy GeneraPim, en
+    /// Free1X2/UI/FiltroPim.cs). Con los valores (1/X/2) de los 14 partidos forma 7 rankings de 6
+    /// casillas y filtra las columnas por sus aciertos con cada ranking (R1..R7) y su recorrido
+    /// (max-min). La lógica está en <see cref="FiltroPim"/> (Free1X2.Domain). Antes este ViewModel
+    /// llevaba el algoritmo de Aidomnou (6 columnas y suma), que no es el del Pim.
     ///
     /// La rejilla <see cref="Partidos"/> sustituye al UserControl legacy "valors" (valors1):
-    /// se lee desde ella en RecuperaPantalla en vez de valors1.RetVals(). Los algoritmos
-    /// (PreCol1..6, Valida, s2n/n2s, Cambia) se transcriben literalmente del legacy. La carga
-    /// del fichero de configuración aidomnou.cfg (GetConfig/SetConfig) no se porta: se usan los
-    /// límites por defecto del legacy.
+    /// se lee desde ella en RecuperaPantalla en vez de valors1.RetVals().
     /// </summary>
     public partial class GeneraPimViewModel : ObservableObject
     {
@@ -125,19 +125,16 @@ namespace Free1X2.WinUI.Views.Ported
             }
         }
 
-        // ===== Estado interno del motor (campos del form aidomnou) =====
+        // ===== Estado interno del motor (campos del form GeneraPim) =====
         private readonly double[,] _nvals = new double[14, 3];
-        // Límites por defecto del legacy (aidomnou.cfg no se porta; ver GetConfig/SetConfig).
-        private readonly int[] _lims = { 145, 11, 9, 8, 65, 9, 6, 5 };
         private readonly int[,] _rks = new int[8, 2];
-        private readonly string[] _scps = new string[6];
-        private readonly int[,] _cps = new int[14, 6];
+        // [partido, ranking]: signos de cada uno de los 7 rankings (FiltroPim.CalculaRankings).
+        private int[,] _rankings = new int[14, FiltroPim.Rankings];
         private string[] _colgsR = new string[3000];
         private int _limcgsR;
         private int _nrfCGR;
-        // BitArray de 3^14 columnas válidas (legacy: validas).
-        private BitArray? _validas;
-        private int _ctadm;
+        // Columnas admitidas, en el orden del fichero de entrada (legacy: validas[0..ctadm)).
+        private List<string>? _validas;
 
         public GeneraPimViewModel()
         {
@@ -148,8 +145,8 @@ namespace Free1X2.WinUI.Views.Ported
         }
 
         /// <summary>
-        /// Legacy aidomnou.Calcular(): lee un fichero de columnas de entrada, valida cada una con
-        /// los rangos por ranking y el recorrido, y marca las válidas en el BitArray.
+        /// Legacy GeneraPim.Calcular(): lee un fichero de columnas de entrada, descarta las repetidas y
+        /// valida las demás con los rangos por ranking y el recorrido, en el orden del fichero.
         /// </summary>
         [RelayCommand]
         private Task Calcular() => CalcularCon(null);
@@ -183,9 +180,10 @@ namespace Free1X2.WinUI.Views.Ported
         // origen null ⇒ se pide el fichero de entrada (comportamiento legacy).
         private async Task CalcularCon(string? origen)
         {
-            // Recoge la pantalla y prepara las 6 columnas ANTES de elegir el fichero (igual que el legacy).
+            // Recoge la pantalla y forma los rankings ANTES de elegir el fichero (igual que el legacy).
             RecuperaPantalla();
-            PreparaColumnas();
+            int[,] rankings = _rankings;
+            int[,] rangos = (int[,])_rks.Clone();
 
             string ruta;
             if (origen != null)
@@ -207,9 +205,9 @@ namespace Free1X2.WinUI.Views.Ported
             Tiempo = "...";
 
             int ctini = 0;
-            int ctadm = 0;
             bool errorLongitud = false;
-            var validas = new BitArray(4782969);
+            var validas = new List<string>();
+            var repes = new BitArray(4782969);
 
             // B-12: sin try/catch, cualquier IOException (fichero bloqueado, unidad de red caída,
             // disco lleno) escapaba al manejador global y los tres indicadores se quedaban
@@ -223,29 +221,26 @@ namespace Free1X2.WinUI.Views.Ported
                     using var sr = new StreamReader(ruta);
                     while (sr.Peek() > 0)
                     {
-                        string tmp = sr.ReadLine()!.Trim();
+                        // FiltroPim.cs:431-440: mayúsculas, las repetidas no se validan otra vez y las
+                        // admitidas quedan en el orden del fichero.
+                        string tmp = sr.ReadLine()!.Trim().ToUpperInvariant();
                         ctini++;
                         if (tmp.Length < 14)
                         {
                             errorLongitud = true;
                             break;
                         }
-                        tmp = tmp.Replace('x', '4');
-                        tmp = tmp.Replace('X', '4');
-                        if (Valida(tmp))
+                        int idx = S2n(tmp, 14);
+                        if (repes[idx]) continue;
+                        repes[idx] = true;
+                        if (FiltroPim.Admite(FiltroPim.Aciertos(rankings, tmp), rangos))
                         {
-                            int idx = S2n(tmp, 14);
-                            if (validas[idx] == false)
-                            {
-                                validas[idx] = true;
-                                ctadm++;
-                            }
+                            validas.Add(tmp);
                         }
                     }
                 });
 
                 _validas = validas;
-                _ctadm = ctadm;
 
                 if (errorLongitud)
                 {
@@ -261,15 +256,15 @@ namespace Free1X2.WinUI.Views.Ported
             finally
             {
                 ColumnasProcesadas = ctini.ToString();
-                ColumnasAdmitidas = ctadm.ToString();
+                ColumnasAdmitidas = validas.Count.ToString();
                 string t = (DateTime.Now - time0).ToString() + "0000000000";
                 Tiempo = t.Substring(0, 10);
             }
         }
 
         /// <summary>
-        /// Legacy aidomnou.GrabaCols(): vuelca al fichero las columnas válidas (validas) traducidas
-        /// con n2s, sustituyendo internamente '4' por 'X'.
+        /// Legacy GeneraPim.GrabaCols(): vuelca al fichero las columnas admitidas, en el orden del fichero
+        /// de entrada.
         /// </summary>
         [RelayCommand]
         private async Task GrabarResultado()
@@ -288,7 +283,7 @@ namespace Free1X2.WinUI.Views.Ported
             }
 
             string ruta = archivo.Path;
-            BitArray validas = _validas;
+            List<string> validas = _validas;
 
             // B-12: escritura de hasta 4.782.969 líneas; un fallo de E/S a mitad dejaba el
             // fichero a medias y el error sin explicar (ni el nombre en pantalla se actualizaba).
@@ -297,12 +292,9 @@ namespace Free1X2.WinUI.Views.Ported
                 await Task.Run(() =>
                 {
                     using var wr = new StreamWriter(ruta);
-                    for (int nr = 0; nr < 4782969; nr++)
+                    foreach (string columna in validas)
                     {
-                        if (validas[nr])
-                        {
-                            wr.WriteLine(N2s(nr, 14));
-                        }
+                        wr.WriteLine(columna);
                     }
                 });
 
@@ -397,15 +389,13 @@ namespace Free1X2.WinUI.Views.Ported
         }
 
         /// <summary>
-        /// Legacy aidomnou.ExporCols(): exporta las 6 columnas probables (cps) traducidas con Cambia().
+        /// Legacy GeneraPim.ExporCols(): exporta los 7 rankings, un partido tras otro separados por comas.
         /// </summary>
         [RelayCommand]
         private async Task ExportarColumnas()
         {
-            // Recoge la pantalla y prepara las columnas (igual que Analizar/Calcular del legacy
-            // hacen antes de usar cps).
+            // Recoge la pantalla y forma los rankings (igual que Analizar/Calcular del legacy).
             RecuperaPantalla();
-            PreparaColumnas();
 
             StorageFile? archivo = await PickerHelper.GuardarConExtensionPorDefectoAsync(
                 "columnas", ".txt", ("F.Salida", ".txt"), ("Todos los archivos", "."));
@@ -415,7 +405,7 @@ namespace Free1X2.WinUI.Views.Ported
             }
 
             string ruta = archivo.Path;
-            int[,] cps = (int[,])_cps.Clone();
+            int[,] rankings = _rankings;
 
             // B-12: sin catch, un fallo de escritura llegaba al manejador global sin decir
             // siquiera qué fichero falló.
@@ -424,12 +414,12 @@ namespace Free1X2.WinUI.Views.Ported
                 await Task.Run(() =>
                 {
                     using var sw = new StreamWriter(ruta);
-                    for (int nr = 0; nr < 6; nr++)
+                    for (int nr = 0; nr < FiltroPim.Rankings; nr++)
                     {
-                        string tmp = Cambia(cps[0, nr]);
+                        string tmp = FiltroPim.Signos(rankings[0, nr]);
                         for (int np = 1; np < 14; np++)
                         {
-                            tmp += "," + Cambia(cps[np, nr]);
+                            tmp += "," + FiltroPim.Signos(rankings[np, nr]);
                         }
                         sw.WriteLine(tmp);
                     }
@@ -533,53 +523,35 @@ namespace Free1X2.WinUI.Views.Ported
         }
 
         /// <summary>
-        /// Legacy aidomnou.Analizar(): recoge la pantalla, prepara las columnas y cuenta los
-        /// aciertos por ranking de la columna ganadora, volcando a Analisis1..7 + recorrido.
+        /// Legacy GeneraPim.Analizar(): recoge la pantalla, forma los rankings y cuenta los aciertos
+        /// de la columna ganadora con cada uno, volcando a Analisis1..7 + recorrido.
         /// </summary>
         [RelayCommand]
         private void Analizar()
         {
-            int na, min6, max6, sum6;
-            int[] minmax = new int[6];
-            string columna = (ColumnaGanadora ?? "").Replace('x', '4');
-            columna = columna.Replace('X', '4');
-            min6 = 99; max6 = sum6 = 0;
-
-            RecuperaPantalla();
-            PreparaColumnas();
-
-            for (int nr = 0; nr < 6; nr++)
+            string columna = ColumnaGanadora ?? "";
+            if (columna.Length < 14)
             {
-                na = 0;
-                string tmp = _scps[nr];
-                for (int nr2 = 0; nr2 < 14; nr2++)
-                {
-                    char chp = tmp[nr2];
-                    if (chp == 48) continue;
-                    int ch3 = chp & columna[nr2];
-                    if (ch3 > 48) na++;
-                }
-                minmax[nr] = na;
-                if (na < min6) min6 = na;
-                if (na > max6) max6 = na;
-                sum6 += na;
+                AppServices.MostrarError("Carga antes una columna ganadora de 14 signos.");
+                return;
             }
 
-            Analisis1 = minmax[0].ToString();
-            Analisis2 = minmax[1].ToString();
-            Analisis3 = minmax[2].ToString();
-            Analisis4 = minmax[3].ToString();
-            Analisis5 = minmax[4].ToString();
-            Analisis6 = minmax[5].ToString();
-            Analisis7 = sum6.ToString();
-            AnalisisRecorrido = (max6 - min6).ToString();
-        }
+            RecuperaPantalla();
+            int[] aciertos = FiltroPim.Aciertos(_rankings, columna);
 
-        // ===== Métodos del motor transcritos literalmente de aidomnou =====
+            Analisis1 = aciertos[0].ToString();
+            Analisis2 = aciertos[1].ToString();
+            Analisis3 = aciertos[2].ToString();
+            Analisis4 = aciertos[3].ToString();
+            Analisis5 = aciertos[4].ToString();
+            Analisis6 = aciertos[5].ToString();
+            Analisis7 = aciertos[6].ToString();
+            AnalisisRecorrido = FiltroPim.Recorrido(aciertos).ToString();
+        }
 
         /// <summary>
         /// Legacy RecuperaPantalla(): vuelca los valores de la rejilla (sustituto de valors1.RetVals())
-        /// a _nvals y parsea los 8 rangos (formato "min-max") a _rks.
+        /// a _nvals, parsea los 8 rangos (formato "min-max") a _rks y forma los 7 rankings.
         /// </summary>
         private void RecuperaPantalla()
         {
@@ -598,6 +570,7 @@ namespace Free1X2.WinUI.Views.Ported
             ParseRango(Rango6, 5);
             ParseRango(Rango7, 6);
             ParseRango(RangoRecorrido, 7);
+            _rankings = FiltroPim.CalculaRankings(_nvals);
         }
 
         private void ParseRango(string texto, int fila)
@@ -605,247 +578,6 @@ namespace Free1X2.WinUI.Views.Ported
             string[] aux = (texto ?? "").Split('-');
             _rks[fila, 0] = Convert.ToInt32(aux[0]);
             _rks[fila, 1] = Convert.ToInt32(aux[1]);
-        }
-
-        // Legacy PreparaColumnas()
-        private void PreparaColumnas()
-        {
-            for (int nr = 0; nr < 14; nr++) for (int nc = 0; nc < 6; nc++) _cps[nr, nc] = 0;
-            PreCol1(); PreCol2();
-            PreCol3(); PreCol4();
-            PreCol5(); PreCol6();
-            for (int nr1 = 0; nr1 < 6; nr1++)
-            {
-                string tmp = "";
-                for (int nr2 = 0; nr2 < 14; nr2++) tmp += _cps[nr2, nr1];
-                _scps[nr1] = tmp;
-            }
-        }
-
-        // Legacy PreCol1()
-        private void PreCol1()
-        {
-            int nq1, nq2; double nv;
-            double[,] pvals = new double[14, 3];
-            for (int nr1 = 0; nr1 < 14; nr1++)
-                for (int nr2 = 0; nr2 < 3; nr2++) pvals[nr1, nr2] = _nvals[nr1, nr2];
-            for (int nt = 0; nt < 42; nt++)
-            {
-                nq1 = nq2 = 0; nv = 0;
-                for (int nr1 = 0; nr1 < 14; nr1++)
-                {
-                    for (int nr2 = 0; nr2 < 3; nr2++)
-                    {
-                        if (pvals[nr1, nr2] >= nv)
-                        {
-                            nv = pvals[nr1, nr2]; nq1 = nr1; nq2 = nr2;
-                        }
-                    }
-                }
-                _cps[nq1, 0] += (nq2 == 0 ? 1 : nq2 == 1 ? 4 : 2);
-                pvals[nq1, nq2] = (-1);
-                nv = 0;
-                for (int nr = 0; nr < 14; nr++)
-                {
-                    switch (_cps[nr, 0])
-                    {
-                        case 3:
-                        case 5:
-                        case 6: nv += 10; break;
-                        case 7: nv += 15; break;
-                    }
-                }
-                if (nv >= _lims[0]) break;
-            }
-        }
-
-        // Legacy PreCol4()
-        private void PreCol4()
-        {
-            int nq1, nq2; double nv;
-            double[,] pvals = new double[14, 3];
-            for (int nr1 = 0; nr1 < 14; nr1++)
-                for (int nr2 = 0; nr2 < 3; nr2++) pvals[nr1, nr2] = _nvals[nr1, nr2];
-            while (true)
-            {
-                nq1 = nq2 = 0; nv = 0;
-                for (int nr1 = 0; nr1 < 14; nr1++)
-                {
-                    for (int nr2 = 0; nr2 < 3; nr2++)
-                    {
-                        if (pvals[nr1, nr2] >= nv)
-                        {
-                            nv = pvals[nr1, nr2]; nq1 = nr1; nq2 = nr2;
-                        }
-                    }
-                }
-                _cps[nq1, 3] += (nq2 == 0 ? 1 : nq2 == 1 ? 4 : 2);
-                pvals[nq1, nq2] = (-1);
-                nv = 0;
-                for (int nr = 0; nr < 14; nr++)
-                {
-                    switch (_cps[nr, 3])
-                    {
-                        case 3:
-                        case 5:
-                        case 6: nv += 10; break;
-                        case 7: nv += 15; break;
-                    }
-                }
-                if (nv >= _lims[4]) break;
-            }
-        }
-
-        // Legacy PreCol2()
-        private void PreCol2()
-        {
-            int nq; double nv;
-            for (int nr1 = 0; nr1 < _lims[1]; nr1++)
-            {
-                nq = 0; nv = 0;
-                for (int nr2 = 0; nr2 < 14; nr2++)
-                {
-                    if (_cps[nr2, 1] < 1 && _nvals[nr2, 0] >= nv)
-                    {
-                        nv = _nvals[nr2, 0]; nq = nr2;
-                    }
-                }
-                _cps[nq, 1] += 1;
-            }
-            for (int nr1 = 0; nr1 < _lims[3]; nr1++)
-            {
-                nq = 0; nv = 0;
-                for (int nr2 = 0; nr2 < 14; nr2++)
-                {
-                    if (_cps[nr2, 1] < 2 && _nvals[nr2, 2] > nv)
-                    {
-                        nv = _nvals[nr2, 2]; nq = nr2;
-                    }
-                }
-                _cps[nq, 1] += 2;
-            }
-            for (int nr1 = 0; nr1 < _lims[2]; nr1++)
-            {
-                nq = 0; nv = 0;
-                for (int nr2 = 0; nr2 < 14; nr2++)
-                {
-                    if (_cps[nr2, 1] < 4 && _nvals[nr2, 1] > nv)
-                    {
-                        nv = _nvals[nr2, 1]; nq = nr2;
-                    }
-                }
-                _cps[nq, 1] += 4;
-            }
-        }
-
-        // Legacy PreCol5()
-        private void PreCol5()
-        {
-            int nq; double nv;
-            for (int nr1 = 0; nr1 < _lims[5]; nr1++)
-            {
-                nq = 0; nv = 0;
-                for (int nr2 = 0; nr2 < 14; nr2++)
-                {
-                    if (_cps[nr2, 4] < 1 && _nvals[nr2, 0] >= nv)
-                    {
-                        nv = _nvals[nr2, 0]; nq = nr2;
-                    }
-                }
-                _cps[nq, 4] += 1;
-            }
-            for (int nr1 = 0; nr1 < _lims[7]; nr1++)
-            {
-                nq = 0; nv = 0;
-                for (int nr2 = 0; nr2 < 14; nr2++)
-                {
-                    if (_cps[nr2, 4] < 2 && _nvals[nr2, 2] > nv)
-                    {
-                        nv = _nvals[nr2, 2]; nq = nr2;
-                    }
-                }
-                _cps[nq, 4] += 2;
-            }
-            for (int nr1 = 0; nr1 < _lims[6]; nr1++)
-            {
-                nq = 0; nv = 0;
-                for (int nr2 = 0; nr2 < 14; nr2++)
-                {
-                    if (_cps[nr2, 4] < 4 && _nvals[nr2, 1] > nv)
-                    {
-                        nv = _nvals[nr2, 1]; nq = nr2;
-                    }
-                }
-                _cps[nq, 4] += 4;
-            }
-        }
-
-        // Legacy PreCol6() — 14 fijos
-        private void PreCol6()
-        {
-            for (int nr1 = 0; nr1 < 14; nr1++)
-            {
-                int nq = 0; double nv = 0;
-                for (int nr2 = 0; nr2 < 3; nr2++)
-                {
-                    if (_nvals[nr1, nr2] > nv) { nv = _nvals[nr1, nr2]; nq = nr2; }
-                }
-                _cps[nr1, 5] = (nq == 0 ? 1 : (nq == 1 ? 4 : 2));
-            }
-        }
-
-        // Legacy PreCol3() — 14 dobles
-        private void PreCol3()
-        {
-            for (int nr1 = 0; nr1 < 14; nr1++)
-            {
-                int nq = 0; double nv = 100;
-                for (int nr2 = 0; nr2 < 3; nr2++)
-                {
-                    if (_nvals[nr1, nr2] < nv) { nv = _nvals[nr1, nr2]; nq = nr2; }
-                }
-                _cps[nr1, 2] = (nq == 0 ? 6 : (nq == 1 ? 3 : 5));
-            }
-        }
-
-        // Legacy Cambia()
-        private static string Cambia(int valor)
-        {
-            string rsl;
-            if (valor == 0) rsl = "-";
-            else if (valor == 1) rsl = "1";
-            else if (valor == 2) rsl = "2";
-            else if (valor == 3) rsl = "12";
-            else if (valor == 4) rsl = "X";
-            else if (valor == 5) rsl = "1X";
-            else if (valor == 6) rsl = "X2";
-            else rsl = "1X2";
-            return rsl;
-        }
-
-        // Legacy Valida()
-        private bool Valida(string columna)
-        {
-            int na, sum6, min6, max6, reco6; string temp;
-            sum6 = max6 = 0; min6 = 84;
-            for (int nr = 0; nr < 6; nr++)
-            {
-                na = 0;
-                temp = _scps[nr];
-                for (int nr2 = 0; nr2 < 14; nr2++)
-                {
-                    char chp = temp[nr2];
-                    if (chp == 48) continue;
-                    int ch3 = chp & columna[nr2];
-                    if (ch3 > 48) na++;
-                }
-                if (na < _rks[nr, 0] || na > _rks[nr, 1]) return false;
-                sum6 += na; if (na < min6) min6 = na; if (na > max6) max6 = na;
-            }
-            if (sum6 < _rks[6, 0] || sum6 > _rks[6, 1]) return false;
-            reco6 = max6 - min6;
-            if (reco6 < _rks[7, 0] || reco6 > _rks[7, 1]) return false;
-            return true;
         }
 
         // Legacy VerColumna()
@@ -882,29 +614,6 @@ namespace Free1X2.WinUI.Views.Ported
                 }
             }
             return nx;
-        }
-
-        // Legacy n2s()
-        private static string N2s(int nx, int lim)
-        {
-            string ax = "";
-            for (int nr = 0; nr < lim; nr++)
-            {
-                int nx2 = nx % 3; nx /= 3;
-                switch (nx2)
-                {
-                    case 1:
-                        ax = "1" + ax;
-                        break;
-                    case 2:
-                        ax = "2" + ax;
-                        break;
-                    default:
-                        ax = "X" + ax;
-                        break;
-                }
-            }
-            return ax;
         }
     }
 
