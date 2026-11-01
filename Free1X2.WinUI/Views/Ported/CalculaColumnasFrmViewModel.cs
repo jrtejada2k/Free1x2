@@ -31,8 +31,10 @@ namespace Free1X2.WinUI.Views.Ported;
 ///     ("Calcular"), este ViewModel usa el <see cref="AppState.Analizador"/> compartido, que ya
 ///     lleva el boleto base, los grupos, las condiciones (IFiltro) y el If-Then, además del
 ///     <c>ArchivoColumnasBase</c> fijado por la MainPage si el filtro de columnas está activo.
-///   - Si se abre de forma independiente desde la navegación, construye su PROPIO Analizador y
-///     permite editar los 14 pronósticos (SetPronostico) como combinación abierta ("1,X,2").
+///   - Si se abre desde el menú Combinación, el panel lateral o F5 (sin pasar por la MainPage),
+///     usa igualmente el Analizador compartido y el filtro de columnas de Inicio: en WinForms el
+///     menú siempre pasaba por <c>AbreCalculoColumnasFrm</c>. Antes se creaba aquí un Analizador
+///     propio de 14 triples sin condiciones ni filtro (calculaba siempre 4.782.969 columnas).
 /// El motor se invoca igual que en WinForms; el bucle de cálculo corre en Task.Run y los
 /// contadores se refrescan en el hilo de UI con un DispatcherQueueTimer (equivalente al Timer
 /// de 500 ms del form legacy).
@@ -40,7 +42,6 @@ namespace Free1X2.WinUI.Views.Ported;
 public partial class CalculaColumnasFrmViewModel : ObservableObject
 {
     private readonly Analizador _analizador;
-    private readonly bool _usandoCompartido;
     private long _colsMaximas;
     private CancellationTokenSource? _cts;
 
@@ -129,33 +130,32 @@ public partial class CalculaColumnasFrmViewModel : ObservableObject
 
     public CalculaColumnasFrmViewModel()
     {
-        // Handoff desde la MainPage: si pidió usar el Analizador compartido, lo tomamos (ya lleva
-        // boleto, grupos, condiciones, If-Then y ArchivoColumnasBase). Consumimos la bandera para
-        // que una apertura posterior desde la navegación vuelva a crear uno propio editable.
-        _usandoCompartido = AppState.UsarAnalizadorCompartido;
+        // Siempre el Analizador compartido: lleva el boleto (cada cambio de signo se vuelca al motor),
+        // los grupos, las condiciones y el If-Then de Inicio.
+        _analizador = AppState.Instancia.Analizador;
+        if (!AppState.UsarAnalizadorCompartido)
+        {
+            // Menú, panel lateral o F5: el filtro de columnas de Inicio, como hace Inicio ▸ Calcular
+            // (MainPageViewModel.Calcular) cuando su fichero existe.
+            string filtro = AppState.Instancia.ArchivoFiltroCols;
+            _analizador.ArchivoColumnasBase = !string.IsNullOrEmpty(filtro) && System.IO.File.Exists(filtro) ? filtro : "";
+        }
         AppState.UsarAnalizadorCompartido = false;
 
-        if (_usandoCompartido)
+        if (_analizador.Pronosticos is null)
         {
-            // Usa el motor compartido: los pronósticos ya están fijados desde el boleto. Sólo
-            // reflejamos su estado en la colección (informativo; el cálculo opera sobre el motor).
-            _analizador = AppState.Instancia.Analizador;
-            string[] pron = _analizador.Pronosticos;
-            for (int i = 0; i < pron.Length; i++)
-            {
-                Pronosticos.Add(pron[i]);
-            }
-        }
-        else
-        {
-            // Modo independiente: Analizador propio con los 14 pronósticos a "1,X,2"
-            // (combinación abierta), igual que el estado por defecto del boleto en WinForms.
-            _analizador = new Analizador();
+            // Inicio aún no ha volcado su boleto (p. ej. el smoke abre esta página directamente): el boleto por
+            // defecto de Inicio, 14 triples.
             for (int i = 0; i < Free1X2.VariablesGlobales.NumeroPartidos; i++)
             {
-                Pronosticos.Add("1,X,2");
                 _analizador.SetPronostico(i, "1,X,2");
             }
+        }
+
+        // Informativo: el cálculo opera sobre el motor.
+        foreach (string pron in _analizador.Pronosticos)
+        {
+            Pronosticos.Add(pron);
         }
         RecalcularMaximas();
     }
@@ -181,8 +181,7 @@ public partial class CalculaColumnasFrmViewModel : ObservableObject
     ///   - Si hay <c>ArchivoColumnasBase</c> (filtro de columnas activo): máximas = nº de columnas
     ///     del archivo (ObtenNumCols).
     ///   - Si no: máximas = 2^dobles * 3^triples sobre los pronósticos.
-    /// En modo independiente, además aplica al Analizador los pronósticos editados; en modo
-    /// compartido NO los toca (ya vienen del boleto y de los grupos cargados en la MainPage).
+    /// No toca el Analizador: los pronósticos ya vienen del boleto de Inicio.
     /// </summary>
     public void RecalcularMaximas()
     {
@@ -206,11 +205,6 @@ public partial class CalculaColumnasFrmViewModel : ObservableObject
             for (int i = 0; i < Pronosticos.Count; i++)
             {
                 string p = (Pronosticos[i] ?? "").Replace(",", "");
-                // En modo independiente, aplica el pronóstico editado al Analizador propio.
-                if (!_usandoCompartido)
-                {
-                    _analizador.SetPronostico(i, Pronosticos[i] ?? "1,X,2");
-                }
                 if (p.Length == 2) dobles++;
                 if (p.Length == 3) triples++;
             }
