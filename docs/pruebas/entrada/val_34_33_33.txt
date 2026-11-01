@@ -1,0 +1,15 @@
+Part.	Partido	1	X	2
+1	Partido 1	34	33	33
+2	Partido 2	34	33	33
+3	Partido 3	34	33	33
+4	Partido 4	34	33	33
+5	Partido 5	34	33	33
+6	Partido 6	34	33	33
+7	Partido 7	34	33	33
+8	Partido 8	34	33	33
+9	Partido 9	34	33	33
+10	Partido 10	34	33	33
+11	Partido 11	34	33	33
+12	Partido 12	34	33	33
+13	Partido 13	34	33	33
+14	Partido 14	34	33	33

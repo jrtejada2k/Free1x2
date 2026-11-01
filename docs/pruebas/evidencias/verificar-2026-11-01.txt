@@ -1,0 +1,42 @@
+OK  I1    2 columnas                     Inicio: boleto pequeño + Variantes + Signos seguidos, «Grabar archivo»
+OK  I2    1435 columnas (mismo contenido, otro orden) Inicio: 6 triples y 2 dobles + condiciones
+OK  I3    136 columnas                   Inicio: I2 + filtro de columnas filtro_medio.txt (repetidas incluidas)
+MAL I4    4782969 columnas, se esperaban 136; sobran ['11111111111111', '11111111111112', '1111111111111X'] I3 abriendo «Calcular columnas» desde el panel lateral
+MAL I5    4 columnas, se esperaban 3; sobran ['11111111111111'] 14 triples sin condiciones + filtro con una línea en blanco
+OK  F1a   3 columnas (mismo contenido, otro orden) Combinar filtros A+B+C, mínimo 2 máximo 3
+OK  F1b   2 columnas                     Combinar filtros, 1–1
+OK  F1c   1 columnas                     Combinar filtros, 3–3
+OK  F1d   3 columnas (mismo contenido, otro orden) Combinar filtros, 2–99
+OK  F1e   1 columnas                     Combinar filtros con B desactivado, 2–3
+OK  F2a   3 columnas (mismo contenido, otro orden) Diferencias entre filtros: F2_1 + F2_2 (Difs 1100, Mín 1)
+OK  F2b   2 columnas (mismo contenido, otro orden) Diferencias: Difs 0010
+OK  F2c   1 columnas                     Diferencias: Difs 1000
+OK  F2d   1 columnas                     Diferencias: + F2_3 (Difs 0100, Mín 2)
+OK  F3a   5 columnas (mismo contenido, otro orden) Coincidencias 1-9;0-9
+OK  F3b   4 columnas (mismo contenido, otro orden) Coincidencias 1-9;5-9
+OK  F3c   4 columnas (mismo contenido, otro orden) Coincidencias 1-9;5-9 y 1-3;0-3
+OK  F4    2 columnas (mismo contenido, otro orden) Aidomnou 60/25/15, C6 10-14, suma 60-84
+·  F5    sin salida            Pim 60/25/15, rangos por defecto (algoritmo del WinForms original)
+OK  R1a   3 columnas                     Reductor 2 triples a 13 (método menos tiempo)
+OK  R1b   3 columnas                     Reductor 2 triples a 13 (método menos columnas)
+OK  R1c   3 columnas                     Reductor 2 triples a 13 (método grandes archivos)
+OK  R2    48 columnas                    Inicio I2 ▸ Reducir a 12 (menos tiempo) ▸ Guardar resultado
+OK  R3    95 columnas                    Máscara JD-01 ▸ Reducir a 13 (menos columnas)
+OK  E1    2 columnas                     Escrutinio simple, «Guardar Todas» las premiadas
+OK  E3    6843 columnas                  Escrutinio de 177.147 columnas, «Guardar Todas» las premiadas (14: 1, 13: 22, 12: 220, 11: 1320, 10: 5280)
+OK  O1-0  3 columnas                     Álgebra: elimina repetidas de 1
+OK  O1-1  4 columnas                     Álgebra: suma sin repetidas
+OK  O1-2  2 columnas                     Álgebra: comunes (como el original: en el orden de 2 y con sus repetidas)
+OK  O1-3  2 columnas                     Álgebra: resta (1)-(2)
+OK  O2    1 columnas                     Transposición 14..1
+OK  O3    2 columnas                     Multiplicador con la plantilla por defecto
+MAL O4    5 ficheros, 8 de 10 líneas     Fraccionador por tramos (4): los 4 ficheros juntos = las 10 líneas
+OK  O5a   28 columnas (mismo contenido, otro orden) Subir categoría, nivel 1
+OK  O5b   29 columnas (mismo contenido, otro orden) Subir categoría, niveles 0 y 1
+OK  O6a   2 columnas                     Rotación: partido 1 «1 → X», sin corrección
+OK  O6b   4 columnas                     Rotación: con corrección de fallos
+OK  W18a  1 columnas                     Ordenar por probabilidad, premio de 14 entre 1.000 y 2.000
+OK  W18b  1 columnas                     Ordenar por probabilidad, entre 2.000.000 y 3.000.000
+OK  W19   2 columnas                     Banco de pruebas: filtro «Nº de veces 13» 1–1 y Grabar las seleccionadas
+
+36 bien, 3 mal, 1 sin salida

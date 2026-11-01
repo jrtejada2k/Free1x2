@@ -1,0 +1,15 @@
+Part.	Partido	1	X	2
+1	Partido 1	60	25	15
+2	Partido 2	60	25	15
+3	Partido 3	60	25	15
+4	Partido 4	60	25	15
+5	Partido 5	60	25	15
+6	Partido 6	60	25	15
+7	Partido 7	60	25	15
+8	Partido 8	60	25	15
+9	Partido 9	60	25	15
+10	Partido 10	60	25	15
+11	Partido 11	60	25	15
+12	Partido 12	60	25	15
+13	Partido 13	60	25	15
+14	Partido 14	60	25	15

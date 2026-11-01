@@ -29,7 +29,7 @@ Programa libre bajo **GPLv3**, derivado del Free1X2 original de Joan Duatis.
 | **`Free1X2.WinUI/`** | **Aplicación principal.** 110 páginas en `Views/Ported/`, registradas en `Navigation/PortedPages.cs` (110 entradas). Shell en `MainWindow.xaml.cs` (panel lateral `NavigationView` con buscador + barra `CommandBar` con texto), inicio en `App.xaml.cs`, servicios en `Services/` (`Log`, `TemaApp`, `IdiomaApp`, `PickerHelper`, `QuinielaOnlineService`, `JornadaCache`, `PaisesOnline`, `AppServices`, `AppState`, `DescargaJornada`, `MascarasInicio`, `ColumnasInicioServicio`, `ParametrosLAEActuales` (precio/recaudación de Configuración: España o Progol según el país de la jornada), `PegarPorcentajes`). Datos de fábrica en `Datos/Semillas/` (se copian al arrancar solo si faltan). |
 | **`Free1X2.Domain/`** | **Motor completo**, libre de UI: `MotorCalculo/`, `Reduccion/`, `Escrutinio/`, `EntradaSalida/`, `Analisis/`, `Utils/`, `SubirCategoria/`, `Online/`, `Mascaras/` (máscaras y base de ganadoras por liga), `VariablesGlobales.cs`. Desacople de UI vía `Abstractions/UiHooks.cs` (`UiPump`, `UserDialogs`, `AnalisisUi`). |
 | **`Free1X2/`** | UI **WinForms legacy** = **referencia de comportamiento**. Congelado en **0.77.2** por diseño (`Free1X2/Free1X2.csproj:11-12`). Ya no aloja el motor: solo quedan `UI/`, `Program.cs`, `Infraestructura/`, `Analisis/AnalisisCombinacion.cs` y 4 ficheros en `Utils/` (`Grafico.cs`, `ControlCompatibility.cs`, `ValidadorCaracteres.cs`, `CompresorZip.cs`). |
-| **`Free1X2.Domain.Tests/`** | **188 tests**: los **138** golden-master del motor (89 `[Fact]` + 49 casos `[InlineData]`), red de seguridad de toda optimización y que no se tocan, más **50** de las tareas W1–W22 de `docs/TAREAS_WINDOWS.md` (`RotacionTests`, `JornadaTests`, `MascarasTests`, `HistoricoTests`, `ColumnasInicioTests`, `EsperanzaTests`, `PrecioConfigurableTests`, `GanadoraImportadaTests`, `IntervaloPremio14Tests`, `BancoPruebasTablaTests`, `SemillasHistoricasTests`, `ParametrosProgolTests`). |
+| **`Free1X2.Domain.Tests/`** | **205 tests**: los **138** golden-master del motor (89 `[Fact]` + 49 casos `[InlineData]`), red de seguridad de toda optimización y que no se tocan, más **67** nuevos: los de las tareas W1–W22 de `docs/TAREAS_WINDOWS.md` (`RotacionTests`, `JornadaTests`, `MascarasTests`, `HistoricoTests`, `ColumnasInicioTests`, `EsperanzaTests`, `PrecioConfigurableTests`, `GanadoraImportadaTests`, `IntervaloPremio14Tests`, `BancoPruebasTablaTests`, `SemillasHistoricasTests`, `ParametrosProgolTests`), los de los arreglos de octubre (`EscrutadorParaleloTests`, `OrdenacionPropiaTests`, `PremiadasEnDiscoTests`, `ProbabilidadPremiosParaleloTests`, `QuitarGrupoTests`) y `FiltroPimTests`. |
 
 Además, fuera de la solución: **`Free1X2.Mac/`** (la app nativa para Mac en Swift, con su CI en `.github/workflows/mac.yml`; no se toca desde Windows), `docs/` (documentación vigente), `scripts/` (build, publish, smoke,
 stub de la API), `tools/`, y carpetas `Free1X2.Shared/` y `Free1X2.WebAPI/` que **no** están
@@ -42,7 +42,7 @@ referenciadas en `Free1X2.sln`.
 dotnet build Free1X2.WinUI/Free1X2.WinUI.csproj -c Debug -p:Platform=x64   # 0 errores
 
 # Tests del motor
-dotnet test  Free1X2.Domain.Tests/Free1X2.Domain.Tests.csproj              # 188/188
+dotnet test  Free1X2.Domain.Tests/Free1X2.Domain.Tests.csproj              # 205/205
 
 # Smoke de carga de las 111 superficies (110 páginas + MainPage)
 $env:FREE1X2_SMOKE = '1'
@@ -103,4 +103,5 @@ Y, además:
 | [`docs/PLAN_MEJORAS.md`](docs/PLAN_MEJORAS.md) | Plan de mejoras post-v0.82.0 (fases F1–F6, con evidencia `file:line`). |
 | [`docs/TAREAS_WINDOWS.md`](docs/TAREAS_WINDOWS.md) | Especificación W1–W22 para igualar Windows con la app Mac (hecha). |
 | [`docs/FAQ.md`](docs/FAQ.md) | Preguntas frecuentes (Windows y Mac). |
+| [`docs/PRUEBAS_WINDOWS.md`](docs/PRUEBAS_WINDOWS.md) | Pruebas funcionales de la app (columnas y resultados reales) y su verificador `scripts/pruebas_windows.py`; resultados en `docs/pruebas/`. |
 | `docs/web/` | `manual.html` y `faq.html` para clubprogol.com/docwk/: se regeneran con `python scripts/md-a-wordpress.py`. |

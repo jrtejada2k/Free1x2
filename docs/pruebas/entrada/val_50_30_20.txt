@@ -1,0 +1,15 @@
+Part.	Partido	1	X	2
+1	Partido 1	50	30	20
+2	Partido 2	50	30	20
+3	Partido 3	50	30	20
+4	Partido 4	50	30	20
+5	Partido 5	50	30	20
+6	Partido 6	50	30	20
+7	Partido 7	50	30	20
+8	Partido 8	50	30	20
+9	Partido 9	50	30	20
+10	Partido 10	50	30	20
+11	Partido 11	50	30	20
+12	Partido 12	50	30	20
+13	Partido 13	50	30	20
+14	Partido 14	50	30	20
