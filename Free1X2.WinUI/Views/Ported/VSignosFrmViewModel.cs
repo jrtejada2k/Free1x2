@@ -32,12 +32,13 @@ public partial class CasillaColumnaGanadora : ObservableObject
 /// </summary>
 public sealed class RecuentoSignoFila
 {
+    // Texto de cada casilla: recuento en «columnas», porcentaje en los modos % (PintaPantalla legacy).
     public int Partido { get; }
-    public int Unos { get; }
-    public int Equis { get; }
-    public int Doses { get; }
+    public string Unos { get; }
+    public string Equis { get; }
+    public string Doses { get; }
 
-    public RecuentoSignoFila(int partido, int unos, int equis, int doses)
+    public RecuentoSignoFila(int partido, string unos, string equis, string doses)
     {
         Partido = partido;
         Unos = unos;
@@ -193,8 +194,12 @@ public partial class VSignosFrmViewModel : ObservableObject
         NumeroPartidos = _noPartidos;
         // Legacy: AdaptarVariables() -> vals = new int[noPartidos,3].
         _vals = new int[_noPartidos, 3];
-        // Legacy: AdaptarVistaAPartidos() redimensiona la columna ganadora editable.
+        // Legacy: AdaptarVistaAPartidos() redimensiona la columna ganadora editable, marca el Pleno
+        // solo con 15 o más partidos y pone la aspiración (lbasp) al nº de partidos
+        // (Free1X2/UI/VSignosFrm.cs líneas 131-148).
         AdaptarColumnaGanadora();
+        ConsiderarPleno = _noPartidos >= 15;
+        Aspiracion = _noPartidos;
 
         // Legacy: EntradaFichero() llama a Calcular() automáticamente tras abrir.
         await CalcularAsync();
@@ -268,12 +273,7 @@ public partial class VSignosFrmViewModel : ObservableObject
         _vals = vals;
         _hayResultado = true;
 
-        // Proyecta vals[noPartidos,3] a la rejilla de recuentos (solo presentación).
-        Recuentos.Clear();
-        for (int nr = 0; nr < noPartidos; nr++)
-        {
-            Recuentos.Add(new RecuentoSignoFila(nr + 1, vals[nr, 0], vals[nr, 1], vals[nr, 2]));
-        }
+        PintarRecuentos();
 
         ColumnasProcesadasTexto = "Procesadas: " + ctproc;
         string temp = (DateTime.Now - time0) + "0000000000";
@@ -327,9 +327,13 @@ public partial class VSignosFrmViewModel : ObservableObject
                         double v1 = (_vals[nr, 0] / sum) * 1e2;
                         double vx = (_vals[nr, 1] / sum) * 1e2;
                         double v2 = (_vals[nr, 2] / sum) * 1e2;
-                        string fmt = decimales ? "f2" : "f0";
-                        sw.WriteLine(string.Format(inv, "{0}, {1}, {2}",
-                            v1.ToString(fmt, inv), vx.ToString(fmt, inv), v2.ToString(fmt, inv)));
+                        // Legacy (VSignosFrm.cs líneas 193-205): "{0:f0}, {1:f0}, {2:f0}" o, con
+                        // decimales, "{0:f2}<TAB>{1:f2}<TAB>{2:f2}" con la cultura del sistema.
+                        if (decimales)
+                            sw.WriteLine("{0:f2}\t{1:f2}\t{2:f2}", v1, vx, v2);
+                        else
+                            sw.WriteLine(string.Format(inv, "{0}, {1}, {2}",
+                                v1.ToString("f0", inv), vx.ToString("f0", inv), v2.ToString("f0", inv)));
                     }
                 }
             });
@@ -337,6 +341,37 @@ public partial class VSignosFrmViewModel : ObservableObject
         catch (Exception ex)
         {
             AppServices.MostrarError("Error al grabar el resultado: " + ex.Message);
+        }
+    }
+
+    // Legacy: RbcolCheckedChanged -> PintaPantalla(): al cambiar de modo se vuelve a pintar la rejilla.
+    partial void OnModoPresentacionChanged(string value)
+    {
+        if (_hayResultado) PintarRecuentos();
+    }
+
+    /// <summary>
+    /// Pinta la rejilla de recuentos por partido (legacy: VSignosFrm.PintaPantalla, líneas 333-372):
+    /// en «% enteros» y «% con decimales» el porcentaje de cada signo redondeado a 0 o 2 decimales;
+    /// en «columnas», el recuento.
+    /// </summary>
+    private void PintarRecuentos()
+    {
+        string? fmt = ModoPresentacion switch
+        {
+            "% enteros" => "{0:f0}",
+            "% con decimales" => "{0:f2}",
+            _ => null,
+        };
+        Recuentos.Clear();
+        for (int nr = 0; nr < _vals.GetLength(0); nr++)
+        {
+            double sum = _vals[nr, 0] + _vals[nr, 1] + _vals[nr, 2];
+            if (sum == 0) sum = 1;
+            string Celda(int j) => fmt is null
+                ? _vals[nr, j].ToString()
+                : Convert.ToDouble(string.Format(fmt, (_vals[nr, j] / sum) * 1e2)).ToString();
+            Recuentos.Add(new RecuentoSignoFila(nr + 1, Celda(0), Celda(1), Celda(2)));
         }
     }
 

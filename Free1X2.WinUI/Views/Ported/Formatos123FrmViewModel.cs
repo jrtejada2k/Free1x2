@@ -191,6 +191,8 @@ public partial class Formatos123FrmViewModel : FiltroArchivoViewModelBase
     }
 
     // Construye la lista de formatos válidos (CompruebaEntradas + AñadirFormato, líneas 116-155).
+    // Como el original, la primera fila no válida corta la lectura (break, línea 128): las
+    // siguientes se descartan. Las filas con el formato vacío se saltan.
     private List<Formato123> ConstruirFormatos()
     {
         var lista = new List<Formato123>();
@@ -198,14 +200,14 @@ public partial class Formatos123FrmViewModel : FiltroArchivoViewModelBase
         {
             string formato = (item.Formato ?? "").Trim();
             if (formato == "") continue;
-            if (!FormatoEsValido(formato)) continue;
+            if (!FormatoEsValido(formato)) break;
 
             var f = new Formato123 { Formato = formato };
             if (!IgnorarRepeticiones)
             {
                 // Si no se ignoran repeticiones, min/max deben ser enteros válidos.
-                if (!int.TryParse((item.AciertosMin ?? "").Trim(), out int min)) continue;
-                if (!int.TryParse((item.AciertosMax ?? "").Trim(), out int max)) continue;
+                if (!int.TryParse((item.AciertosMin ?? "").Trim(), out int min)) break;
+                if (!int.TryParse((item.AciertosMax ?? "").Trim(), out int max)) break;
                 f.AciertosMin = min;
                 f.AciertosMax = max;
             }
@@ -287,9 +289,13 @@ public partial class Formatos123FrmViewModel : FiltroArchivoViewModelBase
     {
         // Equivale a Formatos123Frm.btnAnalisis_Click (Free1X2/UI/Filtros/Formatos123Frm.cs
         //   líneas 925-937): si el filtro tiene formatos, abre AnalisisFormatos123Frm con
-        //   analisisff.ArrayFormatos = this.filtro.ArrayFormatos; si no, avisa.
-        var arrayFormatos = ConstruirFormatos();
-        if (arrayFormatos.Count == 0)
+        //   analisisff.ArrayFormatos = this.filtro.ArrayFormatos; si no, avisa. this.filtro es el
+        //   filtro del grupo (líneas 71, 565): se usan los formatos guardados, no los de pantalla.
+        var grupo = AppState.GrupoEnEdicion;
+        var arrayFormatos = grupo is null
+            ? new List<Formato123>()
+            : ((FiltroFormatos123)grupo.GetFiltro(Filtro.Formatos123.ToString())).ArrayFormatos;
+        if (arrayFormatos is null || arrayFormatos.Count == 0)
         {
             // Legacy: MessageBox.Show("Guarde el Filtro Primero!!!").
             AppServices.MostrarInfo("Guarde el Filtro Primero!!!");

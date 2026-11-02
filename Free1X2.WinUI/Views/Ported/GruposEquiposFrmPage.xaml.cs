@@ -1,4 +1,5 @@
 // Free1X2 · WinUI 3 — WIN3
+using Free1X2.WinUI.Services;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 
@@ -15,7 +16,7 @@ namespace Free1X2.WinUI.Views.Ported;
 /// </summary>
 public sealed partial class GruposEquiposFrmPage : Page
 {
-    public GruposEquiposFrmViewModel ViewModel { get; } = new();
+    public GruposEquiposFrmViewModel ViewModel { get; private set; } = new();
 
     public GruposEquiposFrmPage()
     {
@@ -28,12 +29,25 @@ public sealed partial class GruposEquiposFrmPage : Page
     protected override void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
-        // Al volver del visor de estadísticas (NavigationMode.Back) NO recargamos: recargar desde el
-        // grupo borraría la edición en curso (incluida una condición recién abierta de disco). Sólo en
-        // la entrada normal (New / navegación hacia delante) cargamos los datos del grupo en edición.
-        if (e.NavigationMode != NavigationMode.Back)
+        // Al volver de una pantalla auxiliar (Estadísticas…) se recupera el ViewModel que había, con lo
+        // editado y no aceptado: en el original esas pantallas eran diálogos encima del formulario.
+        // En la entrada normal (o si no hay nada pendiente) se carga el grupo (MarcarValores legacy).
+        if (EdicionPendiente.Recuperar<GruposEquiposFrmViewModel>(this, e) is { } pendiente)
+        {
+            pendiente.Volver = ViewModel.Volver;
+            pendiente.Navegar = ViewModel.Navegar;
+            ViewModel = pendiente;
+            Bindings.Update();
+        }
+        else
         {
             ViewModel.CargarDesdeGrupo();
         }
+    }
+
+    protected override void OnNavigatedFrom(NavigationEventArgs e)
+    {
+        base.OnNavigatedFrom(e);
+        EdicionPendiente.Guardar(this, ViewModel, e);
     }
 }

@@ -1,4 +1,5 @@
 // Free1X2 · WinUI 3 — WIN3
+using Free1X2.WinUI.Services;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 
@@ -14,7 +15,7 @@ namespace Free1X2.WinUI.Views.Ported;
 /// </summary>
 public sealed partial class SignosSeguidosFrmPage : Page
 {
-    public SignosSeguidosFrmViewModel ViewModel { get; } = new();
+    public SignosSeguidosFrmViewModel ViewModel { get; private set; } = new();
 
     public SignosSeguidosFrmPage()
     {
@@ -26,15 +27,26 @@ public sealed partial class SignosSeguidosFrmPage : Page
     protected override void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
-        // Al volver del editor de figuras o del visor de estadísticas (NavigationMode.Back)
-        // sólo refrescamos los indicadores de figuras; recargar desde el grupo borraría la edición.
-        if (e.NavigationMode == NavigationMode.Back)
+        // Al volver del editor de figuras o del visor de estadísticas se recupera el ViewModel que había,
+        // con lo editado y las listas de figuras que el editor acaba de rellenar, y se refrescan los
+        // indicadores. En el original eran diálogos encima del formulario. En la entrada normal se carga el grupo.
+        if (EdicionPendiente.Recuperar<SignosSeguidosFrmViewModel>(this, e) is { } pendiente)
         {
+            pendiente.Volver = ViewModel.Volver;
+            pendiente.Navegar = ViewModel.Navegar;
+            ViewModel = pendiente;
             ViewModel.RefrescarFiguras();
+            Bindings.Update();
         }
         else
         {
             ViewModel.CargarDesdeGrupo();
         }
+    }
+
+    protected override void OnNavigatedFrom(NavigationEventArgs e)
+    {
+        base.OnNavigatedFrom(e);
+        EdicionPendiente.Guardar(this, ViewModel, e);
     }
 }

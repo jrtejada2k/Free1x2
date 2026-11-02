@@ -178,8 +178,10 @@ public partial class ValoracionFrmViewModel : FiltroArchivoViewModelBase
 
         if (string.IsNullOrEmpty(Columna) || Columna.Length < VariablesGlobales.NumeroPartidos)
         {
-            // El form legacy muestra un MessageBox y de todas formas prepara los valores
-            // (para refrescar Mín-Máx). Aquí solo se preparan; el aviso lo dará la UI si procede.
+            // El form legacy muestra el aviso y de todas formas prepara los valores (para refrescar
+            // Mín-Máx). Su título era «Error de calculo»; aquí sale con el del diálogo de error.
+            AppServices.MostrarError("Introducir columna de " + VariablesGlobales.NumeroPartidos +
+                " signos para el calculo.");
             PrepararValores();
             return;
         }
