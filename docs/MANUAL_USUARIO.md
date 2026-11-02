@@ -876,7 +876,7 @@ Genera una **"reducción perfecta"** a partir de una **columna base** (un signo 
 ### Dependencia lineal
 Recalcula el signo de un **partido a tratar** como **combinación lineal** (módulo 3 ó 2) de los signos del resto de partidos, ponderados por unos coeficientes que defines, y reescribe el archivo de columnas con el resultado.
 
-> **Nota sobre el estado de algunas utilidades (Windows).** En la versión WinUI 3 actual, varias de estas pantallas (entre ellas Multiplicador, Fraccionador, Transposición, Álgebra, Reductor, Compresor, Reducciones perfectas, Dependencia lineal y Generador CP) tienen la **interfaz completa** pero parte de su **lógica de cálculo/guardado todavía en proceso de migración**. Si una acción no produce el archivo esperado, es por este motivo (pendiente de detallar/completar), no por un error de uso. En la versión **Mac** estas pantallas tienen ya su lógica completa.
+> **Nota sobre el estado de algunas utilidades (Windows).** En la versión WinUI 3 actual, varias de estas pantallas (entre ellas Reductor, Compresor, Reducciones perfectas y Generador CP) tienen la **interfaz completa** pero parte de su **lógica de cálculo/guardado todavía en proceso de migración**. Si una acción no produce el archivo esperado, es por este motivo (pendiente de detallar/completar), no por un error de uso. En la versión **Mac** estas pantallas tienen ya su lógica completa.
 
 ---
 

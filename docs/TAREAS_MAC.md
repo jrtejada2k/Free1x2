@@ -4,7 +4,8 @@
 ([`docs/PRUEBAS_WINDOWS.md`](PRUEBAS_WINDOWS.md), resultados en [`docs/pruebas/`](pruebas/)) encontraron cuatro errores. Ya
 están corregidos en Windows, y **la app Mac tiene los cuatro**: copió el comportamiento del port de WinUI, que en dos casos
 era un error del port y en otros dos un error del original que las decisiones de la Mac mandaban replicar. Este documento
-dice qué cambiar, dónde está en el Swift y cómo comprobarlo. El dueño ya decidió corregirlos todos; no se vuelve a preguntar.
+dice qué cambiar, dónde está en el Swift y cómo comprobarlo. M5–M8 (2-nov-2026) son las diferencias de las pantallas
+de filtros que se encontraron después. El dueño ya decidió corregirlos todos; no se vuelve a preguntar.
 
 Desde Windows **no se ha tocado** `Free1X2.Mac/`: todas las referencias Swift de abajo se leyeron, no se cambiaron.
 
@@ -135,10 +136,77 @@ En la app es la prueba **O4**: `O4_diez.txt` en 4 tramos ⇒ los 4 ficheros junt
   Hay dos salidas. Una es corregir el manual (y `docs/FAQ.md` y `docs/web/`). La otra es aceptar rangos en las dos apps:
   la pantalla expande `2-6` a `2,3,4,5,6` antes de pasarlo al motor, y así el motor no cambia.
 
-## Pendiente de añadir
+## M5–M8 · Pantallas de filtros: lo que el port hacía distinto del original (2-nov-2026)
 
-Las pruebas con datos de los filtros que faltaban están en curso en Windows. Son 20 pantallas del grupo Filtros, más
-Columnas probables, Pesos numéricos y Grupos de equipos. Lo que salga y afecte a la Mac se añadirá aquí como M5, M6…
+Al preparar las pruebas con datos de los filtros que faltaban ([`docs/pruebas/filtros/`](pruebas/filtros/README.md)) se
+leyó cada pantalla contra el original WinForms y aparecieron diferencias del port. En Windows están corregidas
+(commits `4b882b7`, `f97317a`, `ec6683e`, `a6f50cc`), y la Mac tiene casi todas, porque copió el port. Las rutas Swift
+son de una lectura, no se han ejecutado. Arreglar = hacer lo que hacía el original: el C# de cada commit dice qué; los
+textos de los avisos, los del original.
+
+Abreviaturas: **Kit** = `Packages/Free1X2Kit/Sources/Free1X2CasosDeUso/`; **App** = `App/Pantallas/`.
+
+### M5 · Grupo A (Distancias, Simetrías, Contactos, Figuras) — commit `4b882b7`
+
+- **Contactos, fila vacía:** «todos» debe ser 0…14 (`numeroPartidos`), no 0…15. Kit `Condiciones/ContactosDibujos.swift:16`.
+  Prueba FA3b ⇒ **134**.
+- **Contactos, «Borrar»:** debe poner un filtro nuevo (vacío) en el grupo, no solo vaciar la pantalla.
+  App `Condiciones/ContactosDibujos.swift:31-34`. En Windows queda **inactivo** (el original lo dejaba activo y entonces
+  «Borrar» + «Cancelar» rechazaba todas las columnas).
+- **Simetrías, Aceptar con una entrada no válida:** mostrar el aviso del original («Verifique que ha introducido una
+  simetria correcta…»). Kit `Condiciones/SignosSimetrias.swift:96` devuelve false en silencio; App `Condiciones/Simetrias.swift:39-41`.
+- **Distancias:** el rótulo dice «(0–15)» y el 15 no vale: «(0–14)». App `Condiciones/DistanciasInterrupciones.swift:24`.
+- **Editor de figuras:** no cortar a 6 caracteres (`9-5-4-2-2-2-1-1-1` es válida) y la ayuda no debe hablar de comodín.
+  App `Condiciones/SignosSeguidos.swift:83,92,96`.
+
+### M6 · Grupo B (Formatos 123, Valoración, Análisis de signos) — commit `f97317a`
+
+- **Formatos 123, fila no válida:** el original **para** en la primera fila no válida y no lee las siguientes; la Mac la
+  salta. Kit `Condiciones/Formatos123.swift:24-31` (`compactMap`).
+- **Formatos 123 ▸ Analizador:** debe usar los formatos **guardados** del grupo; sin guardar, aviso «Guarde el Filtro
+  Primero!!!». App `Condiciones/Formatos.swift:95-99` usa los de pantalla.
+- **Valoración ▸ «Calcula»** con una columna de menos de 14 signos: aviso «Introducir columna de 14 signos para el
+  calculo.». App `Condiciones/Valoracion.swift:107-120`, Kit `Condiciones/Valoracion.swift:83`.
+- **Análisis de signos, al abrir un fichero:** Pleno = Sí solo con 15 o más signos, y aspiración = nº de signos.
+  App `Utilidades/Signos.swift:9-10,20-30`.
+- **Análisis de signos, «% con decimales»:** el original graba `a<TAB>b<TAB>c` con la cultura del sistema (`83,33`),
+  no `a, b, c`. Kit `Utilidades/Signos.swift:72-78`.
+- **Análisis de signos, rejilla:** en los modos % muestra %, no recuentos. App `Utilidades/Signos.swift:65`.
+- La vuelta atrás que en Windows vaciaba las condiciones (H1) **parece** correcta en la Mac (`@State` en la pila de
+  navegación); compruébalo con FB2: Saca formatos ▸ volver ▸ la condición sigue ahí.
+
+### M7 · Grupo C (Columnas probables, Grupos de equipos, If-Then, Tríos, Dependencia lineal) — commit `ec6683e`
+
+- **Columnas probables, pronóstico (el más grave):** una caja de 14 caracteres no puede guardar dobles ni triples, y al
+  Aceptar una CP de triples pasa a ser `1X21X21X21X21X`. El original tenía un control 1/X/2 **por partido**.
+  App `Condiciones/ColProbables.swift:108-111,119`; Kit `Condiciones/ColumnasProbables.swift:140` (une) y `:152-156` (relee).
+  Prueba FC13 (CP de 14 triples) ⇒ **216**.
+- **Columnas probables, rangos:** la pista promete `0-14`, pero `10-12` da error. Expandir rangos en la pantalla
+  antes del motor. Kit `Condiciones/ColumnasProbables.swift:160-165`; pista App `Condiciones/ColProbables.swift:123-125`.
+- **Grupos de equipos, ayuda:** «Marcar ambos equivale al empate» es falso: el motor cuenta los dos equipos.
+  App `Condiciones/GruposEquipos.swift:80`.
+- **Grupos de equipos, nombres:** del boleto de Inicio (vacíos si no hay), no de la jornada online.
+  Kit `Condiciones/GruposEquipos.swift:48-51`.
+- **If-Then:** «condiciones que deben cumplirse» mayor que el nº de relaciones: aviso claro antes del motor.
+  `Combinacion.swift:140-144` hoy da un error de dominio poco claro.
+- **Tríos ▸ Analizar:** falta la casilla «Columna Ganadora». App `Utilidades/Grupos.swift:168-169,244`.
+- **Dependencia lineal:** tras grabar debe releer la **entrada**, no la salida. App `Utilidades/Dependencia.swift:69`.
+  Prueba FC12 ⇒ **108**.
+
+### M8 · Grupo D (Tramificar, Control de tolerancias, Listado, GEPT, Separador JB) — commit `a6f50cc`
+
+- **Filtrar por límites:** las Difs. por defecto son las del original (0–4, 1–3, 1–2, 1–1, 1–0, 1–0, 1–1, 1–2, 1–3,
+  0–4), no las de la matriz; filas 9 y 10 a 1–3 y 0–4. Kit `Utilidades/Tramificar.swift:331-334,344,352-353`.
+  (El diálogo en sí ya funciona en la Mac: es una hoja, App `Utilidades/Tramificar.swift:338-343`.)
+- **Control de tolerancias:** solo se guardan las filas con «Tolerancia» **y** «Aciertos». Kit `Condiciones/ControlGrupos.swift:181`.
+- **Listado:** con un If-Then que existe pero está desactivado, el nodo «IfThen» queda vacío; «IfThen no activado» solo
+  si no hay If-Then. Kit `Ver/Listado.swift:65,82-83`.
+- **GEPT:** una sola cabecera «Última vez» sobre local/visitante, y cajas de texto con el aviso «Las letras permitidas
+  son: G,E,P». App `Utilidades/GEPT.swift:22,36-37`.
+- **Separador de porcentajes JB:** falta la rejilla 14×7 del original con los signos por banda y la fila «Nº».
+  App `Utilidades/Filtros.swift:98-160`.
+
+## Otras notas
 
 No se aplican a la Mac, porque son cosas de WinUI: el fichero vacío que deja el selector de Guardar en el Fraccionador y
 los problemas de pantalla de `docs/pruebas/RESULTADOS_2026-11-01.md`.
@@ -148,6 +216,7 @@ los problemas de pantalla de `docs/pruebas/RESULTADOS_2026-11-01.md`.
 Hacen falta las tres cosas:
 - los tests de `Free1X2Kit` en verde, incluidos los nuevos de M2–M4;
 - el CI de `.github/workflows/mac.yml` en verde;
-- la prueba de la app indicada en cada tarea (I4, F5, I5, O4), con su resultado anotado.
+- la prueba de la app indicada en cada tarea (I4, F5, I5, O4; para M5–M8, las de `docs/pruebas/filtros/plan_*.md` con
+  lo esperado de su `README.md`), con su resultado anotado.
 
 Al terminar, marca aquí cada tarea con su commit.

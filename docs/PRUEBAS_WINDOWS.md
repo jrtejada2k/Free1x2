@@ -144,6 +144,9 @@ variantes, X o 2).
 | #11 / #12 / #13 | Probabilidades, Diferencias entre filtros, Coincidencias, Rentabilidad / Ordenar / Banco / Tramificar | Mismos resultados que arriba (F2, F3, W18, W19) |
 | #15 | Inicio ▸ crea un 2.º grupo ▸ Control de grupos que lo nombra ▸ borra ese grupo ▸ Calcular | Calcula sin error y sin apuntar a otro grupo |
 
+Las demás pantallas de Filtros (Distancias, Contactos, Formatos, Columnas probables, Grupos de equipos, If-Then,
+Tramificar…) tienen su plan y su verificador en [`pruebas/filtros/`](pruebas/filtros/README.md).
+
 ## 8. Cómo se registra
 
 Para cada prueba: **OK** o **MAL**, el fichero de `salida\` (si graba) y una captura de pantalla si muestra números.
