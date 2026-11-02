@@ -148,6 +148,8 @@ Abreviaturas: **Kit** = `Packages/Free1X2Kit/Sources/Free1X2CasosDeUso/`; **App*
 
 ### M5 · Grupo A (Distancias, Simetrías, Contactos, Figuras) — commit `4b882b7`
 
+Issue [#22](https://github.com/jrtejada2k/Free1x2/issues/22).
+
 - **Contactos, fila vacía:** «todos» debe ser 0…14 (`numeroPartidos`), no 0…15. Kit `Condiciones/ContactosDibujos.swift:16`.
   Prueba FA3b ⇒ **134**.
 - **Contactos, «Borrar»:** debe poner un filtro nuevo (vacío) en el grupo, no solo vaciar la pantalla.
@@ -160,6 +162,8 @@ Abreviaturas: **Kit** = `Packages/Free1X2Kit/Sources/Free1X2CasosDeUso/`; **App*
   App `Condiciones/SignosSeguidos.swift:83,92,96`.
 
 ### M6 · Grupo B (Formatos 123, Valoración, Análisis de signos) — commit `f97317a`
+
+Issue [#23](https://github.com/jrtejada2k/Free1x2/issues/23).
 
 - **Formatos 123, fila no válida:** el original **para** en la primera fila no válida y no lee las siguientes; la Mac la
   salta. Kit `Condiciones/Formatos123.swift:24-31` (`compactMap`).
@@ -176,6 +180,8 @@ Abreviaturas: **Kit** = `Packages/Free1X2Kit/Sources/Free1X2CasosDeUso/`; **App*
   navegación); compruébalo con FB2: Saca formatos ▸ volver ▸ la condición sigue ahí.
 
 ### M7 · Grupo C (Columnas probables, Grupos de equipos, If-Then, Tríos, Dependencia lineal) — commit `ec6683e`
+
+Issue [#24](https://github.com/jrtejada2k/Free1x2/issues/24).
 
 - **Columnas probables, pronóstico (el más grave):** una caja de 14 caracteres no puede guardar dobles ni triples, y al
   Aceptar una CP de triples pasa a ser `1X21X21X21X21X`. El original tenía un control 1/X/2 **por partido**.
@@ -194,6 +200,8 @@ Abreviaturas: **Kit** = `Packages/Free1X2Kit/Sources/Free1X2CasosDeUso/`; **App*
   Prueba FC12 ⇒ **108**.
 
 ### M8 · Grupo D (Tramificar, Control de tolerancias, Listado, GEPT, Separador JB) — commit `a6f50cc`
+
+Issue [#25](https://github.com/jrtejada2k/Free1x2/issues/25).
 
 - **Filtrar por límites:** las Difs. por defecto son las del original (0–4, 1–3, 1–2, 1–1, 1–0, 1–0, 1–1, 1–2, 1–3,
   0–4), no las de la matriz; filas 9 y 10 a 1–3 y 0–4. Kit `Utilidades/Tramificar.swift:331-334,344,352-353`.
