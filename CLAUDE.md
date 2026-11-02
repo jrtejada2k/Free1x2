@@ -102,6 +102,7 @@ Y, además:
 | [`docs/MANUAL_FLUJOS.md`](docs/MANUAL_FLUJOS.md) | Flujos funcionales y de datos del motor, con enlaces al código. |
 | [`docs/PLAN_MEJORAS.md`](docs/PLAN_MEJORAS.md) | Plan de mejoras post-v0.82.0 (fases F1–F6, con evidencia `file:line`). |
 | [`docs/TAREAS_WINDOWS.md`](docs/TAREAS_WINDOWS.md) | Especificación W1–W22 para igualar Windows con la app Mac (hecha). |
+| [`docs/TAREAS_MAC.md`](docs/TAREAS_MAC.md) | Pendiente para la app Mac: M1–M4, los arreglos de Windows del 1-nov-2026 que la Mac aún no tiene. |
 | [`docs/FAQ.md`](docs/FAQ.md) | Preguntas frecuentes (Windows y Mac). |
 | [`docs/PRUEBAS_WINDOWS.md`](docs/PRUEBAS_WINDOWS.md) | Pruebas funcionales de la app (columnas y resultados reales) y su verificador `scripts/pruebas_windows.py`; resultados en `docs/pruebas/`. |
 | `docs/web/` | `manual.html` y `faq.html` para clubprogol.com/docwk/: se regeneran con `python scripts/md-a-wordpress.py`. |
