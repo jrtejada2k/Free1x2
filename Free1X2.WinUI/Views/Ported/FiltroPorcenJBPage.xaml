@@ -3,6 +3,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="using:Free1X2.WinUI.Controls"
+    xmlns:local="using:Free1X2.WinUI.Views.Ported"
     Background="{StaticResource AppBackgroundBrush}">
 
     <ScrollViewer Padding="10,7">
@@ -141,6 +142,62 @@
                             Style="{StaticResource SecondaryTextBlockStyle}"
                             Text="{x:Bind ViewModel.FicheroRangos, Mode=OneWay}" />
                     </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Signos por banda (legacy PintaPantalla, FiltroPorcenJB.cs:278-385): rejilla 14 x 7 con
+                 los signos de cada partido en cada banda y, abajo, los partidos con signo en cada una
+                 (lq1…lq7). Se repinta al cambiar los porcentajes, al Calcular y al Analizar. -->
+            <Border Style="{StaticResource AppCardStyle}">
+                <StackPanel Spacing="5">
+                    <TextBlock
+                        Style="{StaticResource CardTitleTextBlockStyle}"
+                        Text="Signos por banda" />
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="40" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="1" HorizontalAlignment="Center" Text="Banda 1" Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Column="2" HorizontalAlignment="Center" Text="Banda 2" Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Column="3" HorizontalAlignment="Center" Text="Banda 3" Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Column="4" HorizontalAlignment="Center" Text="Banda 4" Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Column="5" HorizontalAlignment="Center" Text="Banda 5" Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Column="6" HorizontalAlignment="Center" Text="Banda 6" Style="{StaticResource SecondaryTextBlockStyle}" />
+                        <TextBlock Grid.Column="7" HorizontalAlignment="Center" Text="Banda 7" Style="{StaticResource SecondaryTextBlockStyle}" />
+                    </Grid>
+                    <ItemsControl ItemsSource="{x:Bind ViewModel.SignosPorBanda}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="local:FilaBandasJB">
+                                <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="40" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="{x:Bind Etiqueta}" Style="{StaticResource SecondaryTextBlockStyle}" />
+                                <TextBlock Grid.Column="1" HorizontalAlignment="Center" Text="{x:Bind Banda1, Mode=OneWay}" />
+                                <TextBlock Grid.Column="2" HorizontalAlignment="Center" Text="{x:Bind Banda2, Mode=OneWay}" />
+                                <TextBlock Grid.Column="3" HorizontalAlignment="Center" Text="{x:Bind Banda3, Mode=OneWay}" />
+                                <TextBlock Grid.Column="4" HorizontalAlignment="Center" Text="{x:Bind Banda4, Mode=OneWay}" />
+                                <TextBlock Grid.Column="5" HorizontalAlignment="Center" Text="{x:Bind Banda5, Mode=OneWay}" />
+                                <TextBlock Grid.Column="6" HorizontalAlignment="Center" Text="{x:Bind Banda6, Mode=OneWay}" />
+                                <TextBlock Grid.Column="7" HorizontalAlignment="Center" Text="{x:Bind Banda7, Mode=OneWay}" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </StackPanel>
             </Border>
 

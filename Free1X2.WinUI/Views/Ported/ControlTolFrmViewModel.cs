@@ -87,7 +87,7 @@ namespace Free1X2.WinUI.Views.Ported
 
         /// <summary>
         /// Equivale a ControlTolFrm.BtnOKClick: construye la lista final de
-        /// ToleranciaFiltros tomando solo las filas con Aciertos != "" y la asigna al
+        /// ToleranciaFiltros tomando solo las filas con LetrasTol != "" y Aciertos != "" y la asigna al
         /// ControladorTol del grupo, junto con los fallos permitidos. Luego cierra.
         /// </summary>
         [RelayCommand]
@@ -97,8 +97,9 @@ namespace Free1X2.WinUI.Views.Ported
 
             foreach (ToleranciaItem item in Tolerancias)
             {
-                // legacy: solo se conservan filas con Aciertos no vacío.
-                if (!string.IsNullOrEmpty(item.Aciertos))
+                // legacy: ObtenArrayControlFallos solo toma filas con «Tolerancia» no vacía
+                // (ControlTolFrm.cs:137) y BtnOKClick, de ellas, las de Aciertos no vacío (:299).
+                if (!string.IsNullOrEmpty(item.LetrasTol) && !string.IsNullOrEmpty(item.Aciertos))
                 {
                     var tol = new ToleranciaFiltros
                     {

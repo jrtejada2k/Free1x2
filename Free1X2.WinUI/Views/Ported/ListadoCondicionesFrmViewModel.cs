@@ -140,27 +140,32 @@ namespace Free1X2.WinUI.Views.Ported
             // ===== IfThen =====
             var nodoIfThen = nodoPrincipal.AgregarHijo("IfThen");
             ControladorIfThen? ifThen = analizador.IfThen;
-            if (ifThen != null && ifThen.EsActivo)
+            // Legacy (ListadoCondicionesFrm.cs:722-769): «IfThen no activado» solo si no hay IfThen;
+            // uno existente pero desactivado deja el nodo «IfThen» sin hijos.
+            if (ifThen != null)
             {
-                var nodoIfThenConds = nodoIfThen.AgregarHijo("Condiciones Relacionadas");
-                foreach (CondicionIfThen cond in ifThen.ControlesCondiciones)
+                if (ifThen.EsActivo)
                 {
-                    var nodoCond = nodoIfThenConds.AgregarHijo("Condición");
-                    nodoCond.AgregarHijo("Si se da: " + cond.CondIf);
-                    nodoCond.AgregarHijo("Entonces: " + cond.CondThen);
-                }
-                nodoIfThenConds.AgregarHijo("Condiciones que se cumplen: " + ifThen.RangoAciertoCondiciones);
-
-                if (ifThen.ControlesGrupos.Count > 0)
-                {
-                    var nodoIfThenGrupos = nodoIfThen.AgregarHijo("Grupos Relacionados");
-                    foreach (GrupoIfThen gr in ifThen.ControlesGrupos)
+                    var nodoIfThenConds = nodoIfThen.AgregarHijo("Condiciones Relacionadas");
+                    foreach (CondicionIfThen cond in ifThen.ControlesCondiciones)
                     {
-                        var nodoGr = nodoIfThenGrupos.AgregarHijo("Grupos");
-                        nodoGr.AgregarHijo("Si el grupo " + gr.NumGrupoIf + " es " + gr.NoIf);
-                        nodoGr.AgregarHijo("Entonces el grupo: " + gr.NumGrupoThen + " debe ser " + gr.NoThen);
+                        var nodoCond = nodoIfThenConds.AgregarHijo("Condición");
+                        nodoCond.AgregarHijo("Si se da: " + cond.CondIf);
+                        nodoCond.AgregarHijo("Entonces: " + cond.CondThen);
                     }
-                    nodoIfThenGrupos.AgregarHijo("Grupos que se cumplen: " + ifThen.RangoAciertoGrupos);
+                    nodoIfThenConds.AgregarHijo("Condiciones que se cumplen: " + ifThen.RangoAciertoCondiciones);
+
+                    if (ifThen.ControlesGrupos.Count > 0)
+                    {
+                        var nodoIfThenGrupos = nodoIfThen.AgregarHijo("Grupos Relacionados");
+                        foreach (GrupoIfThen gr in ifThen.ControlesGrupos)
+                        {
+                            var nodoGr = nodoIfThenGrupos.AgregarHijo("Grupos");
+                            nodoGr.AgregarHijo("Si el grupo " + gr.NumGrupoIf + " es " + gr.NoIf);
+                            nodoGr.AgregarHijo("Entonces el grupo: " + gr.NumGrupoThen + " debe ser " + gr.NoThen);
+                        }
+                        nodoIfThenGrupos.AgregarHijo("Grupos que se cumplen: " + ifThen.RangoAciertoGrupos);
+                    }
                 }
             }
             else

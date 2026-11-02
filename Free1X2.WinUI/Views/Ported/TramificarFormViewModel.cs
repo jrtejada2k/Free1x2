@@ -672,8 +672,8 @@ public partial class TramificarFormViewModel : ObservableObject
     /// <summary>
     /// Solicitud de apertura del diálogo de filtrado por límites (legacy: btFiltrar_Click ->
     /// new DialogoFiltrarPorLimitesFrm(extremos).ShowDialog()). La página la cablea para
-    /// navegar a DialogoFiltrarPorLimitesFrmPage pasando los extremos calculados; al volver
-    /// con ValoresAceptados, la página llama a <see cref="AplicarFiltroConExtremos"/>.
+    /// mostrar DialogoFiltrarPorLimitesFrmPage en un ContentDialog modal con los extremos
+    /// calculados; si se acepta, la página llama a <see cref="AplicarFiltroConExtremos"/>.
     /// </summary>
     public Action<int[,]>? AbrirDialogoFiltrarPorLimites { get; set; }
 
@@ -695,15 +695,15 @@ public partial class TramificarFormViewModel : ObservableObject
         for (int x = 0; x < noColumnasIniciales; x++) { Bits[Ap14T[x].Columna] = false; }
         int[,] extremos = ObtenerExtremos();
 
-        // Legacy: new DialogoFiltrarPorLimitesFrm(extremos).ShowDialog(). La página navega a
-        // DialogoFiltrarPorLimitesFrmPage; al aceptar vuelve por AplicarFiltroConExtremos.
+        // Legacy: new DialogoFiltrarPorLimitesFrm(extremos).ShowDialog(). La página lo muestra
+        // modal (ContentDialog); al aceptar aplica el filtro por AplicarFiltroConExtremos.
         AbrirDialogoFiltrarPorLimites?.Invoke(extremos);
     }
 
     /// <summary>
     /// Aplica el filtro con los extremos devueltos por DialogoFiltrarPorLimitesFrm cuando el
     /// usuario acepta (legacy: if (DialogoFiltrar.ValoresAceptados) { ... extremos = DialogoFiltrar.extremos; ... }).
-    /// La página la invoca al volver del diálogo con ValoresAceptados = true.
+    /// La página la invoca al cerrarse el diálogo con ValoresAceptados = true.
     /// </summary>
     public async Task AplicarFiltroConExtremos(int[,] extremos)
     {

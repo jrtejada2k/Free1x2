@@ -43,7 +43,8 @@ public partial class DialogoFiltrarPorLimitesFrmViewModel : ObservableObject
     /// <summary>Se dispara al aceptar/cancelar para que el host cierre el diálogo.</summary>
     public event EventHandler? CierreSolicitado;
 
-    // Etiquetas de los 10 tramos de aciertos (legacy: label7/8/11/14/45/17/20/23/26 + fila 10).
+    // Etiquetas de los 10 tramos de aciertos, en el orden en que el legacy las pinta de arriba
+    // abajo (label7/8/11/14/45/42/17/20/23/26, DialogoFiltrarPorLimitesFrm.cs: Location.Y 34..232).
     private static readonly string[] _etiquetas =
     {
         "< 10",
@@ -51,27 +52,31 @@ public partial class DialogoFiltrarPorLimitesFrmViewModel : ObservableObject
         "de 11 a < 12",
         "de 12 a < 13",
         "de 13 a < 14",
+        "de <14 a 13",
         "de < 13 a 12",
         "de < 12 a 11",
         "de < 11 a 10",
         "< 10",
-        "fila 10",
+    };
+
+    // Valores por defecto del Designer legacy (txdif9/9d … txdif18/18d). El ctor legacy NO los
+    // toma de la matriz recibida: solo carga las posiciones (lblextremoN), así que el diálogo se
+    // abre siempre con estas diferencias (manual: 0–4 bajo 10, 1–3 de 10 a 11, …).
+    private static readonly double[,] _difsPorDefecto =
+    {
+        { 0, 4 }, { 1, 3 }, { 1, 2 }, { 1, 1 }, { 1, 0 },
+        { 1, 0 }, { 1, 1 }, { 1, 2 }, { 1, 3 }, { 0, 4 },
     };
 
     public DialogoFiltrarPorLimitesFrmViewModel()
     {
-        // Valores por defecto del Designer legacy (txdifN / txdifNd), por si la pantalla se
-        // abre sin que el caller llame a Inicializar. Posiciones a 0 (se ajustan al inicializar).
-        double[,] difsPorDefecto =
-        {
-            { 0, 4 }, { 1, 3 }, { 1, 2 }, { 1, 1 }, { 1, 0 },
-            { 1, 0 }, { 1, 1 }, { 1, 2 }, { 0, 0 }, { 0, 0 },
-        };
+        // Valores por defecto del Designer legacy, por si la pantalla se abre sin que el caller
+        // llame a Inicializar. Posiciones a 0 (se ajustan al inicializar).
         for (int i = 0; i < _etiquetas.Length; i++)
         {
-            Filas.Add(new FilaLimite(_etiquetas[i], 0, 0, difsPorDefecto[i, 0], difsPorDefecto[i, 1]));
-            _extremos[i, 2] = (int)difsPorDefecto[i, 0];
-            _extremos[i, 3] = (int)difsPorDefecto[i, 1];
+            Filas.Add(new FilaLimite(_etiquetas[i], 0, 0, _difsPorDefecto[i, 0], _difsPorDefecto[i, 1]));
+            _extremos[i, 2] = (int)_difsPorDefecto[i, 0];
+            _extremos[i, 3] = (int)_difsPorDefecto[i, 1];
         }
     }
 
@@ -81,7 +86,8 @@ public partial class DialogoFiltrarPorLimitesFrmViewModel : ObservableObject
     /// construye las 10 filas con el mismo formato de texto que el form legacy:
     ///   fila 0 -> "extremos[0,0] a extremos[0,1]"
     ///   filas 1..9 -> "(extremos[i,0]+1) a extremos[i,1]"
-    /// Las columnas [,2]/[,3] (diferencias) se cargan como editables.
+    /// Las columnas [,2]/[,3] (diferencias) NO se leen de la matriz: el ctor legacy solo carga las
+    /// posiciones y deja en txdifN/txdifNd los valores del Designer (<see cref="_difsPorDefecto"/>).
     /// </summary>
     public void Inicializar(int[,] pextremos)
     {
@@ -95,7 +101,7 @@ public partial class DialogoFiltrarPorLimitesFrmViewModel : ObservableObject
             // Posición inicial mostrada: fila 0 sin +1; resto con +1 (legacy ctor).
             int posIni = i == 0 ? _extremos[i, 0] : _extremos[i, 0] + 1;
             int posFin = _extremos[i, 1];
-            Filas.Add(new FilaLimite(_etiquetas[i], posIni, posFin, _extremos[i, 2], _extremos[i, 3]));
+            Filas.Add(new FilaLimite(_etiquetas[i], posIni, posFin, _difsPorDefecto[i, 0], _difsPorDefecto[i, 1]));
         }
     }
 

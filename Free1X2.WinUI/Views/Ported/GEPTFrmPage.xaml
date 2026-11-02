@@ -18,7 +18,7 @@
                 Text="Columna estadística de ABDON (GEPT)"
                 Style="{StaticResource PageTitleTextBlockStyle}" />
             <TextBlock
-                Text="Para cada partido indica las dos últimas veces que se repitió el enfrentamiento (G = Ganó, E = Empató, P = Perdió). El sistema deriva el pronóstico de signos."
+                Text="En la 1.ª columna, el último resultado de liga de cada equipo local; en la 2.ª, el de cada visitante (G = Ganó, E = Empató, P = Perdió). Calcular da el pronóstico."
                 Style="{StaticResource SecondaryTextBlockStyle}" />
         </StackPanel>
 
@@ -32,7 +32,8 @@
             MaxWidth="520">
             <StackPanel Spacing="6">
 
-                <!-- Cabecera de columnas -->
+                <!-- Cabecera de columnas: como el legacy, una sola etiqueta «Última vez» sobre el nº y
+                     las dos columnas de entrada (label1, GEPTFrm.cs:228-234) y «Pronóstico» (label7). -->
                 <Grid ColumnSpacing="12">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="40" />
@@ -42,15 +43,9 @@
                     </Grid.ColumnDefinitions>
                     <TextBlock
                         Grid.Column="0"
-                        Text="Nº"
-                        Style="{StaticResource CardTitleTextBlockStyle}" />
-                    <TextBlock
-                        Grid.Column="1"
+                        Grid.ColumnSpan="3"
+                        HorizontalAlignment="Center"
                         Text="Última vez"
-                        Style="{StaticResource CardTitleTextBlockStyle}" />
-                    <TextBlock
-                        Grid.Column="2"
-                        Text="Penúltima vez"
                         Style="{StaticResource CardTitleTextBlockStyle}" />
                     <TextBlock
                         Grid.Column="3"
@@ -79,29 +74,30 @@
                                     Text="{x:Bind NumeroTexto}"
                                     VerticalAlignment="Center"
                                     Style="{StaticResource BodyStrongTextBlockStyle}" />
-                                <!-- Recolor legacy (Verificar): G verde / E amarillo / P rosa.
-                                     El borde toma el color de fondo de la celda de entrada. -->
+                                <!-- Cajas de texto como el legacy (rechazan otra letra con «Las letras
+                                     permitidas son: G,E,P»). Recolor legacy (Verificar): G verde /
+                                     E amarillo / P rosa; el borde toma el color de fondo de la celda. -->
                                 <Border
                                     Grid.Column="1"
                                     Background="{x:Bind FondoPrimera, Mode=OneWay}"
                                     CornerRadius="6">
-                                    <ComboBox
+                                    <TextBox
                                         HorizontalAlignment="Stretch"
+                                        TextAlignment="Center"
                                         Background="Transparent"
-                                        ItemsSource="{x:Bind local:GEPTFila.OpcionesSigno}"
-                                        SelectedItem="{x:Bind OpcionPrimera, Mode=TwoWay}"
-                                        AutomationProperties.Name="Última ocasión (G/E/P)" />
+                                        Text="{x:Bind Primera, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                        AutomationProperties.Name="Último resultado del equipo local (G/E/P)" />
                                 </Border>
                                 <Border
                                     Grid.Column="2"
                                     Background="{x:Bind FondoSegunda, Mode=OneWay}"
                                     CornerRadius="6">
-                                    <ComboBox
+                                    <TextBox
                                         HorizontalAlignment="Stretch"
+                                        TextAlignment="Center"
                                         Background="Transparent"
-                                        ItemsSource="{x:Bind local:GEPTFila.OpcionesSigno}"
-                                        SelectedItem="{x:Bind OpcionSegunda, Mode=TwoWay}"
-                                        AutomationProperties.Name="Penúltima ocasión (G/E/P)" />
+                                        Text="{x:Bind Segunda, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                        AutomationProperties.Name="Último resultado del equipo visitante (G/E/P)" />
                                 </Border>
                                 <Border
                                     Grid.Column="3"

@@ -13,43 +13,24 @@ namespace Free1X2.WinUI.Views.Ported;
 
 /// <summary>
 /// Fila de la columna estadística "GEPT" de Abdon (legacy: GEPTFrm).
-/// Para cada partido se registran las dos últimas ocasiones (G = Ganó, E = Empató, P = Perdió)
-/// y se deriva el pronóstico de signos (1 / X / 2 / 12 / 1X / X2).
+/// Para cada partido se registra el último resultado de liga del local y el del visitante
+/// (G = Ganó, E = Empató, P = Perdió) y se deriva el pronóstico de signos (1 / X / 2 / 12 / 1X / X2).
 /// </summary>
-/// <summary>Una opción de las celdas G / E / P: el valor que se guarda y el texto que se ve.</summary>
-public sealed record OpcionGEPT(string Valor, string Texto)
-{
-    public override string ToString() => Texto;
-}
-
 public partial class GEPTFila : ObservableObject
 {
     /// <summary>Número de partido (1..N) como texto. Anti-crash: no se bindea int a TextBlock.Text.</summary>
     public string NumeroTexto { get; }
-
-    /// <summary>
-    /// Opciones permitidas en cada celda de entrada (legacy admitía G / E / P). El valor vacío se
-    /// muestra como «—»: con una cadena vacía como elemento, el ComboBox enseñaba el nombre del
-    /// tipo de la fila («Free1X2.WinUI.Views.Ported.GEPTFila») en lugar de nada.
-    /// </summary>
-    public static IReadOnlyList<OpcionGEPT> OpcionesSigno { get; } = new[]
-    {
-        new OpcionGEPT("", "—"),
-        new OpcionGEPT("G", "G"),
-        new OpcionGEPT("E", "E"),
-        new OpcionGEPT("P", "P"),
-    };
 
     public GEPTFila(int numero)
     {
         NumeroTexto = numero.ToString("00");
     }
 
-    /// <summary>Primera ocasión: una de G / E / P (legacy: primeraColumna[i]).</summary>
+    /// <summary>1.ª columna, último resultado del local: G / E / P (legacy: primeraColumna[i]).</summary>
     [ObservableProperty]
     private string _primera = string.Empty;
 
-    /// <summary>Segunda ocasión: una de G / E / P (legacy: segundaColumna[i]).</summary>
+    /// <summary>2.ª columna, último resultado del visitante: G / E / P (legacy: segundaColumna[i]).</summary>
     [ObservableProperty]
     private string _segunda = string.Empty;
 
@@ -58,45 +39,39 @@ public partial class GEPTFila : ObservableObject
     private string _resultado = string.Empty;
 
     /// <summary>
-    /// Fondo de la celda "Última vez" (legacy: primeraColumna[i].BackColor, Fondo(idx)).
+    /// Fondo de la 1.ª celda (legacy: primeraColumna[i].BackColor, Fondo(idx)).
     /// G -> GreenYellow, E -> Yellow, P -> Pink, vacío -> White (Transparent en WinUI para no
     /// romper el tema de la celda; equivale al "White" del WinForms sobre fondo blanco).
     /// </summary>
     [ObservableProperty]
     private Brush _fondoPrimera = FondoNeutro;
 
-    /// <summary>Fondo de la celda "Penúltima vez" (legacy: segundaColumna[i].BackColor, Fondo(idx)).</summary>
+    /// <summary>Fondo de la 2.ª celda (legacy: segundaColumna[i].BackColor, Fondo(idx)).</summary>
     [ObservableProperty]
     private Brush _fondoSegunda = FondoNeutro;
 
-    /// <summary>Opción elegida en «Última vez» (lo que enlaza el ComboBox; el valor vive en Primera).</summary>
-    public OpcionGEPT OpcionPrimera
-    {
-        get => Opcion(Primera);
-        set => Primera = value?.Valor ?? string.Empty;
-    }
-
-    /// <summary>Opción elegida en «Penúltima vez» (el valor vive en Segunda).</summary>
-    public OpcionGEPT OpcionSegunda
-    {
-        get => Opcion(Segunda);
-        set => Segunda = value?.Valor ?? string.Empty;
-    }
-
-    private static OpcionGEPT Opcion(string valor) =>
-        OpcionesSigno.FirstOrDefault(o => o.Valor == (valor ?? string.Empty)) ?? OpcionesSigno[0];
-
-    // Cuando cambia la selección de una celda, recolorea como hacía Resultado_TextChanged del legacy.
+    // Al escribir en una celda, réplica de Resultado_TextChanged del legacy (GEPTFrm.cs:276-309):
+    // pasa a mayúsculas, recolorea y, si no es G, E o P, avisa y deja la celda vacía.
     partial void OnPrimeraChanged(string value)
     {
-        FondoPrimera = Fondo(value);
-        OnPropertyChanged(nameof(OpcionPrimera));
+        string v = Normalizar(value);
+        if (v != value) { Primera = v; return; }
+        FondoPrimera = Fondo(v);
     }
 
     partial void OnSegundaChanged(string value)
     {
-        FondoSegunda = Fondo(value);
-        OnPropertyChanged(nameof(OpcionSegunda));
+        string v = Normalizar(value);
+        if (v != value) { Segunda = v; return; }
+        FondoSegunda = Fondo(v);
+    }
+
+    private static string Normalizar(string? valor)
+    {
+        string v = (valor ?? string.Empty).Trim().ToUpperInvariant();
+        if (v is "" or "G" or "E" or "P") return v;
+        Services.AppServices.MostrarError("Las letras permitidas son: G,E,P");
+        return string.Empty;
     }
 
     private static readonly Brush FondoNeutro = new SolidColorBrush(Colors.Transparent);
@@ -116,8 +91,7 @@ public partial class GEPTFila : ObservableObject
 
 /// <summary>
 /// ViewModel para la pantalla "Columna estadística de ABDON (GEPT)" (legacy: GEPTFrm).
-/// Cada partido toma las dos últimas veces que se repitió el enfrentamiento (G/E/P)
-/// y produce un pronóstico de signos según una tabla de traducción fija.
+/// Cada partido toma el último resultado del local y el del visitante (G/E/P) y produce un pronóstico de signos según una tabla de traducción fija.
 /// </summary>
 public partial class GEPTFrmViewModel : ObservableObject
 {
@@ -133,7 +107,7 @@ public partial class GEPTFrmViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Calcula el pronóstico de cada partido a partir de las dos últimas ocasiones.
+    /// Calcula el pronóstico de cada partido a partir del último resultado del local y del visitante.
     /// Replica GEPTFrm.Calcular() -> Verificar() + Pronosticar() + Traductor().
     /// </summary>
     [RelayCommand]
@@ -151,7 +125,7 @@ public partial class GEPTFrmViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Traduce la combinación de las dos últimas ocasiones a un pronóstico de signos.
+    /// Traduce la combinación local + visitante a un pronóstico de signos.
     /// Tabla idéntica a GEPTFrm.Traductor().
     /// </summary>
     private static string Traductor(string primera, string segunda)

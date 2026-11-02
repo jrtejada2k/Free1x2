@@ -1,6 +1,6 @@
 // Free1X2 · WinUI 3 — WIN3
+using System;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Navigation;
 
 namespace Free1X2.WinUI.Views.Ported;
 
@@ -24,29 +24,51 @@ public sealed partial class TramificarFormPage : Page
         ViewModel.Volver = () => { if (Frame?.CanGoBack == true) Frame.GoBack(); };
 
         // Flujo "Filtrar" legacy (btFiltrar_Click): el VM calcula los extremos y pide abrir
-        // DialogoFiltrarPorLimitesFrm; aquí se pasa la matriz por el handoff estático y se navega
-        // a la página del diálogo. El resultado se recoge al volver (OnNavigatedTo, modo Back).
+        // DialogoFiltrarPorLimitesFrm, que en el legacy es MODAL (ShowDialog) sobre Tramificar.
+        // Se hospeda la página del diálogo en un ContentDialog (como DialogoGrabarBancoPruebasFrm
+        // en BancoPruebasFrmPage) en vez de navegar a ella: al volver con Frame.GoBack() se creaba
+        // un TramificarFormPage nuevo, con Ap14T vacío, y el filtro no se aplicaba nunca (además de
+        // perder la tramificación y los datos tecleados).
         ViewModel.AbrirDialogoFiltrarPorLimites = extremos =>
-        {
-            DialogoFiltrarPorLimitesFrmPage.ExtremosEntrada = extremos;
-            DialogoFiltrarPorLimitesFrmPage.Resultado = null;
-            Frame?.Navigate(typeof(DialogoFiltrarPorLimitesFrmPage));
-        };
+            Services.AppServices.EjecutarObservandoErrores(() => FiltrarPorLimitesAsync(extremos), "Filtrar por límites");
     }
 
-    protected override async void OnNavigatedTo(NavigationEventArgs e)
+    /// <summary>
+    /// Muestra «Filtrar por límites» como diálogo modal y, si se acepta (legacy:
+    /// if (DialogoFiltrar.ValoresAceptados)), aplica el filtro con los extremos devueltos.
+    /// </summary>
+    private async System.Threading.Tasks.Task FiltrarPorLimitesAsync(int[,] extremos)
     {
-        base.OnNavigatedTo(e);
+        var dialogPage = new DialogoFiltrarPorLimitesFrmPage();
+        dialogPage.ViewModel.Inicializar(extremos);
 
-        // Al volver de DialogoFiltrarPorLimitesFrmPage (legacy: if (DialogoFiltrar.ValoresAceptados))
-        // se aplica el filtro con los extremos editados; si se canceló, no se hace nada.
-        if (DialogoFiltrarPorLimitesFrmPage.Resultado is { } r)
+        var contentDialog = new ContentDialog
         {
+            XamlRoot = this.XamlRoot,
+            Content = dialogPage,
+            RequestedTheme = Services.TemaApp.TemaDeElemento,
+        };
+        // La tabla del diálogo (4 columnas) no cabe en el ancho máximo por defecto de ContentDialog.
+        contentDialog.Resources["ContentDialogMaxWidth"] = 720.0;
+
+        // La VM del diálogo levanta CierreSolicitado al Aceptar/Cancelar (sus botones internos).
+        void OnCierre(object? s, EventArgs e) => contentDialog.Hide();
+        dialogPage.ViewModel.CierreSolicitado += OnCierre;
+        try
+        {
+            await contentDialog.ShowAsync();
+        }
+        finally
+        {
+            dialogPage.ViewModel.CierreSolicitado -= OnCierre;
+            // Los botones de la página publican también el handoff estático (pensado para la
+            // navegación); aquí no se usa y no debe quedar pendiente.
             DialogoFiltrarPorLimitesFrmPage.Resultado = null;
-            if (r.aceptado)
-            {
-                await ViewModel.AplicarFiltroConExtremos(r.extremos);
-            }
+        }
+
+        if (dialogPage.ViewModel.ValoresAceptados)
+        {
+            await ViewModel.AplicarFiltroConExtremos(dialogPage.ViewModel.Extremos);
         }
     }
 }

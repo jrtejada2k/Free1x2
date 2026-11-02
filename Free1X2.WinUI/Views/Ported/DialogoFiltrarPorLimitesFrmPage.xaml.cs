@@ -12,16 +12,17 @@ namespace Free1X2.WinUI.Views.Ported;
 public sealed partial class DialogoFiltrarPorLimitesFrmPage : Page
 {
     /// <summary>
-    /// Handoff estático de ENTRADA: la matriz de extremos que el caller pasaba por constructor
-    /// (legacy: new DialogoFiltrarPorLimitesFrm(extremos)). La deja el productor (TramificarForm)
-    /// antes de navegar y la consume <see cref="OnNavigatedTo"/> (ViewModel.Inicializar).
+    /// Handoff estático de ENTRADA para cuando se llega NAVEGANDO a la página: la consume
+    /// <see cref="OnNavigatedTo"/> (ViewModel.Inicializar). Tramificar no navega: hospeda la página
+    /// en un ContentDialog modal y llama a ViewModel.Inicializar directamente
+    /// (TramificarFormPage.FiltrarPorLimitesAsync).
     /// </summary>
     public static int[,]? ExtremosEntrada { get; set; }
 
     /// <summary>
     /// Handoff estático de SALIDA: tras "Aceptar"/"Cancelar", deja el resultado que el caller
-    /// legacy leía de las propiedades públicas (ValoresAceptados + extremos). El productor lo
-    /// consume al volver (Frame.GoBack -> OnNavigatedTo en modo Back).
+    /// legacy leía de las propiedades públicas (ValoresAceptados + extremos), para un caller que
+    /// navegue a la página. Hospedada en un ContentDialog, Frame es null y no se navega.
     /// </summary>
     public static (bool aceptado, int[,] extremos)? Resultado { get; set; }
 

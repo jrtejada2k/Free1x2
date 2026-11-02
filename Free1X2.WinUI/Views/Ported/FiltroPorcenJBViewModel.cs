@@ -30,6 +30,26 @@ public partial class FiltroPorcenJBViewModel : ObservableObject
     public ObservableCollection<FilaPorcentaje> Porcentajes { get; } =
         PorcentajesHelper.Crear(Free1X2.VariablesGlobales.NumeroPartidos);
 
+    // Rejilla 14 x 7 con los signos de cada partido en cada banda (legacy: etiquetas l011…l147,
+    // FiltroPorcenJB.cs:138-140) y, en la última fila, el nº de partidos con algún signo en cada
+    // banda (legacy: lq1…lq7). La rellena PintaPantalla().
+    public ObservableCollection<FilaBandasJB> SignosPorBanda { get; } = CrearSignosPorBanda();
+
+    public FiltroPorcenJBViewModel()
+    {
+        // Legacy valors1_CrearCPs (FiltroPorcenJB.cs:2832): al cambiar los porcentajes,
+        // RecuperaPantalla(); PintaPantalla();
+        foreach (var fila in Porcentajes) fila.PropertyChanged += (_, _) => { RecuperaPantalla(); PintaPantalla(); };
+    }
+
+    private static ObservableCollection<FilaBandasJB> CrearSignosPorBanda()
+    {
+        var filas = new ObservableCollection<FilaBandasJB>();
+        for (int np = 1; np <= 14; np++) filas.Add(new FilaBandasJB(np.ToString()));
+        filas.Add(new FilaBandasJB("Nº"));
+        return filas;
+    }
+
     // Columnas ganadoras cargadas (legacy: string[3000] colgsR) y navegación (limcgsR / nrfCGR).
     private readonly List<string> _colgsR = new();
     private int _nrfCGR;
@@ -159,6 +179,7 @@ public partial class FiltroPorcenJBViewModel : ObservableObject
             AppServices.MostrarError("error en datos de entrada");
             return;
         }
+        PintaPantalla();
 
         // Legacy: OpenFileDialog del fichero de columnas de entrada (*.txt).
         var file = await PickerHelper.AbrirAsync(".txt", "*");
@@ -310,6 +331,7 @@ public partial class FiltroPorcenJBViewModel : ObservableObject
             AppServices.MostrarError("error en datos de entrada");
             return;
         }
+        PintaPantalla();
         string columna = ColumnaGanadora.Replace('x', '4').Replace('X', '4');
         if (columna.Length < 14)
         {
@@ -518,6 +540,24 @@ public partial class FiltroPorcenJBViewModel : ObservableObject
     }
 
     // Legacy: Cambia() (línea 386). Convierte el código de signos de una banda a su texto 1/X/2.
+    // Legacy: PintaPantalla() (línea 278). Vuelca cps[14,7] en la rejilla (Cambia) y cuenta, por
+    // banda, los partidos con algún signo en ella (lq1…lq7).
+    private void PintaPantalla()
+    {
+        var cuentas = SignosPorBanda[14];
+        for (int nc = 0; nc < 7; nc++)
+        {
+            int nq = 0;
+            for (int np = 0; np < 14; np++)
+            {
+                int nv = _cps[np, nc];
+                if (nv > 0) nq++;
+                SignosPorBanda[np].Fijar(nc, Cambia(nv));
+            }
+            cuentas.Fijar(nc, nq.ToString());
+        }
+    }
+
     private static string Cambia(int valor) => valor switch
     {
         0 => "-",
@@ -566,5 +606,38 @@ public partial class FiltroPorcenJBViewModel : ObservableObject
             else if (ax[nr] == '2') nx += 2;
         }
         return nx;
+    }
+}
+
+/// <summary>
+/// Una fila de la rejilla «signos por banda» del Separador JB: un partido (o la fila de recuentos)
+/// con el texto de cada una de las 7 bandas (legacy: l{partido}{banda} y lq{banda}, «-» por defecto).
+/// </summary>
+public partial class FilaBandasJB : ObservableObject
+{
+    public FilaBandasJB(string etiqueta) { Etiqueta = etiqueta; }
+
+    public string Etiqueta { get; }
+
+    [ObservableProperty] private string _banda1 = "-";
+    [ObservableProperty] private string _banda2 = "-";
+    [ObservableProperty] private string _banda3 = "-";
+    [ObservableProperty] private string _banda4 = "-";
+    [ObservableProperty] private string _banda5 = "-";
+    [ObservableProperty] private string _banda6 = "-";
+    [ObservableProperty] private string _banda7 = "-";
+
+    internal void Fijar(int banda, string texto)
+    {
+        switch (banda)
+        {
+            case 0: Banda1 = texto; break;
+            case 1: Banda2 = texto; break;
+            case 2: Banda3 = texto; break;
+            case 3: Banda4 = texto; break;
+            case 4: Banda5 = texto; break;
+            case 5: Banda6 = texto; break;
+            default: Banda7 = texto; break;
+        }
     }
 }
