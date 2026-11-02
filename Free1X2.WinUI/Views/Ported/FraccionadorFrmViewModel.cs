@@ -6,6 +6,7 @@ using System.IO;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Free1X2.Utils;
 using Free1X2.WinUI.Services;
 using Windows.Storage.Pickers;
 
@@ -141,6 +142,14 @@ public partial class FraccionadorFrmViewModel : ObservableObject
         string dir = Path.GetDirectoryName(file.Path) ?? string.Empty;
         string baseNombre = Path.GetFileNameWithoutExtension(file.Path);
         string fileBase = Path.Combine(dir, baseNombre);
+        // El selector de WinUI crea el fichero elegido vacío; solo da el nombre base, así que no se deja.
+        try
+        {
+            var elegido = new FileInfo(file.Path);
+            if (elegido.Exists && elegido.Length == 0) elegido.Delete();
+        }
+        catch (IOException) { }
+        catch (UnauthorizedAccessException) { }
 
         bool porColumnas = PorColumnas;
         int cuantasPartes = (int)CuantasPartes;
@@ -189,28 +198,20 @@ public partial class FraccionadorFrmViewModel : ObservableObject
     }
 
     /// <summary>
-    /// FracTrams() legacy: 'qnts' partes iguales; el último archivo recibe el resto.
+    /// FracTrams() legacy: 'qnts' partes iguales; el último archivo recibe el resto
+    /// (<see cref="FraccionTramos.Limites"/>, que ya no pierde columnas como el original).
     /// Devuelve el nº de archivos generados.
     /// </summary>
     private static int FracTrams(string fileBase, List<string> columnas, int qnts)
     {
-        if (qnts <= 0) return 0;
-        int numcols = columnas.Count;
-        int part = numcols / qnts;
-        int acum = 0, lim = part;
-        int numfiles = 0;
-        for (numfiles = 0; numfiles < qnts; numfiles++)
+        var limites = FraccionTramos.Limites(columnas.Count, qnts);
+        for (int i = 0; i < limites.Length; i++)
         {
-            string sfile = string.Format(fileBase + "{0:d2}.txt", numfiles + 1);
-            using (var sw = new StreamWriter(sfile))
-            {
-                for (int nr = acum; nr < lim; nr++) sw.WriteLine(columnas[nr]);
-            }
-            acum += part;
-            lim = acum + part;
-            if (numcols - lim < part) lim = numcols;
+            string sfile = string.Format(fileBase + "{0:d2}.txt", i + 1);
+            using var sw = new StreamWriter(sfile);
+            for (int nr = limites[i].inicio; nr < limites[i].fin; nr++) sw.WriteLine(columnas[nr]);
         }
-        return numfiles;
+        return limites.Length;
     }
 
     /// <summary>Formatea un lapso igual que veureelmeu() legacy ("hh:mm:ss.f" recortado a 10 chars).</summary>

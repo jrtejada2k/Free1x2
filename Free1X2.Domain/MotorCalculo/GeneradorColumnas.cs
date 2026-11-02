@@ -278,6 +278,7 @@ namespace Free1X2.MotorCalculo
             while (generacionEnMarcha && archivo.SiguienteColumna())
             {
                 string columnaFiltro = archivo.LeeColumnaSinComas();
+                if (columnaFiltro.Length == 0) continue; // línea en blanco: no es una columna
                 if (columnaFiltro.Length > VariablesGlobales.NumeroPartidos)
                 {
                     //El filtro tiene más de los partidos admitidos
@@ -306,6 +307,7 @@ namespace Free1X2.MotorCalculo
             while (generacionEnMarcha && archivo.SiguienteColumna())
             {
                 string columnaFiltro = archivo.LeeColumnaSinComas();
+                if (columnaFiltro.Length == 0) continue; // línea en blanco: no es una columna
                 if (columnaFiltro.Length > VariablesGlobales.NumeroPartidos)
                 {
                     //El filtro tiene más de los partidos admitidos
@@ -330,7 +332,9 @@ namespace Free1X2.MotorCalculo
 
             while (generacionEnMarcha && archivo.SiguienteColumna())
             {
-                AnalizaNuevaColumna(UtilColumnas.ConvStrToLong(archivo.LeeColumnaSinComas()), true);
+                string columnaFiltro = archivo.LeeColumnaSinComas();
+                if (columnaFiltro.Length == 0) continue; // línea en blanco: no es una columna
+                AnalizaNuevaColumna(UtilColumnas.ConvStrToLong(columnaFiltro), true);
             }
             archivo.Cerrar();
         }

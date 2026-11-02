@@ -26,6 +26,11 @@ Salida completa en [`evidencias/verificar-2026-11-01-ronda2.txt`](evidencias/ver
   columnas y las dos condiciones, desde el panel: 120 procesadas y las mismas 54 (C4).
 - Calidad: build 0 errores · **205/205** tests (138 golden-master intactos) · smoke **111/111**.
 
+**Después, por decisión del dueño, también se corrigieron I5 y O4** (heredados del original), con el test
+`HeredadosArregladosTests`: las líneas en blanco del filtro se saltan (sin el arreglo, el test da 5 columnas en vez
+de 3) y el Fraccionador por tramos da el resto al último fichero (10 en 4 ⇒ 2+2+2+4) sin dejar el fichero base
+vacío. Calidad: build 0 errores · **209/209** tests · smoke **111/111**.
+
 ## Fallos confirmados en la app
 
 | # | Prueba | Qué pasa | Esperado | Dónde (código) |

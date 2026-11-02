@@ -57,7 +57,7 @@ cálculo, elige **«Grabar archivo»** ▸ «Seleccionar archivo...» ▸ `salid
 | **I2** | Nueva ▸ boleto **B2** ▸ Variantes: Var `3,4,5,6`, X `1,2,3,4` ▸ Signos Seguidos: Var `1,2,3` (los rangos con guion no se admiten aquí) ▸ Calcular ▸ Grabar `I2.txt` | Procesadas **2.916**, Aceptadas **1.435** |
 | **I3** | I2 + tarjeta «Filtro de columnas» ▸ «Filtro…» ▸ `entrada\filtro_medio.txt` (semáforo verde) ▸ Calcular (barra de Inicio) ▸ Grabar `I3.txt` | Procesadas **500**, Aceptadas **136** (las repetidas del filtro se conservan) |
 | **I4** | Igual que I3 pero abriendo **«Calcular columnas» desde el panel lateral** (o el menú Combinación ▸ Calcular…, o F5) ▸ Grabar `I4.txt` | Lo mismo que I3: **136**. (Hasta el 1-nov-2026 estas vías calculaban los 4.782.969 de 14 triples sin boleto, condiciones ni filtro.) |
-| **I5** | Nueva (14 triples, sin condiciones) ▸ Filtro…: `entrada\filtro_con_blanco.txt` (3 columnas y una línea en blanco) ▸ Calcular ▸ Grabar `I5.txt` | **3** columnas. ⚠ Revisión: la línea en blanco podría convertirse en `11111111111111` (`GeneradorColumnas.cs:289`) |
+| **I5** | Nueva (14 triples, sin condiciones) ▸ Filtro…: `entrada\filtro_con_blanco.txt` (3 columnas y una línea en blanco) ▸ Calcular ▸ Grabar `I5.txt` | **3** columnas. Arreglado: antes la línea en blanco se convertía en `11111111111111` (heredado del original); ahora se salta (`GeneradorColumnas.cs`, test `HeredadosArregladosTests`) |
 | I6 | Con el filtro cargado, pulsa otra vez «Filtro…» | Debe abrir el selector. ⚠ Revisión: lo **quita** sin avisar (`MainPageViewModel.cs:470-475`) |
 | I7 | En «Variantes X y 2» escribe `a` en Var ▸ Aceptar (W2) | Mensaje de error; la tarjeta **no** queda activa y vacía |
 
@@ -113,7 +113,7 @@ variantes, X o 2).
 | **O1-0…3** Álgebra | Combinación 1 `O1_F1.txt`, Combinación 2 `O1_F2.txt` ▸ cada tipo de operación ▸ Resultado `O1-0.txt`… ▸ Calcular | 0 ⇒ 3 · 1 ⇒ 4 · 2 ⇒ `2…2` dos veces (como el original) · 3 ⇒ `1…1` y `X…X` |
 | **O2** Transposición | Entrada `O2_entrada.txt` ▸ Salida 1…14 = `14,13,…,1` ▸ Transponer ▸ `O2.txt` | `2X1111111112X1` |
 | **O3** Multiplicador | Comb-1 `O3_E1.txt`, Comb-2 `O3_E2.txt` ▸ plantilla por defecto ▸ Multiplicar ▸ Grabar `O3.txt` | 2 columnas: `11111XXXXXXX11`, `22222XXXXXXX22` |
-| **O4** Fraccionador | Entrada `O4_diez.txt` ▸ Por **tramos**, 4 ▸ Fraccionar ▸ base `O4_` | `O4_01…04.txt` juntos = las **10** líneas. ⚠ Revisión: se perderían 2 (`FraccionadorFrmViewModel.cs:195-214`, heredado del original) |
+| **O4** Fraccionador | Entrada `O4_diez.txt` ▸ Por **tramos**, 4 ▸ Fraccionar ▸ base `O4_` | `O4_01…04.txt` juntos = las **10** líneas (2+2+2+4) y no queda un `O4_.txt` vacío. Arreglado: antes se perdían 2, heredado del original (`Free1X2.Domain/Utils/FraccionTramos.cs`, test `HeredadosArregladosTests`) |
 | **O5a/b** Subir categoría | Origen `O5_origen.txt` ▸ todos los partidos ▸ Seguidos 0 ▸ niveles **1** (a) / **0 y 1** (b) ▸ Calcular ▸ Grabar | a: **28** · b: **29** |
 | **O6a/b** Rotación de signos | Entrada `O6_entrada.txt` ▸ partido 1: «1 →» `X`, el resto igual ▸ corrección Desactivada (a) / Activada (b) ▸ Aceptar | a: `X111…`, `XX11…` · b: 4 columnas |
 
