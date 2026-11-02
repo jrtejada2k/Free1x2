@@ -60,7 +60,7 @@
                                 <StackPanel Spacing="5">
                                     <TextBlock Text="Equipos del grupo"
                                                Style="{StaticResource CardTitleTextBlockStyle}" />
-                                    <TextBlock Text="Pulsa el equipo de casa (1) o de fuera (2) de cada partido. Marcar ambos equivale al empate (X)."
+                                    <TextBlock Text="Pulsa el equipo de casa (1) o de fuera (2) de cada partido. Marcar ambos mete en el grupo a los dos equipos del partido: si gana uno cuenta 1 victoria y 1 derrota; si empatan, 2 empates."
                                                Style="{StaticResource SecondaryTextBlockStyle}"
                                                TextWrapping="Wrap" />
 
@@ -83,6 +83,7 @@
                                                                Style="{StaticResource SecondaryTextBlockStyle}" />
 
                                                     <ToggleButton Grid.Column="1"
+                                                                  MinHeight="32"
                                                                   Content="{x:Bind EquipoCasa, Mode=OneWay}"
                                                                   IsChecked="{x:Bind CasaSeleccionado, Mode=TwoWay}"
                                                                   Style="{StaticResource SignoToggleButtonStyle}"
@@ -90,6 +91,7 @@
                                                                   AutomationProperties.Name="Seleccionar equipo de casa" />
 
                                                     <ToggleButton Grid.Column="2"
+                                                                  MinHeight="32"
                                                                   Content="{x:Bind EquipoFuera, Mode=OneWay}"
                                                                   IsChecked="{x:Bind FueraSeleccionado, Mode=TwoWay}"
                                                                   Style="{StaticResource SignoToggleButtonStyle}"

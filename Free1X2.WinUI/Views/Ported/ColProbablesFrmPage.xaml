@@ -37,12 +37,33 @@
                                 <TextBlock
                                     Style="{StaticResource SectionHeaderTextBlockStyle}"
                                     Text="Columna probable" />
-                                <TextBox
-                                    Header="Pronóstico (14 signos: 1 / X / 2)"
-                                    MaxLength="14"
-                                    CharacterCasing="Upper"
-                                    PlaceholderText="Ej. 1X21X2111XX221"
-                                    Text="{x:Bind ViewModel.Pronostico, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <!-- Un control 1/X/2 por partido (legacy Prono1X2 "pronoN", ColProbablesFrm.cs:209-248) -->
+                                <ItemsControl ItemsSource="{x:Bind ViewModel.Partidos}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="ported:PartidoCPFila">
+                                            <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,1">
+                                                <TextBlock
+                                                    Width="24"
+                                                    VerticalAlignment="Center"
+                                                    TextAlignment="Right"
+                                                    Style="{StaticResource BodyStrongTextBlockStyle}"
+                                                    Text="{x:Bind NumeroTexto}" />
+                                                <ToggleButton Style="{StaticResource SignoToggleButtonStyle}"
+                                                              Content="1"
+                                                              IsChecked="{x:Bind Signo1, Mode=TwoWay}"
+                                                              AutomationProperties.Name="Signo 1" />
+                                                <ToggleButton Style="{StaticResource SignoToggleButtonStyle}"
+                                                              Content="X"
+                                                              IsChecked="{x:Bind SignoX, Mode=TwoWay}"
+                                                              AutomationProperties.Name="Signo X" />
+                                                <ToggleButton Style="{StaticResource SignoToggleButtonStyle}"
+                                                              Content="2"
+                                                              IsChecked="{x:Bind Signo2, Mode=TwoWay}"
+                                                              AutomationProperties.Name="Signo 2" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
                                 <TextBox
                                     Header="Puntos"
                                     Text="{x:Bind ViewModel.Puntos, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />

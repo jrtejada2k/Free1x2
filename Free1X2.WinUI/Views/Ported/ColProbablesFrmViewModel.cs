@@ -86,9 +86,9 @@ namespace Free1X2.WinUI.Views.Ported
 
         // ---------------- Pestaña Columnas ----------------
 
-        // Pronóstico de la columna en pantalla (14 signos 1/X/2). Legacy: controles Prono1X2 por partido.
-        [ObservableProperty]
-        private string _pronostico = "";
+        // Pronóstico de la columna en pantalla: una fila 1/X/2 por partido, admite dobles y triples.
+        // Legacy: un control Prono1X2 "pronoN" por partido (AñadirPartidos, ColProbablesFrm.cs:209-248).
+        public ObservableCollection<PartidoCPFila> Partidos { get; } = new();
 
         // Rangos de la columna actual. Legacy: optAC / optACS / optFS (OptionNumTol0_14, lista de valores 0..14).
         [ObservableProperty]
@@ -244,6 +244,10 @@ namespace Free1X2.WinUI.Views.Ported
 
         public ColProbablesFrmViewModel()
         {
+            for (int i = 0; i < VariablesGlobales.NumeroPartidos; i++)
+            {
+                Partidos.Add(new PartidoCPFila(i + 1));
+            }
             CargarDesdeGrupo();
         }
 
@@ -339,16 +343,12 @@ namespace Free1X2.WinUI.Views.Ported
                     PaginacionColumnas = "1/1";
                 }
 
-                // Pronóstico: la pantalla usa una cadena de 14 signos (un carácter por partido).
-                // NOTA: la TextBox sólo admite signos simples (MaxLength=14); para dobles/triples
-                // se concatena la representación del partido, que puede exceder 14 caracteres.
+                // Pronóstico: cada partido a su fila 1/X/2 (legacy prono.Pronostico = pronosticos[valor - 1]).
                 string[] pronosticos = cp.Pronosticos;
-                var sb = new System.Text.StringBuilder();
-                for (int i = 0; i < pronosticos.Length; i++)
+                for (int i = 0; i < Partidos.Count; i++)
                 {
-                    sb.Append(pronosticos[i]);
+                    Partidos[i].Pronostico = i < pronosticos.Length ? pronosticos[i] : "";
                 }
-                Pronostico = sb.ToString();
 
                 Aciertos = cp.GetAciertos();
                 AciertosSeguidos = cp.GetAciertosSeguidos();
@@ -394,8 +394,15 @@ namespace Free1X2.WinUI.Views.Ported
             return string.Join(",", partes);
         }
 
-        // Legacy TieneColumnaDatos(): true si el pronóstico de pantalla tiene algún signo.
-        private bool TieneColumnaDatos() => !string.IsNullOrEmpty(Pronostico);
+        // Legacy TieneColumnaDatos(): true si algún partido de la pantalla tiene algún signo.
+        private bool TieneColumnaDatos()
+        {
+            foreach (PartidoCPFila p in Partidos)
+            {
+                if (p.Pronostico != "") return true;
+            }
+            return false;
+        }
 
         // Legacy NecesitaGuardarDatosTol(): hay tolerancias que persistir.
         private bool NecesitaGuardarDatosTol() =>
@@ -404,9 +411,16 @@ namespace Free1X2.WinUI.Views.Ported
         /// <summary>
         /// Vuelca la pantalla a la ColumnaProbable correspondiente.
         /// Equivale a ColProbablesFrm.GuardarCPActual + GuardaDatosCP (líneas 441-567).
+        /// Devuelve false (y avisa) si algún rango de la pantalla no es válido; entonces no guarda nada.
         /// </summary>
-        private void GuardarCPActual()
+        /// </summary>
+        private bool GuardarCPActual()
         {
+            if (TieneColumnaDatos() && !ValidaRangosPantalla())
+            {
+                return false;
+            }
+
             ColumnaProbable cp;
             if (_cpPantalla < _grupoCP.Count)
             {
@@ -419,18 +433,97 @@ namespace Free1X2.WinUI.Views.Ported
                 _grupoCP.Add(cp);
                 GuardaDatosCP(cp);
             }
+            return true;
+        }
+
+        // Rangos de la pantalla ya expandidos a la lista "a,b,c" que esperan los Set* del motor.
+        private sealed class RangosCP
+        {
+            public string AC = "", ACS = "", FS = "", ACTol = "", ACSTol = "", FSTol = "";
+        }
+
+        private RangosCP _rangosValidados = new();
+
+        // El original marcaba los valores con casillas (OptionNumTol0_14 / OptionNumsHoriz,
+        // ColProbablesFrm.cs:38-43) y el motor solo parte por comas (ColumnaProbable.SetNoAciertos).
+        // Aquí son texto y la pista promete «0-14 ó 3,5,7»: se expanden los rangos antes de pasarlos
+        // al motor y, si el texto no vale, se avisa en vez de lanzar.
+        private bool ValidaRangosPantalla()
+        {
+            var rangos = new RangosCP();
+            if (!ExpandeCampo("Aciertos", Aciertos, true, out rangos.AC)) return false;
+            if (!ExpandeCampo("Ac. Seguidos", AciertosSeguidos, true, out rangos.ACS)) return false;
+            if (!ExpandeCampo("Fallos Seguidos", FallosSeguidos, true, out rangos.FS)) return false;
+            if (!ExpandeCampo("Aciertos (tolerancias locales)", AciertosTol, false, out rangos.ACTol)) return false;
+            if (!ExpandeCampo("Ac. Seguidos (tolerancias locales)", AciertosSeguidosTol, false, out rangos.ACSTol)) return false;
+            if (!ExpandeCampo("Fallos Seguidos (tolerancias locales)", FallosSeguidosTol, false, out rangos.FSTol)) return false;
+            _rangosValidados = rangos;
+            return true;
+        }
+
+        private static bool ExpandeCampo(string nombre, string? texto, bool admiteLetra, out string valores)
+        {
+            if (ExpandeRangos(texto, admiteLetra, out valores)) return true;
+            AppServices.MostrarError("Valor no válido en «" + nombre + "»: use valores de 0 a "
+                + VariablesGlobales.NumeroPartidos + " separados por comas o rangos (ej. 0-14 ó 3,5,7).");
+            return false;
+        }
+
+        // "3,5-7,9A" -> "3,5,6,7,9A". Vacío se queda vacío. La letra final (tolerancia, "9A") solo
+        // se admite en AC/ACS/FS, igual que las casillas OptionNumTol0_14 del original.
+        private static bool ExpandeRangos(string? texto, bool admiteLetra, out string valores)
+        {
+            valores = "";
+            string limpio = (texto ?? "").Replace(" ", "");
+            if (limpio == "") return true;
+
+            int max = VariablesGlobales.NumeroPartidos;
+            var partes = new List<string>();
+            foreach (string item in limpio.Split(','))
+            {
+                if (item == "") return false;
+
+                if (item.Contains('-'))
+                {
+                    int[] nums;
+                    try
+                    {
+                        nums = new RangosHelper().ObtenIntArray(item);
+                    }
+                    catch (FormatException) { return false; }
+                    catch (OverflowException) { return false; }
+                    if (nums.Length == 0) return false;
+                    foreach (int n in nums)
+                    {
+                        if (n < 0 || n > max) return false;
+                        partes.Add(n.ToString());
+                    }
+                    continue;
+                }
+
+                string numero = item;
+                string letra = "";
+                if (admiteLetra && char.IsLetter(item[item.Length - 1]))
+                {
+                    numero = item.Substring(0, item.Length - 1);
+                    letra = item.Substring(item.Length - 1).ToUpperInvariant();
+                }
+                if (!int.TryParse(numero, out int valor) || valor < 0 || valor > max) return false;
+                partes.Add(valor + letra);
+            }
+            valores = string.Join(",", partes);
+            return true;
         }
 
         private void GuardaDatosCP(ColumnaProbable cp)
         {
             cp.ReinicializaValores();
 
-            // Pronóstico por partido: un carácter por partido (signos simples).
+            // Pronóstico por partido: los signos marcados en su fila (simple, doble o triple).
             string[] pronosticos = cp.Pronosticos;
-            string pron = Pronostico ?? "";
             for (int i = 0; i < pronosticos.Length; i++)
             {
-                pronosticos[i] = i < pron.Length ? pron[i].ToString() : "";
+                pronosticos[i] = i < Partidos.Count ? Partidos[i].Pronostico : "";
             }
             cp.Pronosticos = pronosticos;
 
@@ -440,15 +533,16 @@ namespace Free1X2.WinUI.Views.Ported
             {
                 cp.SetPuntos(Puntos ?? "");
 
-                cp.SetNoAciertos(Aciertos != "" ? Aciertos : todosValores);
-                cp.SetNoAciertosSeguidos(AciertosSeguidos != "" ? AciertosSeguidos : todosValores);
-                cp.SetNoFallosSeguidos(FallosSeguidos != "" ? FallosSeguidos : todosValores);
+                RangosCP r = _rangosValidados;
+                cp.SetNoAciertos(r.AC != "" ? r.AC : todosValores);
+                cp.SetNoAciertosSeguidos(r.ACS != "" ? r.ACS : todosValores);
+                cp.SetNoFallosSeguidos(r.FS != "" ? r.FS : todosValores);
 
                 if (NecesitaGuardarDatosTol())
                 {
-                    cp.SetACTol(AciertosTol != "" ? AciertosTol : todosValores);
-                    cp.SetACSTol(AciertosSeguidosTol != "" ? AciertosSeguidosTol : todosValores);
-                    cp.SetFSTol(FallosSeguidosTol != "" ? FallosSeguidosTol : todosValores);
+                    cp.SetACTol(r.ACTol != "" ? r.ACTol : todosValores);
+                    cp.SetACSTol(r.ACSTol != "" ? r.ACSTol : todosValores);
+                    cp.SetFSTol(r.FSTol != "" ? r.FSTol : todosValores);
 
                     string tols = ObtenerTolerancias();
                     cp.SetTolerancias(tols != "" ? tols : "0");
@@ -478,7 +572,7 @@ namespace Free1X2.WinUI.Views.Ported
             if (noCP < 0) noCP = 0;
             if (noCP > _grupoCP.Count) noCP = _grupoCP.Count;
 
-            GuardarCPActual();
+            if (!GuardarCPActual()) return;
             _cpPantalla = noCP;
 
             if (_grupoCP.Count < noCP + 1)
@@ -583,7 +677,7 @@ namespace Free1X2.WinUI.Views.Ported
             // W2 (D-04, DT-80): vuelca antes la pantalla a las copias de trabajo de todas las
             // pestañas (son idempotentes). Si un valor no es válido lanza aquí, antes de activar o
             // tocar _filtroCP, y la condición queda como estaba.
-            GuardarCPActual();
+            if (!GuardarCPActual()) return;
             GuardarRelCP1Actual();
             GuardarRelacion2EnPantalla();
             GuardarRelacion3EnPantalla();
@@ -869,9 +963,9 @@ namespace Free1X2.WinUI.Views.Ported
             // Réplica de ColProbablesFrm.ExportaColumnas (Free1X2/UI/Filtros/ColProbablesFrm.cs
             //   líneas 748-760): guarda la CP en pantalla si tiene datos, construye un
             //   FiltroColProbables temporal con la copia de trabajo y abre el exportador con su lista.
-            if (NecesitaGuardarDatos())
+            if (NecesitaGuardarDatos() && !GuardarCPActual())
             {
-                GuardarCPActual();
+                return;
             }
 
             var filtroTemp = new FiltroColProbables { ColProbables = _grupoCP };
@@ -1678,6 +1772,45 @@ namespace Free1X2.WinUI.Views.Ported
     /// de <see cref="RelacionCP3"/> en CargarAgrupaciones* / ObtenArrayAgrupaciones* /
     /// ObtenTextoAgrupaciones*. Todos son string (regla anti-crash: no bindear int a Text).
     /// </summary>
+    /// <summary>
+    /// Fila de un partido de la columna probable en pantalla: tres signos 1/X/2 conmutables.
+    /// Réplica del control legacy Prono1X2 (Free1X2/UI/Controls/Prono1X2.cs:33-80): el
+    /// pronóstico se lee en orden "1", "X", "2" ("", "1", "X2", "1X2"...) y se escribe
+    /// marcando cada signo que aparezca en el texto.
+    /// </summary>
+    public partial class PartidoCPFila : ObservableObject
+    {
+        public PartidoCPFila(int numero)
+        {
+            NumeroTexto = numero.ToString();
+        }
+
+        // Etiqueta del partido (legacy label "1".."14"); string para bindear a Text.
+        public string NumeroTexto { get; }
+
+        [ObservableProperty]
+        private bool _signo1;
+
+        [ObservableProperty]
+        private bool _signoX;
+
+        [ObservableProperty]
+        private bool _signo2;
+
+        // Legacy Prono1X2.Pronostico (get/set).
+        public string Pronostico
+        {
+            get => (Signo1 ? "1" : "") + (SignoX ? "X" : "") + (Signo2 ? "2" : "");
+            set
+            {
+                string valores = value ?? "";
+                Signo1 = valores.Contains('1');
+                SignoX = valores.Contains('X');
+                Signo2 = valores.Contains('2');
+            }
+        }
+    }
+
     public partial class AgrupacionFila : ObservableObject
     {
         // Legacy columna "Número" (lista de cantidades permitidas, p. ej. "0-2" ó "1,3").

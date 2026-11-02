@@ -457,6 +457,22 @@ public partial class IfThenFrmViewModel : ObservableObject
             AppServices.MostrarError("Debe indicarse la cantidad de grupos que se deben cumplir.");
             return null;
         }
+        // El motor dimensiona aciertoCondiciones / aciertoGrupos a Count+1 (ControladorIfThen
+        // RangoAciertoCondiciones / RangoAciertoGrupos) y un valor mayor lanza un error de índice;
+        // el original también fallaba (IfThenFrm.guardarCondicion, IfThenFrm.cs:1152/1184). Se
+        // valida aquí, sin tocar el motor.
+        if (Relaciones.Count > 0 && !RangoCumplibleValido(RangoCondiciones, Relaciones.Count))
+        {
+            AppServices.MostrarError("La cantidad de condiciones que se deben cumplir debe estar entre 0 y "
+                + Relaciones.Count + " (las condiciones de la lista).");
+            return null;
+        }
+        if (RelacionesGrupos.Count > 0 && !RangoCumplibleValido(RangoGrupos, RelacionesGrupos.Count))
+        {
+            AppServices.MostrarError("La cantidad de grupos que se deben cumplir debe estar entre 0 y "
+                + RelacionesGrupos.Count + " (los grupos de la lista).");
+            return null;
+        }
 
         var ifThen = new ControladorIfThen();
 
@@ -507,6 +523,23 @@ public partial class IfThenFrmViewModel : ObservableObject
         }
 
         return ifThen;
+    }
+
+    // Valores "n", "a,b" o "a-b" (lo que lee RangosHelper.ObtenIntArray) todos entre 0 y maximo.
+    private static bool RangoCumplibleValido(string rango, int maximo)
+    {
+        int[] valores;
+        try
+        {
+            valores = new Free1X2.Utils.RangosHelper().ObtenIntArray(rango);
+        }
+        catch (FormatException) { return false; }
+        catch (OverflowException) { return false; }
+        foreach (int v in valores)
+        {
+            if (v < 0 || v > maximo) return false;
+        }
+        return true;
     }
 
     // ======================= Comandos: menú (MenuCondiciones legacy) =======================

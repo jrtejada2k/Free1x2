@@ -19,8 +19,9 @@ namespace Free1X2.WinUI.Views.Ported;
 /// <summary>
 /// Un partido de la quiniela dentro del editor de Grupos de Equipos.
 /// Cada partido ofrece dos selecciones independientes (equipo de casa "1" y
-/// equipo de fuera "2"); marcar ambas equivale al signo "X" (valor '3' en el
-/// modelo legacy <c>GrupoEquipos.Pronosticos</c>).
+/// equipo de fuera "2"); marcar ambas mete en el grupo a los dos equipos del partido
+/// (valor '3' en el modelo legacy <c>GrupoEquipos.Pronosticos</c>): el motor cuenta
+/// 1 victoria y 1 derrota si gana uno, o 2 empates si empatan (GrupoEquipos.cs, caso '3').
 /// Equivale a los pares de Label "lblCasaN"/"lblFueraN" del WinForms
 /// <c>GruposEquiposFrm.AñadirCasillas()</c>.
 /// </summary>
@@ -65,7 +66,7 @@ public partial class PartidoEquipos : ObservableObject
 /// y al Aceptar se vuelcan al <see cref="FiltroGruposEquipos"/> del grupo, se activa la
 /// condición y se notifica el cambio (equivale a <c>menuCondiciones1_BOk</c>).
 /// La selección casa/fuera por partido se codifica como en <c>ObtenEquiposSeleccionados</c>
-/// del WinForms: '0'=ninguno, '1'=casa, '2'=fuera, '3'=ambos (X).
+/// del WinForms: '0'=ninguno, '1'=casa, '2'=fuera, '3'=los dos equipos del partido.
 /// </summary>
 public partial class GruposEquiposFrmViewModel : ObservableObject
 {
@@ -249,28 +250,35 @@ public partial class GruposEquiposFrmViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Rellena los nombres de los equipos de cada partido desde la jornada online compartida
-    /// (<see cref="AppState.JornadaActual"/>), análogo a GruposEquiposFrm.LlenaEquipos + getEquipo
-    /// (Free1X2/UI/Filtros/GruposEquiposFrm.cs:177-201), que en el WinForms leía
-    /// FormPadre.pronosticos.BuscarControl(n).EquipoCasa / EquipoFuera del boleto.
-    ///
-    /// Cableado real: cuando el usuario descarga una jornada (pantalla "Descarga de boleto"),
-    /// los 14 equipos local/visitante quedan en AppState.JornadaActual; aquí se vuelcan a las
-    /// etiquetas "casa N"/"fuera N" para que se muestren los NOMBRES REALES. Si todavía no se ha
-    /// descargado ninguna jornada (modo offline), se conservan los textos por defecto
-    /// "Equipo casa N" / "Equipo fuera N" fijados en el constructor (comportamiento sin cambios).
-    /// La selección casa/fuera (la parte funcional del filtro) ya estaba cableada al motor.
+    /// Rellena los nombres de los equipos de cada partido desde el boleto de Inicio, como
+    /// GruposEquiposFrm.LlenaEquipos + getEquipo (Free1X2/UI/Filtros/GruposEquiposFrm.cs:177-201),
+    /// que leía FormPadre.pronosticos.BuscarControl(n).EquipoCasa / EquipoFuera.
+    /// El boleto de Inicio vive en <see cref="AppState.EquiposInicio"/> ("LOCAL - VISITANTE",
+    /// "? - ?" sin equipos). Sin nombre en el boleto la etiqueta queda vacía, igual que el
+    /// original (EquipoBoleto.Equipo = txtEquipo.Text, vacío por defecto).
     /// </summary>
     private void LlenaEquipos()
     {
-        Free1X2.Online.JornadaQuiniela? jornada = AppState.Instancia.JornadaActual;
-        if (jornada is null) return;
-
-        for (int i = 0; i < Partidos.Count && i < jornada.Partidos.Count; i++)
+        string[] equipos = AppState.Instancia.EquiposInicio;
+        for (int i = 0; i < Partidos.Count; i++)
         {
-            Free1X2.Online.PartidoJornada p = jornada.Partidos[i];
-            Partidos[i].EquipoCasa = p.Local;
-            Partidos[i].EquipoFuera = p.Visitante;
+            string partido = i < equipos.Length ? equipos[i] ?? "" : "";
+            string casa = "", fuera = "";
+            if (partido.Trim().Length > 0 && partido != "? - ?")
+            {
+                int idx = partido.IndexOf(" - ", StringComparison.Ordinal);
+                if (idx < 0)
+                {
+                    casa = partido.Trim();
+                }
+                else
+                {
+                    casa = partido.Substring(0, idx).Trim();
+                    fuera = partido.Substring(idx + 3).Trim();
+                }
+            }
+            Partidos[i].EquipoCasa = casa;
+            Partidos[i].EquipoFuera = fuera;
         }
     }
 

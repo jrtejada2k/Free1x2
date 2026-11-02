@@ -289,10 +289,13 @@ public partial class FrmDependenciaLinealViewModel : ObservableObject
 
         MensajeEstado = "Se han grabado " + columnasGrabadas + " columnas";
 
-        // Legacy GrabarColumnas() relee las columnas al terminar (recarga porcentajes).
+        // Legacy GrabarColumnas() relee las columnas al terminar (recarga porcentajes). Relee la
+        // ENTRADA, no la salida: LeerColumnas() abre archivoEntrada (FrmDependenciaLineal.cs:1540,
+        // llamado desde GrabarColumnas, :1691), así que una segunda pasada parte otra vez de la
+        // entrada (si la salida es la misma ruta, ya contiene lo grabado, igual que en el original).
         try
         {
-            double[,] porcentajes = await Task.Run(() => LeerColumnas(_rutaSalida));
+            double[,] porcentajes = await Task.Run(() => LeerColumnas(_rutaEntrada));
             _ = porcentajes; // los porcentajes recalculados se mostrarían en el control de % (no portado aquí)
         }
         catch (Exception ex)

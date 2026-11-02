@@ -237,6 +237,12 @@
             <Border Style="{StaticResource AppCardStyle}">
                 <StackPanel Spacing="5">
                     <TextBlock Text="Acciones" Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <!-- Columna que analiza «Analizar» (legacy tCG, grupo «Análisis Resultados», TriosFrm.cs:248, 1222) -->
+                    <TextBox Header="Columna Ganadora"
+                             MaxWidth="240"
+                             HorizontalAlignment="Left"
+                             Text="{x:Bind ViewModel.ColumnaGanadora, Mode=TwoWay}"
+                             AutomationProperties.Name="Columna ganadora a analizar" />
                     <StackPanel Orientation="Horizontal" Spacing="5">
                         <Button Content="Calcular"
                                 Style="{StaticResource AccentButtonStyle}"
