@@ -19,6 +19,8 @@ Desde Windows **no se ha tocado** `Free1X2.Mac/`: todas las referencias Swift de
 
 ## M1 · «Calcular» desde el menú, el panel lateral o F5 debe usar el boleto de Inicio
 
+Issue [#17](https://github.com/jrtejada2k/Free1x2/issues/17).
+
 **Qué pasa.** Solo el botón «Calcular» de Inicio pone `sesion.usarCombinacionCompartida = true`
 (`App/Pantallas/Inicio/VistaInicio.swift:262`). El menú «Calcular…» con F5 (`App/Navegacion/Menus.swift:71`) y el panel
 lateral (`App/Navegacion/Lateral.swift:24`) abren la pantalla sin esa marca. Entonces `cargar()` crea una combinación
@@ -33,6 +35,8 @@ donde se abra. Referencia: `Free1X2.WinUI/Views/Ported/CalculaColumnasFrmViewMod
 desde el botón de Inicio.
 
 ## M2 · Filtro Pim: el algoritmo del original, no el de Aidomnou
+
+Issue [#18](https://github.com/jrtejada2k/Free1x2/issues/18).
 
 **Qué pasa.** Pim usa el motor de Aidomnou (`columnasAidomnou` / `filtrarAidomnou`) por DEC-922
 (`Packages/Free1X2Kit/Sources/Free1X2CasosDeUso/Utilidades/Aidomnou.swift:5-6,123-127`;
@@ -66,6 +70,8 @@ Después, ajustar la pantalla como en `Free1X2.WinUI/Views/Ported/GeneraPimViewM
 
 ## M3 · Una línea en blanco del fichero de filtro no es una columna
 
+Issue [#19](https://github.com/jrtejada2k/Free1x2/issues/19).
+
 **Qué pasa.** Con un filtro de columnas, `usaColumnasArchivo` analiza cada línea, también las vacías
 (`Packages/Free1X2Kit/Sources/Free1X2Motor/Calculo/Analizador.swift:291-307`). Una línea vacía tiene menos de 14
 caracteres y se rellena con `completarCon` (`:301-302`, y `Free1X2Base/Codificaciones/UtilColumnas.swift:38-40`). En
@@ -93,6 +99,8 @@ es la prueba **I5**.
 
 ## M4 · Fraccionador por tramos: no perder columnas
 
+Issue [#20](https://github.com/jrtejada2k/Free1x2/issues/20).
+
 **Qué pasa.** `fraccionar` solo da el resto al último fichero si es menor que un tramo
 (`Packages/Free1X2Kit/Sources/Free1X2CasosDeUso/Utilidades/Utilidades.swift:195-196,216-224`, por DEC-918). Por ejemplo,
 10 líneas en 4 tramos se graban como 2+2+2+2 y **se pierden 2**.
@@ -114,8 +122,18 @@ En la app es la prueba **O4**: `O4_diez.txt` en 4 tramos ⇒ los 4 ficheros junt
 
 - **Rangos en las condiciones.** El manual dice que valen rangos como `2-6` (`docs/MANUAL_USUARIO.md:271,277`), pero ni
   Windows ni la Mac los aceptan: hay que escribir `2,3,4,5,6`. En Windows, además, el error sale en inglés: «The input
-  string '3-6' was not in a correct format». Hay dos salidas: corregir el manual (y `docs/FAQ.md` y `docs/web/`) o
-  aceptar rangos en las dos apps.
+  string '3-6' was not in a correct format». Issue [#21](https://github.com/jrtejada2k/Free1x2/issues/21).
+
+  **Por qué no los aceptan.** En el original, Variantes no tenía cajas de texto: era una fila de botones 0–14
+  (`Free1X2/UI/Filtros/NoVariantesFrm.cs:95`, control `OptionNumTol0_14`), y el control montaba la lista `0,3,5` para
+  el motor (`:255`). El motor solo entiende esa lista: parte por comas y convierte cada trozo con `Convert.ToInt32`
+  (`Free1X2.Domain/MotorCalculo/FiltroNoVariantes.cs:231-243`). El port cambió los botones por cajas de texto
+  (`NoVariantesFrmPage.xaml:34,49,64`) que pasan lo escrito tal cual, y la Mac lo copió. El manual generalizó a partir
+  de las pantallas que sí aceptan rangos porque usan `RangosHelper` (Columnas probables, If-Then, Formatos, Grupos de
+  equipos y Escrutinios).
+
+  Hay dos salidas. Una es corregir el manual (y `docs/FAQ.md` y `docs/web/`). La otra es aceptar rangos en las dos apps:
+  la pantalla expande `2-6` a `2,3,4,5,6` antes de pasarlo al motor, y así el motor no cambia.
 
 ## Pendiente de añadir
 
