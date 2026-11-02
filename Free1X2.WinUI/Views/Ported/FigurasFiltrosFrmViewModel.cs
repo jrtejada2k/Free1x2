@@ -16,7 +16,7 @@ namespace Free1X2.WinUI.Views.Ported;
 /// <summary>
 /// Una casilla editable de figura. Equivale a un <c>CtrlCasillaFigura</c> dentro del
 /// <c>CtrlFiguras</c> del WinForms <c>FigurasFiltrosFrm</c>: el usuario escribe el valor
-/// de una figura (cada dígito hexadecimal admite "0".."16" o el comodín "*").
+/// de una figura (valores 0..15 separados por «-», p. ej. "8-5-4-3").
 /// </summary>
 public partial class CasillaFiguraViewModel : ObservableObject
 {
@@ -32,7 +32,7 @@ public partial class CasillaFiguraViewModel : ObservableObject
     /// <summary>Etiqueta visible de la casilla (1-based) ya formateada como cadena.</summary>
     public string Etiqueta => (Indice + 1).ToString();
 
-    /// <summary>Texto de la figura tal como lo escribe el usuario (p. ej. "1234*").</summary>
+    /// <summary>Texto de la figura tal como lo escribe el usuario (p. ej. "8-5-4-3").</summary>
     [ObservableProperty]
     private string _texto = string.Empty;
 }
@@ -103,11 +103,13 @@ public partial class FigurasFiltrosFrmViewModel : ObservableObject
     public ObservableCollection<CasillaFiguraViewModel> Casillas { get; }
 
     /// <summary>
-    /// Texto de ayuda con los valores permitidos por casilla.
-    /// (Equivale a valoresPermitidos = 0..16 y "*" en el form legacy.)
+    /// Texto de ayuda con los valores permitidos por casilla. El legacy no tenía ayuda; su lista
+    /// valoresPermitidos (0..16 y "*") no se aplica de verdad: la figura se lee partiendo por «-»
+    /// (UtilidadesEntradasValores.ObtenerLongFiguraFromText) y cada valor ocupa 4 bits (0..15);
+    /// un «*» no se puede convertir y la casilla se descarta (G-2).
     /// </summary>
     public string ValoresPermitidosTexto =>
-        "Valores admitidos por casilla: 0 a 16, o el comodín *.";
+        "Cada valor de la figura, de 0 a 15, separado del siguiente por «-».";
 
     // Valida que cada dígito hexadecimal de la figura esté en 0..16 (legacy: valoresPermitidos).
     private static bool EsFiguraValida(long figura)

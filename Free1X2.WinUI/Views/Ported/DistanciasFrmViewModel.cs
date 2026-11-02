@@ -19,13 +19,13 @@ namespace Free1X2.WinUI.Views.Ported;
 /// <summary>
 /// ViewModel del filtro "Distancias".
 /// La distancia es el número máximo de partidos que separan dos signos iguales.
-/// El filtro mantiene cuatro juegos de valores: Var (cualquier signo), 1, X y 2.
-/// Cada propiedad almacena los valores admitidos (rango 0..15) tal como el control
+/// El filtro mantiene cuatro juegos de valores: Var (variantes, X o 2), 1, X y 2.
+/// Cada propiedad almacena los valores admitidos (rango 0..NumeroPartidos = 0..14) tal como el control
 /// legacy OptionNumTol0_14 (lista de tolerancias).
 /// </summary>
 public partial class DistanciasFrmViewModel : FiltroArchivoViewModelBase
 {
-    // Distancias para "Var" (cualquier signo). Equivale a filtro.GetIntVar()/SetNoIntVar().
+    // Distancias para "Var" (variantes: X o 2, FiltroDistancias.MascVariantes). Equivale a filtro.GetIntVar()/SetNoIntVar().
     [ObservableProperty]
     private string _distanciasVar = string.Empty;
 

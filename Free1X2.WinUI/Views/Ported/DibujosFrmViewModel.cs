@@ -58,9 +58,10 @@ public partial class DibujosFrmViewModel : FiltroArchivoViewModelBase
 {
     /// <summary>
     /// Número de partidos de la quiniela. En WinForms se lee de
-    /// <c>VariablesGlobales.NumeroPartidos</c> (con respaldo 15).
+    /// <c>VariablesGlobales.NumeroPartidos</c> (con respaldo 15) (GridDibujosCentral.cs línea 18):
+    /// 14 partidos ⇒ 120 casillas (antes fijo a 15 ⇒ 136, con dibujos imposibles como 15+0).
     /// </summary>
-    public const int NumPartidos = 15;
+    public static int NumPartidos => VariablesGlobales.NumeroPartidos;
 
     public ObservableCollection<DibujoCeldaViewModel> Dibujos { get; } = new();
 

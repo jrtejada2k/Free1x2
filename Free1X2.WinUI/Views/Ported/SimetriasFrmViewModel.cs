@@ -194,8 +194,14 @@ public partial class SimetriasFrmViewModel : FiltroArchivoViewModelBase
 
         var simetrias = ObtenerSimetrias();
         var aciertos = ObtenerAciertos();
-        // Si hay una entrada inválida, el form legacy muestra un error y NO cierra.
-        if (simetrias is null || aciertos is null) return;
+        // Si hay una entrada inválida, el form legacy muestra un error y NO cierra (SimetriasFrm.cs líneas 431-434).
+        if (simetrias is null || aciertos is null)
+        {
+            AppServices.MostrarError(
+                "Verifique que ha introducido una simetria correcta: (a,b) ó (a-b) ó (a,b-c), \n" +
+                "y que ha introducido un número válido de aciertos");
+            return;
+        }
 
         var filtro = (FiltroSimetrias)grupo.GetFiltro(Filtro.Simetrias.ToString());
         filtro.ArraySimetrias = simetrias;

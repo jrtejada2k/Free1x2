@@ -12,7 +12,7 @@
             <StackPanel Spacing="6">
                 <TextBlock Text="Figuras" Style="{StaticResource PageTitleTextBlockStyle}" />
                 <TextBlock
-                    Text="Edita la lista de figuras asociadas a este filtro. Cada casilla representa una figura; escribe sus dígitos o usa el comodín."
+                    Text="Edita la lista de figuras asociadas a este filtro. Cada casilla representa una figura; escribe sus valores separados por «-» (p. ej. 8-5-4-3-1-1-1-1)."
                     Style="{StaticResource SecondaryTextBlockStyle}"
                     TextWrapping="Wrap" />
             </StackPanel>
@@ -42,7 +42,6 @@
                                                HorizontalAlignment="Center" />
                                     <TextBox Text="{x:Bind Texto, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                              TextAlignment="Center"
-                                             MaxLength="6"
                                              AutomationProperties.Name="{x:Bind Etiqueta}" />
                                 </StackPanel>
                             </DataTemplate>

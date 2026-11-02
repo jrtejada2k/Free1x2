@@ -7,7 +7,7 @@ namespace Free1X2.WinUI.Views.Ported;
 /// <summary>
 /// Página portada del WinForms "FigurasFiltrosFrm".
 /// Edita la lista de figuras de una condición de filtro mediante una rejilla de casillas
-/// (cada casilla admite los valores 0..16 o el comodín "*"). Recibe la List&lt;long&gt; a editar
+/// (cada casilla, una figura: valores 0..15 separados por «-»). Recibe la List&lt;long&gt; a editar
 /// del form padre (Contactos / SignosSeguidos / PesosNum) vía el handoff estático
 /// <c>FigurasFiltrosFrmViewModel.FigurasEnEdicion</c> y escribe los cambios sobre esa misma
 /// referencia al Aceptar. La carga desde archivo .fig{Condicion} está implementada en el

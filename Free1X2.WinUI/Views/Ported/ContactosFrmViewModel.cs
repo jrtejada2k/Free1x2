@@ -135,8 +135,10 @@ public partial class ContactosFrmViewModel : FiltroArchivoViewModelBase
     /// </summary>
     private void GuardarDatos(FiltroContactos filtro)
     {
-        // El form legacy construye "todos" sobre el rango 0..15 del control (std1X.Minimo..Maximo).
-        string todosValores = Free1X2.Utils.UtilidadesEntradasValores.ObtenerTodosValores(0, 15);
+        // El form legacy construye "todos" sobre std1X.Minimo..Maximo, y OptionNumTol0_14.Maximo devuelve
+        // VariablesGlobales.NumeroPartidos (14) aunque el diseñador ponga 15 (OptionNumTol0_14.cs:87-104).
+        // Con 0..15 el 15 se salía de los arrays del filtro (0..14) y la condición quedaba a medias (C-1).
+        string todosValores = Free1X2.Utils.UtilidadesEntradasValores.ObtenerTodosValores();
 
         if (ContieneDatos())
         {
@@ -218,6 +220,10 @@ public partial class ContactosFrmViewModel : FiltroArchivoViewModelBase
         var grupo = AppState.GrupoEnEdicion;
         if (grupo is null) { Volver?.Invoke(); return; }
 
+        // Valida antes con un filtro temporal (mismo patrón W2 que DistanciasFrmViewModel.Aceptar). Si un
+        // valor no es válido lanza aquí y el filtro del grupo queda como estaba, no activo y a medias (C-2).
+        GuardarDatos(new FiltroContactos());
+
         var filtro = (FiltroContactos)grupo.GetFiltro(Filtro.Contactos.ToString());
         GuardarDatos(filtro);
         filtro.UsaFiguras();
@@ -281,12 +287,17 @@ public partial class ContactosFrmViewModel : FiltroArchivoViewModelBase
     [RelayCommand]
     private void Borrar()
     {
-        // Equivale a menuCondiciones1_BBorrar -> reinstanciar el filtro + MarcarValores().
+        // Equivale a menuCondiciones1_BBorrar -> reinstanciar el filtro + MarcarValores()
+        //   (ContactosFrm.cs líneas 700-707), C-4. El legacy lo mete con ActivaFiltro(g, "Contactos", true),
+        //   es decir activo y sin ningún valor admitido; aquí entra inactivo, como en SimetriasFrmViewModel.Borrar,
+        //   para que «Borrar» + «Cancelar» no deje una condición que rechaza todas las columnas.
         foreach (var fila in Filas)
         {
             fila.Valores = string.Empty;
         }
         _figuras = null;
         TieneFiguras = false;
+        var grupo = AppState.GrupoEnEdicion;
+        grupo?.ActivaFiltro(new FiltroContactos());
     }
 }

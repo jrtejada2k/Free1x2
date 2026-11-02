@@ -17,7 +17,7 @@
             <!-- ===== Valores de distancia por tipo de signo ===== -->
             <Border Style="{StaticResource AppCardStyle}">
                 <StackPanel Spacing="6">
-                    <TextBlock Text="Valores admitidos (0–15)" Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <TextBlock Text="Valores admitidos (0–14)" Style="{StaticResource CardTitleTextBlockStyle}" />
                     <TextBlock Text="Introduce las distancias permitidas para cada tipo de signo. Separa varios valores con comas (p. ej. 0,1,2)."
                                Style="{StaticResource SecondaryTextBlockStyle}"
                                TextWrapping="Wrap" />
@@ -34,7 +34,7 @@
                         <TextBox Grid.Column="1"
                                  PlaceholderText="p. ej. 0,1,2"
                                  Text="{x:Bind ViewModel.DistanciasVar, Mode=TwoWay}"
-                                 AutomationProperties.Name="Distancias para cualquier signo (Var)" />
+                                 AutomationProperties.Name="Distancias para las variantes, X o 2 (Var)" />
                     </Grid>
 
                     <!-- 1 -->
