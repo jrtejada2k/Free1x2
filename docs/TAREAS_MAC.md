@@ -240,6 +240,25 @@ grupo E de [`pruebas/filtros/plan_e.md`](pruebas/filtros/plan_e.md)). Windows: c
 No se aplican a la Mac (comprobado al leer el Swift): «Nueva» repetido al volver a Inicio (`App/Arranque/Sesion.swift:190-201`
 ejecuta la acción en el momento) y el primer «Calcula» de Valoración (`Valoracion.swift:87` vuelca al teclear).
 
+## M10 · Signos bloqueados en los grupos y botones «Todos / Ninguno» (4-nov-2026)
+
+Issue [#27](https://github.com/jrtejada2k/Free1x2/issues/27). Decisión del dueño; Windows commit `c46d570`.
+
+Un grupo no tiene signos propios: el motor genera las columnas con los signos del boleto base y cada grupo solo guarda
+qué partidos incluye (`Free1X2/UI/MainForm.cs:556-571`, `Grupo.cs:165-175`). El original dejaba cambiar los signos
+estando en un grupo, y ese cambio tocaba todo el boleto sin que se notara. Ahora:
+
+- En un grupo distinto del base, los signos 1/X/2 **se ven pero no se pueden pulsar**, y el botón «Reiniciar a 14
+  triples» está deshabilitado. En el boleto base, todo igual que antes.
+- Encima del boleto, solo en un grupo: el texto «Los signos se cambian en el Boleto Base. Pulse el número para meter o
+  sacar el partido del grupo.» y dos botones **«Todos»** y **«Ninguno»** que meten o sacan todos los partidos del grupo
+  (el doble clic en el título sigue funcionando).
+- Las columnas generadas no cambian: es solo cómo se edita.
+
+Depende de M9 (los partidos de cada grupo). **Prueba:** en un grupo, pulsar una X no cambia «Triples: 14»; «Ninguno»
+atenúa las 14 filas y deshabilita las condiciones; clic en el número 3 lo activa; «Todos» activa los 14; de vuelta al
+boleto base, los signos se pueden pulsar y la barra no se ve.
+
 ## Otras notas
 
 
@@ -251,7 +270,7 @@ los problemas de pantalla de `docs/pruebas/RESULTADOS_2026-11-01.md`.
 Hacen falta las tres cosas:
 - los tests de `Free1X2Kit` en verde, incluidos los nuevos de M2–M4;
 - el CI de `.github/workflows/mac.yml` en verde;
-- la prueba de la app indicada en cada tarea (I4, F5, I5, O4; para M5–M9, las de `docs/pruebas/filtros/plan_*.md` con
+- la prueba de la app indicada en cada tarea (I4, F5, I5, O4; para M5–M10, las de `docs/pruebas/filtros/plan_*.md` con
   lo esperado de su `README.md`), con su resultado anotado.
 
 Al terminar, marca aquí cada tarea con su commit.

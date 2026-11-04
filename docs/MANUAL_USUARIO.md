@@ -353,6 +353,8 @@ Todas siguen el mismo patrón: abrir → introducir valores/rangos → activar.
 ### Grupos y control de fallos
 Las condiciones se organizan en **grupos**. Un grupo es una agrupación independiente de condiciones que forman un todo; puedes crear varios e ir navegando entre ellos para definir y combinar subsistemas dentro de una misma combinación. Su utilidad principal es **condicionar unos grupos contra otros mediante el control de fallos**: p. ej. poner en un grupo "5–9 variantes y 4–9 interrupciones" y en otro "10–12 variantes y 6–10 interrupciones", y pedir que el nº de fallos entre ambos grupos sea 1 → así se cumple **uno u otro, pero no los dos**: si una columna cumple los dos sistemas, falla 0 grupos y se rechaza. Para que valga cualquiera de los dos (también ambos), pide fallos `0,1`. A nivel avanzado, los conjuntos de grupos pueden usarse como una condición más sobre los aciertos de los controles de grupos.
 
+**Partidos de cada grupo.** Un grupo no tiene signos propios: los signos son siempre los del **Boleto Base**, y por eso en un grupo se ven pero no se pueden cambiar. Lo que eliges en cada grupo son sus **partidos**: pulsa el número de un partido para meterlo o sacarlo del grupo, o usa **Todos** / **Ninguno** (también vale doble clic en el título del boleto). Los partidos que no están en el grupo salen atenuados, y sin ningún partido no se puede pasar al grupo siguiente.
+
 ---
 
 ## 7. Columnas Probables (CP)

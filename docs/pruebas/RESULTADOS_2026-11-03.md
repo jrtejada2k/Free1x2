@@ -59,3 +59,15 @@ App **1.1.0+35ac2ee**, con los commits `0b29f4a` (N-1), `558912c` (G-1), `8a2db0
 | V-3 | Valoración ▸ columna `11X111X11121X1` ▸ un solo «Calcula» | Valor **623** |
 
 El grupo E queda **10 bien, 0 mal** ([`evidencias/verificar-2026-11-04.txt`](evidencias/verificar-2026-11-04.txt): 15 de 15).
+
+### Signos de solo lectura en los grupos (decisión del dueño, 4-nov-2026)
+
+Commit `c46d570`. Build 0 errores, tests 209/209, smoke 111/111. Comprobado en la app (grupo 1, combinación nueva):
+
+| Paso | Resultado |
+|---|---|
+| Pulsar la X del partido 3 | No cambia: sigue «Triples: 14» |
+| «Ninguno» | Las 14 filas atenuadas |
+| Clic en el número 3 | Solo la fila 3 normal |
+| «Todos» | Las 14 activas |
+| Volver al Boleto Base | Barra oculta y signos pulsables |
