@@ -169,8 +169,10 @@ comprueba que la racha salta del P4 al P8. Después: Nueva.
 `FE3b.txt` ⇒ **176** (al menos uno de los dos).
 
 **FE3x. Sonda** (grupos creados desde Inicio)
-1. Nueva ▸ B3 ▸ **Grupo siguiente** (crea el grupo 1) ▸ Variantes y Interrupciones como en el paso 3 de FE3 ▸ **Grupo
-   siguiente** (crea el 2) ▸ como el paso 4 ▸ Control de Grupos `1,2` / `1` ▸ OK ▸ Primer grupo ▸ Calcular ▸ `FE3x.txt`.
+1. Nueva ▸ B3 ▸ **Grupo siguiente** (crea el grupo 1) ▸ **doble clic en el título** «Grupo 1 / 1» (activa sus 14
+   partidos; desde `558912c`) ▸ Variantes y Interrupciones como en el paso 3 de FE3 ▸ **Grupo siguiente** (crea el 2) ▸
+   doble clic en el título ▸ como el paso 4 ▸ Control de Grupos `1,2` / `1` ▸ OK ▸ Primer grupo ▸ Calcular ▸ `FE3x.txt`.
+   Sin activar partidos, «Grupo siguiente» avisa «No ha especificado ningún partido…» y no avanza.
 
 **Debe salir:** **82**, lo mismo que FE3. **Predicción por el código: Aceptadas 0.** El grupo nuevo tiene
 `partidosActivos` todo a `false` (`Grupo.cs:65-68`); `GrupoPartidos.AddGrupo` le calcula la máscara (`GrupoPartidos.cs:37-39`,

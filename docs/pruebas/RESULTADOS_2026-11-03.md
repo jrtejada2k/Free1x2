@@ -44,3 +44,18 @@ figuras son muy pequeños para acertar con el ratón.
 
 **Manual:** con «Fallos = 1» el control de grupos exige que falle **exactamente** uno, no «uno u otro» (FE3 = 82
 frente a FE3b = 176). Ver hallazgo CG-1 de `plan_e.md`.
+
+## Tras los arreglos (4-nov-2026)
+
+App **1.1.0+35ac2ee**, con los commits `0b29f4a` (N-1), `558912c` (G-1), `8a2db0a` (R-1), `6da50b0` (V-1) y `7f0854f`
+(V-3). Build 0 errores, tests 209/209, smoke 111/111. Comprobado en la app:
+
+| Fallo | Comprobación | Resultado |
+|---|---|---|
+| N-1 | Calcular ▸ Nueva ▸ Máscaras ▸ B3 ▸ Variantes ▸ Aceptar ▸ Calcular | Máximo **216** (antes 4.782.969) |
+| G-1 | FE3x con los partidos activados (doble clic en el título del grupo) | **82** OK (antes 0); el grupo nuevo sale con las filas atenuadas y las condiciones deshabilitadas |
+| R-1 | Abrir Rentabilidad | Recaudación **14000000**, la de Configuración |
+| V-1 | Variantes ▸ Var `15` ▸ Aceptar | Rótulo «(0–14)» y aviso «Las cantidades admitidas van de 0 a 14, separadas por comas.» |
+| V-3 | Valoración ▸ columna `11X111X11121X1` ▸ un solo «Calcula» | Valor **623** |
+
+El grupo E queda **10 bien, 0 mal** ([`evidencias/verificar-2026-11-04.txt`](evidencias/verificar-2026-11-04.txt): 15 de 15).
