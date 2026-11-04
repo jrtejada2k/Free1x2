@@ -214,6 +214,30 @@ Issue [#25](https://github.com/jrtejada2k/Free1x2/issues/25).
 - **Separador de porcentajes JB:** falta la rejilla 14×7 del original con los signos por banda y la fila «Nº».
   App `Utilidades/Filtros.swift:98-160`.
 
+## M9 · Grupos de Inicio, Rentabilidad y rótulos «0–15» (3-nov-2026)
+
+Salen de las pruebas en la app del 3-nov ([`pruebas/RESULTADOS_2026-11-03.md`](pruebas/RESULTADOS_2026-11-03.md),
+grupo E de [`pruebas/filtros/plan_e.md`](pruebas/filtros/plan_e.md)). Windows: commits `558912c`, `8a2db0a`, `6da50b0`.
+
+- **Grupos creados desde Inicio sin partidos (el más grave).** «Grupo siguiente» crea un grupo vacío y nadie le pone
+  partidos, así que cualquier condición en él ve la columna vacía y da 0 columnas (FE3x: 0 en vez de 82).
+  Kit `Free1X2Motor/Configuracion/GrupoConfig.swift:60`, `Free1X2CasosDeUso/Inicio.swift:234`; «Grupo siguiente» en
+  App `Inicio/VistaInicio.swift:114-117`. **Qué hacer**, como el original (`Free1X2/UI/Controls/Pronosticos.cs:682-711,780-805`,
+  `MainForm.cs:563-571,1543-1559`) y Windows `558912c`: en un grupo distinto del base, cada partido se activa o
+  desactiva (en Windows, clic en su número; doble clic en el título, todos); las filas fuera del grupo salen atenuadas;
+  los partidos se guardan en el grupo; y «Grupo siguiente» desde un grupo sin partidos avisa «No ha especificado ningún
+  partido, especifique al menos un partido para seguir» (Atención) y no avanza. La forma de marcarlos en la Mac la
+  decide el dueño. **Prueba:** FE3x de `plan_e.md` (con los partidos activados) ⇒ **82**.
+- **Rentabilidad arranca con recaudación 8.000.000** fija; debe ser la de Configuración (la de Progol con jornada de
+  México), como el original (`RentabilidadFrm.cs:96-101`). App `Utilidades/Premios.swift:176`. **Prueba:** FE1 sin
+  tocar la recaudación ⇒ **82** (con 8.000.000 da 60).
+- **Rótulos «(0–15)»** en Variantes y Signos Seguidos (además del de Distancias de M5): deben decir «(0–14)», y un 15 al
+  Aceptar debe dar un aviso claro. App `Condiciones/NoVariantes.swift:31`, `Condiciones/SignosSeguidos.swift:38`.
+- **Manual:** con «Fallos = 1» el control de grupos exige que falle exactamente uno (FE3 = 82, FE3b con `0,1` = 176).
+
+No se aplican a la Mac (comprobado al leer el Swift): «Nueva» repetido al volver a Inicio (`App/Arranque/Sesion.swift:190-201`
+ejecuta la acción en el momento) y el primer «Calcula» de Valoración (`Valoracion.swift:87` vuelca al teclear).
+
 ## Otras notas
 
 
@@ -225,7 +249,7 @@ los problemas de pantalla de `docs/pruebas/RESULTADOS_2026-11-01.md`.
 Hacen falta las tres cosas:
 - los tests de `Free1X2Kit` en verde, incluidos los nuevos de M2–M4;
 - el CI de `.github/workflows/mac.yml` en verde;
-- la prueba de la app indicada en cada tarea (I4, F5, I5, O4; para M5–M8, las de `docs/pruebas/filtros/plan_*.md` con
+- la prueba de la app indicada en cada tarea (I4, F5, I5, O4; para M5–M9, las de `docs/pruebas/filtros/plan_*.md` con
   lo esperado de su `README.md`), con su resultado anotado.
 
 Al terminar, marca aquí cada tarea con su commit.
