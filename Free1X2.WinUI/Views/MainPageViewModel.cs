@@ -51,7 +51,28 @@ public partial class MainPageViewModel : ObservableObject
     public Action<Type>? Navegar { get; set; }
 
     /// <summary>Referencia al boleto base (la fija la Page tras InitializeComponent).</summary>
-    public BoletoBaseViewModel? Boleto { get; set; }
+    public BoletoBaseViewModel? Boleto
+    {
+        get => _boleto;
+        set
+        {
+            if (_boleto != null) _boleto.PartidosActivosCambiados = null;
+            _boleto = value;
+            if (_boleto != null) _boleto.PartidosActivosCambiados = ActualizarCondicionesHabilitadas;
+        }
+    }
+    private BoletoBaseViewModel? _boleto;
+
+    /// <summary>
+    /// Condiciones habilitadas: en un grupo &gt; 0, solo si tiene algún partido activo
+    /// (Pronosticos.ComprobarPartidosActivos: <c>groupBox.Enabled = !(NumPartidosActivos == 0)</c>,
+    /// Pronosticos.cs:492-499).
+    /// </summary>
+    [ObservableProperty]
+    private bool _condicionesHabilitadas = true;
+
+    private void ActualizarCondicionesHabilitadas() =>
+        CondicionesHabilitadas = _estado.GrupoPantalla == 0 || _estado.GrupoActual.HayPartidosActivos();
 
     public AppState Estado => _estado;
 
@@ -215,6 +236,7 @@ public partial class MainPageViewModel : ObservableObject
         // Sincroniza el título de la cabecera salmón del boleto (Pronosticos.lblTitulo).
         if (Boleto != null)
             Boleto.Titulo = TituloGrupo;
+        ActualizarCondicionesHabilitadas();
         InfoGrupos = analizador.GruposPartidos.Count == 1
             ? "1 grupo"
             : $"{analizador.GruposPartidos.Count} grupos";
@@ -398,6 +420,13 @@ public partial class MainPageViewModel : ObservableObject
     [RelayCommand]
     private void GrupoSiguiente()
     {
+        // BtnGrupoSiguienteClick (MainForm.cs:1543-1559): desde un grupo > 0 sin partidos activos no se avanza.
+        if (_estado.GrupoPantalla > 0 && !_estado.GrupoActual.HayPartidosActivos())
+        {
+            AppServices.MostrarAviso(
+                "No ha especificado ningún partido,\nespecifique al menos un partido para seguir", "Atención");
+            return;
+        }
         Boleto?.VolcarPronosticosAlMotor();
         CambiarGrupo(_estado.GrupoPantalla + 1);
     }

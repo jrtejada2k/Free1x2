@@ -188,6 +188,9 @@ public static class AppServices
     /// <summary>Muestra un mensaje informativo (marshalado al hilo de UI).</summary>
     public static void MostrarInfo(string mensaje) => EncolarDialogo("Free1X2", mensaje);
 
+    /// <summary>Muestra un aviso con el título del original (p. ej. «Atención»), marshalado al hilo de UI.</summary>
+    public static void MostrarAviso(string mensaje, string titulo) => EncolarDialogo(titulo, mensaje);
+
     private static void EncolarDialogo(string titulo, string mensaje)
     {
         var disp = UiDispatcher;

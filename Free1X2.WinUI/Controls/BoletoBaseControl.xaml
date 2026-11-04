@@ -30,7 +30,8 @@
                                Text="{x:Bind ViewModel.Titulo, Mode=OneWay}"
                                FontWeight="SemiBold" FontSize="13"
                                Foreground="{ThemeResource AppErrorBrush}"
-                               VerticalAlignment="Center" />
+                               VerticalAlignment="Center"
+                               DoubleTapped="Titulo_DoubleTapped" />
                     <!-- W8 (DT-82): nombre del fichero de la combinación -->
                     <TextBlock Grid.Column="1"
                                Text="{x:Bind ViewModel.NombreFichero, Mode=OneWay}"
@@ -100,7 +101,8 @@
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="controls:PartidoBaseViewModel">
                         <Grid ColumnSpacing="3" Padding="2,0" Height="26"
-                              Background="{ThemeResource AppSurfaceBrush}">
+                              Background="{ThemeResource AppSurfaceBrush}"
+                              Opacity="{x:Bind OpacidadFila, Mode=OneWay}">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="20" />
                                 <ColumnDefinition Width="*" />
@@ -110,16 +112,23 @@
                                 <ColumnDefinition Width="26" />
                             </Grid.ColumnDefinitions>
 
-                            <TextBlock Grid.Column="0"
-                                       Text="{x:Bind NumeroTexto}"
-                                       VerticalAlignment="Center"
-                                       HorizontalAlignment="Center"
-                                       FontSize="11"
-                                       Foreground="{ThemeResource AppTextSecondaryBrush}" />
+                            <!-- Clic en el número: en un grupo > 0 activa/desactiva el partido
+                                 (PartidoBoleto.lblNumPartido_Click). -->
+                            <Button Grid.Column="0"
+                                    Content="{x:Bind NumeroTexto}"
+                                    Command="{x:Bind AlternarActivoCommand}"
+                                    VerticalAlignment="Center"
+                                    HorizontalAlignment="Center"
+                                    Width="20" Height="22" MinWidth="0" Padding="0"
+                                    Background="Transparent" BorderThickness="0"
+                                    FontSize="11"
+                                    Foreground="{ThemeResource AppTextSecondaryBrush}"
+                                    AutomationProperties.Name="Activar o desactivar el partido en el grupo" />
 
                             <ComboBox Grid.Column="1"
                                       IsEditable="True"
                                       Text="{x:Bind Local, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                      IsEnabled="{x:Bind Activo, Mode=OneWay}"
                                       VerticalAlignment="Center"
                                       MinWidth="0" MinHeight="22" Height="22"
                                       Padding="5,0,2,0" FontSize="11"
@@ -128,6 +137,7 @@
                             <ComboBox Grid.Column="2"
                                       IsEditable="True"
                                       Text="{x:Bind Visitante, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                      IsEnabled="{x:Bind Activo, Mode=OneWay}"
                                       VerticalAlignment="Center"
                                       MinWidth="0" MinHeight="22" Height="22"
                                       Padding="5,0,2,0" FontSize="11"
@@ -136,6 +146,7 @@
                             <ToggleButton Grid.Column="3"
                                           Content="1"
                                           IsChecked="{x:Bind Signo1, Mode=TwoWay}"
+                                          IsEnabled="{x:Bind Activo, Mode=OneWay}"
                                           Height="22" FontSize="11"
                                           Style="{StaticResource SignoToggleButtonStyle}"
                                           AutomationProperties.HelpText="Signo 1 (gana el local)" />
@@ -143,6 +154,7 @@
                             <ToggleButton Grid.Column="4"
                                           Content="X"
                                           IsChecked="{x:Bind SignoX, Mode=TwoWay}"
+                                          IsEnabled="{x:Bind Activo, Mode=OneWay}"
                                           Height="22" FontSize="11"
                                           Style="{StaticResource SignoToggleButtonStyle}"
                                           AutomationProperties.HelpText="Signo X (empate)" />
@@ -150,6 +162,7 @@
                             <ToggleButton Grid.Column="5"
                                           Content="2"
                                           IsChecked="{x:Bind Signo2, Mode=TwoWay}"
+                                          IsEnabled="{x:Bind Activo, Mode=OneWay}"
                                           Height="22" FontSize="11"
                                           Style="{StaticResource SignoToggleButtonStyle}"
                                           AutomationProperties.HelpText="Signo 2 (gana el visitante)" />

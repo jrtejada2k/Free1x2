@@ -17,4 +17,9 @@ public sealed partial class BoletoBaseControl : UserControl
     {
         this.InitializeComponent();
     }
+
+    // Doble clic en la cabecera (Pronosticos.lblTitulo_DoubleClick): activa/desactiva todos los
+    // partidos del grupo, o reinicia a triples en el boleto base.
+    private void Titulo_DoubleTapped(object sender, Microsoft.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
+        => ViewModel.AlternarTodosPartidos();
 }

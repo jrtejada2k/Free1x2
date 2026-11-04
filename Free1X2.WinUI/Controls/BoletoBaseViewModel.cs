@@ -151,6 +151,25 @@ public partial class PartidoBaseViewModel : ObservableObject
         }
     }
 
+    /// <summary>
+    /// Partido activo en el grupo en pantalla (réplica de <c>PartidoBoleto.IsEnabled</c>). En el boleto
+    /// base, siempre. En un grupo &gt; 0 solo los partidos del grupo: los demás salen desactivados y
+    /// atenuados (el original los pintaba en Silver, PartidoBoleto.cs:70-84).
+    /// </summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(OpacidadFila))]
+    private bool _activo = true;
+
+    /// <summary>Opacidad de la fila: atenuada si el partido no está en el grupo.</summary>
+    public double OpacidadFila => Activo ? 1.0 : 0.45;
+
+    /// <summary>
+    /// Clic en el número del partido: en un grupo &gt; 0 lo activa/desactiva
+    /// (PartidoBoleto.lblNumPartido_Click, PartidoBoleto.cs:214-222); en el boleto base no hace nada.
+    /// </summary>
+    [RelayCommand]
+    private void AlternarActivo() => _owner.AlternarPartido(this);
+
     partial void OnSigno1Changed(bool value) => _owner.AlCambiarSigno();
     partial void OnSignoXChanged(bool value) => _owner.AlCambiarSigno();
     partial void OnSigno2Changed(bool value) => _owner.AlCambiarSigno();
@@ -262,6 +281,7 @@ public partial class BoletoBaseViewModel : ObservableObject
             var analizador = AppState.Instancia.Analizador;
             string[]? pronosticos = analizador.Pronosticos;
             string[] guardados = AppState.Instancia.EquiposInicio;
+            bool[]? partidosGrupo = GrupoNoBase()?.Partidos;
 
             for (int i = 0; i < Partidos.Count; i++)
             {
@@ -278,6 +298,10 @@ public partial class BoletoBaseViewModel : ObservableObject
                 // copia tomada antes del bucle: cada asignación reescribe AppState.EquiposInicio.
                 string? equipo = EquipoGuardado(guardados, i);
                 if (equipo != null) fila.Equipos = equipo;
+
+                // Partidos del grupo en pantalla (Pronosticos.CambiaGrupo, Pronosticos.cs:712-737): en el
+                // boleto base todos activos (ActivaTodosPartidos(true)); en otro grupo, los suyos (ActivaPartidos).
+                fila.Activo = partidosGrupo == null || (i < partidosGrupo.Length && partidosGrupo[i]);
             }
         }
         finally
@@ -285,6 +309,64 @@ public partial class BoletoBaseViewModel : ObservableObject
             _cargando = false;
         }
         RecalcularResumen();
+    }
+
+    /// <summary>
+    /// Avisa de que han cambiado los partidos activos del grupo (MainPage habilita o no las
+    /// condiciones, como Pronosticos.ComprobarPartidosActivos, Pronosticos.cs:492-499).
+    /// </summary>
+    public System.Action? PartidosActivosCambiados { get; set; }
+
+    // Grupo en pantalla si no es el boleto base; null en el boleto base.
+    private static Grupo? GrupoNoBase()
+    {
+        var estado = AppState.Instancia;
+        return estado.GrupoPantalla > 0 ? estado.GrupoActual : null;
+    }
+
+    /// <summary>Activa/desactiva un partido del grupo en pantalla (lblNumPartido_Click). Nada en el boleto base.</summary>
+    internal void AlternarPartido(PartidoBaseViewModel fila)
+    {
+        var grupo = GrupoNoBase();
+        if (grupo is null) return;
+        fila.Activo = !fila.Activo;
+        GuardarPartidosGrupo(grupo);
+    }
+
+    /// <summary>
+    /// Doble clic en el título (Pronosticos.lblTitulo_DoubleClick, Pronosticos.cs:780-805): en un grupo
+    /// &gt; 0 activa todos si no hay ninguno activo y, si hay alguno, los desactiva todos; en el boleto
+    /// base reinicia a triples (InicializaPronosticos).
+    /// </summary>
+    public void AlternarTodosPartidos()
+    {
+        var grupo = GrupoNoBase();
+        if (grupo is null)
+        {
+            ReiniciarTriples();
+            return;
+        }
+        bool activar = true;
+        foreach (var p in Partidos)
+        {
+            if (p.Activo) { activar = false; break; }
+        }
+        foreach (var p in Partidos) p.Activo = activar;
+        GuardarPartidosGrupo(grupo);
+    }
+
+    // Guarda en el motor los partidos activos del grupo. El original los tenía en Pronosticos.grupoPronosticos
+    // (GuardaPartidosGrupoActivo, Pronosticos.cs:682-697) y MainForm.ObtenPartidosGrupos (MainForm.cs:563-571)
+    // los pasaba a grupo.Partidos antes de calcular; aquí no hay copia aparte y se escriben al momento.
+    private void GuardarPartidosGrupo(Grupo grupo)
+    {
+        var partidos = new bool[grupo.Partidos.Length];
+        for (int i = 0; i < partidos.Length && i < Partidos.Count; i++)
+        {
+            partidos[i] = Partidos[i].Activo;
+        }
+        grupo.Partidos = partidos; // el setter recalcula la máscara del grupo
+        PartidosActivosCambiados?.Invoke();
     }
 
     /// <summary>

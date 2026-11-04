@@ -142,63 +142,71 @@
                         <TextBlock Text="Condiciones del grupo"
                                    Style="{StaticResource AccentCardTitleTextBlockStyle}" />
 
-                        <Grid x:Name="GridCondiciones" ColumnSpacing="8" SizeChanged="Adaptables_SizeChanged">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <ItemsControl x:Name="CondicionesIzq" Grid.Column="0"
-                                          ItemsSource="{x:Bind ViewModel.CondicionesIzquierda}"
-                                          ItemTemplate="{StaticResource CondicionTemplate}" />
-                            <ItemsControl x:Name="CondicionesDer" Grid.Column="1"
-                                          ItemsSource="{x:Bind ViewModel.CondicionesDerecha}"
-                                          ItemTemplate="{StaticResource CondicionTemplate}" />
-                        </Grid>
+                        <!-- Condiciones y sus botones: deshabilitados en un grupo sin partidos activos
+                             (Pronosticos.ComprobarPartidosActivos → MainForm.groupBox.Enabled). -->
+                        <ContentControl HorizontalContentAlignment="Stretch"
+                                        IsTabStop="False"
+                                        IsEnabled="{x:Bind ViewModel.CondicionesHabilitadas, Mode=OneWay}">
+                            <StackPanel Spacing="5">
+                            <Grid x:Name="GridCondiciones" ColumnSpacing="8" SizeChanged="Adaptables_SizeChanged">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <ItemsControl x:Name="CondicionesIzq" Grid.Column="0"
+                                              ItemsSource="{x:Bind ViewModel.CondicionesIzquierda}"
+                                              ItemTemplate="{StaticResource CondicionTemplate}" />
+                                <ItemsControl x:Name="CondicionesDer" Grid.Column="1"
+                                              ItemsSource="{x:Bind ViewModel.CondicionesDerecha}"
+                                              ItemTemplate="{StaticResource CondicionTemplate}" />
+                            </Grid>
 
-                        <!-- Fila de botones: Tolerancias | Condiciones Relacionadas (If-Then) -->
-                        <Grid x:Name="GridBotonesCondiciones" ColumnSpacing="10" SizeChanged="Adaptables_SizeChanged">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <Button Grid.Column="0" HorizontalAlignment="Stretch"
-                                    HorizontalContentAlignment="Left" Padding="8,3" MinHeight="0"
-                                    Command="{x:Bind ViewModel.AbrirToleranciasCommand}"
-                                    AutomationProperties.Name="Tolerancias">
-                                <StackPanel Orientation="Horizontal" Spacing="6">
-                                    <FontIcon Glyph="&#xE9E9;" FontFamily="Segoe Fluent Icons" FontSize="12"
-                                              Foreground="{ThemeResource AppAccentBrush}" />
-                                    <TextBlock Text="Tolerancias" FontSize="12" VerticalAlignment="Center" />
-                                </StackPanel>
-                            </Button>
-                            <Button x:Name="BotonIfThen" Grid.Column="1" HorizontalAlignment="Stretch"
-                                    HorizontalContentAlignment="Left" Padding="8,3" MinHeight="0"
-                                    Command="{x:Bind ViewModel.AbrirIfThenCommand}"
-                                    AutomationProperties.Name="Condiciones Relacionadas (If-Then)">
-                                <Grid ColumnSpacing="6">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
-                                    <controls:SemaforoControl Width="12" Height="12"
-                                                              Estado="{x:Bind ViewModel.EstadoIfThen, Mode=OneWay}"
-                                                              VerticalAlignment="Center" />
-                                    <TextBlock Grid.Column="1" Text="Condiciones Relacionadas" FontSize="12"
-                                               VerticalAlignment="Center"
-                                               TextWrapping="WrapWholeWords"
-                                               MaxLines="2"
-                                               TextTrimming="CharacterEllipsis" />
-                                </Grid>
-                            </Button>
-                        </Grid>
+                            <!-- Fila de botones: Tolerancias | Condiciones Relacionadas (If-Then) -->
+                            <Grid x:Name="GridBotonesCondiciones" ColumnSpacing="10" SizeChanged="Adaptables_SizeChanged">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Button Grid.Column="0" HorizontalAlignment="Stretch"
+                                        HorizontalContentAlignment="Left" Padding="8,3" MinHeight="0"
+                                        Command="{x:Bind ViewModel.AbrirToleranciasCommand}"
+                                        AutomationProperties.Name="Tolerancias">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <FontIcon Glyph="&#xE9E9;" FontFamily="Segoe Fluent Icons" FontSize="12"
+                                                  Foreground="{ThemeResource AppAccentBrush}" />
+                                        <TextBlock Text="Tolerancias" FontSize="12" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </Button>
+                                <Button x:Name="BotonIfThen" Grid.Column="1" HorizontalAlignment="Stretch"
+                                        HorizontalContentAlignment="Left" Padding="8,3" MinHeight="0"
+                                        Command="{x:Bind ViewModel.AbrirIfThenCommand}"
+                                        AutomationProperties.Name="Condiciones Relacionadas (If-Then)">
+                                    <Grid ColumnSpacing="6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <controls:SemaforoControl Width="12" Height="12"
+                                                                  Estado="{x:Bind ViewModel.EstadoIfThen, Mode=OneWay}"
+                                                                  VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="1" Text="Condiciones Relacionadas" FontSize="12"
+                                                   VerticalAlignment="Center"
+                                                   TextWrapping="WrapWholeWords"
+                                                   MaxLines="2"
+                                                   TextTrimming="CharacterEllipsis" />
+                                    </Grid>
+                                </Button>
+                            </Grid>
+                            </StackPanel>
+                        </ContentControl>
                     </StackPanel>
                 </Border>
 
