@@ -216,6 +216,9 @@ Issue [#25](https://github.com/jrtejada2k/Free1x2/issues/25).
 
 ## Otras notas
 
+La app móvil no tiene estas pantallas: ver [`TAREAS_MOVIL.md`](TAREAS_MOVIL.md).
+
+
 No se aplican a la Mac, porque son cosas de WinUI: el fichero vacío que deja el selector de Guardar en el Fraccionador y
 los problemas de pantalla de `docs/pruebas/RESULTADOS_2026-11-01.md`.
 
