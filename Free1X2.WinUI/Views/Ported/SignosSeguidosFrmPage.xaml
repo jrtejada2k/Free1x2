@@ -17,7 +17,7 @@
             <!-- ===== Cantidades admitidas por tipo de signo seguido ===== -->
             <Border Style="{StaticResource AppCardStyle}">
                 <StackPanel Spacing="6">
-                    <TextBlock Text="Cantidades admitidas (0–15)" Style="{StaticResource CardTitleTextBlockStyle}" />
+                    <TextBlock Text="Cantidades admitidas (0–14)" Style="{StaticResource CardTitleTextBlockStyle}" />
                     <TextBlock Text="Introduce las cantidades permitidas para cada concepto. Separa varios valores con comas (p. ej. 0,1,2)."
                                Style="{StaticResource SecondaryTextBlockStyle}"
                                TextWrapping="Wrap" />

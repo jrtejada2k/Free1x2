@@ -20,7 +20,7 @@ namespace Free1X2.WinUI.Views.Ported;
 /// ViewModel del filtro "Número de Variantes" (WinForms <c>NoVariantesFrm</c>).
 /// El filtro mantiene tres juegos de valores que indican la cantidad admitida de
 /// Variantes, de signos X y de signos 2 dentro de cada combinación.
-/// Cada propiedad almacena la lista de cantidades admitidas (rango 0..15) tal como
+/// Cada propiedad almacena la lista de cantidades admitidas (rango 0..NumeroPartidos = 0..14) tal como
 /// el control legacy <c>OptionNumTol0_14</c> (cadena de tolerancias separadas por comas).
 /// </summary>
 public partial class NoVariantesFrmViewModel : FiltroArchivoViewModelBase
@@ -88,7 +88,18 @@ public partial class NoVariantesFrmViewModel : FiltroArchivoViewModelBase
 
         // W2 (D-04, DT-80): valida antes con un filtro temporal. Si un valor no es válido lanza
         // aquí y el filtro del grupo queda como estaba (antes quedaba reinicializado y activo).
-        ObtenerFiltroTemporal();
+        // El original solo dejaba pulsar 0..NumeroPartidos (OptionNumTol0_14.Maximo); un valor fuera
+        // (p. ej. 15) se salía de los arrays del filtro: se avisa en vez del error inesperado (V-1).
+        try
+        {
+            ObtenerFiltroTemporal();
+        }
+        catch (Exception ex) when (ex is IndexOutOfRangeException or FormatException or OverflowException)
+        {
+            AppServices.MostrarError(
+                $"Las cantidades admitidas van de 0 a {VariablesGlobales.NumeroPartidos}, separadas por comas.");
+            return;
+        }
 
         var filtro = (FiltroNoVariantes)grupo.GetFiltro(Filtro.NoVariantes.ToString());
         string todosValores = UtilidadesEntradasValores.ObtenerTodosValores();
