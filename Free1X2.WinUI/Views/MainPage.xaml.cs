@@ -41,7 +41,10 @@ public sealed partial class MainPage : Page
         // Acción solicitada por un botón de la barra de herramientas (Nueva/Abrir/Guardar
         // combinación, Guardar/Abrir equipos, Borrar temporales/informes). MainWindow navega
         // aquí con el token y la página invoca el comando equivalente del MainForm original.
-        if (e.Parameter is AccionInicio accion && accion != AccionInicio.Ninguna)
+        // Solo en navegación nueva: al volver (GoBack desde una condición, Esc) el Frame repite
+        // el mismo parámetro y «Nueva» creaba otra combinación, perdiendo el boleto (plan E, P1).
+        if (e.NavigationMode == NavigationMode.New
+            && e.Parameter is AccionInicio accion && accion != AccionInicio.Ninguna)
         {
             // B-06: la Task se OBSERVA. Antes era `_ = ViewModel.EjecutarAccionAsync(accion);`
             // y una excepción (p. ej. abrir una combinación corrupta) se perdía con la Task
