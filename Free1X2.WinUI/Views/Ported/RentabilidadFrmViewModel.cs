@@ -59,8 +59,10 @@ public partial class RentabilidadFrmViewModel : ObservableObject
 
     // --- Recaudación considerada (legacy: textBox1 + textBox1_TextChanged) ---
     // En el legacy fija el PremioTope = Recaudacion * Porcentaje14 / 100.
+    // Arranca con la recaudación de Configuración, como el original (RentabilidadFrm.cs:98,101:
+    // Recaudacion = VariablesGlobales.Recaudacion); W21: la del país de la jornada cargada.
     [ObservableProperty]
-    private double _recaudacion = 8000000;
+    private double _recaudacion = ParametrosLAEActuales.Calculo().Recaudacion;
 
     // --- Límites de Esperanza Matemática (legacy: txEMmin / txEMmax) ---
     [ObservableProperty]
