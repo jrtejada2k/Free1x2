@@ -10,6 +10,10 @@ calcula lo esperado sin usar el motor de la app:
 | B | Formatos, Formatos 123, Pesos, Valoración, Análisis de signos, Saca formatos, Analizador | [`plan_b.md`](plan_b.md) | `scripts/pruebas_filtros_b.py` |
 | C | Columnas probables, Grupos de equipos, If-Then, Pares, Tríos, Dependencia lineal | [`plan_c.md`](plan_c.md) | `scripts/pruebas_filtros_c.py` |
 | D | GEPT, Control de tolerancias, Listado de condiciones, Separador JB, Tramificar ▸ Filtrar por límites | [`plan_d.md`](plan_d.md) | `scripts/pruebas_filtros_d.py` |
+| E | Lo que faltaba de la guía habitual: Rentabilidad, CP parcial, control de fallos entre grupos, figuras de Signos Seguidos, simetrías en espejo, Variantes solo con doses | [`plan_e.md`](plan_e.md) | `scripts/pruebas_filtros_e.py` |
+
+Resultados en la app: [`../RESULTADOS_2026-11-03.md`](../RESULTADOS_2026-11-03.md) (FC1, FC2, FC13, FB8, FB9 y todo el
+grupo E). El resto de A–D sigue pendiente.
 
 ```bash
 python -I scripts/pruebas_filtros_a.py                       # comprueba el verificador e imprime lo esperado

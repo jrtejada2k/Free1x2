@@ -93,7 +93,8 @@ Relaciones I, II y III y Control Fallos.
 1. Nueva ▸ B3.
 2. En la pestaña Columnas:
    - **Pronóstico:** `112X11X21121X1`, con los rangos vacíos.
-   - Pulsa **«>»** («Columna siguiente»). La paginación pasa a **2/2**.
+   - Pulsa **«>»** («Columna siguiente») **dos veces**: la primera solo guarda la CP 1 (sigue en 1/1, igual que el
+     original, `Free1X2/UI/Filtros/ColProbablesFrm.cs:621-641`); la segunda pasa a **2/2**.
    - **Pronóstico:** `2X1X1XX1` (8 signos, la CP solo abarca P1–P8), con los rangos vacíos.
 3. En la pestaña **Relaciones I**:
    - **Columnas:** `1-2`

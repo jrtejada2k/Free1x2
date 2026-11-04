@@ -1,0 +1,15 @@
+OK  FB8   82 líneas                      B3 + Valoración por sumas (FB_val_mixta): Global «590-610#640-660»
+OK  FB9   59 líneas                      FB8 + rango del 1 «300-380»
+OK  FC1   80 columnas (mismo contenido, otro orden) Columnas probables: B3 + 1 CP «112X11X21121X1», Aciertos 10,11,12 · Ac. Seguidos 5,6,7,8 · Fallos Seguidos 0,1
+OK  FC2   114 columnas (mismo contenido, otro orden) Columnas probables: B3 + CP1 «112X11X21121X1» y CP2 «2X1X1XX1» (P1–P8) sin rangos + Relaciones I: Columnas 1-2, Suma Aciertos 13-14
+OK  FC13  216 columnas (mismo contenido, otro orden) Columnas probables: «Todos a Triple» + Aciertos 14 (sonda): una CP de 14 triples la acierta toda columna ⇒ 216. El código (ColProbablesFrmViewModel.cs:345-351 y 429-435) la convierte al Aceptar en «1X21X21X21X21X» ⇒ predice 0
+OK  FE1   82 columnas                    Rentabilidad: Fichero FE_B3.txt, recaudación 14.000.000, EM mín 1 máx 2
+OK  FE2   94 columnas                    B3 + CP parcial (P1 1 · P3 X · P4 X2 · P8 1 · P9 2), Aciertos 3-5
+OK  FE2b  72 columnas                    FE2 + Fallos Seguidos 0,1
+OK  FE3   82 columnas                    B3 + grupo 1 (Var 4,5,6,7 · Int 9,10,11) y grupo 2 (Var 6,7,8,9 · Int 8,9,10); Control 1,2 Fallos 1
+OK  FE3b  176 columnas                   FE3 con Fallos 0,1
+MAL FE3x  0 columnas, se esperaban 82; faltan ['112111X12121X1', '112111X21121X1', '11211XXX1121X1'] FE3 creando los grupos con «Grupo siguiente» (sonda; el código predice 0, hallazgo G-1)
+OK  FE4   52 columnas                    B3 + Signos seguidos: «1» 1,2 + Figuras Variantes 3-2-1-1-1 y 2-2-1-1-1
+OK  FE5   174 columnas                   B3 + Simetrías espejo 1,8 … 7,14; Aciertos 0-3
+OK  FE6   148 columnas                   B3 + Variantes: Var y X vacíos, 2 = 1,2,3
+OK  FE6b  148 columnas                   B3 + Variantes: Var = 0,…,14, X vacío, 2 = 1,2,3 (igual que FE6)
