@@ -102,7 +102,7 @@
                                    Style="{StaticResource CardTitleTextBlockStyle}" />
                         <TextBox Grid.Row="0" Grid.Column="1"
                                  PlaceholderText="100-200#200-600"
-                                 Text="{x:Bind ViewModel.ValorGlobal, Mode=TwoWay}"
+                                 Text="{x:Bind ViewModel.ValorGlobal, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                  AutomationProperties.Name="Rango de valoración global" />
 
                         <TextBlock Grid.Row="1" Grid.Column="0" Text="1"
@@ -110,7 +110,7 @@
                                    Style="{StaticResource CardTitleTextBlockStyle}" />
                         <TextBox Grid.Row="1" Grid.Column="1"
                                  PlaceholderText="0-100"
-                                 Text="{x:Bind ViewModel.ValorUnos, Mode=TwoWay}"
+                                 Text="{x:Bind ViewModel.ValorUnos, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                  AutomationProperties.Name="Rango de valoración del signo 1" />
 
                         <TextBlock Grid.Row="2" Grid.Column="0" Text="X"
@@ -118,7 +118,7 @@
                                    Style="{StaticResource CardTitleTextBlockStyle}" />
                         <TextBox Grid.Row="2" Grid.Column="1"
                                  PlaceholderText="0-100"
-                                 Text="{x:Bind ViewModel.ValorEquis, Mode=TwoWay}"
+                                 Text="{x:Bind ViewModel.ValorEquis, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                  AutomationProperties.Name="Rango de valoración del signo X" />
 
                         <TextBlock Grid.Row="3" Grid.Column="0" Text="2"
@@ -126,7 +126,7 @@
                                    Style="{StaticResource CardTitleTextBlockStyle}" />
                         <TextBox Grid.Row="3" Grid.Column="1"
                                  PlaceholderText="0-100"
-                                 Text="{x:Bind ViewModel.ValorDoses, Mode=TwoWay}"
+                                 Text="{x:Bind ViewModel.ValorDoses, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                  AutomationProperties.Name="Rango de valoración del signo 2" />
                     </Grid>
                 </StackPanel>
@@ -148,7 +148,7 @@
                         <TextBox Grid.Column="1"
                                  CharacterCasing="Upper"
                                  PlaceholderText="Columna de N signos (1 / X / 2)"
-                                 Text="{x:Bind ViewModel.Columna, Mode=TwoWay}"
+                                 Text="{x:Bind ViewModel.Columna, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                  AutomationProperties.Name="Columna de signos a valorar" />
                     </Grid>
 
