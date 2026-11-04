@@ -103,7 +103,6 @@ Y, además:
 | [`docs/PLAN_MEJORAS.md`](docs/PLAN_MEJORAS.md) | Plan de mejoras post-v0.82.0 (fases F1–F6, con evidencia `file:line`). |
 | [`docs/TAREAS_WINDOWS.md`](docs/TAREAS_WINDOWS.md) | Especificación W1–W22 para igualar Windows con la app Mac (hecha). |
 | [`docs/TAREAS_MAC.md`](docs/TAREAS_MAC.md) | Pendiente para la app Mac: M1–M4 (arreglos del 1-nov-2026) y M5–M8 (pantallas de filtros, 2-nov-2026) que la Mac aún no tiene. |
-| [`docs/TAREAS_MOVIL.md`](docs/TAREAS_MOVIL.md) | Móvil: hoy no hay app con motor (QuinielaGol1X2 es un cliente de API); qué debe llevar M1–M8 si se porta. |
 | [`docs/FAQ.md`](docs/FAQ.md) | Preguntas frecuentes (Windows y Mac). |
 | [`docs/PRUEBAS_WINDOWS.md`](docs/PRUEBAS_WINDOWS.md) | Pruebas funcionales de la app (columnas y resultados reales) y su verificador `scripts/pruebas_windows.py`; resultados en `docs/pruebas/`; filtros A–D en `docs/pruebas/filtros/` (verificadores `scripts/pruebas_filtros_*.py`). |
 | `docs/web/` | `manual.html` y `faq.html` para clubprogol.com/docwk/: se regeneran con `python scripts/md-a-wordpress.py`. |
