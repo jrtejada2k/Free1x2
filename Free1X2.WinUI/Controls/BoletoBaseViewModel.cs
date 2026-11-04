@@ -158,7 +158,21 @@ public partial class PartidoBaseViewModel : ObservableObject
     /// </summary>
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(OpacidadFila))]
+    [NotifyPropertyChangedFor(nameof(SignosEditables))]
     private bool _activo = true;
+
+    /// <summary>
+    /// En pantalla hay un grupo &gt; 0. Los signos son los del boleto base (el grupo solo guarda qué
+    /// partidos incluye, MainForm.ObtenPronosticos/ObtenPartidosGrupos, MainForm.cs:556-571), así que
+    /// en un grupo se ven pero no se cambian. Decisión del dueño (4-nov-2026): el original los dejaba
+    /// editar (Pronosticos.ActivaPartidos, Pronosticos.cs:739-753) y el cambio tocaba todo el boleto.
+    /// </summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SignosEditables))]
+    private bool _enGrupo;
+
+    /// <summary>Los signos 1/X/2 se pueden pulsar: solo en el boleto base.</summary>
+    public bool SignosEditables => Activo && !EnGrupo;
 
     /// <summary>Opacidad de la fila: atenuada si el partido no está en el grupo.</summary>
     public double OpacidadFila => Activo ? 1.0 : 0.45;
@@ -242,6 +256,14 @@ public partial class BoletoBaseViewModel : ObservableObject
     [ObservableProperty]
     private string _nombreFichero = "";
 
+    /// <summary>En pantalla hay un grupo &gt; 0: signos bloqueados, barra «Todos / Ninguno» visible.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(EnBoletoBase))]
+    private bool _modoGrupo;
+
+    /// <summary>Inverso de <see cref="ModoGrupo"/> (botón «Reiniciar a 14 triples»).</summary>
+    public bool EnBoletoBase => !ModoGrupo;
+
     // Construye una fila por partido. Inicialmente "triple" (1,X,2), igual que
     // Pronosticos.InicializaPronosticos() (todos a "1X2") en WinForms.
     // Los nombres salen de AppState.EquiposInicio (sobreviven a la navegación); sin ellos, "? - ?".
@@ -282,6 +304,7 @@ public partial class BoletoBaseViewModel : ObservableObject
             string[]? pronosticos = analizador.Pronosticos;
             string[] guardados = AppState.Instancia.EquiposInicio;
             bool[]? partidosGrupo = GrupoNoBase()?.Partidos;
+            ModoGrupo = partidosGrupo != null;
 
             for (int i = 0; i < Partidos.Count; i++)
             {
@@ -302,6 +325,7 @@ public partial class BoletoBaseViewModel : ObservableObject
                 // Partidos del grupo en pantalla (Pronosticos.CambiaGrupo, Pronosticos.cs:712-737): en el
                 // boleto base todos activos (ActivaTodosPartidos(true)); en otro grupo, los suyos (ActivaPartidos).
                 fila.Activo = partidosGrupo == null || (i < partidosGrupo.Length && partidosGrupo[i]);
+                fila.EnGrupo = ModoGrupo;
             }
         }
         finally
@@ -351,6 +375,22 @@ public partial class BoletoBaseViewModel : ObservableObject
         {
             if (p.Activo) { activar = false; break; }
         }
+        foreach (var p in Partidos) p.Activo = activar;
+        GuardarPartidosGrupo(grupo);
+    }
+
+    /// <summary>Botón «Todos»: mete en el grupo todos los partidos.</summary>
+    [RelayCommand]
+    private void TodosPartidos() => PonerTodosPartidos(true);
+
+    /// <summary>Botón «Ninguno»: saca del grupo todos los partidos.</summary>
+    [RelayCommand]
+    private void NingunoPartidos() => PonerTodosPartidos(false);
+
+    private void PonerTodosPartidos(bool activar)
+    {
+        var grupo = GrupoNoBase();
+        if (grupo is null) return;
         foreach (var p in Partidos) p.Activo = activar;
         GuardarPartidosGrupo(grupo);
     }

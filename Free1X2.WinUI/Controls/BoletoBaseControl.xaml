@@ -11,6 +11,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
@@ -51,13 +52,38 @@
                             Width="26" Height="22" Padding="0"
                             Background="Transparent" BorderThickness="0"
                             Command="{x:Bind ViewModel.ReiniciarCommand}"
+                            IsEnabled="{x:Bind ViewModel.EnBoletoBase, Mode=OneWay}"
                             ToolTipService.ToolTip="Reiniciar a 14 triples"
                             AutomationProperties.Name="Reiniciar el boleto a 14 triples" />
                 </Grid>
             </Border>
 
+            <!-- En un grupo > 0: los signos son los del boleto base y no se cambian aquí;
+                 el grupo solo elige partidos (clic en el número, o Todos / Ninguno). -->
+            <Grid Grid.Row="1" Padding="10,4,8,0" ColumnSpacing="6"
+                  Visibility="{x:Bind ViewModel.ModoGrupo, Mode=OneWay}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0"
+                           Text="Los signos se cambian en el Boleto Base. Pulse el número para meter o sacar el partido del grupo."
+                           FontSize="11" TextWrapping="WrapWholeWords"
+                           Foreground="{ThemeResource AppTextSecondaryBrush}"
+                           VerticalAlignment="Center" />
+                <Button Grid.Column="1" Content="Todos" FontSize="11"
+                        Padding="8,2" MinHeight="0"
+                        Command="{x:Bind ViewModel.TodosPartidosCommand}"
+                        AutomationProperties.Name="Meter todos los partidos en el grupo" />
+                <Button Grid.Column="2" Content="Ninguno" FontSize="11"
+                        Padding="8,2" MinHeight="0"
+                        Command="{x:Bind ViewModel.NingunoPartidosCommand}"
+                        AutomationProperties.Name="Sacar todos los partidos del grupo" />
+            </Grid>
+
             <!-- Fila de cabecera de columnas (#, local, visitante, 1, X, 2) -->
-            <Grid Grid.Row="1" Padding="8,4,8,2" ColumnSpacing="4">
+            <Grid Grid.Row="2" Padding="8,4,8,2" ColumnSpacing="4">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="22" />
                     <ColumnDefinition Width="*" />
@@ -82,7 +108,7 @@
             </Grid>
 
             <!-- 14 filas compactas (número, local, visitante, signos 1/X/2 verdes) -->
-            <ListView Grid.Row="2"
+            <ListView Grid.Row="3"
                       ItemsSource="{x:Bind ViewModel.Partidos}"
                       SelectionMode="None"
                       IsItemClickEnabled="False"
@@ -146,7 +172,7 @@
                             <ToggleButton Grid.Column="3"
                                           Content="1"
                                           IsChecked="{x:Bind Signo1, Mode=TwoWay}"
-                                          IsEnabled="{x:Bind Activo, Mode=OneWay}"
+                                          IsEnabled="{x:Bind SignosEditables, Mode=OneWay}"
                                           Height="22" FontSize="11"
                                           Style="{StaticResource SignoToggleButtonStyle}"
                                           AutomationProperties.HelpText="Signo 1 (gana el local)" />
@@ -154,7 +180,7 @@
                             <ToggleButton Grid.Column="4"
                                           Content="X"
                                           IsChecked="{x:Bind SignoX, Mode=TwoWay}"
-                                          IsEnabled="{x:Bind Activo, Mode=OneWay}"
+                                          IsEnabled="{x:Bind SignosEditables, Mode=OneWay}"
                                           Height="22" FontSize="11"
                                           Style="{StaticResource SignoToggleButtonStyle}"
                                           AutomationProperties.HelpText="Signo X (empate)" />
@@ -162,7 +188,7 @@
                             <ToggleButton Grid.Column="5"
                                           Content="2"
                                           IsChecked="{x:Bind Signo2, Mode=TwoWay}"
-                                          IsEnabled="{x:Bind Activo, Mode=OneWay}"
+                                          IsEnabled="{x:Bind SignosEditables, Mode=OneWay}"
                                           Height="22" FontSize="11"
                                           Style="{StaticResource SignoToggleButtonStyle}"
                                           AutomationProperties.HelpText="Signo 2 (gana el visitante)" />
