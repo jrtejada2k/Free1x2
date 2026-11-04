@@ -216,6 +216,8 @@ Issue [#25](https://github.com/jrtejada2k/Free1x2/issues/25).
 
 ## M9 · Grupos de Inicio, Rentabilidad y rótulos «0–15» (3-nov-2026)
 
+Issue [#26](https://github.com/jrtejada2k/Free1x2/issues/26).
+
 Salen de las pruebas en la app del 3-nov ([`pruebas/RESULTADOS_2026-11-03.md`](pruebas/RESULTADOS_2026-11-03.md),
 grupo E de [`pruebas/filtros/plan_e.md`](pruebas/filtros/plan_e.md)). Windows: commits `558912c`, `8a2db0a`, `6da50b0`.
 
