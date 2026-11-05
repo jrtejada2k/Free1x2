@@ -7,14 +7,27 @@ import Free1X2Motor
 
 extension CasosCondiciones {
     /// `Aceptar` (:126-150): casillas no vacías convertibles y sin repetir (las no convertibles, p. ej. `*`, se omiten).
-    public static func aceptarFiguras(_ casillas: [String]) -> [Int64] {
+    public static func aceptarFiguras(_ casillas: [String], condicion: String = "") -> [Int64] {
         var r: [Int64] = []
         for c in casillas {
-            let t = FormatoNET.recortar(c)
+            var t = FormatoNET.recortar(c)
+            if condicion == "SignosSeguidos" { t = normalizarFiguraSeguidos(t) }
             guard !t.isEmpty, let f = try? UtilidadesEntradasValores.obtenerLongFiguraFromText(t), !r.contains(f) else { continue }
             r.append(f)
         }
         return r
+    }
+
+    /// SS-2 (M11, #28): en Signos seguidos la figura son los tramos de mayor a menor; vale sin guiones («32211», una cifra
+    /// por tramo) y en cualquier orden («1-1-2-3» ⇒ «3-2-1-1»). Lo que no es una figura se deja como estaba.
+    public static func normalizarFiguraSeguidos(_ texto: String) -> String {
+        let partes = texto.contains("-") ? trozos(texto, "-").map(FormatoNET.recortar).filter { !$0.isEmpty } : texto.map(String.init)
+        var numeros: [Int] = []
+        for p in partes {
+            guard let n = Int(p) else { return texto }
+            numeros.append(n)
+        }
+        return numeros.sorted(by: >).map(String.init).joined(separator: "-")
     }
 
     /// `ObtenerTextoFiguraFromLong`.

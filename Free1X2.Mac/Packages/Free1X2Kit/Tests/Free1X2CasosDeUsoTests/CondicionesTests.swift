@@ -33,9 +33,10 @@ struct CondicionesTests {
         #expect(s.map(\.partidos) == ["1,2,3,4", "5,6"])
         #expect(CasosCondiciones.aciertosSimetrias("1,3,39-42,50") == [1, 3, 39, 40])
         #expect(CasosCondiciones.aciertosSimetrias("x") == nil && CasosCondiciones.aciertosSimetrias("") == [])
+        // Sin aciertos la condición (la de las estadísticas) toma «0»; Aceptar avisa (S-2, M11 #28).
+        let t = try #require(try CasosCondiciones.condicionSimetrias(filas: ["1,2"], aciertos: "", numeroPartidos: 14))
+        #expect(t.activa && t.aciertosTexto == "0" && t.aciertos.isEmpty)
         var f = CondicionSimetrias()
-        #expect(try CasosCondiciones.aplicarSimetrias(filas: ["1,2"], aciertos: "", en: &f, numeroPartidos: 14))
-        #expect(f.activa && f.aciertosTexto == "0" && f.aciertos.isEmpty)
         #expect(try !CasosCondiciones.aplicarSimetrias(filas: ["1,a"], aciertos: "", en: &f, numeroPartidos: 14))
     }
 
@@ -304,5 +305,50 @@ struct CondicionesTests {
         f[2] = ("", "5")  // M8 (#25): sin «Tolerancia» no se guarda
         try CasosCondiciones.aplicarTolerancias(f, fallos: "0-1", en: &t)
         #expect(t.tolerancias.count == 1 && t.tolerancias[0].letrasTol == "AB" && t.fallosPermitidos == "0-1")
+    }
+}
+
+/// M11 (#28): fallos heredados que el dueño decidió arreglar.
+@Suite("Heredados arreglados")
+struct HeredadosArregladosTests {
+    @Test func simetriasSinAciertosAvisa() throws {
+        var s = CondicionSimetrias()
+        #expect(throws: ErrorDominio(.general, "Indique los aciertos de las simetrías (por ejemplo 0-3).")) {
+            _ = try CasosCondiciones.aplicarSimetrias(filas: ["1,2"], aciertos: " ", en: &s, numeroPartidos: 14)
+        }
+        #expect(try CasosCondiciones.aplicarSimetrias(filas: ["1,2"], aciertos: "0-1", en: &s, numeroPartidos: 14))
+    }
+
+    @Test func formatosSinAciertosAvisa() {
+        let filas = [FilaFormato123(formato: "12", minimo: "1", maximo: "2")]
+        #expect(
+            CasosCondiciones.avisoFormatos123(filas, aciertos: "", ignorarRepeticiones: false)
+                == "Indique las Líneas Acertadas (por ejemplo 1-3).")
+        #expect(
+            CasosCondiciones.avisoFormatos123(filas, aciertos: "", ignorarRepeticiones: true)
+                == "Indique los Aciertos Globales (por ejemplo 1-3).")
+        #expect(CasosCondiciones.avisoFormatos123(filas, aciertos: "1-3", ignorarRepeticiones: false) == nil)
+        #expect(CasosCondiciones.avisoFormatos123([], aciertos: "", ignorarRepeticiones: false) == nil)
+    }
+
+    @Test func diferenciaNoValida() {
+        #expect(!CasosCondiciones.diferenciaNoValida(TextosDiferencia(), numeroPartidos: 14), "vacía no es «no válida»")
+        #expect(!CasosCondiciones.diferenciaNoValida(TextosDiferencia(lineas: ["1,2", "3-4"]), numeroPartidos: 14))
+        #expect(CasosCondiciones.diferenciaNoValida(TextosDiferencia(lineas: ["1,a"]), numeroPartidos: 14))
+    }
+
+    @Test func signosSeguidosSoloConFiguras() throws {
+        var f = CondicionSignosSeguidos(numeroPartidos: 14)
+        try CasosCondiciones.aplicarSignosSeguidos(["", "", "", ""], figuras: [[0x21], nil, nil, nil], en: &f)
+        #expect(f.activa && f.contieneDatos)
+    }
+
+    @Test func figurasDeSignosSeguidos() {
+        #expect(CasosCondiciones.normalizarFiguraSeguidos("32211") == "3-2-2-1-1")
+        #expect(CasosCondiciones.normalizarFiguraSeguidos("1-1-2-2-3") == "3-2-2-1-1")
+        #expect(CasosCondiciones.normalizarFiguraSeguidos("x") == "x")
+        #expect(
+            CasosCondiciones.aceptarFiguras(["32211"], condicion: "SignosSeguidos")
+                == CasosCondiciones.aceptarFiguras(["3-2-2-1-1"]))
     }
 }

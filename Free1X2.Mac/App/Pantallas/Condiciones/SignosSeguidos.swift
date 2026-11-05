@@ -86,20 +86,25 @@ struct VistaFigurasFiltros: View {
             )
             .foregroundStyle(Color.textoSecundario)
             Tarjeta("Casillas de figuras") {
-                LazyVGrid(columns: Array(repeating: GridItem(.fixed(90)), count: 6), alignment: .leading) {
+                // M11 (#28): casillas de 96 de ancho y letra 15.
+                LazyVGrid(columns: Array(repeating: GridItem(.fixed(96)), count: 6), alignment: .leading) {
                     ForEach(casillas.indices, id: \.self) { i in
                         VStack(alignment: .leading, spacing: 2) {
                             Text("\(i + 1)").font(.caption).foregroundStyle(Color.textoSecundario)
-                            TextField("", text: $casillas[i]).multilineTextAlignment(.center)
+                            TextField("", text: $casillas[i]).multilineTextAlignment(.center).font(.system(size: 15))
                         }
                     }
                 }
-                Text("Cada valor de la figura, de 0 a 15, separado del siguiente por «-».").font(.caption).foregroundStyle(
-                    Color.textoSecundario)
+                Text(
+                    sesion.figuras?.condicion == "SignosSeguidos"
+                        ? "Cada figura son los tramos de signos seguidos, por ejemplo 3-2-2-1-1 o 32211 (se ordenan de mayor a menor)."
+                        : "Cada valor de la figura, de 0 a 15, separado del siguiente por «-»."
+                )
+                .font(.caption).foregroundStyle(Color.textoSecundario)
             }
             HStack {
                 Button("Aceptar") {
-                    sesion.figuras?.resultado = CasosCondiciones.aceptarFiguras(casillas)
+                    sesion.figuras?.resultado = CasosCondiciones.aceptarFiguras(casillas, condicion: sesion.figuras?.condicion ?? "")
                     sesion.router.atras()
                 }
                 .buttonStyle(EstiloPrincipal()).keyboardShortcut(.defaultAction)

@@ -38,6 +38,9 @@ struct VistaFormatos123: View {
                 return c
             },
             aceptar: { c throws(ErrorDominio) in
+                if let aviso = CasosCondiciones.avisoFormatos123(filas, aciertos: aciertos, ignorarRepeticiones: ignorar) {
+                    throw ErrorDominio(.general, aviso)
+                }
                 try aplicar(&c.formatos123)
                 return true
             },

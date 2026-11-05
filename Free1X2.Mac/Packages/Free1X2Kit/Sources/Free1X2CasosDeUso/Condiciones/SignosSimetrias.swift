@@ -12,7 +12,8 @@ extension CasosCondiciones {
     ) throws(ErrorDominio) {
         let todos = "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14"
         f.reinicializaValores()
-        guard textos.contains(where: { !blanco($0) }) else {
+        // SS-1 (M11, #28): solo con figuras la condición también vale.
+        guard textos.contains(where: { !blanco($0) }) || figuras.contains(where: { !($0 ?? []).isEmpty }) else {
             f.activa = false
             f.contieneDatos = false
             return
@@ -93,6 +94,10 @@ extension CasosCondiciones {
     public static func aplicarSimetrias(filas: [String], aciertos: String, en f: inout CondicionSimetrias, numeroPartidos n: Int)
         throws(ErrorDominio) -> Bool
     {
+        // S-2 (M11, #28): con simetrías y sin aciertos se guardaba «0» y no pasaba ninguna columna sin avisar.
+        if blanco(aciertos), let s = try? simetrias(filas, numeroPartidos: n), !s.isEmpty {
+            throw ErrorDominio(.general, "Indique los aciertos de las simetrías (por ejemplo 0-3).")
+        }
         guard let nueva = try condicionSimetrias(filas: filas, aciertos: aciertos, numeroPartidos: n) else { return false }
         f = nueva
         return true

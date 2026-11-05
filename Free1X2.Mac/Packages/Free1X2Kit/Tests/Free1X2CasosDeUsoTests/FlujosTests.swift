@@ -133,6 +133,23 @@ struct FlujosTests {
         #expect(leida.combinacion.grupos.count == 3 && leida.combinacion.ifThen?.esVacio == false)
     }
 
+    /// #16 (M11, #28): al Generar, el If-Then se suma a las condiciones (AND): solo deja pasar lo que ya pasa sin él.
+    @Test func ifThenSeSumaAlGenerar() async throws {
+        let completa = carpeta.appending(path: "Combinaciones/q16.comb")
+        try FileManager.default.createDirectory(at: completa.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try Golden.bytes("Fixtures/corpus/comb/completa.comb").write(to: completa)
+        var c = try CasosInicio.abrirCombinacion(completa, numeroPartidos: 14, entorno: entorno).combinacion
+        c.ponerPronosticos((0..<14).map { $0 < 8 ? "1,X,2" : "1" })
+        let con = try await calcular(c, en: "q16_con.txt")
+        let ifThen = c.ifThen
+        c.ifThen = nil
+        let sin = try await calcular(c, en: "q16_sin.txt")
+        #expect(ifThen?.esVacio == false && con.aceptadas <= sin.aceptadas)
+        // Sin aceptadas no se crea el fichero.
+        let sinIfThen = Set((try? lineas(sin.salida)) ?? [])
+        #expect(((try? lineas(con.salida)) ?? []).allSatisfy { sinIfThen.contains($0) })
+    }
+
     /// F11: reducir JD-01 a 13 da entre 73 (K₃(6,1)) y 729 columnas y garantiza 13 aciertos a todas.
     @Test func f11Reducir() async throws {
         let entrada = try fichero("Columnas/seis_triples.txt", Self.seisTriples)
@@ -330,7 +347,8 @@ struct FlujosTests {
         #expect(c == original)
         let antes = try generar(original)
         let despues = try generar(c)
-        #expect(!antes.isEmpty && despues == antes)
+        // Con el If-Then sumado a las condiciones (#16) `completa.comb` ya no acepta columnas: se comparan los textos.
+        #expect(despues == antes)
     }
 
     /// F16: «Ver premiadas ▸ Guardar todas» tras el escrutinio de JD-01: las 473 columnas con 10 o más aciertos.
@@ -357,7 +375,8 @@ struct FlujosTests {
             uno.append(contentsOf: [0x0D, 0x0A])
         }
         let p = try await MotorCalculo.calcularEnParalelo(c, configuracion: .porDefecto, leerLineas: { _ in [] }, grabar: true, hilos: 3)
-        #expect(p.calculo == r && r.aceptadas > 0)
+        // Con el If-Then sumado a las condiciones (#16) `completa.comb` ya no acepta columnas.
+        #expect(p.calculo == r && r.analizadas == 59_049)
         #expect(p.texto.flatMap { $0 } == uno)
     }
 

@@ -74,6 +74,15 @@ extension CasosCondiciones {
         f.activa = f.contieneDatos
     }
 
+    /// H2 (M11, #28): con formatos y la lista de aciertos vacía no pasaba ninguna columna sin avisar; `nil` = vale.
+    public static func avisoFormatos123(_ filas: [FilaFormato123], aciertos texto: String, ignorarRepeticiones: Bool) -> String? {
+        guard !formatos123(filas, ignorarRepeticiones: ignorarRepeticiones).isEmpty, aciertosFormatos123(texto).isEmpty else {
+            return nil
+        }
+        return ignorarRepeticiones
+            ? "Indique los Aciertos Globales (por ejemplo 1-3)." : "Indique las Líneas Acertadas (por ejemplo 1-3)."
+    }
+
     /// `Traducir` (:265-283): columna de N signos 1/X/2 o «Error!!!!».
     public static func traducirFormatos123(_ columna: String, valoracion: [[Double]], numeroPartidos n: Int) throws(ErrorDominio) -> String
     {

@@ -147,13 +147,14 @@ public struct RelacionCP1Config: Sendable, Hashable {
 
     public mutating func ponerColumnas(_ s: String) throws(ErrorDominio) {
         columnas = s
-        try ListasCP.columnas(s, en: &columnasRelacionadas, "CondicionColProbables:150")
+        // H11 (M11, #28): mezclas y desorden («0,2-3», «3,1»).
+        try ListasCP.columnas(try RangosHelper.listaOrdenada(s), en: &columnasRelacionadas, "CondicionColProbables:150")
     }
 
     /// `SumaAciertos` (:311-351): `""` no toca el array.
     public mutating func ponerSumaAciertos(_ s: String) throws(ErrorDominio) {
         sumaAciertos = s
-        if !s.isEmpty { try ListasCP.aciertos(s, en: &sumas, "CondicionColProbables:156") }
+        if !s.isEmpty { try ListasCP.aciertos(try RangosHelper.listaOrdenada(s), en: &sumas, "CondicionColProbables:156") }
     }
 
     /// `Recorridos` (:353-393): siempre `bool[15]`; un valor ≥ 15 lanza.

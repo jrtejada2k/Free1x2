@@ -40,6 +40,9 @@ struct TramificarTests {
         solo[0] = [0, 1, 1, 1]
         let f = try await CasosUtilidades.filtrarTramos(e, extremos: solo)
         #expect(f.quedan == 4_782_969 - 28)
+        // D-FL5 (M11, #28): «Difs. desde» 2 conserva las 28 vecinas a 1 diferencia y elimina las 364 a 2.
+        solo[0] = [0, 1, 2, 2]
+        #expect(try await CasosUtilidades.filtrarTramos(e, extremos: solo).quedan == 4_782_969 - 364)
         #expect(CasosUtilidades.moverTramificar(f.estado, desde: 1, aciertos: 13, hacia: 1) == nil)
     }
 
@@ -51,7 +54,8 @@ struct TramificarTests {
         let f = CasosUtilidades.filasLimites((0..<10).map { [$0 == 3 ? 0 : $0 * 10, $0 * 10 + 5, 0, 0] })
         #expect(f[1].rango == "11 a 15" && f[3].posInicial == 22 && f.map(\.difMax) == d.map(\.difMax))
         let a = CasosUtilidades.aceptarLimites(f)
-        #expect(a[9][1...] == a[8][1...] && a[9][0] == a[8][0] + 1 && a[3][0] == 22)
+        // D-FL4 (M11, #28): la fila 10 conserva sus propios valores.
+        #expect(a[9][1] == f[9].posFinal && a[9][3] == 4 && a[3][0] == 22)
     }
 
     @Test func multiple() throws {

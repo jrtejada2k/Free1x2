@@ -45,7 +45,12 @@ struct VistaDiferencias: View {
                 mostrar(d.contieneDatos() ? d.diferencias.first : nil)
             },
             temporal: { _ in actualizar() },
-            aceptar: { c in
+            aceptar: { c throws(ErrorDominio) in
+                if CasosCondiciones.diferenciaNoValida(t, numeroPartidos: n) {
+                    throw ErrorDominio(
+                        .general,
+                        "Hay un valor no válido. Escriba los partidos y las cantidades con números, separados por comas o en rangos (1-3).")
+                }
                 CasosCondiciones.actualizarDiferencias(&c.diferencias, indice: indice, t, numeroPartidos: n)
                 c.diferencias.activa = c.diferencias.contieneDatos()
                 return true

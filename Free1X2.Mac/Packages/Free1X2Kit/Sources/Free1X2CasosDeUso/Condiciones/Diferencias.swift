@@ -22,8 +22,22 @@ extension CasosCondiciones {
 
     /// `CreaDiferencia` (:167-211): cualquier error o ninguna línea ⇒ `nil` (sin aviso).
     public static func crearDiferencia(_ t: TextosDiferencia, numeroPartidos: Int) -> Diferencia? {
+        (try? construirDiferencia(t, numeroPartidos: numeroPartidos)) ?? nil
+    }
+
+    /// F-2 (M11, #28): un valor no válido (no una pantalla vacía) avisa en vez de cerrar sin guardar.
+    public static func diferenciaNoValida(_ t: TextosDiferencia, numeroPartidos: Int) -> Bool {
+        do {
+            _ = try construirDiferencia(t, numeroPartidos: numeroPartidos)
+            return false
+        } catch {
+            return true
+        }
+    }
+
+    static func construirDiferencia(_ t: TextosDiferencia, numeroPartidos: Int) throws(ErrorDominio) -> Diferencia? {
         var d = Diferencia()
-        do throws(ErrorDominio) {
+        do {
             for l in t.lineas where !blanco(l) {
                 d.partidosSimetricos.append(try UtilidadesEntradasValores.obtenerBoolArrayFromTxt(l, longitud: numeroPartidos + 1))
             }
@@ -40,8 +54,6 @@ extension CasosCondiciones {
             d.analizaFormatos = ac[5] != nil
             d.acFormatos = ac[5] ?? activarTodos(n)
             return d
-        } catch {
-            return nil
         }
     }
 

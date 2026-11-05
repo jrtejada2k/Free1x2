@@ -199,18 +199,19 @@ extension CasosUtilidades {
         ].map { $0 + [0, 0] }
     }
 
-    /// CU-C37 `EjecutarFiltro`: elimina por tramos de posición y vecinos hasta `difMax`; devuelve las que quedan.
+    /// CU-C37 `EjecutarFiltro`: elimina por tramos de posición y vecinos hasta `difMax`; devuelve las que quedan. D-FL5
+    /// (M11, #28): «Difs. desde» n > 0 elimina desde n diferencias; las vecinas más cercanas se recorren sin marcarlas.
     @concurrent public static func filtrarTramos(
         _ estado: EstadoTramificar, extremos: [[Int]]
     ) async throws(ErrorDominio) -> (estado: EstadoTramificar, quedan: Int) {
         var e = estado
-        func eliminar(_ ini: Int, _ desde: Int, _ d: Int, _ hasta: Int) {
+        func eliminar(_ ini: Int, _ desde: Int, _ d: Int, _ hasta: Int, _ minimo: Int) {
             for partido in desde..<14 {
                 let sig = (ini / potencias3[partido]) % 3
                 for z in 0..<3 where z != sig {
                     let idx = ini + potencias3[partido] * (z - sig)
-                    e.eliminadas[idx] = true
-                    if d < hasta { eliminar(idx, partido + 1, d + 1, hasta) }
+                    if d >= minimo { e.eliminadas[idx] = true }
+                    if d < hasta { eliminar(idx, partido + 1, d + 1, hasta, minimo) }
                 }
             }
         }
@@ -219,7 +220,7 @@ extension CasosUtilidades {
             for i in stride(from: x[0], to: x[1], by: 1) {
                 let c = Int(try e.apuestas.leer(i, "Tramificar:220").columna)
                 if x[2] == 0 { e.eliminadas[c] = true }
-                if x[3] > 0 { eliminar(c, 0, 1, x[3]) }
+                if x[3] > 0 { eliminar(c, 0, 1, x[3], max(1, x[2])) }
             }
         }
         return (e, e.eliminadas.count { !$0 })
@@ -357,10 +358,10 @@ extension CasosUtilidades {
         }
     }
 
-    /// «Aceptar»: la fila 10 copia la 9 (DEC-816) y se vuelve a hacer coherente.
+    /// «Aceptar»: se vuelve a hacer coherente. D-FL4 (M11, #28): la fila 10 cuenta con sus propios valores (antes copiaba
+    /// la 9 y nunca se aplicaba).
     public static func aceptarLimites(_ filas: [FilaLimite]) -> [[Int]] {
         var e = filas.map { [$0.posInicial, $0.posFinal, Int(FormatoNET.castInt32($0.difMin)), Int(FormatoNET.castInt32($0.difMax))] }
-        e[9] = e[8]
         coherenciar(&e)
         return e
     }

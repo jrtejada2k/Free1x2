@@ -402,8 +402,10 @@ final class Analizador {
             try controlador.recalcular()
             valida = try controlador.analiza(col)
         }
-        if let ifThen, !ifThen.esVacio, ifThen.activo {
-            valida = try ifThen.comprueba(col, grupos)  // asigna, no hace AND [PRESERVAR] (:97-103)
+        // #16 (dueño, 4-nov-2026): el If-Then se suma a las condiciones (AND), como al analizar columnas; antes sustituía
+        // el resultado y podía meter una columna fuera del boleto o que no cumplía las condiciones.
+        if valida, let ifThen, !ifThen.esVacio, ifThen.activo, !(try ifThen.comprueba(col, grupos)) {
+            valida = false
         }
         if analizadas & 0xFFF == 0 { bombear() }
         analizadas += 1

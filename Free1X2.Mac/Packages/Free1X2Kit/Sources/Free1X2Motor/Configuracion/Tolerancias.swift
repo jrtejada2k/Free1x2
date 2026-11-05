@@ -38,7 +38,8 @@ public struct ControladorTolConfig: Sendable, Hashable {
 /// `InicializaArrayAciertos` / `InicializarFallos`: el array mide `máximo + 2` [PRESERVAR]. Aritmética `int` de Windows: `máximo + 2`
 /// desborda y da un tamaño negativo (`OverflowException`).
 enum ArrayAciertosTol {
-    static func parsear(_ s: String, _ origen: String) throws(ErrorDominio) -> [Bool] {
+    static func parsear(_ texto: String, _ origen: String) throws(ErrorDominio) -> [Bool] {
+        let s = try RangosHelper.listaOrdenada(texto)  // D-CT3/H11: mezclas y desorden («0,2-3», «3,1»)
         // `EncuentraSeparador`: el primer `,` o `-`.
         switch s.utf16.first(where: { $0 == 0x2C || $0 == 0x2D }) {
         case 0x2C:

@@ -43,11 +43,18 @@ extension CasosVer {
         let grupos = raiz.hijo("Grupos")
         for (i, g) in c.grupos.enumerated() {
             let ng = grupos.hijo(i == 0 ? "Boleto Base" : "Grupo \(i)")
-            ng.hijo("Partidos Activos: " + g.textoPartidosActivos)
+            // D-L3 (M11, #28): el boleto base tiene todos los partidos aunque su lista no esté rellena.
+            ng.hijo("Partidos Activos: " + (i == 0 && g.textoPartidosActivos.isEmpty ? "Todos" : g.textoPartidosActivos))
             if !g.archivoFiltro.isEmpty { ng.hijo("Filtro Parcial: " + g.archivoFiltro) }
             let nc = ng.hijo("Condiciones")
             for t in TipoFiltro.allCases where g.condiciones.estado(t).activa {
                 detalle(t, g.condiciones, nc.hijo(t.rawValue), cultura)
+            }
+            // D-L1 (M11, #28): las tolerancias del grupo y sus fallos.
+            if !g.tolerancias.tolerancias.isEmpty {
+                let nt = ng.hijo("Tolerancias")
+                for t in g.tolerancias.tolerancias { nt.hijo("Tolerancia " + t.letrasTol + ": aciertos " + t.aciertos) }
+                nt.siTiene("Fallos Controles: ", g.tolerancias.fallosPermitidos)
             }
         }
         let control = raiz.hijo("Control de grupos")
@@ -110,11 +117,13 @@ extension CasosVer {
             n.hijo("Interrupciones Globales: " + s.get(.global))
             n.hijo("Interrupciones de 1: " + s.get(.unos))
             n.hijo("Interrupciones de X: " + s.get(.equis))
-            n.hijo("Interrupciones de 2 " + s.get(.doses))
+            n.hijo("Interrupciones de 2: " + s.get(.doses))
+            n.hijo("Interrupciones de Variantes: " + s.get(.variantes))  // D-L2 (M11, #28)
             n.hijo("Interrupciones Globales Seguidas: " + s.get(.globalSeg))
             n.hijo("Interrupciones de 1 Seguidas: " + s.get(.unosSeg))
             n.hijo("Interrupciones de X Seguidas: " + s.get(.equisSeg))
             n.hijo("Interrupciones de 2 Seguidas: " + s.get(.dosesSeg))
+            n.hijo("Interrupciones de Variantes Seguidas: " + s.get(.variantesSeg))
         case .pesosNumericos:
             let p = c.pesosNumericos
             let nombres = ["Global", "Variantes", "1", "X", "2"]
