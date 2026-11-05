@@ -525,7 +525,7 @@ namespace Free1X2.MotorCalculo
 		
 		public void PonerTolerancia(string valores)
 		{
-			string[] strValores = valores.Split(',');
+			string[] strValores = Free1X2.Utils.RangosHelper.ExpandirLista(valores).Split(','); // #21: admite rangos
 			if(valores.Length==0) return;
 			foreach(string str in strValores)
 			{
@@ -548,7 +548,7 @@ namespace Free1X2.MotorCalculo
 		
 		public void SetPNGlobal(string valores)
 		{
-			string[] strValores = valores.Split(',');
+			string[] strValores = Free1X2.Utils.RangosHelper.ExpandirLista(valores).Split(','); // #21: admite rangos
 			if(valores.Length==0) return;
 			foreach(string str in strValores)
 			{
@@ -571,7 +571,7 @@ namespace Free1X2.MotorCalculo
 		
 		public void SetPNGlobalTol(string valores)
 		{
-			string[] strValores = valores.Split(',');
+			string[] strValores = Free1X2.Utils.RangosHelper.ExpandirLista(valores).Split(','); // #21: admite rangos
 			if(valores.Length==0) return;
 			foreach(string str in strValores)
 			{
@@ -594,7 +594,7 @@ namespace Free1X2.MotorCalculo
 		
 		public void SetPNVar(string valores)
 		{
-			string[] strValores = valores.Split(',');
+			string[] strValores = Free1X2.Utils.RangosHelper.ExpandirLista(valores).Split(','); // #21: admite rangos
 			if(valores.Length==0) return;
 			foreach(string str in strValores)
 			{
@@ -617,7 +617,7 @@ namespace Free1X2.MotorCalculo
 		
 		public void SetPNVarTol(string valores)
 		{
-			string[] strValores = valores.Split(',');
+			string[] strValores = Free1X2.Utils.RangosHelper.ExpandirLista(valores).Split(','); // #21: admite rangos
 			if(valores.Length==0) return;
 			foreach(string str in strValores)
 			{
@@ -640,7 +640,7 @@ namespace Free1X2.MotorCalculo
 		
 		public void SetPNUnos(string valores)
 		{
-			string[] strValores = valores.Split(',');
+			string[] strValores = Free1X2.Utils.RangosHelper.ExpandirLista(valores).Split(','); // #21: admite rangos
 			if(valores.Length==0) return;
 			foreach(string str in strValores)
 			{
@@ -663,7 +663,7 @@ namespace Free1X2.MotorCalculo
 		
 		public void SetPNUnosTol(string valores)
 		{
-			string[] strValores = valores.Split(',');
+			string[] strValores = Free1X2.Utils.RangosHelper.ExpandirLista(valores).Split(','); // #21: admite rangos
 			if(valores.Length==0) return;
 			foreach(string str in strValores)
 			{
@@ -686,7 +686,7 @@ namespace Free1X2.MotorCalculo
 		
 		public void SetPNEquis(string valores)
 		{
-			string[] strValores = valores.Split(',');
+			string[] strValores = Free1X2.Utils.RangosHelper.ExpandirLista(valores).Split(','); // #21: admite rangos
 			if(valores.Length==0) return;
 			foreach(string str in strValores)
 			{
@@ -709,7 +709,7 @@ namespace Free1X2.MotorCalculo
 		
 		public void SetPNEquisTol(string valores)
 		{
-			string[] strValores = valores.Split(',');
+			string[] strValores = Free1X2.Utils.RangosHelper.ExpandirLista(valores).Split(','); // #21: admite rangos
 			if(valores.Length==0) return;
 			foreach(string str in strValores)
 			{
@@ -732,7 +732,7 @@ namespace Free1X2.MotorCalculo
 		
 		public void SetPNDoses(string valores)
 		{
-			string[] strValores = valores.Split(',');
+			string[] strValores = Free1X2.Utils.RangosHelper.ExpandirLista(valores).Split(','); // #21: admite rangos
 			if(valores.Length==0) return;
 			foreach(string str in strValores)
 			{
@@ -755,7 +755,7 @@ namespace Free1X2.MotorCalculo
 		
 		public void SetPNDosesTol(string valores)
 		{
-			string[] strValores = valores.Split(',');
+			string[] strValores = Free1X2.Utils.RangosHelper.ExpandirLista(valores).Split(','); // #21: admite rangos
 			if(valores.Length==0) return;
 			foreach(string str in strValores)
 			{

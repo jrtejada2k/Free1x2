@@ -230,7 +230,7 @@ namespace Free1X2.MotorCalculo
 		
 		public void SetNoVariantes(string valores)
 		{
-			string[] strValores = valores.Split(',');
+			string[] strValores = Free1X2.Utils.RangosHelper.ExpandirLista(valores).Split(','); // #21: admite rangos
 			
 			int valorNumerico;
 			string letraTol;
@@ -269,7 +269,7 @@ namespace Free1X2.MotorCalculo
 		
 		public void SetNoEquis(string valores)
 		{
-			string[] strValores = valores.Split(',');
+			string[] strValores = Free1X2.Utils.RangosHelper.ExpandirLista(valores).Split(','); // #21: admite rangos
 						
 			int valorNumerico;
 			string letraTol;
@@ -308,7 +308,7 @@ namespace Free1X2.MotorCalculo
 		
 		public void SetNoDoses(string valores)
 		{
-			string[] strValores = valores.Split(',');
+			string[] strValores = Free1X2.Utils.RangosHelper.ExpandirLista(valores).Split(','); // #21: admite rangos
 			
 			int valorNumerico;
 			string letraTol;

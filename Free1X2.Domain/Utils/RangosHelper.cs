@@ -27,6 +27,27 @@ namespace Free1X2.Utils
 	/// </summary>
 	public class RangosHelper
 	{
+		/// <summary>
+		/// #21 (decisión del dueño, 4-nov-2026): expande los rangos de una lista de cantidades antes de
+		/// partirla por comas: «2-5» ⇒ «2,3,4,5» y, con letra de tolerancia, «2-4a» ⇒ «2a,3a,4a». Lo demás
+		/// queda igual, así que una lista sin rangos da lo mismo que antes. Un rango al revés («6-2») vale
+		/// como «2-6».
+		/// </summary>
+		public static string ExpandirLista(string valores)
+		{
+			if (string.IsNullOrEmpty(valores) || valores.IndexOf('-') < 0) return valores;
+			var partes = new System.Collections.Generic.List<string>();
+			foreach (string trozo in valores.Split(','))
+			{
+				var m = System.Text.RegularExpressions.Regex.Match(trozo.Trim(), @"^(\d+)\s*-\s*(\d+)([A-Za-z]?)$");
+				if (!m.Success) { partes.Add(trozo); continue; }
+				int a = int.Parse(m.Groups[1].Value), b = int.Parse(m.Groups[2].Value);
+				if (a > b) { int t = a; a = b; b = t; }
+				for (int v = a; v <= b; v++) partes.Add(v.ToString() + m.Groups[3].Value);
+			}
+			return string.Join(",", partes);
+		}
+
 		private ArrayList tempBoolArray;
 
 	    public int[] ObtenIntArray(string valores)

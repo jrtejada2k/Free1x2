@@ -156,7 +156,7 @@ public partial class SignosSeguidosFrmViewModel : FiltroArchivoViewModelBase
         catch (Exception ex) when (ex is IndexOutOfRangeException or FormatException or OverflowException)
         {
             AppServices.MostrarError(
-                $"Las cantidades admitidas van de 0 a {VariablesGlobales.NumeroPartidos}, separadas por comas.");
+                $"Las cantidades admitidas van de 0 a {VariablesGlobales.NumeroPartidos}, separadas por comas o en rangos como 2-6.");
             return;
         }
 

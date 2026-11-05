@@ -259,7 +259,7 @@ namespace Free1X2.MotorCalculo
 				
 		public void SetNoIntGlobales(string valores)
 		{
-			string[] strValores = valores.Split(',');
+			string[] strValores = Free1X2.Utils.RangosHelper.ExpandirLista(valores).Split(','); // #21: admite rangos
 			
 			int valorNumerico;
 			string letraTol;
@@ -284,7 +284,7 @@ namespace Free1X2.MotorCalculo
 	
 		public void SetdistUnos(string valores)
 		{
-			string[] strValores = valores.Split(',');
+			string[] strValores = Free1X2.Utils.RangosHelper.ExpandirLista(valores).Split(','); // #21: admite rangos
 			
 			int valorNumerico;
 			string letraTol;
@@ -309,7 +309,7 @@ namespace Free1X2.MotorCalculo
 
 		public void SetdistEquis(string valores)
 		{
-			string[] strValores = valores.Split(',');
+			string[] strValores = Free1X2.Utils.RangosHelper.ExpandirLista(valores).Split(','); // #21: admite rangos
 			
 			int valorNumerico;
 			string letraTol;
@@ -334,7 +334,7 @@ namespace Free1X2.MotorCalculo
 
 		public void SetdistDoses(string valores)
 		{
-			string[] strValores = valores.Split(',');
+			string[] strValores = Free1X2.Utils.RangosHelper.ExpandirLista(valores).Split(','); // #21: admite rangos
 			
 			int valorNumerico;
 			string letraTol;
@@ -359,7 +359,7 @@ namespace Free1X2.MotorCalculo
 
 		public void SetdistVar(string valores)
 		{
-			string[] strValores = valores.Split(',');
+			string[] strValores = Free1X2.Utils.RangosHelper.ExpandirLista(valores).Split(','); // #21: admite rangos
 			
 			int valorNumerico;
 			string letraTol;
@@ -492,7 +492,7 @@ namespace Free1X2.MotorCalculo
 		} 
 		public void SetNoInt1(string valores)
 		{
-			string[] strValores = valores.Split(',');
+			string[] strValores = Free1X2.Utils.RangosHelper.ExpandirLista(valores).Split(','); // #21: admite rangos
 			
 			int valorNumerico;
 			string letraTol;
@@ -518,7 +518,7 @@ namespace Free1X2.MotorCalculo
 
 		public void SetNoIntX(string valores)
 		{
-			string[] strValores = valores.Split(',');
+			string[] strValores = Free1X2.Utils.RangosHelper.ExpandirLista(valores).Split(','); // #21: admite rangos
 			
 			int valorNumerico;
 			string letraTol;
@@ -544,7 +544,7 @@ namespace Free1X2.MotorCalculo
 
 		public void SetNoInt2(string valores)
 		{
-			string[] strValores = valores.Split(',');
+			string[] strValores = Free1X2.Utils.RangosHelper.ExpandirLista(valores).Split(','); // #21: admite rangos
 			
 			int valorNumerico;
 			string letraTol;
@@ -570,7 +570,7 @@ namespace Free1X2.MotorCalculo
 
 		public void SetNoIntVar(string valores)
 		{
-			string[] strValores = valores.Split(',');
+			string[] strValores = Free1X2.Utils.RangosHelper.ExpandirLista(valores).Split(','); // #21: admite rangos
 			
 			int valorNumerico;
 			string letraTol;

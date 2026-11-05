@@ -375,7 +375,7 @@ namespace Free1X2.MotorCalculo
 		
 		public void SetNoAciertos(string valores)
 		{
-			string[] strValores = valores.Split(',');
+			string[] strValores = Free1X2.Utils.RangosHelper.ExpandirLista(valores).Split(','); // #21: admite rangos
 						
 			int valorNumerico;
 			string letraTol;
@@ -401,7 +401,7 @@ namespace Free1X2.MotorCalculo
 		
 		public void SetNoAciertosSeguidos(string valores)
 		{
-			string[] strValores = valores.Split(',');
+			string[] strValores = Free1X2.Utils.RangosHelper.ExpandirLista(valores).Split(','); // #21: admite rangos
 						
 			int valorNumerico;
 			string letraTol;
@@ -427,7 +427,7 @@ namespace Free1X2.MotorCalculo
 				
 		public void SetNoFallosSeguidos(string valores)
 		{
-			string[] strValores = valores.Split(',');
+			string[] strValores = Free1X2.Utils.RangosHelper.ExpandirLista(valores).Split(','); // #21: admite rangos
 						
 			int valorNumerico;
 			string letraTol;
@@ -470,7 +470,7 @@ namespace Free1X2.MotorCalculo
 		public void SetACTol(string valores)
 		{
 			tolLocalActiva = true;
-			string[] strValores = valores.Split(',');
+			string[] strValores = Free1X2.Utils.RangosHelper.ExpandirLista(valores).Split(','); // #21: admite rangos
 			
 			foreach(string str in strValores)
 			{
@@ -480,7 +480,7 @@ namespace Free1X2.MotorCalculo
 
 		public void SetACSTol(string valores)
 		{
-			string[] strValores = valores.Split(',');
+			string[] strValores = Free1X2.Utils.RangosHelper.ExpandirLista(valores).Split(','); // #21: admite rangos
 			tolLocalActiva = true;
 			
 			foreach(string str in strValores)
@@ -491,7 +491,7 @@ namespace Free1X2.MotorCalculo
 
 		public void SetFSTol(string valores)
 		{
-			string[] strValores = valores.Split(',');
+			string[] strValores = Free1X2.Utils.RangosHelper.ExpandirLista(valores).Split(','); // #21: admite rangos
 			tolLocalActiva = true;
 			
 			foreach(string str in strValores)
@@ -502,7 +502,7 @@ namespace Free1X2.MotorCalculo
 
 		public void SetTolerancias(string valores)
 		{
-			string[] strValores = valores.Split(',');
+			string[] strValores = Free1X2.Utils.RangosHelper.ExpandirLista(valores).Split(','); // #21: admite rangos
 			
 			foreach(string str in strValores)
 			{
