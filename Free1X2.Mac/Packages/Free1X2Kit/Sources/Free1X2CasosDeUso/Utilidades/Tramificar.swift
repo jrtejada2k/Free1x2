@@ -327,10 +327,14 @@ extension CasosUtilidades {
 
     // MARK: - Filtrar por límites (35)
 
+    /// En el orden del original, de arriba abajo (M8, #25).
     static let etiquetasLimites = [
-        "< 10", "de 10 a < 11", "de 11 a < 12", "de 12 a < 13", "de 13 a < 14", "de < 13 a 12", "de < 12 a 11", "de < 11 a 10",
-        "< 10", "fila 10",
+        "< 10", "de 10 a < 11", "de 11 a < 12", "de 12 a < 13", "de 13 a < 14", "de <14 a 13", "de < 13 a 12", "de < 12 a 11",
+        "de < 11 a 10", "< 10",
     ]
+
+    /// Diferencias del original: el diálogo siempre abre con ellas, no con las de la matriz (M8, #25).
+    static let difsLimites: [(Double, Double)] = [(0, 4), (1, 3), (1, 2), (1, 1), (1, 0), (1, 0), (1, 1), (1, 2), (1, 3), (0, 4)]
 
     static func coherenciar(_ e: inout [[Int]]) {
         for i in 0..<9 where e[i + 1][0] < e[i][0] + 1 { e[i + 1][0] = e[i][0] + 1 }
@@ -339,8 +343,8 @@ extension CasosUtilidades {
     /// Filas del diálogo: sin extremos, las difs por defecto y posiciones a 0; con ellos (`Inicializar`), coherentes y la
     /// posición inicial + 1 salvo en la primera.
     public static func filasLimites(_ extremos: [[Int]]?) -> [FilaLimite] {
+        let difs = difsLimites
         guard var e = extremos else {
-            let difs: [(Double, Double)] = [(0, 4), (1, 3), (1, 2), (1, 1), (1, 0), (1, 0), (1, 1), (1, 2), (0, 0), (0, 0)]
             return (0..<10).map {
                 FilaLimite(id: $0, etiqueta: etiquetasLimites[$0], posInicial: 0, posFinal: 0, difMin: difs[$0].0, difMax: difs[$0].1)
             }
@@ -349,7 +353,7 @@ extension CasosUtilidades {
         return (0..<10).map { i in
             FilaLimite(
                 id: i, etiqueta: etiquetasLimites[i], posInicial: i == 0 ? e[i][0] : e[i][0] + 1, posFinal: e[i][1],
-                difMin: Double(e[i][2]), difMax: Double(e[i][3]))
+                difMin: difs[i].0, difMax: difs[i].1)
         }
     }
 

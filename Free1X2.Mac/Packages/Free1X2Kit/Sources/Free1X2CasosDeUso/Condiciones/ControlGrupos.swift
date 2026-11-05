@@ -173,12 +173,12 @@ extension CasosCondiciones {
         return f
     }
 
-    /// `Ok` (:83-110): solo las filas con aciertos; luego los fallos permitidos.
+    /// `Ok` (:83-110): solo las filas con «Tolerancia» y «Aciertos» (M8, #25); luego los fallos permitidos.
     public static func aplicarTolerancias(_ filas: [(letras: String, aciertos: String)], fallos: String, en t: inout ControladorTolConfig)
         throws(ErrorDominio)
     {
         var lista: [ToleranciaConfig] = []
-        for (letras, aciertos) in filas where !aciertos.isEmpty {
+        for (letras, aciertos) in filas where !letras.isEmpty && !aciertos.isEmpty {
             var x = ToleranciaConfig()
             x.letrasTol = letras
             try x.ponerAciertos(aciertos)

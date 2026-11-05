@@ -25,15 +25,30 @@ extension CasosUtilidades {
         }
         let lims = limites.map { Int(FormatoNET.castInt32($0)) }
         guard zip(lims, lims.dropFirst()).allSatisfy({ $1 >= $0 }) else { return nil }
+        let cps = cpsJB(porcentajes: porcentajes, limites: limites)
+        let scps = (0..<7).map { b in (0..<14).map { UInt16(0x30 + cps[$0][b]) } }
+        return BandasJB(cps: cps, scps: scps, rangos: rangos)
+    }
+
+    /// `cps[partido][banda]`: la suma de los signos (1 = «1», 2 = «2», 4 = «X») que caen en esa banda.
+    static func cpsJB(porcentajes: [[Double]], limites: [Double]) -> [[Int]] {
+        let lims = limites.map { Int(FormatoNET.castInt32($0)) }
         var cps = [[Int]](repeating: [Int](repeating: 0, count: 7), count: 14)
-        for p in 0..<14 {
-            for s in 0..<3 {
+        for p in 0..<min(14, porcentajes.count) {
+            for s in 0..<min(3, porcentajes[p].count) {
                 let v = Int(FormatoNET.castInt32(porcentajes[p][s]))
                 cps[p][lims.firstIndex(where: { v <= $0 }) ?? 6] += s == 0 ? 1 : s == 2 ? 2 : 4
             }
         }
-        let scps = (0..<7).map { b in (0..<14).map { UInt16(0x30 + cps[$0][b]) } }
-        return BandasJB(cps: cps, scps: scps, rangos: rangos)
+        return cps
+    }
+
+    /// M8 (#25) `PintaPantalla`: 14 filas con los signos de cada partido en cada banda y una fila «Nº» con cuántos
+    /// partidos tienen algún signo en cada banda.
+    public static func signosPorBandaJB(porcentajes: [[Double]], limites: [Double]) -> [[String]] {
+        let cps = cpsJB(porcentajes: porcentajes, limites: limites)
+        let cambia = ["-", "1", "2", "12", "X", "1X", "X2", "1X2"]
+        return cps.map { $0.map { cambia[min(7, $0)] } } + [(0..<7).map { b in String(cps.count(where: { $0[b] > 0 })) }]
     }
 
     /// Aciertos por banda: dígito ≠ «0» y `(dígito & carácter) > '0'`.

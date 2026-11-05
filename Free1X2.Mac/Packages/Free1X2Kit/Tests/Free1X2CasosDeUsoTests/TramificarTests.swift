@@ -45,9 +45,11 @@ struct TramificarTests {
 
     @Test func limites() {
         let d = CasosUtilidades.filasLimites(nil)
-        #expect(d.map(\.difMax) == [4, 3, 2, 1, 0, 0, 1, 2, 0, 0] && d[0].rango == "0 a 0")
+        // M8 (#25): las difs del original (filas 9 y 10 a 1–3 y 0–4), también al abrir con la matriz.
+        #expect(d.map(\.difMax) == [4, 3, 2, 1, 0, 0, 1, 2, 3, 4] && d.map(\.difMin) == [0, 1, 1, 1, 1, 1, 1, 1, 1, 0])
+        #expect(d[0].rango == "0 a 0" && d[5].etiqueta == "de <14 a 13" && d[9].etiqueta == "< 10")
         let f = CasosUtilidades.filasLimites((0..<10).map { [$0 == 3 ? 0 : $0 * 10, $0 * 10 + 5, 0, 0] })
-        #expect(f[1].rango == "11 a 15" && f[3].posInicial == 22)
+        #expect(f[1].rango == "11 a 15" && f[3].posInicial == 22 && f.map(\.difMax) == d.map(\.difMax))
         let a = CasosUtilidades.aceptarLimites(f)
         #expect(a[9][1...] == a[8][1...] && a[9][0] == a[8][0] + 1 && a[3][0] == 22)
     }

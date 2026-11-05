@@ -62,6 +62,7 @@ extension CasosVer {
             n.hijo("Fallos: " + k.textoFallosPermitidos)
         }
         let it = raiz.hijo("IfThen")
+        // M8 (#25): «IfThen no activado» solo si no hay If-Then; uno desactivado deja el nodo vacío.
         if let f = c.ifThen, f.activo {
             let conds = it.hijo("Condiciones Relacionadas")
             for k in f.condiciones {
@@ -79,7 +80,7 @@ extension CasosVer {
                 }
                 gs.hijo("Grupos que se cumplen: " + (f.rangoAciertoGrupos ?? ""))
             }
-        } else {
+        } else if c.ifThen == nil {
             it.hijo("IfThen no activado")
         }
         var siguiente = 0

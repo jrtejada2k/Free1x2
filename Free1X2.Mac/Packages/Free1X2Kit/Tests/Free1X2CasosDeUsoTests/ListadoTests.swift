@@ -29,6 +29,12 @@ struct ListadoTests {
         #expect(texto.hasPrefix("Pronóstico Base\r\n\r\n Partido 1: 1X\r\n Partido 2: 1X\r\n"))
         #expect(texto.contains(" Partido 14: 1X\r\n\r\nFiltro de Columnas\r\n\r\n No se usa ningún Filtro\r\n\r\n"))
         #expect(texto.hasSuffix("IfThen\r\n\r\n IfThen no activado\r\n\r\n"))
+        // M8 (#25): un If-Then que existe pero está desactivado deja el nodo vacío.
+        var desactivado = IfThenConfig()
+        desactivado.activo = false
+        c.ifThen = desactivado
+        let sinIf = try #require(CasosVer.listadoCondiciones(c, archivoFiltro: "", cultura: .esES).hijos)
+        #expect(sinIf[4].texto == "IfThen" && (sinIf[4].hijos ?? []).isEmpty)
         let html = CasosVer.listadoHtml(r)
         #expect(
             html.hasPrefix(

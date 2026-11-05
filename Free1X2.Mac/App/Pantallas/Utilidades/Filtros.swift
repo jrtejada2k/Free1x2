@@ -96,6 +96,23 @@ struct VistaFiltroPorcenJB: View {
         Pagina(destino: .filtroPorcenJB) {
             HStack(alignment: .top) {
                 Tarjeta("Porcentajes") { PorcentajesGrid(valores: $valores) }
+                Tarjeta("Signos por banda") {
+                    // M8 (#25): la rejilla 14 × 7 del original, que se repinta al cambiar porcentajes o límites.
+                    let filas = CasosUtilidades.signosPorBandaJB(porcentajes: valores, limites: limites)
+                    Grid(alignment: .center, horizontalSpacing: 8, verticalSpacing: 2) {
+                        GridRow {
+                            Text("P")
+                            ForEach(1...7, id: \.self) { Text("B\($0)") }
+                        }
+                        .font(.caption).foregroundStyle(Color.textoSecundario)
+                        ForEach(filas.indices, id: \.self) { p in
+                            GridRow {
+                                Text(p < 14 ? String(format: "%02d", p + 1) : "Nº").monospacedDigit()
+                                ForEach(0..<7, id: \.self) { Text(filas[p][$0]).monospaced() }
+                            }
+                        }
+                    }
+                }
                 VStack(alignment: .leading) {
                     Tarjeta("Límites") {
                         LazyVGrid(columns: Array(repeating: GridItem(.fixed(150)), count: 3), alignment: .leading) {

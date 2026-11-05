@@ -18,23 +18,32 @@ struct VistaGEPT: View {
         }
     }
 
+    /// M8 (#25): caja de texto como el original; pasa a mayúsculas y otra letra avisa y deja la celda vacía.
     private func selector(_ valores: Binding<[String]>, _ i: Int) -> some View {
-        Picker("", selection: valores[i]) { ForEach(["", "G", "E", "P"], id: \.self) { Text($0).tag($0) } }
-            .labelsHidden().frame(width: 70).background(Self.fondo(valores.wrappedValue[i]), in: .rect(cornerRadius: 4))
+        TextField("", text: valores[i])
+            .labelsHidden().multilineTextAlignment(.center).frame(width: 70)
+            .background(Self.fondo(valores.wrappedValue[i]), in: .rect(cornerRadius: 4))
+            .onChange(of: valores.wrappedValue[i]) { _, nuevo in
+                let v = FormatoNET.mayusculas(FormatoNET.recortar(nuevo))
+                if ["", "G", "E", "P"].contains(v) {
+                    if v != nuevo { valores.wrappedValue[i] = v }
+                } else {
+                    sesion.alertas.error("Las letras permitidas son: G,E,P")
+                    valores.wrappedValue[i] = ""
+                }
+            }
     }
 
     var body: some View {
         Pagina(destino: .gEPT) {
             Text(
-                "Para cada partido indica las dos últimas veces que se repitió el enfrentamiento (G = Ganó, E = Empató, P = Perdió). El sistema deriva el pronóstico de signos."
+                "En la 1.ª columna, el último resultado de liga de cada equipo local; en la 2.ª, el de cada visitante (G = Ganó, E = Empató, P = Perdió). Calcular da el pronóstico."
             )
             .foregroundStyle(Color.textoSecundario)
             Tarjeta {
                 Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 4) {
                     GridRow {
-                        Text("Nº").bold()
-                        Text("Última vez").bold()
-                        Text("Penúltima vez").bold()
+                        Text("Última vez").bold().gridCellColumns(3).frame(maxWidth: .infinity)
                         Text("Pronóstico").bold()
                     }
                     ForEach(resultado.indices, id: \.self) { i in

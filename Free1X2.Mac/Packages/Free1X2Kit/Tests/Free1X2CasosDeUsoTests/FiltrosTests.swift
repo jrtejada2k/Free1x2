@@ -30,6 +30,9 @@ struct FiltrosTests {
         #expect(x[1] == Array(repeating: "2", count: 14).joined(separator: ",") && x[3].hasPrefix("X,X") && x[0].hasPrefix("-,-"))
         #expect(CasosUtilidades.bandasJB(porcentajes: porcentajes, limites: limites, rangos: ["3"] + rangos.dropFirst()) == nil)
         #expect(CasosUtilidades.bandasJB(porcentajes: porcentajes, limites: [15, 10, 29, 36, 48, 61], rangos: rangos) == nil)
+        // M8 (#25): rejilla 14 × 7 y la fila «Nº» con los partidos que tienen algún signo en cada banda.
+        let g = CasosUtilidades.signosPorBandaJB(porcentajes: porcentajes, limites: limites)
+        #expect(g.count == 15 && g[0] == ["-", "2", "-", "X", "-", "1", "-"] && g[14] == ["0", "14", "0", "14", "0", "14", "0"])
         let d = CasosUtilidades.datosRangosJB(rangos: rangos, limites: [15.7, 22, 29, 36, 48, 61])
         var (r2, l2) = (Array(repeating: "", count: 8), Array(repeating: 0.0, count: 6))
         CasosUtilidades.leerRangosJB(d, rangos: &r2, limites: &l2, cultura: .esES)

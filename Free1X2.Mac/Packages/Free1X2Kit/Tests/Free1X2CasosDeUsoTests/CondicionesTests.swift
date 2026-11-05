@@ -301,6 +301,7 @@ struct CondicionesTests {
         #expect(f.count == 30)
         f[0] = ("ab", "1,3")
         f[1] = ("c", "")
+        f[2] = ("", "5")  // M8 (#25): sin «Tolerancia» no se guarda
         try CasosCondiciones.aplicarTolerancias(f, fallos: "0-1", en: &t)
         #expect(t.tolerancias.count == 1 && t.tolerancias[0].letrasTol == "AB" && t.fallosPermitidos == "0-1")
     }
