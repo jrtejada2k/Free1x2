@@ -105,6 +105,20 @@ extension CasosCondiciones {
         if p.rangoGrupos.isEmpty && !p.grupos.isEmpty {
             throw ErrorDominio(.general, "Debe indicarse la cantidad de grupos que se deben cumplir.")
         }
+        // M7 (#24): el motor dimensiona por el nº de relaciones y un valor mayor daba un error de índice.
+        func cumplible(_ rango: String, _ maximo: Int) -> Bool {
+            guard let v = try? RangosHelper.obtenIntArray(rango) else { return false }
+            return v.allSatisfy { (0...maximo).contains($0) }
+        }
+        if !p.relaciones.isEmpty && !cumplible(p.rangoCondiciones, p.relaciones.count) {
+            throw ErrorDominio(
+                .general,
+                "La cantidad de condiciones que se deben cumplir debe estar entre 0 y \(p.relaciones.count) (las condiciones de la lista).")
+        }
+        if !p.grupos.isEmpty && !cumplible(p.rangoGrupos, p.grupos.count) {
+            throw ErrorDominio(
+                .general, "La cantidad de grupos que se deben cumplir debe estar entre 0 y \(p.grupos.count) (los grupos de la lista).")
+        }
         var it = IfThenConfig()
         for r in p.relaciones {
             var x = CondicionIfThenConfig()

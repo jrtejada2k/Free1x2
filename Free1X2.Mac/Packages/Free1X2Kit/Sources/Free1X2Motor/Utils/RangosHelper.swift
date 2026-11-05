@@ -23,6 +23,32 @@ public enum RangosHelper {
         return salida
     }
 
+    /// #21 (dueño, 4-nov-2026): expande los rangos de una lista de cantidades antes de partirla por comas: «2-5» ⇒
+    /// «2,3,4,5» y, con letra de tolerancia, «2-4a» ⇒ «2A,3A,4A». Todo va en mayúsculas (D-CT2). Un rango al revés
+    /// («6-2») vale como «2-6»; lo demás queda igual, así que una lista sin rangos da lo mismo que antes.
+    public static func expandirLista(_ valores: String) -> String {
+        let v = FormatoNET.mayusculas(valores)
+        guard v.contains("-") else { return v }
+        return trozos(v, ",").flatMap { trozo -> [String] in
+            guard let m = FormatoNET.recortar(trozo).wholeMatch(of: #/(\d+)\s*-\s*(\d+)([A-Z]?)/#),
+                let a = Int(m.1), let b = Int(m.2), max(a, b) <= maximoValor
+            else { return [trozo] }
+            return (min(a, b)...max(a, b)).map { String($0) + m.3 }
+        }.joined(separator: ",")
+    }
+
+    /// D-CT3 / H11: para los campos que dimensionan su array con el último valor (Control de tolerancias, Relaciones I):
+    /// expande rangos, ordena y quita repetidos, así «0,2-3» o «3,1» valen.
+    public static func listaOrdenada(_ valores: String) throws(ErrorDominio) -> String {
+        guard !valores.allSatisfy(\.isWhitespace) else { return valores }
+        var numeros = Set<Int>()
+        for trozo in trozos(expandirLista(valores), ",") {
+            let t = FormatoNET.recortar(trozo)
+            if !t.isEmpty { numeros.insert(Int(try FormatoNET.convertToInt32(t))) }
+        }
+        return numeros.sorted().map(String.init).joined(separator: ",")
+    }
+
     /// `ObtenBoolArray` (:76-141): longitud = máximo de **todas** las subpartes + 2; el último elemento siempre `false`.
     public static func obtenBoolArray(_ texto: String) throws(ErrorDominio) -> [Bool] {
         let partes = trozos(texto, ",")

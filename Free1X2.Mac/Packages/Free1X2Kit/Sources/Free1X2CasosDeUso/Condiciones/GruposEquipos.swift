@@ -45,12 +45,9 @@ public struct EditorGruposEquipos: Sendable {
         pintarRelacion(0)
     }
 
-    /// `LlenaEquipos` (:250-262): nombres de la jornada si la hay; si no, «Equipo casa N» / «Equipo fuera N».
-    public static func equipos(_ jornada: JornadaQuiniela?) -> [(casa: String, fuera: String)] {
-        (0..<partidos).map { i in
-            guard let p = jornada?.partidos[safe: i] else { return ("Equipo casa \(i + 1)", "Equipo fuera \(i + 1)") }
-            return (p.local, p.visitante)
-        }
+    /// `LlenaEquipos` (:250-262): los nombres del boleto de Inicio, vacíos si no hay (M7, #24).
+    public static func equipos(locales: [String], visitantes: [String]) -> [(casa: String, fuera: String)] {
+        (0..<partidos).map { (locales[safe: $0] ?? "", visitantes[safe: $0] ?? "") }
     }
 
     // MARK: Grupos

@@ -165,7 +165,7 @@ struct VistaParejas: View {
     }
 }
 
-/// «Tríos» (pantalla 96, `TriosFrm`). «Analizar» usa la columna fija del VM: no tiene campo en la pantalla.
+/// «Tríos» (pantalla 96, `TriosFrm`). «Analizar» usa la «Columna Ganadora» de la pantalla (M7, #24).
 struct VistaTrios: View {
     @Environment(Sesion.self) private var sesion
     @State private var niveles = Array(repeating: Array(repeating: "0", count: 30), count: 12)
@@ -175,7 +175,7 @@ struct VistaTrios: View {
     @State private var bits = ConjuntoBits(cantidad: 4_782_969)
     @State private var tarea: Task<Void, Never>?
 
-    private static let ganadora = "111X11X222X111"
+    @State private var ganadora = "111X11X222X111"
     private static let combinaciones = ["1", "X", "2"].flatMap { a in ["1", "X", "2"].flatMap { b in ["1", "X", "2"].map { a + b + $0 } } }
 
     private var filtro: FiltroPorGrupos {
@@ -241,9 +241,10 @@ struct VistaTrios: View {
             Tarjeta("Proceso") { ProcesoGrupos(procesadas: contadores.0, validas: contadores.1, tiempo: contadores.2) }
             HStack {
                 Button("Calcular") { Task { await calcular() } }.buttonStyle(EstiloPrincipal()).disabled(tarea != nil)
+                CampoTexto(etiqueta: "Columna Ganadora", texto: $ganadora, ancho: 150)
                 Button("Analizar") {
                     do throws(ErrorDominio) {
-                        recuento = try filtro.valida(Self.ganadora).recuento.map(String.init)
+                        recuento = try filtro.valida(ganadora).recuento.map(String.init)
                     } catch {
                         sesion.alertas.inesperado(error)
                     }

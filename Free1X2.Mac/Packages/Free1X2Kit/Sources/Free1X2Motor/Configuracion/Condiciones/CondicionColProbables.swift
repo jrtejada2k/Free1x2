@@ -67,7 +67,7 @@ public struct ColumnaProbableConfig: Sendable, Hashable {
     }
 
     private static func marcar(_ a: inout [Bool], _ s: String, _ origen: String) throws(ErrorDominio) {
-        for t in trozos(s, ",") { try a.escribir(true, en: Int(try FormatoNET.convertToInt32(t)), origen) }
+        for t in trozos(RangosHelper.expandirLista(s), ",") { try a.escribir(true, en: Int(try FormatoNET.convertToInt32(t)), origen) }
     }
 
     /// `Pronosticos = v` (:711-720): D1 por posición (`nil`/inválido ⇒ 0); no limpia el resto; más de `N+1` ⇒ lanza.

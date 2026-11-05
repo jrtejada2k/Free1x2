@@ -105,10 +105,6 @@ struct VistaColProbables: View {
                 Task { await importar() }
             }
         }
-        // `MaxLength=14` de la caja del pronóstico (lo cargado puede ser más largo, DEC-810).
-        .onChange(of: e.pronostico) { viejo, nuevo in
-            if nuevo.count > 14 && nuevo.count > viejo.count { e.pronostico = String(nuevo.prefix(max(14, viejo.count))) }
-        }
     }
 
     // MARK: Pestañas
@@ -116,7 +112,24 @@ struct VistaColProbables: View {
     private var columnas: some View {
         Group {
             Tarjeta("Columna probable") {
-                CampoCondicion(etiqueta: "Pronóstico (14 signos: 1 / X / 2)", texto: $e.pronostico, ayuda: "Ej. 1X21X2111XX221")
+                // M7 (#24): un control 1/X/2 por partido, que guarda dobles y triples.
+                Text("Pronóstico: pulsa 1, X o 2 en cada partido (valen dobles y triples).")
+                    .font(.callout).foregroundStyle(Color.textoSecundario)
+                Grid(alignment: .leading, horizontalSpacing: 6, verticalSpacing: 3) {
+                    ForEach(0..<e.pronosticos.count, id: \.self) { p in
+                        GridRow {
+                            Text(String(format: "%02d", p + 1)).monospacedDigit()
+                            ForEach(0..<3, id: \.self) { s in
+                                Toggle(
+                                    ["1", "X", "2"][s],
+                                    isOn: Binding(get: { e.pronosticos[p].contains(["1", "X", "2"][s]) }, set: { _ in e.alternar(p, s) })
+                                )
+                                .toggleStyle(EstiloSigno(ancho: 44, alto: 30, letra: 14))
+                                .accessibilityIdentifier("cp-\(p + 1)-\(["1", "X", "2"][s])")
+                            }
+                        }
+                    }
+                }
                 CampoCondicion(etiqueta: "Puntos", texto: $e.puntos)
             }
             Tarjeta("Rangos (valores 0..14)") {

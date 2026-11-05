@@ -25,23 +25,23 @@ struct ColumnasProbablesTests {
 
     @Test func navegacionGuardadoYAceptar() throws {
         var e = EditorColumnasProbables(numeroPartidos: 14, desplazamiento: 3)
-        e.pronostico = "1X21X21X21X21X"
+        e.pronosticos = "1X21X21X21X21X".map(String.init)
         e.aciertos = "5,6a"
         try e.siguiente()  // sin CPs «>» acota a 0: guarda y se queda en la primera
-        #expect(e.columnas.count == 1 && e.actual == 0 && e.paginacion == "1/1" && e.pronostico == "1X21X21X21X21X")
+        #expect(e.columnas.count == 1 && e.actual == 0 && e.paginacion == "1/1" && e.pronosticos.joined() == "1X21X21X21X21X")
         try e.siguiente()
-        #expect(e.columnas.count == 2 && e.actual == 1 && e.paginacion == "2/2" && e.pronostico.isEmpty)
-        #expect(e.columnas[0].getAciertos == "5,6a" && e.columnas[0].getAciertosSeguidos == todos && !e.columnas[0].toleranciaLocalActiva)
-        e.pronostico = "111"
+        #expect(e.columnas.count == 2 && e.actual == 1 && e.paginacion == "2/2" && e.sinPronostico)
+        #expect(e.columnas[0].getAciertos == "5,6A" && e.columnas[0].getAciertosSeguidos == todos && !e.columnas[0].toleranciaLocalActiva)
+        e.pronosticos = ["1", "1", "1"] + Array(repeating: "", count: 11)
         e.aciertosTol = "3"
         e.tolerancias = [false, true, false, false]
         try e.anterior()
         let c1 = e.columnas[1]
         #expect(c1.toleranciaLocalActiva && c1.getTolerancias == "1" && c1.getACTol == "3" && c1.getACSTol == todos)
-        #expect(c1.textoPronosticos.joined() == "111" && e.paginacion == "1/2" && e.aciertos == "5,6a")
-        e.pronostico = ""
+        #expect(c1.textoPronosticos.joined() == "111" && e.paginacion == "1/2" && e.aciertos == "5,6A")
+        e.pronosticos = Array(repeating: "", count: 14)
         try e.ultima()  // quita la actual y crea otra vacía al final (PRESERVAR)
-        #expect(e.columnas.count == 2 && e.actual == 1 && e.paginacion == "2/2" && e.pronostico.isEmpty)
+        #expect(e.columnas.count == 2 && e.actual == 1 && e.paginacion == "2/2" && e.sinPronostico)
         var f = CondicionColProbables()
         try e.aceptar(en: &f)
         #expect(f.activa && f.contieneDatos && f.columnas.count == 1 && f.columnas[0].getACTol == "3")
@@ -52,15 +52,36 @@ struct ColumnasProbablesTests {
         try g.atras()
         #expect(g.actual == 0 && g.columnas.count == 3 && g.paginacion == "1/3")
         g.todosATriple()
-        #expect(g.pronostico.count == 42)
+        #expect(g.pronosticos.joined().count == 42)
         g.borrarPronosticos()
-        #expect(g.pronostico.isEmpty && g.paginacion == "1/3")
+        #expect(g.sinPronostico && g.paginacion == "1/3")
         g.eliminarActual()
-        #expect(g.columnas.count == 2 && g.pronostico == "XXXXXXXXXXXXXX")
-        g.pronostico = "1"
-        g.aciertos = "0-14"
+        #expect(g.columnas.count == 2 && g.pronosticos.joined() == "XXXXXXXXXXXXXX")
+        g.pronosticos = ["1"] + Array(repeating: "", count: 13)
+        g.aciertos = "x"
         #expect(throws: ErrorDominio.self) { try g.siguiente() }
         #expect(throws: ErrorDominio.self) { try CasosCondiciones.copiaCP(ColumnaProbableConfig(numeroPartidos: 14), puntos: true) }
+    }
+
+    /// M7 (#24): un control 1/X/2 por partido conserva dobles, triples y huecos; los rangos valen (#21).
+    @Test func pronosticoPorPartidoYRangos() throws {
+        var e = EditorColumnasProbables(numeroPartidos: 14, desplazamiento: 3)
+        e.alternar(0, 0)
+        e.alternar(0, 2)
+        e.alternar(0, 1)
+        e.alternar(1, 1)
+        e.alternar(1, 1)
+        #expect(e.pronosticos[0] == "1X2" && e.pronosticos[1].isEmpty && !e.sinPronostico)
+        e.alternar(0, 1)
+        #expect(e.pronosticos[0] == "12")
+        e.pronosticos = Array(repeating: "1X2", count: 14)
+        e.aciertos = "10-12"
+        var f = CondicionColProbables()
+        try e.aceptar(en: &f)
+        #expect(f.columnas.count == 1 && f.columnas[0].textoPronosticos == Array(repeating: "1X2", count: 14))
+        #expect(f.columnas[0].getAciertos == "10,11,12")
+        let r = try EditorColumnasProbables(f, numeroPartidos: 14, desplazamiento: 3)
+        #expect(r.pronosticos == Array(repeating: "1X2", count: 14))
     }
 
     @Test func copiaDeDatosEImportacion() throws {
@@ -83,14 +104,18 @@ struct ColumnasProbablesTests {
         let clm = try #require(
             CasosCondiciones.importarCPsClm(Data("1X21X21X21X21X#3,4#0#1\r\nbasura\r\n".utf8), numeroPartidos: 14))
         #expect(clm.count == 1 && clm[0].getAciertos == "3,4" && clm[0].getFallosSeguidos == "1")
-        #expect(CasosCondiciones.importarCPsClm(Data("1X21X21X21X21X#3-4#0#1".utf8), numeroPartidos: 14) == nil)
+        // #21: un rango ya vale; un texto no numérico, no.
+        #expect(CasosCondiciones.importarCPsClm(Data("1X21X21X21X21X#3-4#0#1".utf8), numeroPartidos: 14)?[0].getAciertos == "3,4")
+        #expect(CasosCondiciones.importarCPsClm(Data("1X21X21X21X21X#x#0#1".utf8), numeroPartidos: 14) == nil)
 
         let base = try EditorColumnasProbables(f, numeroPartidos: 14, desplazamiento: 3)
         let tresImportadas = simples + [simples[0]]
         #expect(!base.confirmarSustituir(simples) && base.confirmarSustituir(tresImportadas) && base.confirmarAgregar(simples))
         var s = base
         try s.importar(tresImportadas, modo: .sustituir, delFiltro: f.columnas)
-        #expect(s.columnas.count == 3 && s.columnas[0].textoPronosticos.joined() == "1X21X21X21X21X" && s.pronostico == "1X21X21X21X21X")
+        #expect(
+            s.columnas.count == 3 && s.columnas[0].textoPronosticos.joined() == "1X21X21X21X21X"
+                && s.pronosticos.joined() == "1X21X21X21X21X")
         var a = base
         try a.importar(simples, modo: .agregar, delFiltro: [])
         #expect(a.columnas.count == 5)

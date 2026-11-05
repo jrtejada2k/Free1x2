@@ -25,9 +25,9 @@ public struct ValoresConTolerancia: Sendable, Hashable {
 
     /// `SetX(string)` — `"6,7A,8"`: cada trozo es un entero con una letra final opcional. Acumula; un valor repetido pisa la
     /// letra. Trozo vacío ⇒ `IndexOutOfRange` (`str[-1]`); no numérico ⇒ `Format`; fuera de `0…tamaño−1` ⇒ `IndexOutOfRange`.
-    /// Lo aplicado antes del trozo que falla se queda, como en Windows.
+    /// Lo aplicado antes del trozo que falla se queda, como en Windows. Admite rangos (`expandirLista`, #21).
     public mutating func poner(_ valores: String, _ origen: @autoclosure () -> String) throws(ErrorDominio) {
-        for trozo in trozos(valores, ",") {
+        for trozo in trozos(RangosHelper.expandirLista(valores), ",") {
             let u = Array(trozo.utf16)
             guard let ultima = u.last else { throw .fueraDeRango(origen()) }
             let numero: Int

@@ -11,7 +11,7 @@ struct CondicionesTests {
     @Test func noVariantesPatronAceptar() throws {
         var f = CondicionNoVariantes(numeroPartidos: 14)
         try CasosCondiciones.aplicarNoVariantes(variantes: "2,3a", equis: "", doses: "", en: &f)
-        #expect(f.activa && f.contieneDatos && f.getVariantes == "2,3a" && f.getEquis == CasosCondiciones.todosValores(14))
+        #expect(f.activa && f.contieneDatos && f.getVariantes == "2,3A" && f.getEquis == CasosCondiciones.todosValores(14))
         f.activa = false  // desactivada desde Inicio: reaceptar con datos no la reactiva
         try CasosCondiciones.aplicarNoVariantes(variantes: "4", equis: "", doses: "", en: &f)
         #expect(!f.activa && f.getVariantes == "4")
@@ -103,7 +103,7 @@ struct CondicionesTests {
     @Test func distanciasEInterrupciones() throws {
         var d = CondicionDistancias(numeroPartidos: 14)
         try CasosCondiciones.aplicarDistancias(["", "2,3b", "", ""], en: &d)
-        #expect(d.activa && d.getInt1 == "2,3b" && d.getIntVar == CasosCondiciones.todosValores(14))
+        #expect(d.activa && d.getInt1 == "2,3B" && d.getIntVar == CasosCondiciones.todosValores(14))
         var i = CondicionInterrupciones(numeroPartidos: 14)
         try CasosCondiciones.aplicarInterrupciones(["", "", "", "", "", "1"], en: &i)
         #expect(i.activa && i.get(.globalSeg) == "1" && i.get(.global) == CasosCondiciones.todosValores(14))
@@ -217,7 +217,9 @@ struct CondicionesTests {
         #expect(!e.ligado && e.grupoReal && e.grupos.isEmpty && e.estado == "Datos del filtro borrados")
         e.abrir(f)
         #expect(try e.aceptar() == nil && e.contadorGrupos == (1, 2))
-        #expect(EditorGruposEquipos.equipos(nil)[1] == ("Equipo casa 2", "Equipo fuera 2"))
+        // M7 (#24): los nombres del boleto de Inicio, vacíos si no hay.
+        #expect(EditorGruposEquipos.equipos(locales: [], visitantes: [])[1] == ("", ""))
+        #expect(EditorGruposEquipos.equipos(locales: ["A", "B"], visitantes: ["C", "D"])[1] == ("B", "D"))
     }
 
     @Test func ifThen() throws {
@@ -244,6 +246,22 @@ struct CondicionesTests {
         p.relaciones = [RelacionIfThen("Cantidad de X: 5", "(NO) Distancia de 1: 2")]
         p.grupos = [try #require(try CasosCondiciones.relacionGruposIfThen("1 - ", negadoSi: true, "2 - ", negadoEntonces: false))]
         #expect(throws: ErrorDominio.self) { _ = try CasosCondiciones.construirIfThen(p, combinacion: c) }
+        // M7 (#24): «deben cumplirse» mayor que el nº de relaciones avisa antes del motor.
+        p.rangoCondiciones = "2"
+        p.rangoGrupos = "1"
+        #expect(
+            throws: ErrorDominio(
+                .general, "La cantidad de condiciones que se deben cumplir debe estar entre 0 y 1 (las condiciones de la lista).")
+        ) {
+            _ = try CasosCondiciones.construirIfThen(p, combinacion: c)
+        }
+        p.rangoCondiciones = "0-1"
+        p.rangoGrupos = "3"
+        #expect(
+            throws: ErrorDominio(.general, "La cantidad de grupos que se deben cumplir debe estar entre 0 y 1 (los grupos de la lista).")
+        ) {
+            _ = try CasosCondiciones.construirIfThen(p, combinacion: c)
+        }
         p.rangoCondiciones = "1"
         p.rangoGrupos = "1"
         let it = try CasosCondiciones.construirIfThen(p, combinacion: c)

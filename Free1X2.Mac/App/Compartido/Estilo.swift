@@ -173,14 +173,18 @@ struct EstiloPrincipal: ButtonStyle {
 
 /// `SignoToggleButtonStyle`: signo marcado en `SignoMarcado` (verde lleno, texto blanco); sin marcar, neutro con borde.
 struct EstiloSigno: ToggleStyle {
+    var ancho: CGFloat = 28
+    var alto: CGFloat = 22
+    var letra: CGFloat = 12
+
     func makeBody(configuration: Configuration) -> some View {
         Button {
             configuration.isOn.toggle()
         } label: {
             configuration.label
-                .font(.system(size: 12, weight: .bold))
+                .font(.system(size: letra, weight: .bold))
                 .foregroundStyle(configuration.isOn ? Color.white : Color.textoSecundario)
-                .frame(width: 28, height: 22)
+                .frame(width: ancho, height: alto)
                 .background(configuration.isOn ? Color.exito : Color.superficieAlt, in: .rect(cornerRadius: 6))
                 .overlay(RoundedRectangle(cornerRadius: 6).stroke(configuration.isOn ? Color.clear : Color.borde))
         }

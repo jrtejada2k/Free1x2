@@ -47,7 +47,8 @@ public struct EditorColumnasProbables: Sendable {
     let desplazamiento: Int
 
     // MARK: Columnas
-    public var pronostico = ""
+    /// Un texto por partido con sus signos en orden 1, X, 2 («», «1», «X2», «1X2»…): dobles y triples (M7, #24).
+    public var pronosticos: [String]
     public var puntos = ""
     public var aciertos = ""
     public var aciertosSeguidos = ""
@@ -106,6 +107,19 @@ public struct EditorColumnasProbables: Sendable {
     public init(numeroPartidos: Int = 14, desplazamiento: Int = 3) {
         self.numeroPartidos = numeroPartidos
         self.desplazamiento = desplazamiento
+        pronosticos = Array(repeating: "", count: numeroPartidos)
+    }
+
+    /// Ningún partido con signos.
+    public var sinPronostico: Bool { pronosticos.allSatisfy(\.isEmpty) }
+
+    /// Mete o saca un signo (0 = «1», 1 = «X», 2 = «2») del partido, como el control 1/X/2 del original.
+    public mutating func alternar(_ partido: Int, _ signo: Int) {
+        guard pronosticos.indices.contains(partido), (0..<3).contains(signo) else { return }
+        let signos = ["1", "X", "2"]
+        var marcados = signos.map { pronosticos[partido].contains($0) }
+        marcados[signo].toggle()
+        pronosticos[partido] = signos.indices.filter { marcados[$0] }.map { signos[$0] }.joined()
     }
 
     /// `CargarDesdeGrupo` (:256-291): clona las CPs (`ObtenCopiaCP`) y carga relaciones y control de fallos.
@@ -136,7 +150,7 @@ public struct EditorColumnasProbables: Sendable {
         } else {
             (cp, paginacion) = (ColumnaProbableConfig(numeroPartidos: numeroPartidos), "1/1")
         }
-        pronostico = cp.textoPronosticos.joined()
+        pronosticos = cp.textoPronosticos
         aciertos = cp.getAciertos
         aciertosSeguidos = cp.getAciertosSeguidos
         fallosSeguidos = cp.getFallosSeguidos
@@ -148,12 +162,12 @@ public struct EditorColumnasProbables: Sendable {
         tolerancias = (0..<4).map { t.contains(String($0)) }
     }
 
-    /// `GuardaDatosCP` (:395-437): un carácter por partido (DEC-810); campo vacío = todos los valores.
+    /// `GuardaDatosCP` (:395-437): los signos de cada partido, con dobles y triples (M7, #24); campo vacío = todos los
+    /// valores. Los rangos («10-12») se expanden al poner los valores (#21).
     func guardaDatos(_ cp: inout ColumnaProbableConfig) throws(ErrorDominio) {
         cp.reinicializaValores()
-        let u = Array(pronostico.utf16)
-        try cp.ponerPronosticos((0..<numeroPartidos).map { $0 < u.count ? String(decoding: [u[$0]], as: UTF16.self) : "" })
-        guard !pronostico.isEmpty else { return }
+        try cp.ponerPronosticos(pronosticos)
+        guard !sinPronostico else { return }
         let todos = CasosCondiciones.todosValores(numeroPartidos)
         try cp.setPuntos(puntos)
         try cp.setNoAciertos(aciertos.isEmpty ? todos : aciertos)
@@ -172,7 +186,7 @@ public struct EditorColumnasProbables: Sendable {
         let i: Int
         if actual < columnas.count {
             i = actual
-        } else if !pronostico.isEmpty {
+        } else if !sinPronostico {
             columnas.append(ColumnaProbableConfig(numeroPartidos: numeroPartidos))
             i = columnas.count - 1
         } else {
@@ -183,7 +197,7 @@ public struct EditorColumnasProbables: Sendable {
             defer { columnas[i] = cp }
             try guardaDatos(&cp)
         }
-        if pronostico.isEmpty { columnas.remove(at: i) }
+        if sinPronostico { columnas.remove(at: i) }
     }
 
     var ultimaSinPronosticos: Bool { columnas.last?.textoPronosticos.allSatisfy(\.isEmpty) ?? false }

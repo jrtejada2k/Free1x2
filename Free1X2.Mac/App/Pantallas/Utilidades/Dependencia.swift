@@ -65,8 +65,9 @@ struct VistaDependenciaLineal: View {
             estado = "Error al calcular/grabar las columnas: " + error.mensajeUsuario
             return sesion.alertas.error(estado)
         }
-        // Como Windows: lo siguiente opera sobre el fichero grabado.
-        bits = (try? await CasosUtilidades.leerDependencia(salida, entorno: sesion.entorno).bits) ?? ConjuntoBits(cantidad: 4_782_969)
+        // M7 (#24): relee la entrada, no la salida (si son la misma ruta, ya lleva lo grabado).
+        guard let entrada else { return }
+        bits = (try? await CasosUtilidades.leerDependencia(entrada, entorno: sesion.entorno).bits) ?? ConjuntoBits(cantidad: 4_782_969)
     }
 
     var body: some View {

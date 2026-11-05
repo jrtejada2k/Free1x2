@@ -7,7 +7,9 @@ struct VistaGruposEquipos: View {
     @State private var e = EditorGruposEquipos(CondicionGruposEquipos())
     @State private var cargado = false
 
-    private var equipos: [(casa: String, fuera: String)] { EditorGruposEquipos.equipos(sesion.jornadaActual) }
+    private var equipos: [(casa: String, fuera: String)] {
+        EditorGruposEquipos.equipos(locales: sesion.locales, visitantes: sesion.visitantes)
+    }
 
     /// Mientras `_filtroGE` es el del grupo, lo que `GuardarDatos` escribe en él llega a la combinación.
     private func reflejar() {
@@ -77,8 +79,10 @@ struct VistaGruposEquipos: View {
             }
             HStack(alignment: .top) {
                 Tarjeta("Equipos del grupo") {
-                    Text("Pulsa el equipo de casa (1) o de fuera (2) de cada partido. Marcar ambos equivale al empate (X).")
-                        .font(.callout).foregroundStyle(Color.textoSecundario)
+                    Text(
+                        "Pulsa el equipo de casa (1) o de fuera (2) de cada partido. Marcar ambos mete en el grupo a los dos equipos del partido: si gana uno cuenta 1 victoria y 1 derrota; si empatan, 2 empates."
+                    )
+                    .font(.callout).foregroundStyle(Color.textoSecundario)
                     Grid(alignment: .leading, horizontalSpacing: 6, verticalSpacing: 3) {
                         ForEach(0..<EditorGruposEquipos.partidos, id: \.self) { i in
                             GridRow {
