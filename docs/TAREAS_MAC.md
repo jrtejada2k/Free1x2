@@ -300,3 +300,22 @@ Hacen falta las tres cosas:
   lo esperado de su `README.md`), con su resultado anotado.
 
 Al terminar, marca aquí cada tarea con su commit.
+
+## Estado en la Mac (5-nov-2026)
+
+Todas hechas, un commit por tarea. Tests de `Free1X2Kit` en verde (306) y la app compila en Debug y Release. Las pruebas en
+la app (I4, F5, I5, O4 y las de `docs/pruebas/filtros/`) y el CI quedan pendientes de pasar en la app.
+
+| Tarea | Commit |
+|---|---|
+| M1 | `7085552` |
+| M2 | `1c4a086` |
+| M3 | `be9fc22` |
+| M4 | `0577738` |
+| M5 | `a5c8903` |
+| M6 | `7ed1d3c` |
+| M7 | `f739865` |
+| M8 | `aa0a8e6` |
+| M9 | `0ddf454` |
+| M10 | `3c861b0` |
+| M11 | `b11715a` |
