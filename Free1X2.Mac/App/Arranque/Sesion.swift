@@ -35,8 +35,6 @@ final class Sesion {
     var visitantes: [String]
     /// `AppState.GrupoEnEdicion`: el grupo que edita la pantalla de condición abierta desde Inicio.
     var grupoEnEdicion = 0
-    /// `AppState.UsarAnalizadorCompartido`: «Calcular» desde Inicio usa la combinación en pantalla.
-    var usarCombinacionCompartida = false
     /// Inicio ▸ Reducir: las columnas de Inicio que el Reductor toma al aparecer (DT-85).
     var entradaReductor: URL?
     /// `VisorEstadisticasViewModel.UltimasEstadisticas` (no se borra al leerla).
@@ -129,6 +127,14 @@ final class Sesion {
     /// `VolcarPronosticosAlMotor`.
     func volcarPronosticos() {
         combinacion.ponerPronosticos((0..<numeroPartidos).map { CasosInicio.pronostico(signos($0)) })
+    }
+
+    /// M1 (#17): «Calcular» usa siempre el boleto, las condiciones y el filtro de columnas de Inicio, se abra desde Inicio,
+    /// el menú, el panel lateral o F5. El filtro solo cuenta si su fichero existe.
+    func prepararCalculo() {
+        volcarPronosticos()
+        let f = archivoFiltroCols
+        combinacion.archivoColumnasBase = !f.isEmpty && entorno.archivos.existe(URL(filePath: f)) ? f : ""
     }
 
     func reiniciarTriples() {

@@ -256,10 +256,7 @@ struct VistaInicio: View {
     }
 
     private func calcular() {
-        sesion.volcarPronosticos()
-        let f = sesion.archivoFiltroCols
-        sesion.combinacion.archivoColumnasBase = estadoFichero(f) == .verde ? f : ""
-        sesion.usarCombinacionCompartida = true
+        sesion.prepararCalculo()
         sesion.router.navegar(.calculaColumnas)
     }
 

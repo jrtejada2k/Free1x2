@@ -30,14 +30,8 @@ struct VistaCalculaColumnas: View {
 
     private func cargar() {
         guard combinacion == nil else { return }
-        if sesion.usarCombinacionCompartida {
-            combinacion = sesion.combinacion
-        } else {
-            var c = Combinacion(numeroPartidos: sesion.numeroPartidos)
-            c.ponerPronosticos(Array(repeating: "1,X,2", count: sesion.numeroPartidos))
-            combinacion = c
-        }
-        sesion.usarCombinacionCompartida = false
+        sesion.prepararCalculo()
+        combinacion = sesion.combinacion
         recalcularMaximas()
     }
 
