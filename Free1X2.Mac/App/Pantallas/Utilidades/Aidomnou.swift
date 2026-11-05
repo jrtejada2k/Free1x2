@@ -6,7 +6,7 @@ import SwiftUI
     try sesion.entorno.archivos.escribir(TextoNET.codificarLineas(lineas), en: u, atomico: false)
 }
 
-/// «Filtro Pim» (pantalla 57, `GeneraPim`): motor de Aidomnou (DEC-922).
+/// «Filtro Pim» (pantalla 57, `GeneraPim`): 7 rankings y su recorrido (M2, #18).
 struct VistaGeneraPim: View {
     @Environment(Sesion.self) private var sesion
     @State private var valores = [[Double]](repeating: [0, 0, 0], count: 14)
@@ -23,14 +23,14 @@ struct VistaGeneraPim: View {
     @State private var analisis = Array(repeating: "-", count: 8)
     @State private var ganadoras: [String] = []
     @State private var actual = 0
-    @State private var validas: ConjuntoBits?
+    @State private var validas: [String]?
     @State private var calculando = false
 
-    /// `RecuperaPantalla` + `PreparaColumnas`: en Windows un rango mal escrito lanza sin capturar.
-    private func preparar() -> (ColumnasAidomnou, [[Int]])? {
+    /// `RecuperaPantalla`: los rankings y los 8 rangos; en Windows un rango mal escrito lanza sin capturar.
+    private func preparar() -> ([[Int]], [[Int]])? {
         do throws(ErrorDominio) {
             guard let r = CasosUtilidades.rangosAidomnou(rangos) else { throw ErrorDominio(.general, "error en datos de entrada") }
-            return (try CasosUtilidades.columnasAidomnou(valores), r)
+            return (try CasosUtilidades.rankingsPim(valores), r)
         } catch {
             sesion.alertas.inesperado(error)
             return nil
@@ -39,7 +39,7 @@ struct VistaGeneraPim: View {
 
     /// `origen`: las columnas de Inicio (DT-85); sin él, pide el fichero como el original.
     private func calcular(_ origen: URL? = nil) async {
-        guard case let (c, r)? = preparar() else { return }
+        guard case let (k, r)? = preparar() else { return }
         let elegido: URL? = if let origen { origen } else { await SelectorFicheros.abrir(".txt", "*") }
         guard let u = elegido else { return }
         let ruta = u.path(percentEncoded: false)
@@ -48,10 +48,10 @@ struct VistaGeneraPim: View {
         calculando = true
         var n = (0, 0)
         do throws(ErrorDominio) {
-            let f = await CasosUtilidades.filtrarAidomnou(try sesion.entorno.archivos.leer(u), columnas: c, rangos: r, saltarVacias: false)
-            n = (f.procesadas, f.admitidas)
-            validas = f.validas
-            if f.corta != nil { sesion.alertas.error("error de longitud en una columna de entrada") }
+            let f = await CasosUtilidades.filtrarPim(try sesion.entorno.archivos.leer(u), rankings: k, rangos: r)
+            n = (f.procesadas, f.admitidas.count)
+            validas = f.admitidas
+            if f.corta { sesion.alertas.error("error de longitud en una columna de entrada") }
         } catch {
             sesion.alertas.error("No se pudo leer el fichero de columnas:\n" + ruta + "\n\n" + error.mensajeUsuario)
         }
@@ -96,11 +96,11 @@ struct VistaGeneraPim: View {
     }
 
     private func analizar() {
-        let col = columnaGanadora.replacingOccurrences(of: "x", with: "4").replacingOccurrences(of: "X", with: "4")
-        guard case let (c, _)? = preparar() else { return }
+        guard columnaGanadora.utf16.count >= 14 else { return sesion.alertas.error("Carga antes una columna ganadora de 14 signos.") }
+        guard case let (k, _)? = preparar() else { return }
         do throws(ErrorDominio) {
-            let na = try CasosUtilidades.aciertosAidomnou(c, columna: col)
-            analisis = na.map(String.init) + [String(na.reduce(0, +)), String((na.max() ?? 0) - (na.min() ?? 0))]
+            let na = try CasosUtilidades.aciertosPim(k, columna: columnaGanadora)
+            analisis = na.map(String.init) + [String(CasosUtilidades.recorridoPim(na))]
         } catch {
             sesion.alertas.inesperado(error)
         }
@@ -167,7 +167,7 @@ struct VistaGeneraPim: View {
                                         return sesion.alertas.error("No hay resultado calculado. Pulsa Calcular primero.")
                                     }
                                     if let u = await guardar(
-                                        "resultado", ("Resultados", ".txt"), { await CasosUtilidades.columnasValidasAidomnou(v) },
+                                        "resultado", ("Resultados", ".txt"), { v },
                                         "No se pudo grabar el fichero de resultado:\n")
                                     {
                                         ficheroResultado = u.lastPathComponent
@@ -176,9 +176,9 @@ struct VistaGeneraPim: View {
                             }
                             Button("Exportar columnas") {
                                 Task {
-                                    guard case let (c, _)? = preparar() else { return }
+                                    guard case let (k, _)? = preparar() else { return }
                                     if let u = await guardar(
-                                        "columnas", ("F.Salida", ".txt"), { CasosUtilidades.exportarAidomnou(c) },
+                                        "columnas", ("F.Salida", ".txt"), { CasosUtilidades.exportarPim(k) },
                                         "No se pudieron exportar las columnas a:\n")
                                     {
                                         ficheroResultado = u.lastPathComponent
@@ -261,7 +261,7 @@ struct VistaAidomnou: View {
             guard let u = elegido else { return }
             let inicio = entorno.reloj.ahora()
             do throws(ErrorDominio) {
-                let f = await CasosUtilidades.filtrarAidomnou(try entorno.archivos.leer(u), columnas: c, rangos: r, saltarVacias: true)
+                let f = await CasosUtilidades.filtrarAidomnou(try entorno.archivos.leer(u), columnas: c, rangos: r)
                 if let corta = f.corta { sesion.alertas.error("error de longitud=" + corta) }
                 validas = f.validas
                 (procesadas, validasTexto) = (String(f.procesadas), String(f.admitidas))

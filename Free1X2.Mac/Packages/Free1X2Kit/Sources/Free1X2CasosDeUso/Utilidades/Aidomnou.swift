@@ -2,8 +2,7 @@ import Foundation
 import Free1X2Base
 import Free1X2Formatos
 
-// Ref.: 10 §105; CU-C58…C62; 09 §57. Que llevan el mismo
-// motor (DEC-922). `lims` fijos (DEC-923). Columnas con `S2n`/`N2s` = `FiltroPorGrupos.s1n/n1s`.
+// Ref.: 10 §105; CU-C58…C62. `lims` fijos (DEC-923). Columnas con `S2n`/`N2s` = `FiltroPorGrupos.s1n/n1s`.
 
 /// Las 6 columnas probables.
 public struct ColumnasAidomnou: Sendable {
@@ -120,17 +119,17 @@ extension CasosUtilidades {
         return suma >= rks[6][0] && suma <= rks[6][1] && reco >= rks[7][0] && reco <= rks[7][1]
     }
 
-    /// CU-C60 `Calcular`: las válidas sin repetir, por índice. Aidomnou salta las líneas en blanco y Pim no; una línea
-    /// de menos de 14 signos (devuelta en `corta`) para la lectura.
+    /// CU-C60 `Calcular`: las válidas sin repetir, por índice. Salta las líneas en blanco; una línea de menos de 14
+    /// signos (devuelta en `corta`) para la lectura.
     @concurrent public static func filtrarAidomnou(
-        _ datos: Data, columnas c: ColumnasAidomnou, rangos: [[Int]], saltarVacias: Bool
+        _ datos: Data, columnas c: ColumnasAidomnou, rangos: [[Int]]
     ) async -> (validas: ConjuntoBits, procesadas: Int, admitidas: Int, corta: String?) {
         var v = ConjuntoBits(cantidad: 4_782_969)
         var (n, adm) = (0, 0)
         for l in TextoNET.lineas(datos) {
             if Task.isCancelled { break }
             var col = FormatoNET.recortar(l)
-            if saltarVacias && col.isEmpty { continue }
+            if col.isEmpty { continue }
             n += 1
             guard col.utf16.count >= 14 else { return (v, n, adm, col) }
             col = col.replacingOccurrences(of: "x", with: "4").replacingOccurrences(of: "X", with: "4")

@@ -2,8 +2,8 @@ import Foundation
 import Free1X2CasosDeUso
 import Testing
 
-/// ESPEC_10 §105 (CU-C58…C62) y ESPEC_09 §57 (mismo motor, DEC-922).
-@Suite("Aidomnou y Pim")
+/// ESPEC_10 §105 (CU-C58…C62).
+@Suite("Aidomnou")
 struct AidomnouTests {
     let valores = [[Double]](repeating: [60, 25, 15], count: 14)
 
@@ -35,12 +35,56 @@ struct AidomnouTests {
         let c = try CasosUtilidades.columnasAidomnou(valores)
         var rks = [[Int]](repeating: [0, 14], count: 6) + [[0, 84], [0, 14]]
         let lineas = datos(["11111111111111", "XXXXXXXXXXXXXX", "11111111111111", "", "corta"])
-        let a = await CasosUtilidades.filtrarAidomnou(lineas, columnas: c, rangos: rks, saltarVacias: true)
+        let a = await CasosUtilidades.filtrarAidomnou(lineas, columnas: c, rangos: rks)
         #expect(a.procesadas == 4 && a.admitidas == 2 && a.corta == "corta")
         #expect(await CasosUtilidades.columnasValidasAidomnou(a.validas) == ["XXXXXXXXXXXXXX", "11111111111111"])
-        let p = await CasosUtilidades.filtrarAidomnou(lineas, columnas: c, rangos: rks, saltarVacias: false)
-        #expect(p.procesadas == 4 && p.corta == "")
         rks[1] = [10, 14]
-        #expect(await CasosUtilidades.filtrarAidomnou(lineas, columnas: c, rangos: rks, saltarVacias: true).admitidas == 1)
+        #expect(await CasosUtilidades.filtrarAidomnou(lineas, columnas: c, rangos: rks).admitidas == 1)
+    }
+}
+
+/// M2 (#18): el filtro Pim, 7 rankings de 6 casillas sin suma y el recorrido.
+@Suite("Filtro Pim")
+struct FiltroPimTests {
+    let valores = [[Double]](repeating: [60, 25, 15], count: 14)
+    let porDefecto = [[3, 6], [2, 6], [2, 6], [2, 6], [2, 6], [0, 1], [0, 1], [0, 14]]
+
+    func datos(_ lineas: [String]) -> Data { Data(lineas.map { $0 + "\r\n" }.joined().utf8) }
+
+    @Test func rankings() throws {
+        let r = try CasosUtilidades.rankingsPim(valores)
+        func ranking(_ k: Int) -> String { (0..<14).map { CasosUtilidades.cambiaAidomnou(r[$0][k]) }.joined() }
+        #expect(ranking(0) == "111111--------")
+        #expect(ranking(1) == "------111111--")
+        #expect(ranking(2) == "XXXX--------11")
+        #expect(ranking(3) == "----XXXXXX----")
+        #expect(ranking(4) == "22--------XXXX")
+        #expect(ranking(5) == "--222222------")
+        #expect(ranking(6) == "--------222222")
+        #expect(CasosUtilidades.exportarPim(r).count == 7)
+        #expect(throws: ErrorDominio.self) { try CasosUtilidades.rankingsPim(Array(valores.prefix(13))) }
+    }
+
+    @Test func aciertosYAdmision() throws {
+        let r = try CasosUtilidades.rankingsPim(valores)
+        let a = try CasosUtilidades.aciertosPim(r, columna: "111XXX11X1XX12")
+        #expect(a == [3, 3, 2, 3, 2, 0, 1] && CasosUtilidades.recorridoPim(a) == 3)
+        #expect(try CasosUtilidades.aciertosPim(r, columna: "111xxx11x1xx12") == a)
+        #expect(CasosUtilidades.admitePim(a, porDefecto))
+        var recorrido4 = porDefecto
+        recorrido4[7] = [4, 14]
+        #expect(!CasosUtilidades.admitePim(a, recorrido4))
+        let unos = try CasosUtilidades.aciertosPim(r, columna: "11111111111111")
+        #expect(unos == [6, 6, 2, 0, 0, 0, 0] && !CasosUtilidades.admitePim(unos, porDefecto))
+        #expect(throws: ErrorDominio.self) { try CasosUtilidades.aciertosPim(r, columna: "1X21") }
+    }
+
+    @Test func filtrar() async throws {
+        let r = try CasosUtilidades.rankingsPim(valores)
+        let f = await CasosUtilidades.filtrarPim(
+            datos(["11111111111111", "111xxx11x1xx12", "111XXX11X1XX12", "corta", "111XXX11X1XX12"]), rankings: r, rangos: porDefecto)
+        #expect(f.admitidas == ["111XXX11X1XX12"] && f.procesadas == 4 && f.corta)
+        let g = await CasosUtilidades.filtrarPim(datos(["111XXX11X1XX12", "11111111111111"]), rankings: r, rangos: porDefecto)
+        #expect(g.admitidas == ["111XXX11X1XX12"] && g.procesadas == 2 && !g.corta)
     }
 }
