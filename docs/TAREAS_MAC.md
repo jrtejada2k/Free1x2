@@ -259,6 +259,32 @@ Depende de M9 (los partidos de cada grupo). **Prueba:** en un grupo, pulsar una 
 atenúa las 14 filas y deshabilita las condiciones; clic en el número 3 lo activa; «Todos» activa los 14; de vuelta al
 boleto base, los signos se pueden pulsar y la barra no se ve.
 
+## M11 · Fallos heredados del original que el dueño decidió arreglar (4-nov-2026)
+
+Issue [#28](https://github.com/jrtejada2k/Free1x2/issues/28). Windows: commits `479c386` (#16), `da1751d` (#21), `4e237b5` (D-CT2/D-CT3/H11), `5d78f50` (el resto) y
+`7ccb723` (tamaños). Hasta ahora la regla era «igual que el original»; estos puntos los cambia el dueño a propósito, así
+que en la Mac se quitan las marcas `[PRESERVAR]` que los protegían. Lo esperado de las pruebas está en
+[`pruebas/filtros/README.md`](pruebas/filtros/README.md) y los planes.
+
+| Punto | Qué hacer | Mac |
+|---|---|---|
+| **#16 If-Then** | Al Generar, el If-Then se suma a las condiciones (AND), como al analizar columnas | Kit `Free1X2Motor/Calculo/Analizador.swift:403-404` ⇒ `if !(try ifThen.comprueba(col, grupos)) { valida = false }` solo si `valida` |
+| **#21 Rangos** | En Variantes, Signos seguidos, Interrupciones, Distancias, Contactos, Pesos y CP, `2-6` ⇒ `2,3,4,5,6` y `2-4a` ⇒ `2a,3a,4a` antes de partir por comas; un rango al revés vale | Kit `Free1X2Motor/Configuracion/ValoresConTolerancia.swift:29-30` (el `poner(String)` común) y los `set…` de `CondicionColProbables.swift:35-43` |
+| **D-CT2** | La letra de tolerancia de una condición (`8a`) se pasa a mayúsculas | ídem, `ValoresConTolerancia.swift:35` |
+| **D-CT3 / H11** | Aciertos y Fallos de Control de tolerancias, y Suma aciertos / Columnas de Relaciones I: expandir rangos, ordenar y quitar repetidos antes de dimensionar (`0,2-3` y `3,1` valen) | Kit `Configuracion/Tolerancias.swift:41-50` (`ArrayAciertosTol.parsear`) y `CondicionColProbables.swift:291` |
+| **S-2 Simetrías** | Con simetrías y Aciertos vacío, aviso «Indique los aciertos de las simetrías (por ejemplo 0-3).» y no se guarda | App `Pantallas/Condiciones/Simetrias.swift` |
+| **H2 Formatos 123** | Con formatos y la lista vacía, aviso «Indique las Líneas Acertadas (por ejemplo 1-3).» (o «Aciertos Globales» con Ignorar repeticiones) | App `Pantallas/Condiciones/Formatos.swift` |
+| **F-2 Diferencias** | Un valor no válido avisa «Hay un valor no válido. Escriba los partidos y las cantidades con números, separados por comas o en rangos (1-3).» y no cierra | App `Pantallas/Condiciones/Diferencias.swift` |
+| **SS-1 Signos seguidos** | Con solo figuras (los 4 campos vacíos) la condición se activa | App `Pantallas/Condiciones/SignosSeguidos.swift` |
+| **SS-2 Figuras de Signos seguidos** | `32211` (sin guiones) y `1-1-2-2-3` (otro orden) se guardan como `3-2-2-1-1`; ayuda «Cada figura son los tramos de signos seguidos, por ejemplo 3-2-2-1-1 o 32211 (se ordenan de mayor a menor).» | Editor de figuras de `SignosSeguidos.swift` |
+| **D-L1–L3 Listado** | Añadir por grupo «Tolerancias» (`Tolerancia A: aciertos …` y `Fallos Controles: …`), «Interrupciones de Variantes» y «… Seguidas», «Interrupciones de 2:» con dos puntos, y «Partidos Activos: Todos» en el boleto base | Kit `Free1X2CasosDeUso/Ver/Listado.swift` |
+| **D-FL4 Filtrar por límites** | La fila 10 usa sus propios valores (no copia la 9) | Kit `Utilidades/Tramificar.swift:357-360` (`e[9] = e[8]` fuera) |
+| **D-FL5** | «Difs. desde» n > 0 elimina desde n diferencias: se recorren las más cercanas sin marcarlas | Kit `Utilidades/Tramificar.swift:208` (`eliminar`) |
+| **Tamaños** | Botones 1/X/2 de Columnas probables 44×30 con letra 14; casillas de figuras 96 de ancho, letra 15 | App `Pantallas/Condiciones/ColProbables.swift`, editor de figuras |
+
+**Pruebas:** FC8 ⇒ **95**; FL2 ⇒ **501**, FL4 ⇒ **5001**; Variantes `4-7` igual que `4,5,6,7`; FE4 sin el campo 1 ⇒ **60**
+(solo figuras); `IfThenAndTests` y `RangosListaTests` de Windows como tests del Kit.
+
 ## Otras notas
 
 
@@ -270,7 +296,7 @@ los problemas de pantalla de `docs/pruebas/RESULTADOS_2026-11-01.md`.
 Hacen falta las tres cosas:
 - los tests de `Free1X2Kit` en verde, incluidos los nuevos de M2–M4;
 - el CI de `.github/workflows/mac.yml` en verde;
-- la prueba de la app indicada en cada tarea (I4, F5, I5, O4; para M5–M10, las de `docs/pruebas/filtros/plan_*.md` con
+- la prueba de la app indicada en cada tarea (I4, F5, I5, O4; para M5–M11, las de `docs/pruebas/filtros/plan_*.md` con
   lo esperado de su `README.md`), con su resultado anotado.
 
 Al terminar, marca aquí cada tarea con su commit.

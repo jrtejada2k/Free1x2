@@ -49,14 +49,14 @@ esperado es esto:**
 
 El resto de valores de los planes no cambia.
 
-## Lo que no se ha cambiado (viene del original)
+## Fallos del original arreglados por decisión del dueño (4-nov-2026)
 
-Por R1, sin decisión del dueño no se toca:
-- **If-Then sustituye a las demás condiciones** al calcular (issue #16; `plan_c.md` H1).
-- **Formatos 123:** con formatos y la lista de aciertos vacía no pasa ninguna columna (`plan_b.md` H2).
-- **Simetrías:** Aciertos vacío da 0 columnas (S-2). **Diferencias:** un valor no válido se ignora sin aviso (F-2).
-- **Relaciones I de CP:** mezclar `7,9-11` da error (`plan_c.md` H11, en el motor).
-- **Listado:** no lista Tolerancias ni «Var» de Interrupciones; «Partidos Activos» vacío (D-L1–L3).
-- **Control de tolerancias:** minúscula en la condición nunca coincide; mezclas `0,2-3` dan error (D-CT2, D-CT3).
-- **Filtrar por límites:** la fila 10 copia la 9; «Difs. desde» solo distingue 0 de no-0 (D-FL4, D-FL5).
-- **Rangos `2-6`** en Variantes, Distancias, Contactos y Pesos: issue #21.
+Venían del original y se conservaban por R1; el dueño decidió arreglarlos (commits `479c386`, `da1751d`, `4e237b5`,
+`5d78f50`; Mac: M11, issue #28):
+- **If-Then** se suma a las demás condiciones (issue #16): FC8 ⇒ **95**.
+- **Rangos `2-6`** en Variantes, Signos seguidos, Interrupciones, Distancias, Contactos y Pesos (issue #21).
+- **Simetrías** (S-2) y **Formatos 123** (H2): aciertos vacíos avisan. **Diferencias** (F-2): un valor no válido avisa.
+- **Relaciones I de CP** (H11) y **Control de tolerancias** (D-CT2, D-CT3): mezclas, desorden y minúsculas valen.
+- **Listado** (D-L1–L3): tolerancias, «Var» de Interrupciones y partidos activos del base.
+- **Filtrar por límites** (D-FL4, D-FL5): la fila 10 cuenta (FL2 ⇒ **501**, FL4 ⇒ **5001**) y «Difs. desde» vale.
+- **Signos seguidos** (SS-1, SS-2): solo con figuras vale; figuras sin guiones y en cualquier orden.

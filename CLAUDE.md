@@ -29,7 +29,7 @@ Programa libre bajo **GPLv3**, derivado del Free1X2 original de Joan Duatis.
 | **`Free1X2.WinUI/`** | **Aplicación principal.** 110 páginas en `Views/Ported/`, registradas en `Navigation/PortedPages.cs` (110 entradas). Shell en `MainWindow.xaml.cs` (panel lateral `NavigationView` con buscador + barra `CommandBar` con texto), inicio en `App.xaml.cs`, servicios en `Services/` (`Log`, `TemaApp`, `IdiomaApp`, `PickerHelper`, `QuinielaOnlineService`, `JornadaCache`, `PaisesOnline`, `AppServices`, `AppState`, `DescargaJornada`, `MascarasInicio`, `ColumnasInicioServicio`, `ParametrosLAEActuales` (precio/recaudación de Configuración: España o Progol según el país de la jornada), `PegarPorcentajes`). Datos de fábrica en `Datos/Semillas/` (se copian al arrancar solo si faltan). |
 | **`Free1X2.Domain/`** | **Motor completo**, libre de UI: `MotorCalculo/`, `Reduccion/`, `Escrutinio/`, `EntradaSalida/`, `Analisis/`, `Utils/`, `SubirCategoria/`, `Online/`, `Mascaras/` (máscaras y base de ganadoras por liga), `VariablesGlobales.cs`. Desacople de UI vía `Abstractions/UiHooks.cs` (`UiPump`, `UserDialogs`, `AnalisisUi`). |
 | **`Free1X2/`** | UI **WinForms legacy** = **referencia de comportamiento**. Congelado en **0.77.2** por diseño (`Free1X2/Free1X2.csproj:11-12`). Ya no aloja el motor: solo quedan `UI/`, `Program.cs`, `Infraestructura/`, `Analisis/AnalisisCombinacion.cs` y 4 ficheros en `Utils/` (`Grafico.cs`, `ControlCompatibility.cs`, `ValidadorCaracteres.cs`, `CompresorZip.cs`). |
-| **`Free1X2.Domain.Tests/`** | **209 tests**: los **138** golden-master del motor (89 `[Fact]` + 49 casos `[InlineData]`), red de seguridad de toda optimización y que no se tocan, más **71** nuevos: los de las tareas W1–W22 de `docs/TAREAS_WINDOWS.md` (`RotacionTests`, `JornadaTests`, `MascarasTests`, `HistoricoTests`, `ColumnasInicioTests`, `EsperanzaTests`, `PrecioConfigurableTests`, `GanadoraImportadaTests`, `IntervaloPremio14Tests`, `BancoPruebasTablaTests`, `SemillasHistoricasTests`, `ParametrosProgolTests`), los de los arreglos de octubre (`EscrutadorParaleloTests`, `OrdenacionPropiaTests`, `PremiadasEnDiscoTests`, `ProbabilidadPremiosParaleloTests`, `QuitarGrupoTests`), `FiltroPimTests` y `HeredadosArregladosTests` (línea en blanco del filtro, Fraccionador por tramos). |
+| **`Free1X2.Domain.Tests/`** | **223 tests**: los **138** golden-master del motor (89 `[Fact]` + 49 casos `[InlineData]`), red de seguridad de toda optimización y que no se tocan, más **85** nuevos: los de las tareas W1–W22 de `docs/TAREAS_WINDOWS.md` (`RotacionTests`, `JornadaTests`, `MascarasTests`, `HistoricoTests`, `ColumnasInicioTests`, `EsperanzaTests`, `PrecioConfigurableTests`, `GanadoraImportadaTests`, `IntervaloPremio14Tests`, `BancoPruebasTablaTests`, `SemillasHistoricasTests`, `ParametrosProgolTests`), los de los arreglos de octubre (`EscrutadorParaleloTests`, `OrdenacionPropiaTests`, `PremiadasEnDiscoTests`, `ProbabilidadPremiosParaleloTests`, `QuitarGrupoTests`), `FiltroPimTests`, `HeredadosArregladosTests`, `IfThenAndTests` (#16) y `RangosListaTests` (#21, D-CT3, H11) (línea en blanco del filtro, Fraccionador por tramos). |
 
 Además, fuera de la solución: **`Free1X2.Mac/`** (la app nativa para Mac en Swift, con su CI en `.github/workflows/mac.yml`; no se toca desde Windows), `docs/` (documentación vigente), `scripts/` (build, publish, smoke,
 stub de la API), `tools/`, y carpetas `Free1X2.Shared/` y `Free1X2.WebAPI/` que **no** están
@@ -42,7 +42,7 @@ referenciadas en `Free1X2.sln`.
 dotnet build Free1X2.WinUI/Free1X2.WinUI.csproj -c Debug -p:Platform=x64   # 0 errores
 
 # Tests del motor
-dotnet test  Free1X2.Domain.Tests/Free1X2.Domain.Tests.csproj              # 209/209
+dotnet test  Free1X2.Domain.Tests/Free1X2.Domain.Tests.csproj              # 223/223
 
 # Smoke de carga de las 111 superficies (110 páginas + MainPage)
 $env:FREE1X2_SMOKE = '1'
@@ -102,7 +102,7 @@ Y, además:
 | [`docs/MANUAL_FLUJOS.md`](docs/MANUAL_FLUJOS.md) | Flujos funcionales y de datos del motor, con enlaces al código. |
 | [`docs/PLAN_MEJORAS.md`](docs/PLAN_MEJORAS.md) | Plan de mejoras post-v0.82.0 (fases F1–F6, con evidencia `file:line`). |
 | [`docs/TAREAS_WINDOWS.md`](docs/TAREAS_WINDOWS.md) | Especificación W1–W22 para igualar Windows con la app Mac (hecha). |
-| [`docs/TAREAS_MAC.md`](docs/TAREAS_MAC.md) | Pendiente para la app Mac: M1–M4 (arreglos del 1-nov-2026), M5–M8 (pantallas de filtros, 2-nov) y M9 (grupos de Inicio, Rentabilidad, 3-nov) y M10 (signos de solo lectura en los grupos, 4-nov) que la Mac aún no tiene. |
+| [`docs/TAREAS_MAC.md`](docs/TAREAS_MAC.md) | Pendiente para la app Mac: M1–M4 (arreglos del 1-nov-2026), M5–M8 (pantallas de filtros, 2-nov) y M9 (grupos de Inicio, Rentabilidad, 3-nov) , M10 (signos de solo lectura en los grupos, 4-nov) y M11 (fallos heredados que decidió arreglar el dueño, 4-nov) que la Mac aún no tiene. |
 | [`docs/FAQ.md`](docs/FAQ.md) | Preguntas frecuentes (Windows y Mac). |
 | [`docs/PRUEBAS_WINDOWS.md`](docs/PRUEBAS_WINDOWS.md) | Pruebas funcionales de la app (columnas y resultados reales) y su verificador `scripts/pruebas_windows.py`; resultados en `docs/pruebas/`; filtros A–D en `docs/pruebas/filtros/` (verificadores `scripts/pruebas_filtros_*.py`). |
 | `docs/web/` | `manual.html` y `faq.html` para clubprogol.com/docwk/: se regeneran con `python scripts/md-a-wordpress.py`. |
