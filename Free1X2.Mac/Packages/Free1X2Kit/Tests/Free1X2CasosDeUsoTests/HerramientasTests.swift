@@ -129,6 +129,22 @@ struct MultiplicadorFraccionadorTests {
         #expect(try await CasosUtilidades.fraccionar(cols, base: base, cuotas: [3, 20, 0, 5], tramos: 0, entorno: entorno) == 2)
         #expect(try leer("01") == "0\r\n1\r\n2\r\n" && leer("02").hasPrefix("3\r\n") && leer("02").hasSuffix("9\r\n"))
         #expect(try await CasosUtilidades.fraccionar(cols, base: base, cuotas: nil, tramos: 4, entorno: entorno) == 4)
-        #expect(try leer("04") == "6\r\n7\r\n", "N=10, q=4: se pierden 8 y 9")
+        #expect(try leer("04") == "6\r\n7\r\n8\r\n9\r\n", "N=10, q=4: el último lleva el resto (M4, #20)")
+    }
+
+    /// M4 (#20): los tramos son contiguos y suman el total; el último llega siempre al final.
+    @Test func limitesDeTramos() {
+        func l(_ t: Int, _ q: Int) -> [[Int]] { CasosUtilidades.limitesFraccion(total: t, tramos: q).map { [$0.desde, $0.hasta] } }
+        #expect(l(10, 4) == [[0, 2], [2, 4], [4, 6], [6, 10]])
+        #expect(l(9, 4).last == [6, 9])
+        #expect(l(7, 2) == [[0, 3], [3, 7]])
+        #expect(l(10, 0).isEmpty)
+        for total in 0...60 {
+            for q in 1...20 {
+                let t = CasosUtilidades.limitesFraccion(total: total, tramos: q)
+                #expect(t.count == q && t.first?.desde == 0 && t.last?.hasta == total)
+                #expect(zip(t, t.dropFirst()).allSatisfy { $0.hasta == $1.desde })
+            }
+        }
     }
 }

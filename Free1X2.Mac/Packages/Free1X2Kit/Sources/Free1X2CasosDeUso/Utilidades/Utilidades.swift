@@ -192,8 +192,15 @@ extension CasosUtilidades {
         base.deletingLastPathComponent().appending(path: base.lastPathComponent + (k < 10 ? "0" : "") + String(k) + ".txt")
     }
 
-    /// CU-B20 `FracCols` (con `cuotas`: para en la primera 0) o `FracTrams` (con las sobrantes perdidas si el resto no es
-    /// menor que la parte, se replica). Cada fichero se crea aunque quede vacío. Devuelve cuántos.
+    /// M4 (#20): el tramo `i` va de `i·parte` a `(i+1)·parte` y el último llega siempre al total: no se pierde ninguna.
+    public static func limitesFraccion(total: Int, tramos: Int) -> [(desde: Int, hasta: Int)] {
+        guard tramos > 0 else { return [] }
+        let parte = total / tramos
+        return (0..<tramos).map { k in (k * parte, k == tramos - 1 ? total : (k + 1) * parte) }
+    }
+
+    /// CU-B20 `FracCols` (con `cuotas`: para en la primera 0) o `FracTrams` (`limitesFraccion`). Cada fichero se crea
+    /// aunque quede vacío. Devuelve cuántos.
     @concurrent public static func fraccionar(
         _ columnas: [String], base: URL, cuotas: [Int]?, tramos: Int, entorno: Entorno
     ) async throws(ErrorDominio) -> Int {
@@ -212,16 +219,9 @@ extension CasosUtilidades {
             }
             return n
         }
-        guard tramos > 0 else { return 0 }
-        let part = columnas.count / tramos
-        var (acum, lim) = (0, part)
-        for k in 0..<tramos {
-            try escribir(k + 1, acum, lim)
-            acum += part
-            lim = acum + part
-            if columnas.count - lim < part { lim = columnas.count }
-        }
-        return tramos
+        let limites = limitesFraccion(total: columnas.count, tramos: tramos)
+        for (k, l) in limites.enumerated() { try escribir(k + 1, l.desde, l.hasta) }
+        return limites.count
     }
 }
 
