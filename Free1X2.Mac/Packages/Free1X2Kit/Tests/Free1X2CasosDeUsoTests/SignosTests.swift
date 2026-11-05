@@ -31,10 +31,15 @@ struct SignosTests {
         let s = try await CasosUtilidades.analizarSignos(f, ganadora: g, aspiracion: 13, pleno: false, entorno: entorno)
         #expect(s.aceptadas.count == 3 && s.premios == [1, 2, 0, 0, 0] && s.recuentos[0] == [2, 1, 0])
         #expect(
-            CasosUtilidades.valoracionDeSignos([[2, 0, 0], [1, 1, 1], [0, 0, 0]], decimales: false) == [
+            CasosUtilidades.valoracionDeSignos([[2, 0, 0], [1, 1, 1], [0, 0, 0]], decimales: false, cultura: .esES) == [
                 "100, 0, 0", "33, 33, 33", "0, 0, 0",
             ])
-        #expect(CasosUtilidades.valoracionDeSignos([[1, 0, 1]], decimales: true) == ["50.00, 0.00, 50.00"])
+        // M6 (#23): con decimales, tabuladores y la cultura del sistema; la rejilla muestra % en los modos %.
+        #expect(CasosUtilidades.valoracionDeSignos([[5, 1, 0]], decimales: true, cultura: .esES) == ["83,33\t16,67\t0,00"])
+        #expect(CasosUtilidades.celdaVSignos([5, 1, 0], 0, formato: "% con decimales", cultura: .esES) == "83,33")
+        #expect(CasosUtilidades.celdaVSignos([1, 0, 1], 0, formato: "% con decimales", cultura: .esES) == "50")
+        #expect(CasosUtilidades.celdaVSignos([5, 1, 0], 0, formato: "% enteros", cultura: .esES) == "83")
+        #expect(CasosUtilidades.celdaVSignos([5, 1, 0], 0, formato: "columnas", cultura: .esES) == "5")
         #expect(CasosUtilidades.tiempoCorto(0) == "00:00:0000" && CasosUtilidades.tiempoCorto(1.5) == "00:00:01.5")
     }
 

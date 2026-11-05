@@ -68,14 +68,28 @@ extension CasosUtilidades {
         "Premios remanentes: " + premios.map(String.init).joined(separator: "-")
     }
 
-    /// `GrabarAsync` en modo porcentaje: `"v1, vx, v2"` por partido, invariante `f0`/`f2` (suma 0 ⇒ 1).
-    public static func valoracionDeSignos(_ recuentos: [[Int]], decimales: Bool) -> [String] {
+    static func porcentajesVSignos(_ v: [Int]) -> [Double] {
+        let suma = Double(v.reduce(0, +))
+        return v.map { Double($0) / (suma == 0 ? 1 : suma) * 1e2 }
+    }
+
+    /// `GrabarAsync` en modo porcentaje (suma 0 ⇒ 1): `"v1, vx, v2"` invariante `f0`; con decimales (M6, #23)
+    /// `v1<TAB>vx<TAB>v2` en `f2` con la cultura del sistema (`83,33`).
+    public static func valoracionDeSignos(_ recuentos: [[Int]], decimales: Bool, cultura: Cultura) -> [String] {
         recuentos.map { v in
-            let suma = Double(v.reduce(0, +))
-            return v.map {
-                FormatoNET.toStringFijo(Double($0) / (suma == 0 ? 1 : suma) * 1e2, decimales: decimales ? 2 : 0, cultura: .invariante)
-            }.joined(separator: ", ")
+            porcentajesVSignos(v).map {
+                FormatoNET.toStringFijo($0, decimales: decimales ? 2 : 0, cultura: decimales ? cultura : .invariante)
+            }.joined(separator: decimales ? "\t" : ", ")
         }
+    }
+
+    /// Celda de la rejilla (M6, #23): en «% enteros» y «% con decimales» el porcentaje redondeado a 0 o 2 decimales y
+    /// escrito sin ceros sobrantes; en «columnas», el recuento.
+    public static func celdaVSignos(_ v: [Int], _ signo: Int, formato: String, cultura: Cultura) -> String {
+        let d = formato == "% enteros" ? 0 : formato == "% con decimales" ? 2 : nil
+        guard let d else { return String(v[signo]) }
+        let t = FormatoNET.toStringFijo(porcentajesVSignos(v)[signo], decimales: d, cultura: cultura)
+        return (try? FormatoNET.convertToDouble(t, cultura: cultura)).map { FormatoNET.toString($0, cultura: cultura) } ?? t
     }
 }
 

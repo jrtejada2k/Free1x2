@@ -20,15 +20,21 @@ extension CasosCondiciones {
     /// `int.TryParse` (estilo `Integer`: blancos y signo).
     static func entero(_ s: String) -> Int? { Int(FormatoNET.recortar(s)) }
 
-    /// `ConstruirFormatos` (:194-220): filas no válidas se descartan en silencio; sin deduplicar.
+    /// `ConstruirFormatos` (:194-220): se para en la primera fila no válida y no lee las siguientes (M6, #23); sin
+    /// deduplicar.
     public static func formatos123(_ filas: [FilaFormato123], ignorarRepeticiones: Bool) -> [Formato123] {
-        filas.compactMap { f in
+        var r: [Formato123] = []
+        for f in filas {
             let t = FormatoNET.recortar(f.formato)
-            guard !t.isEmpty, t.utf16.count <= 14, t.allSatisfy({ "123".contains($0) }) else { return nil }
-            guard !ignorarRepeticiones else { return Formato123(formato: t) }
-            guard let a = entero(f.minimo), let b = entero(f.maximo) else { return nil }
-            return Formato123(formato: t, aciertosMin: a, aciertosMax: b)
+            guard !t.isEmpty, t.utf16.count <= 14, t.allSatisfy({ "123".contains($0) }) else { break }
+            if ignorarRepeticiones {
+                r.append(Formato123(formato: t))
+            } else {
+                guard let a = entero(f.minimo), let b = entero(f.maximo) else { break }
+                r.append(Formato123(formato: t, aciertosMin: a, aciertosMax: b))
+            }
         }
+        return r
     }
 
     /// `ConstruirAciertos` (:223-251): valores y rangos `a-b` de 0…40; lo mal formado se descarta.

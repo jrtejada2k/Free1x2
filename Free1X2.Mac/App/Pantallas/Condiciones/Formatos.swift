@@ -93,7 +93,10 @@ struct VistaFormatos123: View {
                             TextField("", text: .constant(columna123), prompt: Text("123…"))
                         }
                         Button("Analizador de formatos") {
-                            let f = CasosCondiciones.formatos123(filas, ignorarRepeticiones: ignorar)
+                            // M6 (#23): los formatos guardados del grupo, no los de pantalla.
+                            let g = sesion.combinacion.grupos
+                            let f =
+                                g.indices.contains(sesion.grupoEnEdicion) ? g[sesion.grupoEnEdicion].condiciones.formatos123.formatos : []
                             guard !f.isEmpty else { return sesion.alertas.info("Guarde el Filtro Primero!!!") }
                             sesion.formatos123Entrada = f
                             sesion.router.navegar(.analisisFormatos123)

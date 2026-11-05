@@ -155,8 +155,12 @@ struct CondicionesTests {
             FilaFormato123(formato: "12", minimo: "1", maximo: "2"), FilaFormato123(formato: "14"),
             FilaFormato123(formato: " 31 ", minimo: "x", maximo: "1"), FilaFormato123(formato: "12", minimo: "0", maximo: "3"),
         ]
-        #expect(CasosCondiciones.formatos123(filas, ignorarRepeticiones: false).map(\.formato) == ["12", "12"])
-        #expect(CasosCondiciones.formatos123(filas, ignorarRepeticiones: true).map(\.formato) == ["12", "31", "12"])
+        // M6 (#23): se para en la primera fila no válida («14») y no lee las siguientes.
+        #expect(CasosCondiciones.formatos123(filas, ignorarRepeticiones: false).map(\.formato) == ["12"])
+        #expect(CasosCondiciones.formatos123(filas, ignorarRepeticiones: true).map(\.formato) == ["12"])
+        let sinMinimo = [FilaFormato123(formato: "12", minimo: "1", maximo: "2"), filas[2], filas[3]]
+        #expect(CasosCondiciones.formatos123(sinMinimo, ignorarRepeticiones: false).map(\.formato) == ["12"])
+        #expect(CasosCondiciones.formatos123(sinMinimo, ignorarRepeticiones: true).map(\.formato) == ["12", "31", "12"])
         #expect(CasosCondiciones.aciertosFormatos123("41,3, 1-2,x,5-4") == [3, 1, 2])
         var m = Array(repeating: [50.0, 30, 20], count: 14)
         m[1] = [10, 60, 30]

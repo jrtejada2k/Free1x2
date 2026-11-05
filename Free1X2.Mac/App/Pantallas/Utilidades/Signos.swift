@@ -25,6 +25,8 @@ struct VistaVSignos: View {
         } catch {
             return sesion.alertas.error("No se ha podido leer el fichero de columnas: " + error.mensajeUsuario)
         }
+        // M6 (#23): Pleno solo con 15 o más signos y la aspiración, el nº de signos.
+        (pleno, aspiracion) = (partidos >= 15, Double(partidos))
         ganadora = Array(repeating: "-", count: partidos)
         await calcular()
     }
@@ -53,7 +55,9 @@ struct VistaVSignos: View {
                 columnas ? "Columnas" : "Valoracion", [(columnas ? "Columnas" : "Valoración", ".txt")])
         else { return }
         let lineas =
-            columnas ? r.aceptadas : CasosUtilidades.valoracionDeSignos(r.recuentos, decimales: formato == "% con decimales")
+            columnas
+            ? r.aceptadas
+            : CasosUtilidades.valoracionDeSignos(r.recuentos, decimales: formato == "% con decimales", cultura: .sistema())
         do throws(ErrorDominio) {
             try sesion.entorno.archivos.escribir(TextoNET.codificarLineas(lineas), en: u, atomico: false)
         } catch {
@@ -62,8 +66,10 @@ struct VistaVSignos: View {
     }
 
     private func celda(_ i: Int, _ s: Int) -> some View {
-        Button(String(resultado?.recuentos[i][s] ?? 0)) { ganadora[i] = ["1", "X", "2"][s] }
-            .buttonStyle(.borderless).monospacedDigit().frame(width: 70, alignment: .trailing)
+        Button(resultado.map { CasosUtilidades.celdaVSignos($0.recuentos[i], s, formato: formato, cultura: .sistema()) } ?? "0") {
+            ganadora[i] = ["1", "X", "2"][s]
+        }
+        .buttonStyle(.borderless).monospacedDigit().frame(width: 70, alignment: .trailing)
     }
 
     var body: some View {

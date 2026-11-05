@@ -106,6 +106,9 @@ struct VistaValoracion: View {
 
     /// `Calcular`: escribe en la condición del grupo en edición (como hoy).
     private func calcular() {
+        guard columna.utf16.count >= sesion.numeroPartidos else {
+            return sesion.alertas.error("Introducir columna de 14 signos para el calculo.")
+        }
         let p = preparar()
         guard sesion.combinacion.grupos.indices.contains(sesion.grupoEnEdicion) else { return }
         do throws(ErrorDominio) {
