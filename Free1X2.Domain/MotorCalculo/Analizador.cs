@@ -93,12 +93,14 @@ namespace Free1X2.MotorCalculo
                 columnaValida = ctrlGrupos.AnalizaColumna(columna);
             }
 
-            // Analiza el controlador If-Then
-            if (IfThen != null)
+            // Analiza el controlador If-Then. #16 (decisión del dueño, 4-nov-2026): se suma a las
+            // condiciones (AND), como ya hacía AnalizaColumna(long, bool). El original sustituía el
+            // resultado: una columna fuera del boleto o que no cumplía las condiciones podía entrar.
+            if (columnaValida && IfThen != null)
             {
                 if (!IfThen.EsVacio && IfThen.EsActivo)
                 {
-                    columnaValida = IfThen.CompruebaPronostico(columna, GruposPartidos);
+                    if (!IfThen.CompruebaPronostico(columna, GruposPartidos)) columnaValida = false;
                 }
             }
 

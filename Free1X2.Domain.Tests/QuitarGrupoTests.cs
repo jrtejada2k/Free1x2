@@ -62,9 +62,10 @@ namespace Free1X2.Domain.Tests
         [Fact]
         public void CompletaComb_AnadirYBorrarGrupoConSuControl_GeneraLoMismo()
         {
-            // Su If-Then activo decide solo (AnalizaColumna(long) asigna, no hace AND, como el original): no todas pasan.
-            string antes = Generar(Abrir(), "free1x2_q15_antes.txt", out _, out var aceptadas);
-            Assert.True(aceptadas > 0);
+            // Desde #16 (4-nov-2026) el If-Then se suma a las condiciones (AND) y completa.comb no deja pasar
+            // ninguna columna; se comparan entonces las cuentas, además del fichero (vacío si no hay ninguna).
+            string antes = Generar(Abrir(), "free1x2_q15_antes.txt", out var analizadasAntes, out var aceptadasAntes);
+            Assert.True(analizadasAntes > 0);
 
             var a = Abrir();
             var cg = a.CtrlGrupos;
@@ -78,8 +79,10 @@ namespace Free1X2.Domain.Tests
 
             a.GruposPartidos.BorrarGrupo(nuevo);
             cg.QuitarGrupo(nuevo);
-            string despues = Generar(a, "free1x2_q15_despues.txt", out _, out _);
+            string despues = Generar(a, "free1x2_q15_despues.txt", out var analizadasDespues, out var aceptadasDespues);
             Assert.Equal(antes, despues);
+            Assert.Equal(analizadasAntes, analizadasDespues);
+            Assert.Equal(aceptadasAntes, aceptadasDespues);
         }
 
         private static Analizador Abrir()
@@ -100,6 +103,7 @@ namespace Free1X2.Domain.Tests
             a.AnalizaCombinacion(ruta);
             analizadas = a.ColsAnalizadas;
             aceptadas = a.ColsAceptadas;
+            if (!System.IO.File.Exists(ruta)) return ""; // sin columnas aceptadas no se crea el fichero
             string texto = System.IO.File.ReadAllText(ruta);
             System.IO.File.Delete(ruta);
             return texto;
