@@ -327,8 +327,19 @@ struct BoletoBaseView: View {
                 }
                 .help("Reiniciar a 14 triples")
                 .accessibilityLabel("Reiniciar a 14 triples")
+                .disabled(enGrupo)
             }
             .bandaTarjeta()
+            // M10 (#27): un grupo no tiene signos propios; solo elige sus partidos.
+            if enGrupo {
+                HStack {
+                    Text("Los signos se cambian en el Boleto Base. Pulse el número para meter o sacar el partido del grupo.")
+                        .font(.callout).foregroundStyle(Color.textoSecundario)
+                    Spacer()
+                    Button("Todos") { ponerTodos(true) }.accessibilityIdentifier("partidos-todos")
+                    Button("Ninguno") { ponerTodos(false) }.accessibilityIdentifier("partidos-ninguno")
+                }
+            }
             Grid(alignment: .leading, horizontalSpacing: 6, verticalSpacing: 3) {
                 GridRow {
                     Text("Nº")
@@ -350,6 +361,7 @@ struct BoletoBaseView: View {
                                 isOn: Binding(get: { sesion.signos(i)[k] }, set: { _ in sesion.alternar(i, k) })
                             )
                             .toggleStyle(EstiloSigno())
+                            .disabled(enGrupo)
                             .accessibilityIdentifier("signo-\(i + 1)-\(["1", "X", "2"][k])")
                             .accessibilityHint(["Signo 1 (gana el local)", "Signo X (empate)", "Signo 2 (gana el visitante)"][k])
                         }
@@ -384,8 +396,12 @@ struct BoletoBaseView: View {
 
     private func alternarTodos(_ enGrupo: Bool, _ partidos: [Bool]) {
         guard enGrupo else { return sesion.reiniciarTriples() }
+        ponerTodos(!partidos.contains(true))
+    }
+
+    private func ponerTodos(_ activos: Bool) {
         do throws(ErrorDominio) {
-            try CasosInicio.ponerTodosLosPartidos(&sesion.combinacion, grupo: sesion.grupoPantalla, !partidos.contains(true))
+            try CasosInicio.ponerTodosLosPartidos(&sesion.combinacion, grupo: sesion.grupoPantalla, activos)
         } catch {
             sesion.alertas.error(error)
         }
