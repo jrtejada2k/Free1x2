@@ -53,6 +53,23 @@ struct CalcularTests {
         #expect(sinVisor.analisis == nil)
     }
 
+    /// M3 (#19): una línea vacía o de solo espacios del filtro no es una columna (antes salía `11111111111111`).
+    @Test func filtroConLineasEnBlanco() async throws {
+        var c = Combinacion(numeroPartidos: 14)
+        c.ponerPronosticos(Array(repeating: "1,X,2", count: 14))
+        let filtro = URL(filePath: "/tmp/filtro_blancos.txt")
+        let lineas = ["1X21X21X21X21X", "", "2222222222222X", "   ", "XXXXXXXXXXXXX1"]
+        try entorno.archivos.escribir(Data(lineas.map { $0 + "\r\n" }.joined().utf8), en: filtro, atomico: true)
+        c.archivoColumnasBase = filtro.path(percentEncoded: false)
+        let cfg = Configuracion.porDefecto
+        let contar = try await CasosCombinacion.calcularCombinacion(c, modo: .contar, configuracion: cfg, entorno: entorno)
+        #expect(contar.calculo == ResultadoCalculo(analizadas: 3, aceptadas: 3))
+        let salida = URL(filePath: "/tmp/salida_blancos.txt")
+        _ = try await CasosCombinacion.calcularCombinacion(c, modo: .grabar(salida), configuracion: cfg, entorno: entorno)
+        let escritas = String(decoding: try entorno.archivos.leer(salida), as: UTF8.self).components(separatedBy: "\r\n")
+        #expect(!escritas.contains("11111111111111") && escritas.filter { !$0.isEmpty }.count == 3)
+    }
+
     @Test func textosDeEstadisticas() {
         var lae = ConfigLAE()
         lae.precioApuesta = 0.5

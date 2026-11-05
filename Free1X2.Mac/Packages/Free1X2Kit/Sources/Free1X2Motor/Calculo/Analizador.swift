@@ -292,6 +292,8 @@ final class Analizador {
         let n = numeroPartidos
         for linea in lineas {
             guard enMarcha else { break }
+            // M3 (#19): una línea vacía o de solo espacios no es una columna, en las tres rutas.
+            if linea.allSatisfy(\.isWhitespace) { continue }
             let u = linea.utf16
             let col: Columna
             if ruta == .analizarExterno {
