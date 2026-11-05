@@ -81,7 +81,7 @@ Vigentes desde [`docs/PLAN_MEJORAS.md`](docs/PLAN_MEJORAS.md) §0:
 
 | # | Regla | Consecuencia práctica |
 |---|-------|-----------------------|
-| R1 | **La lógica de negocio no cambia.** El motor (`Free1X2.Domain`) debe producir resultados idénticos al WinForms original (`Free1X2/`). | Toda optimización pasa los **138 tests golden-master** sin tocarlos. |
+| R1 | **La lógica de negocio no cambia.** El motor (`Free1X2.Domain`) debe producir resultados idénticos al WinForms original (`Free1X2/`). Excepción: los fallos heredados que el dueño decidió arreglar el 4-nov-2026 (#16 If-Then, #21 rangos, D-CT2/D-CT3/H11; lista en `docs/pruebas/filtros/README.md`). | Toda optimización pasa los **138 tests golden-master** sin tocarlos. |
 | R2 | **Las decisiones de diseño/UI las toma el dueño.** | Los hallazgos de UI son *opciones a considerar*; ninguna se implementa sin aprobación explícita. |
 | R3 | **Completitud binaria (0 o 1).** | Un ítem solo se marca hecho con evidencia: build 0 err, smoke 111/111, tests verdes y `file:line` del cambio. |
 | R4 | **Sin evidencia no hay hallazgo.** | Cada afirmación cita fichero:línea leído. Lo no verificado se descarta. |
