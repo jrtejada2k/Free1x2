@@ -20,6 +20,8 @@ final class Alertas {
 
     func info(_ mensaje: String) { cola.append(Alerta(titulo: "Free1X2", mensaje: mensaje)) }
 
+    func atencion(_ mensaje: String) { cola.append(Alerta(titulo: "Atención", mensaje: mensaje)) }
+
     /// «Se produjo un error inesperado» para lo que no es un `ErrorDominio` (10 §1.1).
     func error(_ e: any Error) {
         if let d = e as? ErrorDominio {

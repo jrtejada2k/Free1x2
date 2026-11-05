@@ -112,6 +112,9 @@ struct VistaInicio: View {
             boton("backward.end", "Primer grupo (boleto base)") { cambiarGrupo(0) }
             boton("chevron.left", "Grupo anterior") { cambiarGrupo(sesion.grupoPantalla - 1) }
             boton("chevron.right", "Grupo siguiente (crea si no existe)") {
+                guard CasosInicio.puedeAvanzar(sesion.combinacion, desde: sesion.grupoPantalla) else {
+                    return sesion.alertas.atencion(CasosInicio.mensajeGrupoSinPartidos)
+                }
                 sesion.volcarPronosticos()
                 cambiarGrupo(sesion.grupoPantalla + 1)
             }
@@ -163,6 +166,8 @@ struct VistaInicio: View {
                     }
                 }
             }
+            // M9 (#26): en un grupo sin partidos las condiciones no se pueden tocar (verían la columna vacía).
+            .disabled(!CasosInicio.puedeAvanzar(sesion.combinacion, desde: sesion.grupoPantalla))
             Tarjeta("Filtro de columnas", icono: "line.3.horizontal.decrease") {
                 HStack {
                     SemaforoView(estado: estadoFichero(sesion.archivoFiltroCols))
@@ -297,10 +302,16 @@ struct BoletoBaseView: View {
     var body: some View {
         @Bindable var s = sesion
         let marcados = (0..<sesion.numeroPartidos).map { sesion.signos($0).filter { $0 }.count }
+        let g = sesion.grupoPantalla
+        let enGrupo = g > 0
+        let partidos = CasosInicio.partidosDelGrupo(sesion.combinacion, g)
         Tarjeta {
             HStack {
-                Text(sesion.grupoPantalla == 0 ? "Boleto Base" : "Grupo \(sesion.grupoPantalla) / \(sesion.combinacion.grupos.count - 1)")
+                Text(g == 0 ? "Boleto Base" : "Grupo \(g) / \(sesion.combinacion.grupos.count - 1)")
                     .font(.headline).foregroundStyle(Color.error)
+                    // M9 (#26): doble clic en el título, todos o ninguno de los partidos del grupo (en el base, triples).
+                    .onTapGesture(count: 2) { alternarTodos(enGrupo, partidos) }
+                    .help(enGrupo ? "Doble clic: todos o ninguno de los partidos del grupo" : "Doble clic: reiniciar a 14 triples")
                 Text(sesion.rutaCombinacion.map { $0.deletingPathExtension().lastPathComponent } ?? "combinación nueva")
                     .font(.callout).foregroundStyle(Color.textoSecundario).lineLimit(1).truncationMode(.middle)
                     .help("Fichero de la combinación")
@@ -330,7 +341,7 @@ struct BoletoBaseView: View {
                 .font(.caption).foregroundStyle(Color.textoSecundario)
                 ForEach(0..<sesion.numeroPartidos, id: \.self) { i in
                     GridRow {
-                        Text(String(format: "%02d", i + 1)).monospacedDigit()
+                        numero(i, enGrupo: enGrupo)
                         TextField("Local", text: $s.locales[i]).labelsHidden().accessibilityIdentifier("local-\(i + 1)")
                         TextField("Visitante", text: $s.visitantes[i]).labelsHidden().accessibilityIdentifier("visitante-\(i + 1)")
                         ForEach(0..<3, id: \.self) { k in
@@ -344,8 +355,39 @@ struct BoletoBaseView: View {
                         }
                     }
                     .controlSize(.small)
+                    .opacity(partidos[safe: i] ?? true ? 1 : 0.4)
                 }
             }
+        }
+    }
+
+    /// M9 (#26): en un grupo, el número mete o saca el partido del grupo; en el boleto base es solo el número.
+    @ViewBuilder private func numero(_ i: Int, enGrupo: Bool) -> some View {
+        let texto = Text(String(format: "%02d", i + 1)).monospacedDigit()
+        if enGrupo {
+            Button {
+                do throws(ErrorDominio) {
+                    try CasosInicio.alternarPartido(&sesion.combinacion, grupo: sesion.grupoPantalla, partido: i)
+                } catch {
+                    sesion.alertas.error(error)
+                }
+            } label: {
+                texto.underline()
+            }
+            .buttonStyle(.plain)
+            .help("Meter o sacar el partido \(i + 1) del grupo")
+            .accessibilityIdentifier("partido-\(i + 1)")
+        } else {
+            texto
+        }
+    }
+
+    private func alternarTodos(_ enGrupo: Bool, _ partidos: [Bool]) {
+        guard enGrupo else { return sesion.reiniciarTriples() }
+        do throws(ErrorDominio) {
+            try CasosInicio.ponerTodosLosPartidos(&sesion.combinacion, grupo: sesion.grupoPantalla, !partidos.contains(true))
+        } catch {
+            sesion.alertas.error(error)
         }
     }
 }

@@ -12,6 +12,15 @@ public enum CasosCondiciones {
 
     static func blanco(_ s: String) -> Bool { s.allSatisfy(\.isWhitespace) }
 
+    /// M9 (#26): un valor fuera de 0…N al Aceptar Variantes o Signos seguidos da este aviso, no un error de índice.
+    public static func conCantidadesValidas<T>(numeroPartidos n: Int, _ aplicar: () throws(ErrorDominio) -> T) throws(ErrorDominio) -> T {
+        do {
+            return try aplicar()
+        } catch  where error.excepcion == .indiceFueraDeRango {
+            throw ErrorDominio(.general, "Las cantidades admitidas van de 0 a \(n), separadas por comas.")
+        }
+    }
+
     /// `RutaTemporal`: `Temp/tmp.<ext>`, el «portapapeles» de condiciones (Copiar/Pegar).
     public static func rutaTemporal(_ extension: String, entorno: Entorno) -> URL {
         entorno.rutas.carpeta(.temp).appending(path: "tmp." + `extension`)

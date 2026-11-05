@@ -289,6 +289,8 @@ struct VistaRentabilidad: View {
             if apostados.isEmpty {
                 apostados = Array(repeating: [0, 0, 0], count: sesion.numeroPartidos)
                 reales = apostados
+                // M9 (#26): arranca con la recaudación de Configuración (la del Progol con jornada de México).
+                recaudacion = sesion.lae.recaudacion
             }
         }
     }

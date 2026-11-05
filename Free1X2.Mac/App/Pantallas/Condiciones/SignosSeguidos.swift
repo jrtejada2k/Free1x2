@@ -27,7 +27,9 @@ struct VistaSignosSeguidos: View {
                 return c
             },
             aceptar: { c throws(ErrorDominio) in
-                try aplicar(&c.signosSeguidos)
+                try CasosCondiciones.conCantidadesValidas(numeroPartidos: sesion.numeroPartidos) { () throws(ErrorDominio) in
+                    try aplicar(&c.signosSeguidos)
+                }
                 return true
             },
             borrar: {
@@ -35,7 +37,7 @@ struct VistaSignosSeguidos: View {
                 figuras = [nil, nil, nil, nil]
             }
         ) {
-            Tarjeta("Cantidades admitidas (0–15)") {
+            Tarjeta("Cantidades admitidas (0–14)") {
                 Text("Introduce las cantidades permitidas para cada concepto. Separa varios valores con comas (p. ej. 0,1,2).")
                     .font(.callout).foregroundStyle(Color.textoSecundario)
                 ForEach(0..<4, id: \.self) { i in

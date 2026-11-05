@@ -81,7 +81,7 @@ struct PantallaCondicion<Contenido: View>: View {
             }
             if cerrar { sesion.router.atras() }
         } catch {
-            sesion.alertas.inesperado(error)
+            if error.excepcion == .general { sesion.alertas.error(error.mensajeUsuario) } else { sesion.alertas.inesperado(error) }
         }
     }
 

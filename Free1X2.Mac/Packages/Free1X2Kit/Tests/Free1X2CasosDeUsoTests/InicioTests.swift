@@ -178,6 +178,33 @@ struct InicioTests {
         #expect(CasosInicio.leerBarrasVisibles(c) == [false, true, true, true, false, true])
     }
 
+    /// M9 (#26): los partidos de cada grupo. Un grupo sin partidos ve la columna vacía y su condición rechaza todo.
+    @Test func partidosDeLosGrupos() async throws {
+        var c = Combinacion(numeroPartidos: 14)
+        c.ponerPronosticos(Array(repeating: "1,X,2", count: 3) + Array(repeating: "1", count: 11))
+        #expect(try CasosInicio.cambiarGrupo(&c, a: 1) == 1)
+        #expect(CasosInicio.partidosDelGrupo(c, 0).allSatisfy { $0 } && !CasosInicio.partidosDelGrupo(c, 1).contains(true))
+        #expect(CasosInicio.puedeAvanzar(c, desde: 0) && !CasosInicio.puedeAvanzar(c, desde: 1))
+        try c.modificarGrupo(1) { g throws(ErrorDominio) in
+            try CasosCondiciones.aplicarNoVariantes(variantes: "", equis: "1", doses: "", en: &g.condiciones.noVariantes)
+        }
+        let cfg = Configuracion.porDefecto
+        func aceptadas() async throws -> Int {
+            try await CasosCombinacion.calcularCombinacion(c, modo: .contar, configuracion: cfg, entorno: entorno).calculo.aceptadas
+        }
+        #expect(try await aceptadas() == 0)
+        for p in 0..<3 { try CasosInicio.alternarPartido(&c, grupo: 1, partido: p) }
+        #expect(CasosInicio.partidosDelGrupo(c, 1) == [true, true, true] + Array(repeating: false, count: 11))
+        #expect(CasosInicio.puedeAvanzar(c, desde: 1))
+        #expect(try await aceptadas() == 12, "una X en los 3 triples: 3 · 2 · 2")
+        try CasosInicio.alternarPartido(&c, grupo: 1, partido: 2)
+        #expect(CasosInicio.partidosDelGrupo(c, 1)[2] == false)
+        try CasosInicio.ponerTodosLosPartidos(&c, grupo: 1, true)
+        #expect(CasosInicio.partidosDelGrupo(c, 1).allSatisfy { $0 })
+        try CasosInicio.ponerTodosLosPartidos(&c, grupo: 0, false)
+        #expect(CasosInicio.partidosDelGrupo(c, 0).allSatisfy { $0 }, "el boleto base no se toca")
+    }
+
     @Test func gruposYControles() throws {
         var c = Combinacion(numeroPartidos: 14)
         #expect(try CasosInicio.cambiarGrupo(&c, a: -1) == 0 && c.grupos.count == 1)

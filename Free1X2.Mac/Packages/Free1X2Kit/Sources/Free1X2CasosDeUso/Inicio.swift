@@ -234,6 +234,34 @@ public enum CasosInicio {
         return d
     }
 
+    // MARK: Partidos de cada grupo (M9, #26)
+
+    public static let mensajeGrupoSinPartidos = "No ha especificado ningún partido,\nespecifique al menos un partido para seguir"
+
+    /// Partidos del grupo `g`: el boleto base los tiene todos; otro grupo, los que se le han marcado.
+    public static func partidosDelGrupo(_ c: Combinacion, _ g: Int) -> [Bool] {
+        guard g > 0, c.grupos.indices.contains(g) else { return Array(repeating: true, count: c.numeroPartidos) }
+        return c.grupos[g].partidosActivos
+    }
+
+    /// Mete o saca el partido `p` del grupo `g` (> 0); la máscara del grupo se recalcula.
+    public static func alternarPartido(_ c: inout Combinacion, grupo g: Int, partido p: Int) throws(ErrorDominio) {
+        var v = partidosDelGrupo(c, g)
+        guard g > 0, v.indices.contains(p) else { return }
+        v[p].toggle()
+        try c.modificarGrupo(g) { $0.ponerPartidos(v) }
+    }
+
+    /// Todos (`true`) o ninguno de los partidos en el grupo `g` (> 0).
+    public static func ponerTodosLosPartidos(_ c: inout Combinacion, grupo g: Int, _ activos: Bool) throws(ErrorDominio) {
+        guard g > 0, c.grupos.indices.contains(g) else { return }
+        let partidos = Array(repeating: activos, count: c.numeroPartidos)
+        try c.modificarGrupo(g) { $0.ponerPartidos(partidos) }
+    }
+
+    /// «Grupo siguiente» desde un grupo > 0 sin partidos no avanza.
+    public static func puedeAvanzar(_ c: Combinacion, desde g: Int) -> Bool { g == 0 || partidosDelGrupo(c, g).contains(true) }
+
     /// `EliminarGrupo` (:423-472): borra el grupo, lo quita de los controles de grupos, renumera los de detrás y va al anterior.
     /// `nil` = no hace nada (boleto base o un solo grupo).
     ///

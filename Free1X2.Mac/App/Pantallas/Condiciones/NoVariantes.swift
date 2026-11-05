@@ -23,12 +23,14 @@ struct VistaNoVariantes: View {
                 return c
             },
             aceptar: { c throws(ErrorDominio) in
-                try aplicar(&c.noVariantes)
+                try CasosCondiciones.conCantidadesValidas(numeroPartidos: c.noVariantes.numeroPartidos) { () throws(ErrorDominio) in
+                    try aplicar(&c.noVariantes)
+                }
                 return true
             },
             borrar: { (variantes, equis, doses) = ("", "", "") }
         ) {
-            Tarjeta("Cantidades admitidas (0–15)") {
+            Tarjeta("Cantidades admitidas (0–14)") {
                 Text("Introduce las cantidades permitidas para cada concepto. Separa varios valores con comas (p. ej. 0,1,2).")
                     .font(.callout).foregroundStyle(Color.textoSecundario)
                 CampoCondicion(etiqueta: "Var", texto: $variantes, ayuda: "p. ej. 0,1,2")
