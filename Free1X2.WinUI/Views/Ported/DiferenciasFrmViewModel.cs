@@ -166,6 +166,7 @@ public partial class DiferenciasFrmViewModel : FiltroArchivoViewModelBase
     // Construye una Diferencia a partir de la pantalla (DiferenciasFrm.CreaDiferencia, líneas 176-257).
     private Diferencia? CreaDiferencia()
     {
+        _entradaInvalida = false;
         try
         {
             var rep = new Diferencia();
@@ -206,9 +207,13 @@ public partial class DiferenciasFrmViewModel : FiltroArchivoViewModelBase
         }
         catch
         {
+            _entradaInvalida = true;
             return null;
         }
     }
+
+    // F-2: CreaDiferencia falló por un valor no válido (no por tener la pantalla vacía).
+    private bool _entradaInvalida;
 
     // Guarda/actualiza la Diferencia de pantalla en el filtro (DiferenciasFrm.ActualizarDatos, líneas 258-279).
     private void ActualizarDatos(FiltroDiferencias filtro)
@@ -430,6 +435,16 @@ public partial class DiferenciasFrmViewModel : FiltroArchivoViewModelBase
         // Equivale a DiferenciasFrm.menuCondiciones1_BOk (líneas 280-292).
         var grupo = AppState.GrupoEnEdicion;
         if (grupo is null) { Volver?.Invoke(); return; }
+
+        // F-2 (decisión del dueño, 4-nov-2026): el original ignoraba en silencio un valor no válido y cerraba
+        // sin guardar el conjunto. Ahora avisa y no cierra.
+        CreaDiferencia();
+        if (_entradaInvalida)
+        {
+            AppServices.MostrarError(
+                "Hay un valor no válido. Escriba los partidos y las cantidades con números, separados por comas o en rangos (1-3).");
+            return;
+        }
 
         var filtro = (FiltroDiferencias)grupo.GetFiltro(Filtro.Diferencias.ToString());
         ActualizarDatos(filtro);

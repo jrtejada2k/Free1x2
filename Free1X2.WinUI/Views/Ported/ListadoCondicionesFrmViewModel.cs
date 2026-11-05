@@ -102,7 +102,11 @@ namespace Free1X2.WinUI.Views.Ported
                 string nombreGrupo = i == 0 ? "Boleto Base" : "Grupo " + i;
                 var nodoGrupo = nodoDeGrupos.AgregarHijo(nombreGrupo);
 
-                nodoGrupo.AgregarHijo("Partidos Activos: " + grupo.ObtenPartidosActivos());
+                // D-L3 (4-nov-2026): el boleto base tiene todos los partidos aunque su array no esté relleno.
+                string activos = i == 0 && string.IsNullOrEmpty(grupo.ObtenPartidosActivos())
+                    ? "Todos"
+                    : grupo.ObtenPartidosActivos();
+                nodoGrupo.AgregarHijo("Partidos Activos: " + activos);
                 if (grupo.UsaFiltroParcial)
                 {
                     nodoGrupo.AgregarHijo("Filtro Parcial: " + grupo.ArchivoFiltroGrupo);
@@ -116,6 +120,21 @@ namespace Free1X2.WinUI.Views.Ported
                     // Desglose detallado por tipo de filtro, mismo árbol que el legacy
                     // Free1X2/UI/ListadoCondicionesFrm.cs (switch por NombreFiltro, líneas 143-679).
                     ConstruirDetalleFiltro(grupo, filtro, nodoFiltroCond);
+                }
+
+                // D-L1 (4-nov-2026): tolerancias del grupo y sus fallos (el original no las listaba).
+                var ctrlTol = grupo.ControladorTolerancias;
+                if (ctrlTol != null && ctrlTol.Tolerancias.Count > 0)
+                {
+                    var nodoTol = nodoGrupo.AgregarHijo("Tolerancias");
+                    foreach (ToleranciaFiltros tol in ctrlTol.Tolerancias)
+                    {
+                        nodoTol.AgregarHijo("Tolerancia " + tol.LetrasTol + ": aciertos " + tol.Aciertos);
+                    }
+                    if (!string.IsNullOrEmpty(ctrlTol.FallosPermitidos))
+                    {
+                        nodoTol.AgregarHijo("Fallos Controles: " + ctrlTol.FallosPermitidos);
+                    }
                 }
             }
 
@@ -233,11 +252,13 @@ namespace Free1X2.WinUI.Views.Ported
                     nodoFiltroCond.AgregarHijo("Interrupciones Globales: " + f.GetIntGlobales());
                     nodoFiltroCond.AgregarHijo("Interrupciones de 1: " + f.GetInt1());
                     nodoFiltroCond.AgregarHijo("Interrupciones de X: " + f.GetIntX());
-                    nodoFiltroCond.AgregarHijo("Interrupciones de 2 " + f.GetInt2());
+                    nodoFiltroCond.AgregarHijo("Interrupciones de 2: " + f.GetInt2());
+                    nodoFiltroCond.AgregarHijo("Interrupciones de Variantes: " + f.GetIntVar()); // D-L2
                     nodoFiltroCond.AgregarHijo("Interrupciones Globales Seguidas: " + f.GetIntGlobalSeg());
                     nodoFiltroCond.AgregarHijo("Interrupciones de 1 Seguidas: " + f.GetInt1Seg());
                     nodoFiltroCond.AgregarHijo("Interrupciones de X Seguidas: " + f.GetIntXSeg());
                     nodoFiltroCond.AgregarHijo("Interrupciones de 2 Seguidas: " + f.GetInt2Seg());
+                    nodoFiltroCond.AgregarHijo("Interrupciones de Variantes Seguidas: " + f.GetIntVarSeg()); // D-L2
                     break;
                 }
 

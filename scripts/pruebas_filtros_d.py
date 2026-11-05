@@ -287,10 +287,10 @@ def fl_posiciones(mn, mx):
     return [f"{a if i == 0 else a + 1} a {b}" for i, (a, b) in enumerate(e)]
 
 
-def fl_resultado(mn, mx, difs, fila10_funciona=False):
-    """Nº de columnas que quedan tras Aceptar con estas «Difs. desde / hasta» (solo «hasta» = 0). Como el original y el
-    port, la fila 10 lee los controles de la fila 9 (DialogoFiltrarPorLimitesFrm.cs:1217-1220); con
-    fila10_funciona=True se calcula lo que daría si la fila 10 contara."""
+def fl_resultado(mn, mx, difs, fila10_funciona=True):
+    """Nº de columnas que quedan tras Aceptar con estas «Difs. desde / hasta» (solo «hasta» = 0). Desde D-FL4
+    (4-nov-2026) la fila 10 cuenta; con fila10_funciona=False se calcula lo del original, que copiaba la fila 9
+    (DialogoFiltrarPorLimitesFrm.cs:1217-1220)."""
     assert all(h == 0 for _, h in difs), "con «hasta» > 0 el resultado depende del orden de Tramificar"
     e = fl_extremos(mn, mx)
     shown = [[a if i == 0 else a + 1, b] for i, (a, b) in enumerate(e)]
@@ -370,11 +370,11 @@ def pantalla():
     p["FL1 Posiciones"] = fl_posiciones(FL_MIN, FL_MAX)
     p["FL1 Difs. según el original/manual"] = [f"{a}–{b}" for a, b in DIFS_ORIGINAL]
     p["FL2 todo 0–0"] = [f"Nº columnas filtro = {fl_resultado(FL_MIN, FL_MAX, [(0, 0)] * 10)} "
-                         f"(si la fila 10 contara: {fl_resultado(FL_MIN, FL_MAX, [(0, 0)] * 10, True)})"]
+                         f"(en el original: {fl_resultado(FL_MIN, FL_MAX, [(0, 0)] * 10, False)})"]
     p["FL3 solo fila 1 a 0–0, resto 1–0"] = [f"Nº columnas filtro = {fl_resultado(FL_MIN, FL_MAX, [(0, 0)] + [(1, 0)] * 9)}"]
     p["FL4 solo fila 10 a 0–0, resto 1–0"] = [
         f"Nº columnas filtro = {fl_resultado(FL_MIN, FL_MAX, [(1, 0)] * 9 + [(0, 0)])} "
-        f"(si la fila 10 contara: {fl_resultado(FL_MIN, FL_MAX, [(1, 0)] * 9 + [(0, 0)], True)})"]
+        f"(en el original: {fl_resultado(FL_MIN, FL_MAX, [(1, 0)] * 9 + [(0, 0)], False)})"]
     return p
 
 

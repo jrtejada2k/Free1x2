@@ -129,8 +129,7 @@ public partial class DialogoFiltrarPorLimitesFrmViewModel : ObservableObject
 
     // Réplica de PonerTextoEnVariables(): vuelca posiciones y diferencias de cada fila a la
     // matriz. Las posiciones provienen de FilaLimite (solo lectura), las diferencias de la
-    // edición del usuario. Nota legacy: la fila 10 (índice 9) reusaba los controles de la
-    // fila 9 (lblextremo17/txdif17); aquí se respeta usando los valores de Filas[8].
+    // edición del usuario. El original hacía que la fila 10 reusara los de la fila 9 (D-FL4, ya no).
     private void PonerTextoEnVariables()
     {
         for (int i = 0; i < Filas.Count && i < 10; i++)
@@ -141,14 +140,9 @@ public partial class DialogoFiltrarPorLimitesFrmViewModel : ObservableObject
             _extremos[i, 2] = (int)fila.DifMin;
             _extremos[i, 3] = (int)fila.DifMax;
         }
-        // Legacy: la fila 10 (índice 9) copiaba los valores de la fila 9 (índice 8).
-        if (Filas.Count >= 9)
-        {
-            _extremos[9, 0] = Filas[8].PosInicial;
-            _extremos[9, 1] = Filas[8].PosFinal;
-            _extremos[9, 2] = (int)Filas[8].DifMin;
-            _extremos[9, 3] = (int)Filas[8].DifMax;
-        }
+        // D-FL4 (decisión del dueño, 4-nov-2026): la fila 10 cuenta con sus propios valores. El original la
+        // sobrescribía con los de la fila 9 (DialogoFiltrarPorLimitesFrm.cs:1217-1220) y nunca se aplicaba.
+
     }
 
     // Réplica de CoherenciarExtremos(): garantiza extremos[i+1,0] >= extremos[i,0]+1.

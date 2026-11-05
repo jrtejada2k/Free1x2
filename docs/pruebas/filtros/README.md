@@ -42,10 +42,10 @@ esperado es esto:**
 | FC10 Tríos | sin casilla de columna | casilla «Columna Ganadora» |
 | FC12 Dependencia lineal | 36 | **108** |
 | FL1 Filtrar por límites | Difs. 0–0 | 0–4, 1–3, 1–2, 1–1, 1–0, 1–0, 1–1, 1–2, 1–3, 0–4 |
-| FL2 / FL3 / FL4 | no se aplicaba | **4778469 / 4782869 / 4782969** |
+| FL2 / FL3 / FL4 | no se aplicaba | **501 / 4782869 / 5001** (con D-FL4 arreglado, 4-nov) |
 | G1 GEPT | desplegables | cajas de texto; «Z» da «Las letras permitidas son: G,E,P» |
 | JB Separador | sin rejilla | rejilla 14×7; fila «Nº» = 4, 4, 6, 9, 8, 3, 4 |
-| FC8 If-Then | **159** (anula las demás condiciones) | sin cambios: heredado del original, issue #16 |
+| FC8 If-Then | **159** (anula las demás condiciones) | se suma a las condiciones desde el arreglo del #16 (4-nov): ver `plan_c.md` |
 
 El resto de valores de los planes no cambia.
 

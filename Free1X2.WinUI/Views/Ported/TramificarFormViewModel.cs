@@ -739,7 +739,9 @@ public partial class TramificarFormViewModel : ObservableObject
             for (int x = extremos[i, 0]; x < extremos[i, 1]; x++)
             {
                 if (extremos[i, 2] == 0) Bits[Ap14T[x].Columna] = true;
-                if (extremos[i, 3] > 0) EliminarColumnas(Ap14T[x].Columna, 0, (short)extremos[i, 3]);
+                // D-FL5 (decisión del dueño, 4-nov-2026): «Difs. desde» n > 0 elimina desde n diferencias, no desde 1.
+                if (extremos[i, 3] > 0) EliminarColumnas(Ap14T[x].Columna, 0, (short)extremos[i, 3],
+                    (short)System.Math.Max(1, extremos[i, 2]));
             }
         }
 
@@ -784,7 +786,9 @@ public partial class TramificarFormViewModel : ObservableObject
     }
 
     // EliminarColumnas() (legacy línea 3089).
-    private void EliminarColumnas(int IndiceInicial, short PosicionInicial, short pProfundidad)
+    // pMinimo: profundidad (nº de diferencias) desde la que se elimina; las vecinas más cercanas se recorren pero se
+    // conservan. Con pMinimo = 1 es lo del original.
+    private void EliminarColumnas(int IndiceInicial, short PosicionInicial, short pProfundidad, short pMinimo = 1)
     {
         Profundidad++;
         for (short Partido = PosicionInicial; Partido < 14; Partido++)
@@ -794,9 +798,9 @@ public partial class TramificarFormViewModel : ObservableObject
             {
                 if (z == SigIni) continue;
                 int Indice = IndiceInicial + pot[Partido] * (z - SigIni);
-                Bits[Indice] = true; // las marcadas a true son las que eliminamos
+                if (Profundidad >= pMinimo) Bits[Indice] = true; // las marcadas a true son las que eliminamos
                 if (Profundidad < pProfundidad)
-                { EliminarColumnas(Indice, (short)(Partido + 1), pProfundidad); }
+                { EliminarColumnas(Indice, (short)(Partido + 1), pProfundidad, pMinimo); }
             }
         }
         Profundidad--;

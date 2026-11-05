@@ -247,9 +247,9 @@ posiciones: aritmética pura. Los Mínima/Máxima se teclean a mano (son cajas e
 | Prueba | Qué hacer en el diálogo | Esperado |
 |---|---|---|
 | **FL1** | Mirar la columna «Posiciones» y las «Difs.» al abrir | Posiciones: `0 a 100`, `101 a 200`, `201 a 300`, `301 a 400`, `401 a 500`, `1001 a 2000`, `2001 a 3000`, `3001 a 4000`, `4001 a 5000`, `5001 a 4782968`. Difs. (original y manual): 0–4, 1–3, 1–2, 1–1, 1–0, 1–0, 1–1, 1–2, 1–3, 0–4. **Por el código del port se verán todas 0–0 (D-FL2)** |
-| **FL2** | Todas las filas «Difs. desde» 0 y «hasta» 0 ▸ Aceptar | «Nº columnas filtro» = **4778469** (si la fila 10 contara: 501, ver D-FL4) |
+| **FL2** | Todas las filas «Difs. desde» 0 y «hasta» 0 ▸ Aceptar | «Nº columnas filtro» = **501** desde el arreglo D-FL4 (en el original, 4778469) |
 | **FL3** | Fila 1 (`< 10`, 0 a 100) 0–0; las demás 1–0 ▸ Aceptar | **4782869** (quita las 100 del tramo) |
-| FL4 | Solo la fila 10 a 0–0; las demás 1–0 ▸ Aceptar | **4782969** (la fila 10 no hace nada, heredado; si contara: 5001) |
+| FL4 | Solo la fila 10 a 0–0; las demás 1–0 ▸ Aceptar | **5001** desde el arreglo D-FL4 (en el original la fila 10 no hacía nada: 4782969) |
 
 Antes de cada FL2–FL4 hay que repetir 1–3 si Tramificar ha perdido los datos (ver D-FL1).
 

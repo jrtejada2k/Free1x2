@@ -327,6 +327,16 @@ public partial class Formatos123FrmViewModel : FiltroArchivoViewModelBase
         var arrayFormatos = ConstruirFormatos();
         var arrayAciertos = ConstruirAciertos();
 
+        // H2 (decisión del dueño, 4-nov-2026): con formatos y la lista de aciertos vacía el original no dejaba
+        // pasar ninguna columna sin avisar. Ahora se pide el dato.
+        if (arrayFormatos.Count > 0 && arrayAciertos.Count == 0)
+        {
+            AppServices.MostrarError(IgnorarRepeticiones
+                ? "Indique los Aciertos Globales (por ejemplo 1-3)."
+                : "Indique las Líneas Acertadas (por ejemplo 1-3).");
+            return;
+        }
+
         if (arrayAciertos.Count > 0)
         {
             arrayAciertos.Sort();

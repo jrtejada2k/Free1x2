@@ -13,7 +13,7 @@ lineal. Oráculo: `scripts/pruebas_filtros_c.py` (misma carpeta). Formato y veri
 | **FC5** | If-Then, 1 relación | condición | **159** |
 | **FC6** | If-Then, 2 relaciones, deben cumplirse 2 | condición | **133** |
 | **FC7** | If-Then, 2 relaciones, deben cumplirse 1 | condición | **83** |
-| **FC8** | If-Then + Variantes a la vez | condición | **95** (el código predice **159**, H1) |
+| **FC8** | If-Then + Variantes a la vez | condición | **95** (desde el arreglo del #16, 4-nov-2026; antes 159, H1) |
 | **FC9** | Pares | herramienta | **48** (Procesadas 216, Válidas 48) |
 | **FC10** | Tríos | herramienta | **126** (Procesadas 216, Válidas 126) |
 | **FC11** | Dependencia lineal, triple | herramienta | **72** |
@@ -443,7 +443,7 @@ válidas en la entrada.
 
 Ninguno está corregido. Lo marcado «código» sale de leer el código y queda por confirmar con la prueba indicada.
 
-**H1. If-Then: anula las demás condiciones al calcular** (código; heredado del original). Se confirma con FC8.
+**H1. If-Then: anula las demás condiciones al calcular** (código; heredado del original). Se confirma con FC8. **Arreglado** el 4-nov-2026 (issue #16, decisión del dueño): ahora se suma a las condiciones.
 - En `Free1X2.Domain/MotorCalculo/Analizador.cs:97-102`, `AnalizaColumna(long)` hace
   `columnaValida = IfThen.CompruebaPronostico(...)`.
 - Eso **sustituye** el resultado de las condiciones de los grupos, en vez de combinarlo con un Y.

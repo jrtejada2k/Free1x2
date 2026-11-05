@@ -110,7 +110,10 @@ public partial class SignosSeguidosFrmViewModel : FiltroArchivoViewModelBase
         !string.IsNullOrWhiteSpace(Variantes) ||
         !string.IsNullOrWhiteSpace(Unos) ||
         !string.IsNullOrWhiteSpace(Equis) ||
-        !string.IsNullOrWhiteSpace(Doses);
+        !string.IsNullOrWhiteSpace(Doses) ||
+        // SS-1 (decisión del dueño, 4-nov-2026): solo con figuras la condición también vale; el original la desactivaba.
+        (_figurasV?.Count ?? 0) > 0 || (_figuras1?.Count ?? 0) > 0 ||
+        (_figurasX?.Count ?? 0) > 0 || (_figuras2?.Count ?? 0) > 0;
 
     /// <summary>
     /// Vuelca los valores del FiltroSignosSeguidos del grupo en edición a la pantalla.

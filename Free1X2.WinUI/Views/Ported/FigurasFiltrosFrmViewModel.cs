@@ -108,8 +108,29 @@ public partial class FigurasFiltrosFrmViewModel : ObservableObject
     /// (UtilidadesEntradasValores.ObtenerLongFiguraFromText) y cada valor ocupa 4 bits (0..15);
     /// un «*» no se puede convertir y la casilla se descarta (G-2).
     /// </summary>
-    public string ValoresPermitidosTexto =>
-        "Cada valor de la figura, de 0 a 15, separado del siguiente por «-».";
+    public string ValoresPermitidosTexto => NombreCondicion == "SignosSeguidos"
+        ? "Cada figura son los tramos de signos seguidos, por ejemplo 3-2-2-1-1 o 32211 (se ordenan de mayor a menor)."
+        : "Cada valor de la figura, de 0 a 15, separado del siguiente por «-».";
+
+    /// <summary>
+    /// SS-2 (decisión del dueño, 4-nov-2026): en Signos Seguidos la figura son los tramos de mayor a menor. Se
+    /// acepta sin guiones («32211», cada cifra un tramo) y en cualquier orden («1-1-2-3» ⇒ «3-2-1-1»); antes se
+    /// guardaba otra figura sin avisar y no pasaba ninguna columna.
+    /// </summary>
+    internal static string NormalizarFiguraSeguidos(string texto)
+    {
+        string[] partes = texto.Contains('-')
+            ? texto.Split('-', System.StringSplitOptions.TrimEntries | System.StringSplitOptions.RemoveEmptyEntries)
+            : System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Select(texto, c => c.ToString()));
+        var numeros = new List<int>();
+        foreach (var p in partes)
+        {
+            if (!int.TryParse(p, out int n)) return texto; // no es una figura: se deja como estaba
+            numeros.Add(n);
+        }
+        numeros.Sort((a, b) => b.CompareTo(a));
+        return string.Join("-", numeros);
+    }
 
     // Valida que cada dígito hexadecimal de la figura esté en 0..16 (legacy: valoresPermitidos).
     private static bool EsFiguraValida(long figura)
@@ -133,6 +154,7 @@ public partial class FigurasFiltrosFrmViewModel : ObservableObject
         {
             string texto = (casilla.Texto ?? "").Trim();
             if (texto == "") continue;
+            if (NombreCondicion == "SignosSeguidos") texto = NormalizarFiguraSeguidos(texto);
             long figura;
             try
             {

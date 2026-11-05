@@ -203,6 +203,14 @@ public partial class SimetriasFrmViewModel : FiltroArchivoViewModelBase
             return;
         }
 
+        // S-2 (decisión del dueño, 4-nov-2026): con simetrías y sin aciertos el original guardaba «0» y no pasaba
+        // ninguna columna sin avisar. Ahora se pide el dato.
+        if (simetrias.Count > 0 && aciertos.Count == 0)
+        {
+            AppServices.MostrarError("Indique los aciertos de las simetrías (por ejemplo 0-3).");
+            return;
+        }
+
         var filtro = (FiltroSimetrias)grupo.GetFiltro(Filtro.Simetrias.ToString());
         filtro.ArraySimetrias = simetrias;
         filtro.ArrayAciertos = aciertos;
