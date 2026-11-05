@@ -163,6 +163,15 @@
         <Setter Property="FontWeight" Value="SemiBold" />
     </Style>
 
+    <!-- Toggle 1 / X / 2 grande, para listas de partidos fuera del boleto (Columnas probables). -->
+    <Style x:Key="SignoGrandeToggleButtonStyle" TargetType="ToggleButton"
+           BasedOn="{StaticResource SignoToggleButtonStyle}">
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="Width" Value="44" />
+        <Setter Property="Height" Value="30" />
+        <Setter Property="FontSize" Value="14" />
+    </Style>
+
     <!-- ============================================================
          Botón de filtro — 4 estados (Activo / Error / Neutro / Inactivo).
          Equivale a SetBotonEstado(...) del MainForm WinForms.

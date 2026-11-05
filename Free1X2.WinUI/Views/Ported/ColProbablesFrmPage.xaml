@@ -41,22 +41,22 @@
                                 <ItemsControl ItemsSource="{x:Bind ViewModel.Partidos}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate x:DataType="ported:PartidoCPFila">
-                                            <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,1">
+                                            <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,2">
                                                 <TextBlock
-                                                    Width="24"
+                                                    Width="28"
                                                     VerticalAlignment="Center"
                                                     TextAlignment="Right"
                                                     Style="{StaticResource BodyStrongTextBlockStyle}"
                                                     Text="{x:Bind NumeroTexto}" />
-                                                <ToggleButton Style="{StaticResource SignoToggleButtonStyle}"
+                                                <ToggleButton Style="{StaticResource SignoGrandeToggleButtonStyle}"
                                                               Content="1"
                                                               IsChecked="{x:Bind Signo1, Mode=TwoWay}"
                                                               AutomationProperties.Name="Signo 1" />
-                                                <ToggleButton Style="{StaticResource SignoToggleButtonStyle}"
+                                                <ToggleButton Style="{StaticResource SignoGrandeToggleButtonStyle}"
                                                               Content="X"
                                                               IsChecked="{x:Bind SignoX, Mode=TwoWay}"
                                                               AutomationProperties.Name="Signo X" />
-                                                <ToggleButton Style="{StaticResource SignoToggleButtonStyle}"
+                                                <ToggleButton Style="{StaticResource SignoGrandeToggleButtonStyle}"
                                                               Content="2"
                                                               IsChecked="{x:Bind Signo2, Mode=TwoWay}"
                                                               AutomationProperties.Name="Signo 2" />

@@ -35,13 +35,14 @@
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate x:DataType="ported:CasillaFiguraViewModel">
-                                <StackPanel Margin="0,0,8,8" Spacing="4" Width="56">
+                                <StackPanel Margin="0,0,10,10" Spacing="4" Width="96">
                                     <TextBlock Text="{x:Bind Etiqueta}"
                                                Style="{StaticResource CaptionTextBlockStyle}"
                                                Foreground="{ThemeResource AppTextSecondaryBrush}"
                                                HorizontalAlignment="Center" />
                                     <TextBox Text="{x:Bind Texto, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                              TextAlignment="Center"
+                                             FontSize="15" MinHeight="36"
                                              AutomationProperties.Name="{x:Bind Etiqueta}" />
                                 </StackPanel>
                             </DataTemplate>
