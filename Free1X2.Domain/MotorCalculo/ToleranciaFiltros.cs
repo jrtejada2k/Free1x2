@@ -59,12 +59,13 @@ namespace Free1X2.MotorCalculo
 		}
 		
 		protected void InicializaArrayAciertos()
-		{						
-			string separador = EncuentraSeparador( strAciertos );
+		{
+			string aciertosNorm = Free1X2.Utils.RangosHelper.ListaOrdenada(strAciertos); // D-CT3/H11: mezclas y desorden						
+			string separador = EncuentraSeparador( aciertosNorm );
 			
 			if( separador == "," )
 			{
-				string[] tempAciertos = strAciertos.Split( ',' );
+				string[] tempAciertos = aciertosNorm.Split( ',' );
 				
 				//Crear array de maximo numero de aciertos + 2
 				int noAciertosMax = Convert.ToInt32( tempAciertos[tempAciertos.Length -1] );
@@ -80,7 +81,7 @@ namespace Free1X2.MotorCalculo
 			}
 			else if( separador == "-")
 			{
-				string[] tempAciertos = strAciertos.Split( '-' );
+				string[] tempAciertos = aciertosNorm.Split( '-' );
 				
 				//Crear array de maximo numero de aciertos + 2
 				int noAciertosMax = Convert.ToInt32( tempAciertos[1] );
@@ -104,7 +105,7 @@ namespace Free1X2.MotorCalculo
 				//solo se permite un acierto: "1"
 				//Crear array de maximo numero de aciertos + 2
 				
-				int noAciertos = Convert.ToInt32( strAciertos );
+				int noAciertos = Convert.ToInt32( aciertosNorm );
 				int noAciertosMax = noAciertos + 2;
 				
 				aciertosPermitidos = new bool[ noAciertosMax ];

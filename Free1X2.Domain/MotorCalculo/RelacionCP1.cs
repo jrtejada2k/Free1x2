@@ -271,11 +271,12 @@ namespace Free1X2.MotorCalculo
 
 		protected void InicializarColumnasRelacionadas()
 		{
-			string separador = EncuentraSeparador( strColumnas );
+			string columnasNorm = Free1X2.Utils.RangosHelper.ListaOrdenada(strColumnas); // D-CT3/H11: mezclas y desorden
+			string separador = EncuentraSeparador( columnasNorm );
 			
 			if( separador == "," )
 			{
-				string[] tempCP = strColumnas.Split( ',' );
+				string[] tempCP = columnasNorm.Split( ',' );
 				
 				columnasRelacionadas = new int[ tempCP.Length ];
 
@@ -286,7 +287,7 @@ namespace Free1X2.MotorCalculo
 			}
 			else if( separador == "-")
 			{
-				string[] tempCP = strColumnas.Split( '-' );
+				string[] tempCP = columnasNorm.Split( '-' );
 
 				int CP1 = Convert.ToInt32(tempCP[0]);
 				int CP2 = Convert.ToInt32(tempCP[1]);
@@ -304,19 +305,20 @@ namespace Free1X2.MotorCalculo
 			{
 				//gruposControl solo contiene un grupo.
 				columnasRelacionadas = new int[ 1 ];
-				columnasRelacionadas[ 0 ] = Convert.ToInt32( strColumnas );
+				columnasRelacionadas[ 0 ] = Convert.ToInt32( columnasNorm );
 			}			
 		}
 
 		protected void InicializarSumas()
-		{						
-			if(strSumas != "")
+		{
+			string sumasNorm = Free1X2.Utils.RangosHelper.ListaOrdenada(strSumas); // D-CT3/H11: mezclas y desorden						
+			if(sumasNorm != "")
 			{
-				string separador = EncuentraSeparador( strSumas );
+				string separador = EncuentraSeparador( sumasNorm );
 			
 				if( separador == "," )
 				{
-					string[] tempCP = strSumas.Split( ',' );
+					string[] tempCP = sumasNorm.Split( ',' );
 					
 					int capacidadArray = Convert.ToInt32(tempCP[tempCP.Length -1]) + 2;
 					sumas = new bool[ capacidadArray ];
@@ -328,7 +330,7 @@ namespace Free1X2.MotorCalculo
 				}
 				else if( separador == "-")
 				{
-					string[] tempCP = strSumas.Split( '-' );
+					string[] tempCP = sumasNorm.Split( '-' );
 
 					int CP1 = Convert.ToInt32(tempCP[0]);
 					int CP2 = Convert.ToInt32(tempCP[1]);
@@ -344,8 +346,8 @@ namespace Free1X2.MotorCalculo
 				}
 				else
 				{					
-					sumas = new bool[ Convert.ToInt32( strSumas ) + 2];
-					sumas[ Convert.ToInt32( strSumas ) ] = true;
+					sumas = new bool[ Convert.ToInt32( sumasNorm ) + 2];
+					sumas[ Convert.ToInt32( sumasNorm ) ] = true;
 				}
 			}
 		}

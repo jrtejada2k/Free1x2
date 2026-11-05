@@ -33,9 +33,30 @@ namespace Free1X2.Utils
 		/// queda igual, así que una lista sin rangos da lo mismo que antes. Un rango al revés («6-2») vale
 		/// como «2-6».
 		/// </summary>
+		/// <summary>
+		/// D-CT3 / H11 (4-nov-2026): para los campos que dimensionan su array con el último valor (Control de
+		/// tolerancias, Relaciones I de las CP): expande rangos, ordena y quita repetidos, de modo que «0,2-3» o
+		/// «3,1» valen. Una lista ya ordenada o un rango simple dan el mismo array que antes.
+		/// </summary>
+		public static string ListaOrdenada(string valores)
+		{
+			if (string.IsNullOrWhiteSpace(valores)) return valores;
+			var numeros = new System.Collections.Generic.SortedSet<int>();
+			foreach (string trozo in ExpandirLista(valores).Split(','))
+			{
+				string t = trozo.Trim();
+				if (t.Length == 0) continue;
+				numeros.Add(Convert.ToInt32(t));
+			}
+			return string.Join(",", numeros);
+		}
+
 		public static string ExpandirLista(string valores)
 		{
-			if (string.IsNullOrEmpty(valores) || valores.IndexOf('-') < 0) return valores;
+			if (string.IsNullOrEmpty(valores)) return valores;
+			// D-CT2: la letra de tolerancia se compara en mayúsculas (ToleranciaFiltros la pasa a mayúsculas).
+			valores = valores.ToUpperInvariant();
+			if (valores.IndexOf('-') < 0) return valores;
 			var partes = new System.Collections.Generic.List<string>();
 			foreach (string trozo in valores.Split(','))
 			{

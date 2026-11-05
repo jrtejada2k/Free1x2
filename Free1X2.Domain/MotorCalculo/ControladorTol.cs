@@ -42,12 +42,13 @@ namespace Free1X2.MotorCalculo
 
 		protected void InicializarFallos()
 		{
+			string fallosNorm = Free1X2.Utils.RangosHelper.ListaOrdenada(strFallosPermitidos); // D-CT3/H11: mezclas y desorden
 		
-			string separador = EncuentraSeparador( strFallosPermitidos );
+			string separador = EncuentraSeparador( fallosNorm );
 
 			if( separador == "," )
 			{
-				string[] tempCP = strFallosPermitidos.Split( ',' );
+				string[] tempCP = fallosNorm.Split( ',' );
 					
 				int capacidadArray = Convert.ToInt32(tempCP[tempCP.Length -1]) + 2;
 				fallosPermitidos = new bool[ capacidadArray ];
@@ -59,7 +60,7 @@ namespace Free1X2.MotorCalculo
 			}
 			else if( separador == "-")
 			{
-				string[] tempCP = strFallosPermitidos.Split( '-' );
+				string[] tempCP = fallosNorm.Split( '-' );
 
 				int CP1 = Convert.ToInt32(tempCP[0]);
 				int CP2 = Convert.ToInt32(tempCP[1]);
@@ -75,8 +76,8 @@ namespace Free1X2.MotorCalculo
 			}
 			else
 			{					
-				fallosPermitidos = new bool[ Convert.ToInt32( strFallosPermitidos ) + 2];
-				fallosPermitidos[ Convert.ToInt32( strFallosPermitidos ) ] = true;
+				fallosPermitidos = new bool[ Convert.ToInt32( fallosNorm ) + 2];
+				fallosPermitidos[ Convert.ToInt32( fallosNorm ) ] = true;
 			}		
 		}
 
