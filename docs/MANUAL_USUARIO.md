@@ -301,6 +301,8 @@ Caso especial de los valores 0 y 1:
 - Marcar **`1`** unos seguidos → como mucho hay *un* `1` aislado en cada tramo (pueden existir varios unos en la columna, pero nunca dos juntos). Ej.: `1XX12X1X22XX21`.
 - Marcar **`0`** unos seguidos → fuerza que **no haya ningún** `1` en la columna. Ej.: `X2XX222XXX22X2`.
 
+**Figuras** (botón junto a cada campo): cada figura son los tramos de signos seguidos, por ejemplo `3-2-2-1-1` o `32211`; da igual el orden, se guardan de mayor a menor. La condición vale también con solo figuras, sin nada en los campos.
+
 Como en las demás, se admiten rangos (p. ej. 2–10 variantes, 1–5 unos, 1–5 equis, 2–6 doses) o valores aislados.
 
 ### Dibujos (botón "Dibujos")
@@ -339,7 +341,7 @@ lugar del 50/50 que daría el reparto matemático.
 Según la versión, el campo Condiciones incluye además:
 - **Figuras de signos / Figuras de zonas** — condicionan la *forma* de agrupación de los signos (figura global, como `32211`) y su reparto por zonas 7+7 o Par-Impar (ver §2).
 - **Formatos de Signos / Formatos 123** — controlan la aparición o repetición de **secuencias** de signos de tamaño 2 (parejas), 3 (tríos), 4 (cuartetos)… En `11X211X1X12111` el formato `1X` aparece 3 veces, `1X2` una vez. También puede pedirse que aparezcan *N* formatos distintos.
-- **Simetrías** — obliga a que determinados partidos (o equipos) tengan el **mismo** signo. Suele combinarse con "que se cumplan solo 1 ó 2 de las simetrías impuestas" para no arriesgar de más; por sí sola puede ahorrar ~35% de apuestas.
+- **Simetrías** — obliga a que determinados partidos (o equipos) tengan el **mismo** signo. Hay que indicar cuántas simetrías deben cumplirse (por ejemplo `0-3`); sin ese dato la pantalla avisa. Suele combinarse con "que se cumplan solo 1 ó 2 de las simetrías impuestas" para no arriesgar de más; por sí sola puede ahorrar ~35% de apuestas.
 - **Repeticiones / Diferencias** — definen grupos de partidos y exigen que tengan la **misma** cantidad de variantes/equis/doses, el mismo dibujo, formato o interrupciones (sin importar el valor concreto, solo que coincida).
 - **Pesos Numéricos** — distribuye numéricamente (del 0 al 9) las columnas posibles, de forma global o por aparición de signos. El reparto suele ser equitativo, así que se usa sobre todo para **evitar** columnas cuyo peso coincida con el de la jornada anterior u otros controles estadísticos. (Condición originaria del programa Premium©.)
 - **Contactos** — condición específica de contactos entre signos/partidos.
@@ -348,7 +350,7 @@ Todas siguen el mismo patrón: abrir → introducir valores/rangos → activar.
 
 ### Tolerancias y Condiciones Relacionadas
 - **Tolerancias** — permite que un nº limitado de condiciones se cumpla en un valor "tolerado" fuera del rango estricto.
-- **Condiciones Relacionadas (If-Then)** — reglas lógicas del tipo "si se cumple A, entonces exige B".
+- **Condiciones Relacionadas (If-Then)** — reglas lógicas del tipo "si se cumple A, entonces exige B". Se suman a las demás condiciones: una columna tiene que cumplir las condiciones **y** el If-Then.
 
 ### Grupos y control de fallos
 Las condiciones se organizan en **grupos**. Un grupo es una agrupación independiente de condiciones que forman un todo; puedes crear varios e ir navegando entre ellos para definir y combinar subsistemas dentro de una misma combinación. Su utilidad principal es **condicionar unos grupos contra otros mediante el control de fallos**: p. ej. poner en un grupo "5–9 variantes y 4–9 interrupciones" y en otro "10–12 variantes y 6–10 interrupciones", y pedir que el nº de fallos entre ambos grupos sea 1 → así se cumple **uno u otro, pero no los dos**: si una columna cumple los dos sistemas, falla 0 grupos y se rechaza. Para que valga cualquiera de los dos (también ambos), pide fallos `0,1`. A nivel avanzado, los conjuntos de grupos pueden usarse como una condición más sobre los aciertos de los controles de grupos.
@@ -636,7 +638,7 @@ columnas o alternas (por defecto, todas).
 riesgo. *Ej.:* si en ninguna jornada hubo un 10 entre las posiciones 1 y 5, puedes quitar esas columnas y las que estén a
 4 signos o menos de ellas sin perder nunca el 14. Valores por defecto: por debajo de 10 aciertos, eliminar las que estén a
 0–4 diferencias; de 10 a 11, a 1–3 (las del propio intervalo se quedan); de 13 a 14, «1 a 0» (no elimina nada). Para
-quitar solo las columnas del intervalo, «0 a 0». Al Aceptar se ve cuántas quedan y **Guardar filtro** las graba; desde ese
+quitar solo las columnas del intervalo, «0 a 0». «Difs. desde» n quita a partir de n diferencias (con «2 a 3» se quedan las que están a 1), y las diez filas cuentan, también la última («< 10» por arriba). Al Aceptar se ve cuántas quedan y **Guardar filtro** las graba; desde ese
 momento los tramos solo contienen las filtradas. Los límites se pueden guardar, abrir, copiar y pegar (p. ej. a una hoja
 de cálculo).
 
