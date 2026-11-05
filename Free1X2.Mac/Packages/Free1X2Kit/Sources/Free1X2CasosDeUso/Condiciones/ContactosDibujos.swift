@@ -5,7 +5,7 @@ import Free1X2Motor
 // Ref.: 08 pantallas 26 y 40; CU-A67, CU-A90.
 
 extension CasosCondiciones {
-    /// `GuardarDatos` de Contactos (:136-171): vacío = `0…15` (con N = 14 el 15 se sale del array y lanza, como hoy);
+    /// `GuardarDatos` de Contactos (:136-171): vacío = `0…N` (M5, #22: antes `0…15`, que con N = 14 se salía del array);
     /// las figuras cuentan como datos y solo se ponen si hay.
     public static func aplicarContactos(_ filas: [String], figuras: [Int64]?, en f: inout CondicionContactos) throws(ErrorDominio) {
         guard filas.contains(where: { !blanco($0) }) || !(figuras ?? []).isEmpty else {
@@ -13,7 +13,7 @@ extension CasosCondiciones {
             f.contieneDatos = false
             return
         }
-        let todos = (0...15).map(String.init).joined(separator: ",")
+        let todos = todosValores(f.numeroPartidos)
         if !f.contieneDatos { f.activa = true }
         f.contieneDatos = true
         f.reinicializaValores()

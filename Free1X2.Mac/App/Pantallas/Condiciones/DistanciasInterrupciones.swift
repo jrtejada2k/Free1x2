@@ -21,7 +21,7 @@ struct VistaDistancias: View {
             },
             borrar: { textos = ["", "", "", ""] }
         ) {
-            Tarjeta("Valores admitidos (0–15)") {
+            Tarjeta("Valores admitidos (0–14)") {
                 Text("Introduce las distancias permitidas para cada tipo de signo. Separa varios valores con comas (p. ej. 0,1,2).")
                     .font(.callout).foregroundStyle(Color.textoSecundario)
                 ForEach(0..<4, id: \.self) { i in

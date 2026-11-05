@@ -31,6 +31,10 @@ struct VistaContactos: View {
             borrar: {
                 filas = filas.map { _ in "" }
                 figuras = nil
+                // M5 (#22): un filtro nuevo e inactivo en el grupo, para que «Borrar» + «Cancelar» no rechace todas las columnas.
+                try? sesion.combinacion.modificarGrupo(sesion.grupoEnEdicion) {
+                    $0.condiciones.contactos = CondicionContactos(numeroPartidos: sesion.numeroPartidos)
+                }
             },
             exportable: { _ throws(ErrorDominio) in
                 guard sesion.combinacion.grupos.indices.contains(sesion.grupoEnEdicion) else { return nil }

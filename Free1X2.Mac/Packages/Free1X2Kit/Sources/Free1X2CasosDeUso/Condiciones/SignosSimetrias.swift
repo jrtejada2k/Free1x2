@@ -89,7 +89,7 @@ extension CasosCondiciones {
     }
 
     /// `Aceptar` (:188-209): sustituye la condición y **siempre** la reactiva si tiene simetrías; `false` = entrada no
-    /// válida (no se cierra la pantalla ni se avisa).
+    /// válida (no se cierra la pantalla; la pantalla avisa con `mensajeSimetriaInvalida`).
     public static func aplicarSimetrias(filas: [String], aciertos: String, en f: inout CondicionSimetrias, numeroPartidos n: Int)
         throws(ErrorDominio) -> Bool
     {

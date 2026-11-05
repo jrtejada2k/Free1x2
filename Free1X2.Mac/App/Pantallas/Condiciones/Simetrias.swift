@@ -37,8 +37,10 @@ struct VistaSimetrias: View {
             },
             temporal: temporal,
             aceptar: { c throws(ErrorDominio) in
-                try CasosCondiciones.aplicarSimetrias(
+                let ok = try CasosCondiciones.aplicarSimetrias(
                     filas: filas, aciertos: aciertos, en: &c.simetrias, numeroPartidos: sesion.numeroPartidos)
+                if !ok { sesion.alertas.error(CasosCondiciones.mensajeSimetriaInvalida) }
+                return ok
             },
             borrar: {
                 filas = filas.map { _ in "" }

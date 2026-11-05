@@ -115,8 +115,10 @@ struct CondicionesTests {
         var c = CondicionContactos(numeroPartidos: 15)
         try CasosCondiciones.aplicarContactos(["0,1", "", "", "", "", "", "", "", "", ""], figuras: [0x21], en: &c)
         #expect(c.activa && c.get(.unoX) == "0,1" && c.get(.vv) == CasosCondiciones.todosValores(15) && c.figuras == [0x21])
+        // M5 (#22): con N = 14 la fila vacía es 0…14 (antes 0…15, que se salía del array).
         var c14 = CondicionContactos(numeroPartidos: 14)
-        #expect(throws: ErrorDominio.self) { try CasosCondiciones.aplicarContactos(["0"], figuras: nil, en: &c14) }
+        try CasosCondiciones.aplicarContactos(["0"], figuras: nil, en: &c14)
+        #expect(c14.activa && c14.get(.vv) == CasosCondiciones.todosValores(14))
         #expect(CasosCondiciones.casillasDibujos(2) == ["0+0", "0+1", "0+2", "1+0", "1+1", "2+0"])
         #expect(CasosCondiciones.casillasDibujos(14).count == 120)
         var d = CondicionDibujos()

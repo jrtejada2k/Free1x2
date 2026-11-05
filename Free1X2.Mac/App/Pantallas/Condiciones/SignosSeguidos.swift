@@ -80,7 +80,7 @@ struct VistaFigurasFiltros: View {
     var body: some View {
         Pagina(destino: .figurasFiltros) {
             Text(
-                "Edita la lista de figuras asociadas a este filtro. Cada casilla representa una figura; escribe sus dígitos o usa el comodín."
+                "Edita la lista de figuras asociadas a este filtro. Cada casilla representa una figura; escribe sus valores separados por «-» (p. ej. 8-5-4-3-1-1-1-1)."
             )
             .foregroundStyle(Color.textoSecundario)
             Tarjeta("Casillas de figuras") {
@@ -89,11 +89,11 @@ struct VistaFigurasFiltros: View {
                         VStack(alignment: .leading, spacing: 2) {
                             Text("\(i + 1)").font(.caption).foregroundStyle(Color.textoSecundario)
                             TextField("", text: $casillas[i]).multilineTextAlignment(.center)
-                                .onChange(of: casillas[i]) { if casillas[i].count > 6 { casillas[i] = String(casillas[i].prefix(6)) } }
                         }
                     }
                 }
-                Text("Valores admitidos por casilla: 0 a 16, o el comodín *.").font(.caption).foregroundStyle(Color.textoSecundario)
+                Text("Cada valor de la figura, de 0 a 15, separado del siguiente por «-».").font(.caption).foregroundStyle(
+                    Color.textoSecundario)
             }
             HStack {
                 Button("Aceptar") {
